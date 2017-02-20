@@ -105,10 +105,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\packages\SevenZipSharp.Net45.1.0.5\lib\net45\7za.dll">
+    <Content Include="..\7za.dll">
       <Link>7Zip\7za.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
