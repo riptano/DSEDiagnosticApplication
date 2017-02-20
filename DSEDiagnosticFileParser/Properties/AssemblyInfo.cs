@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("DSEDiagnosticApplication")]
+[assembly: AssemblyTitle("DSEDiagnosticFileParser")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("DataStax")]
-[assembly: AssemblyProduct("DSEDiagnosticApplication")]
-[assembly: AssemblyCopyright("Copyright © DataStax 2017")]
+[assembly: AssemblyProduct("DSEDiagnosticFileParser")]
+[assembly: AssemblyCopyright("Copyright © Datatax 2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("90703bd3-ce05-46be-95de-6b288819552d")]
+[assembly: Guid("50db5780-7118-44e2-8d1f-e7288304eac5")]
 
 // Version information for an assembly consists of the following four values:
 //

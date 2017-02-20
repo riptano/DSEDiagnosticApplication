@@ -1,0 +1,29 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="DSEDiagnosticFileParser.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="ExtractFilesWithExtensions" Type="System.Collections.Specialized.StringCollection" Scope="Application">
+      <Value Profile="(Default)">&lt;?xml version="1.0" encoding="utf-16"?&gt;
+&lt;ArrayOfString xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"&gt;
+  &lt;string&gt;ZIP&lt;/string&gt;
+  &lt;string&gt;tar&lt;/string&gt;
+  &lt;string&gt;gz&lt;/string&gt;
+&lt;/ArrayOfString&gt;</Value>
+    </Setting>
+    <Setting Name="ProcessFileMappings" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">[
+{"Catagory": 2, "FilePatterns": [".\\nodes\\*\\logs\\cassandra\\system.log"], "FileParsingClass": "UserQuery.TestClass", "NodeIdPos": -1},
+{"Catagory": 5, "FilePatterns": [".\\opscenterd\\node_info.json"], "FileParsingClass": "DSEDiagnosticFileParser.json_node_info", "NodeIdPos": -1, "ProcessingTaskOption":2,"ProcessPriorityLevel":900},
+{"Catagory": 4, "FilePatterns": [".\\nodes\\*\\nodetool\\status"], "FileParsingClass": "DSEDiagnosticFileParser.file_nodetool_status", "NodeIdPos": 0, "ProcessingTaskOption":8, "ProcessPriorityLevel":1000}
+]</Value>
+    </Setting>
+    <Setting Name="SevenZipCOMFilePath" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Search([StartUpDir];[WorkingDir];[AssemblyLocation]:[StartUpDir]\7Zip;[WorkingDir]\7Zip;[AssemblyLocation]\7Zip;[ProgramFiles]\7-Zip,7za.dll;7z.dll)</Value>
+    </Setting>
+    <Setting Name="DiagnosticFileRegExAssocations" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">{
+"file_nodetool_status":{"RegExStrings":["datacenter:\\s+([a-z0-9\\-_$%+=@!?&lt;&gt;^*&amp;]+)\\s*","(un|ul|uj|um|dn|dl|dJ|dm)\\s+([a-z0-9.:_\\-+%]+)\\s+([0-9.]+)\\s*([0-9a-z]{0,2})\\s+(\\d+)\\s+([0-9?.% ]+)\\s+([0-9a-f\\-]+)\\s+(.+)"]}
+}</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>
