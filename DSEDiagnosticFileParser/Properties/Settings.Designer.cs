@@ -40,7 +40,7 @@ namespace DSEDiagnosticFileParser.Properties {
         [global::System.Configuration.DefaultSettingValueAttribute(@"[
 {""Catagory"": 2, ""FilePatterns"": ["".\\nodes\\*\\logs\\cassandra\\system.log""], ""FileParsingClass"": ""UserQuery.TestClass"", ""NodeIdPos"": -1},
 {""Catagory"": 5, ""FilePatterns"": ["".\\opscenterd\\node_info.json""], ""FileParsingClass"": ""DSEDiagnosticFileParser.json_node_info"", ""NodeIdPos"": -1, ""ProcessingTaskOption"":2,""ProcessPriorityLevel"":900},
-{""Catagory"": 4, ""FilePatterns"": ["".\\nodes\\*\\nodetool\\status""], ""FileParsingClass"": ""DSEDiagnosticFileParser.file_nodetool_status"", ""NodeIdPos"": 0, ""ProcessingTaskOption"":8, ""ProcessPriorityLevel"":1000}
+{""Catagory"": 4, ""FilePatterns"": ["".\\nodes\\*\\nodetool\\status""], ""FileParsingClass"": ""DSEDiagnosticFileParser.file_nodetool_status"", ""NodeIdPos"": 0, ""ProcessingTaskOption"":136, ""ProcessPriorityLevel"":1000}
 ]")]
         public string ProcessFileMappings {
             get {

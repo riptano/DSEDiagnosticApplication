@@ -31,25 +31,25 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Common.Functions">
-      <HintPath>..\..\..\..\Common Patterns\Assemblies\40\Release\Common.Functions.dll</HintPath>
+      <HintPath>..\..\AndersenAssoc\Common Patterns\Assemblies\40\Release\Common.Functions.dll</HintPath>
     </Reference>
     <Reference Include="Common.Path">
-      <HintPath>..\..\..\..\Common Patterns\Assemblies\40\Release\Common.Path.dll</HintPath>
+      <HintPath>..\..\AndersenAssoc\Common Patterns\Assemblies\40\Release\Common.Path.dll</HintPath>
     </Reference>
     <Reference Include="Common.Patterns.Collections">
-      <HintPath>..\..\..\..\Common Patterns\Assemblies\40\Release\Common.Patterns.Collections.dll</HintPath>
+      <HintPath>..\..\AndersenAssoc\Common Patterns\Assemblies\40\Release\Common.Patterns.Collections.dll</HintPath>
     </Reference>
     <Reference Include="Common.Patterns.Shared">
-      <HintPath>..\..\..\..\Common Patterns\Assemblies\40\Release\Common.Patterns.Shared.dll</HintPath>
+      <HintPath>..\..\AndersenAssoc\Common Patterns\Assemblies\40\Release\Common.Patterns.Shared.dll</HintPath>
     </Reference>
     <Reference Include="Common.Patterns.Singleton">
-      <HintPath>..\..\..\..\Common Patterns\Assemblies\40\Release\Common.Patterns.Singleton.dll</HintPath>
+      <HintPath>..\..\AndersenAssoc\Common Patterns\Assemblies\40\Release\Common.Patterns.Singleton.dll</HintPath>
     </Reference>
     <Reference Include="Common.Patterns.Tasks">
-      <HintPath>..\..\..\..\Common Patterns\Assemblies\40\Release\Common.Patterns.Tasks.dll</HintPath>
+      <HintPath>..\..\AndersenAssoc\Common Patterns\Assemblies\40\Release\Common.Patterns.Tasks.dll</HintPath>
     </Reference>
     <Reference Include="Common.Patterns.Threading">
-      <HintPath>..\..\..\..\Common Patterns\Assemblies\40\Release\Common.Patterns.Threading.dll</HintPath>
+      <HintPath>..\..\AndersenAssoc\Common Patterns\Assemblies\40\Release\Common.Patterns.Threading.dll</HintPath>
     </Reference>
     <Reference Include="log4net, Version=2.0.7.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
       <HintPath>..\packages\log4net.2.0.7\lib\net45-full\log4net.dll</HintPath>

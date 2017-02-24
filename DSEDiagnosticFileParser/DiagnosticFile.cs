@@ -7,6 +7,7 @@ using DSEDiagnosticLibrary;
 using Common;
 using Common.Path;
 using System.IO;
+using System.Threading;
 
 namespace DSEDiagnosticFileParser
 {
@@ -37,7 +38,7 @@ namespace DSEDiagnosticFileParser
 			this.ParsedTimeRange.SetMinimal(DateTime.Now);
 
             this.RegExParser = RegExAssocations.TryGetValue(this.GetType().Name);
-		}
+        }
 
 		#region Public Members
 		public CatagoryTypes Catagory { get; private set; }
@@ -47,10 +48,17 @@ namespace DSEDiagnosticFileParser
         public DateTimeRange ParseOnlyInTimeRange { get; protected set; }
         public int NbrItemsParsed { get; protected set; }
 		public DateTimeRange ParsedTimeRange { get; protected set; }
+        /// <summary>
+        /// True to indicate the process was sucessfully completed;
+        /// </summary>
         public bool Processed { get; protected set; }
         public System.Exception Exception { get; protected set; }
         public int NbrItemGenerated { get; protected set; }
         public RegExParseString RegExParser { get; protected set; }
+        public CancellationToken CancellationToken { get; set; }
+
+        public bool CancelPending { get { return !this.Canceled && this.CancellationToken.IsCancellationRequested; } }
+        public bool Canceled { get; protected set; }
         #endregion
 
         #region Protected members
@@ -176,10 +184,25 @@ namespace DSEDiagnosticFileParser
                 return Enumerable.Empty<DiagnosticFile>();
             }
 
+            CancellationToken? cancellationToken = fileMappings.CancellationSource?.Token;
+            DiagnosticFile resultInstance = null;
+            bool onlyOnceProcessing = fileMappings.ProcessingTaskOption.HasFlag(FileMapper.ProcessingTaskOptions.OnlyOnce);
+
             //targetFiles
-            foreach(var targetFile in targetFiles)
+            foreach (var targetFile in targetFiles)
 			{
-                DiagnosticFile resultInstance = null;
+                
+                if (cancellationToken.HasValue && cancellationToken.Value.IsCancellationRequested)
+                {
+                    break;
+                }
+
+                if(onlyOnceProcessing && resultInstance != null && resultInstance.Processed)
+                {
+                    break;
+                }
+
+                resultInstance = null;
 
                 if (processTheseNodes == null)
                 {
@@ -193,7 +216,7 @@ namespace DSEDiagnosticFileParser
                         }
                         else
                         {
-                            resultInstance = ProcessFile(diagnosticDirectory, targetFile, instanceType, fileMappings.Catagory, nodeId, null, dataCenterName, clusterName);
+                            resultInstance = ProcessFile(diagnosticDirectory, targetFile, instanceType, fileMappings.Catagory, nodeId, null, dataCenterName, clusterName, cancellationToken);
 
                             if (resultInstance != null)
                             {
@@ -203,7 +226,7 @@ namespace DSEDiagnosticFileParser
                     }
                     else
                     {
-                        resultInstance = ProcessFile(diagnosticDirectory, targetFile, instanceType, fileMappings.Catagory, null, null, dataCenterName, clusterName);
+                        resultInstance = ProcessFile(diagnosticDirectory, targetFile, instanceType, fileMappings.Catagory, null, null, dataCenterName, clusterName, cancellationToken);
 
                         if (resultInstance != null)
                         {
@@ -215,11 +238,20 @@ namespace DSEDiagnosticFileParser
                 {
                     foreach (var node in processTheseNodes)
                     {
-                        resultInstance = ProcessFile(diagnosticDirectory, targetFile, instanceType, fileMappings.Catagory, null, node, dataCenterName, clusterName);
+                        resultInstance = ProcessFile(diagnosticDirectory, targetFile, instanceType, fileMappings.Catagory, null, node, dataCenterName, clusterName, cancellationToken);
 
                         if (resultInstance != null)
                         {
                             diagnosticInstances.Add(resultInstance);
+                            if (onlyOnceProcessing && resultInstance.Processed)
+                            {
+                                break;
+                            }
+                        }
+
+                        if(cancellationToken.HasValue && cancellationToken.Value.IsCancellationRequested)
+                        {
+                            break;
                         }
                     }
                 }
@@ -235,17 +267,77 @@ namespace DSEDiagnosticFileParser
 																NodeIdentifier nodeId,
                                                                 INode useNode = null,
 																string dataCenterName = null,
-																string clusterName = null)
+																string clusterName = null,
+                                                                CancellationToken? cancellationToken = null)
 		{
 			var node = useNode == null ? Cluster.TryGetAddNode(nodeId, dataCenterName, clusterName) : useNode;
 			var processingFileInstance = (DiagnosticFile) Activator.CreateInstance(instanceType, catagory, diagnosticDirectory, processFile, node);
 
-            Logger.Instance.InfoFormat("{0}\t{1}\tBegin Processing of File", nodeId, processFile.PathResolved);
+            if(cancellationToken.HasValue)
+            {
+                processingFileInstance.CancellationToken = cancellationToken.Value;
+            }
 
-			//var nbrItems = await Task.Factory.StartNew(() => processingFileInstance.ProcessFile());
-            var nbrItems = processingFileInstance.ProcessFile();
+            try
+            {
+                Logger.Instance.InfoFormat("{0}\t{1}\tBegin Processing of File", nodeId, processFile.PathResolved);
 
-            Logger.Instance.InfoFormat("{0}\t{1}\tEnd of Processing of File that resulted in {2:###,##0} objects", nodeId, processFile.PathResolved, nbrItems);
+                //var nbrItems = await Task.Factory.StartNew(() => processingFileInstance.ProcessFile());
+                var nbrItems = processingFileInstance.ProcessFile();
+
+                processingFileInstance.NbrItemGenerated = (int) nbrItems;
+
+                if (!processingFileInstance.Processed && nbrItems > 0) processingFileInstance.Processed = true;
+
+                Logger.Instance.InfoFormat("{0}\t{1}\tEnd of Processing of File that resulted in {2:###,##0} objects", nodeId, processFile.PathResolved, nbrItems);
+            }
+            catch(TaskCanceledException e)
+            {
+                Logger.Instance.WarnFormat("{0}\t{1}\tProcessing was canceled.",
+                                            nodeId, processFile.PathResolved);
+                if(processingFileInstance != null)
+                {
+                    processingFileInstance.Canceled = true;
+                }
+            }
+            catch (AggregateException ae)
+            {
+                bool otherExceptions = false;
+
+                foreach (Exception e in ae.InnerExceptions)
+                {
+                    if (e is TaskCanceledException)
+                    {
+                        Logger.Instance.WarnFormat("{0}\t{1}\tProcessing was canceled.",
+                                                        nodeId, processFile.PathResolved);
+                        if (processingFileInstance != null)
+                        {
+                            processingFileInstance.Canceled = true;
+                        }
+                        continue;
+                    }
+                    otherExceptions = true;
+                }
+
+                if(otherExceptions)
+                {
+                    if (processingFileInstance == null)
+                    {
+                        throw;
+                    }
+
+                    processingFileInstance.Exception = ae;
+                }
+            }
+            catch(System.Exception ex)
+            {
+                if (processingFileInstance == null)
+                {
+                    throw;
+                }
+
+                processingFileInstance.Exception = ex;
+            }
 
             return processingFileInstance;
 		}

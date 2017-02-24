@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Common;
 using Common.Path;
+using System.Threading;
 
 namespace DSEDiagnosticFileParser
 {
@@ -42,8 +43,18 @@ namespace DSEDiagnosticFileParser
             /// If not defined, lower tasks will be blocked until this task completes.
             /// </summary>
             AllowLowerPriorityProcessingToStart = 0x0020,
+            /// <summary>
+            /// If defined all files found that match FilePatterns are processed in parallel.
+            /// Note this option is ignored if OnlyOnce is defined.
+            /// </summary>
+            ParallelProcessFiles = 0x0040,
+            /// <summary>
+            /// As soon as the first file is successfully processed, all reminding file to be process are canceled.  
+            /// Warning: ParallelProcessFiles is ignored (all files are processed synchronous. 
+            /// </summary>
+            OnlyOnce = 0x0080,
 
-            Default = ScanForNode | ParallelProcessingWithinPriorityLevel
+            Default = ScanForNode | ParallelProcessingWithinPriorityLevel | ParallelProcessFiles
         }
 
         public FileMapper()
@@ -116,5 +127,8 @@ namespace DSEDiagnosticFileParser
 		{
 			return string.IsNullOrEmpty(this.FileParsingClass) ? null : TypeHelpers.GetDataType(this.FileParsingClass);
 		}
-	}
+
+        public CancellationTokenSource CancellationSource { get; set; }
+        
+    }
 }
