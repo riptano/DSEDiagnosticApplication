@@ -47,27 +47,40 @@ namespace DSEDiagnosticFileParser.Properties {
             "tagory\": \"SystemOutputFile\", \"FilePatterns\": [\".\\\\opscenterd\\\\repair_service.jso" +
             "n\"], \"FileParsingClass\": \"DSEDiagnosticFileParser.json_repair_service\", \"NodeIdP" +
             "os\": -1, \"ProcessingTaskOption\":\"AllNodesInDataCenter\",\"ProcessPriorityLevel\":90" +
-            "0},\r\n{\"Catagory\": \"CommandOutputFile\", \"FilePatterns\": [\".\\\\nodes\\\\*\\\\machine-in" +
-            "fo.json\"], \"FileParsingClass\": \"DSEDiagnosticFileParser.json_machine_info\", \"Nod" +
-            "eIdPos\": -1, \"ProcessingTaskOption\":\"ScanForNode,ParallelProcessing\", \"ProcessPr" +
-            "iorityLevel\":100},\r\n{\"Catagory\": \"CommandOutputFile\", \"FilePatterns\": [\".\\\\nodes" +
-            "\\\\*\\\\os-info.json\"], \"FileParsingClass\": \"DSEDiagnosticFileParser.json_os_info_i" +
-            "nfo\", \"NodeIdPos\": -1, \"ProcessingTaskOption\":\"ScanForNode,ParallelProcessing\", " +
-            "\"ProcessPriorityLevel\":100},\r\n{\"Catagory\": \"CommandOutputFile\", \"FilePatterns\": " +
-            "[\".\\\\nodes\\\\*\\\\cpu.json\"], \"FileParsingClass\": \"DSEDiagnosticFileParser.json_cpu" +
-            "_info\", \"NodeIdPos\": -1, \"ProcessingTaskOption\":\"ScanForNode,ParallelProcessing\"" +
-            ", \"ProcessPriorityLevel\":100},\r\n{\"Catagory\": \"CommandOutputFile\", \"FilePatterns\"" +
-            ": [\".\\\\nodes\\\\*\\\\load_avg.json\"], \"FileParsingClass\": \"DSEDiagnosticFileParser.f" +
-            "ile_load_avg\", \"NodeIdPos\": -1, \"ProcessingTaskOption\":\"ScanForNode,ParallelProc" +
-            "essing\", \"ProcessPriorityLevel\":100},\r\n{\"Catagory\": \"CommandOutputFile\", \"FilePa" +
-            "tterns\": [\".\\\\nodes\\\\*\\\\agent_version.json\"], \"FileParsingClass\": \"DSEDiagnostic" +
-            "FileParser.file_agent_version\", \"NodeIdPos\": -1, \"ProcessingTaskOption\":\"ScanFor" +
-            "Node,ParallelProcessing\", \"ProcessPriorityLevel\":100},\r\n{\"Catagory\": \"CommandOut" +
-            "putFile\", \"FilePatterns\": [\".\\\\nodes\\\\*\\\\java_system_properties.json\"], \"FilePar" +
-            "singClass\": \"DSEDiagnosticFileParser.json_java_system_properties\", \"NodeIdPos\": " +
-            "-1, \"ProcessingTaskOption\":\"ScanForNode,ParallelProcessing\", \"ProcessPriorityLev" +
-            "el\":100},\r\n{\"Catagory\": \"LogFile\", \"FilePatterns\": [\".\\\\nodes\\\\*\\\\logs\\\\cassandr" +
-            "a\\\\system.log\"], \"FileParsingClass\": \"UserQuery.TestClass\", \"NodeIdPos\": -1}\r\n]")]
+            "0},\r\n{\"Catagory\": \"SystemOutputFile\", \"FilePatterns\": [\".\\\\nodes\\\\*\\\\machine-inf" +
+            "o.json\"], \"FileParsingClass\": \"DSEDiagnosticFileParser.json_machine_info\", \"Node" +
+            "IdPos\": -1, \"ProcessingTaskOption\":\"ScanForNode,ParallelProcessing\", \"ProcessPri" +
+            "orityLevel\":100},\r\n{\"Catagory\": \"SystemOutputFile\", \"FilePatterns\": [\".\\\\nodes\\\\" +
+            "*\\\\os-info.json\"], \"FileParsingClass\": \"DSEDiagnosticFileParser.json_os_info_inf" +
+            "o\", \"NodeIdPos\": -1, \"ProcessingTaskOption\":\"ScanForNode,ParallelProcessing\", \"P" +
+            "rocessPriorityLevel\":100},\r\n{\"Catagory\": \"SystemOutputFile\", \"FilePatterns\": [\"." +
+            "\\\\nodes\\\\*\\\\cpu.json\"], \"FileParsingClass\": \"DSEDiagnosticFileParser.json_cpu_in" +
+            "fo\", \"NodeIdPos\": -1, \"ProcessingTaskOption\":\"ScanForNode,ParallelProcessing\", \"" +
+            "ProcessPriorityLevel\":100},\r\n{\"Catagory\": \"SystemOutputFile\", \"FilePatterns\": [\"" +
+            ".\\\\nodes\\\\*\\\\load_avg.json\"], \"FileParsingClass\": \"DSEDiagnosticFileParser.file_" +
+            "load_avg\", \"NodeIdPos\": -1, \"ProcessingTaskOption\":\"ScanForNode,ParallelProcessi" +
+            "ng\", \"ProcessPriorityLevel\":100},\r\n{\"Catagory\": \"CommandOutputFile\", \"FilePatter" +
+            "ns\": [\".\\\\nodes\\\\*\\\\agent_version.json\"], \"FileParsingClass\": \"DSEDiagnosticFile" +
+            "Parser.file_agent_version\", \"NodeIdPos\": -1, \"ProcessingTaskOption\":\"ScanForNode" +
+            ",ParallelProcessing\", \"ProcessPriorityLevel\":100},\r\n{\"Catagory\": \"SystemOutputFi" +
+            "le\", \"FilePatterns\": [\".\\\\nodes\\\\*\\\\java_system_properties.json\"], \"FileParsingC" +
+            "lass\": \"DSEDiagnosticFileParser.json_java_system_properties\", \"NodeIdPos\": -1, \"" +
+            "ProcessingTaskOption\":\"ScanForNode,ParallelProcessing\", \"ProcessPriorityLevel\":1" +
+            "00},\r\n{\"Catagory\": \"SystemOutputFile\", \"FilePatterns\": [\".\\\\nodes\\\\*\\\\ntpstat\"]," +
+            " \"FileParsingClass\": \"DSEDiagnosticFileParser.file_ntpstat\", \"NodeIdPos\": -1, \"P" +
+            "rocessingTaskOption\":\"ScanForNode,ParallelProcessing\", \"ProcessPriorityLevel\":10" +
+            "0},\r\n{\"Catagory\": \"SystemOutputFile\", \"FilePatterns\": [\".\\\\nodes\\\\*\\\\ntptime\"], " +
+            "\"FileParsingClass\": \"DSEDiagnosticFileParser.file_ntptime\", \"NodeIdPos\": -1, \"Pr" +
+            "ocessingTaskOption\":\"ScanForNode,ParallelProcessing\", \"ProcessPriorityLevel\":100" +
+            "},\r\n{\"Catagory\": \"SystemOutputFile\", \"FilePatterns\": [\".\\\\nodes\\\\*\\\\java_heap.js" +
+            "on\"], \"FileParsingClass\": \"DSEDiagnosticFileParser.json-java_heap\", \"NodeIdPos\":" +
+            " -1, \"ProcessingTaskOption\":\"ScanForNode,ParallelProcessing\", \"ProcessPriorityLe" +
+            "vel\":100},\r\n{\"Catagory\": \"SystemOutputFile\", \"FilePatterns\": [\".\\\\nodes\\\\*\\\\memo" +
+            "ry.json\"], \"FileParsingClass\": \"DSEDiagnosticFileParser.json-memory\", \"NodeIdPos" +
+            "\": -1, \"ProcessingTaskOption\":\"ScanForNode,ParallelProcessing\", \"ProcessPriority" +
+            "Level\":100},\r\n{\"Catagory\": \"LogFile\", \"FilePatterns\": [\".\\\\nodes\\\\*\\\\logs\\\\cassa" +
+            "ndra\\\\system.log\"], \"FileParsingClass\": \"UserQuery.TestClass\", \"NodeIdPos\": -1}\r" +
+            "\n]")]
         public string ProcessFileMappings {
             get {
                 return ((string)(this["ProcessFileMappings"]));
