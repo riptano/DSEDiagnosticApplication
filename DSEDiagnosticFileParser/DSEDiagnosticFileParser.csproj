@@ -30,26 +30,32 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Common.Functions">
-      <HintPath>..\..\AndersenAssoc\Common Patterns\Assemblies\40\Release\Common.Functions.dll</HintPath>
+    <Reference Include="Common.Functions, Version=4.0.7.0, Culture=neutral, PublicKeyToken=75d1a63e21e859f1, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Common Patterns\Assemblies\40\Release\Common.Functions.dll</HintPath>
     </Reference>
-    <Reference Include="Common.Path">
-      <HintPath>..\..\AndersenAssoc\Common Patterns\Assemblies\40\Release\Common.Path.dll</HintPath>
+    <Reference Include="Common.Path, Version=4.0.5.0, Culture=neutral, PublicKeyToken=75d1a63e21e859f1, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Common Patterns\Assemblies\40\Release\Common.Path.dll</HintPath>
     </Reference>
-    <Reference Include="Common.Patterns.Collections">
-      <HintPath>..\..\AndersenAssoc\Common Patterns\Assemblies\40\Release\Common.Patterns.Collections.dll</HintPath>
+    <Reference Include="Common.Patterns.Shared, Version=4.0.5.0, Culture=neutral, PublicKeyToken=75d1a63e21e859f1, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Common Patterns\Assemblies\40\Release\Common.Patterns.Shared.dll</HintPath>
     </Reference>
-    <Reference Include="Common.Patterns.Shared">
-      <HintPath>..\..\AndersenAssoc\Common Patterns\Assemblies\40\Release\Common.Patterns.Shared.dll</HintPath>
+    <Reference Include="Common.Patterns.Singleton, Version=4.0.5.0, Culture=neutral, PublicKeyToken=75d1a63e21e859f1, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Common Patterns\Assemblies\40\Release\Common.Patterns.Singleton.dll</HintPath>
     </Reference>
-    <Reference Include="Common.Patterns.Singleton">
-      <HintPath>..\..\AndersenAssoc\Common Patterns\Assemblies\40\Release\Common.Patterns.Singleton.dll</HintPath>
+    <Reference Include="Common.Patterns.Tasks, Version=4.0.5.0, Culture=neutral, PublicKeyToken=75d1a63e21e859f1, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Common Patterns\Assemblies\40\Release\Common.Patterns.Tasks.dll</HintPath>
     </Reference>
-    <Reference Include="Common.Patterns.Tasks">
-      <HintPath>..\..\AndersenAssoc\Common Patterns\Assemblies\40\Release\Common.Patterns.Tasks.dll</HintPath>
+    <Reference Include="Common.Patterns.TimeZoneInfo, Version=4.0.5.0, Culture=neutral, PublicKeyToken=75d1a63e21e859f1, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Common Patterns\Assemblies\40\Release\Common.Patterns.TimeZoneInfo.dll</HintPath>
     </Reference>
-    <Reference Include="Common.Patterns.Threading">
-      <HintPath>..\..\AndersenAssoc\Common Patterns\Assemblies\40\Release\Common.Patterns.Threading.dll</HintPath>
+    <Reference Include="Common.TimeZones">
+      <HintPath>..\..\..\..\Common Patterns\Assemblies\40\Release\Common.TimeZones.dll</HintPath>
     </Reference>
     <Reference Include="log4net, Version=2.0.7.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
       <HintPath>..\packages\log4net.2.0.7\lib\net45-full\log4net.dll</HintPath>
@@ -57,10 +63,6 @@
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="SevenZipSharp, Version=1.0.5.0, Culture=neutral, PublicKeyToken=c8ff6ba0184838bb, processorArchitecture=MSIL">
-      <HintPath>..\packages\SevenZipSharp.Net45.1.0.5\lib\net45\SevenZipSharp.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -74,9 +76,20 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DiagnosticFile.cs" />
+    <Compile Include="file-agent_version.cs" />
+    <Compile Include="file-load_avg.cs" />
     <Compile Include="file-nodetool-status.cs" />
+    <Compile Include="file-ntpstat.cs" />
+    <Compile Include="file-ntptime.cs" />
+    <Compile Include="file-unzip.cs" />
     <Compile Include="FileMapper.cs" />
+    <Compile Include="jason-cpu.cs" />
+    <Compile Include="json-java_heap.cs" />
+    <Compile Include="json-java_system_properties.cs" />
+    <Compile Include="json-machine-info.cs" />
+    <Compile Include="json-memory.cs" />
     <Compile Include="json-node_info.cs" />
+    <Compile Include="json-os-info.cs" />
     <Compile Include="json-repair_service.cs" />
     <Compile Include="LibrarySettings.cs" />
     <Compile Include="Logger.cs" />
@@ -91,6 +104,10 @@
     <Compile Include="RegExParseString.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\GitLibs\SharpZipLib\ICSharpCode.SharpZipLib.NET45\ICSharpCode.SharpZipLib.csproj">
+      <Project>{0e7413ff-eb9e-4714-acf2-be3a6a7b2ffd}</Project>
+      <Name>ICSharpCode.SharpZipLib</Name>
+    </ProjectReference>
     <ProjectReference Include="..\DSEDiagnosticCluster\DSEDiagnosticLibrary.csproj">
       <Project>{aa88d5c0-9218-445c-885c-4b64fbfb9257}</Project>
       <Name>DSEDiagnosticLibrary</Name>
@@ -103,11 +120,6 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="..\7za.dll">
-      <Link>7Zip\7za.dll</Link>
-    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

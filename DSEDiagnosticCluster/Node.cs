@@ -73,7 +73,7 @@ namespace DSEDiagnosticLibrary
 			return null;
 		}
 
-		static Regex IPAddressRegEx = new Regex(@"(?:(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)|((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:)))(%[0-9A-Za-z]+)?(/[1-9]{1,3})?)",
+		static Regex IPAddressRegEx = new Regex(LibrarySettings.IPAdressRegEx,
 													RegexOptions.Compiled);
 
 		[Flags]
@@ -152,12 +152,14 @@ namespace DSEDiagnosticLibrary
 
 			if (!string.IsNullOrEmpty(strIPAddressOrHostName))
 			{
-				if (tryParseAsIPAddress && IPAddress.TryParse(strIPAddressOrHostName, out ipAddress))
-				{
-					this.AddIPAddress(ipAddress);
-				}
-
-				this.HostName = strIPAddressOrHostName;
+                if (tryParseAsIPAddress && IPAddress.TryParse(strIPAddressOrHostName, out ipAddress))
+                {
+                    this.AddIPAddress(ipAddress);
+                }
+                else
+                {
+                    this.HostName = strIPAddressOrHostName;
+                }
 			}
 
 			return ipAddress;
@@ -320,14 +322,16 @@ namespace DSEDiagnosticLibrary
 
 		public sealed class NTPInfo
 		{
-			UnitOfMeasure Correction;
-			UnitOfMeasure Polling;
-			UnitOfMeasure MaximumError;
-			UnitOfMeasure EstimatedError;
-			int TimeConstant;
-			UnitOfMeasure Precision;
-			UnitOfMeasure Frequency;
-			UnitOfMeasure Tolerance;
+            public IPAddress NTPServer;
+            public int? Stratum;
+            public UnitOfMeasure Correction;
+            public UnitOfMeasure Polling;
+            public UnitOfMeasure MaximumError;
+            public UnitOfMeasure EstimatedError;
+            public int? TimeConstant;
+            public UnitOfMeasure Precision;
+            public UnitOfMeasure Frequency;
+            public UnitOfMeasure Tolerance;
 		}
 
         public MachineInfo()
@@ -346,7 +350,7 @@ namespace DSEDiagnosticLibrary
 		public CPULoadInfo CPULoad;
 		public MemoryInfo Memory;
 		public JavaInfo Java;
-		NTPInfo NTP;
+		public NTPInfo NTP;
 	}
 
 	public sealed class DSEInfo
@@ -391,6 +395,7 @@ namespace DSEDiagnosticLibrary
         public DSEInfo()
         {
             this.Versions = new VersionInfo();
+            this.TokenRanges = Enumerable.Empty<TokenRangeInfo>();
         }
 
 		public InstanceTypes InstanceType;
@@ -408,11 +413,12 @@ namespace DSEDiagnosticLibrary
 		public bool? VNodesEnabled;
 		public uint? NbrVNodes;
 		public uint? NbrExceptions;
-		public bool? RepairServiceEnabled;
 		public bool? GossipEnabled;
 		public bool? ThriftEnabled;
 		public bool? NativeTransportEnabled;
-		public string KeyCacheInformation;
+        public bool? RepairServiceHasRan;
+        public DateTimeRange RepairServiceRanRange;
+        public string KeyCacheInformation;
 		public string RowCacheInformation;
 		public string CounterCacheInformation;
 		public IEnumerable<TokenRangeInfo> TokenRanges;

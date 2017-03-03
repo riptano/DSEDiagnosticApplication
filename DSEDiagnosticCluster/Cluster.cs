@@ -26,9 +26,16 @@ namespace DSEDiagnosticLibrary
             CurrentCluster = new Cluster();
 		}
 
-		public Cluster()
+        public sealed class OpsCenterInfo
+        {
+            public Version Version;
+            public bool? RepairServiceEnabled;
+        }
+
+        public Cluster()
 		{
 			Clusters.Add(this);
+            this.OpsCenter = new OpsCenterInfo();
 		}
 
 		public Cluster(string clusterName)
@@ -43,6 +50,8 @@ namespace DSEDiagnosticLibrary
 
 		private List<IEvent> _events = new List<IEvent>();
 		public IEnumerable<IEvent> Events { get { lock (this._events) { return this._events.ToArray(); } } }
+
+        public OpsCenterInfo OpsCenter { get; private set; }
 
 		public IEvent AssocateItem(IEvent eventItem)
 		{

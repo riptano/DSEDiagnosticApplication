@@ -16,26 +16,18 @@ namespace DSEDiagnosticApplication
 	{
 		public Form1()
 		{
-			InitializeComponent();                    
+			InitializeComponent();
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
             Logger.Instance.Info("test");
 
-            var diagPath = PathUtils.BuildDirectoryPath(@"C:\Users\Richard\Desktop\Diag-Customer\Y31169_cluster-diagnostics-2017_01_06_08_02_04_UTC");
+            var diagPath = PathUtils.BuildDirectoryPath(@"C:\Users\Richard\Desktop\Diag-Customer\TestUnZip"); // @"C:\Users\Richard\Desktop\Diag-Customer\Y31169_cluster-diagnostics-2017_01_06_08_02_04_UTC");
 
-            var tasks = new List<Task>();
-            var mappers = DSEDiagnosticFileParser.LibrarySettings.ProcessFileMappings
-                            .OrderByDescending(o => o.ProcessPriorityLevel)
-                            .ThenBy(o => o.ProcessingTaskOption.HasFlag(DSEDiagnosticFileParser.FileMapper.ProcessingTaskOptions.ParallelProcessingWithinPriorityLevel) ? 1 : 0)
-                            .GroupBy(k => k.ProcessPriorityLevel);
+            var tasks = DSEDiagnosticFileParser.DiagnosticFile.ProcessFile(diagPath);
 
-            var x = mappers.ToArray();
-
-            //foreach (var grpElement in mappers)
-            
-                var y = DSEDiagnosticFileParser.DiagnosticFile.ProcessFile(diagPath, mappers.First().ElementAt(0), null, null);
+            tasks.Wait();
 
             var z = DSEDiagnosticLibrary.Cluster.CurrentCluster;
             //Task.WhenAll(tasks).Wait();

@@ -30,35 +30,41 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Common.Functions">
-      <HintPath>..\..\AndersenAssoc\Common Patterns\Assemblies\40\Release\Common.Functions.dll</HintPath>
+    <Reference Include="Common.Functions, Version=4.0.7.0, Culture=neutral, PublicKeyToken=75d1a63e21e859f1, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Common Patterns\Assemblies\40\Release\Common.Functions.dll</HintPath>
     </Reference>
-    <Reference Include="Common.Path">
-      <HintPath>..\..\AndersenAssoc\Common Patterns\Assemblies\40\Release\Common.Path.dll</HintPath>
+    <Reference Include="Common.Path, Version=4.0.5.0, Culture=neutral, PublicKeyToken=75d1a63e21e859f1, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Common Patterns\Assemblies\40\Release\Common.Path.dll</HintPath>
     </Reference>
-    <Reference Include="Common.Patterns.Collections">
-      <HintPath>..\..\AndersenAssoc\Common Patterns\Assemblies\40\Release\Common.Patterns.Collections.dll</HintPath>
+    <Reference Include="Common.Patterns.Collections, Version=4.0.5.0, Culture=neutral, PublicKeyToken=75d1a63e21e859f1, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Common Patterns\Assemblies\40\Release\Common.Patterns.Collections.dll</HintPath>
     </Reference>
-    <Reference Include="Common.Patterns.QueueProcessor">
-      <HintPath>..\..\AndersenAssoc\Common Patterns\Assemblies\40\Release\Common.Patterns.QueueProcessor.dll</HintPath>
+    <Reference Include="Common.Patterns.QueueProcessor, Version=4.0.5.0, Culture=neutral, PublicKeyToken=75d1a63e21e859f1, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Common Patterns\Assemblies\40\Release\Common.Patterns.QueueProcessor.dll</HintPath>
     </Reference>
-    <Reference Include="Common.Patterns.Shared">
-      <HintPath>..\..\AndersenAssoc\Common Patterns\Assemblies\40\Release\Common.Patterns.Shared.dll</HintPath>
+    <Reference Include="Common.Patterns.Shared, Version=4.0.5.0, Culture=neutral, PublicKeyToken=75d1a63e21e859f1, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Common Patterns\Assemblies\40\Release\Common.Patterns.Shared.dll</HintPath>
     </Reference>
-    <Reference Include="Common.Patterns.Singleton">
-      <HintPath>..\..\AndersenAssoc\Common Patterns\Assemblies\40\Release\Common.Patterns.Singleton.dll</HintPath>
+    <Reference Include="Common.Patterns.Singleton, Version=4.0.5.0, Culture=neutral, PublicKeyToken=75d1a63e21e859f1, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Common Patterns\Assemblies\40\Release\Common.Patterns.Singleton.dll</HintPath>
     </Reference>
-    <Reference Include="Common.Patterns.Tasks">
-      <HintPath>..\..\AndersenAssoc\Common Patterns\Assemblies\40\Release\Common.Patterns.Tasks.dll</HintPath>
+    <Reference Include="Common.Patterns.Tasks, Version=4.0.5.0, Culture=neutral, PublicKeyToken=75d1a63e21e859f1, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Common Patterns\Assemblies\40\Release\Common.Patterns.Tasks.dll</HintPath>
     </Reference>
-    <Reference Include="Common.Patterns.Threading">
-      <HintPath>..\..\AndersenAssoc\Common Patterns\Assemblies\40\Release\Common.Patterns.Threading.dll</HintPath>
+    <Reference Include="Common.Patterns.TimeZoneInfo, Version=4.0.5.0, Culture=neutral, PublicKeyToken=75d1a63e21e859f1, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Common Patterns\Assemblies\40\Release\Common.Patterns.TimeZoneInfo.dll</HintPath>
     </Reference>
-    <Reference Include="Common.Patterns.TimeZoneInfo">
-      <HintPath>..\..\AndersenAssoc\Common Patterns\Assemblies\40\Release\Common.Patterns.TimeZoneInfo.dll</HintPath>
-    </Reference>
-    <Reference Include="Common.TimeZones">
-      <HintPath>..\..\AndersenAssoc\Common Patterns\Assemblies\40\Release\Common.TimeZones.dll</HintPath>
+    <Reference Include="Common.TimeZones, Version=4.0.5.0, Culture=neutral, PublicKeyToken=75d1a63e21e859f1, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Common Patterns\Assemblies\40\Release\Common.TimeZones.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -75,6 +81,7 @@
     <Compile Include="DataCenter.cs" />
     <Compile Include="DDL.cs" />
     <Compile Include="Event.cs" />
+    <Compile Include="IResult.cs" />
     <Compile Include="Keyspace.cs" />
     <Compile Include="LibrarySettings.cs" />
     <Compile Include="Node.cs" />

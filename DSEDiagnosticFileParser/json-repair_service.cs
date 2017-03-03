@@ -20,27 +20,22 @@ namespace DSEDiagnosticFileParser
 		{
         }
 
-        readonly object RepairServiceDefinition = new { time_to_completion = 0L, status = string.Empty, parallel_tasks = 0, all_tasks = new object[1][] };
-
         public override uint ProcessFile()
         {
             uint nbrItems = 0;
             var jsonFile = this.File.ReadAllText();
-            var infoObject = JsonConvert.DeserializeAnonymousType(jsonFile, RepairServiceDefinition);
+            var infoObject = JsonConvert.DeserializeAnonymousType(jsonFile, new { time_to_completion = 0L, status = string.Empty, parallel_tasks = 0, all_tasks = new object[1][] } );
 
-            //foreach (DataRow dataRow in dtRingInfo.Rows)
-            //{
-            //    if (infoObject.all_tasks != null
-            //            && infoObject.all_tasks.Any((c => (string)((object[])c)[0] == (string)dataRow["Node IPAddress"])))
-            //    {
-            //        dataRow["Repair Service Enabled"] = true;
-            //    }
-            //}
+            if(infoObject.all_tasks != null)
+            {
+                this.Node.DSE.RepairServiceHasRan = infoObject.all_tasks.Any(c => this.Node.Id.Addresses.Any(i => i.ToString() == (string)((object[])c)[0]));
+                ++nbrItems;
+            }
 
             return nbrItems;
         }
 
-        public override IEnumerable<T> GetItems<T>()
+        public override IResult GetResult()
         {
             throw new NotImplementedException();
         }

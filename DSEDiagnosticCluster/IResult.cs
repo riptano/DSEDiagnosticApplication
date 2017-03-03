@@ -7,13 +7,14 @@ using Common;
 
 namespace DSEDiagnosticLibrary
 {
-    public interface IParsed
+    public interface IResult
     {
         IPath Path { get; }
         Cluster Cluster { get; }
         IDataCenter DataCenter { get; }
         INode Node { get; }
-        int Items { get; }
-        uint LineNbr { get; }
-	}
+        int NbrItems { get; }
+
+        IEnumerable<IParsed> Results { get; }
+    }
 }

@@ -25,23 +25,49 @@ namespace DSEDiagnosticFileParser.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("<?xml version=\"1.0\" encoding=\"utf-16\"?>\r\n<ArrayOfString xmlns:xsi=\"http://www.w3." +
-            "org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\r\n  <s" +
-            "tring>ZIP</string>\r\n  <string>tar</string>\r\n  <string>gz</string>\r\n</ArrayOfStri" +
-            "ng>")]
-        public global::System.Collections.Specialized.StringCollection ExtractFilesWithExtensions {
+        [global::System.Configuration.DefaultSettingValueAttribute("[{\"item1\":\".zip\",\"item2\":\"zip\"},{\"item1\":\".tar\",\"item2\":\"tar\"},{\"item1\":\".gz\",\"it" +
+            "em2\":\"gz\"}] ")]
+        public string ExtractFilesWithExtensions {
             get {
-                return ((global::System.Collections.Specialized.StringCollection)(this["ExtractFilesWithExtensions"]));
+                return ((string)(this["ExtractFilesWithExtensions"]));
             }
         }
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute(@"[
-{""Catagory"": 2, ""FilePatterns"": ["".\\nodes\\*\\logs\\cassandra\\system.log""], ""FileParsingClass"": ""UserQuery.TestClass"", ""NodeIdPos"": -1},
-{""Catagory"": 5, ""FilePatterns"": ["".\\opscenterd\\node_info.json""], ""FileParsingClass"": ""DSEDiagnosticFileParser.json_node_info"", ""NodeIdPos"": -1, ""ProcessingTaskOption"":2,""ProcessPriorityLevel"":900},
-{""Catagory"": 4, ""FilePatterns"": ["".\\nodes\\*\\nodetool\\status""], ""FileParsingClass"": ""DSEDiagnosticFileParser.file_nodetool_status"", ""NodeIdPos"": 0, ""ProcessingTaskOption"":136, ""ProcessPriorityLevel"":1000}
-]")]
+        [global::System.Configuration.DefaultSettingValueAttribute("[\r\n{\"Catagory\": \"ZipFile\", \"FilePatterns\": [\".\\\\*.tar\",\".\\\\*.tar.gz\",\".\\\\*.zip\"]," +
+            " \"FileParsingClass\": \"DSEDiagnosticFileParser.file_unzip\", \"NodeIdPos\": 0, \"Proc" +
+            "essingTaskOption\":\"IgnoreNode,OnlyOnce\", \"ProcessPriorityLevel\":1000},\r\n{\"Catago" +
+            "ry\": \"CommandOutputFile\", \"FilePatterns\": [\".\\\\nodes\\\\*\\\\nodetool\\\\status\"], \"Fi" +
+            "leParsingClass\": \"DSEDiagnosticFileParser.file_nodetool_status\", \"NodeIdPos\": 0," +
+            " \"ProcessingTaskOption\":\"IgnoreNode,OnlyOnce\", \"ProcessPriorityLevel\":950},\r\n{\"C" +
+            "atagory\": \"SystemOutputFile\", \"FilePatterns\": [\".\\\\opscenterd\\\\node_info.json\"]," +
+            " \"FileParsingClass\": \"DSEDiagnosticFileParser.json_node_info\", \"NodeIdPos\": -1, " +
+            "\"ProcessingTaskOption\":\"AllNodesInDataCenter\",\"ProcessPriorityLevel\":900},\r\n{\"Ca" +
+            "tagory\": \"SystemOutputFile\", \"FilePatterns\": [\".\\\\opscenterd\\\\repair_service.jso" +
+            "n\"], \"FileParsingClass\": \"DSEDiagnosticFileParser.json_repair_service\", \"NodeIdP" +
+            "os\": -1, \"ProcessingTaskOption\":\"AllNodesInDataCenter\",\"ProcessPriorityLevel\":90" +
+            "0},\r\n{\"Catagory\": \"CommandOutputFile\", \"FilePatterns\": [\".\\\\nodes\\\\*\\\\machine-in" +
+            "fo.json\"], \"FileParsingClass\": \"DSEDiagnosticFileParser.json_machine_info\", \"Nod" +
+            "eIdPos\": -1, \"ProcessingTaskOption\":\"ScanForNode,ParallelProcessing\", \"ProcessPr" +
+            "iorityLevel\":100},\r\n{\"Catagory\": \"CommandOutputFile\", \"FilePatterns\": [\".\\\\nodes" +
+            "\\\\*\\\\os-info.json\"], \"FileParsingClass\": \"DSEDiagnosticFileParser.json_os_info_i" +
+            "nfo\", \"NodeIdPos\": -1, \"ProcessingTaskOption\":\"ScanForNode,ParallelProcessing\", " +
+            "\"ProcessPriorityLevel\":100},\r\n{\"Catagory\": \"CommandOutputFile\", \"FilePatterns\": " +
+            "[\".\\\\nodes\\\\*\\\\cpu.json\"], \"FileParsingClass\": \"DSEDiagnosticFileParser.json_cpu" +
+            "_info\", \"NodeIdPos\": -1, \"ProcessingTaskOption\":\"ScanForNode,ParallelProcessing\"" +
+            ", \"ProcessPriorityLevel\":100},\r\n{\"Catagory\": \"CommandOutputFile\", \"FilePatterns\"" +
+            ": [\".\\\\nodes\\\\*\\\\load_avg.json\"], \"FileParsingClass\": \"DSEDiagnosticFileParser.f" +
+            "ile_load_avg\", \"NodeIdPos\": -1, \"ProcessingTaskOption\":\"ScanForNode,ParallelProc" +
+            "essing\", \"ProcessPriorityLevel\":100},\r\n{\"Catagory\": \"CommandOutputFile\", \"FilePa" +
+            "tterns\": [\".\\\\nodes\\\\*\\\\agent_version.json\"], \"FileParsingClass\": \"DSEDiagnostic" +
+            "FileParser.file_agent_version\", \"NodeIdPos\": -1, \"ProcessingTaskOption\":\"ScanFor" +
+            "Node,ParallelProcessing\", \"ProcessPriorityLevel\":100},\r\n{\"Catagory\": \"CommandOut" +
+            "putFile\", \"FilePatterns\": [\".\\\\nodes\\\\*\\\\java_system_properties.json\"], \"FilePar" +
+            "singClass\": \"DSEDiagnosticFileParser.json_java_system_properties\", \"NodeIdPos\": " +
+            "-1, \"ProcessingTaskOption\":\"ScanForNode,ParallelProcessing\", \"ProcessPriorityLev" +
+            "el\":100},\r\n{\"Catagory\": \"LogFile\", \"FilePatterns\": [\".\\\\nodes\\\\*\\\\logs\\\\cassandr" +
+            "a\\\\system.log\"], \"FileParsingClass\": \"UserQuery.TestClass\", \"NodeIdPos\": -1}\r\n]")]
         public string ProcessFileMappings {
             get {
                 return ((string)(this["ProcessFileMappings"]));
@@ -50,19 +76,11 @@ namespace DSEDiagnosticFileParser.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Search([StartUpDir];[WorkingDir];[AssemblyLocation]:[StartUpDir]\\7Zip;[WorkingDir" +
-            "]\\7Zip;[AssemblyLocation]\\7Zip;[ProgramFiles]\\7-Zip,7za.dll;7z.dll)")]
-        public string SevenZipCOMFilePath {
-            get {
-                return ((string)(this["SevenZipCOMFilePath"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("{\r\n\"file_nodetool_status\":{\"RegExStrings\":[\"datacenter:\\\\s+([a-z0-9\\\\-_$%+=@!?<>^" +
-            "*&]+)\\\\s*\",\"(un|ul|uj|um|dn|dl|dJ|dm)\\\\s+([a-z0-9.:_\\\\-+%]+)\\\\s+([0-9.]+)\\\\s*([0" +
-            "-9a-z]{0,2})\\\\s+(\\\\d+)\\\\s+([0-9?.% ]+)\\\\s+([0-9a-f\\\\-]+)\\\\s+(.+)\"]}\r\n}")]
+        [global::System.Configuration.DefaultSettingValueAttribute(@"{
+""file_nodetool_status"":{""RegExStrings"":[""datacenter:\\s+([a-z0-9\\-_$%+=@!?<>^*&]+)\\s*"",""(un|ul|uj|um|dn|dl|dJ|dm)\\s+([a-z0-9.:_\\-+%]+)\\s+([0-9.]+)\\s*([0-9a-z]{0,2})\\s+(\\d+)\\s+([0-9?.% ]+)\\s+([0-9a-f\\-]+)\\s+(.+)""]},
+""file_ntpstat"":{""RegExString"":[""synchronised to NTP server\\s+\\((.+)\\).+stratum\\s+(\\d+).+time correct.+within\\s+(\\d+\\s+[a-zA-Z]+).+polling.+every\\s+(\\d+\\s+[a-zA-Z]+)""]},
+""file_ntptime"":{""RegExString"":[""ntp_adjtime.+frequency\\s+([0-9\\-.]+\\s+[a-zA-Z]+)\\,\\s+interval\\s+([0-9\\-.]+\\s+[a-zA-Z]+)\\,\\s+maximum error\\s+([0-9\\-.]+\\s+[a-zA-Z]+)\\,\\s+estimated error\\s+([0-9\\-.]+\\s+[a-zA-Z]+)\\,.+time constant\\s+([0-9\\-.]+)\\,\\s+precision\\s+([0-9\\-.]+\\s+[a-zA-Z]+)\\,\\s+tolerance\\s+([0-9]+\\s+[a-zA-Z]+)"",""ntp_gettime.+maximum error\\s+([0-9\\-.]+\\s+[a-zA-Z]+)\\,\\s+estimated error\\s+([0-9\\-.]+\\s+[a-zA-Z]+)""]}
+}")]
         public string DiagnosticFileRegExAssocations {
             get {
                 return ((string)(this["DiagnosticFileRegExAssocations"]));

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Common;
 using Newtonsoft.Json.Linq;
@@ -14,21 +15,7 @@ namespace DSEDiagnosticFileParser
     internal static class MiscHelpers
     {
         static MiscHelpers()
-        {
-            if (LibrarySettings.SevenZipCOMFilePath == null)
-            {
-                Logger.Instance.WarnFormat("7Zip COM DLL was not found in \"{0}\". Extracting Files will fail.", Properties.Settings.Default.SevenZipCOMFilePath);
-            }
-            else if (LibrarySettings.SevenZipCOMFilePath.Exist())
-            {
-                SevenZip.SevenZipExtractor.SetLibraryPath(LibrarySettings.SevenZipCOMFilePath.PathResolved);
-                Logger.Instance.InfoFormat("7Zip COM DLL set to \"{0}\".", LibrarySettings.SevenZipCOMFilePath.PathResolved);
-            }
-            else
-            {
-                Logger.Instance.WarnFormat("7Zip COM DLL does not exist for \"{0}\". Extracting Files will fail.", LibrarySettings.SevenZipCOMFilePath.PathResolved);
-                LibrarySettings.SevenZipCOMFilePath = null;
-            }
+        {            
         }
 
         static public string RemoveQuotes(string item, bool checkbrackets = true)
@@ -95,79 +82,13 @@ namespace DSEDiagnosticFileParser
             return className;
         }
 
-        static bool IsIPv4(string value)
+        static public IPAddress DetermineIPAddress(string possibleIPAddress)
         {
-            var quads = value.Split('.');
-
-            // if we do not have 4 quads, return false
-            if (!(quads.Length == 4)) return false;
-
-            var portPos = quads[3].IndexOf(':');
-
-            if (portPos > 0)
-            {
-                quads[3] = quads[3].Substring(0, portPos);
-            }
-            // for each quad
-            foreach (var quad in quads)
-            {
-                int q;
-                // if parse fails
-                // or length of parsed int != length of quad string (i.e.; '1' vs '001')
-                // or parsed int < 0
-                // or parsed int > 255
-                // return false
-                if (!Int32.TryParse(quad, out q)
-                    || !q.ToString().Length.Equals(quad.Length)
-                    || q < 0
-                    || q > 255)
-                { return false; }
-
-            }
-
-            return true;
+            IPAddress ipAddress = null;
+            IPAddress.TryParse(possibleIPAddress, out ipAddress);
+            return ipAddress;
         }
-
-        static bool IPAddressStr(string ipAddress, out string formattedAddress)
-        {
-            if (!string.IsNullOrEmpty(ipAddress))
-            {
-                if (ipAddress[0] == '/')
-                {
-                    ipAddress = ipAddress.Substring(1);
-                }
-
-                if (IsIPv4(ipAddress))
-                {
-                    var portPos = ipAddress.IndexOf(':');
-                    string port = null;
-                    IPAddress objIP;
-
-                    if (portPos > 0)
-                    {
-                        port = ipAddress.Substring(portPos);
-                        ipAddress = ipAddress.Substring(0, portPos);
-                    }
-
-                    if (IPAddress.TryParse(ipAddress, out objIP))
-                    {
-                        if (port == null)
-                        {
-                            formattedAddress = objIP.ToString();
-                        }
-                        else
-                        {
-                            formattedAddress = objIP.ToString() + port;
-                        }
-                        return true;
-                    }
-                }
-            }
-
-            formattedAddress = ipAddress;
-            return false;
-        }
-
+        
         static string DetermineProperFormat(string strValue, bool ignoreBraces = false, bool removeNamespace = true)
         {
             var result = DetermineProperObjectFormat(strValue, ignoreBraces, removeNamespace);
@@ -296,75 +217,142 @@ namespace DSEDiagnosticFileParser
         /// <param name="forceExtraction"></param>
         /// <param name="extractOnlyToThisFolder"></param>
         /// <returns></returns>
-        public static bool UnZipFileToFolder(this IFilePath filePath, out IDirectoryPath extractedFolder,
+        public static int UnZipFileToFolder(this IFilePath filePath, out IDirectoryPath extractedFolder,
                                                 bool forceExtraction = false,
                                                 bool extractToParentFolder = false,
-                                                bool allowRecursiveUnZipping = true)
+                                                bool allowRecursiveUnZipping = true,
+                                                bool renameOnceFileExtracted = true,
+                                                CancellationToken? cancellationToken = null)
         {
+            var extractFileInfo = LibrarySettings.ExtractFilesWithExtensions.FirstOrDefault(i => i.Item1.ToLower() == filePath.FileExtension.ToLower());
+            int nbrExtractedFiles = 0;
+
             extractedFolder = filePath.ParentDirectoryPath;
 
-            if (filePath.Exist()
-                    && (forceExtraction || LibrarySettings.ExtractFilesWithExtensions.Contains(filePath.FileExtension)))
+            if (extractFileInfo != null && filePath.Exist())
             {
                 var newExtractedFolder = extractToParentFolder ? extractedFolder : (IDirectoryPath) extractedFolder.MakeChild(filePath.FileNameWithoutExtension);
-
-                if (!newExtractedFolder.Exist())
-                {
-                    if(LibrarySettings.SevenZipCOMFilePath == null)
-                    {
-                        throw new System.IO.FileLoadException(string.Format("7Zip COM DLL is missing, cannot Extract file \"{0}\"", filePath.PathResolved),
-                                                                    Properties.Settings.Default.SevenZipCOMFilePath);
-                    }
-
+                var fileAttrs = filePath.GetAttributes();
+                
+                if (forceExtraction || extractToParentFolder || !newExtractedFolder.Exist())
+                {                    
                     List<IPath> extractedFiles = null;
+                    var extractType = extractFileInfo.Item2.ToLower();
+                    int nbrChildrenInFolder = 0;
 
-                    using (var extractor = new SevenZip.SevenZipExtractor(filePath.PathResolved))
+                    if (!newExtractedFolder.Exist())
                     {
-                        //extr.Extracting += new EventHandler<ProgressEventArgs>(extr_Extracting);
-                        //extr.FileExtractionStarted += new EventHandler<FileInfoEventArgs>(extr_FileExtractionStarted);
-                        //extr.FileExists += new EventHandler<FileOverwriteEventArgs>(extr_FileExists);
-                        //extr.ExtractionFinished += new EventHandler<EventArgs>(extr_ExtractionFinished);
+                        newExtractedFolder.Create();
+                    }
+                    else
+                    {
+                        nbrChildrenInFolder = newExtractedFolder.Children().Count();
+                    }
+                    
+                    Logger.Instance.InfoFormat("Extracting File \"{0}\" to directory \"{1}\"...",
+                                                   filePath.PathResolved,
+                                                   newExtractedFolder.PathResolved);
 
-                        Logger.Instance.InfoFormat("Extracting File \"{0}\" to directory \"{1}\" which will contain {2} files...",
-                                                    filePath.PathResolved,
-                                                    newExtractedFolder.PathResolved,
-                                                    extractor.FilesCount);
-
-                        extractor.ExtractArchive(newExtractedFolder.PathResolved);
-
-                        extractedFiles = ((IDirectoryPath)newExtractedFolder).Children();
-
-                        Logger.Instance.InfoFormat("Extracted folder \"{0}\" which contains {1} files...",
-                                                   newExtractedFolder.PathResolved,
-                                                   extractedFiles.Count);
+                    if (extractType == "zip")
+                    {
+                        var zip = new ICSharpCode.SharpZipLib.Zip.FastZip();
+                        zip.RestoreDateTimeOnExtract = true;                        
+                        zip.ExtractZip(filePath.PathResolved, newExtractedFolder.PathResolved, ICSharpCode.SharpZipLib.Zip.FastZip.Overwrite.Never, null, null, null, true);                        
+                    }
+                    else if (extractType == "gz")
+                    {
+                        using (var stream = filePath.OpenRead())
+                        using (var gzipStream = new ICSharpCode.SharpZipLib.GZip.GZipInputStream(stream))
+                        using (var tarArchive = ICSharpCode.SharpZipLib.Tar.TarArchive.CreateInputTarArchive(gzipStream))
+                        {
+                            tarArchive.SetKeepOldFiles(true);
+                            tarArchive.ExtractContents(newExtractedFolder.PathResolved);                           
+                        }
+                    }
+                    else if(extractType == "tar")
+                    {
+                        using (var stream = filePath.OpenRead())
+                        using (var tarArchive = ICSharpCode.SharpZipLib.Tar.TarArchive.CreateInputTarArchive(stream))
+                        {
+                            tarArchive.SetKeepOldFiles(true);
+                            tarArchive.ExtractContents(newExtractedFolder.PathResolved);
+                        }
+                    }
+                    else
+                    {
+                        Logger.Instance.ErrorFormat("Unkown Extraction Type of \"{0}\" for Extracting File \"{1}\" to directory \"{2}\"",
+                                                        extractType,
+                                                        filePath.PathResolved,
+                                                        newExtractedFolder.PathResolved);
+                        return 0;
                     }
 
-                    if(allowRecursiveUnZipping && extractedFiles != null)
+                    if(renameOnceFileExtracted)
                     {
+                        var newName = filePath.Clone(filePath.FileName, "extracted");
+
+                        if (filePath.Move(newName))
+                        {
+                            Logger.Instance.WarnFormat("Renamed Extraction file from \"{0}\" to file \"{1}\"",
+                                                            filePath.PathResolved,
+                                                            newExtractedFolder.PathResolved);
+                        }
+                        else
+                        {
+                            Logger.Instance.ErrorFormat("Renamed Extraction file from \"{0}\" to file \"{1}\" Failed...",
+                                                            filePath.PathResolved,
+                                                            newExtractedFolder.PathResolved);
+                        }
+                    }
+
+                    extractedFiles = ((IDirectoryPath)newExtractedFolder).Children();
+                    
+                    Logger.Instance.InfoFormat("Extracted into folder \"{0}\" {1} files...",
+                                               newExtractedFolder.PathResolved,
+                                               extractedFiles == null ? 0 : extractedFiles.Count - nbrChildrenInFolder);
+                    
+                    if(allowRecursiveUnZipping && extractedFiles != null)
+                    {                        
                         var compressedFiles = extractedFiles.Where(f => f is IFilePath
-                                                                            && LibrarySettings.ExtractFilesWithExtensions.Contains(((IFilePath)f).FileExtension))
+                                                                            && f != filePath                                                                       
+                                                                            && LibrarySettings.ExtractFilesWithExtensions.Any(i => i.Item1.ToLower() == ((IFilePath) f).FileExtension.ToLower()))
                                                             .Cast<IFilePath>();
 
-                        foreach (var compressedFile in compressedFiles)
+                        var parallelOptions = new ParallelOptions();
+                       
+                        if(cancellationToken.HasValue)
+                        {
+                            parallelOptions.CancellationToken = cancellationToken.Value;
+                        }
+
+                        Parallel.ForEach(compressedFiles, parallelOptions, compressedFile =>
+                        //foreach (var compressedFile in compressedFiles)
                         {
                             IDirectoryPath tempExtractedFolder;
+                            var subNbrFiles = UnZipFileToFolder(compressedFile, out tempExtractedFolder, true, true, true, renameOnceFileExtracted, cancellationToken);
 
-                            if(!UnZipFileToFolder(compressedFile, out tempExtractedFolder, true, true))
+                            if (subNbrFiles == 0)
                             {
-                                Logger.Instance.WarnFormat("Extraction of Sub-File \"{0}\" to directory \"{1}\" failed...",
-                                                            compressedFile.PathResolved,
-                                                            tempExtractedFolder.PathResolved);
+                                Logger.Instance.ErrorFormat("Extraction of Sub-File \"{0}\" to directory \"{1}\" failed...",
+                                                                compressedFile.PathResolved,
+                                                                tempExtractedFolder.PathResolved);
                             }
-                        }
+                            else
+                            {
+                                nbrExtractedFiles += subNbrFiles;
+                            }
+
+                            parallelOptions.CancellationToken.ThrowIfCancellationRequested();
+                        });
                     }
                 }
 
                 extractedFolder = (IDirectoryPath)newExtractedFolder;
 
-                return true;
+                return nbrExtractedFiles;
             }
 
-            return false;
+            return 0;
         }
 
         #region JSON

@@ -14,6 +14,7 @@ namespace DSEDiagnosticFileParser
         [Flags]
         public enum ProcessingTaskOptions
         {
+            None = 0,
             /// <summary>
             /// Determine Node by scanning the File Path
             /// </summary>
@@ -31,13 +32,18 @@ namespace DSEDiagnosticFileParser
             /// </summary>
             IgnoreNode = 0x0008,
             /// <summary>
-            /// If defined, this file processing task will be ran in parallel with other files processing tasks within this ProcessPriority level.
+            /// If defined, this file processing task will be ran in parallel with other files processing tasks within this ProcessPriority level. All parallel tasks within this level must complete before moving onto the next level.
             /// If this is not defined, all non-parallel processing tasks will be executed sequentially within this level and than all parallel defined processing tasks will be executed in parallel.
             /// </summary>
             /// <remarks>
             /// Lower process priorities will be block until all file processing within this level completes unless AllowLowerPriorityProcessingToStart is defined.
             /// </remarks>
-            ParallelProcessingWithinPriorityLevel = 0x0010,
+            ParallelProcessingWithinPriorityLevel = 0x0100,
+            /// <summary>
+            /// If defined, this file processing task will be ran in parallel as soon as this task level&apos;s non-parallel tasks are executed.
+            /// If this is not defined, all non-parallel processing tasks will be executed sequentially within this level and than all parallel defined processing tasks will be executed in parallel.
+            /// </summary>
+            ParallelProcessing = 0x0010,
             /// <summary>
             /// If defined and this task is still executing and no other tasks at this level are running without this defined, lower tasks will be able to start.
             /// If not defined, lower tasks will be blocked until this task completes.
@@ -49,12 +55,21 @@ namespace DSEDiagnosticFileParser
             /// </summary>
             ParallelProcessFiles = 0x0040,
             /// <summary>
-            /// As soon as the first file is successfully processed, all reminding file to be process are canceled.  
-            /// Warning: ParallelProcessFiles is ignored (all files are processed synchronous. 
+            /// As soon as the first file is successfully processed, all reminding file to be process are canceled.
+            /// Warning: ParallelProcessFiles is ignored (all files are processed synchronous.
             /// </summary>
             OnlyOnce = 0x0080,
 
             Default = ScanForNode | ParallelProcessingWithinPriorityLevel | ParallelProcessFiles
+        }
+
+        public static ProcessingTaskOptions DetermineParallelOptions(ProcessingTaskOptions taskOptions)
+        {
+            return taskOptions.HasFlag(ProcessingTaskOptions.ParallelProcessing)
+                    ? ProcessingTaskOptions.ParallelProcessing
+                    : (taskOptions.HasFlag(ProcessingTaskOptions.ParallelProcessingWithinPriorityLevel)
+                            ? ProcessingTaskOptions.ParallelProcessingWithinPriorityLevel
+                            : ProcessingTaskOptions.None);
         }
 
         public FileMapper()
@@ -112,6 +127,17 @@ namespace DSEDiagnosticFileParser
         /// If null any DSE version will match this mappings.
         /// If defined, any DSE version that is equal to or greater than this version will match this mapping.
         /// </summary>
+        /// <example>
+        /// Match Versions:
+        ///     4.7.0
+        ///     4.7.5
+        ///     4.8.0
+        ///     4.8.5
+        ///     5.0.0
+        /// DSE Version 4.8.12 -&gt; 4.8.5
+        ///             4.8.4  -&gt; 4.8.0
+        ///             4.8.0  -&gt; 4.8.0
+        /// </example>
         public Version MatchVersion { get; set; }
         public IFilePath[] FilePathMerge(IDirectoryPath diagnosticDirectory)
 		{
@@ -129,6 +155,6 @@ namespace DSEDiagnosticFileParser
 		}
 
         public CancellationTokenSource CancellationSource { get; set; }
-        
+
     }
 }

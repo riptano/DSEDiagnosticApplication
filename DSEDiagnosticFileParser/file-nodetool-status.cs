@@ -16,7 +16,7 @@ namespace DSEDiagnosticFileParser
         {
         }
 
-        public override IEnumerable<T> GetItems<T>()
+        public override IResult GetResult()
         {
             throw new NotImplementedException();
         }

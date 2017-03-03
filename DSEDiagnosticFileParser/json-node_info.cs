@@ -12,7 +12,7 @@ namespace DSEDiagnosticFileParser
 {
     internal sealed class json_node_info : ProcessJsonFile
     {
-        private json_node_info(CatagoryTypes catagory,
+        public json_node_info(CatagoryTypes catagory,
                                     IDirectoryPath diagnosticDirectory,
                                     IFilePath file,
                                     INode node)
@@ -20,7 +20,7 @@ namespace DSEDiagnosticFileParser
 		{
         }
 
-        public override IEnumerable<T> GetItems<T>()
+        public override IResult GetResult()
         {
             throw new NotImplementedException();
         }
@@ -55,7 +55,7 @@ namespace DSEDiagnosticFileParser
                 nodeInfo.TryGetValue("ec2").TryGetValue("instance-type").NullSafeSet<string>(v => v.ParseEnumString<DSEInfo.InstanceTypes>(ref this.Node.DSE.InstanceType));
                 nodeInfo.TryGetValue("num_procs").NullSafeSet<uint>(v => this.Node.Machine.CPU.Cores = v);
                 nodeInfo.TryGetValue("vnodes").NullSafeSet<uint>(v => this.Node.DSE.NbrVNodes = v);
-
+                ++nbrItems;
             }
 
             return nbrItems;

@@ -47,15 +47,27 @@ namespace DSEDiagnosticLibrary
             GiB = 0x0080,
             TiB = 0x0100,
             PiB = 0x0200,
-            NS = 0x1000, //nanoseconds
-            MS = 0x2000, //milliseconds
+            /// <summary>
+            /// nanoseconds
+            /// </summary>
+            NS = 0x1000,
+            /// <summary>
+            /// Milliseconds
+            /// </summary>
+            MS = 0x2000,
             SEC = 0x4000,
             MIN = 0x8000,
             HR = 0x10000,
             Day = 0x20000,
             Percent = 0x40000,
-            us = 0x80000, //microsecond
-            NaN = 0x4000000, //Not a Number
+            /// <summary>
+            /// Microsecond
+            /// </summary>
+            us = 0x80000,
+            /// <summary>
+            /// Not a Number
+            /// </summary>
+            NaN = 0x4000000,
             SizeUnits = Bit | Byte | KiB | MiB | GiB | TiB | PiB,
             TimeUnits = NS | MS | SEC | MIN | HR | Day | us
         }
@@ -81,8 +93,14 @@ namespace DSEDiagnosticLibrary
             this.UnitType = ConvertToType(uof, uofType);
         }
 
+        public UnitOfMeasure(decimal value, Types uofType)
+        {
+            this.Value = value;
+            this.UnitType = uofType;
+        }
+
         public Types UnitType { get; set; }
-        decimal Value { get; set; }
+        public decimal Value { get; set; }
 
         #region Convertors
 
@@ -423,6 +441,16 @@ namespace DSEDiagnosticLibrary
             return uom.Value;
         }
 
+        public static explicit operator TimeSpan(UnitOfMeasure uom)
+        {
+            if(uom.UnitType.HasFlag(Types.TimeUnits))
+            {
+                return TimeSpan.FromMilliseconds((double)uom.ConvertTimeUOM(Types.MS));
+            }
+
+            throw new InvalidCastException(string.Format("Trying to cast from a {0} to a TimeSpan which is invalid.", uom.UnitType));
+        }
+
         public static UnitOfMeasure Create(string value, string uof, Types uofType = Types.Unknown)
         {
             if (IsNaN(value))
@@ -442,6 +470,47 @@ namespace DSEDiagnosticLibrary
 
             return new UnitOfMeasure(uofString, uofType);
         }
+
+        public static UnitOfMeasure Create(int uof, Types uofType)
+        {
+            return new UnitOfMeasure((decimal) uof, uofType);
+        }
+
+        public static UnitOfMeasure Create(long uof, Types uofType)
+        {
+            return new UnitOfMeasure((decimal)uof, uofType);
+        }
+
+        public static UnitOfMeasure Create(int? uof, Types uofType)
+        {
+            return uof.HasValue ? new UnitOfMeasure((decimal)uof.Value, uofType) : null;
+        }
+
+        public static UnitOfMeasure Create(long? uof, Types uofType)
+        {
+            return uof.HasValue ? new UnitOfMeasure((decimal)uof.Value, uofType) : null;
+        }
+
+        public static UnitOfMeasure Create(TimeSpan uof, Types uofType)
+        {
+            return new UnitOfMeasure((decimal) uof.TotalMilliseconds, Types.Time | Types.MS);
+        }
+
+        public static UnitOfMeasure Create(TimeSpan? uof, Types uofType)
+        {
+            return uof.HasValue ? new UnitOfMeasure((decimal)uof.Value.TotalMilliseconds, Types.Time | Types.MS) : null;
+        }
+
+        public static UnitOfMeasure Create(decimal uof, Types uofType)
+        {
+            return new UnitOfMeasure(uof, uofType);
+        }
+
+        public static UnitOfMeasure Create(decimal? uof, Types uofType)
+        {
+            return uof.HasValue ? new UnitOfMeasure(uof.Value, uofType) : null;
+        }
+
         #endregion
 
         #region private methods
@@ -501,17 +570,21 @@ namespace DSEDiagnosticLibrary
                 case "seconds":
                 case "second":
                 case "sec":
+                case "s":
                     return Types.SEC | uofType;
                 case "minutes":
                 case "minute":
                 case "min":
+                case "m":
                     return Types.MIN | uofType;
                 case "hours":
                 case "hour":
                 case "hr":
+                case "h":
                     return Types.HR | uofType;
                 case "day":
                 case "days":
+                case "d":
                     return Types.Day | uofType;
                 case "percent":
                 case "%":

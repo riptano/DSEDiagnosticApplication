@@ -37,6 +37,6 @@ namespace DSEDiagnosticFileParser
 
         public abstract uint ProcessJSON(JObject jObject);
 
-        public abstract override IEnumerable<T> GetItems<T>();
+        public abstract override IResult GetResult();
     }
 }

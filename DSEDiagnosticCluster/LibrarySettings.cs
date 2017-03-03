@@ -15,6 +15,7 @@ namespace DSEDiagnosticLibrary
                                                                     .ToArray();
         public static UnitOfMeasure.Types DefaultMemoryStorageSizeUnit = ParseEnum<UnitOfMeasure.Types>(Properties.Settings.Default.DefaultMemoryStorageSizeUnit);
         public static UnitOfMeasure.Types DefaultTimeUnit = ParseEnum<UnitOfMeasure.Types>(Properties.Settings.Default.DefaultTimeUnit);
+        public static string IPAdressRegEx = Properties.Settings.Default.IPAdressRegEx;
 
         public static T ParseEnum<T>(string enumValue)
             where T : struct
