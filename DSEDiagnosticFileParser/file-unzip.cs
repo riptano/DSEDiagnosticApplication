@@ -10,8 +10,13 @@ namespace DSEDiagnosticFileParser
 {
     public sealed class file_unzip : DiagnosticFile
     {
-        public file_unzip(CatagoryTypes catagory, IDirectoryPath diagnosticDirectory, IFilePath file, INode node)
-            : base(catagory, diagnosticDirectory, file, node)
+        public file_unzip(CatagoryTypes catagory,
+                            IDirectoryPath diagnosticDirectory,
+                            IFilePath file,
+                            INode node,
+                            string defaultClusterName,
+                            string defaultDCName)
+            : base(catagory, diagnosticDirectory, file, node, defaultClusterName, defaultDCName)
         {
         }
 

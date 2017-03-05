@@ -29,7 +29,9 @@ namespace DSEDiagnosticFileParser
 		protected DiagnosticFile(CatagoryTypes catagory,
 									IDirectoryPath diagnosticDirectory,
 									IFilePath file,
-									INode node)
+									INode node,
+                                    string defaultClusterName,
+                                    string defaultDCName)
 		{
 			this.Catagory = catagory;
 			this.DiagnosticDirectory = diagnosticDirectory;
@@ -37,6 +39,8 @@ namespace DSEDiagnosticFileParser
 			this.Node = node;
 			this.ParsedTimeRange = new DateTimeRange();
 			this.ParsedTimeRange.SetMinimal(DateTime.Now);
+            this.DefaultClusterName = defaultClusterName;
+            this.DefaultDataCenterName = defaultDCName;
 
             this.RegExParser = RegExAssocations.TryGetValue(this.GetType().Name);
         }
@@ -46,6 +50,8 @@ namespace DSEDiagnosticFileParser
 		public IDirectoryPath DiagnosticDirectory { get; private set; }
 		public IFilePath File { get; private set; }
 		public INode Node { get; private set; }
+        public string DefaultClusterName { get; private set; }
+        public string DefaultDataCenterName { get; private set; }
         public DateTimeRange ParseOnlyInTimeRange { get; protected set; }
         public int NbrItemsParsed { get; protected set; }
 		public DateTimeRange ParsedTimeRange { get; protected set; }
@@ -99,10 +105,10 @@ namespace DSEDiagnosticFileParser
 
 			if(nodeIdPos <= 0)
 			{
-				nodeId = NodeIdentifier.CreateNodeIdentifer(filePath.FileNameWithoutExtension);
-			}
+                nodeId = NodeIdentifier.CreateNodeIdentifer(filePath.FileNameWithoutExtension);
+            }
 
-			if(nodeId == null && nodeIdPos != 0)
+            if (nodeId == null && nodeIdPos != 0)
 			{
 				bool scanning = nodeIdPos < 0;
 				var directories = filePath.ParentDirectoryPath.PathResolved.Split(Path.DirectorySeparatorChar);
@@ -111,7 +117,7 @@ namespace DSEDiagnosticFileParser
 				{
 					for (int dirLevel = directories.Length - 1; dirLevel >= 0; --dirLevel)
 					{
-						nodeId = NodeIdentifier.CreateNodeIdentifer(directories[dirLevel], NodeIdentifier.CreateNodeIdentiferParsingOptions.IPAddressScan | NodeIdentifier.CreateNodeIdentiferParsingOptions.NodeNameEmbedded);
+						nodeId = NodeIdentifier.CreateNodeIdentifer(directories[dirLevel]);
 
 						if(nodeId != null)
 						{
@@ -241,9 +247,18 @@ namespace DSEDiagnosticFileParser
 			var mergesFiles = fileMappings?.FilePathMerge(diagnosticDirectory);
             var resultingFiles = mergesFiles == null
                                 ? Enumerable.Empty<IPath>()
-                                : mergesFiles.SelectMany(f => f.HasWildCardPattern()
-                                                                ? f.GetWildCardMatches()
-                                                                : new List<IPath>() { f });
+                                : mergesFiles.SelectMany(f =>
+                                    {
+                                        try
+                                        {
+                                            return f.HasWildCardPattern()
+                                                    ? f.GetWildCardMatches()
+                                                    : new List<IPath>() { f };
+                                        }
+                                        catch (System.IO.DirectoryNotFoundException) { }
+                                        catch (System.IO.FileNotFoundException) { }
+                                        return Enumerable.Empty<IPath>();
+                                    });
             var targetFiles = resultingFiles.Where(f => f is IFilePath
                                                             && f.Exist())
                                                                 .Cast<IFilePath>()
@@ -410,7 +425,7 @@ namespace DSEDiagnosticFileParser
                                                                 bool runAsTask = false)
 		{
 			var node = useNode == null ? Cluster.TryGetAddNode(nodeId, dataCenterName, clusterName) : useNode;
-			var processingFileInstance = (DiagnosticFile) Activator.CreateInstance(instanceType, catagory, diagnosticDirectory, processFile, node);
+			var processingFileInstance = (DiagnosticFile) Activator.CreateInstance(instanceType, catagory, diagnosticDirectory, processFile, node, clusterName, dataCenterName);
 
             if(cancellationToken.HasValue)
             {

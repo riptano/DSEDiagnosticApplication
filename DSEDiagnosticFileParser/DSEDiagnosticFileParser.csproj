@@ -50,6 +50,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\Common Patterns\Assemblies\40\Release\Common.Patterns.Tasks.dll</HintPath>
     </Reference>
+    <Reference Include="Common.Patterns.Threading, Version=4.0.5.0, Culture=neutral, PublicKeyToken=75d1a63e21e859f1, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Common Patterns\Assemblies\40\Release\Common.Patterns.Threading.dll</HintPath>
+    </Reference>
     <Reference Include="Common.Patterns.TimeZoneInfo, Version=4.0.5.0, Culture=neutral, PublicKeyToken=75d1a63e21e859f1, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\Common Patterns\Assemblies\40\Release\Common.Patterns.TimeZoneInfo.dll</HintPath>
@@ -77,7 +81,10 @@
   <ItemGroup>
     <Compile Include="DiagnosticFile.cs" />
     <Compile Include="file-agent_version.cs" />
+    <Compile Include="file-dsetool-ring.cs" />
     <Compile Include="file-load_avg.cs" />
+    <Compile Include="file-nodetool-info.cs" />
+    <Compile Include="file-nodetool-ring.cs" />
     <Compile Include="file-nodetool-status.cs" />
     <Compile Include="file-ntpstat.cs" />
     <Compile Include="file-ntptime.cs" />

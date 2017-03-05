@@ -17,8 +17,9 @@ namespace DSEDiagnosticLibrary
 		IEnumerable<LocalKeyspaceInfo> Keyspaces { get; }
 
 		INode TryGetNode(string nodeId);
+        INode TryGetAddNode(INode node);
 
-		IEnumerable<IEvent> Events { get; }
+        IEnumerable<IEvent> Events { get; }
 		IEnumerable<IConfiguration> Configurations { get; }
 		IEnumerable<IDDL> DDLs { get; }
 	}
@@ -53,7 +54,7 @@ namespace DSEDiagnosticLibrary
 
 		public INode TryGetAddNode(string nodeId)
 		{
-			if(string.IsNullOrEmpty(nodeId))
+			if(!NodeIdentifier.ValidNodeIdName(nodeId))
 			{ return null; }
 
 			var node = this._nodes.FirstOrDefault(n => n.Equals(nodeId));

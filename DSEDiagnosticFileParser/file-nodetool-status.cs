@@ -11,8 +11,13 @@ namespace DSEDiagnosticFileParser
 {
     public sealed class file_nodetool_status : DiagnosticFile
     {
-        public file_nodetool_status(CatagoryTypes catagory, IDirectoryPath diagnosticDirectory, IFilePath file, INode node)
-            : base(catagory, diagnosticDirectory, file, node)
+        public file_nodetool_status(CatagoryTypes catagory,
+                                        IDirectoryPath diagnosticDirectory,
+                                        IFilePath file,
+                                        INode node,
+                                        string defaultClusterName,
+                                        string defaultDCName)
+            : base(catagory, diagnosticDirectory, file, node, defaultClusterName, defaultDCName)
         {
         }
 
@@ -38,7 +43,7 @@ namespace DSEDiagnosticFileParser
             1   2           3    4    5       6       7                                     8
             */
 
-            string currentDataCenter = null;
+            IDataCenter currentDataCenter = null;
             string line = null;
             Match regExMatch = null;
 
@@ -60,7 +65,7 @@ namespace DSEDiagnosticFileParser
 
                 if (regExMatch.Success)
                 {
-                    currentDataCenter = regExMatch.Groups[1].Value;
+                    currentDataCenter = Cluster.TryGetAddDataCenter(regExMatch.Groups[1].Value, this.DefaultClusterName);
                     continue;
                 }
 

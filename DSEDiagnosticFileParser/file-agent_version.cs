@@ -10,8 +10,13 @@ namespace DSEDiagnosticFileParser
 {
     internal sealed class file_agent_version : DiagnosticFile
     {
-        public file_agent_version(CatagoryTypes catagory, IDirectoryPath diagnosticDirectory, IFilePath file, INode node)
-            : base(catagory, diagnosticDirectory, file, node)
+        public file_agent_version(CatagoryTypes catagory, 
+                                    IDirectoryPath diagnosticDirectory,
+                                    IFilePath file,
+                                    INode node,
+                                    string defaultClusterName,
+                                    string defaultDCName)
+            : base(catagory, diagnosticDirectory, file, node, defaultClusterName, defaultDCName)
         {
         }
 

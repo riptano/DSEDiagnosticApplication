@@ -15,8 +15,10 @@ namespace DSEDiagnosticFileParser
         public jason_cpu(CatagoryTypes catagory,
                                     IDirectoryPath diagnosticDirectory,
                                     IFilePath file,
-                                    INode node)
-			: base(catagory, diagnosticDirectory, file, node)
+                                    INode node,
+                                    string defaultClusterName,
+                                    string defaultDCName)
+			: base(catagory, diagnosticDirectory, file, node, defaultClusterName, defaultDCName)
 		{
         }
 

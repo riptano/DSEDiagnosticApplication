@@ -15,15 +15,17 @@ namespace DSEDiagnosticFileParser
         public json_os_info(CatagoryTypes catagory,
                                     IDirectoryPath diagnosticDirectory,
                                     IFilePath file,
-                                    INode node)
-			: base(catagory, diagnosticDirectory, file, node)
+                                    INode node,
+                                    string defaultClusterName,
+                                    string defaultDCName)
+			: base(catagory, diagnosticDirectory, file, node, defaultClusterName, defaultDCName)
 		{
         }
 
         public override uint ProcessJSON(JObject jObject)
         {
             jObject.TryGetValue("sub_os").NullSafeSet<string>(c => this.Node.Machine.OS = c);
-            jObject.TryGetValue("os_version").NullSafeSet<string>(c => this.Node.Machine.OSVersion = new Version(c));
+            jObject.TryGetValue("os_version").NullSafeSet<string>(c => this.Node.Machine.OSVersion = c);
 
             return 1;
         }

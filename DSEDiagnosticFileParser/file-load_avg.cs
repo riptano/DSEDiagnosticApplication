@@ -10,8 +10,13 @@ namespace DSEDiagnosticFileParser
 {
     internal sealed class file_load_avg : DiagnosticFile
     {
-        public file_load_avg(CatagoryTypes catagory, IDirectoryPath diagnosticDirectory, IFilePath file, INode node)
-            : base(catagory, diagnosticDirectory, file, node)
+        public file_load_avg(CatagoryTypes catagory,
+                                IDirectoryPath diagnosticDirectory,
+                                IFilePath file,
+                                INode node,
+                                string defaultClusterName,
+                                string defaultDCName)
+            : base(catagory, diagnosticDirectory, file, node, defaultClusterName, defaultDCName)
         {
         }
 

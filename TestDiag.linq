@@ -27,7 +27,7 @@ void Main()
 	var mappers = JsonConvert.DeserializeObject<FileMapper[]>(
 	"[" +
 	"{\"Catagory\": 2, \"FilePatterns\": [\".\\\\nodes\\\\*\\\\logs\\\\cassandra\\\\system.log\"], \"FileParsingClass\": \"UserQuery.TestClass\", \"NodeIdPos\": -1}," +
-	"{\"Catagory\": 5, \"FilePatterns\": [\".\\\\opscenterd\\\\node_info.json\"], \"FileParsingClass\": \"DSEDiagnosticFileParser.json_node_info\", \"NodeIdPos\": -1, \"ProcessingTaskOption\":2,\"ProcessPriorityLevel\":900}," +
+	"{\"Catagory\": 5, \"FilePatterns\": [\".\\\\opscenterd\\\\node_info.json\"], \"FileParsingClass\": \"DSEDiagnosticFileParser.json_node_info\", \"NodeIdPos\": -1, \"ProcessingTaskOption\":\"AllNodesInDataCenter,OnlyOnce\",\"ProcessPriorityLevel\":900}," +
 	"{\"Catagory\": 4, \"FilePatterns\": [\".\\\\nodes\\\\*\\\\nodetool\\\\status\"], \"FileParsingClass\": \"DSEDiagnosticFileParser.file_nodetool_status\", \"NodeIdPos\": 0, \"ProcessingTaskOption\":136, \"ProcessPriorityLevel\":1000}," +
 	"{\"Catagory\": 4, \"FilePatterns\": [\".\\\\nodes\\\\*\\\\nodetool\\\\test\"], \"FileParsingClass\": \"DSEDiagnosticFileParser.file_nodetool_status\", \"NodeIdPos\": 0, \"ProcessingTaskOption\":16, \"ProcessPriorityLevel\":925}," +
 	"{\"Catagory\": 4, \"FilePatterns\": [\".\\\\nodes\\\\*\\\\nodetool\\\\test1\"], \"FileParsingClass\": \"DSEDiagnosticFileParser.file_nodetool_status\", \"NodeIdPos\": 0, \"ProcessingTaskOption\":16, \"ProcessPriorityLevel\":925}," +

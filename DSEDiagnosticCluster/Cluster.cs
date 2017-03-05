@@ -119,7 +119,7 @@ namespace DSEDiagnosticLibrary
 			return TryGetAddDataCenter(dataCenterName, currentCuster);
 		}
 
-        public static IDataCenter TryGetDataCenter(string dataCenterName, Cluster cluster = null)
+        public static IDataCenter TryGetDataCenter(string dataCenterName, Cluster cluster)
         {
             if (string.IsNullOrEmpty(dataCenterName)) return null;
 
@@ -139,10 +139,10 @@ namespace DSEDiagnosticLibrary
 
         public static INode TryGetAddNode(string nodeId, string dataCenterName = null, string clusterName = null)
 		{
-			if (string.IsNullOrEmpty(nodeId))
+			if (!NodeIdentifier.ValidNodeIdName(nodeId))
 			{ return null; }
 
-			var currentDC = (DataCenter)(string.IsNullOrEmpty(dataCenterName) ? null : TryGetAddDataCenter(dataCenterName, clusterName));
+			var currentDC = (DataCenter)((string.IsNullOrEmpty(dataCenterName) ? null : TryGetAddDataCenter(dataCenterName, clusterName)));
 
 			if (currentDC == null)
 			{
@@ -152,9 +152,14 @@ namespace DSEDiagnosticLibrary
 				{
 					var cluster = string.IsNullOrEmpty(clusterName) ? CurrentCluster : TryGetAddCluster(clusterName);
 
-					node = new Node(cluster, null, nodeId);
-					UnAssociatedNodes.Add(node);
-				}
+                    node = cluster.DataCenters.SelectMany(dc => dc.Nodes).FirstOrDefault(n => n.Equals(nodeId));
+
+                    if (node == null)
+                    {
+                        node = new Node(cluster, null, nodeId);
+                        UnAssociatedNodes.Add(node);
+                    }
+                }
 
 				return node;
 			}
@@ -162,23 +167,36 @@ namespace DSEDiagnosticLibrary
 			return currentDC.TryGetAddNode(nodeId);
 		}
 
-		public static INode TryGetAddNode(NodeIdentifier nodeId, string dataCenterName = null, string clusterName = null)
+        public static INode TryGetAddNode(string nodeId, IDataCenter dataCenter)
+        {
+            if (!NodeIdentifier.ValidNodeIdName(nodeId))
+            { return null; }
+
+            return ((DataCenter)dataCenter)?.TryGetAddNode(nodeId);
+        }
+
+        public static INode TryGetAddNode(NodeIdentifier nodeId, string dataCenterName = null, string clusterName = null)
 		{
 			if (nodeId == null)
 			{ return null; }
 
-			var currentDC = (DataCenter)(string.IsNullOrEmpty(dataCenterName) ? null : TryGetAddDataCenter(dataCenterName, clusterName));
+			var currentDC = (DataCenter)((string.IsNullOrEmpty(dataCenterName) ? null : TryGetAddDataCenter(dataCenterName, clusterName)));
 
 			if (currentDC == null)
 			{
-				var node = UnAssociatedNodes.FirstOrDefault(n => n.Equals(nodeId));
+				var node = UnAssociatedNodes.FirstOrDefault(n => n.Id == nodeId);
 
 				if (node == null)
 				{
 					var cluster = string.IsNullOrEmpty(clusterName) ? CurrentCluster : TryGetAddCluster(clusterName);
 
-					node = new Node(cluster, null, nodeId);
-					UnAssociatedNodes.Add(node);
+                    node = cluster.DataCenters.SelectMany(dc => dc.Nodes).FirstOrDefault(n => n.Id == nodeId);
+
+                    if (node == null)
+                    {
+                        node = new Node(cluster, null, nodeId);
+                        UnAssociatedNodes.Add(node);
+                    }
 				}
 
 				return node;

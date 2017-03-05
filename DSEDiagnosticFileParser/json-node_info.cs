@@ -15,8 +15,10 @@ namespace DSEDiagnosticFileParser
         public json_node_info(CatagoryTypes catagory,
                                     IDirectoryPath diagnosticDirectory,
                                     IFilePath file,
-                                    INode node)
-			: base(catagory, diagnosticDirectory, file, node)
+                                    INode node,
+                                    string defaultClusterName,
+                                    string defaultDCName)
+			: base(catagory, diagnosticDirectory, file, node, defaultClusterName, defaultDCName)
 		{
         }
 
@@ -52,9 +54,36 @@ namespace DSEDiagnosticFileParser
                     }
                 }
 
-                nodeInfo.TryGetValue("ec2").TryGetValue("instance-type").NullSafeSet<string>(v => v.ParseEnumString<DSEInfo.InstanceTypes>(ref this.Node.DSE.InstanceType));
-                nodeInfo.TryGetValue("num_procs").NullSafeSet<uint>(v => this.Node.Machine.CPU.Cores = v);
-                nodeInfo.TryGetValue("vnodes").NullSafeSet<uint>(v => this.Node.DSE.NbrVNodes = v);
+                nodeInfo.TryGetValue("ec2").TryGetValue("instance-type").NullSafeSet<string>(v => this.Node.Machine.InstanceType = v);
+                nodeInfo.TryGetValue("num_procs").EmptySafeSet<uint>(this.Node.Machine.CPU.Cores, v => this.Node.Machine.CPU.Cores = v);
+                nodeInfo.TryGetValue("vnodes").NullSafeSet<bool>(v => this.Node.DSE.VNodesEnabled = v);
+                nodeInfo.TryGetValue("os").EmptySafeSet(this.Node.Machine.OS, v => this.Node.Machine.OS = v);
+
+                if (string.IsNullOrEmpty(this.Node.Id.HostName))
+                {
+                    nodeInfo.TryGetValue("hostname").NullSafeSet<string>(v => this.Node.Id.SetIPAddressOrHostName(v, false));
+                }
+
+                if(this.Node.DataCenter == null)
+                {
+                    var dcName = nodeInfo.TryGetValue("dc")?.Value<string>();
+
+                    if (!string.IsNullOrEmpty(dcName))
+                    {
+                        var dcInstance = Cluster.TryGetAddDataCenter(dcName, this.Node.Cluster);
+
+                        if(dcInstance != null)
+                        {
+                            dcInstance.TryGetAddNode(this.Node);
+                        }
+                    }
+                }
+
+                if (string.IsNullOrEmpty(this.Node.DSE.Rack))
+                {
+                    ((Node)this.Node).DSE.Rack = nodeInfo.TryGetValue("rack")?.Value<string>();
+                }
+
                 ++nbrItems;
             }
 

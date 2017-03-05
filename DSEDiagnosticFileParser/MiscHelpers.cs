@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Common;
+using Common.Patterns.Threading;
 using Newtonsoft.Json.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -15,7 +16,7 @@ namespace DSEDiagnosticFileParser
     internal static class MiscHelpers
     {
         static MiscHelpers()
-        {            
+        {
         }
 
         static public string RemoveQuotes(string item, bool checkbrackets = true)
@@ -88,7 +89,7 @@ namespace DSEDiagnosticFileParser
             IPAddress.TryParse(possibleIPAddress, out ipAddress);
             return ipAddress;
         }
-        
+
         static string DetermineProperFormat(string strValue, bool ignoreBraces = false, bool removeNamespace = true)
         {
             var result = DetermineProperObjectFormat(strValue, ignoreBraces, removeNamespace);
@@ -156,10 +157,10 @@ namespace DSEDiagnosticFileParser
                 }
             }
 
-            if (IPAddressStr(strValue, out strValueA))
-            {
-                return strValueA;
-            }
+            //if (IPAddressStr(strValue, out strValueA))
+            //{
+            //    return strValueA;
+            //}
 
             if (strValue.IndexOfAny(new char[] { '/', '\\', ':' }) >= 0)
             {
@@ -215,14 +216,19 @@ namespace DSEDiagnosticFileParser
         /// <param name="filePath"></param>
         /// <param name="extractedFolder"></param>
         /// <param name="forceExtraction"></param>
-        /// <param name="extractOnlyToThisFolder"></param>
+        /// <param name="extractToParentFolder"></param>
+        /// <param name="allowRecursiveUnZipping"></param>
+        /// <param name="renameOnceFileExtracted"></param>
+        /// <param name="cancellationToken"></param>
+        /// <param name="runFileExtractionInParallel"></param>
         /// <returns></returns>
         public static int UnZipFileToFolder(this IFilePath filePath, out IDirectoryPath extractedFolder,
                                                 bool forceExtraction = false,
                                                 bool extractToParentFolder = false,
                                                 bool allowRecursiveUnZipping = true,
                                                 bool renameOnceFileExtracted = true,
-                                                CancellationToken? cancellationToken = null)
+                                                CancellationToken? cancellationToken = null,
+                                                bool runNestedFileExtractionInParallel = true)
         {
             var extractFileInfo = LibrarySettings.ExtractFilesWithExtensions.FirstOrDefault(i => i.Item1.ToLower() == filePath.FileExtension.ToLower());
             int nbrExtractedFiles = 0;
@@ -233,31 +239,35 @@ namespace DSEDiagnosticFileParser
             {
                 var newExtractedFolder = extractToParentFolder ? extractedFolder : (IDirectoryPath) extractedFolder.MakeChild(filePath.FileNameWithoutExtension);
                 var fileAttrs = filePath.GetAttributes();
-                
+
                 if (forceExtraction || extractToParentFolder || !newExtractedFolder.Exist())
-                {                    
-                    List<IPath> extractedFiles = null;
+                {
                     var extractType = extractFileInfo.Item2.ToLower();
-                    int nbrChildrenInFolder = 0;
+                    List<IPath> childrenInFolder;
+
+                    cancellationToken?.ThrowIfCancellationRequested();
 
                     if (!newExtractedFolder.Exist())
                     {
                         newExtractedFolder.Create();
+                        childrenInFolder = new List<IPath>(0);
                     }
                     else
                     {
-                        nbrChildrenInFolder = newExtractedFolder.Children().Count();
+                        childrenInFolder = newExtractedFolder.Children();
                     }
-                    
+
                     Logger.Instance.InfoFormat("Extracting File \"{0}\" to directory \"{1}\"...",
                                                    filePath.PathResolved,
                                                    newExtractedFolder.PathResolved);
 
+                    cancellationToken?.ThrowIfCancellationRequested();
+
                     if (extractType == "zip")
                     {
                         var zip = new ICSharpCode.SharpZipLib.Zip.FastZip();
-                        zip.RestoreDateTimeOnExtract = true;                        
-                        zip.ExtractZip(filePath.PathResolved, newExtractedFolder.PathResolved, ICSharpCode.SharpZipLib.Zip.FastZip.Overwrite.Never, null, null, null, true);                        
+                        zip.RestoreDateTimeOnExtract = true;
+                        zip.ExtractZip(filePath.PathResolved, newExtractedFolder.PathResolved, ICSharpCode.SharpZipLib.Zip.FastZip.Overwrite.Never, null, null, null, true);
                     }
                     else if (extractType == "gz")
                     {
@@ -266,7 +276,7 @@ namespace DSEDiagnosticFileParser
                         using (var tarArchive = ICSharpCode.SharpZipLib.Tar.TarArchive.CreateInputTarArchive(gzipStream))
                         {
                             tarArchive.SetKeepOldFiles(true);
-                            tarArchive.ExtractContents(newExtractedFolder.PathResolved);                           
+                            tarArchive.ExtractContents(newExtractedFolder.PathResolved);
                         }
                     }
                     else if(extractType == "tar")
@@ -287,7 +297,9 @@ namespace DSEDiagnosticFileParser
                         return 0;
                     }
 
-                    if(renameOnceFileExtracted)
+                    cancellationToken?.ThrowIfCancellationRequested();
+
+                    if (renameOnceFileExtracted)
                     {
                         var newName = filePath.Clone(filePath.FileName, "extracted");
 
@@ -305,31 +317,34 @@ namespace DSEDiagnosticFileParser
                         }
                     }
 
-                    extractedFiles = ((IDirectoryPath)newExtractedFolder).Children();
-                    
+                    cancellationToken?.ThrowIfCancellationRequested();
+                    nbrExtractedFiles = ((IDirectoryPath)newExtractedFolder).Children().Count - childrenInFolder.Count;
+
                     Logger.Instance.InfoFormat("Extracted into folder \"{0}\" {1} files...",
-                                               newExtractedFolder.PathResolved,
-                                               extractedFiles == null ? 0 : extractedFiles.Count - nbrChildrenInFolder);
-                    
-                    if(allowRecursiveUnZipping && extractedFiles != null)
-                    {                        
-                        var compressedFiles = extractedFiles.Where(f => f is IFilePath
-                                                                            && f != filePath                                                                       
-                                                                            && LibrarySettings.ExtractFilesWithExtensions.Any(i => i.Item1.ToLower() == ((IFilePath) f).FileExtension.ToLower()))
-                                                            .Cast<IFilePath>();
+                                                    newExtractedFolder.PathResolved,
+                                                    nbrExtractedFiles);
 
-                        var parallelOptions = new ParallelOptions();
-                       
-                        if(cancellationToken.HasValue)
-                        {
-                            parallelOptions.CancellationToken = cancellationToken.Value;
-                        }
+                    if (allowRecursiveUnZipping)
+                    {
+                        cancellationToken?.ThrowIfCancellationRequested();
 
-                        Parallel.ForEach(compressedFiles, parallelOptions, compressedFile =>
+                        var additionalExtractionFiles = GetAllChildrenExtractFiles((IDirectoryPath)newExtractedFolder)
+                                                        .Where(f => !childrenInFolder.Contains(f) && f.Exist());
+
+                        RunParallelForEach.ForEach(runNestedFileExtractionInParallel, additionalExtractionFiles, compressedFile =>
                         //foreach (var compressedFile in compressedFiles)
                         {
+                            cancellationToken?.ThrowIfCancellationRequested();
+
                             IDirectoryPath tempExtractedFolder;
-                            var subNbrFiles = UnZipFileToFolder(compressedFile, out tempExtractedFolder, true, true, true, renameOnceFileExtracted, cancellationToken);
+                            var subNbrFiles = UnZipFileToFolder(compressedFile,
+                                                                    out tempExtractedFolder,
+                                                                    true,
+                                                                    true,
+                                                                    false,
+                                                                    renameOnceFileExtracted,
+                                                                    cancellationToken,
+                                                                    false);
 
                             if (subNbrFiles == 0)
                             {
@@ -341,20 +356,31 @@ namespace DSEDiagnosticFileParser
                             {
                                 nbrExtractedFiles += subNbrFiles;
                             }
-
-                            parallelOptions.CancellationToken.ThrowIfCancellationRequested();
                         });
                     }
                 }
 
                 extractedFolder = (IDirectoryPath)newExtractedFolder;
-
-                return nbrExtractedFiles;
             }
 
-            return 0;
+            return nbrExtractedFiles;
         }
 
+        static IEnumerable<IFilePath> GetAllChildrenExtractFiles(IDirectoryPath directoryPath)
+        {
+            var childrenList = directoryPath.Children();
+            var extractedFiles = childrenList.Where(f => f is IFilePath
+                                                            && LibrarySettings.ExtractFilesWithExtensions.Any(i => i.Item1.ToLower() == ((IFilePath)f).FileExtension.ToLower()))
+                                                .Cast<IFilePath>().ToList();
+
+            foreach (var dirPath in childrenList.Where(p => p.IsDirectoryPath).Cast<IDirectoryPath>())
+            {
+                extractedFiles.AddRange(GetAllChildrenExtractFiles(dirPath));
+            }
+
+            return extractedFiles;
+        }
+       
         #region JSON
 
         public static Dictionary<string, JObject> TryGetValues(this JObject jsonObj)
@@ -441,12 +467,13 @@ namespace DSEDiagnosticFileParser
         /// <param name="input"></param>
         /// <param name="outObj"></param>
         /// <param name="outExpr"></param>
+        /// <returns>True for successful</returns>
         /// <example>
         /// <code>
         /// jsonObj.TryGetValue("10.14.150.121").TryGetValue("devices").TryGetValue("other").NullSafeSet(myInstance, i => i.field);
         /// </code>
         /// </example>
-        public static void NullSafeSet<TClass, TProperty>(this JToken jtoken, TClass outObj, Expression<Func<TClass, TProperty>> outExpr)
+        public static bool NullSafeSet<TClass, TProperty>(this JToken jtoken, TClass outObj, Expression<Func<TClass, TProperty>> outExpr)
         {
             if (jtoken != null)
             {
@@ -458,11 +485,13 @@ namespace DSEDiagnosticFileParser
                 if (jsonValue != null)
                 {
                     prop.SetValue(outObj, jsonValue, null);
+                    return true;
                 }
             }
+            return false;
         }
 
-        public static void NullSafeSet<TClass, TProperty>(this JToken jtoken, int index, TClass outObj, Expression<Func<TClass, TProperty>> outExpr)
+        public static bool NullSafeSet<TClass, TProperty>(this JToken jtoken, int index, TClass outObj, Expression<Func<TClass, TProperty>> outExpr)
         {
             if (jtoken != null)
             {
@@ -474,11 +503,14 @@ namespace DSEDiagnosticFileParser
                 if (jsonValue != null)
                 {
                     prop.SetValue(outObj, jsonValue, null);
+                    return true;
                 }
             }
+
+            return false;
         }
 
-        public static void NullSafeSet<JValue>(this JToken jtoken, int index, Action<JValue> setOutput)
+        public static bool NullSafeSet<JValue>(this JToken jtoken, int index, Action<JValue> setOutput)
         {
             if (jtoken != null)
             {
@@ -487,11 +519,14 @@ namespace DSEDiagnosticFileParser
                 if (jsonValue != null)
                 {
                     setOutput((JValue)jsonValue);
+                    return true;
                 }
             }
+
+            return false;
         }
 
-        public static void NullSafeSet<JValue>(this JToken jtoken, Action<JValue> setOutput)
+        public static bool NullSafeSet<JValue>(this JToken jtoken, Action<JValue> setOutput)
         {
             if (jtoken != null)
             {
@@ -500,60 +535,94 @@ namespace DSEDiagnosticFileParser
                 if (jsonValue != null)
                 {
                     setOutput((JValue)jsonValue);
+                    return true;
                 }
             }
+
+            return false;
         }
 
-        public static void EmptySafeSet<TClass, TProperty>(this JToken jtoken, int index, TClass outObj, Expression<Func<TClass, TProperty>> outExpr)
+        public static bool EmptySafeSet<JValue>(this JToken jtoken, int nIndex, JValue inputValue, Action<JValue> setOutput)
+            where JValue : class
         {
             if (jtoken != null)
             {
-                var expr = (MemberExpression)outExpr.Body;
-                var prop = (PropertyInfo)expr.Member;
-
-                var jsonValue = jtoken.ElementAtOrDefault(index)?.ToObject(prop.PropertyType);
-
-                if (jsonValue != null)
+                if (inputValue == null)
                 {
-                    if (prop.PropertyType.IsClass || prop.PropertyType.IsGenericType && prop.PropertyType.GetGenericTypeDefinition() == typeof(Nullable<>))
-                    {
-                        if (prop.GetValue(outObj) == null)
-                        {
-
-                            prop.SetValue(outObj, jsonValue, null);
-                        }
-                    }
-                    else
-                    {
-                        prop.SetValue(outObj, jsonValue, null);
-                    }
+                    return jtoken.NullSafeSet<JValue>(nIndex, setOutput);
                 }
             }
+
+            return false;
         }
 
-
-        public static void EmptySafeSet<TClass, TProperty>(this JToken jtoken, TClass outObj, Expression<Func<TClass, TProperty>> outExpr)
+        public static bool EmptySafeSet(this JToken jtoken, int nIndex, string inputValue, Action<string> setOutput)
         {
             if (jtoken != null)
             {
-                var expr = (MemberExpression)outExpr.Body;
-                var prop = (PropertyInfo)expr.Member;
-
-                var jsonValue = jtoken.ToObject(prop.PropertyType);
-
-                if (jsonValue != null)
+                if (string.IsNullOrEmpty(inputValue))
                 {
-                    if (prop.PropertyType.IsClass || prop.PropertyType.IsGenericType && prop.PropertyType.GetGenericTypeDefinition() == typeof(Nullable<>))
-                    {
-                        if (prop.GetValue(outObj) == null)
-                        { prop.SetValue(outObj, jsonValue, null); }
-                    }
-                    else
-                    {
-                        prop.SetValue(outObj, jsonValue, null);
-                    }
+                    return jtoken.NullSafeSet<string>(nIndex, setOutput);
                 }
             }
+
+            return false;
+        }
+
+        public static bool EmptySafeSet<JValue>(this JToken jtoken, int nIndex, Nullable<JValue> inputValue, Action<JValue> setOutput)
+            where JValue : struct
+        {
+            if (jtoken != null)
+            {
+                if (!inputValue.HasValue)
+                {
+                    return jtoken.NullSafeSet<JValue>(nIndex, setOutput);
+                }
+            }
+
+            return false;
+        }
+
+
+        public static bool EmptySafeSet<JValue>(this JToken jtoken, JValue inputValue, Action<JValue> setOutput)
+            where JValue : class
+        {
+            if (jtoken != null)
+            {
+                if(inputValue == null)
+                {
+                    return jtoken.NullSafeSet<JValue>(setOutput);
+                }
+            }
+
+            return false;
+        }
+
+        public static bool EmptySafeSet(this JToken jtoken, string inputValue, Action<string> setOutput)            
+        {
+            if (jtoken != null)
+            {
+                if (string.IsNullOrEmpty(inputValue))
+                {
+                    return jtoken.NullSafeSet<string>(setOutput);
+                }
+            }
+
+            return false;
+        }
+
+        public static bool EmptySafeSet<JValue>(this JToken jtoken, Nullable<JValue> inputValue, Action<JValue> setOutput)
+            where JValue : struct
+        {
+            if (jtoken != null)
+            {
+                if(!inputValue.HasValue)
+                {
+                    return jtoken.NullSafeSet<JValue>(setOutput);
+                }
+            }
+
+            return false;
         }
         #endregion
 

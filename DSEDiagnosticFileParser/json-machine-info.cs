@@ -15,8 +15,10 @@ namespace DSEDiagnosticFileParser
         public json_machine_info(CatagoryTypes catagory,
                                     IDirectoryPath diagnosticDirectory,
                                     IFilePath file,
-                                    INode node)
-			: base(catagory, diagnosticDirectory, file, node)
+                                    INode node,
+                                    string defaultClusterName,
+                                    string defaultDCName)
+			: base(catagory, diagnosticDirectory, file, node, defaultClusterName, defaultDCName)
 		{
         }
 
@@ -24,7 +26,7 @@ namespace DSEDiagnosticFileParser
         {
 
             jObject.TryGetValue("arch").NullSafeSet<string>(c => this.Node.Machine.CPU.Architecture = c);
-            jObject.TryGetValue("memory").NullSafeSet<int>(c => this.Node.Machine.Memory.PhysicalMemory = UnitOfMeasure.Create(c, UnitOfMeasure.Types.Memory | UnitOfMeasure.Types.MiB));
+            jObject.TryGetValue("memory").NullSafeSet<long>(c => this.Node.Machine.Memory.PhysicalMemory = UnitOfMeasure.Create(c, UnitOfMeasure.Types.Memory | UnitOfMeasure.Types.MiB));
 
             return 1;
         }

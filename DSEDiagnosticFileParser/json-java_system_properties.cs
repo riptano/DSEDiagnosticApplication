@@ -15,8 +15,10 @@ namespace DSEDiagnosticFileParser
         public json_java_system_properties(CatagoryTypes catagory,
                                             IDirectoryPath diagnosticDirectory,
                                             IFilePath file,
-                                            INode node)
-            : base(catagory, diagnosticDirectory, file, node)
+                                            INode node,
+                                            string defaultClusterName,
+                                            string defaultDCName)
+            : base(catagory, diagnosticDirectory, file, node, defaultClusterName, defaultDCName)
 		{
         }
 
@@ -25,9 +27,9 @@ namespace DSEDiagnosticFileParser
             jObject.TryGetValue("java.vendor").NullSafeSet<string>(c => this.Node.Machine.Java.Vendor = c);
             jObject.TryGetValue("sun.arch.data.model").NullSafeSet<int>(c => this.Node.Machine.Java.Model = c);
             jObject.TryGetValue("java.runtime.name").NullSafeSet<string>(c => this.Node.Machine.Java.RuntimeName = c);
-            jObject.TryGetValue("java.runtime.version").NullSafeSet<string>(c => this.Node.Machine.Java.Version = new Version(c));
+            jObject.TryGetValue("java.runtime.version").NullSafeSet<string>(c => this.Node.Machine.Java.Version = c);
             jObject.TryGetValue("user.timezone").NullSafeSet<string>(c => this.Node.Machine.TimeZone = Common.TimeZones.Find(c));
-            jObject.TryGetValue("dse.system_cpu_cores").NullSafeSet<int>(c => this.Node.Machine.CPU.Cores = (uint) c);
+            jObject.TryGetValue("dse.system_cpu_cores").EmptySafeSet<uint>(this.Node.Machine.CPU.Cores, c => this.Node.Machine.CPU.Cores = c);
 
             return 1;
         }

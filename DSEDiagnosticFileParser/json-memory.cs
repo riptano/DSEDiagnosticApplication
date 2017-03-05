@@ -15,20 +15,22 @@ namespace DSEDiagnosticFileParser
         public json_memory(CatagoryTypes catagory,
                                     IDirectoryPath diagnosticDirectory,
                                     IFilePath file,
-                                    INode node)
-			: base(catagory, diagnosticDirectory, file, node)
+                                    INode node,
+                                    string defaultClusterName,
+                                    string defaultDCName)
+			: base(catagory, diagnosticDirectory, file, node, defaultClusterName, defaultDCName)
 		{
         }
 
         public override uint ProcessJSON(JObject jObject)
         {
-            jObject.TryGetValue("available").NullSafeSet<int>(c => this.Node.Machine.Memory.Available = UnitOfMeasure.Create(c, UnitOfMeasure.Types.Memory | UnitOfMeasure.Types.MiB));
-            jObject.TryGetValue("cache").NullSafeSet<int>(c => this.Node.Machine.Memory.Cache = UnitOfMeasure.Create(c, UnitOfMeasure.Types.Memory | UnitOfMeasure.Types.MiB));
-            jObject.TryGetValue("cached").NullSafeSet<int>(c => this.Node.Machine.Memory.Cache = UnitOfMeasure.Create(c, UnitOfMeasure.Types.Memory | UnitOfMeasure.Types.MiB));
-            jObject.TryGetValue("buffers").NullSafeSet<int>(c => this.Node.Machine.Memory.Buffers = UnitOfMeasure.Create(c, UnitOfMeasure.Types.Memory | UnitOfMeasure.Types.MiB));
-            jObject.TryGetValue("shared").NullSafeSet<int>(c => this.Node.Machine.Memory.Shared = UnitOfMeasure.Create(c, UnitOfMeasure.Types.Memory | UnitOfMeasure.Types.MiB));
-            jObject.TryGetValue("free").NullSafeSet<int>(c => this.Node.Machine.Memory.Free = UnitOfMeasure.Create(c, UnitOfMeasure.Types.Memory | UnitOfMeasure.Types.MiB));
-            jObject.TryGetValue("used").NullSafeSet<int>(c => this.Node.Machine.Memory.Used = UnitOfMeasure.Create(c, UnitOfMeasure.Types.Memory | UnitOfMeasure.Types.MiB));
+            jObject.TryGetValue("available").NullSafeSet<long>(c => this.Node.Machine.Memory.Available = UnitOfMeasure.Create(c, UnitOfMeasure.Types.Memory | UnitOfMeasure.Types.MiB));
+            jObject.TryGetValue("cache").NullSafeSet<long>(c => this.Node.Machine.Memory.Cache = UnitOfMeasure.Create(c, UnitOfMeasure.Types.Memory | UnitOfMeasure.Types.MiB));
+            jObject.TryGetValue("cached").NullSafeSet<long>(c => this.Node.Machine.Memory.Cache = UnitOfMeasure.Create(c, UnitOfMeasure.Types.Memory | UnitOfMeasure.Types.MiB));
+            jObject.TryGetValue("buffers").NullSafeSet<long>(c => this.Node.Machine.Memory.Buffers = UnitOfMeasure.Create(c, UnitOfMeasure.Types.Memory | UnitOfMeasure.Types.MiB));
+            jObject.TryGetValue("shared").NullSafeSet<long>(c => this.Node.Machine.Memory.Shared = UnitOfMeasure.Create(c, UnitOfMeasure.Types.Memory | UnitOfMeasure.Types.MiB));
+            jObject.TryGetValue("free").NullSafeSet<long>(c => this.Node.Machine.Memory.Free = UnitOfMeasure.Create(c, UnitOfMeasure.Types.Memory | UnitOfMeasure.Types.MiB));
+            jObject.TryGetValue("used").NullSafeSet<long>(c => this.Node.Machine.Memory.Used = UnitOfMeasure.Create(c, UnitOfMeasure.Types.Memory | UnitOfMeasure.Types.MiB));
 
             return 1;
         }

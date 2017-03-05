@@ -10,8 +10,13 @@ namespace DSEDiagnosticFileParser
 {
     internal sealed class file_ntptime : DiagnosticFile
     {
-        public file_ntptime(CatagoryTypes catagory, IDirectoryPath diagnosticDirectory, IFilePath file, INode node)
-            : base(catagory, diagnosticDirectory, file, node)
+        public file_ntptime(CatagoryTypes catagory,
+                                IDirectoryPath diagnosticDirectory,
+                                IFilePath file,
+                                INode node,
+                                string defaultClusterName,
+                                string defaultDCName)
+            : base(catagory, diagnosticDirectory, file, node, defaultClusterName, defaultDCName)
         {
         }
 
@@ -32,25 +37,25 @@ namespace DSEDiagnosticFileParser
                 //for ntp_gettime split (1) -- 11481 us, 20 us
                 var splits = this.RegExParser.Split(fileLine, 0);
 
-                if (splits.Length > 0)
+                if (splits.Length > 7)
                 {
-                    this.Node.Machine.NTP.Frequency = UnitOfMeasure.Create(splits[0], UnitOfMeasure.Types.Time);
+                    this.Node.Machine.NTP.Frequency = UnitOfMeasure.Create(splits[1], UnitOfMeasure.Types.Time);
                     //No NTP interval field
-                    this.Node.Machine.NTP.MaximumError = UnitOfMeasure.Create(splits[2], UnitOfMeasure.Types.Time);
-                    this.Node.Machine.NTP.EstimatedError = UnitOfMeasure.Create(splits[3], UnitOfMeasure.Types.Time);
+                    this.Node.Machine.NTP.MaximumError = UnitOfMeasure.Create(splits[3], UnitOfMeasure.Types.Time);
+                    this.Node.Machine.NTP.EstimatedError = UnitOfMeasure.Create(splits[4], UnitOfMeasure.Types.Time);
                     //No NTP time constant field
-                    this.Node.Machine.NTP.Precision = UnitOfMeasure.Create(splits[5], UnitOfMeasure.Types.Time);
-                    this.Node.Machine.NTP.Tolerance = UnitOfMeasure.Create(splits[6], UnitOfMeasure.Types.Time);
+                    this.Node.Machine.NTP.Precision = UnitOfMeasure.Create(splits[6], UnitOfMeasure.Types.Time);
+                    this.Node.Machine.NTP.Tolerance = UnitOfMeasure.Create(splits[7], UnitOfMeasure.Types.Time);
                     ++nbrItems;
                 }
                 else
                 {
                     splits = this.RegExParser.Split(fileLine, 1);
 
-                    if (splits.Length > 0)
+                    if (splits.Length > 2)
                     {
-                        this.Node.Machine.NTP.MaximumError = UnitOfMeasure.Create(splits[0], UnitOfMeasure.Types.Time);
-                        this.Node.Machine.NTP.EstimatedError = UnitOfMeasure.Create(splits[1], UnitOfMeasure.Types.Time);
+                        this.Node.Machine.NTP.MaximumError = UnitOfMeasure.Create(splits[1], UnitOfMeasure.Types.Time);
+                        this.Node.Machine.NTP.EstimatedError = UnitOfMeasure.Create(splits[2], UnitOfMeasure.Types.Time);
                         ++nbrItems;
                     }
                 }

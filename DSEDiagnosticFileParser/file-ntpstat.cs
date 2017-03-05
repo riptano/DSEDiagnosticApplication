@@ -11,8 +11,13 @@ namespace DSEDiagnosticFileParser
 {
     internal sealed class file_ntpstat : DiagnosticFile
     {
-        public file_ntpstat(CatagoryTypes catagory, IDirectoryPath diagnosticDirectory, IFilePath file, INode node)
-            : base(catagory, diagnosticDirectory, file, node)
+        public file_ntpstat(CatagoryTypes catagory,
+                                IDirectoryPath diagnosticDirectory,
+                                IFilePath file,
+                                INode node,
+                                string defaultClusterName,
+                                string defaultDCName)
+            : base(catagory, diagnosticDirectory, file, node, defaultClusterName, defaultDCName)
         {
         }
 
@@ -23,7 +28,7 @@ namespace DSEDiagnosticFileParser
 
         public override uint ProcessFile()
         {
-            var fileLine = this.File.ReadAllText();
+            var fileLine = this.File.ReadAllText().Replace('\n', ' ');
             uint nbrItems = 0;
 
             if (!string.IsNullOrEmpty(fileLine))
@@ -32,12 +37,12 @@ namespace DSEDiagnosticFileParser
                 //10.12.13.19, 2, 3 ms, 16 s
                 var splits = this.RegExParser.Split(fileLine);
 
-                if (splits.Length > 0)
+                if (splits.Length > 4)
                 {
-                    this.Node.Machine.NTP.NTPServer = MiscHelpers.DetermineIPAddress(splits[0]);
-                    this.Node.Machine.NTP.Stratum = int.Parse(splits[1]);
-                    this.Node.Machine.NTP.Correction = UnitOfMeasure.Create(splits[2], UnitOfMeasure.Types.Time);
-                    this.Node.Machine.NTP.Polling = UnitOfMeasure.Create(splits[3], UnitOfMeasure.Types.Time);
+                    this.Node.Machine.NTP.NTPServer = MiscHelpers.DetermineIPAddress(splits[1]);
+                    this.Node.Machine.NTP.Stratum = int.Parse(splits[2]);
+                    this.Node.Machine.NTP.Correction = UnitOfMeasure.Create(splits[3], UnitOfMeasure.Types.Time);
+                    this.Node.Machine.NTP.Polling = UnitOfMeasure.Create(splits[4], UnitOfMeasure.Types.Time);
                 }
 
                 ++nbrItems;
