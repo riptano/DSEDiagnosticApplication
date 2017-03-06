@@ -377,7 +377,7 @@ namespace DSEDiagnosticLibrary
                 }
                 else
                 {
-                    nodeAddress = string.Join(",", this._addresses));
+                    nodeAddress = string.Join(",", this._addresses);
                 }
 			}
 
