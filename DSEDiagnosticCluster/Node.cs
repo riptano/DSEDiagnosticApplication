@@ -364,20 +364,38 @@ namespace DSEDiagnosticLibrary
 
 		public string ToString(string className)
 		{
+            string nodeAddress = null;
+
 			if (!string.IsNullOrEmpty(this.HostName))
 			{ return string.Format("{0}{{{1}}}", className, this.HostName); }
 
 			if (this._addresses != null)
 			{
-				if (this._addresses.Count == 1)
-				{
-					return string.Format("{0}{{{1}}}", className, this._addresses.First());
-				}
-
-				return string.Format("{0}{{{1}}}", className, string.Join(",", this._addresses));
+                if (this._addresses.Count == 1)
+                {
+                    nodeAddress = this._addresses.First().ToString();
+                }
+                else
+                {
+                    nodeAddress = string.Join(",", this._addresses));
+                }
 			}
 
-			return base.ToString();
+            if (string.IsNullOrEmpty(this.HostName))
+            {
+                if(!string.IsNullOrEmpty(nodeAddress))
+                {
+                    return string.Format("{0}{{{1}}}", className, nodeAddress);
+                }
+            }
+            else
+            {
+                return string.IsNullOrEmpty(nodeAddress)
+                        ? string.Format("{0}{{{1}}}", className, this.HostName)
+                        : string.Format("{0}{{{1}:{2}}}", className, this.HostName, nodeAddress);
+            }
+
+            return base.ToString();
 		}
 
 		public override int GetHashCode()
@@ -541,7 +559,7 @@ namespace DSEDiagnosticLibrary
                     this.Slots = (ulong)((this.EndRange - long.MinValue)
                                             + (long.MaxValue - this.StartRange));
                     WrapsRange = true;
-                }                
+                }
                 else
                 {
                     this.Slots = (ulong)(this.EndRange - this.StartRange);
@@ -572,7 +590,7 @@ namespace DSEDiagnosticLibrary
 
                 if (checkRange.StartRange > this.StartRange)
                 {
-                    if (checkRange.StartRange <= this.EndRange)
+                    if (checkRange.StartRange < this.EndRange)
                     {
                         return true;
                     }

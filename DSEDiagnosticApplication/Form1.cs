@@ -24,9 +24,9 @@ namespace DSEDiagnosticApplication
             Logger.Instance.Info("test");
 
             //var diagPath = PathUtils.BuildDirectoryPath(@"C:\Users\Richard\Desktop\Diag-Customer\TestUnZip");
-            //var diagPath = PathUtils.BuildDirectoryPath(@"C:\Users\Richard\Desktop\Diag-Customer\Y31169_cluster-diagnostics-2017_01_06_08_02_04_UTC");
+            var diagPath = PathUtils.BuildDirectoryPath(@"C:\Users\Richard\Desktop\Diag-Customer\Y31169_cluster-diagnostics-2017_01_06_08_02_04_UTC");
            
-            var diagPath = PathUtils.BuildDirectoryPath(@"C:\Users\Richard\Desktop\20170217");
+            //var diagPath = PathUtils.BuildDirectoryPath(@"C:\Users\Richard\Desktop\20170217");
 
             var tasks = DSEDiagnosticFileParser.DiagnosticFile.ProcessFile(diagPath);
 

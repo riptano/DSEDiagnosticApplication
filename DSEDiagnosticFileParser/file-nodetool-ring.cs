@@ -74,6 +74,7 @@ namespace DSEDiagnosticFileParser
                     || line.StartsWith("Address")
                     || line.StartsWith("Warning:")
                     || line.StartsWith("Note:")
+                    || line.StartsWith("To view")
                     || line.StartsWith("=="))
                 {
                     continue;
@@ -84,14 +85,14 @@ namespace DSEDiagnosticFileParser
 
                 regExSplit = this.RegExParser.Split(line, 0); //DC
 
-                if (regExSplit.Length == 2)
+                if (regExSplit.Length == 3)
                 {
                     currentDataCenter = Cluster.TryGetDataCenter(regExSplit[1], this.DefaultClusterName);
                     continue;
                 }
 
                 regExSplit = this.RegExParser.Split(line, 1); //Start Token
-                if (regExSplit.Length == 2)
+                if (regExSplit.Length == 3)
                 {
                     startToken = regExSplit[1];
                     continue;
