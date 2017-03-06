@@ -366,9 +366,6 @@ namespace DSEDiagnosticLibrary
 		{
             string nodeAddress = null;
 
-			if (!string.IsNullOrEmpty(this.HostName))
-			{ return string.Format("{0}{{{1}}}", className, this.HostName); }
-
 			if (this._addresses != null)
 			{
                 if (this._addresses.Count == 1)
