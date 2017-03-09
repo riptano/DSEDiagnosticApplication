@@ -6,16 +6,6 @@ using System.Threading.Tasks;
 
 namespace DSEDiagnosticLibrary
 {
-    public enum SourceTypes
-    {
-        Unknown = 0,
-        CassandraLog,
-        CFStats,
-        TPStats,
-        Histogram,
-        OpsCenterRepairSession
-    }
-
     public enum EventTypes
     {
         Unkown = 0,
@@ -44,9 +34,8 @@ namespace DSEDiagnosticLibrary
         Repair
     }
 
-	public interface IEvent : IResult
-	{
-        SourceTypes Source { get; }
+	public interface IEvent : IParsed
+	{        
         EventTypes Type { get; }
         EventClasses Class { get; }
         /// <summary>

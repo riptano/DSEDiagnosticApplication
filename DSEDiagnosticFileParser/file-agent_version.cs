@@ -28,15 +28,15 @@ namespace DSEDiagnosticFileParser
         public override uint ProcessFile()
         {
             var fileLine = this.File.ReadAllText();
-            uint nbrItems = 0;
-
+            
             if (!string.IsNullOrEmpty(fileLine))
             {
                 this.Node.DSE.Versions.OpsCenterAgent = new Version(fileLine);
-                ++nbrItems;
+                ++this.NbrItemsParsed;
             }
 
-            return nbrItems;
+            this.Processed = true;
+            return 0;
         }
     }
 }

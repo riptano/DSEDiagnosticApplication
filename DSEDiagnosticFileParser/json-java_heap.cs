@@ -34,7 +34,9 @@ namespace DSEDiagnosticFileParser
             jObject.TryGetValue("HeapMemoryUsage").TryGetValue("max").NullSafeSet<long>(c => this.Node.Machine.Java.HeapMemory.Maximum = UnitOfMeasure.Create(c, UnitOfMeasure.Types.Memory | UnitOfMeasure.Types.Byte));
             jObject.TryGetValue("HeapMemoryUsage").TryGetValue("used").NullSafeSet<long>(c => this.Node.Machine.Java.HeapMemory.Used = UnitOfMeasure.Create(c, UnitOfMeasure.Types.Memory | UnitOfMeasure.Types.Byte));
 
-            return 1;
+            this.NbrItemsParsed = 8;
+            this.Processed = true;
+            return 0;
         }
 
         public override IResult GetResult()

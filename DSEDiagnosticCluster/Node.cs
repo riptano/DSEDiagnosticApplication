@@ -623,7 +623,7 @@ namespace DSEDiagnosticLibrary
 		public UnitOfMeasure Heap;
 		public UnitOfMeasure OffHeap;
 		public bool? VNodesEnabled;
-		public uint? NbrVNodes;
+		public uint? NbrTokens;
 		public uint? NbrExceptions;
 		public bool? GossipEnabled;
 		public bool? ThriftEnabled;
@@ -661,17 +661,17 @@ namespace DSEDiagnosticLibrary
 		DSEInfo DSE { get; }
 
 		IEnumerable<IEvent> Events { get; }
-		INode AssocateItem(IEvent eventItem);
-		IEnumerable<IConfiguration> Configurations { get; }
-		INode AssocateItem(IConfiguration eventItem);
+		INode AssociateItem(IEvent eventItem);
+		IEnumerable<IConfigurationLine> Configurations { get; }
+		INode AssociateItem(IConfigurationLine eventItem);
 		IEnumerable<IDDL> DDLs { get; }
-		INode AssocateItem(IDDL eventItem);
+		INode AssociateItem(IDDL eventItem);
 	}
 
 	public sealed class Node : INode
 	{
 		private static QueueProcessor<Tuple<Node, IEvent>> EventProcessQueue = new QueueProcessor<Tuple<Node, IEvent>>();
-		private static QueueProcessor<Tuple<Node, IConfiguration>> ConfigProcessQueue = new QueueProcessor<Tuple<Node, IConfiguration>>();
+		private static QueueProcessor<Tuple<Node, IConfigurationLine>> ConfigProcessQueue = new QueueProcessor<Tuple<Node, IConfigurationLine>>();
 		private static QueueProcessor<Tuple<Node, IDDL>> DDLProcessQueue = new QueueProcessor<Tuple<Node, IDDL>>();
 
 		static Node()
@@ -679,7 +679,7 @@ namespace DSEDiagnosticLibrary
 			EventProcessQueue.OnProcessMessageEvent += EventProcessQueue_OnProcessMessageEvent;
 			EventProcessQueue.Name = "Node-IEvent";
 			ConfigProcessQueue.OnProcessMessageEvent += ConfigProcessQueue_OnProcessMessageEvent;
-			ConfigProcessQueue.Name = "Node-IConfiguration";
+			ConfigProcessQueue.Name = "Node-IConfigurationLine";
 			DDLProcessQueue.OnProcessMessageEvent += DDLProcessQueue_OnProcessMessageEvent;
 			DDLProcessQueue.Name = "Node-IDDL";
 			DDLProcessQueue.StartQueue(false);
@@ -693,23 +693,35 @@ namespace DSEDiagnosticLibrary
             this.Machine = new MachineInfo();
         }
 
-		public Node(Cluster cluster, IDataCenter dataCenter, string nodeId)
+		public Node(IDataCenter dataCenter, string nodeId)
             : this()
 		{
-			this.Cluster = cluster;
 			this.DataCenter = dataCenter;
 			this.Id = NodeIdentifier.Create(nodeId);
 		}
 
-		public Node(Cluster cluster, IDataCenter dataCenter, NodeIdentifier nodeId)
+		public Node(IDataCenter dataCenter, NodeIdentifier nodeId)
             : this()
 		{
-			this.Cluster = cluster;
 			this.DataCenter = dataCenter;
 			this.Id = nodeId;
 		}
 
-		public IDataCenter SetNodeToDataCenter(IDataCenter dataCenter)
+        internal Node(Cluster cluster, NodeIdentifier nodeId)
+            : this()
+        {
+            this._defaultCluster = cluster;
+            this.Id = nodeId;
+        }
+
+        internal Node(Cluster cluster, string nodeId)
+            : this()
+        {
+            this._defaultCluster = cluster;
+            this.Id = NodeIdentifier.Create(nodeId);
+        }
+
+        public IDataCenter SetNodeToDataCenter(IDataCenter dataCenter)
 		{
 			if (dataCenter == null)
 			{
@@ -718,18 +730,24 @@ namespace DSEDiagnosticLibrary
 
 			if(this.DataCenter == null)
 			{
-				lock(this._events)
-				lock(this._configurations)
-				lock(this._ddls)
-				{
-					this._events.ForEach(item => ((DataCenter)dataCenter).AssocateItem(item));
-					this._configurations.ForEach(item => ((DataCenter)dataCenter).AssocateItem(item));
-					this._ddls.ForEach(item => ((DataCenter)dataCenter).AssocateItem(item));
+				//lock(this._events)
+				//lock(this._configurations)
+				//lock(this._ddls)
+				//{
+				//	this._events.ForEach(item => ((DataCenter)dataCenter).AssociateItem(item));
+				//	this._configurations.ForEach(item => ((DataCenter)dataCenter).AssociateItem(item));
+				//	this._ddls.ForEach(item => ((DataCenter)dataCenter).AssociateItem(item));
 
-					this.DataCenter = dataCenter;
-				}
-
-				return dataCenter;
+				//	this.DataCenter = dataCenter;
+				//}
+				
+                lock(this)
+                {
+                    if(this.DataCenter == null)
+                    {
+                        this.DataCenter = dataCenter;
+                    }
+                }
 			}
 
 			if(this.DataCenter.Equals(dataCenter))
@@ -744,17 +762,50 @@ namespace DSEDiagnosticLibrary
 																	dataCenter?.Name));
 		}
 
-		#region INode
-		public Cluster Cluster
+        internal Cluster SetCluster(Cluster associateCluster)
+        {
+            if (associateCluster != null && this._defaultCluster != null)
+            {
+                lock (this)
+                {
+                    if (this._defaultCluster != null && !ReferenceEquals(this._defaultCluster, associateCluster))
+                    {
+                        this._defaultCluster = associateCluster;
+                    }
+                }
+            }
+
+            return this._defaultCluster;
+        }
+
+        #region INode
+        private Cluster _defaultCluster = null;
+        public Cluster Cluster
 		{
-			get;
-			private set;
+			get { return this.DataCenter?.Cluster ?? this._defaultCluster; }
 		}
 
+        private IDataCenter _defaultDC = null;
 		public IDataCenter DataCenter
 		{
-			get;
-			private set;
+			get
+            {
+                return this._defaultDC;
+            }
+			private set
+            {
+                if (!ReferenceEquals(this._defaultDC, value))
+                {
+                    lock (this)
+                    {
+                        this._defaultDC = value;
+                        if (this._defaultDC != null)
+                        {
+                            this._defaultCluster = null;
+                        }
+                    }
+                }
+            }
 		}
 
 		public DSEInfo DSE
@@ -776,38 +827,38 @@ namespace DSEDiagnosticLibrary
 		private List<IEvent> _events = new List<IEvent>();
 		public IEnumerable<IEvent> Events { get { lock (this._events) { return this._events.ToArray(); } } }
 
-		private List<IConfiguration> _configurations = new List<IConfiguration>();
-		public IEnumerable<IConfiguration> Configurations { get { lock (this._configurations) { return this._configurations.ToArray(); } } }
+		private List<IConfigurationLine> _configurations = new List<IConfigurationLine>();
+		public IEnumerable<IConfigurationLine> Configurations { get { lock (this._configurations) { return this._configurations.ToArray(); } } }
 
 		private List<IDDL> _ddls = new List<IDDL>();
 		public IEnumerable<IDDL> DDLs { get { lock (this._ddls) { return this._ddls.ToArray(); } } }
 
-		public INode AssocateItem(IEvent eventItem)
+		public INode AssociateItem(IEvent eventItem)
 		{
 			if (eventItem != null)
 			{
 				EventProcessQueue.Enqueue(new Tuple<Node, IEvent>(this, eventItem));
-				((DataCenter)this.DataCenter)?.AssocateItem(eventItem);
+				((DataCenter)this.DataCenter)?.AssociateItem(eventItem);
 			}
 
 			return this;
 		}
-		public INode AssocateItem(IConfiguration configItem)
+		public INode AssociateItem(IConfigurationLine configItem)
 		{
 			if (configItem != null)
 			{
-				ConfigProcessQueue.Enqueue(new Tuple<Node, IConfiguration>(this, configItem));
-				((DataCenter)this.DataCenter)?.AssocateItem(configItem);
+				ConfigProcessQueue.Enqueue(new Tuple<Node, IConfigurationLine>(this, configItem));
+				((DataCenter)this.DataCenter)?.AssociateItem(configItem);
 			}
 
 			return this;
 		}
-		public INode AssocateItem(IDDL ddlItem)
+		public INode AssociateItem(IDDL ddlItem)
 		{
 			if (ddlItem != null)
 			{
 				DDLProcessQueue.Enqueue(new Tuple<Node, IDDL>(this, ddlItem));
-				((DataCenter)this.DataCenter)?.AssocateItem(ddlItem);
+				((DataCenter)this.DataCenter)?.AssociateItem(ddlItem);
 			}
 
 			return this;
@@ -863,11 +914,25 @@ namespace DSEDiagnosticLibrary
 			return this.Id == null ? base.ToString() : this.Id.ToString("Node");
 		}
 
-		#endregion
+        public static bool operator ==(Node a, Node b)
+        {
+            return ReferenceEquals(a, b) || (!ReferenceEquals(a, null) && a.Equals(b));
+        }
 
-		#region Processing Queue
+        public static bool operator !=(Node a, Node b)
+        {
+            if (ReferenceEquals(a, null) && !ReferenceEquals(b, null)) return true;
+            if (ReferenceEquals(b, null) && !ReferenceEquals(a, null)) return true;
+            if (ReferenceEquals(a, b)) return false;
 
-		private static void EventProcessQueue_OnProcessMessageEvent(QueueProcessor<Tuple<Node, IEvent>> sender, QueueProcessor<Tuple<Node, IEvent>>.MessageEventArgs processMessageArgs)
+            return !a.Equals(b);
+        }
+
+        #endregion
+
+        #region Processing Queue
+
+        private static void EventProcessQueue_OnProcessMessageEvent(QueueProcessor<Tuple<Node, IEvent>> sender, QueueProcessor<Tuple<Node, IEvent>>.MessageEventArgs processMessageArgs)
 		{
 			lock (processMessageArgs.ProcessedMessage.Item1._events)
 			{
@@ -875,7 +940,7 @@ namespace DSEDiagnosticLibrary
 			}
 		}
 
-		private static void ConfigProcessQueue_OnProcessMessageEvent(QueueProcessor<Tuple<Node, IConfiguration>> sender, QueueProcessor<Tuple<Node, IConfiguration>>.MessageEventArgs processMessageArgs)
+		private static void ConfigProcessQueue_OnProcessMessageEvent(QueueProcessor<Tuple<Node, IConfigurationLine>> sender, QueueProcessor<Tuple<Node, IConfigurationLine>>.MessageEventArgs processMessageArgs)
 		{
 			lock (processMessageArgs.ProcessedMessage.Item1._configurations)
 			{

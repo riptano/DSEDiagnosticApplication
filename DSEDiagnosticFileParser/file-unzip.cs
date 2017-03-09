@@ -51,6 +51,8 @@ namespace DSEDiagnosticFileParser
 
             this.Result = new ExtractionResult(newDirectory, nbrFilesExtracted);
 
+            this.NbrItemsParsed = 1;
+            this.Processed = true;
             return (uint)nbrFilesExtracted;
         }
     }

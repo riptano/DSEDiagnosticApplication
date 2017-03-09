@@ -20,14 +20,14 @@ namespace DSEDiagnosticLibrary
         INode TryGetAddNode(INode node);
 
         IEnumerable<IEvent> Events { get; }
-		IEnumerable<IConfiguration> Configurations { get; }
+		IEnumerable<IConfigurationLine> Configurations { get; }
 		IEnumerable<IDDL> DDLs { get; }
 	}
 
 	internal sealed class DataCenter : IDataCenter
 	{
 		private static QueueProcessor<Tuple<DataCenter, IEvent>> EventProcessQueue = new QueueProcessor<Tuple<DataCenter, IEvent>>();
-		private static QueueProcessor<Tuple<DataCenter, IConfiguration>> ConfigProcessQueue = new QueueProcessor<Tuple<DataCenter, IConfiguration>>();
+		private static QueueProcessor<Tuple<DataCenter, IConfigurationLine>> ConfigProcessQueue = new QueueProcessor<Tuple<DataCenter, IConfigurationLine>>();
 		private static QueueProcessor<Tuple<DataCenter, IDDL>> DDLProcessQueue = new QueueProcessor<Tuple<DataCenter, IDDL>>();
 
 		static DataCenter()
@@ -61,7 +61,7 @@ namespace DSEDiagnosticLibrary
 
 			if(node == null)
 			{
-				node = new Node(this.Cluster, this, nodeId);
+				node = new Node(this, nodeId);
 				this._nodes.Add(node);
 			}
 
@@ -77,7 +77,7 @@ namespace DSEDiagnosticLibrary
 
 			if (node == null)
 			{
-				node = new Node(this.Cluster, this, nodeId);
+				node = new Node(this, nodeId);
 				this._nodes.Add(node);
 			}
 
@@ -106,26 +106,26 @@ namespace DSEDiagnosticLibrary
 			return node;
 		}
 
-		public IDataCenter AssocateItem(IEvent eventItem)
+		public IDataCenter AssociateItem(IEvent eventItem)
 		{
 			if (eventItem != null)
 			{
 				EventProcessQueue.Enqueue(new Tuple<DataCenter, IEvent>(this, eventItem));
-				this.Cluster.AssocateItem(eventItem);
+				this.Cluster.AssociateItem(eventItem);
 			}
 
 			return this;
 		}
-		public IDataCenter AssocateItem(IConfiguration configItem)
+		public IDataCenter AssociateItem(IConfigurationLine configItem)
 		{
 			if (configItem != null)
 			{
-				ConfigProcessQueue.Enqueue(new Tuple<DataCenter, IConfiguration>(this, configItem));
+				ConfigProcessQueue.Enqueue(new Tuple<DataCenter, IConfigurationLine>(this, configItem));
 			}
 
 			return this;
 		}
-		public IDataCenter AssocateItem(IDDL ddlItem)
+		public IDataCenter AssociateItem(IDDL ddlItem)
 		{
 			if (ddlItem != null)
 			{
@@ -135,9 +135,31 @@ namespace DSEDiagnosticLibrary
 			return this;
 		}
 
+        /// <summary>
+        /// This will override an existing cluster association without warning!
+        /// </summary>
+        /// <param name="newCluster"></param>
+        /// <returns></returns>
+        internal IDataCenter AssociateItem(Cluster newCluster)
+        {
+            if (newCluster == null) throw new NullReferenceException("newCluster cannot be null");
 
-		#region IDataCenter
-		public Cluster Cluster
+            if (!ReferenceEquals(this.Cluster, newCluster))
+            {
+                lock (this)
+                {
+                    if (!ReferenceEquals(this.Cluster, newCluster))
+                    {                       
+                        this.Cluster = newCluster;
+                    }
+                }
+            }
+
+            return this;
+        }
+
+        #region IDataCenter
+        public Cluster Cluster
 		{
 			get;
 			private set;
@@ -174,8 +196,8 @@ namespace DSEDiagnosticLibrary
 		private List<IEvent> _events = new List<IEvent>();
 		public IEnumerable<IEvent> Events { get { lock (this._events) { return this._events.ToArray(); } } }
 
-		private List<IConfiguration> _configurations = new List<IConfiguration>();
-		public IEnumerable<IConfiguration> Configurations { get { lock (this._configurations) { return this._configurations.ToArray(); } } }
+		private List<IConfigurationLine> _configurations = new List<IConfigurationLine>();
+		public IEnumerable<IConfigurationLine> Configurations { get { lock (this._configurations) { return this._configurations.ToArray(); } } }
 
 		private List<IDDL> _ddls = new List<IDDL>();
 		public IEnumerable<IDDL> DDLs { get { lock (this._ddls) { return this._ddls.ToArray(); } } }
@@ -218,11 +240,24 @@ namespace DSEDiagnosticLibrary
 			return string.Format("DataCenter{{{0}}}", string.IsNullOrEmpty(this.Name) ? "<Unknown>" : this.Name);
 		}
 
-		#endregion
+        public static bool operator ==(DataCenter a, DataCenter b)
+        {
+            return ReferenceEquals(a, b) || (!ReferenceEquals(a, null) && a.Equals(b));
+        }
 
-		#region Processing Queue
+        public static bool operator !=(DataCenter a, DataCenter b)
+        {
+            if (ReferenceEquals(a, null) && !ReferenceEquals(b, null)) return true;
+            if (ReferenceEquals(b, null) && !ReferenceEquals(a, null)) return true;
+            if (ReferenceEquals(a, b)) return false;
 
-		private static void EventProcessQueue_OnProcessMessageEvent(QueueProcessor<Tuple<DataCenter, IEvent>> sender, QueueProcessor<Tuple<DataCenter, IEvent>>.MessageEventArgs processMessageArgs)
+            return !a.Equals(b);
+        }
+        #endregion
+
+        #region Processing Queue
+
+        private static void EventProcessQueue_OnProcessMessageEvent(QueueProcessor<Tuple<DataCenter, IEvent>> sender, QueueProcessor<Tuple<DataCenter, IEvent>>.MessageEventArgs processMessageArgs)
 		{
 			lock (processMessageArgs.ProcessedMessage.Item1._events)
 			{
@@ -230,7 +265,7 @@ namespace DSEDiagnosticLibrary
 			}
 		}
 
-		private static void ConfigProcessQueue_OnProcessMessageEvent(QueueProcessor<Tuple<DataCenter, IConfiguration>> sender, QueueProcessor<Tuple<DataCenter, IConfiguration>>.MessageEventArgs processMessageArgs)
+		private static void ConfigProcessQueue_OnProcessMessageEvent(QueueProcessor<Tuple<DataCenter, IConfigurationLine>> sender, QueueProcessor<Tuple<DataCenter, IConfigurationLine>>.MessageEventArgs processMessageArgs)
 		{
 			lock (processMessageArgs.ProcessedMessage.Item1._configurations)
 			{

@@ -28,7 +28,7 @@ namespace DSEDiagnosticFileParser
         public override uint ProcessFile()
         {
             var fileLines = this.File.ReadAllLines();
-            uint nbrItems = 0;
+            uint nbrGenerated = 0;
 
             /*
              Datacenter: Brondby
@@ -68,6 +68,7 @@ namespace DSEDiagnosticFileParser
 
             foreach (var element in fileLines)
             {
+                ++this.NbrItemsParsed;
                 line = element.Trim();
 
                 if (string.IsNullOrEmpty(line)
@@ -87,7 +88,7 @@ namespace DSEDiagnosticFileParser
 
                 if (regExSplit.Length == 3)
                 {
-                    currentDataCenter = Cluster.TryGetDataCenter(regExSplit[1], this.DefaultClusterName);
+                    currentDataCenter = Cluster.TryGetDataCenter(regExSplit[1], this.DefaultClusterName);                   
                     continue;
                 }
 
@@ -113,6 +114,7 @@ namespace DSEDiagnosticFileParser
 
                     if (node != null)
                     {
+                        ++nbrGenerated;
 
                         if (string.IsNullOrEmpty(node.DSE.Rack))
                         {
@@ -136,14 +138,13 @@ namespace DSEDiagnosticFileParser
                                                                 line),
                                                     ex);
                         }
-
-                        ++nbrItems;
                     }
                 }
 
             }
 
-            return nbrItems;
+            this.Processed = true;
+            return nbrGenerated;
         }
     }
 }

@@ -7,8 +7,9 @@ using Common;
 
 namespace DSEDiagnosticLibrary
 {
+    
     public interface IResult
-    {
+    {        
         IPath Path { get; }
         Cluster Cluster { get; }
         IDataCenter DataCenter { get; }

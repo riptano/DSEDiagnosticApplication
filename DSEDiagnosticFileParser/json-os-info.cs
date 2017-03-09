@@ -27,7 +27,9 @@ namespace DSEDiagnosticFileParser
             jObject.TryGetValue("sub_os").NullSafeSet<string>(c => this.Node.Machine.OS = c);
             jObject.TryGetValue("os_version").NullSafeSet<string>(c => this.Node.Machine.OSVersion = c);
 
-            return 1;
+            this.NbrItemsParsed = 2;
+            this.Processed = true;
+            return 0;
         }
 
         public override IResult GetResult()

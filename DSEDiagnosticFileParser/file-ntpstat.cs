@@ -29,8 +29,7 @@ namespace DSEDiagnosticFileParser
         public override uint ProcessFile()
         {
             var fileLine = this.File.ReadAllText().Replace('\n', ' ');
-            uint nbrItems = 0;
-
+            
             if (!string.IsNullOrEmpty(fileLine))
             {
                 //synchronised to NTP server (10.12.13.19) at stratum 2     time correct to within 3 ms   polling server every 16 s
@@ -39,16 +38,17 @@ namespace DSEDiagnosticFileParser
 
                 if (splits.Length > 4)
                 {
-                    this.Node.Machine.NTP.NTPServer = MiscHelpers.DetermineIPAddress(splits[1]);
+                    this.Node.Machine.NTP.NTPServer = StringHelpers.DetermineIPAddress(splits[1]);
                     this.Node.Machine.NTP.Stratum = int.Parse(splits[2]);
                     this.Node.Machine.NTP.Correction = UnitOfMeasure.Create(splits[3], UnitOfMeasure.Types.Time);
                     this.Node.Machine.NTP.Polling = UnitOfMeasure.Create(splits[4], UnitOfMeasure.Types.Time);
                 }
 
-                ++nbrItems;
+                ++this.NbrItemsParsed;
             }
 
-            return nbrItems;
+            this.Processed = true;
+            return 0;
         }
     }
 }

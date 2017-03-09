@@ -32,6 +32,8 @@ namespace DSEDiagnosticFileParser
             jObject.TryGetValue("free").NullSafeSet<long>(c => this.Node.Machine.Memory.Free = UnitOfMeasure.Create(c, UnitOfMeasure.Types.Memory | UnitOfMeasure.Types.MiB));
             jObject.TryGetValue("used").NullSafeSet<long>(c => this.Node.Machine.Memory.Used = UnitOfMeasure.Create(c, UnitOfMeasure.Types.Memory | UnitOfMeasure.Types.MiB));
 
+            this.NbrItemsParsed = 7;
+            this.Processed = true;
             return 1;
         }
 

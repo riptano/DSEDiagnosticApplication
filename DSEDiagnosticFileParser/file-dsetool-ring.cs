@@ -29,7 +29,7 @@ namespace DSEDiagnosticFileParser
         public override uint ProcessFile()
         {
             var fileLines = this.File.ReadAllLines();
-            uint nbrItems = 0;
+            uint nbrGenerated = 0;
 
             /*
              Address          DC                   Rack         Workload             Graph  Status  State    Load             Owns                 VNodes                                       Health [0,1]
@@ -51,6 +51,7 @@ namespace DSEDiagnosticFileParser
 
             foreach (var element in fileLines)
             {
+                ++this.NbrItemsParsed;
                 line = element.Trim();
 
                 if(string.IsNullOrEmpty(line)
@@ -106,17 +107,22 @@ namespace DSEDiagnosticFileParser
 
                         if (uint.TryParse(regExSplit[10], out vNodes))
                         {
-                            node.DSE.NbrVNodes = vNodes;
+                            node.DSE.NbrTokens = vNodes;
                             node.DSE.VNodesEnabled = vNodes > 1;
                         }
+                        else if(!string.IsNullOrEmpty(regExSplit[10]))
+                        {
+                            node.DSE.VNodesEnabled = false;
+                        }
 
-                        ++nbrItems;
+                        ++nbrGenerated;
                     }
                 }
 
             }
 
-            return nbrItems;
+            this.Processed = true;
+            return nbrGenerated;
         }
     }
 }

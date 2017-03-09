@@ -53,43 +53,46 @@ namespace DSEDiagnosticFileParser.Properties {
             "\"SystemOutputFile\", \"FilePatterns\": [\".\\\\opscenterd\\\\repair_service.json\"], \"Fil" +
             "eParsingClass\": \"DSEDiagnosticFileParser.json_repair_service\", \"NodeIdPos\": -1, " +
             "\"ProcessingTaskOption\":\"AllNodesInDataCenter\",\"ProcessPriorityLevel\":900},\r\n{\"Ca" +
-            "tagory\": \"SystemOutputFile\", \"FilePatterns\": [\".\\\\nodes\\\\*\\\\machine-info.json\"]," +
-            " \"FileParsingClass\": \"DSEDiagnosticFileParser.json_machine_info\", \"NodeIdPos\": -" +
-            "1, \"ProcessingTaskOption\":\"ScanForNode,ParallelProcessing\", \"ProcessPriorityLeve" +
-            "l\":100},\r\n{\"Catagory\": \"SystemOutputFile\", \"FilePatterns\": [\".\\\\nodes\\\\*\\\\os-inf" +
-            "o.json\"], \"FileParsingClass\": \"DSEDiagnosticFileParser.json_os_info\", \"NodeIdPos" +
-            "\": -1, \"ProcessingTaskOption\":\"ScanForNode,ParallelProcessing\", \"ProcessPriority" +
-            "Level\":100},\r\n{\"Catagory\": \"SystemOutputFile\", \"FilePatterns\": [\".\\\\nodes\\\\*\\\\os" +
-            "-metrics\\\\cpu.json\"], \"FileParsingClass\": \"DSEDiagnosticFileParser.jason_cpu\", \"" +
+            "tagory\": \"ConfigurationFile\", \"FilePatterns\": [\".\\\\nodes\\\\*\\\\*.yaml\"], \"FilePars" +
+            "ingClass\": \"DSEDiagnosticFileParser.file_yaml\", \"NodeIdPos\": -1, \"ProcessingTask" +
+            "Option\":\"ScanForNode,ParallelProcessing\",\"ProcessPriorityLevel\":800},\r\n{\"Catagor" +
+            "y\": \"SystemOutputFile\", \"FilePatterns\": [\".\\\\nodes\\\\*\\\\machine-info.json\"], \"Fil" +
+            "eParsingClass\": \"DSEDiagnosticFileParser.json_machine_info\", \"NodeIdPos\": -1, \"P" +
+            "rocessingTaskOption\":\"ScanForNode,ParallelProcessing\", \"ProcessPriorityLevel\":10" +
+            "0},\r\n{\"Catagory\": \"SystemOutputFile\", \"FilePatterns\": [\".\\\\nodes\\\\*\\\\os-info.jso" +
+            "n\"], \"FileParsingClass\": \"DSEDiagnosticFileParser.json_os_info\", \"NodeIdPos\": -1" +
+            ", \"ProcessingTaskOption\":\"ScanForNode,ParallelProcessing\", \"ProcessPriorityLevel" +
+            "\":100},\r\n{\"Catagory\": \"SystemOutputFile\", \"FilePatterns\": [\".\\\\nodes\\\\*\\\\os-metr" +
+            "ics\\\\cpu.json\"], \"FileParsingClass\": \"DSEDiagnosticFileParser.jason_cpu\", \"NodeI" +
+            "dPos\": -1, \"ProcessingTaskOption\":\"ScanForNode,ParallelProcessing\", \"ProcessPrio" +
+            "rityLevel\":100},\r\n{\"Catagory\": \"SystemOutputFile\", \"FilePatterns\": [\".\\\\nodes\\\\*" +
+            "\\\\os-metrics\\\\load_avg.json\"], \"FileParsingClass\": \"DSEDiagnosticFileParser.file" +
+            "_load_avg\", \"NodeIdPos\": -1, \"ProcessingTaskOption\":\"ScanForNode,ParallelProcess" +
+            "ing\", \"ProcessPriorityLevel\":100},\r\n{\"Catagory\": \"CommandOutputFile\", \"FilePatte" +
+            "rns\": [\".\\\\nodes\\\\*\\\\agent_version.json\"], \"FileParsingClass\": \"DSEDiagnosticFil" +
+            "eParser.file_agent_version\", \"NodeIdPos\": -1, \"ProcessingTaskOption\":\"ScanForNod" +
+            "e,ParallelProcessing\", \"ProcessPriorityLevel\":100},\r\n{\"Catagory\": \"SystemOutputF" +
+            "ile\", \"FilePatterns\": [\".\\\\nodes\\\\*\\\\java_system_properties.json\"], \"FileParsing" +
+            "Class\": \"DSEDiagnosticFileParser.json_java_system_properties\", \"NodeIdPos\": -1, " +
+            "\"ProcessingTaskOption\":\"ScanForNode,ParallelProcessing\", \"ProcessPriorityLevel\":" +
+            "100},\r\n{\"Catagory\": \"SystemOutputFile\", \"FilePatterns\": [\".\\\\nodes\\\\*\\\\ntp\\\\ntps" +
+            "tat\"], \"FileParsingClass\": \"DSEDiagnosticFileParser.file_ntpstat\", \"NodeIdPos\": " +
+            "-1, \"ProcessingTaskOption\":\"ScanForNode,ParallelProcessing\", \"ProcessPriorityLev" +
+            "el\":100},\r\n{\"Catagory\": \"SystemOutputFile\", \"FilePatterns\": [\".\\\\nodes\\\\*\\\\ntp\\\\" +
+            "ntptime\"], \"FileParsingClass\": \"DSEDiagnosticFileParser.file_ntptime\", \"NodeIdPo" +
+            "s\": -1, \"ProcessingTaskOption\":\"ScanForNode,ParallelProcessing\", \"ProcessPriorit" +
+            "yLevel\":100},\r\n{\"Catagory\": \"SystemOutputFile\", \"FilePatterns\": [\".\\\\nodes\\\\*\\\\j" +
+            "ava_heap.json\"], \"FileParsingClass\": \"DSEDiagnosticFileParser.json_java_heap\", \"" +
             "NodeIdPos\": -1, \"ProcessingTaskOption\":\"ScanForNode,ParallelProcessing\", \"Proces" +
             "sPriorityLevel\":100},\r\n{\"Catagory\": \"SystemOutputFile\", \"FilePatterns\": [\".\\\\nod" +
-            "es\\\\*\\\\os-metrics\\\\load_avg.json\"], \"FileParsingClass\": \"DSEDiagnosticFileParser" +
-            ".file_load_avg\", \"NodeIdPos\": -1, \"ProcessingTaskOption\":\"ScanForNode,ParallelPr" +
-            "ocessing\", \"ProcessPriorityLevel\":100},\r\n{\"Catagory\": \"CommandOutputFile\", \"File" +
-            "Patterns\": [\".\\\\nodes\\\\*\\\\agent_version.json\"], \"FileParsingClass\": \"DSEDiagnost" +
-            "icFileParser.file_agent_version\", \"NodeIdPos\": -1, \"ProcessingTaskOption\":\"ScanF" +
-            "orNode,ParallelProcessing\", \"ProcessPriorityLevel\":100},\r\n{\"Catagory\": \"SystemOu" +
-            "tputFile\", \"FilePatterns\": [\".\\\\nodes\\\\*\\\\java_system_properties.json\"], \"FilePa" +
-            "rsingClass\": \"DSEDiagnosticFileParser.json_java_system_properties\", \"NodeIdPos\":" +
-            " -1, \"ProcessingTaskOption\":\"ScanForNode,ParallelProcessing\", \"ProcessPriorityLe" +
-            "vel\":100},\r\n{\"Catagory\": \"SystemOutputFile\", \"FilePatterns\": [\".\\\\nodes\\\\*\\\\ntp\\" +
-            "\\ntpstat\"], \"FileParsingClass\": \"DSEDiagnosticFileParser.file_ntpstat\", \"NodeIdP" +
-            "os\": -1, \"ProcessingTaskOption\":\"ScanForNode,ParallelProcessing\", \"ProcessPriori" +
-            "tyLevel\":100},\r\n{\"Catagory\": \"SystemOutputFile\", \"FilePatterns\": [\".\\\\nodes\\\\*\\\\" +
-            "ntp\\\\ntptime\"], \"FileParsingClass\": \"DSEDiagnosticFileParser.file_ntptime\", \"Nod" +
-            "eIdPos\": -1, \"ProcessingTaskOption\":\"ScanForNode,ParallelProcessing\", \"ProcessPr" +
-            "iorityLevel\":100},\r\n{\"Catagory\": \"SystemOutputFile\", \"FilePatterns\": [\".\\\\nodes\\" +
-            "\\*\\\\java_heap.json\"], \"FileParsingClass\": \"DSEDiagnosticFileParser.json_java_hea" +
-            "p\", \"NodeIdPos\": -1, \"ProcessingTaskOption\":\"ScanForNode,ParallelProcessing\", \"P" +
-            "rocessPriorityLevel\":100},\r\n{\"Catagory\": \"SystemOutputFile\", \"FilePatterns\": [\"." +
-            "\\\\nodes\\\\*\\\\os-metrics\\\\memory.json\"], \"FileParsingClass\": \"DSEDiagnosticFilePar" +
-            "ser.json_memory\", \"NodeIdPos\": -1, \"ProcessingTaskOption\":\"ScanForNode,ParallelP" +
-            "rocessing\", \"ProcessPriorityLevel\":100},\r\n{\"Catagory\": \"CommandOutputFile\", \"Fil" +
-            "ePatterns\": [\".\\\\nodes\\\\*\\\\nodetool\\\\info\"], \"FileParsingClass\": \"DSEDiagnosticF" +
-            "ileParser.file_nodetool_info\", \"NodeIdPos\": -1, \"ProcessingTaskOption\":\"ScanForN" +
-            "ode,ParallelProcessing\", \"ProcessPriorityLevel\":100},\r\n{\"Catagory\": \"LogFile\", \"" +
-            "FilePatterns\": [\".\\\\nodes\\\\*\\\\logs\\\\cassandra\\\\system.log\"], \"FileParsingClass\":" +
-            " \"UserQuery.TestClass\", \"NodeIdPos\": -1}\r\n]")]
+            "es\\\\*\\\\os-metrics\\\\memory.json\"], \"FileParsingClass\": \"DSEDiagnosticFileParser.j" +
+            "son_memory\", \"NodeIdPos\": -1, \"ProcessingTaskOption\":\"ScanForNode,ParallelProces" +
+            "sing\", \"ProcessPriorityLevel\":100},\r\n{\"Catagory\": \"CommandOutputFile\", \"FilePatt" +
+            "erns\": [\".\\\\nodes\\\\*\\\\nodetool\\\\info\"], \"FileParsingClass\": \"DSEDiagnosticFilePa" +
+            "rser.file_nodetool_info\", \"NodeIdPos\": -1, \"ProcessingTaskOption\":\"ScanForNode,P" +
+            "arallelProcessing\", \"ProcessPriorityLevel\":100},\r\n{\"Catagory\": \"LogFile\", \"FileP" +
+            "atterns\": [\".\\\\nodes\\\\*\\\\logs\\\\cassandra\\\\system.log\"], \"FileParsingClass\": \"Use" +
+            "rQuery.TestClass\", \"NodeIdPos\": -1}\r\n]")]
         public string ProcessFileMappings {
             get {
                 return ((string)(this["ProcessFileMappings"]));
@@ -102,12 +105,23 @@ namespace DSEDiagnosticFileParser.Properties {
 ""file_nodetool_status"":{""RegExStrings"":[""datacenter:\\s+([a-z0-9\\-_$%+=@!?<>^*&]+)\\s*"",""(un|ul|uj|um|dn|dl|dJ|dm)\\s+([a-z0-9.:_\\-+%]+)\\s+([0-9.]+)\\s*([0-9a-z]{0,2})\\s+(\\d+)\\s+([0-9?.% ]+)\\s+([0-9a-f\\-]+)\\s+(.+)""]},
 ""file_ntpstat"":{""RegExStrings"":[""synchronised to NTP server\\s+\\((.+)\\).+stratum\\s+(\\d+).+time correct.+within\\s+(\\d+\\s+[a-zA-Z]+).+polling.+every\\s+(\\d+\\s+[a-zA-Z]+)""]},
 ""file_ntptime"":{""RegExStrings"":[""ntp_adjtime.+frequency\\s+([0-9\\-.]+\\s+[a-zA-Z]+)\\,\\s+interval\\s+([0-9\\-.]+\\s+[a-zA-Z]+)\\,\\s+maximum error\\s+([0-9\\-.]+\\s+[a-zA-Z]+)\\,\\s+estimated error\\s+([0-9\\-.]+\\s+[a-zA-Z]+)\\,.+time constant\\s+([0-9\\-.]+)\\,\\s+precision\\s+([0-9\\-.]+\\s+[a-zA-Z]+)\\,\\s+tolerance\\s+([0-9]+\\s+[a-zA-Z]+)"",""ntp_gettime.+maximum error\\s+([0-9\\-.]+\\s+[a-zA-Z]+)\\,\\s+estimated error\\s+([0-9\\-.]+\\s+[a-zA-Z]+)""]},
-""file_dsetool_ring"":{""RegExStrings"":[""([a-z0-9.:_\\-+%]+)\\s+([a-z0-9\\-_$%+=@!?<>^*&]+)\\s+([a-z0-9\\-_$%+=@!?<>^*&]+)\\s+([a-z]+)\\s+([a-z]+)\\s+([a-z]+)\\s+([a-z]+)\\s+([0-9.]+\\s*[a-z]{1,2})\\s+(\\w+|\\?)\\s+([0-9]+)""]},
+""file_dsetool_ring"":{""RegExStrings"":[""([a-z0-9.:_\\-+%]+)\\s+([a-z0-9\\-_$%+=@!?<>^*&]+)\\s+([a-z0-9\\-_$%+=@!?<>^*&]+)\\s+([a-z]+)\\s+([a-z]+)\\s+([a-z]+)\\s+([a-z]+)\\s+([0-9.]+\\s*[a-z]{1,2})\\s+(\\w+|\\?)\\s+([0-9\\-]+)""]},
 ""file_nodetool_ring"":{""RegExStrings"":[""datacenter:\\s+([a-z0-9\\-_$%+=@!?<>^*&]+)\\s*"",""\\s*([0-9\\-]+)"",""([a-z0-9.:_\\-+%]+)\\s+([a-z0-9\\-_$%+=@!?<>^*&]+)\\s+([a-z]+)\\s+([a-z]+)\\s+([0-9.]+\\s*[a-z]{1,2})\\s+(\\w+|\\?)\\s+([0-9\\-]+)""]}
 }")]
         public string DiagnosticFileRegExAssocations {
             get {
                 return ((string)(this["DiagnosticFileRegExAssocations"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("<?xml version=\"1.0\" encoding=\"utf-16\"?>\r\n<ArrayOfString xmlns:xsi=\"http://www.w3." +
+            "org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\r\n  <s" +
+            "tring>password</string>\r\n</ArrayOfString>")]
+        public global::System.Collections.Specialized.StringCollection ObscureFiledValues {
+            get {
+                return ((global::System.Collections.Specialized.StringCollection)(this["ObscureFiledValues"]));
             }
         }
     }

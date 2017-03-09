@@ -28,15 +28,15 @@ namespace DSEDiagnosticFileParser
         public override uint ProcessFile()
         {
             var fileLine = this.File.ReadAllText();
-            uint nbrItems = 0;
-
+            
             if(!string.IsNullOrEmpty(fileLine))
             {
                 this.Node.Machine.CPULoad.Average = UnitOfMeasure.Create(fileLine, UnitOfMeasure.Types.Percent | UnitOfMeasure.Types.Utilization);
-                ++nbrItems;
+                ++this.NbrItemsParsed;
             }
 
-            return nbrItems;
+            this.Processed = true;
+            return 0;
         }
     }
 }

@@ -7,8 +7,21 @@ using Common;
 
 namespace DSEDiagnosticLibrary
 {
+    public enum SourceTypes
+    {
+        Unknown = 0,
+        CassandraLog,
+        CFStats,
+        TPStats,
+        Histogram,
+        OpsCenterRepairSession,
+        Yaml,
+        EnvFile
+    }
+
     public interface IParsed
     {
+        SourceTypes Source { get; }
         IPath Path { get; }
         Cluster Cluster { get; }
         IDataCenter DataCenter { get; }

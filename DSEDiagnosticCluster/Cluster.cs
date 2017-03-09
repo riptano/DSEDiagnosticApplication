@@ -14,7 +14,7 @@ namespace DSEDiagnosticLibrary
 	public class Cluster : IEquatable<Cluster>, IEquatable<string>
 	{
 		public static Cluster CurrentCluster = null;
-		public static ConcurrentBag<Cluster> Clusters = new ConcurrentBag<Cluster>();
+        public static ConcurrentBag<Cluster> Clusters = new ConcurrentBag<Cluster>();
 		private static CTS.List<INode> UnAssociatedNodes = new CTS.List<INode>();
 		private static QueueProcessor<Tuple<Cluster, IEvent>> EventProcessQueue = new QueueProcessor<Tuple<Cluster, IEvent>>();
 
@@ -53,7 +53,7 @@ namespace DSEDiagnosticLibrary
 
         public OpsCenterInfo OpsCenter { get; private set; }
 
-		public IEvent AssocateItem(IEvent eventItem)
+		public IEvent AssociateItem(IEvent eventItem)
 		{
 			if (eventItem != null)
 			{
@@ -82,7 +82,9 @@ namespace DSEDiagnosticLibrary
 			}
 
 			if (makeCurrent)
-			{ CurrentCluster = cluster; }
+			{
+                CurrentCluster = cluster;
+            }
 
 			return cluster;
 		}
@@ -156,7 +158,7 @@ namespace DSEDiagnosticLibrary
 
                     if (node == null)
                     {
-                        node = new Node(cluster, null, nodeId);
+                        node = new Node(cluster, nodeId);
                         UnAssociatedNodes.Add(node);
                     }
                 }
@@ -194,7 +196,7 @@ namespace DSEDiagnosticLibrary
 
                     if (node == null)
                     {
-                        node = new Node(cluster, null, nodeId);
+                        node = new Node(cluster, nodeId);
                         UnAssociatedNodes.Add(node);
                     }
 				}
@@ -228,7 +230,7 @@ namespace DSEDiagnosticLibrary
             return clusterNodes == null ? Enumerable.Empty<INode>() : clusterNodes;
         }
 
-		public static INode AssocateDataCenterToNode(string dataCenterName, string nodeId, string clusterName = null)
+		public static INode AssociateDataCenterToNode(string dataCenterName, string nodeId, string clusterName = null)
 		{
 			if (string.IsNullOrEmpty(nodeId))
 			{ throw new ArgumentNullException("nodeId cannot be null"); }
@@ -247,11 +249,97 @@ namespace DSEDiagnosticLibrary
 			return currentDC.TryGetAddNode(node);
 		}
 
-		#endregion
+        /// <summary>
+        /// This will either name the associated cluster (if name is null) or create a new cluster and associate this node and it&apos;s associated DC to the new cluster
+        /// </summary>
+        /// <param name="node"></param>
+        /// <param name="clusterName"></param>
+        /// <param name="alwaysCreateNewCluster"></param>
+        /// <returns></returns>
+        public static Cluster NameClusterAssociatewItem(INode node, string clusterName, bool alwaysCreateNewCluster = false)
+        {
+            if(node != null && !string.IsNullOrEmpty(clusterName) && node.DataCenter == null)
+            {
+                if (!alwaysCreateNewCluster && string.IsNullOrEmpty(node.Cluster.Name))
+                {
+                    lock (node.Cluster)
+                    lock(node)
+                    {
+                        if (string.IsNullOrEmpty(node.Cluster.Name) && node.DataCenter == null)
+                        {
+                            node.Cluster.Name = clusterName;
+                            return node.Cluster;
+                        }
 
-		#region Processing Queue
+                        if (node.Cluster.Name == clusterName)
+                        {
+                            return node.Cluster;
+                        }
 
-		private static void EventProcessQueue_OnProcessMessageEvent(QueueProcessor<Tuple<Cluster, IEvent>> sender, QueueProcessor<Tuple<Cluster, IEvent>>.MessageEventArgs processMessageArgs)
+                        if(node.DataCenter != null)
+                        {
+                            return NameClusterAssociatewItem(node.DataCenter, clusterName, alwaysCreateNewCluster);
+                        }
+                    }
+                }
+
+                var cluster = TryGetAddCluster(clusterName, false);
+
+                if (cluster != null && node.Cluster.Name != clusterName)
+                {
+                    ((Node)node).SetCluster(cluster);
+                }
+
+                return cluster;
+            }
+
+            return NameClusterAssociatewItem(node?.DataCenter, clusterName, alwaysCreateNewCluster);
+        }
+
+        /// <summary>
+        /// This will either name the associated cluster (if name is null) or create a new cluster and associated DC to the new cluster
+        /// </summary>
+        /// <param name="node"></param>
+        /// <param name="clusterName"></param>
+        /// <param name="alwaysCreateNewCluster"></param>
+        /// <returns></returns>
+        public static Cluster NameClusterAssociatewItem(IDataCenter dc, string clusterName, bool alwaysCreateNewCluster = false)
+        {
+            if (dc == null || string.IsNullOrEmpty(clusterName)) return null;
+
+            if (!alwaysCreateNewCluster && string.IsNullOrEmpty(dc.Cluster.Name))
+            {
+                lock (dc.Cluster)
+                lock (dc)
+                {
+                    if (string.IsNullOrEmpty(dc.Cluster.Name))
+                    {
+                        dc.Cluster.Name = clusterName;
+                        return dc.Cluster;
+                    }
+
+                    if (dc.Cluster.Name == clusterName)
+                    {
+                        return dc.Cluster;
+                    }
+                }
+            }
+
+            var cluster = TryGetAddCluster(clusterName, false);
+
+            if (cluster != null && dc.Cluster.Name != clusterName)
+            {
+                ((DataCenter)dc).AssociateItem(cluster);
+            }
+
+            return cluster;
+        }
+
+        #endregion
+
+        #region Processing Queue
+
+        private static void EventProcessQueue_OnProcessMessageEvent(QueueProcessor<Tuple<Cluster, IEvent>> sender, QueueProcessor<Tuple<Cluster, IEvent>>.MessageEventArgs processMessageArgs)
 		{
 			lock (processMessageArgs.ProcessedMessage.Item1._events)
 			{

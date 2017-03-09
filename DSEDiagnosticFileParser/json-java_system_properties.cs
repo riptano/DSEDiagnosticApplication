@@ -31,7 +31,9 @@ namespace DSEDiagnosticFileParser
             jObject.TryGetValue("user.timezone").NullSafeSet<string>(c => this.Node.Machine.TimeZone = Common.TimeZones.Find(c));
             jObject.TryGetValue("dse.system_cpu_cores").EmptySafeSet<uint>(this.Node.Machine.CPU.Cores, c => this.Node.Machine.CPU.Cores = c);
 
-            return 1;
+            this.NbrItemsParsed = 6;
+            this.Processed = true;
+            return 0;
         }
 
         public override IResult GetResult()

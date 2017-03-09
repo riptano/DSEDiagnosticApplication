@@ -13,6 +13,7 @@ namespace DSEDiagnosticFileParser
         public static Tuple<string, string>[] ExtractFilesWithExtensions = JsonConvert.DeserializeObject<Tuple<string, string>[]>(Properties.Settings.Default.ExtractFilesWithExtensions);
         public static FileMapper[] ProcessFileMappings = JsonConvert.DeserializeObject<FileMapper[]>(Properties.Settings.Default.ProcessFileMappings);
         public static Dictionary<string,RegExParseString> DiagnosticFileRegExAssocations = JsonConvert.DeserializeObject<Dictionary<string, RegExParseString>>(Properties.Settings.Default.DiagnosticFileRegExAssocations);
+        public static string[] ObscureFiledValues = Properties.Settings.Default.ObscureFiledValues.ToArray();
 
         private static IFilePath MakeFilePath(string filePath)
         {

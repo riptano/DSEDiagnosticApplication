@@ -23,18 +23,18 @@ namespace DSEDiagnosticFileParser
         }
 
         public override uint ProcessFile()
-        {
-            uint nbrItems = 0;
+        {            
             var jsonFile = this.File.ReadAllText();
             var infoObject = JsonConvert.DeserializeAnonymousType(jsonFile, new { time_to_completion = 0L, status = string.Empty, parallel_tasks = 0, all_tasks = new object[1][] } );
 
             if(infoObject.all_tasks != null)
             {
-                this.Node.DSE.RepairServiceHasRan = infoObject.all_tasks.Any(c => this.Node.Id.Addresses.Any(i => i.ToString() == (string)((object[])c)[0]));
-                ++nbrItems;
+                this.Node.DSE.RepairServiceHasRan = infoObject.all_tasks.Any(c => this.Node.Id.Addresses.Any(i => i.ToString() == (string)((object[])c)[0]));                
             }
 
-            return nbrItems;
+            this.NbrItemsParsed = 1;
+            this.Processed = true;
+            return 0;
         }
 
         public override IResult GetResult()

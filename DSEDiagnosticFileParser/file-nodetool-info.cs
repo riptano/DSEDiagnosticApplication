@@ -29,7 +29,7 @@ namespace DSEDiagnosticFileParser
         public override uint ProcessFile()
         {
             var fileLines = this.File.ReadAllLines();
-            uint nbrItems = 0;
+            uint nbrGenerated = 0;
 
             /*
             ID                     : c7e1ddc3-565f-40ed-91c1-320d729b25bd
@@ -57,6 +57,7 @@ namespace DSEDiagnosticFileParser
 
             foreach (var element in fileLines)
             {
+                ++this.NbrItemsParsed;
                 line = element.Trim();
 
                 if (string.IsNullOrEmpty(line))
@@ -115,6 +116,7 @@ namespace DSEDiagnosticFileParser
                             if (dcInstance != null)
                             {
                                 dcInstance.TryGetAddNode(this.Node);
+                                ++nbrGenerated;
                             }                           
                         }
                         break;
@@ -142,11 +144,11 @@ namespace DSEDiagnosticFileParser
                                                         this.File,
                                                         line);
                         break;
-                }
-                ++nbrItems;
+                }                
             }
 
-            return nbrItems;
+            this.Processed = true;
+            return nbrGenerated;
         }
     }
 }

@@ -67,22 +67,25 @@ namespace DSEDiagnosticFileParser
         public bool CancelPending { get { return !this.Canceled && this.CancellationToken.IsCancellationRequested; } }
         public bool Canceled { get; protected set; }
         public Task<DiagnosticFile> Task { get; protected set; }
+
+        public IResult Result { get { return this.GetResult(); } }
+
         #endregion
 
         #region Protected members
         protected DiagnosticFile AssocateItem(IEvent item)
 		{
-			this.Node.AssocateItem(item);
+			this.Node.AssociateItem(item);
 			return this;
 		}
-		protected DiagnosticFile AssocateItem(IConfiguration item)
+		protected DiagnosticFile AssocateItem(IConfigurationLine item)
 		{
-			this.Node.AssocateItem(item);
+			this.Node.AssociateItem(item);
 			return this;
 		}
 		protected DiagnosticFile AssocateItem(IDDL item)
 		{
-			this.Node.AssocateItem(item);
+			this.Node.AssociateItem(item);
 			return this;
 		}
 		#endregion

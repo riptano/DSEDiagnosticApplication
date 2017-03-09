@@ -29,7 +29,9 @@ namespace DSEDiagnosticFileParser
             jObject.TryGetValue("%system").NullSafeSet<decimal>(c => this.Node.Machine.CPULoad.System = UnitOfMeasure.Create(c, UnitOfMeasure.Types.Percent | UnitOfMeasure.Types.Utilization));
             jObject.TryGetValue("%user").NullSafeSet<decimal>(c => this.Node.Machine.CPULoad.User = UnitOfMeasure.Create(c, UnitOfMeasure.Types.Percent | UnitOfMeasure.Types.Utilization));
 
-            return 1;
+            this.NbrItemsParsed = 3;
+            this.Processed = true;
+            return 0;
         }
 
         public override IResult GetResult()

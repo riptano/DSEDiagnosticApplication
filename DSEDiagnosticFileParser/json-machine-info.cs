@@ -28,7 +28,9 @@ namespace DSEDiagnosticFileParser
             jObject.TryGetValue("arch").NullSafeSet<string>(c => this.Node.Machine.CPU.Architecture = c);
             jObject.TryGetValue("memory").NullSafeSet<long>(c => this.Node.Machine.Memory.PhysicalMemory = UnitOfMeasure.Create(c, UnitOfMeasure.Types.Memory | UnitOfMeasure.Types.MiB));
 
-            return 1;
+            this.NbrItemsParsed = 2;
+            this.Processed = true;
+            return 0;
         }
 
         public override IResult GetResult()

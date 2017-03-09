@@ -29,7 +29,7 @@ namespace DSEDiagnosticFileParser
         public override uint ProcessFile()
         {
             var fileLines = this.File.ReadAllLines();
-            uint nbrItems = 0;
+            uint nbrGenerated = 0;
 
             /*
              Datacenter: datacenter1
@@ -49,6 +49,7 @@ namespace DSEDiagnosticFileParser
 
             foreach (var nodetoolLine in fileLines)
             {
+                ++this.NbrItemsParsed;
                 line = nodetoolLine.Trim();
 
                 if (string.IsNullOrEmpty(line)
@@ -66,6 +67,7 @@ namespace DSEDiagnosticFileParser
                 if (regExMatch.Success)
                 {
                     currentDataCenter = Cluster.TryGetAddDataCenter(regExMatch.Groups[1].Value, this.DefaultClusterName);
+                    ++nbrGenerated;
                     continue;
                 }
 
@@ -75,7 +77,7 @@ namespace DSEDiagnosticFileParser
                 if(regExMatch.Success)
                 {
                     var node = Cluster.TryGetAddNode(regExMatch.Groups[2].Value, currentDataCenter);
-
+                    
                     node.DSE.HostId = new Guid(regExMatch.Groups[7].Value);
                     node.DSE.Rack = regExMatch.Groups[8].Value;
                     node.DSE.StorageUsed = UnitOfMeasure.Create(regExMatch.Groups[3].Value, regExMatch.Groups[4].Value, UnitOfMeasure.Types.Storage);
@@ -107,17 +109,19 @@ namespace DSEDiagnosticFileParser
                         else
                         {
                             node.DSE.VNodesEnabled = true;
-                            node.DSE.NbrVNodes = (uint) nbrVNodes;
+                            node.DSE.NbrTokens = (uint) nbrVNodes;
                         }
                     }
 
-                    ++nbrItems;
+                    ++nbrGenerated;
+
                     Logger.Instance.InfoFormat("Added node \"{0}\" to DataCenter \"{1}\"", node.Id, node.DataCenter.Name);
                     continue;
                 }
             }
 
-            return nbrItems;
+            this.Processed = true;
+            return nbrGenerated;
         }
     }
 }

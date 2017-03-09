@@ -92,6 +92,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <Compile Include="StringHelpers.cs" />
     <Compile Include="UnitOfMeasure.cs" />
   </ItemGroup>
   <ItemGroup>

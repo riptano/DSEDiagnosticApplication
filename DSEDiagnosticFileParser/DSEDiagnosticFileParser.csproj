@@ -89,6 +89,7 @@
     <Compile Include="file-ntpstat.cs" />
     <Compile Include="file-ntptime.cs" />
     <Compile Include="file-unzip.cs" />
+    <Compile Include="file-yaml.cs" />
     <Compile Include="FileMapper.cs" />
     <Compile Include="jason-cpu.cs" />
     <Compile Include="json-java_heap.cs" />
