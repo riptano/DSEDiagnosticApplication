@@ -21,6 +21,8 @@ namespace DSEDiagnosticFileParser
             this.SplitLineDelimiter = '=';
         }
 
+        public override SourceTypes Source { get { return SourceTypes.EnvFile; } }
+
         private int ifCount = 0;
         private string ifString = string.Empty;
 

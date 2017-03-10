@@ -212,10 +212,15 @@ namespace DSEDiagnosticLibrary
             }
 
             var cluster = TryGetCluster(clusterName);
-            var clusterNodes = cluster.DataCenters?.SelectMany(dc => dc.Nodes);
+            var clusterNodes = cluster?.DataCenters?.SelectMany(dc => dc.Nodes);
 
-            if(clusterNodes != null && includeUnAssociatedNodes)
+            if(includeUnAssociatedNodes)
             {
+                if(clusterNodes == null)
+                {
+                    return UnAssociatedNodes.ToList();
+                }
+
                 var listNodes = clusterNodes.ToList();
 
                 listNodes.AddRange(UnAssociatedNodes);

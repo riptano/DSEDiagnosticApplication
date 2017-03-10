@@ -57,6 +57,7 @@ namespace DSEDiagnosticFileParser
         protected char ContinuousDelimiter = '-';
 
         public ConfigTypes ConfigType { get; protected set; }
+        public virtual SourceTypes Source { get { return SourceTypes.Yaml; } }
 
         virtual protected string[] SplitLine(string line)
         {
@@ -417,13 +418,21 @@ namespace DSEDiagnosticFileParser
                     datafiledirectories.Add(propvaluePair.Item2);
                 }
 
-                this._result.ConfigLines.Add(new YamlConfigurationLine(this.File, this.Node, ++nPos, propvaluePair.Item1, propvaluePair.Item2, this.ConfigType));
+                this._result.ConfigLines.Add(new YamlConfigurationLine(this.File,
+                                                                        this.Node,
+                                                                        ++nPos,
+                                                                        propvaluePair.Item1,
+                                                                        propvaluePair.Item2,
+                                                                        this.ConfigType,
+                                                                        this.Source));
             }
 
             if(datafiledirectories.Count > 0)
             {
                 this.Node.DSE.Locations.DataDirs = datafiledirectories;
             }
+
+            this.Node.AssociateItem(this._result.ConfigLines);
         }
     }
 }

@@ -74,19 +74,19 @@ namespace DSEDiagnosticFileParser
         #endregion
 
         #region Protected members
-        protected DiagnosticFile AssocateItem(IEvent item)
+        protected DiagnosticFile AssocateItem(IEnumerable<IEvent> items)
 		{
-			this.Node.AssociateItem(item);
+			this.Node.AssociateItem(items);
 			return this;
 		}
-		protected DiagnosticFile AssocateItem(IConfigurationLine item)
+		protected DiagnosticFile AssocateItem(IEnumerable<IConfigurationLine> items)
 		{
-			this.Node.AssociateItem(item);
+			this.Node.AssociateItem(items);
 			return this;
 		}
-		protected DiagnosticFile AssocateItem(IDDL item)
+		protected DiagnosticFile AssocateItem(IEnumerable<IDDL> items)
 		{
-			this.Node.AssociateItem(item);
+			this.Node.AssociateItem(items);
 			return this;
 		}
 		#endregion

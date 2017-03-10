@@ -4,10 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Collections.Concurrent;
 using System.Net;
 using Common;
 using Common.Patterns;
 using Common.Patterns.TimeZoneInfo;
+using CTS = Common.Patterns.Collections.ThreadSafe;
 
 namespace DSEDiagnosticLibrary
 {
@@ -680,30 +682,17 @@ namespace DSEDiagnosticLibrary
 		DSEInfo DSE { get; }
 
 		IEnumerable<IEvent> Events { get; }
-		INode AssociateItem(IEvent eventItem);
+		INode AssociateItem(IEnumerable<IEvent> eventItems);
 		IEnumerable<IConfigurationLine> Configurations { get; }
-		INode AssociateItem(IConfigurationLine eventItem);
+		INode AssociateItem(IEnumerable<IConfigurationLine> eventItems);
 		IEnumerable<IDDL> DDLs { get; }
-		INode AssociateItem(IDDL eventItem);
+		INode AssociateItem(IEnumerable<IDDL> eventItem);
 	}
 
 	public sealed class Node : INode
-	{
-		private static QueueProcessor<Tuple<Node, IEvent>> EventProcessQueue = new QueueProcessor<Tuple<Node, IEvent>>();
-		private static QueueProcessor<Tuple<Node, IConfigurationLine>> ConfigProcessQueue = new QueueProcessor<Tuple<Node, IConfigurationLine>>();
-		private static QueueProcessor<Tuple<Node, IDDL>> DDLProcessQueue = new QueueProcessor<Tuple<Node, IDDL>>();
-
+	{		
 		static Node()
-		{
-			EventProcessQueue.OnProcessMessageEvent += EventProcessQueue_OnProcessMessageEvent;
-			EventProcessQueue.Name = "Node-IEvent";
-			ConfigProcessQueue.OnProcessMessageEvent += ConfigProcessQueue_OnProcessMessageEvent;
-			ConfigProcessQueue.Name = "Node-IConfigurationLine";
-			DDLProcessQueue.OnProcessMessageEvent += DDLProcessQueue_OnProcessMessageEvent;
-			DDLProcessQueue.Name = "Node-IDDL";
-			DDLProcessQueue.StartQueue(false);
-			ConfigProcessQueue.StartQueue(false);
-			EventProcessQueue.StartQueue(false);
+		{			
 		}
 
 		private Node()
@@ -843,43 +832,28 @@ namespace DSEDiagnosticLibrary
 			get;
 		}
 
-		private List<IEvent> _events = new List<IEvent>();
+		private CTS.List<IEvent> _events = new CTS.List<IEvent>();
 		public IEnumerable<IEvent> Events { get { lock (this._events) { return this._events.ToArray(); } } }
 
-		private List<IConfigurationLine> _configurations = new List<IConfigurationLine>();
+		private CTS.List<IConfigurationLine> _configurations = new CTS.List<IConfigurationLine>();
 		public IEnumerable<IConfigurationLine> Configurations { get { lock (this._configurations) { return this._configurations.ToArray(); } } }
 
-		private List<IDDL> _ddls = new List<IDDL>();
+		private CTS.List<IDDL> _ddls = new CTS.List<IDDL>();
 		public IEnumerable<IDDL> DDLs { get { lock (this._ddls) { return this._ddls.ToArray(); } } }
 
-		public INode AssociateItem(IEvent eventItem)
+		public INode AssociateItem(IEnumerable<IEvent> eventItems)
 		{
-			if (eventItem != null)
-			{
-				EventProcessQueue.Enqueue(new Tuple<Node, IEvent>(this, eventItem));
-				((DataCenter)this.DataCenter)?.AssociateItem(eventItem);
-			}
-
+            this._events.AddRange(eventItems);
 			return this;
 		}
-		public INode AssociateItem(IConfigurationLine configItem)
+		public INode AssociateItem(IEnumerable<IConfigurationLine> configItems)
 		{
-			if (configItem != null)
-			{
-				ConfigProcessQueue.Enqueue(new Tuple<Node, IConfigurationLine>(this, configItem));
-				((DataCenter)this.DataCenter)?.AssociateItem(configItem);
-			}
-
+            this._configurations.AddRange(configItems);
 			return this;
 		}
-		public INode AssociateItem(IDDL ddlItem)
+		public INode AssociateItem(IEnumerable<IDDL> ddlItems)
 		{
-			if (ddlItem != null)
-			{
-				DDLProcessQueue.Enqueue(new Tuple<Node, IDDL>(this, ddlItem));
-				((DataCenter)this.DataCenter)?.AssociateItem(ddlItem);
-			}
-
+            this._ddls.AddRange(ddlItems);
 			return this;
 		}
 		#endregion

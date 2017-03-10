@@ -35,8 +35,6 @@ namespace DSEDiagnosticLibrary
 
         public sealed class ConfigTypeMapper
         {
-            public static List<ConfigTypeMapper> Mappings = new List<ConfigTypeMapper>();
-
             [Flags]
             public enum MatchActions
             {
@@ -70,14 +68,14 @@ namespace DSEDiagnosticLibrary
                 if(LibrarySettings.ConfigTypeMappers != null) LibrarySettings.ConfigTypeMappers.Add(this);
             }
 
-            public ConfigTypes ConfigType { get; internal set; }
+            public ConfigTypes ConfigType { get; set; }
             public Regex MatchRegEx { get; private set; }
 
             private string _regexString = null;
             public string RegExString
             {
                 get { return this._regexString; }
-                internal set
+                set
                 {
                     if(this.MatchRegEx == null)
                     {
@@ -105,7 +103,7 @@ namespace DSEDiagnosticLibrary
             public string ContainsString
             {
                 get { return this._containsString; }
-                internal set
+                set
                 {
                     this._containsString = value;
 
@@ -116,7 +114,7 @@ namespace DSEDiagnosticLibrary
                 }
             }
 
-            public MatchActions MatchAction { get; internal set; }
+            public MatchActions MatchAction { get; set; }
 
             public ConfigTypes GetConfigType(IFilePath configFilePath)
             {
@@ -142,22 +140,21 @@ namespace DSEDiagnosticLibrary
 
                 if(this.MatchRegEx == null)
                 {
-                    switch (this.MatchAction)
+                    if (this.MatchAction.HasFlag(MatchActions.Equals))
                     {
-                        case MatchActions.Equals:
-                            if (string.Equals(this.ContainsString, compareString, StringComparison.OrdinalIgnoreCase)) return this.ConfigType;
-                            break;
-                        case MatchActions.Contains:
-                            if(compareString.IndexOf(this.ContainsString, StringComparison.OrdinalIgnoreCase) >= 0) return this.ConfigType;
-                            break;
-                        case MatchActions.StartsWith:
-                            if (compareString.StartsWith(this.ContainsString, StringComparison.OrdinalIgnoreCase)) return this.ConfigType;
-                            break;
-                        case MatchActions.EndsWith:
-                            if (compareString.EndsWith(this.ContainsString, StringComparison.OrdinalIgnoreCase)) return this.ConfigType;
-                            break;
-                        default:
-                            break;
+                        if (string.Equals(this.ContainsString, compareString, StringComparison.OrdinalIgnoreCase)) return this.ConfigType;
+                    }
+                    else if (this.MatchAction.HasFlag(MatchActions.Contains))
+                    {
+                        if (compareString.IndexOf(this.ContainsString, StringComparison.OrdinalIgnoreCase) >= 0) return this.ConfigType;
+                    }
+                    else if (this.MatchAction.HasFlag(MatchActions.StartsWith))
+                    {
+                        if (compareString.StartsWith(this.ContainsString, StringComparison.OrdinalIgnoreCase)) return this.ConfigType;
+                    }
+                    else if (this.MatchAction.HasFlag(MatchActions.EndsWith))
+                    {
+                        if (compareString.EndsWith(this.ContainsString, StringComparison.OrdinalIgnoreCase)) return this.ConfigType;
                     }
                 }
                 else if(this.MatchRegEx.IsMatch(compareString))
@@ -183,7 +180,8 @@ namespace DSEDiagnosticLibrary
                                     uint lineNbr,
                                     string property,
                                     string value,
-                                    ConfigTypes type = ConfigTypes.Unkown)
+                                    ConfigTypes type = ConfigTypes.Unkown,
+                                    SourceTypes source = SourceTypes.Yaml)
         {
             if(type == ConfigTypes.Unkown)
             {
@@ -198,10 +196,11 @@ namespace DSEDiagnosticLibrary
             this.LineNbr = lineNbr;
             this.Property = property;
             this.Value = value;
+            this.Source = source;
         }
 
         #region IParsed
-        public SourceTypes Source { get { return SourceTypes.Yaml; } }
+        public SourceTypes Source { get; private set; }
         public IPath Path { get; private set; }
         public Cluster Cluster { get { return this?.Node.Cluster; } }
         public IDataCenter DataCenter { get { return this?.Node.DataCenter; } }

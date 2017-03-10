@@ -25,8 +25,8 @@ namespace DSEDiagnosticFileParser
         public override uint ProcessJSON(JObject jObject)
         {
 
-            jObject.TryGetValue("dse").NullSafeSet<string>(c => this.Node.DSE.Locations.DSEYamlFile = c);
-            jObject.TryGetValue("cassandra").NullSafeSet<string>(c => this.Node.DSE.Locations.CassandraYamlFile = c);
+            jObject.TryGetValue("dse").NullSafeSet<string>(c => { if (c != "package") this.Node.DSE.Locations.DSEYamlFile = c; });
+            jObject.TryGetValue("cassandra").NullSafeSet<string>(c => { if (c != "package") this.Node.DSE.Locations.CassandraYamlFile = c; });
 
             this.NbrItemsParsed = 2;
             this.Processed = true;
