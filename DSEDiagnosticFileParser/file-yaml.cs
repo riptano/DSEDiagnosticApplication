@@ -18,13 +18,14 @@ namespace DSEDiagnosticFileParser
                                 string defaultDCName)
             : base(catagory, diagnosticDirectory, file, node, defaultClusterName, defaultDCName)
         {
-            this._result = new Result(this);
+            this._result = new YamlResult(this);
+            this.ConfigType = YamlConfigurationLine.ConfigTypeMapper.FindConfigType(file);
         }
 
-        public sealed class Result : IResult
+        public sealed class YamlResult : IResult
         {
-            private Result() { }
-            internal Result(file_yaml yamlFileInstance)
+            private YamlResult() { }
+            internal YamlResult(file_yaml yamlFileInstance)
             {
                 this.Path = yamlFileInstance.File;
                 this.Node = yamlFileInstance.Node;
@@ -44,14 +45,72 @@ namespace DSEDiagnosticFileParser
             #endregion
         }
 
-        private Result _result;
+        protected YamlResult _result;
 
         public override IResult GetResult()
         {
             return this._result;
         }
 
-        private Tuple<string,string> GenerateCmdValuePair(string cmd, string value)
+        protected char SplitLineDelimiter = ':';
+        protected char CommentDelimiter = '#';
+        protected char ContinuousDelimiter = '-';
+
+        public ConfigTypes ConfigType { get; protected set; }
+
+        virtual protected string[] SplitLine(string line)
+        {
+            string[] lineSplit;
+
+            lineSplit = line.Split(SplitLineDelimiter);
+
+            //If there are more than 2 splits, it is possibly due to splitting within a delimiter. So let's use an advance more expense form of split.
+            if (lineSplit.Length > 2)
+            {
+                lineSplit = StringFunctions.Split(line,
+                                                    SplitLineDelimiter,
+                                                    StringFunctions.IgnoreWithinDelimiterFlag.All,
+                                                    StringFunctions.SplitBehaviorOptions.IgnoreMismatchedWithinDelimiters)
+                                                .ToArray();
+
+                //Still have more than 2, maybe colon has been escaped
+                //fe80\:0\:0\:0\:202\:b3ff\:fe1e\:8329=DC1:RAC3
+                if (lineSplit.Length > 2 && lineSplit.Any(i => i.Last() == '\\'))
+                {
+                    int fndPos = -1;
+
+                    for(int nIdx = 0; nIdx < lineSplit.Length; ++nIdx)
+                    {
+                        if(lineSplit[nIdx].Last() == '\\')
+                        {
+                            if(fndPos == -1)
+                            {
+                                lineSplit[nIdx] += SplitLineDelimiter;
+                                fndPos = nIdx;
+                            }
+                            else
+                            {
+                                lineSplit[fndPos] += lineSplit[nIdx] + SplitLineDelimiter;
+                                lineSplit[nIdx] = null;
+                            }
+                        }
+                        else if(fndPos >= 0)
+                        {
+                            lineSplit[fndPos] += lineSplit[nIdx];
+                            lineSplit[fndPos] = lineSplit[fndPos].Replace("\\", string.Empty);
+                            lineSplit[nIdx] = null;
+                            fndPos = -1;
+                        }
+                    }
+
+                    lineSplit = lineSplit.Where(i => i != null).ToArray();
+                }
+            }
+
+            return lineSplit;
+        }
+
+        protected Tuple<string,string> GenerateCmdValuePair(string cmd, string value)
         {
             if(!string.IsNullOrEmpty(value)
                 && LibrarySettings.ObscureFiledValues.Any(c => cmd.ToUpper().Contains(c.ToUpper())))
@@ -62,8 +121,74 @@ namespace DSEDiagnosticFileParser
             return new Tuple<string, string>(cmd, value);
         }
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="line"></param>
+        /// <param name="cmdPathValueList"></param>
+        /// <returns>True to continue processing</returns>
+        virtual protected bool PreSplitLine(string line, List<Tuple<string, string>> cmdPathValueList)
+        {
+            return true;
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="line"></param>
+        /// <param name="splits"></param>
+        /// <param name="cmdPathValueList"></param>
+        /// <returns>True to continue processing</returns>
+        virtual protected bool PostSplitLine(string line, string[] splits, List<Tuple<string, string>> cmdPathValueList)
+        {
+            return true;
+        }
+
         public override uint ProcessFile()
         {
+            if(this.ConfigType == ConfigTypes.Hadoop)
+            {
+                if(!this.Node.DSE.InstanceType.HasFlag(DSEInfo.InstanceTypes.Hadoop))
+                {
+                    this.Processed = false;
+                    this.NbrItemGenerated = 0;
+                    this.NbrItemsParsed = 0;
+                    return 0;
+                }
+            }
+            else if (this.ConfigType == ConfigTypes.Solr)
+            {
+                if (!this.Node.DSE.InstanceType.HasFlag(DSEInfo.InstanceTypes.Search))
+                {
+                    this.Processed = false;
+                    this.NbrItemGenerated = 0;
+                    this.NbrItemsParsed = 0;
+                    return 0;
+                }
+            }
+            else if (this.ConfigType == ConfigTypes.Spark)
+            {
+                if (!this.Node.DSE.InstanceType.HasFlag(DSEInfo.InstanceTypes.Analytics))
+                {
+                    this.Processed = false;
+                    this.NbrItemGenerated = 0;
+                    this.NbrItemsParsed = 0;
+                    return 0;
+                }
+            }
+            else if (this.ConfigType == ConfigTypes.Snitch && this.Node.DSE.EndpointSnitch != null)
+            {
+                var snitchFile = LibrarySettings.SnitchFileMappings.TryGetValue(this.Node.DSE.EndpointSnitch);
+
+                if(snitchFile == null || this.File.FileName != snitchFile)
+                {
+                    this.Processed = false;
+                    this.NbrItemGenerated = 0;
+                    this.NbrItemsParsed = 0;
+                    return 0;
+                }
+            }
+
             var fileLines = this.File.ReadAllLines();
             string line = null;
             int nPos = -1;
@@ -83,14 +208,14 @@ namespace DSEDiagnosticFileParser
                 line = fileLine.TrimStart();
 
                 if(string.IsNullOrEmpty(line)
-                    || line[0] == '#')
+                    || line[0] == CommentDelimiter)
                 {
                     continue;
                 }
 
                 line = fileLine.Replace('\t', ' ').TrimEnd();
 
-                nPos = line.IndexOf('#');
+                nPos = line.IndexOf(CommentDelimiter);
 
                 if(nPos >= 0)
                 {
@@ -121,7 +246,7 @@ namespace DSEDiagnosticFileParser
                 }
 
                 //List Item
-                if (line[0] == '-')
+                if (line[0] == ContinuousDelimiter)
                 {
                     ++cmdListPos;
                     listCmdElement = true;
@@ -133,39 +258,43 @@ namespace DSEDiagnosticFileParser
                     listCmdElement = false;
                 }
 
-                lineSplit = line.Split(':');
-
-                //If there are more than 2 splits, it is possibly due to splitting within a delimiter. So let's use an advance more expense form of split.
-                if(lineSplit.Length > 2)
+                if(!this.PreSplitLine(line, cmdPathValueList))
                 {
-                    lineSplit = StringFunctions.Split(line,
-                                                        ':',
-                                                        StringFunctions.IgnoreWithinDelimiterFlag.All,
-                                                        StringFunctions.SplitBehaviorOptions.IgnoreMismatchedWithinDelimiters | StringFunctions.SplitBehaviorOptions.StringTrimEachElement)
-                                                    .ToArray();
+                    continue;
                 }
 
-                if(lineSplit.Length == 1 || string.IsNullOrEmpty(lineSplit[1]))
+                lineSplit = SplitLine(line);
+
+                if (!this.PostSplitLine(line, lineSplit, cmdPathValueList))
+                {
+                    continue;
+                }
+
+                if (lineSplit.Length == 1 || string.IsNullOrEmpty(lineSplit[1]))
                 {
                     if (listCmdElement)
                     {
                         cmdPathValueList.Add(GenerateCmdValuePair(string.Format("{0}[{1}]",
                                                                                 string.Join(".", nestedCmdLevels.Select(i => i.Item1)),
                                                                                 cmdListPos),
-                                                                        lineSplit[0]));
+                                                                        lineSplit[0].Trim()));
                     }
                     else
                     {
                         nestedCmdLevels.Add(new Tuple<string,int>(lineSplit[0].Trim(),nLineLevel));
                     }
 
-                    lastValue = lineSplit.Length == 1 ? null : lineSplit[1];
+                    lastValue = lineSplit.Length == 1 ? null : lineSplit[1].Trim();
 
                     continue;
                 }
 
                 //lineSplit is more than two elements... assume command/value pair....
-                System.Diagnostics.Debug.Assert(lineSplit.Length == 2);
+                if(lineSplit.Length > 2)
+                {
+                    Logger.Instance.ErrorFormat("{0}\t{1}\tInvalid configuration line \"{2}\" at line position {3}.", this.Node.Id, this.File, line, this.NbrItemsParsed);
+                    continue;
+                }
 
                 if (listCmdElement && nestedCmdLevels.Count > 0)
                 {
@@ -178,8 +307,8 @@ namespace DSEDiagnosticFileParser
                 cmdPathValueList.Add(GenerateCmdValuePair(string.Format("{0}{1}{2}",
                                                                         string.Join(".", nestedCmdLevels.Select(i => i.Item1)),
                                                                         nestedCmdLevels.Count == 0 ? string.Empty : ".",
-                                                                        lineSplit[0]),
-                                                            lineSplit[1]));
+                                                                        lineSplit[0].Trim()),
+                                                            lineSplit[1].Trim()));
                 lastValue = null;
             }
 
@@ -189,33 +318,111 @@ namespace DSEDiagnosticFileParser
             return (uint) this._result.ConfigLines.Count;
         }
 
-        private void ProcessPropertyValuePairs(IEnumerable<Tuple<string, string>> propvaluePairs)
+        protected virtual void SetNodeAttribuesFromConfig(Tuple<string, string> propvaluePair)
+        {
+            switch (propvaluePair.Item1.ToLower())
+            {
+                case "cluster_name":
+                    Cluster.NameClusterAssociatewItem(this.Node, propvaluePair.Item2);
+                    break;
+                case "num_tokens":
+                    if (!this.Node.DSE.NbrTokens.HasValue)
+                    {
+                        uint nbrTokens;
+                        if (uint.TryParse(propvaluePair.Item2, out nbrTokens))
+                        {
+                            this.Node.DSE.NbrTokens = nbrTokens;
+                            this.Node.DSE.VNodesEnabled = nbrTokens > 1;
+                        }
+                    }
+                    break;
+                case "hints_directory":
+                    this.Node.DSE.Locations.HintsDir = propvaluePair.Item2;
+                    break;
+                case "commitlog_directory":
+                    this.Node.DSE.Locations.CommentLogDir = propvaluePair.Item2;
+                    break;
+                case "saved_caches_directory":
+                    this.Node.DSE.Locations.SavedCacheDir = propvaluePair.Item2;
+                    break;
+                case "cassandra-conf":
+                    this.Node.DSE.Locations.CassandraYamlFile = propvaluePair.Item2;
+                    break;
+                case "endpoint_snitch":
+                    this.Node.DSE.EndpointSnitch = propvaluePair.Item2;
+                    break;
+                case "advanced_replication_options.enabled":
+                    if (propvaluePair.Item2.ToLower() == "true" || propvaluePair.Item2 == "1")
+                    {
+                        this.Node.DSE.InstanceType |= DSEInfo.InstanceTypes.AdvancedReplication;
+                    }
+                    break;
+                case "hadoop_enabled":
+                    if (propvaluePair.Item2 == "1")
+                    {
+                        this.Node.DSE.InstanceType |= DSEInfo.InstanceTypes.Hadoop;
+                    }
+                    break;
+                case "graph_enabled":
+                    if (propvaluePair.Item2 == "1")
+                    {
+                        this.Node.DSE.InstanceType |= DSEInfo.InstanceTypes.Graph;
+                    }
+                    break;
+                case "solr_enabled":
+                    if (propvaluePair.Item2 == "1")
+                    {
+                        this.Node.DSE.InstanceType |= DSEInfo.InstanceTypes.Search;
+                    }
+                    break;
+                case "spark_enabled":
+                    if (propvaluePair.Item2 == "1")
+                    {
+                        this.Node.DSE.InstanceType |= DSEInfo.InstanceTypes.Analytics;
+                    }
+                    break;
+                case "cfs_enabled":
+                    if (propvaluePair.Item2 == "1")
+                    {
+                        this.Node.DSE.InstanceType |= DSEInfo.InstanceTypes.CFS;
+                    }
+                    break;
+                default:
+                    break;
+            }
+
+            //seed_provider[1].parameters[1].seeds: "10.14.148.34,10.14.148.51"
+            if (propvaluePair.Item1.StartsWith("seed_provider[", true, System.Globalization.CultureInfo.CurrentCulture)
+                    && propvaluePair.Item1.EndsWith("seeds", true, System.Globalization.CultureInfo.CurrentCulture)
+                    && !string.IsNullOrEmpty(propvaluePair.Item2))
+            {
+                this.Node.DSE.IsSeedNode = StringHelpers.RemoveQuotes(propvaluePair.Item2, false)
+                                                .Split(',')
+                                                .Any(s => this.Node.Id.Equals(s));
+            }
+        }
+
+        protected virtual void ProcessPropertyValuePairs(IEnumerable<Tuple<string, string>> propvaluePairs)
         {
             uint nPos = 0;
+            var datafiledirectories = new List<string>();
 
             foreach (var propvaluePair in propvaluePairs)
             {
-                switch (propvaluePair.Item1.ToLower())
+                this.SetNodeAttribuesFromConfig(propvaluePair);
+
+                //data_file_directories[1]
+                if (propvaluePair.Item1.StartsWith("data_file_directories["))
                 {
-                    case "cluster_name":
-                        Cluster.NameClusterAssociatewItem(this.Node, propvaluePair.Item2);
-                        break;
-                    case "num_tokens":
-                        if(!this.Node.DSE.NbrTokens.HasValue)
-                        {
-                            uint nbrTokens;
-                            if(uint.TryParse(propvaluePair.Item2, out nbrTokens))
-                            {
-                                this.Node.DSE.NbrTokens = nbrTokens;
-                                this.Node.DSE.VNodesEnabled = nbrTokens > 1;
-                            }
-                        }
-                        break;
-                    default:
-                        break;
+                    datafiledirectories.Add(propvaluePair.Item2);
                 }
 
-                this._result.ConfigLines.Add(new YamlConfigurationLine(this.File, this.Node, ++nPos, propvaluePair.Item1, propvaluePair.Item2));
+                this._result.ConfigLines.Add(new YamlConfigurationLine(this.File, this.Node, ++nPos, propvaluePair.Item1, propvaluePair.Item2, this.ConfigType));
+            }
+
+            if(datafiledirectories.Count > 0)
+            {
+                this.Node.DSE.Locations.DataDirs = datafiledirectories;
             }
         }
     }

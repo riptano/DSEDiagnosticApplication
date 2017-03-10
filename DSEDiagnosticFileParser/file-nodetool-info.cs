@@ -110,12 +110,9 @@ namespace DSEDiagnosticFileParser
                     case "datacenter":
                     case "data center":
                         if (this.Node.DataCenter == null)
-                        {                            
-                            var dcInstance = Cluster.TryGetAddDataCenter(lineValue, this.Node.Cluster);
-
-                            if (dcInstance != null)
-                            {
-                                dcInstance.TryGetAddNode(this.Node);
+                        {      
+                            if(Cluster.AssociateDataCenterToNode(lineValue, this.Node) != null) 
+                            {                               
                                 ++nbrGenerated;
                             }                           
                         }

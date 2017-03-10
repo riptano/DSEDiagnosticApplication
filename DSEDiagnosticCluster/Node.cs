@@ -480,6 +480,7 @@ namespace DSEDiagnosticLibrary
 		public string OS;
 		public string OSVersion;
         public string InstanceType;
+        public string Placement;
 		public IZone TimeZone;
 		public CPULoadInfo CPULoad;
 		public MemoryInfo Memory;
@@ -499,7 +500,10 @@ namespace DSEDiagnosticLibrary
 			TT = 0x0008,
 			JT = 0x0010,
             Graph = 0x0020,
-			Analytics_TT = Analytics | TT,
+            AdvancedReplication = 0x0040,            
+            Hadoop = 0x0080,
+            CFS = 0x0100,
+            Analytics_TT = Analytics | TT,
 			Analytics_JS = Analytics | JT
 		}
 
@@ -606,15 +610,27 @@ namespace DSEDiagnosticLibrary
             }
         }
 
+        public sealed class DirectoryLocations
+        {
+            public string CassandraYamlFile;
+            public string DSEYamlFile;
+            public string HintsDir; //hints_directory
+            public IEnumerable<string> DataDirs; //data_file_directories
+            public string CommentLogDir; //commitlog_directory
+            public string SavedCacheDir; //saved_caches_directory
+        }
+
         public DSEInfo()
         {
             this.Versions = new VersionInfo();
+            this.Locations = new DirectoryLocations();
         }
 
 		public InstanceTypes InstanceType;
 		public VersionInfo Versions;
         public Guid HostId;
 		public string Rack;
+        public string DataCenterSuffix;
 		public DSEStatuses Statuses;
 		public UnitOfMeasure StorageUsed;
 		public UnitOfMeasure StorageUtilization;
@@ -622,6 +638,7 @@ namespace DSEDiagnosticLibrary
 		public UnitOfMeasure Uptime;
 		public UnitOfMeasure Heap;
 		public UnitOfMeasure OffHeap;
+        public bool? IsSeedNode; //seed_provider.parameters.seeds: "10.14.148.34,10.14.148.51"    
 		public bool? VNodesEnabled;
 		public uint? NbrTokens;
 		public uint? NbrExceptions;
@@ -630,6 +647,8 @@ namespace DSEDiagnosticLibrary
 		public bool? NativeTransportEnabled;
         public bool? RepairServiceHasRan;
         public DateTimeRange RepairServiceRanRange;
+        public DirectoryLocations Locations;
+        public string EndpointSnitch;
         public string KeyCacheInformation;
 		public string RowCacheInformation;
 		public string CounterCacheInformation;

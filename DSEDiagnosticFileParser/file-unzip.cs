@@ -36,11 +36,11 @@ namespace DSEDiagnosticFileParser
 
             public IEnumerable<IParsed> Results { get; }
         }
-        public ExtractionResult Result { get; private set; }
+        private ExtractionResult _result;
 
         public override IResult GetResult()
         {
-            return this.Result;
+            return this._result;
         }
 
         public override uint ProcessFile()
@@ -49,7 +49,7 @@ namespace DSEDiagnosticFileParser
 
             var nbrFilesExtracted =  MiscHelpers.UnZipFileToFolder(this.File, out newDirectory, false, true, true, true, this.CancellationToken);
 
-            this.Result = new ExtractionResult(newDirectory, nbrFilesExtracted);
+            this._result = new ExtractionResult(newDirectory, nbrFilesExtracted);
 
             this.NbrItemsParsed = 1;
             this.Processed = true;

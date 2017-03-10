@@ -13,6 +13,7 @@ namespace DSEDiagnosticLibrary
 	{
 		Cluster Cluster { get; }
 		string Name { get; }
+
 		IEnumerable<INode> Nodes { get; }
 		IEnumerable<LocalKeyspaceInfo> Keyspaces { get; }
 
@@ -105,7 +106,6 @@ namespace DSEDiagnosticLibrary
 
 			return node;
 		}
-
 		public IDataCenter AssociateItem(IEvent eventItem)
 		{
 			if (eventItem != null)
@@ -149,7 +149,7 @@ namespace DSEDiagnosticLibrary
                 lock (this)
                 {
                     if (!ReferenceEquals(this.Cluster, newCluster))
-                    {                       
+                    {
                         this.Cluster = newCluster;
                     }
                 }
@@ -179,7 +179,7 @@ namespace DSEDiagnosticLibrary
 			private set;
 		}
 
-		private ConcurrentBag<INode> _nodes = new ConcurrentBag<INode>();
+        private ConcurrentBag<INode> _nodes = new ConcurrentBag<INode>();
 		public IEnumerable<INode> Nodes
 		{
 			get { return this._nodes; }

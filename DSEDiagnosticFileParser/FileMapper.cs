@@ -106,6 +106,11 @@ namespace DSEDiagnosticFileParser
         public DiagnosticFile.CatagoryTypes Catagory { get; set; }
 
 		public string[] FilePatterns { get; set; }
+
+        /// <summary>
+        /// Ignore any files (includes complete path) that match this RegEx.
+        /// </summary>
+        public string IgnoreFilesMatchingRegEx { get; set; }
 		public string FileParsingClass { get; set; }
 		/// <summary>
 		/// The directory level of the node&apos;s IP Address or host name as the directory name. The directory above the file is position 1. It can be embedded and can be either an IPAddress or host name (seperated by a space or plus sign).

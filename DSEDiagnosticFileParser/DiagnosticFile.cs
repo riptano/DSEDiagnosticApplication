@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using DSEDiagnosticLibrary;
 using Common;
@@ -247,6 +248,10 @@ namespace DSEDiagnosticFileParser
                                                                             string dataCenterName = null,
                                                                             string clusterName = null)
 		{
+            var ignoreFilesRegEx = string.IsNullOrEmpty(fileMappings?.IgnoreFilesMatchingRegEx)
+                                            ? null
+                                            : new Regex(fileMappings.IgnoreFilesMatchingRegEx,
+                                                            RegexOptions.Compiled | RegexOptions.IgnoreCase);
 			var mergesFiles = fileMappings?.FilePathMerge(diagnosticDirectory);
             var resultingFiles = mergesFiles == null
                                 ? Enumerable.Empty<IPath>()
@@ -264,9 +269,10 @@ namespace DSEDiagnosticFileParser
                                     });
             var targetFiles = resultingFiles.Where(f => f is IFilePath
                                                             && f.Exist())
-                                                                .Cast<IFilePath>()
-                                                                .OrderByDescending(f => f.GetLastWriteTimeUtc())
-                                                                .DuplicatesRemoved(f => f); //If there are duplicates, keep the most current...
+                                            .Cast<IFilePath>()
+                                            .OrderByDescending(f => f.GetLastWriteTimeUtc())
+                                            .DuplicatesRemoved(f => f) //If there are duplicates, keep the most current...
+                                            .Where(f => ignoreFilesRegEx == null ? true : !ignoreFilesRegEx.IsMatch(f.PathResolved));
 			var diagnosticInstances = new List<DiagnosticFile>();
 			var instanceType = fileMappings.GetFileParsingType();
 

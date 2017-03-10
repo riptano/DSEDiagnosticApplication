@@ -15,7 +15,8 @@ namespace DSEDiagnosticLibrary
         DSE,
         Hadoop,
         Solr,
-        Spark
+        Spark,
+        Snitch
     }
 
     public interface IConfigurationLine : IParsed
@@ -31,6 +32,150 @@ namespace DSEDiagnosticLibrary
 
     public sealed class YamlConfigurationLine : IConfigurationLine
     {
+
+        public sealed class ConfigTypeMapper
+        {
+            public static List<ConfigTypeMapper> Mappings = new List<ConfigTypeMapper>();
+
+            [Flags]
+            public enum MatchActions
+            {
+                Path = 0x0001,
+                FileNamewExtension = 0x0002,
+                FileNameOnly = 0x0004,
+                FileExtension = 0x0008,
+                StartsWith = 0x0010,
+                EndsWith = 0x0020,
+                Contains = 0x0040,
+                Equals = 0x0080,
+                Default = Path | Contains
+            }
+
+            private ConfigTypeMapper() { }
+            public ConfigTypeMapper(string containsStringOrRegEx, bool isRegEx, ConfigTypes configType, MatchActions matchActions = MatchActions.Default)
+            {
+                this.ConfigType = configType;
+
+                if(isRegEx)
+                {
+                    this.RegExString = containsStringOrRegEx;
+                }
+                else
+                {
+                    this.ContainsString = containsStringOrRegEx;
+                }
+
+                this.MatchAction = matchActions;
+
+                if(LibrarySettings.ConfigTypeMappers != null) LibrarySettings.ConfigTypeMappers.Add(this);
+            }
+
+            public ConfigTypes ConfigType { get; internal set; }
+            public Regex MatchRegEx { get; private set; }
+
+            private string _regexString = null;
+            public string RegExString
+            {
+                get { return this._regexString; }
+                internal set
+                {
+                    if(this.MatchRegEx == null)
+                    {
+                        if(!string.IsNullOrEmpty(value))
+                        {
+                            this.MatchRegEx = new Regex(value, RegexOptions.Compiled | RegexOptions.IgnoreCase);
+                        }
+                    }
+                    else if(this._regexString != value)
+                    {
+                        this.MatchRegEx = string.IsNullOrEmpty(value)
+                                                ? null
+                                                : new Regex(value, RegexOptions.Compiled | RegexOptions.IgnoreCase);
+                    }
+                    this._regexString = value;
+
+                    if(this._regexString != null)
+                    {
+                        this._containsString = null;
+                    }
+                }
+            }
+
+            private string _containsString = null;
+            public string ContainsString
+            {
+                get { return this._containsString; }
+                internal set
+                {
+                    this._containsString = value;
+
+                    if(this._containsString != null)
+                    {
+                        this._regexString = null;
+                    }
+                }
+            }
+
+            public MatchActions MatchAction { get; internal set; }
+
+            public ConfigTypes GetConfigType(IFilePath configFilePath)
+            {
+                string compareString = configFilePath.PathResolved;
+
+                if((int) this.MatchAction == 0)
+                {
+                    this.MatchAction = MatchActions.Default;
+                }
+
+                if(this.MatchAction.HasFlag(MatchActions.FileExtension))
+                {
+                    compareString = configFilePath.FileExtension;
+                }
+                else if (this.MatchAction.HasFlag(MatchActions.FileNamewExtension))
+                {
+                    compareString = configFilePath.FileName;
+                }
+                else if (this.MatchAction.HasFlag(MatchActions.FileNameOnly))
+                {
+                    compareString = configFilePath.FileNameWithoutExtension;
+                }
+
+                if(this.MatchRegEx == null)
+                {
+                    switch (this.MatchAction)
+                    {
+                        case MatchActions.Equals:
+                            if (string.Equals(this.ContainsString, compareString, StringComparison.OrdinalIgnoreCase)) return this.ConfigType;
+                            break;
+                        case MatchActions.Contains:
+                            if(compareString.IndexOf(this.ContainsString, StringComparison.OrdinalIgnoreCase) >= 0) return this.ConfigType;
+                            break;
+                        case MatchActions.StartsWith:
+                            if (compareString.StartsWith(this.ContainsString, StringComparison.OrdinalIgnoreCase)) return this.ConfigType;
+                            break;
+                        case MatchActions.EndsWith:
+                            if (compareString.EndsWith(this.ContainsString, StringComparison.OrdinalIgnoreCase)) return this.ConfigType;
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                else if(this.MatchRegEx.IsMatch(compareString))
+                {
+                    return this.ConfigType;
+                }
+
+                return ConfigTypes.Unkown;
+            }
+
+            public static ConfigTypes FindConfigType(IFilePath configFilePath)
+            {
+                var configType = LibrarySettings.ConfigTypeMappers?.FirstOrDefault(t => t.GetConfigType(configFilePath) != ConfigTypes.Unkown);
+
+                return configType == null ? ConfigTypes.Unkown : configType.ConfigType;
+            }
+        }
+
         private YamlConfigurationLine() { }
 
         public YamlConfigurationLine(IFilePath configFile,
@@ -42,7 +187,7 @@ namespace DSEDiagnosticLibrary
         {
             if(type == ConfigTypes.Unkown)
             {
-                this.Type = DetermineType(configFile);
+                this.Type = ConfigTypeMapper.FindConfigType(configFile);
             }
             else
             {
@@ -111,57 +256,6 @@ namespace DSEDiagnosticLibrary
         }
 
         #region static methods
-
-        static ConfigTypes DetermineType(IFilePath configFile)
-        {
-            var strFilePath = configFile.PathResolved.ToUpper();
-
-            if(strFilePath.Contains("CASSANDRA"))
-            {
-                return ConfigTypes.Cassandra;
-            }
-            if (strFilePath.Contains("DSE"))
-            {
-                return ConfigTypes.DSE;
-            }
-            if (strFilePath.Contains("HADOOP"))
-            {
-                return ConfigTypes.Hadoop;
-            }
-            if (strFilePath.Contains("SOLR"))
-            {
-                return ConfigTypes.Solr;
-            }
-            if (strFilePath.Contains("SPARK"))
-            {
-                return ConfigTypes.Spark;
-            }
-
-            var strDir = configFile.PathResolved.Split(System.IO.Path.DirectorySeparatorChar).Take(2).Select(i => i.ToUpper());
-
-            if (strDir.Any(i => i.Contains("CASSANDRA")))
-            {
-                return ConfigTypes.Cassandra;
-            }
-            if (strDir.Any(i => i.Contains("DSE")))
-            {
-                return ConfigTypes.DSE;
-            }
-            if (strDir.Any(i => i.Contains("HADOOP")))
-            {
-                return ConfigTypes.Hadoop;
-            }
-            if (strDir.Any(i => i.Contains("SOLR")))
-            {
-                return ConfigTypes.Solr;
-            }
-            if (strDir.Any(i => i.Contains("SPARK")))
-            {
-                return ConfigTypes.Spark;
-            }
-            
-            return ConfigTypes.Unkown;
-        }
 
         static string NormalizeValue(string value)
         {

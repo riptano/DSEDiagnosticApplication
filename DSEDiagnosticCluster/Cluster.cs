@@ -13,7 +13,7 @@ namespace DSEDiagnosticLibrary
 {
 	public class Cluster : IEquatable<Cluster>, IEquatable<string>
 	{
-		public static Cluster CurrentCluster = null;
+		public static readonly Cluster MasterCluster = null;
         public static ConcurrentBag<Cluster> Clusters = new ConcurrentBag<Cluster>();
 		private static CTS.List<INode> UnAssociatedNodes = new CTS.List<INode>();
 		private static QueueProcessor<Tuple<Cluster, IEvent>> EventProcessQueue = new QueueProcessor<Tuple<Cluster, IEvent>>();
@@ -23,7 +23,7 @@ namespace DSEDiagnosticLibrary
 			EventProcessQueue.OnProcessMessageEvent += EventProcessQueue_OnProcessMessageEvent;
 			EventProcessQueue.Name = "Cluster-IEvent";
 			EventProcessQueue.StartQueue(false);
-            CurrentCluster = new Cluster();
+            MasterCluster = new Cluster("**LogicalMaster**") { IsMaster = true };
 		}
 
         public sealed class OpsCenterInfo
@@ -45,7 +45,10 @@ namespace DSEDiagnosticLibrary
 		}
 
 		public string Name { get; private set; }
-		private ConcurrentBag<IDataCenter> _dataCenters = new ConcurrentBag<IDataCenter>();
+
+        public bool IsMaster { get; private set; }
+        
+		private CTS.List<IDataCenter> _dataCenters = new CTS.List<IDataCenter>();
 		public IEnumerable<IDataCenter> DataCenters { get { return this._dataCenters; } }
 
 		private List<IEvent> _events = new List<IEvent>();
@@ -65,45 +68,26 @@ namespace DSEDiagnosticLibrary
 
 		#region Static Methods
 
-		public static Cluster TryGetAddCluster(string clusterName, bool makeCurrent = true)
-		{
-			var isCurrent = CurrentCluster?.Equals(clusterName);
-
-			if (isCurrent.HasValue && isCurrent.Value)
-			{
-				return CurrentCluster;
-			}
-
+		public static Cluster TryGetAddCluster(string clusterName)
+		{			
 			var cluster = Clusters.FirstOrDefault(c => c.Name == clusterName);
 
 			if (cluster == null)
 			{
 				cluster = new Cluster(clusterName);
 			}
-
-			if (makeCurrent)
-			{
-                CurrentCluster = cluster;
-            }
-
+            
 			return cluster;
 		}
 
         public static Cluster TryGetCluster(string clusterName)
-        {
-            var isCurrent = CurrentCluster?.Equals(clusterName);
-
-            if (isCurrent.HasValue && isCurrent.Value)
-            {
-                return CurrentCluster;
-            }
-
+        {            
             return Clusters.FirstOrDefault(c => c.Name == clusterName);
         }
 
         public static IDataCenter TryGetAddDataCenter(string dataCenterName, Cluster cluster = null)
 		{
-			var currentCuster = cluster == null ? CurrentCluster : cluster;
+			var currentCuster = cluster == null ? MasterCluster : cluster;
 			var currentDC = currentCuster._dataCenters.FirstOrDefault(d => d.Name == dataCenterName);
 
 			if (currentDC == null)
@@ -116,7 +100,7 @@ namespace DSEDiagnosticLibrary
 		}
 		public static IDataCenter TryGetAddDataCenter(string dataCenterName, string clusterName = null)
 		{
-			var currentCuster = string.IsNullOrEmpty(clusterName) ? CurrentCluster : TryGetAddCluster(clusterName);
+			var currentCuster = string.IsNullOrEmpty(clusterName) ? MasterCluster : TryGetAddCluster(clusterName);
 
 			return TryGetAddDataCenter(dataCenterName, currentCuster);
 		}
@@ -125,7 +109,7 @@ namespace DSEDiagnosticLibrary
         {
             if (string.IsNullOrEmpty(dataCenterName)) return null;
 
-            var currentCuster = cluster == null ? CurrentCluster : cluster;
+            var currentCuster = cluster == null ? MasterCluster : cluster;
             var currentDC = currentCuster._dataCenters.FirstOrDefault(d => d.Name == dataCenterName);
 
             return currentDC;
@@ -134,7 +118,7 @@ namespace DSEDiagnosticLibrary
         {
             if (string.IsNullOrEmpty(dataCenterName)) return null;
 
-            var currentCuster = string.IsNullOrEmpty(clusterName) ? CurrentCluster : TryGetCluster(clusterName);
+            var currentCuster = string.IsNullOrEmpty(clusterName) ? MasterCluster : TryGetCluster(clusterName);
 
             return TryGetDataCenter(dataCenterName, currentCuster);
         }
@@ -152,7 +136,7 @@ namespace DSEDiagnosticLibrary
 
 				if (node == null)
 				{
-					var cluster = string.IsNullOrEmpty(clusterName) ? CurrentCluster : TryGetAddCluster(clusterName);
+					var cluster = string.IsNullOrEmpty(clusterName) ? MasterCluster : TryGetAddCluster(clusterName);
 
                     node = cluster.DataCenters.SelectMany(dc => dc.Nodes).FirstOrDefault(n => n.Equals(nodeId));
 
@@ -190,7 +174,7 @@ namespace DSEDiagnosticLibrary
 
 				if (node == null)
 				{
-					var cluster = string.IsNullOrEmpty(clusterName) ? CurrentCluster : TryGetAddCluster(clusterName);
+					var cluster = string.IsNullOrEmpty(clusterName) ? MasterCluster : TryGetAddCluster(clusterName);
 
                     node = cluster.DataCenters.SelectMany(dc => dc.Nodes).FirstOrDefault(n => n.Id == nodeId);
 
@@ -206,6 +190,18 @@ namespace DSEDiagnosticLibrary
 
 			return currentDC.TryGetAddNode(nodeId);
 		}
+
+        public static INode TryGetNode(string nodeId, string dataCenterName = null, string clusterName = null, bool includeUnAssociatedNodes = true)
+        {
+            var dcNodes = GetNodes(dataCenterName, clusterName, includeUnAssociatedNodes);
+
+            if(dcNodes != null)
+            {
+                return dcNodes.FirstOrDefault(n => n.Id.Equals(nodeId));
+            }
+
+            return null;
+        }
 
         public static IEnumerable<INode> GetNodes(string dataCenterName = null, string clusterName = null, bool includeUnAssociatedNodes = true)
         {
@@ -249,87 +245,79 @@ namespace DSEDiagnosticLibrary
 			return currentDC.TryGetAddNode(node);
 		}
 
+        public static INode AssociateDataCenterToNode(string dataCenterName, INode node)
+        {
+            if (node == null)
+            { throw new ArgumentNullException("node cannot be null"); }
+            if (string.IsNullOrEmpty(dataCenterName))
+            { throw new ArgumentNullException("dataCenter cannot be null"); }
+
+            var currentDC = (DataCenter)TryGetAddDataCenter(dataCenterName, node.Cluster);
+            var removeAssocNode = (Node)UnAssociatedNodes.FirstOrDefault(n => n.Equals(node));
+
+            if (currentDC != null && removeAssocNode != null)
+            {
+                UnAssociatedNodes.Remove(node);
+            }
+
+            return currentDC?.TryGetAddNode(node);
+        }
+
         /// <summary>
         /// This will either name the associated cluster (if name is null) or create a new cluster and associate this node and it&apos;s associated DC to the new cluster
         /// </summary>
         /// <param name="node"></param>
-        /// <param name="clusterName"></param>
-        /// <param name="alwaysCreateNewCluster"></param>
+        /// <param name="clusterName"></param>      
         /// <returns></returns>
-        public static Cluster NameClusterAssociatewItem(INode node, string clusterName, bool alwaysCreateNewCluster = false)
+        public static Cluster NameClusterAssociatewItem(INode node, string clusterName)
         {
             if(node != null && !string.IsNullOrEmpty(clusterName) && node.DataCenter == null)
-            {
-                if (!alwaysCreateNewCluster && string.IsNullOrEmpty(node.Cluster.Name))
+            {       
+                var cluster = TryGetAddCluster(clusterName);
+
+                lock (node)
                 {
-                    lock (node.Cluster)
-                    lock(node)
+                    if (cluster != null && node.Cluster.Name != clusterName && node.DataCenter == null)
                     {
-                        if (string.IsNullOrEmpty(node.Cluster.Name) && node.DataCenter == null)
-                        {
-                            node.Cluster.Name = clusterName;
-                            return node.Cluster;
-                        }
-
-                        if (node.Cluster.Name == clusterName)
-                        {
-                            return node.Cluster;
-                        }
-
-                        if(node.DataCenter != null)
-                        {
-                            return NameClusterAssociatewItem(node.DataCenter, clusterName, alwaysCreateNewCluster);
-                        }
+                        ((Node)node).SetCluster(cluster);
+                        return cluster;
                     }
-                }
-
-                var cluster = TryGetAddCluster(clusterName, false);
-
-                if (cluster != null && node.Cluster.Name != clusterName)
-                {
-                    ((Node)node).SetCluster(cluster);
-                }
-
-                return cluster;
+                }                
             }
 
-            return NameClusterAssociatewItem(node?.DataCenter, clusterName, alwaysCreateNewCluster);
+            return NameClusterAssociatewItem(node?.DataCenter, clusterName);
         }
 
         /// <summary>
         /// This will either name the associated cluster (if name is null) or create a new cluster and associated DC to the new cluster
         /// </summary>
         /// <param name="node"></param>
-        /// <param name="clusterName"></param>
-        /// <param name="alwaysCreateNewCluster"></param>
+        /// <param name="clusterName"></param>      
         /// <returns></returns>
-        public static Cluster NameClusterAssociatewItem(IDataCenter dc, string clusterName, bool alwaysCreateNewCluster = false)
+        public static Cluster NameClusterAssociatewItem(IDataCenter dc, string clusterName)
         {
             if (dc == null || string.IsNullOrEmpty(clusterName)) return null;
+            
+            var cluster = TryGetAddCluster(clusterName);
 
-            if (!alwaysCreateNewCluster && string.IsNullOrEmpty(dc.Cluster.Name))
+            lock (dc)
             {
-                lock (dc.Cluster)
-                lock (dc)
+                if (cluster != null && dc.Cluster.Name != clusterName)
                 {
-                    if (string.IsNullOrEmpty(dc.Cluster.Name))
-                    {
-                        dc.Cluster.Name = clusterName;
-                        return dc.Cluster;
-                    }
+                    var oldCluster = dc.Cluster;
 
-                    if (dc.Cluster.Name == clusterName)
+                    if (!cluster._dataCenters.Contains(dc))
                     {
-                        return dc.Cluster;
+                        cluster._dataCenters.Add(dc);
+                    }
+                                       
+                    ((DataCenter)dc).AssociateItem(cluster);
+
+                    if (!oldCluster.IsMaster)
+                    {
+                        oldCluster._dataCenters.Remove(dc);
                     }
                 }
-            }
-
-            var cluster = TryGetAddCluster(clusterName, false);
-
-            if (cluster != null && dc.Cluster.Name != clusterName)
-            {
-                ((DataCenter)dc).AssociateItem(cluster);
             }
 
             return cluster;

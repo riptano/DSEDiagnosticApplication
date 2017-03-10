@@ -81,6 +81,8 @@
   <ItemGroup>
     <Compile Include="DiagnosticFile.cs" />
     <Compile Include="file-agent_version.cs" />
+    <Compile Include="file-cassandra-rackdc-properties.cs" />
+    <Compile Include="file-cassandra-topology.cs" />
     <Compile Include="file-dsetool-ring.cs" />
     <Compile Include="file-load_avg.cs" />
     <Compile Include="file-nodetool-info.cs" />
@@ -91,9 +93,11 @@
     <Compile Include="file-unzip.cs" />
     <Compile Include="file-yaml.cs" />
     <Compile Include="FileMapper.cs" />
+    <Compile Include="file_DSE_env.cs" />
     <Compile Include="jason-cpu.cs" />
     <Compile Include="json-java_heap.cs" />
     <Compile Include="json-java_system_properties.cs" />
+    <Compile Include="json-location.cs" />
     <Compile Include="json-machine-info.cs" />
     <Compile Include="json-memory.cs" />
     <Compile Include="json-node_info.cs" />
