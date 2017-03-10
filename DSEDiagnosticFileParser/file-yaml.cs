@@ -31,7 +31,7 @@ namespace DSEDiagnosticFileParser
                 this.Node = yamlFileInstance.Node;
             }
 
-            internal List<YamlConfigurationLine> ConfigLines = new List<YamlConfigurationLine>();
+            internal List<IConfigurationLine> ConfigLines = new List<IConfigurationLine>();
 
             #region IResult
             public IPath Path { get; private set; }
@@ -418,21 +418,19 @@ namespace DSEDiagnosticFileParser
                     datafiledirectories.Add(propvaluePair.Item2);
                 }
 
-                this._result.ConfigLines.Add(new YamlConfigurationLine(this.File,
-                                                                        this.Node,
-                                                                        ++nPos,
-                                                                        propvaluePair.Item1,
-                                                                        propvaluePair.Item2,
-                                                                        this.ConfigType,
-                                                                        this.Source));
+                this._result.ConfigLines.Add(YamlConfigurationLine.AddConfiguration(this.File,
+                                                                                        this.Node,
+                                                                                        ++nPos,
+                                                                                        propvaluePair.Item1,
+                                                                                        propvaluePair.Item2,
+                                                                                        this.ConfigType,
+                                                                                        this.Source));
             }
 
             if(datafiledirectories.Count > 0)
             {
                 this.Node.DSE.Locations.DataDirs = datafiledirectories;
-            }
-
-            this.Node.AssociateItem(this._result.ConfigLines);
+            }            
         }
     }
 }

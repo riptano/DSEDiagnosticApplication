@@ -72,25 +72,7 @@ namespace DSEDiagnosticFileParser
         public IResult Result { get { return this.GetResult(); } }
 
         #endregion
-
-        #region Protected members
-        protected DiagnosticFile AssocateItem(IEnumerable<IEvent> items)
-		{
-			this.Node.AssociateItem(items);
-			return this;
-		}
-		protected DiagnosticFile AssocateItem(IEnumerable<IConfigurationLine> items)
-		{
-			this.Node.AssociateItem(items);
-			return this;
-		}
-		protected DiagnosticFile AssocateItem(IEnumerable<IDDL> items)
-		{
-			this.Node.AssociateItem(items);
-			return this;
-		}
-		#endregion
-
+        
 		#region static
 
 		/// <summary>

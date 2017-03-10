@@ -683,8 +683,7 @@ namespace DSEDiagnosticLibrary
 
 		IEnumerable<IEvent> Events { get; }
 		INode AssociateItem(IEnumerable<IEvent> eventItems);
-		IEnumerable<IConfigurationLine> Configurations { get; }
-		INode AssociateItem(IEnumerable<IConfigurationLine> eventItems);
+		IEnumerable<IConfigurationLine> Configurations { get; }		
 		IEnumerable<IDDL> DDLs { get; }
 		INode AssociateItem(IEnumerable<IDDL> eventItem);
 	}
@@ -834,9 +833,14 @@ namespace DSEDiagnosticLibrary
 
 		private CTS.List<IEvent> _events = new CTS.List<IEvent>();
 		public IEnumerable<IEvent> Events { get { lock (this._events) { return this._events.ToArray(); } } }
-
-		private CTS.List<IConfigurationLine> _configurations = new CTS.List<IConfigurationLine>();
-		public IEnumerable<IConfigurationLine> Configurations { get { lock (this._configurations) { return this._configurations.ToArray(); } } }
+		
+		public IEnumerable<IConfigurationLine> Configurations
+        {
+            get
+            {
+                return this.DataCenter.GetConfigurations(this);
+            }
+        }
 
 		private CTS.List<IDDL> _ddls = new CTS.List<IDDL>();
 		public IEnumerable<IDDL> DDLs { get { lock (this._ddls) { return this._ddls.ToArray(); } } }
@@ -846,11 +850,7 @@ namespace DSEDiagnosticLibrary
             this._events.AddRange(eventItems);
 			return this;
 		}
-		public INode AssociateItem(IEnumerable<IConfigurationLine> configItems)
-		{
-            this._configurations.AddRange(configItems);
-			return this;
-		}
+        		
 		public INode AssociateItem(IEnumerable<IDDL> ddlItems)
 		{
             this._ddls.AddRange(ddlItems);
@@ -922,33 +922,6 @@ namespace DSEDiagnosticLibrary
         }
 
         #endregion
-
-        #region Processing Queue
-
-        private static void EventProcessQueue_OnProcessMessageEvent(QueueProcessor<Tuple<Node, IEvent>> sender, QueueProcessor<Tuple<Node, IEvent>>.MessageEventArgs processMessageArgs)
-		{
-			lock (processMessageArgs.ProcessedMessage.Item1._events)
-			{
-				processMessageArgs.ProcessedMessage.Item1._events.Add(processMessageArgs.ProcessedMessage.Item2);
-			}
-		}
-
-		private static void ConfigProcessQueue_OnProcessMessageEvent(QueueProcessor<Tuple<Node, IConfigurationLine>> sender, QueueProcessor<Tuple<Node, IConfigurationLine>>.MessageEventArgs processMessageArgs)
-		{
-			lock (processMessageArgs.ProcessedMessage.Item1._configurations)
-			{
-				processMessageArgs.ProcessedMessage.Item1._configurations.Add(processMessageArgs.ProcessedMessage.Item2);
-			}
-		}
-
-		private static void DDLProcessQueue_OnProcessMessageEvent(QueueProcessor<Tuple<Node, IDDL>> sender, QueueProcessor<Tuple<Node, IDDL>>.MessageEventArgs processMessageArgs)
-		{
-			lock (processMessageArgs.ProcessedMessage.Item1._ddls)
-			{
-				processMessageArgs.ProcessedMessage.Item1._ddls.Add(processMessageArgs.ProcessedMessage.Item2);
-			}
-		}
-
-		#endregion
+       
 	}
 }

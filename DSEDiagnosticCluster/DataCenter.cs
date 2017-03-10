@@ -22,26 +22,15 @@ namespace DSEDiagnosticLibrary
 
         IEnumerable<IEvent> Events { get; }
 		IEnumerable<IConfigurationLine> Configurations { get; }
-		IEnumerable<IDDL> DDLs { get; }
+        IEnumerable<IConfigurationLine> GetConfigurations(INode node);
+
+        IEnumerable<IDDL> DDLs { get; }
 	}
 
 	internal sealed class DataCenter : IDataCenter
-	{
-		private static QueueProcessor<Tuple<DataCenter, IEvent>> EventProcessQueue = new QueueProcessor<Tuple<DataCenter, IEvent>>();
-		private static QueueProcessor<Tuple<DataCenter, IConfigurationLine>> ConfigProcessQueue = new QueueProcessor<Tuple<DataCenter, IConfigurationLine>>();
-		private static QueueProcessor<Tuple<DataCenter, IDDL>> DDLProcessQueue = new QueueProcessor<Tuple<DataCenter, IDDL>>();
-
+	{	
 		static DataCenter()
-		{
-			EventProcessQueue.OnProcessMessageEvent += EventProcessQueue_OnProcessMessageEvent;
-			EventProcessQueue.Name = "DataCenter-IEvent";
-			ConfigProcessQueue.OnProcessMessageEvent += ConfigProcessQueue_OnProcessMessageEvent;
-			ConfigProcessQueue.Name = "DataCenter-IConfiguration";
-			DDLProcessQueue.OnProcessMessageEvent += DDLProcessQueue_OnProcessMessageEvent;
-			DDLProcessQueue.Name = "DataCenter-IDDL";
-			DDLProcessQueue.StartQueue(false);
-			ConfigProcessQueue.StartQueue(false);
-			EventProcessQueue.StartQueue(false);
+		{			
 		}
 
 		public DataCenter()
@@ -109,31 +98,42 @@ namespace DSEDiagnosticLibrary
 		public IDataCenter AssociateItem(IEvent eventItem)
 		{
 			if (eventItem != null)
-			{
-				EventProcessQueue.Enqueue(new Tuple<DataCenter, IEvent>(this, eventItem));
-				this.Cluster.AssociateItem(eventItem);
+			{				
 			}
 
 			return this;
 		}
 		public IDataCenter AssociateItem(IConfigurationLine configItem)
 		{
-			if (configItem != null)
-			{
-				ConfigProcessQueue.Enqueue(new Tuple<DataCenter, IConfigurationLine>(this, configItem));
-			}
-
+            lock(this._configurations)
+            {
+                this._configurations.Add(configItem);
+            }
+			
 			return this;
 		}
 		public IDataCenter AssociateItem(IDDL ddlItem)
 		{
-			if (ddlItem != null)
-			{
-				DDLProcessQueue.Enqueue(new Tuple<DataCenter, IDDL>(this, ddlItem));
-			}
-
+			
 			return this;
 		}
+
+        public IConfigurationLine ConfigurationMatch(string property,
+                                                        string value,
+                                                        ConfigTypes type,
+                                                        SourceTypes source)
+        {
+            lock(this._configurations)
+            {
+                return this._configurations.FirstOrDefault(c => c.Match(this, property, value, type, source));
+            }
+        }
+        
+        public IEnumerable<IConfigurationLine> GetConfigurations(INode node)
+        {
+            lock (this._configurations) { return this._configurations.Where(c => ((YamlConfigurationLine)c).CommonNodes.Any(n => n == node)); }
+        }
+
 
         /// <summary>
         /// This will override an existing cluster association without warning!
@@ -255,32 +255,5 @@ namespace DSEDiagnosticLibrary
         }
         #endregion
 
-        #region Processing Queue
-
-        private static void EventProcessQueue_OnProcessMessageEvent(QueueProcessor<Tuple<DataCenter, IEvent>> sender, QueueProcessor<Tuple<DataCenter, IEvent>>.MessageEventArgs processMessageArgs)
-		{
-			lock (processMessageArgs.ProcessedMessage.Item1._events)
-			{
-				processMessageArgs.ProcessedMessage.Item1._events.Add(processMessageArgs.ProcessedMessage.Item2);
-			}
-		}
-
-		private static void ConfigProcessQueue_OnProcessMessageEvent(QueueProcessor<Tuple<DataCenter, IConfigurationLine>> sender, QueueProcessor<Tuple<DataCenter, IConfigurationLine>>.MessageEventArgs processMessageArgs)
-		{
-			lock (processMessageArgs.ProcessedMessage.Item1._configurations)
-			{
-				processMessageArgs.ProcessedMessage.Item1._configurations.Add(processMessageArgs.ProcessedMessage.Item2);
-			}
-		}
-
-		private static void DDLProcessQueue_OnProcessMessageEvent(QueueProcessor<Tuple<DataCenter, IDDL>> sender, QueueProcessor<Tuple<DataCenter, IDDL>>.MessageEventArgs processMessageArgs)
-		{
-			lock (processMessageArgs.ProcessedMessage.Item1._ddls)
-			{
-				processMessageArgs.ProcessedMessage.Item1._ddls.Add(processMessageArgs.ProcessedMessage.Item2);
-			}
-		}
-
-		#endregion
 	}
 }
