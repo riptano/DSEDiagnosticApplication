@@ -248,7 +248,6 @@ namespace DSEDiagnosticLibrary
 			return this;
 		}
 
-
         override public IEnumerable<IConfigurationLine> GetConfigurations(INode node)
         {
             lock (this._configurations) { return this._configurations.Where(c => ((YamlConfigurationLine)c).Node.Equals(node)); }
