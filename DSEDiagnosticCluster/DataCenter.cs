@@ -14,7 +14,9 @@ namespace DSEDiagnosticLibrary
 		Cluster Cluster { get; }
 		string Name { get; }
 
-		IEnumerable<INode> Nodes { get; }
+        IConfigurationLine ConfigurationMatch(string property, string value, ConfigTypes type, SourceTypes source);
+
+        IEnumerable<INode> Nodes { get; }
 		IEnumerable<LocalKeyspaceInfo> Keyspaces { get; }
 
 		INode TryGetNode(string nodeId);
@@ -27,12 +29,140 @@ namespace DSEDiagnosticLibrary
         IEnumerable<IDDL> DDLs { get; }
 	}
 
-	internal sealed class DataCenter : IDataCenter
-	{	
-		static DataCenter()
-		{			
-		}
+    internal class PlaceholderDataCenter : IDataCenter
+    {
+        protected PlaceholderDataCenter()
+        { }
 
+        internal PlaceholderDataCenter(INode node, string name, string className)
+        {
+            this._name = name;
+            this._className = className;
+            this._nodes.Add(node);
+        }
+
+        internal INode AddNode(INode node)
+        {
+            if (node == null)
+            { return null; }
+
+            if (!this._nodes.Contains(node))
+            {
+                this._nodes.Add(node);
+            }
+
+            return node;
+        }
+
+        virtual public IConfigurationLine ConfigurationMatch(string property,
+                                                                string value,
+                                                                ConfigTypes type,
+                                                                SourceTypes source)
+        {
+            return ((DataCenter)this.Nodes.First().DataCenter).ConfigurationMatch(property, value, type, source);
+        }
+
+        #region IDataCenter
+        virtual public Cluster Cluster
+        {
+            get { return this._nodes.First().Cluster; }
+            protected set { throw new NotImplementedException(); }
+        }
+
+        virtual public IEnumerable<LocalKeyspaceInfo> Keyspaces
+        {
+            get
+            {
+                return Enumerable.Empty<LocalKeyspaceInfo>();
+            }
+        }
+
+        private string _name = null;
+        private string _className = null;
+        virtual public string Name
+        {
+            get { return string.Format("{0}<{1}>", this._name, this._nodes.Count()); }
+            protected set { throw new NotImplementedException(); }
+        }
+
+        protected ConcurrentBag<INode> _nodes = new ConcurrentBag<INode>();
+        public IEnumerable<INode> Nodes
+        {
+            get { return this._nodes; }
+        }
+
+        public INode TryGetNode(string nodeId)
+        {
+            if (string.IsNullOrEmpty(nodeId))
+            { return null; }
+
+            return this._nodes.FirstOrDefault(n => n.Equals(nodeId));
+        }
+        virtual public INode TryGetAddNode(INode node)
+        {
+            throw new NotImplementedException();
+        }
+
+        virtual public IEnumerable<IConfigurationLine> GetConfigurations(INode node)
+        {
+            throw new NotImplementedException();
+        }
+
+        virtual public IEnumerable<IEvent> Events { get { throw new NotImplementedException(); } }
+
+        virtual public IEnumerable<IConfigurationLine> Configurations { get { throw new NotImplementedException(); } }
+
+        virtual public IEnumerable<IDDL> DDLs { get { throw new NotImplementedException(); } }
+
+        #endregion
+
+        #region IEquatable
+        virtual public bool Equals(string other)
+        {
+            return this._name == other;
+        }
+
+        virtual public bool Equals(IDataCenter other)
+        {
+            if (other is DataCenter)
+            {
+                return other == null ? false : this._name == other.Name;
+            }
+
+            return other == null ? false : this._name == ((PlaceholderDataCenter)other)._name;
+        }
+        #endregion
+
+        #region overrides
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(this, obj))
+            { return true; }
+            if (obj is IDataCenter)
+            { return this.Equals((IDataCenter)obj); }
+            if (obj is string)
+            { return this.Equals((string)obj); }
+
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
+
+        public override string ToString()
+        {
+            return string.Format("{0}{{{1}}}", this._className, this.Name);
+        }
+
+        #endregion
+
+    }
+
+    internal sealed class DataCenter : PlaceholderDataCenter
+	{
 		public DataCenter()
 		{ }
 
@@ -74,7 +204,7 @@ namespace DSEDiagnosticLibrary
 			return node;
 		}
 
-		public INode TryGetAddNode(INode node)
+		override public INode TryGetAddNode(INode node)
 		{
 			if (node == null)
 			{ return null; }
@@ -98,7 +228,7 @@ namespace DSEDiagnosticLibrary
 		public IDataCenter AssociateItem(IEvent eventItem)
 		{
 			if (eventItem != null)
-			{				
+			{
 			}
 
 			return this;
@@ -109,31 +239,31 @@ namespace DSEDiagnosticLibrary
             {
                 this._configurations.Add(configItem);
             }
-			
+
 			return this;
 		}
 		public IDataCenter AssociateItem(IDDL ddlItem)
 		{
-			
+
 			return this;
 		}
 
-        public IConfigurationLine ConfigurationMatch(string property,
-                                                        string value,
-                                                        ConfigTypes type,
-                                                        SourceTypes source)
+
+        override public IEnumerable<IConfigurationLine> GetConfigurations(INode node)
         {
-            lock(this._configurations)
+            lock (this._configurations) { return this._configurations.Where(c => ((YamlConfigurationLine)c).Node.Equals(node)); }
+        }
+
+        override public IConfigurationLine ConfigurationMatch(string property,
+                                                                string value,
+                                                                ConfigTypes type,
+                                                                SourceTypes source)
+        {
+            lock (this._configurations)
             {
                 return this._configurations.FirstOrDefault(c => c.Match(this, property, value, type, source));
             }
         }
-        
-        public IEnumerable<IConfigurationLine> GetConfigurations(INode node)
-        {
-            lock (this._configurations) { return this._configurations.Where(c => ((YamlConfigurationLine)c).CommonNodes.Any(n => n == node)); }
-        }
-
 
         /// <summary>
         /// This will override an existing cluster association without warning!
@@ -159,13 +289,13 @@ namespace DSEDiagnosticLibrary
         }
 
         #region IDataCenter
-        public Cluster Cluster
-		{
-			get;
-			private set;
-		}
+        override public Cluster Cluster
+        {
+            get;
+            protected set;
+        }
 
-		public IEnumerable<LocalKeyspaceInfo> Keyspaces
+        override public IEnumerable<LocalKeyspaceInfo> Keyspaces
 		{
 			get
 			{
@@ -173,44 +303,30 @@ namespace DSEDiagnosticLibrary
 			}
 		}
 
-		public string Name
+		override public string Name
 		{
 			get;
-			private set;
-		}
-
-        private ConcurrentBag<INode> _nodes = new ConcurrentBag<INode>();
-		public IEnumerable<INode> Nodes
-		{
-			get { return this._nodes; }
-		}
-
-		public INode TryGetNode(string nodeId)
-		{
-			if (string.IsNullOrEmpty(nodeId))
-			{ return null; }
-
-			return this._nodes.FirstOrDefault(n => n.Equals(nodeId));
+			protected set;
 		}
 
 		private List<IEvent> _events = new List<IEvent>();
-		public IEnumerable<IEvent> Events { get { lock (this._events) { return this._events.ToArray(); } } }
+		override public IEnumerable<IEvent> Events { get { lock (this._events) { return this._events.ToArray(); } } }
 
 		private List<IConfigurationLine> _configurations = new List<IConfigurationLine>();
-		public IEnumerable<IConfigurationLine> Configurations { get { lock (this._configurations) { return this._configurations.ToArray(); } } }
+		override public IEnumerable<IConfigurationLine> Configurations { get { lock (this._configurations) { return this._configurations.ToArray(); } } }
 
 		private List<IDDL> _ddls = new List<IDDL>();
-		public IEnumerable<IDDL> DDLs { get { lock (this._ddls) { return this._ddls.ToArray(); } } }
+		override public IEnumerable<IDDL> DDLs { get { lock (this._ddls) { return this._ddls.ToArray(); } } }
 
 		#endregion
 
 		#region IEquatable
-		public bool Equals(string other)
+		override public bool Equals(string other)
 		{
 			return this.Name == other;
 		}
 
-		public bool Equals(IDataCenter other)
+		override public bool Equals(IDataCenter other)
 		{
 			return other == null ? false : this.Name == other.Name;
 		}

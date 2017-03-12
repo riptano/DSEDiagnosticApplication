@@ -24,6 +24,7 @@ namespace DSEDiagnosticLibrary
 			this._addresses = new System.Collections.Concurrent.ConcurrentBag<IPAddress>() { ipAddress };
 		}
 		public NodeIdentifier(string hostName)
+            : this()
 		{
 			this.HostName = hostName;
 		}
@@ -357,9 +358,20 @@ namespace DSEDiagnosticLibrary
 			return false;
 		}
 
-		#endregion
+        #endregion
+        
+        public NodeIdentifier Clone()
+        {
+            var newId = new NodeIdentifier();
 
-		public override string ToString()
+            newId.HostName = this.HostName;
+
+            this._addresses.ForEach(a => newId._addresses.Add(a));
+
+            return newId;
+        }
+
+        public override string ToString()
 		{
 			return this.ToString("NodeIdentifier");
 		}

@@ -22,7 +22,6 @@ namespace DSEDiagnosticLibrary
 
     public interface IConfigurationLine : IParsed
 	{
-        IEnumerable<INode> CommonNodes { get; }
         bool IsCommonToDataCenter { get; }
         ConfigTypes Type { get; }
         string Property { get; }
@@ -199,44 +198,38 @@ namespace DSEDiagnosticLibrary
             {
                 this.Type = type;
             }
-            this.Path = configFile;
-            this._commonNodes.Add(node);
+            this.Path = configFile;           
             this.LineNbr = lineNbr;
             this.Property = property;
             this.Value = value;
             this.Source = source;
+            this.Node = node;
         }
 
         #region IParsed
         public SourceTypes Source { get; private set; }
         public IPath Path { get; private set; }
         public Cluster Cluster { get { return this.DataCenter?.Cluster; } }
-        public IDataCenter DataCenter { get { return this._commonNodes[0].DataCenter; } }
+        public IDataCenter DataCenter { get { return this.Node?.DataCenter; } }
         public INode Node
         {
-            get
-            {
-                if(this._commonNodes.Count == 1)
-                {
-                    return this._commonNodes.First();
-                }
-                return null;
-            }
+            get;
+            private set;
         }
-        public int Items { get { return 1; } }
+        public int Items { get { return this.DataCenter is DataCenter ? 1 : this.DataCenter.Nodes.Count(); } }
         public uint LineNbr { get; private set; }
 
         #endregion
 
         #region IConfigurationLine
-       
-        private List<INode> _commonNodes = new List<INode>();
-        public IEnumerable<INode> CommonNodes { get { lock (this) { return this._commonNodes; } } }
+
         public bool IsCommonToDataCenter
         {
             get
             {
-                return this.DataCenter?.Nodes.Complement(this._commonNodes).Count() == 0;
+                return this.DataCenter is DataCenter
+                            ? this.DataCenter.Nodes.Count() == 1
+                            : this.DataCenter.Nodes.First().DataCenter.Nodes.All(n => this.Node.Equals(n));                            
             }
         }
         public ConfigTypes Type { get; private set; }
@@ -312,7 +305,7 @@ namespace DSEDiagnosticLibrary
                 type = ConfigTypeMapper.FindConfigType(configFile);
             }
 
-            var currentConfig = ((DataCenter)node.DataCenter).ConfigurationMatch(property, value, type, source);
+            var currentConfig = node.DataCenter.ConfigurationMatch(property, value, type, source);
 
             if(currentConfig == null)
             {
@@ -320,9 +313,23 @@ namespace DSEDiagnosticLibrary
             }
             else
             {
-                lock (((YamlConfigurationLine)currentConfig)._commonNodes)
+                lock(currentConfig)
                 {
-                    ((YamlConfigurationLine)currentConfig)._commonNodes.Add(node);
+                    if(currentConfig.DataCenter is DataCenter)
+                    {
+                        var placeHolderDC = new PlaceholderDataCenter(currentConfig.Node, currentConfig.DataCenter.Name, "CommonConfig");
+                        var configNode = new Node(currentConfig.Cluster, currentConfig.Node.Id.Clone());
+
+                        configNode.Id.AddIPAddress(node.Id);
+                        configNode.SetNodeToDataCenter(placeHolderDC);                        
+                        placeHolderDC.AddNode(node);
+                        ((YamlConfigurationLine)currentConfig).Node = configNode;
+                    }
+                    else
+                    {
+                        ((PlaceholderDataCenter)currentConfig.DataCenter).AddNode(node);
+                        currentConfig.Node.Id.AddIPAddress(node.Id);
+                    }
                 }
             }
 

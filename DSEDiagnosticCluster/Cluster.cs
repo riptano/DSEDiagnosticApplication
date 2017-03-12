@@ -360,7 +360,7 @@ namespace DSEDiagnosticLibrary
 		#region Object Overrides
 		public override string ToString()
 		{
-			return string.Format("Cluster{Name=\"{0}\", DataCenters={{{1}}}}",
+			return string.Format("Cluster{{Name=\"{0}\", DataCenters={{{1}}}}}",
 									this.Name,
 									this.DataCenters == null
 										? string.Empty
