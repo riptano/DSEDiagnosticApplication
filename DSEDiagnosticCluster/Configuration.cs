@@ -35,6 +35,8 @@ namespace DSEDiagnosticLibrary
                     string value,
                     ConfigTypes type,
                     SourceTypes source);
+
+        object ToDump();
 	}
 
     public sealed class YamlConfigurationLine : IConfigurationLine
@@ -198,7 +200,7 @@ namespace DSEDiagnosticLibrary
             {
                 this.Type = type;
             }
-            this.Path = configFile;           
+            this.Path = configFile;
             this.LineNbr = lineNbr;
             this.Property = property;
             this.Value = value;
@@ -229,7 +231,7 @@ namespace DSEDiagnosticLibrary
             {
                 return this.DataCenter is DataCenter
                             ? this.DataCenter.Nodes.Count() == 1
-                            : this.DataCenter.Nodes.First().DataCenter.Nodes.All(n => this.Node.Equals(n));                            
+                            : this.DataCenter.Nodes.First().DataCenter.Nodes.All(n => this.Node.Equals(n));
             }
         }
         public ConfigTypes Type { get; private set; }
@@ -283,6 +285,11 @@ namespace DSEDiagnosticLibrary
                     && this.NormalizeValue() == NormalizeValue(value);
         }
 
+        public object ToDump()
+        {
+            return new { Common=this.IsCommonToDataCenter, Node=this.Node, File=this.Path.PathResolved, Source=this.Source, Type=this.Type, Property=this.Property, Value=this.Value };
+        }
+
         #endregion
 
         public override string ToString()
@@ -321,7 +328,7 @@ namespace DSEDiagnosticLibrary
                         var configNode = new Node(currentConfig.Cluster, currentConfig.Node.Id.Clone());
 
                         configNode.Id.AddIPAddress(node.Id);
-                        configNode.SetNodeToDataCenter(placeHolderDC);                        
+                        configNode.SetNodeToDataCenter(placeHolderDC);
                         placeHolderDC.AddNode(node);
                         ((YamlConfigurationLine)currentConfig).Node = configNode;
                     }

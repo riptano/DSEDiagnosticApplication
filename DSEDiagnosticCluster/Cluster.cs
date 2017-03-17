@@ -16,13 +16,9 @@ namespace DSEDiagnosticLibrary
 		public static readonly Cluster MasterCluster = null;
         public static ConcurrentBag<Cluster> Clusters = new ConcurrentBag<Cluster>();
 		private static CTS.List<INode> UnAssociatedNodes = new CTS.List<INode>();
-		private static QueueProcessor<Tuple<Cluster, IEvent>> EventProcessQueue = new QueueProcessor<Tuple<Cluster, IEvent>>();
 
 		static Cluster()
 		{
-			EventProcessQueue.OnProcessMessageEvent += EventProcessQueue_OnProcessMessageEvent;
-			EventProcessQueue.Name = "Cluster-IEvent";
-			EventProcessQueue.StartQueue(false);
             MasterCluster = new Cluster("**LogicalMaster**") { IsMaster = true };
 		}
 
@@ -47,41 +43,55 @@ namespace DSEDiagnosticLibrary
 		public string Name { get; private set; }
 
         public bool IsMaster { get; private set; }
-        
+
 		private CTS.List<IDataCenter> _dataCenters = new CTS.List<IDataCenter>();
 		public IEnumerable<IDataCenter> DataCenters { get { return this._dataCenters; } }
 
 		private List<IEvent> _events = new List<IEvent>();
 		public IEnumerable<IEvent> Events { get { lock (this._events) { return this._events.ToArray(); } } }
 
+        private CTS.List<IKeyspace> _keySpaces = new CTS.List<IKeyspace>();
+        public IEnumerable<IKeyspace> Keyspaces { get; private set; }
+
+        public IEnumerable<IKeyspace> GetKeyspaces(IDataCenter datacenter)
+        {
+            return this._keySpaces.Where(k => k.DataCenters.Contains(datacenter));
+        }
+
+        public IEnumerable<IKeyspace> GetKeyspaces(string keyspaceName)
+        {
+            return this._keySpaces.Where(k => k.Name == keyspaceName);
+        }
+
         public OpsCenterInfo OpsCenter { get; private set; }
 
 		public IEvent AssociateItem(IEvent eventItem)
 		{
-			if (eventItem != null)
-			{
-				EventProcessQueue.Enqueue(new Tuple<Cluster, IEvent>(this, eventItem));
-			}
-
+			
 			return eventItem;
 		}
 
-		#region Static Methods
+        public object ToDump()
+        {
+            return new { Name = this.Name, DataCenters = this.DataCenters };
+        }
 
-		public static Cluster TryGetAddCluster(string clusterName)
-		{			
+        #region Static Methods
+
+        public static Cluster TryGetAddCluster(string clusterName)
+		{
 			var cluster = Clusters.FirstOrDefault(c => c.Name == clusterName);
 
 			if (cluster == null)
 			{
 				cluster = new Cluster(clusterName);
 			}
-            
+
 			return cluster;
 		}
 
         public static Cluster TryGetCluster(string clusterName)
-        {            
+        {
             return Clusters.FirstOrDefault(c => c.Name == clusterName);
         }
 
@@ -272,12 +282,12 @@ namespace DSEDiagnosticLibrary
         /// This will either name the associated cluster (if name is null) or create a new cluster and associate this node and it&apos;s associated DC to the new cluster
         /// </summary>
         /// <param name="node"></param>
-        /// <param name="clusterName"></param>      
+        /// <param name="clusterName"></param>
         /// <returns></returns>
         public static Cluster NameClusterAssociatewItem(INode node, string clusterName)
         {
             if(node != null && !string.IsNullOrEmpty(clusterName) && node.DataCenter == null)
-            {       
+            {
                 var cluster = TryGetAddCluster(clusterName);
 
                 lock (node)
@@ -287,7 +297,7 @@ namespace DSEDiagnosticLibrary
                         ((Node)node).SetCluster(cluster);
                         return cluster;
                     }
-                }                
+                }
             }
 
             return NameClusterAssociatewItem(node?.DataCenter, clusterName);
@@ -297,12 +307,12 @@ namespace DSEDiagnosticLibrary
         /// This will either name the associated cluster (if name is null) or create a new cluster and associated DC to the new cluster
         /// </summary>
         /// <param name="node"></param>
-        /// <param name="clusterName"></param>      
+        /// <param name="clusterName"></param>
         /// <returns></returns>
         public static Cluster NameClusterAssociatewItem(IDataCenter dc, string clusterName)
         {
             if (dc == null || string.IsNullOrEmpty(clusterName)) return null;
-            
+
             var cluster = TryGetAddCluster(clusterName);
 
             lock (dc)
@@ -315,7 +325,7 @@ namespace DSEDiagnosticLibrary
                     {
                         cluster._dataCenters.Add(dc);
                     }
-                                       
+
                     ((DataCenter)dc).AssociateItem(cluster);
 
                     if (!oldCluster.IsMaster)
@@ -329,18 +339,6 @@ namespace DSEDiagnosticLibrary
         }
 
         #endregion
-
-        #region Processing Queue
-
-        private static void EventProcessQueue_OnProcessMessageEvent(QueueProcessor<Tuple<Cluster, IEvent>> sender, QueueProcessor<Tuple<Cluster, IEvent>>.MessageEventArgs processMessageArgs)
-		{
-			lock (processMessageArgs.ProcessedMessage.Item1._events)
-			{
-				processMessageArgs.ProcessedMessage.Item1._events.Add(processMessageArgs.ProcessedMessage.Item2);
-			}
-		}
-
-		#endregion
 
 		#region IEquatable
 		public bool Equals(Cluster other)

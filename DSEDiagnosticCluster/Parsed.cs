@@ -16,7 +16,8 @@ namespace DSEDiagnosticLibrary
         Histogram,
         OpsCenterRepairSession,
         Yaml,
-        EnvFile
+        EnvFile,
+        CQL
     }
 
     public interface IParsed

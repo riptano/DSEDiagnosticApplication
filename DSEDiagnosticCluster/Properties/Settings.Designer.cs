@@ -37,15 +37,15 @@ namespace DSEDiagnosticLibrary.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("MiB")]
-        public string DefaultMemoryStorageSizeUnit {
+        public string DefaultStorageSizeUnit {
             get {
-                return ((string)(this["DefaultMemoryStorageSizeUnit"]));
+                return ((string)(this["DefaultStorageSizeUnit"]));
             }
         }
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("MiS")]
+        [global::System.Configuration.DefaultSettingValueAttribute("SEC")]
         public string DefaultTimeUnit {
             get {
                 return ((string)(this["DefaultTimeUnit"]));
@@ -97,6 +97,42 @@ namespace DSEDiagnosticLibrary.Properties {
         public string ConfigTypeMappers {
             get {
                 return ((string)(this["ConfigTypeMappers"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("MiB")]
+        public string DefaultMemorySizeUnit {
+            get {
+                return ((string)(this["DefaultMemorySizeUnit"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("MiB, SEC")]
+        public string DefaultStorageRate {
+            get {
+                return ((string)(this["DefaultStorageRate"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("MiB, SEC")]
+        public string DefaultMemoryRate {
+            get {
+                return ((string)(this["DefaultMemoryRate"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("9")]
+        public int UnitOfMeasureRoundDecimals {
+            get {
+                return ((int)(this["UnitOfMeasureRoundDecimals"]));
             }
         }
     }

@@ -69,10 +69,11 @@ namespace DSEDiagnosticLibrary
             /// </summary>
             NaN = 0x4000000,
             SizeUnits = Bit | Byte | KiB | MiB | GiB | TiB | PiB,
-            TimeUnits = NS | MS | SEC | MIN | HR | Day | us
+            TimeUnits = NS | MS | SEC | MIN | HR | Day | us,
+            WholeNumber = Bit | Byte | NS | us
         }
 
-        static Regex RegExValueUOF = new Regex(@"([0-9\-.+,]+)\s*([a-z0-9%#]*)", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace);
+        static Regex RegExValueUOF = new Regex(@"([0-9\-.+,]+)\s*([a-z0-9%#/]*)", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace);
 
         public UnitOfMeasure() { }
 
@@ -99,339 +100,550 @@ namespace DSEDiagnosticLibrary
             this.UnitType = uofType;
         }
 
+        public UnitOfMeasure(UnitOfMeasure copy)
+        {
+            this.Value = copy.Value;
+            this.UnitType = copy.UnitType;
+        }
+
+        public UnitOfMeasure(UnitOfMeasure copy, Types newUOM)
+        {
+            this.Value = copy.ConvertTo(newUOM);
+            this.UnitType = newUOM;
+        }
+
         public Types UnitType { get; set; }
         public decimal Value { get; set; }
 
+        /// <summary>
+        /// Returns a new UOM based on the default normalized types.
+        /// </summary>
+        public UnitOfMeasure NormalizedValue
+        {
+            get
+            {
+                if ((this.UnitType & Types.SizeUnits) != 0 && (this.UnitType & Types.TimeUnits) != 0)
+                {
+                    var newUOM = (this.UnitType & ~Types.SizeUnits) & ~Types.TimeUnits;
+
+                    if(this.UnitType.HasFlag(Types.Storage))
+                    {
+                        newUOM |= LibrarySettings.DefaultStorageRate;
+                    }
+                    else
+                    {
+                        newUOM |= LibrarySettings.DefaultMemoryRate;
+                    }
+
+                    return new UnitOfMeasure(this.ConvertTo(newUOM), newUOM);
+                }
+
+                if ((this.UnitType & Types.SizeUnits) != 0)
+                {
+                    var newUOM = this.UnitType & ~Types.SizeUnits;
+
+                    if (this.UnitType.HasFlag(Types.Storage))
+                    {
+                        newUOM |= LibrarySettings.DefaultStorageSizeUnit;
+                    }
+                    else
+                    {
+                        newUOM |= LibrarySettings.DefaultMemorySizeUnit;
+                    }
+
+                    return new UnitOfMeasure(this.ConvertSizeUOM(newUOM), newUOM);
+                }
+
+                if ((this.UnitType & Types.TimeUnits) != 0)
+                {
+                    var newUOM = (this.UnitType & ~Types.TimeUnits) | LibrarySettings.DefaultTimeUnit;
+
+                    return new UnitOfMeasure(this.ConvertTimeUOM(newUOM), newUOM);
+                }
+
+                return new UnitOfMeasure(this);
+            }
+        }
+
         #region Convertors
+
+        public decimal ConvertTo(Types newUOM)
+        {
+            if ((this.UnitType & Types.SizeUnits) != 0 && (this.UnitType & Types.TimeUnits) != 0)
+            {
+                if ((newUOM & Types.SizeUnits) != 0 && (newUOM & Types.TimeUnits) != 0)
+                {
+                    var newsizeValue = ConvertSizeUOM(this.Value, this.UnitType, newUOM);
+                    var timeConversion = ConvertTimeUOM(1m, this.UnitType, newUOM);
+
+                    return Decimal.Round(newsizeValue / timeConversion, LibrarySettings.UnitOfMeasureRoundDecimals);
+                }
+
+                throw new ArgumentException(string.Format("Cannot convert from {0} to {1}", this.UnitType, newUOM));
+            }
+
+            if ((this.UnitType & Types.SizeUnits) != 0)
+            {
+                return ConvertSizeUOM(this.Value, this.UnitType, newUOM);
+            }
+
+            if ((this.UnitType & Types.TimeUnits) != 0)
+            {
+                return ConvertTimeUOM(this.Value, this.UnitType, newUOM);
+            }
+
+            return Decimal.Round(this.Value, LibrarySettings.UnitOfMeasureRoundDecimals);
+        }
 
         public decimal ConvertSizeUOM(Types newUOM)
         {
+            return ConvertSizeUOM(this.Value, this.UnitType, newUOM);
+        }
+
+        public static decimal ConvertSizeUOM(decimal value, Types uom, Types newUOM)
+        {
+            decimal newValue = value;
+
             newUOM &= Types.SizeUnits;
-            switch(this.UnitType & Types.SizeUnits)
+            switch (uom & Types.SizeUnits)
             {
                 case Types.Bit:
-                {
-                    switch (newUOM)
                     {
-                        case Types.Bit:
-                                return this.Value;
-                        case Types.Byte:
-                                return this.Value * 0.125m;
-                        case Types.KiB:
-                                return this.Value * 0.00012207m;
-                        case Types.MiB:
-                                return this.Value * 1.1921e-7m;
-                        case Types.GiB:
-                                return this.Value * 1.1642e-10m;
-                        case Types.TiB:
-                                return this.Value * 1.1369e-13m;
-                        case Types.PiB:
-                                return this.Value * 1.1102e-16m;
-                        default:
-                            throw new ArgumentException(string.Format("Cannot convert a Size Unit from {0} to {1}", this.UnitType, newUOM));
+                        switch (newUOM)
+                        {
+                            case Types.Bit:
+                                break;
+                            case Types.Byte:
+                                newValue = value / 8m;
+                                break;
+                            case Types.KiB:
+                                newValue = value / 8192m;
+                                break;
+                            case Types.MiB:
+                                newValue = value / 8388608m;
+                                break;
+                            case Types.GiB:
+                                newValue = value / 8589934592m;
+                                break;
+                            case Types.TiB:
+                                newValue = value / 8796093022208m;
+                                break;
+                            case Types.PiB:
+                                newValue = value / 9007199254740992m;
+                                break;
+                            default:
+                                throw new ArgumentException(string.Format("Cannot convert a Size Unit from {0} to {1}", uom, newUOM));
+                        }
+                        break;
                     }
-                }
                 case Types.Byte:
-                {
-                    switch (newUOM)
                     {
-                        case Types.Bit:
-                            return this.Value * 8m;
-                        case Types.Byte:
-                            return this.Value;
-                        case Types.KiB:
-                            return this.Value * 0.000976563m;
-                        case Types.MiB:
-                            return this.Value * 9.5367e-7m;
-                        case Types.GiB:
-                            return this.Value * 9.3132e-10m;
-                        case Types.TiB:
-                            return this.Value * 9.0949e-13m;
-                        case Types.PiB:
-                            return this.Value * 8.8818e-16m;
-                        default:
-                                throw new ArgumentException(string.Format("Cannot convert a Size Unit from {0} to {1}", this.UnitType, newUOM));
+                        switch (newUOM)
+                        {
+                            case Types.Bit:
+                                newValue = value * 8m;
+                                break;
+                            case Types.Byte:
+                                break;
+                            case Types.KiB:
+                                newValue = value / 1024m;
+                                break;
+                            case Types.MiB:
+                                newValue = value / 1048576m;
+                                break;
+                            case Types.GiB:
+                                newValue = value / 1073741824m;
+                                break;
+                            case Types.TiB:
+                                newValue = value / 1099511627776m;
+                                break;
+                            case Types.PiB:
+                                newValue = value / 1125899906842624m;
+                                break;
+                            default:
+                                throw new ArgumentException(string.Format("Cannot convert a Size Unit from {0} to {1}", uom, newUOM));
+                        }
+                        break;
                     }
-                }
                 case Types.KiB:
-                {
-                    switch (newUOM)
                     {
-                        case Types.Bit:
-                            return this.Value * 8192m;
-                        case Types.Byte:
-                            return this.Value * 1024m;
-                        case Types.KiB:
-                            return this.Value;
-                        case Types.MiB:
-                            return this.Value * 0.000976563m;
-                        case Types.GiB:
-                            return this.Value * 9.5367e-7m;
-                        case Types.TiB:
-                            return this.Value * 9.3132e-10m;
-                        case Types.PiB:
-                            return this.Value * 9.0949e-13m;
-                        default:
-                                throw new ArgumentException(string.Format("Cannot convert a Size Unit from {0} to {1}", this.UnitType, newUOM));
+                        switch (newUOM)
+                        {
+                            case Types.Bit:
+                                newValue = value * 8192m;
+                                break;
+                            case Types.Byte:
+                                newValue = value * 1024m;
+                                break;
+                            case Types.KiB:
+                                break;
+                            case Types.MiB:
+                                newValue = value / 1024m;
+                                break;
+                            case Types.GiB:
+                                newValue = value / 1048576m;
+                                break;
+                            case Types.TiB:
+                                newValue = value / 1073741824m;
+                                break;
+                            case Types.PiB:
+                                newValue = value / 1099511627776m;
+                                break;
+                            default:
+                                throw new ArgumentException(string.Format("Cannot convert a Size Unit from {0} to {1}", uom, newUOM));
+                        }
+                        break;
                     }
-                }
                 case Types.MiB:
-                {
-                    switch (newUOM)
                     {
-                        case Types.Bit:
-                            return this.Value * 8.389e+6m;
-                        case Types.Byte:
-                            return this.Value * 1.049e+6m;
-                        case Types.KiB:
-                            return this.Value * 1024m;
-                        case Types.MiB:
-                            return this.Value;
-                        case Types.GiB:
-                            return this.Value * 0.000976563m;
-                        case Types.TiB:
-                            return this.Value * 9.5367e-7m;
-                        case Types.PiB:
-                            return this.Value * 9.3132e-10m;
-                        default:
-                                throw new ArgumentException(string.Format("Cannot convert a Size Unit from {0} to {1}", this.UnitType, newUOM));
-                     }
-                }
+                        switch (newUOM)
+                        {
+                            case Types.Bit:
+                                newValue = value * 8388608m;
+                                break;
+                            case Types.Byte:
+                                newValue = value * 1048576m;
+                                break;
+                            case Types.KiB:
+                                newValue = value * 1024m;
+                                break;
+                            case Types.MiB:
+                                break;
+                            case Types.GiB:
+                                newValue = value / 1024m;
+                                break;
+                            case Types.TiB:
+                                newValue = value / 1048576m;
+                                break;
+                            case Types.PiB:
+                                newValue = value / 1073741824m;
+                                break;
+                            default:
+                                throw new ArgumentException(string.Format("Cannot convert a Size Unit from {0} to {1}", uom, newUOM));
+                        }
+                        break;
+                    }
                 case Types.GiB:
-                {
-                    switch (newUOM)
                     {
-                        case Types.Bit:
-                            return this.Value * 8.59e+9m;
-                        case Types.Byte:
-                            return this.Value * 1.074e+9m;
-                        case Types.KiB:
-                            return this.Value * 1.049e+6m;
-                        case Types.MiB:
-                            return this.Value * 1024m;
-                        case Types.GiB:
-                            return this.Value;
-                        case Types.TiB:
-                            return this.Value * 0.000976563m;
-                        case Types.PiB:
-                            return this.Value * 9.5367e-7m;
-                        default:
-                                throw new ArgumentException(string.Format("Cannot convert a Size Unit from {0} to {1}", this.UnitType, newUOM));
+                        switch (newUOM)
+                        {
+                            case Types.Bit:
+                                newValue = value * 8589934592m;
+                                break;
+                            case Types.Byte:
+                                newValue = value * 1073741824m;
+                                break;
+                            case Types.KiB:
+                                newValue = value * 1048576m;
+                                break;
+                            case Types.MiB:
+                                newValue = value * 1024m;
+                                break;
+                            case Types.GiB:
+                                break;
+                            case Types.TiB:
+                                newValue = value / 1024m;
+                                break;
+                            case Types.PiB:
+                                newValue = value / 1048576m;
+                                break;
+                            default:
+                                throw new ArgumentException(string.Format("Cannot convert a Size Unit from {0} to {1}", uom, newUOM));
+                        }
+                        break;
                     }
-                }
                 case Types.TiB:
-                {
-                    switch (newUOM)
                     {
-                        case Types.Bit:
-                            return this.Value * 8.796e+12m;
-                        case Types.Byte:
-                            return this.Value * 1.1e+12m;
-                        case Types.KiB:
-                            return this.Value * 1.074e+9m;
-                        case Types.MiB:
-                            return this.Value * 1.049e+6m;
-                        case Types.GiB:
-                            return this.Value * 1024m;
-                        case Types.TiB:
-                            return this.Value;
-                        case Types.PiB:
-                            return this.Value * 0.000976563m;
-                        default:
-                                throw new ArgumentException(string.Format("Cannot convert a Size Unit from {0} to {1}", this.UnitType, newUOM));
+                        switch (newUOM)
+                        {
+                            case Types.Bit:
+                                newValue = value * 8796093022208m;
+                                break;
+                            case Types.Byte:
+                                newValue = value * 1099511627776m;
+                                break;
+                            case Types.KiB:
+                                newValue = value * 1073741824m;
+                                break;
+                            case Types.MiB:
+                                newValue = value * 1048576m;
+                                break;
+                            case Types.GiB:
+                                newValue = value * 1024m;
+                                break;
+                            case Types.TiB:
+                                break;
+                            case Types.PiB:
+                                newValue = value * 1024m;
+                                break;
+                            default:
+                                throw new ArgumentException(string.Format("Cannot convert a Size Unit from {0} to {1}", uom, newUOM));
+                        }
+                        break;
                     }
-                }
                 case Types.PiB:
-                {
-                    switch (newUOM)
                     {
-                        case Types.Bit:
-                            return this.Value * (decimal)9.007e+15;
-                        case Types.Byte:
-                            return this.Value * (decimal)1.126e+15;
-                        case Types.KiB:
-                            return this.Value * (decimal)1.1e+12;
-                        case Types.MiB:
-                            return this.Value * (decimal)1.074e+9;
-                        case Types.GiB:
-                            return this.Value * (decimal)1.049e+6;
-                        case Types.TiB:
-                            return this.Value * 1024m;
-                        case Types.PiB:
-                            return this.Value;
-                        default:
-                                throw new ArgumentException(string.Format("Cannot convert a Size Unit from {0} to {1}", this.UnitType, newUOM));
+                        switch (newUOM)
+                        {
+                            case Types.Bit:
+                                newValue = value * 9007199254740992m;
+                                break;
+                            case Types.Byte:
+                                newValue = value * 1125899906842624m;
+                                break;
+                            case Types.KiB:
+                                newValue = value * 1099511627776m;
+                                break;
+                            case Types.MiB:
+                                newValue = value * 1073741824m;
+                                break;
+                            case Types.GiB:
+                                newValue = value * 1048576m;
+                                break;
+                            case Types.TiB:
+                                newValue = value * 1024m;
+                                break;
+                            case Types.PiB:
+                                break;
+                            default:
+                                throw new ArgumentException(string.Format("Cannot convert a Size Unit from {0} to {1}", uom, newUOM));
+                        }
+                        break;
                     }
-                }
             }
 
-            throw new ArgumentException(string.Format("Cannot convert a Size Unit from {0} to {1}", this.UnitType, newUOM));
+            if ((newUOM & Types.WholeNumber) != 0)
+            {
+                return Decimal.Truncate(newValue);
+            }
+
+            return Decimal.Round(newValue, LibrarySettings.UnitOfMeasureRoundDecimals);
         }
 
         public decimal ConvertTimeUOM(Types newUOM)
         {
+            return ConvertTimeUOM(this.Value, this.UnitType, newUOM);
+        }
+
+        public static decimal ConvertTimeUOM(decimal value, Types uom,Types newUOM)
+        {
+            decimal newValue = value;
+
             newUOM &= Types.TimeUnits;
-            switch (this.UnitType & Types.TimeUnits)
+            switch (uom & Types.TimeUnits)
             {
                 case Types.us:
                     {
                         switch (newUOM)
                         {
                             case Types.us:
-                                return this.Value;
+                                break;
                             case Types.NS:
-                                return this.Value * 1000m;
+                                newValue = value * 1000m;
+                                break;
                             case Types.MS:
-                                return this.Value * 0.001m;
+                                newValue = value / 1000m;
+                                break;
                             case Types.SEC:
-                                return this.Value * 1e-6m;
+                                newValue = value / 1000000m;
+                                break;
                             case Types.MIN:
-                                return this.Value * 1.6667e-8m;
+                                newValue = value / 60000000m;
+                                break;
                             case Types.HR:
-                                return this.Value * 2.7778e-10m;
+                                newValue = value / 3600000000m;
+                                break;
                             case Types.Day:
-                                return this.Value * 1.1574e-11m;
+                                newValue = value / 86400000000m;
+                                break;
                             default:
-                                throw new ArgumentException(string.Format("Cannot convert a Time Unit from {0} to {1}", this.UnitType, newUOM));
+                                throw new ArgumentException(string.Format("Cannot convert a Time Unit from {0} to {1}", uom, newUOM));
                         }
+                        break;
                     }
                 case Types.NS:
                     {
                         switch (newUOM)
                         {
                             case Types.us:
-                                return this.Value * 0.001m;
+                                newValue = value / 1000m;
+                                break;
                             case Types.NS:
-                                return this.Value;
+                                break;
                             case Types.MS:
-                                return this.Value * 1e-6m;
+                                newValue = value / 1000000m;
+                                break;
                             case Types.SEC:
-                                return this.Value * 1e-9m;
+                                newValue = value / 1000000000m;
+                                break;
                             case Types.MIN:
-                                return this.Value * 1.6667e-11m;
+                                newValue = value / 60000000000m;
+                                break;
                             case Types.HR:
-                                return this.Value * 2.7778e-13m;
+                                newValue = value / 3600000000000m;
+                                break;
                             case Types.Day:
-                                return this.Value * 1.1574e-14m;
+                                newValue = value / 86400000000000m;
+                                break;
                             default:
-                                throw new ArgumentException(string.Format("Cannot convert a Time Unit from {0} to {1}", this.UnitType, newUOM));
+                                throw new ArgumentException(string.Format("Cannot convert a Time Unit from {0} to {1}", uom, newUOM));
                         }
+                        break;
                     }
                 case Types.MS:
                     {
                         switch (newUOM)
                         {
                             case Types.us:
-                                return this.Value * 1000m;
+                                newValue = value * 1000m;
+                                break;
                             case Types.NS:
-                                return this.Value * 1e+6m;
+                                newValue = value * 1000000m;
+                                break;
                             case Types.MS:
-                                return this.Value;
+                                break;
                             case Types.SEC:
-                                return this.Value * 0.001m;
+                                newValue = value / 1000m;
+                                break;
                             case Types.MIN:
-                                return this.Value * 1.6667e-5m;
+                                newValue = value / 60000m;
+                                break;
                             case Types.HR:
-                                return this.Value * 2.7778e-7m;
+                                newValue = value / 3600000m;
+                                break;
                             case Types.Day:
-                                return this.Value * 1.1574e-8m;
+                                newValue = value / 86400000m;
+                                break;
                             default:
-                                throw new ArgumentException(string.Format("Cannot convert a Time Unit from {0} to {1}", this.UnitType, newUOM));
+                                throw new ArgumentException(string.Format("Cannot convert a Time Unit from {0} to {1}", uom, newUOM));
                         }
+                        break;
                     }
                 case Types.SEC:
                     {
                         switch (newUOM)
                         {
                             case Types.us:
-                                return this.Value * 1e+6m;
+                                newValue = value * 1e+6m;
+                                break;
                             case Types.NS:
-                                return this.Value * 1e+9m;
+                                newValue = value * 1e+9m;
+                                break;
                             case Types.MS:
-                                return this.Value * 1000m;
+                                newValue = value * 1000m;
+                                break;
                             case Types.SEC:
-                                return this.Value;
+                                break;
                             case Types.MIN:
-                                return this.Value * 0.0166667m;
+                                newValue = value / 60m;
+                                break;
                             case Types.HR:
-                                return this.Value * 0.000277778m;
+                                newValue = value / 3600m;
+                                break;
                             case Types.Day:
-                                return this.Value * 1.1574e-5m;
+                                newValue = value / 86400m;
+                                break;
                             default:
-                                throw new ArgumentException(string.Format("Cannot convert a Time Unit from {0} to {1}", this.UnitType, newUOM));
+                                throw new ArgumentException(string.Format("Cannot convert a Time Unit from {0} to {1}", uom, newUOM));
                         }
+                        break;
                     }
                 case Types.MIN:
                     {
                         switch (newUOM)
                         {
                             case Types.us:
-                                return this.Value * 6e+7m;
+                                newValue = value * 6e+7m;
+                                break;
                             case Types.NS:
-                                return this.Value * 6e+10m;
+                                newValue = value * 6e+10m;
+                                break;
                             case Types.MS:
-                                return this.Value * 60000m;
+                                newValue = value * 60000m;
+                                break;
                             case Types.SEC:
-                                return this.Value * 60m;
+                                newValue = value * 60m;
+                                break;
                             case Types.MIN:
-                                return this.Value;
+                                break;
                             case Types.HR:
-                                return this.Value * 0.0166667m;
+                                newValue = value / 60m;
+                                break;
                             case Types.Day:
-                                return this.Value * 0.000694444m;
+                                newValue = value / 1440m;
+                                break;
                             default:
-                                throw new ArgumentException(string.Format("Cannot convert a Time Unit from {0} to {1}", this.UnitType, newUOM));
+                                throw new ArgumentException(string.Format("Cannot convert a Time Unit from {0} to {1}", uom, newUOM));
                         }
+                        break;
                     }
                 case Types.HR:
                     {
                         switch (newUOM)
                         {
                             case Types.us:
-                                return this.Value * 3.6e+9m;
+                                newValue = value * 3.6e+9m;
+                                break;
                             case Types.NS:
-                                return this.Value * 3.6e+12m;
+                                newValue = value * 3.6e+12m;
+                                break;
                             case Types.MS:
-                                return this.Value * 3.6e+6m;
+                                newValue = value * 3.6e+6m;
+                                break;
                             case Types.SEC:
-                                return this.Value * 3600m;
+                                newValue = value * 3600m;
+                                break;
                             case Types.MIN:
-                                return this.Value * 60m;
+                                newValue = value * 60m;
+                                break;
                             case Types.HR:
-                                return this.Value;
+                                break;
                             case Types.Day:
-                                return this.Value * 0.0416667m;
+                                newValue = value / 24m;
+                                break;
                             default:
-                                throw new ArgumentException(string.Format("Cannot convert a Time Unit from {0} to {1}", this.UnitType, newUOM));
+                                throw new ArgumentException(string.Format("Cannot convert a Time Unit from {0} to {1}", uom, newUOM));
                         }
+                        break;
                     }
                 case Types.Day:
                     {
                         switch (newUOM)
                         {
                             case Types.us:
-                                return this.Value * 8.64e+10m;
+                                newValue = value * 8.64e+10m;
+                                break;
                             case Types.NS:
-                                return this.Value * 8.64e+13m;
+                                newValue = value * 8.64e+13m;
+                                break;
                             case Types.MS:
-                                return this.Value * 8.64e+7m;
+                                newValue = value * 8.64e+7m;
+                                break;
                             case Types.SEC:
-                                return this.Value * 86400m;
+                                newValue = value * 86400m;
+                                break;
                             case Types.MIN:
-                                return this.Value * 1440m;
+                                newValue = value * 1440m;
+                                break;
                             case Types.HR:
-                                return this.Value * 24m;
+                                newValue = value * 24m;
+                                break;
                             case Types.Day:
-                                return this.Value;
+                                break;
                             default:
-                                throw new ArgumentException(string.Format("Cannot convert a Time Unit from {0} to {1}", this.UnitType, newUOM));
+                                throw new ArgumentException(string.Format("Cannot convert a Time Unit from {0} to {1}", uom, newUOM));
                         }
+                        break;
                     }
             }
 
-            throw new ArgumentException(string.Format("Cannot convert a Time Unit from {0} to {1}", this.UnitType, newUOM));
-        }
+            if((newUOM & Types.WholeNumber) != 0)
+            {
+                return Decimal.Truncate(newValue);
+            }
 
+            return Decimal.Round(newValue, LibrarySettings.UnitOfMeasureRoundDecimals);
+        }
 
         #endregion
 
@@ -516,6 +728,24 @@ namespace DSEDiagnosticLibrary
         #region private methods
         static Types ConvertToType(string uof, Types uofType)
         {
+            if(string.IsNullOrEmpty(uof))
+            {
+                return Types.NaN | uofType;
+            }
+
+            if(uof.IndexOf('/') >= 0)
+            {
+                var split = uof.Split('/');
+                Types newUOF = uofType;
+
+                foreach (var item in split)
+                {
+                    newUOF |= ConvertToType(item, Types.Unknown);
+                }
+
+                return newUOF;
+            }
+
             switch (uof.Trim().ToLower())
             {
                 case "bit":
@@ -570,16 +800,19 @@ namespace DSEDiagnosticLibrary
                 case "seconds":
                 case "second":
                 case "sec":
+                case "secs":
                 case "s":
                     return Types.SEC | uofType;
                 case "minutes":
                 case "minute":
                 case "min":
+                case "mins":
                 case "m":
                     return Types.MIN | uofType;
                 case "hours":
                 case "hour":
                 case "hr":
+                case "hrs":
                 case "h":
                     return Types.HR | uofType;
                 case "day":
@@ -603,7 +836,10 @@ namespace DSEDiagnosticLibrary
                 case "notnbr":
                 case "not number":
                 case "not nbr":
+                case "null":
                     return Types.NaN;
+                case "mbps":
+                    return Types.MiB | Types.SEC | uofType;
             }
 
             Types parsedType;
@@ -638,6 +874,7 @@ namespace DSEDiagnosticLibrary
                 case "notnbr":
                 case "not number":
                 case "not nbr":
+                case "null":
                     return true;
             }
             return false;

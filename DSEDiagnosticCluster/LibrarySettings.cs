@@ -14,11 +14,15 @@ namespace DSEDiagnosticLibrary
                                                                     .Where(s => !string.IsNullOrEmpty(s))
                                                                     .Select(s => s[0])
                                                                     .ToArray();
-        public static UnitOfMeasure.Types DefaultMemoryStorageSizeUnit = ParseEnum<UnitOfMeasure.Types>(Properties.Settings.Default.DefaultMemoryStorageSizeUnit);
+        public static UnitOfMeasure.Types DefaultStorageSizeUnit = ParseEnum<UnitOfMeasure.Types>(Properties.Settings.Default.DefaultStorageSizeUnit);
+        public static UnitOfMeasure.Types DefaultMemorySizeUnit = ParseEnum<UnitOfMeasure.Types>(Properties.Settings.Default.DefaultMemorySizeUnit);
+        public static UnitOfMeasure.Types DefaultMemoryRate = ParseEnum<UnitOfMeasure.Types>(Properties.Settings.Default.DefaultMemoryRate);
+        public static UnitOfMeasure.Types DefaultStorageRate = ParseEnum<UnitOfMeasure.Types>(Properties.Settings.Default.DefaultStorageRate);
         public static UnitOfMeasure.Types DefaultTimeUnit = ParseEnum<UnitOfMeasure.Types>(Properties.Settings.Default.DefaultTimeUnit);
         public static string IPAdressRegEx = Properties.Settings.Default.IPAdressRegEx;
         public static Dictionary<string, string> SnitchFileMappings = CreateSnitchDictionary(Properties.Settings.Default.SnitchFileMappings);
         public static List<YamlConfigurationLine.ConfigTypeMapper> ConfigTypeMappers = JsonConvert.DeserializeObject<List<YamlConfigurationLine.ConfigTypeMapper>>(Properties.Settings.Default.ConfigTypeMappers);
+        public static int UnitOfMeasureRoundDecimals = Properties.Settings.Default.UnitOfMeasureRoundDecimals;
 
         public static T ParseEnum<T>(string enumValue)
             where T : struct

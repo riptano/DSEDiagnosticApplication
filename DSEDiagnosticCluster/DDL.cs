@@ -10,7 +10,6 @@ namespace DSEDiagnosticLibrary
 	{
 		string Name { get; }
 		string DDL { get; }
-		IKeyspace KeySpace { get; }
-
-	}
+        object ToDump();
+    }
 }

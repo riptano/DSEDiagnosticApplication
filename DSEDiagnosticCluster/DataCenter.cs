@@ -17,7 +17,7 @@ namespace DSEDiagnosticLibrary
         IConfigurationLine ConfigurationMatch(string property, string value, ConfigTypes type, SourceTypes source);
 
         IEnumerable<INode> Nodes { get; }
-		IEnumerable<LocalKeyspaceInfo> Keyspaces { get; }
+		IEnumerable<IKeyspace> Keyspaces { get; }
 
 		INode TryGetNode(string nodeId);
         INode TryGetAddNode(INode node);
@@ -27,7 +27,9 @@ namespace DSEDiagnosticLibrary
         IEnumerable<IConfigurationLine> GetConfigurations(INode node);
 
         IEnumerable<IDDL> DDLs { get; }
-	}
+
+        object ToDump();
+    }
 
     internal class PlaceholderDataCenter : IDataCenter
     {
@@ -62,6 +64,17 @@ namespace DSEDiagnosticLibrary
             return ((DataCenter)this.Nodes.First().DataCenter).ConfigurationMatch(property, value, type, source);
         }
 
+        public object ToDump()
+        {
+            return new { Name = this.Name,
+                            Cluster = this.Cluster,
+                            Nodes = this.Nodes,
+                            Keyspaces = this.Keyspaces,
+                            DDL = this.DDLs,
+                            Configurations = this.Configurations,
+                            Events = this.Events  };
+        }
+
         #region IDataCenter
         virtual public Cluster Cluster
         {
@@ -69,11 +82,11 @@ namespace DSEDiagnosticLibrary
             protected set { throw new NotImplementedException(); }
         }
 
-        virtual public IEnumerable<LocalKeyspaceInfo> Keyspaces
+        virtual public IEnumerable<IKeyspace> Keyspaces
         {
             get
             {
-                return Enumerable.Empty<LocalKeyspaceInfo>();
+                return Enumerable.Empty<IKeyspace>();
             }
         }
 
@@ -287,6 +300,11 @@ namespace DSEDiagnosticLibrary
             return this;
         }
 
+        public new object ToDump()
+        {
+            return new { Name = this.Name, Nodes = this.Nodes, Keyspaces = this.Keyspaces, DDL = this.DDLs, Configurations = this.Configurations, Events = this.Events };
+        }
+
         #region IDataCenter
         override public Cluster Cluster
         {
@@ -294,7 +312,7 @@ namespace DSEDiagnosticLibrary
             protected set;
         }
 
-        override public IEnumerable<LocalKeyspaceInfo> Keyspaces
+        override public IEnumerable<IKeyspace> Keyspaces
 		{
 			get
 			{

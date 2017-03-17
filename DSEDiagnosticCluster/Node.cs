@@ -419,6 +419,11 @@ namespace DSEDiagnosticLibrary
 			return this.HostName.GetHashCode();
 		}
 
+        public object ToDump()
+        {
+            return new { Host = this.HostName, IPAddresses = string.Join(",", this.Addresses.Select(i => i.ToString())) };
+        }
+
     }
 
 	public sealed class MachineInfo
@@ -695,9 +700,10 @@ namespace DSEDiagnosticLibrary
 
 		IEnumerable<IEvent> Events { get; }
 		INode AssociateItem(IEnumerable<IEvent> eventItems);
-		IEnumerable<IConfigurationLine> Configurations { get; }		
-		IEnumerable<IDDL> DDLs { get; }
+		IEnumerable<IConfigurationLine> Configurations { get; }
 		INode AssociateItem(IEnumerable<IDDL> eventItem);
+
+        object ToDump();
 	}
 
 	public sealed class Node : INode
@@ -853,10 +859,7 @@ namespace DSEDiagnosticLibrary
                 return this.DataCenter.GetConfigurations(this);
             }
         }
-
-		private CTS.List<IDDL> _ddls = new CTS.List<IDDL>();
-		public IEnumerable<IDDL> DDLs { get { lock (this._ddls) { return this._ddls.ToArray(); } } }
-
+		
 		public INode AssociateItem(IEnumerable<IEvent> eventItems)
 		{
             this._events.AddRange(eventItems);
@@ -865,9 +868,19 @@ namespace DSEDiagnosticLibrary
         		
 		public INode AssociateItem(IEnumerable<IDDL> ddlItems)
 		{
-            this._ddls.AddRange(ddlItems);
+            //this._ddls.AddRange(ddlItems);
 			return this;
 		}
+
+        public object ToDump()
+        {
+            return new { Id = this.Id,
+                            DataCenter = this.DataCenter,
+                            DSEInfo = this.DSE,
+                            MachineInfo = this.Machine,
+                            Events = this.Events,                           
+                            Configurations = this.Configurations };
+        }
 		#endregion
 
 		#region IEquatable
