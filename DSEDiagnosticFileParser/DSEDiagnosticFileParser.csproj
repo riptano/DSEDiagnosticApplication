@@ -79,6 +79,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="cql-ddl.cs" />
     <Compile Include="DiagnosticFile.cs" />
     <Compile Include="file-agent_version.cs" />
     <Compile Include="file-cassandra-rackdc-properties.cs" />

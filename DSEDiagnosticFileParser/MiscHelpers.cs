@@ -13,11 +13,15 @@ using System.Net;
 
 namespace DSEDiagnosticFileParser
 {
-    internal static class MiscHelpers
-    {
-        static MiscHelpers()
+    public static class MiscHelpers
+    {        
+        public static object ToDump(this IPath input)
         {
+            if (input.Path == input.PathResolved) return input.Path;
+
+            return new { Path = input.Path, PathResolved = input.PathResolved };
         }
+
 
         /// <summary>
         ///

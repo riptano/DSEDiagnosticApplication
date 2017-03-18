@@ -22,6 +22,7 @@ namespace DSEDiagnosticFileParser
             AchievedLogFile,
             CommandOutputFile,
 			SystemOutputFile,
+            CQLFile,
             ZipFile
 		}
 

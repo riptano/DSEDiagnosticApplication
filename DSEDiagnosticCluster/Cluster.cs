@@ -51,7 +51,7 @@ namespace DSEDiagnosticLibrary
 		public IEnumerable<IEvent> Events { get { lock (this._events) { return this._events.ToArray(); } } }
 
         private CTS.List<IKeyspace> _keySpaces = new CTS.List<IKeyspace>();
-        public IEnumerable<IKeyspace> Keyspaces { get; private set; }
+        public IEnumerable<IKeyspace> Keyspaces { get { return this._keySpaces; } }
 
         public IEnumerable<IKeyspace> GetKeyspaces(IDataCenter datacenter)
         {
@@ -67,16 +67,55 @@ namespace DSEDiagnosticLibrary
 
 		public IEvent AssociateItem(IEvent eventItem)
 		{
-			
+
 			return eventItem;
 		}
 
+        public IKeyspace AssociateItem(IKeyspace ksItem)
+        {
+            this._keySpaces.Lock();
+            try
+            {
+                var existingKS = this._keySpaces.FirstOrDefault(ks => ks.Equals(ksItem));
+
+                if (existingKS == null)
+                {
+                    this._keySpaces.Add(ksItem);
+                }
+                else
+                {
+                    ksItem = existingKS;
+                }
+            }
+            finally
+            {
+                this._keySpaces.UnLock();
+            }
+
+            return ksItem;
+        }
+
+        public IDataCenter TryGetDataCenter(string dataCenterName)
+        {
+           return this._dataCenters.FirstOrDefault(d => d.Name == dataCenterName);
+        }
+
         public object ToDump()
         {
-            return new { Name = this.Name, DataCenters = this.DataCenters };
+            return new { Name = this.Name, DataCenters = this.DataCenters, Keyspaces = this.Keyspaces };
         }
 
         #region Static Methods
+
+        public static Cluster GetCurrentOrMaster()
+        {
+            if(Clusters.Count == 1)
+            {
+                return Clusters.First();
+            }
+
+            return MasterCluster;
+        }
 
         public static Cluster TryGetAddCluster(string clusterName)
 		{
@@ -120,9 +159,8 @@ namespace DSEDiagnosticLibrary
             if (string.IsNullOrEmpty(dataCenterName)) return null;
 
             var currentCuster = cluster == null ? MasterCluster : cluster;
-            var currentDC = currentCuster._dataCenters.FirstOrDefault(d => d.Name == dataCenterName);
 
-            return currentDC;
+            return currentCuster.TryGetDataCenter(dataCenterName);
         }
         public static IDataCenter TryGetDataCenter(string dataCenterName, string clusterName = null)
         {
@@ -358,11 +396,12 @@ namespace DSEDiagnosticLibrary
 		#region Object Overrides
 		public override string ToString()
 		{
-			return string.Format("Cluster{{Name=\"{0}\", DataCenters={{{1}}}}}",
+			return string.Format("Cluster{{Name=\"{0}\", DataCenters={{{1}}}}}. Keyspaces={{{2}}}",
 									this.Name,
 									this.DataCenters == null
 										? string.Empty
-										: string.Join(",", this.DataCenters.Select(i => i.Name)));
+										: string.Join(",", this.DataCenters.Select(i => i.Name)),
+                                    string.Join(",", this.Keyspaces.Select(i => i.Name)));
 		}
 
 		public override bool Equals(object obj)
