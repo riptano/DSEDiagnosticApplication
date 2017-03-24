@@ -23,6 +23,11 @@ namespace DSEDiagnosticLibrary
         public static Dictionary<string, string> SnitchFileMappings = CreateSnitchDictionary(Properties.Settings.Default.SnitchFileMappings);
         public static List<YamlConfigurationLine.ConfigTypeMapper> ConfigTypeMappers = JsonConvert.DeserializeObject<List<YamlConfigurationLine.ConfigTypeMapper>>(Properties.Settings.Default.ConfigTypeMappers);
         public static int UnitOfMeasureRoundDecimals = Properties.Settings.Default.UnitOfMeasureRoundDecimals;
+        public static string[] CQLCollectionTypes = Properties.Settings.Default.CQLCollectionTypes.ToArray();
+        public static string TupleRegExStr = Properties.Settings.Default.TupleRegEx;
+        public static string FrozenRegExStr = Properties.Settings.Default.FrozenRegEx;
+        public static string StaticRegExStr = Properties.Settings.Default.StaticRegEx;
+        public static string PrimaryKeyRegExStr = Properties.Settings.Default.PrimaryKeyRegEx;
 
         public static T ParseEnum<T>(string enumValue)
             where T : struct

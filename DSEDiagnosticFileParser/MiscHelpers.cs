@@ -15,14 +15,6 @@ namespace DSEDiagnosticFileParser
 {
     public static class MiscHelpers
     {        
-        public static object ToDump(this IPath input)
-        {
-            if (input.Path == input.PathResolved) return input.Path;
-
-            return new { Path = input.Path, PathResolved = input.PathResolved };
-        }
-
-
         /// <summary>
         ///
         /// </summary>

@@ -56,5 +56,25 @@
     <Setting Name="UnitOfMeasureRoundDecimals" Type="System.Int32" Scope="Application">
       <Value Profile="(Default)">9</Value>
     </Setting>
+    <Setting Name="CQLCollectionTypes" Type="System.Collections.Specialized.StringCollection" Scope="Application">
+      <Value Profile="(Default)">&lt;?xml version="1.0" encoding="utf-16"?&gt;
+&lt;ArrayOfString xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"&gt;
+  &lt;string&gt;map&lt;/string&gt;
+  &lt;string&gt;set&lt;/string&gt;
+  &lt;string&gt;list&lt;/string&gt;
+&lt;/ArrayOfString&gt;</Value>
+    </Setting>
+    <Setting Name="TupleRegEx" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">\s+tuple\s*\&lt;</Value>
+    </Setting>
+    <Setting Name="FrozenRegEx" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">\s+frozen\s*\&lt;</Value>
+    </Setting>
+    <Setting Name="StaticRegEx" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">\s+static\s*</Value>
+    </Setting>
+    <Setting Name="PrimaryKeyRegEx" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">\s+primary\s+key\s*</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

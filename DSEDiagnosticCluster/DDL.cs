@@ -12,4 +12,9 @@ namespace DSEDiagnosticLibrary
 		string DDL { get; }
         object ToDump();
     }
+
+    public interface IDDLStmt : IDDL
+    {
+        IKeyspace Keyspace { get; }
+    }
 }

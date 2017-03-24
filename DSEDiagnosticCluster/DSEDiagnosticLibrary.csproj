@@ -82,6 +82,8 @@
   <ItemGroup>
     <Compile Include="Cluster.cs" />
     <Compile Include="Configuration.cs" />
+    <Compile Include="CQLTable.cs" />
+    <Compile Include="CQLUserDefinedType.cs" />
     <Compile Include="DataCenter.cs" />
     <Compile Include="DDL.cs" />
     <Compile Include="Event.cs" />

@@ -135,5 +135,53 @@ namespace DSEDiagnosticLibrary.Properties {
                 return ((int)(this["UnitOfMeasureRoundDecimals"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("<?xml version=\"1.0\" encoding=\"utf-16\"?>\r\n<ArrayOfString xmlns:xsi=\"http://www.w3." +
+            "org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\r\n  <s" +
+            "tring>map</string>\r\n  <string>set</string>\r\n  <string>list</string>\r\n</ArrayOfSt" +
+            "ring>")]
+        public global::System.Collections.Specialized.StringCollection CQLCollectionTypes {
+            get {
+                return ((global::System.Collections.Specialized.StringCollection)(this["CQLCollectionTypes"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("\\s+tuple\\s*\\<")]
+        public string TupleRegEx {
+            get {
+                return ((string)(this["TupleRegEx"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("\\s+frozen\\s*\\<")]
+        public string FrozenRegEx {
+            get {
+                return ((string)(this["FrozenRegEx"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("\\s+static\\s*")]
+        public string StaticRegEx {
+            get {
+                return ((string)(this["StaticRegEx"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("\\s+primary\\s+key\\s*")]
+        public string PrimaryKeyRegEx {
+            get {
+                return ((string)(this["PrimaryKeyRegEx"]));
+            }
+        }
     }
 }

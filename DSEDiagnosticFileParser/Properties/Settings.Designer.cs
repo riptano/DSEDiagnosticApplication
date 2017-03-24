@@ -120,28 +120,29 @@ namespace DSEDiagnosticFileParser.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("{\r\n\"file_nodetool_status\":{\"RegExStrings\":[\"datacenter:\\\\s+([a-z0-9\\\\-_$%+=@!?<>^" +
-            "*&]+)\\\\s*\",\"(un|ul|uj|um|dn|dl|dJ|dm)\\\\s+([a-z0-9.:_\\\\-+%]+)\\\\s+([0-9.]+)\\\\s*([0" +
-            "-9a-z]{0,2})\\\\s+(\\\\d+)\\\\s+([0-9?.% ]+)\\\\s+([0-9a-f\\\\-]+)\\\\s+(.+)\"]},\r\n\"file_ntps" +
-            "tat\":{\"RegExStrings\":[\"synchronised to NTP server\\\\s+\\\\((.+)\\\\).+stratum\\\\s+(\\\\d" +
-            "+).+time correct.+within\\\\s+(\\\\d+\\\\s+[a-zA-Z]+).+polling.+every\\\\s+(\\\\d+\\\\s+[a-z" +
-            "A-Z]+)\"]},\r\n\"file_ntptime\":{\"RegExStrings\":[\"ntp_adjtime.+frequency\\\\s+([0-9\\\\-." +
-            "]+\\\\s+[a-zA-Z]+)\\\\,\\\\s+interval\\\\s+([0-9\\\\-.]+\\\\s+[a-zA-Z]+)\\\\,\\\\s+maximum error" +
-            "\\\\s+([0-9\\\\-.]+\\\\s+[a-zA-Z]+)\\\\,\\\\s+estimated error\\\\s+([0-9\\\\-.]+\\\\s+[a-zA-Z]+)" +
-            "\\\\,.+time constant\\\\s+([0-9\\\\-.]+)\\\\,\\\\s+precision\\\\s+([0-9\\\\-.]+\\\\s+[a-zA-Z]+)\\" +
-            "\\,\\\\s+tolerance\\\\s+([0-9]+\\\\s+[a-zA-Z]+)\",\"ntp_gettime.+maximum error\\\\s+([0-9\\\\" +
-            "-.]+\\\\s+[a-zA-Z]+)\\\\,\\\\s+estimated error\\\\s+([0-9\\\\-.]+\\\\s+[a-zA-Z]+)\"]},\r\n\"file" +
-            "_dsetool_ring\":{\"RegExStrings\":[\"([a-z0-9.:_\\\\-+%]+)\\\\s+([a-z0-9\\\\-_$%+=@!?<>^*&" +
-            "]+)\\\\s+([a-z0-9\\\\-_$%+=@!?<>^*&]+)\\\\s+([a-z]+)\\\\s+([a-z]+)\\\\s+([a-z]+)\\\\s+([a-z]" +
-            "+)\\\\s+([0-9.]+\\\\s*[a-z]{1,2})\\\\s+(\\\\w+|\\\\?)\\\\s+([0-9\\\\-]+)\"]},\r\n\"file_nodetool_r" +
-            "ing\":{\"RegExStrings\":[\"datacenter:\\\\s+([a-z0-9\\\\-_$%+=@!?<>^*&]+)\\\\s*\",\"\\\\s*([0-" +
-            "9\\\\-]+)\",\"([a-z0-9.:_\\\\-+%]+)\\\\s+([a-z0-9\\\\-_$%+=@!?<>^*&]+)\\\\s+([a-z]+)\\\\s+([a-" +
-            "z]+)\\\\s+([0-9.]+\\\\s*[a-z]{1,2})\\\\s+(\\\\w+|\\\\?)\\\\s+([0-9\\\\-]+)\"]},\r\n\"cql_ddl\":{\"Re" +
-            "gExStrings\":[\"use\\\\s+(?:\\\\\'|\\\\\\\")([a-z0-9\\\\-_$%+=@!?<>^*&]+)(?:\\\\\'|\\\\\\\")\",\"creat" +
-            "e\\\\s+(?:keyspace|schema)\\\\s+(?:if\\\\s+not\\\\s+exists\\\\s+)?(?:\\\\\'|\\\\\\\")?([a-z0-9\\\\-" +
-            "_$%+=@!?<>^*&]+)(?:\\\\\'|\\\\\\\")?\\\\s+with\\\\s+(replication)\\\\s*\\\\=\\\\s*(\\\\{.+\\\\})\\\\s*(" +
-            "?:and\\\\s+(durable_writes)\\\\s*\\\\=\\\\s*(\\\\w+))?\\\\;?\",\"create\\\\s+(?:table|column\\\\s+" +
-            "family)\\\\s+(?:if\\\\s+not\\\\s+exists\\\\s+)?([a-z0-9\\\\-_$%+=@!?<>^*&.\\\\\'\\\\\\\"]+)\\\\s+(?" +
-            ":\\\\(\\\\s*(.+)\\\\s*\\\\)\\\\s+with\\\\s+(.+)|\\\\(\\\\s*(.+)\\\\s*\\\\))\"]}\r\n}")]
+            "*&]+)\\\\s*\",\r\n\t\t\t\t\t\t\"(un|ul|uj|um|dn|dl|dJ|dm)\\\\s+([a-z0-9.:_\\\\-+%]+)\\\\s+([0-9.]+" +
+            ")\\\\s*([0-9a-z]{0,2})\\\\s+(\\\\d+)\\\\s+([0-9?.% ]+)\\\\s+([0-9a-f\\\\-]+)\\\\s+(.+)\"]},\r\n\"f" +
+            "ile_ntpstat\":{\"RegExStrings\":[\"synchronised to NTP server\\\\s+\\\\((.+)\\\\).+stratum" +
+            "\\\\s+(\\\\d+).+time correct.+within\\\\s+(\\\\d+\\\\s+[a-zA-Z]+).+polling.+every\\\\s+(\\\\d+" +
+            "\\\\s+[a-zA-Z]+)\"]},\r\n\"file_ntptime\":{\"RegExStrings\":[\"ntp_adjtime.+frequency\\\\s+(" +
+            "[0-9\\\\-.]+\\\\s+[a-zA-Z]+)\\\\,\\\\s+interval\\\\s+([0-9\\\\-.]+\\\\s+[a-zA-Z]+)\\\\,\\\\s+maxim" +
+            "um error\\\\s+([0-9\\\\-.]+\\\\s+[a-zA-Z]+)\\\\,\\\\s+estimated error\\\\s+([0-9\\\\-.]+\\\\s+[a" +
+            "-zA-Z]+)\\\\,.+time constant\\\\s+([0-9\\\\-.]+)\\\\,\\\\s+precision\\\\s+([0-9\\\\-.]+\\\\s+[a-" +
+            "zA-Z]+)\\\\,\\\\s+tolerance\\\\s+([0-9]+\\\\s+[a-zA-Z]+)\",\r\n\t\t\t\t\t\"ntp_gettime.+maximum e" +
+            "rror\\\\s+([0-9\\\\-.]+\\\\s+[a-zA-Z]+)\\\\,\\\\s+estimated error\\\\s+([0-9\\\\-.]+\\\\s+[a-zA-" +
+            "Z]+)\"]},\r\n\"file_dsetool_ring\":{\"RegExStrings\":[\"([a-z0-9.:_\\\\-+%]+)\\\\s+([a-z0-9\\" +
+            "\\-_$%+=@!?<>^*&]+)\\\\s+([a-z0-9\\\\-_$%+=@!?<>^*&]+)\\\\s+([a-z]+)\\\\s+([a-z]+)\\\\s+([a" +
+            "-z]+)\\\\s+([a-z]+)\\\\s+([0-9.]+\\\\s*[a-z]{1,2})\\\\s+(\\\\w+|\\\\?)\\\\s+([0-9\\\\-]+)\"]},\r\n\"" +
+            "file_nodetool_ring\":{\"RegExStrings\":[\"datacenter:\\\\s+([a-z0-9\\\\-_$%+=@!?<>^*&]+)" +
+            "\\\\s*\",\"\\\\s*([0-9\\\\-]+)\",\r\n\t\t\t\t\t\"([a-z0-9.:_\\\\-+%]+)\\\\s+([a-z0-9\\\\-_$%+=@!?<>^*&]" +
+            "+)\\\\s+([a-z]+)\\\\s+([a-z]+)\\\\s+([0-9.]+\\\\s*[a-z]{1,2})\\\\s+(\\\\w+|\\\\?)\\\\s+([0-9\\\\-]" +
+            "+)\"]},\r\n\"cql_ddl\":{\"RegExStrings\":[\"use\\\\s+(?:\\\\\'|\\\\\\\")([a-z0-9\\\\-_$%+=@!?<>^*&]" +
+            "+)(?:\\\\\'|\\\\\\\")\",\r\n\t\t\t\t\"create\\\\s+(?:keyspace|schema)\\\\s+(?:if\\\\s+not\\\\s+exists\\\\" +
+            "s+)?(?:\\\\\'|\\\\\\\")?([a-z0-9\\\\-_$%+=@!?<>^*&]+)(?:\\\\\'|\\\\\\\")?\\\\s+with\\\\s+(replicatio" +
+            "n)\\\\s*\\\\=\\\\s*(\\\\{.+\\\\})\\\\s*(?:and\\\\s+(durable_writes)\\\\s*\\\\=\\\\s*(\\\\w+))?\\\\;?\",\r\n" +
+            "\t\t\t\t\"create\\\\s+(?:table|column\\\\s+family)\\\\s+(?:if\\\\s+not\\\\s+exists\\\\s+)?([a-z0-" +
+            "9\\\\-_$%+=@!?<>^*&.\\\\\'\\\\\\\"]+)\\\\s+(?:\\\\(\\\\s*(.+)\\\\s*\\\\)\\\\s+with\\\\s+(.+)|\\\\(\\\\s*(.+" +
+            ")\\\\s*\\\\))\"\t\t\t\r\n\t\t\t]}\r\n}")]
         public string DiagnosticFileRegExAssocations {
             get {
                 return ((string)(this["DiagnosticFileRegExAssocations"]));

@@ -388,6 +388,9 @@ namespace DSEDiagnosticFileParser
                         this.Node.DSE.InstanceType |= DSEInfo.InstanceTypes.CFS;
                     }
                     break;
+                case "partitioner":
+                    this.Node.DSE.Partitioner = propvaluePair.Item2;
+                    break;
                 default:
                     break;
             }

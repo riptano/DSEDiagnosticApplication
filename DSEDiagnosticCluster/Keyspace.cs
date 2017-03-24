@@ -10,18 +10,35 @@ namespace DSEDiagnosticLibrary
 {
 	public sealed class KeyspaceStats
 	{
-		uint Tables;
-		uint Indexes;
-        uint MaterialViews;
-		uint SolrIndexes;
-		uint NbrObjects;
-		uint NbrActive;
-		uint STCS;
-		uint LCS;
-		uint DTCS;
-		uint TCS;
-		uint TWCS;
-		uint OtherStrategies;
+		public uint Tables;
+        public uint Columns;
+        public uint Indexes;
+        public uint UserDefinedTypes;
+        public uint MaterialViews;
+        public uint SolrIndexes;
+        public uint NbrObjects;
+        public uint NbrActive;
+        /// <summary>
+        /// SizeTieredCompactionStrategy
+        /// </summary>
+        public uint STCS;
+        /// <summary>
+        /// LeveledCompactionStrategy
+        /// </summary>
+        public uint LCS;
+        /// <summary>
+        /// DateTieredCompactionStrategy
+        /// </summary>
+        public uint DTCS;
+        /// <summary>
+        /// TieredCompactionStrategy
+        /// </summary>
+        public uint TCS;
+        /// <summary>
+        /// TimeWindowCompactionStrategy
+        /// </summary>
+        public uint TWCS;
+        public uint OtherStrategies;
 	}
 
 	public sealed class KeyspaceReplicationInfo : IEquatable<IDataCenter>, IEquatable<string>, IEquatable<KeyspaceReplicationInfo>
@@ -91,6 +108,8 @@ namespace DSEDiagnosticLibrary
         bool DurableWrites { get; }
         bool EverywhereStrategy { get; }
         IKeyspace AssociateItem(IDDL ddlItem);
+        ICQLTable TryGetTable(string tableName);
+        IEnumerable<ICQLTable> GetTables();
     }
 
     public sealed class KeySpace : IKeyspace, IEquatable<IKeyspace>
@@ -105,6 +124,9 @@ namespace DSEDiagnosticLibrary
                             INode defindingNode,
                             Cluster cluster)
         {
+            if (string.IsNullOrEmpty(name)) throw new NullReferenceException("CQLKeyspace name cannot be null");
+            if (string.IsNullOrEmpty(ddl)) throw new NullReferenceException("CQLKeyspace must have a DDL string");
+
             this.Stats = new KeyspaceStats();
             this.Path = cqlFile;
             this.Node = defindingNode;
@@ -169,9 +191,59 @@ namespace DSEDiagnosticLibrary
         public bool DurableWrites { get; private set; }
         public IKeyspace AssociateItem(IDDL ddl)
         {
-            //Add Stats based on object type
-            this._ddlList.Add(ddl);
+            /*
+		uint Indexes;
+        uint MaterialViews;
+		uint SolrIndexes;
+		uint NbrActive;
+        UserDefinedTypes
+             */
+
+            ++this.Stats.NbrObjects;
+
+            if(ddl is ICQLTable)
+            {
+                ++this.Stats.Tables;
+
+                switch(((ICQLTable) ddl).Compaction)
+                {
+                    case "SizeTieredCompactionStrategy":
+                        ++this.Stats.STCS;
+                        break;
+                    case "DateTieredCompactionStrategy":
+                        ++this.Stats.DTCS;
+                        break;
+                    case "LeveledCompactionStrategy":
+                        ++this.Stats.LCS;
+                        break;
+                    case "TimeWindowCompactionStrategy":
+                        ++this.Stats.TWCS;
+                        break;
+                    case "TieredCompactionStrategy":
+                        ++this.Stats.TCS;
+                        break;
+                    default:
+                        ++this.Stats.OtherStrategies;
+                        break;
+                }
+                this.Stats.Columns += (uint)((ICQLTable)ddl).Columns.Sum(c => c is ICQLUserDefinedType ? ((ICQLUserDefinedType)c).Columns.Count() : 1);
+            }
+            lock (this._ddlList)
+            {
+                this._ddlList.Add(ddl);
+            }
+
             return this;
+        }
+
+        public ICQLTable TryGetTable(string tableName)
+        {
+            return (ICQLTable) this._ddlList.FirstOrDefault(d => d is ICQLTable && d.Name == tableName);
+        }
+
+        public IEnumerable<ICQLTable> GetTables()
+        {
+            return this._ddlList.Where(c => c is ICQLTable).Cast<ICQLTable>();
         }
         #endregion
 
@@ -185,19 +257,16 @@ namespace DSEDiagnosticLibrary
         {
             if(this.Name == other.Name
                     && this.ReplicationStrategy == other.ReplicationStrategy
-                    && this.DurableWrites == other.DurableWrites
-                    && this.Replications.Count() == other.Replications.Count())
+                    && this.DurableWrites == other.DurableWrites)
             {
                 if(this.EverywhereStrategy == other.EverywhereStrategy)
                 {
-                    if(this.EverywhereStrategy)
-                    {
-                        return true;
-                    }
+                    if(this.EverywhereStrategy || this.Replications.IsEmpty()) return true;
 
-                    return this.Replications
-                                .SelectWithIndex((r, idx) => r.Equals(other.Replications.ElementAt(idx)))
-                                .All(b => b);
+                    if(this.Replications.Count() == other.Replications.Count())
+                        return this.Replications
+                                    .SelectWithIndex((r, idx) => r.Equals(other.Replications.ElementAt(idx)))
+                                    .All(b => b);
                 }
             }
 
@@ -228,6 +297,15 @@ namespace DSEDiagnosticLibrary
             return string.Format("Keyspace{{{0}}}", this.DDL);
         }
         #endregion
+
+        public static IEnumerable<IKeyspace> TryGet(Cluster cluster, string ksName)
+        {
+            return cluster.GetKeyspaces(ksName);
+        }
+        public static IEnumerable<IKeyspace> TryGet(IDataCenter datacenter, string ksName)
+        {
+            return datacenter.Keyspaces.Where(k => k.Name == ksName);
+        }
 
     }
 

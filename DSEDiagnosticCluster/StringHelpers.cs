@@ -30,7 +30,7 @@ namespace DSEDiagnosticLibrary
             return false;
         }
 
-        static Tuple<string, string> SplitTableName(string cqlTableName, string defaultKeySpaceName)
+        public static Tuple<string, string> SplitTableName(string cqlTableName, string defaultKeySpaceName)
         {
             var nameparts = Common.StringFunctions.Split(cqlTableName,
                                                             new char[] { '.', '/' },
@@ -46,7 +46,7 @@ namespace DSEDiagnosticLibrary
             return new Tuple<string, string>(RemoveQuotes(nameparts[0]), RemoveQuotes(nameparts[1]));
         }
 
-        static Tuple<string, string> SplitTableName(this string cqlTableName)
+        public static Tuple<string, string> SplitTableName(this string cqlTableName)
         {
             if (cqlTableName[0] == '[' || cqlTableName[0] == '(')
             {
@@ -56,7 +56,7 @@ namespace DSEDiagnosticLibrary
             return SplitTableName(cqlTableName.Replace('/', '.'), null);
         }
 
-        static string RemoveNamespace(this string className)
+        public static string RemoveNamespace(this string className)
         {
             className = RemoveQuotes(className);
 

@@ -359,7 +359,7 @@ namespace DSEDiagnosticLibrary
 		}
 
         #endregion
-        
+
         public NodeIdentifier Clone()
         {
             var newId = new NodeIdentifier();
@@ -519,7 +519,7 @@ namespace DSEDiagnosticLibrary
 			TT = 0x0008,
 			JT = 0x0010,
             Graph = 0x0020,
-            AdvancedReplication = 0x0040,            
+            AdvancedReplication = 0x0040,
             Hadoop = 0x0080,
             CFS = 0x0100,
             Analytics_TT = Analytics | TT,
@@ -657,7 +657,7 @@ namespace DSEDiagnosticLibrary
 		public UnitOfMeasure Uptime;
 		public UnitOfMeasure Heap;
 		public UnitOfMeasure OffHeap;
-        public bool? IsSeedNode; //seed_provider.parameters.seeds: "10.14.148.34,10.14.148.51"    
+        public bool? IsSeedNode; //seed_provider.parameters.seeds: "10.14.148.34,10.14.148.51"
 		public bool? VNodesEnabled;
 		public uint? NbrTokens;
 		public uint? NbrExceptions;
@@ -668,6 +668,7 @@ namespace DSEDiagnosticLibrary
         public DateTimeRange RepairServiceRanRange;
         public DirectoryLocations Locations;
         public string EndpointSnitch;
+        public string Partitioner;
         public string KeyCacheInformation;
 		public string RowCacheInformation;
 		public string CounterCacheInformation;
@@ -707,9 +708,9 @@ namespace DSEDiagnosticLibrary
 	}
 
 	public sealed class Node : INode
-	{		
+	{
 		static Node()
-		{			
+		{
 		}
 
 		private Node()
@@ -765,7 +766,7 @@ namespace DSEDiagnosticLibrary
 
 				//	this.DataCenter = dataCenter;
 				//}
-				
+
                 lock(this)
                 {
                     if(this.DataCenter == null)
@@ -851,7 +852,7 @@ namespace DSEDiagnosticLibrary
 
 		private CTS.List<IEvent> _events = new CTS.List<IEvent>();
 		public IEnumerable<IEvent> Events { get { lock (this._events) { return this._events.ToArray(); } } }
-		
+
 		public IEnumerable<IConfigurationLine> Configurations
         {
             get
@@ -859,13 +860,13 @@ namespace DSEDiagnosticLibrary
                 return this.DataCenter.GetConfigurations(this);
             }
         }
-		
+
 		public INode AssociateItem(IEnumerable<IEvent> eventItems)
 		{
             this._events.AddRange(eventItems);
 			return this;
 		}
-        		
+
 		public INode AssociateItem(IEnumerable<IDDL> ddlItems)
 		{
             //this._ddls.AddRange(ddlItems);
@@ -878,7 +879,7 @@ namespace DSEDiagnosticLibrary
                             DataCenter = this.DataCenter,
                             DSEInfo = this.DSE,
                             MachineInfo = this.Machine,
-                            Events = this.Events,                           
+                            Events = this.Events,
                             Configurations = this.Configurations };
         }
 		#endregion
@@ -947,6 +948,6 @@ namespace DSEDiagnosticLibrary
         }
 
         #endregion
-       
+
 	}
 }
