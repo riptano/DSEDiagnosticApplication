@@ -18,9 +18,9 @@ namespace DSEDiagnosticLibrary
         static public bool RemoveQuotes(string item, out string newItem, bool checkbrackets = true)
         {
             if (item.Length > 2
-                    && ((item[0] == '\'' && item[item.Length - 1] == '\'')
-                            || (item[0] == '"' && item[item.Length - 1] == '"')
-                            || (checkbrackets && item[0] == '[' && item[item.Length - 1] == ']')))
+                    && ((item[0] == '\'' && item.Last() == '\'')
+                            || (item[0] == '"' && item.Last() == '"')
+                            || (checkbrackets && item[0] == '[' && item.Last() == ']')))
             {
                 newItem = item.Substring(1, item.Length - 2);
                 return true;

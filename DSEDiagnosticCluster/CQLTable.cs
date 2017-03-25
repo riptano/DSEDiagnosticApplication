@@ -113,7 +113,7 @@ namespace DSEDiagnosticLibrary
 
         public object ToDump()
         {
-            return this.DDL;
+            return this;
         }
 
         public CQLColumnType SetColumn(ICQLColumn associatedColumn)
@@ -142,7 +142,8 @@ namespace DSEDiagnosticLibrary
     public interface ICQLColumn : IEquatable<string>
     {
         string Name { get; }
-        ICQLTable Table { get; set; }
+        ICQLTable Table { get; }
+        ICQLUserDefinedType UDT { get; }
         CQLColumnType CQLType { get;}
         bool IsStatic { get; }
         bool IsInOrderBy { get;}
@@ -166,7 +167,7 @@ namespace DSEDiagnosticLibrary
             if (string.IsNullOrEmpty(ddl)) throw new NullReferenceException("ddl cannot be null");
             if (columnType == null) throw new NullReferenceException("columnType cannot be null");
 
-            this.Name = name.Trim();
+            this.Name = StringHelpers.RemoveQuotes(name.Trim());
             this.DDL = ddl.Trim();
             this.CQLType = columnType;
             this.IsPrimaryKey = PrimaryKeyRegEx.IsMatch(this.DDL);
@@ -177,7 +178,8 @@ namespace DSEDiagnosticLibrary
                 this.CQLType.SetColumn(this);
             }
         }
-        public ICQLTable Table { get; set; }
+        public ICQLTable Table { get; private set; }
+        public ICQLUserDefinedType UDT { get; private set; }
         public string Name { get; private set; }
         public CQLColumnType CQLType { get; private set; }
         public bool IsStatic { get; private set; }
@@ -208,30 +210,150 @@ namespace DSEDiagnosticLibrary
         #region IEquatable methods
         public bool Equals(string other)
         {
-            return this.Name == other;
+            return this.Name == StringHelpers.RemoveQuotes(other);
         }
 
         public bool Equals(ICQLColumn other)
         {
             if (other == null) return false;
             if (ReferenceEquals(this, other)) return true;
-            if (other is ICQLUserDefinedType) return false;
 
             return this.Name == other.Name
                         && this.CQLType.Equals(((CQLColumn)other).CQLType);
         }
         #endregion
 
+        public CQLColumn SetTable(ICQLTable associatedTable)
+        {
+            this.Table = associatedTable;
+            return this;
+        }
+        public CQLColumn SetUDT(ICQLUserDefinedType associatedUDT)
+        {
+            this.UDT = associatedUDT;
+            return this;
+        }
         public object ToDump()
         {
-            return this.DDL;
+            return this;
         }
     }
 
-    public struct CQLOrderByColumn
+    public sealed class CQLOrderByColumn : IEquatable<string>, IEquatable<ICQLColumn>, IEquatable<CQLOrderByColumn>
     {
         public ICQLColumn Column;
         public bool IsDescending;
+
+        public static implicit operator CQLColumn(CQLOrderByColumn orderbyColumn) { return (CQLColumn) orderbyColumn.Column; }
+
+        #region IEquatable
+
+        public bool Equals(ICQLColumn column)
+        {
+            return this.Column.Equals(column);
+        }
+
+        public bool Equals(CQLOrderByColumn columnOrderby)
+        {
+            return this.Column.Equals(columnOrderby.Column) && this.IsDescending == columnOrderby.IsDescending;
+        }
+
+        public bool Equals(string name)
+        {
+            return this.Column.Equals(name);
+        }
+
+        #endregion
+
+        #region overridden
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj is string) return this.Equals((string)obj);
+            if (obj is ICQLColumn) return this.Equals((ICQLColumn)obj);
+            if (obj is CQLOrderByColumn) return this.Equals((CQLOrderByColumn)obj);
+
+            return base.Equals(obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return this.Column.GetHashCode();
+        }
+        public override string ToString()
+        {
+            return string.Format("CQLOrderByColumn<{0}, {1}>", this.Column, this.IsDescending ? "Descending" : "Ascending");
+        }
+
+        #endregion
+    }
+
+    public sealed class CQLFunctionColumn : IEquatable<string>, IEquatable<ICQLColumn>, IEquatable<CQLFunctionColumn>
+    {
+        public CQLFunctionColumn(string function,
+                                    IEnumerable<ICQLColumn> columns,
+                                    string ddl)
+        {
+            if (columns == null || columns.IsEmpty()) throw new NullReferenceException("CQLFunctionColumn must have columns (cannot be null or a count of zero)");
+
+            this.Function = function;
+            this.Columns = columns;
+            this.DDL = ddl;
+        }
+
+        public IEnumerable<ICQLColumn> Columns { get; private set; }
+        public string Function { get; private set; }
+        public string DDL { get; private set; }
+
+        #region IEquatable
+
+        public bool Equals(ICQLColumn column)
+        {
+            return this.Columns.Any(c => c.Equals(column));
+        }
+
+        public bool Equals(CQLFunctionColumn columnFunctin)
+        {
+            if (columnFunctin == null) return false;
+            if (ReferenceEquals(this, columnFunctin)) return true;
+
+            return this.DDL == columnFunctin.DDL;
+        }
+
+        public bool Equals(string name)
+        {
+            return this.Columns.Any(c => c.Equals(name));
+        }
+
+        #endregion
+
+        #region overridden
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj is string) return this.Equals((string)obj);
+            if (obj is ICQLColumn) return this.Equals((ICQLColumn)obj);
+            if (obj is CQLFunctionColumn) return this.Equals((CQLFunctionColumn)obj);
+
+            return base.Equals(obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return (this.Function == null ? 0 : this.Function.GetHashCode()) + this.Columns.Sum(c => c.GetHashCode());
+        }
+        public override string ToString()
+        {
+            return string.IsNullOrEmpty(this.Function)
+                        ? string.Format("CQLFunctionColumn<{0}>", string.Join(",", this.Columns.Select(c => c.Name)))
+                        : string.Format("CQLFunctionColumn<{0}({1})>", this.Function, string.Join(",", this.Columns.Select(c => c.Name)));
+        }
+
+        #endregion
     }
 
     public sealed class CQLTableStats
@@ -261,6 +383,9 @@ namespace DSEDiagnosticLibrary
         CQLTableStats Stats { get; }
 
         bool SetAsActive(bool isActive = true);
+
+        IEnumerable<ICQLColumn> TryGetColumns(IEnumerable<string> columns);
+        ICQLColumn TryGetColumn(string columnName);
     }
 
     public sealed class CQLTable : ICQLTable, IEquatable<ICQLTable>
@@ -289,7 +414,7 @@ namespace DSEDiagnosticLibrary
             this.Keyspace = keyspace;
             this.Node = defindingNode ?? keyspace.Node;
             this.LineNbr = lineNbr;
-            this.Name = name;
+            this.Name = StringHelpers.RemoveQuotes(name.Trim());
             this.DDL = ddl;
             this.Columns = columns;
             this.PrimaryKeys = primaryKeys;
@@ -330,13 +455,13 @@ namespace DSEDiagnosticLibrary
                     }
 
                     this.Compaction = StringHelpers.RemoveNamespace((string) ((Dictionary<string, object>)pValue)["class"]);
-                    
+
                 }
                 if (this.Properties.TryGetValue("compression", out pValue))
                 {
                     if (pValue is string)
                     {
-                        this.Properties["compression"] = JsonConvert.DeserializeObject<Dictionary<string, object>>((string)pValue);                        
+                        this.Properties["compression"] = JsonConvert.DeserializeObject<Dictionary<string, object>>((string)pValue);
                     }
 
                     var compressionProps = (Dictionary<string, object>) pValue;
@@ -434,7 +559,7 @@ namespace DSEDiagnosticLibrary
             {
                 foreach (var col in this.Columns)
                 {
-                    col.Table = this;
+                    ((CQLColumn)col).SetTable(this);
                 }
             }
 
@@ -475,13 +600,23 @@ namespace DSEDiagnosticLibrary
             return this.IsActive;
         }
 
+        public IEnumerable<ICQLColumn> TryGetColumns(IEnumerable<string> columns)
+        {
+            return columns.Select(n => this.TryGetColumn(StringHelpers.RemoveQuotes(n.Trim())));
+        }
+        public ICQLColumn TryGetColumn(string columnName)
+        {
+            columnName = StringHelpers.RemoveQuotes(columnName.Trim());
+
+            return this.Columns.FirstOrDefault(c => c.Name == columnName);
+        }
         #endregion
 
         #region IParsed
         public SourceTypes Source { get { return SourceTypes.CQL; } }
         public IPath Path { get; private set; }
         public Cluster Cluster { get { return this.Keyspace.Cluster; } }
-        public IDataCenter DataCenter { get { return this.Node?.DataCenter; } }
+        public IDataCenter DataCenter { get { return this.Node?.DataCenter ?? this.Keyspace.DataCenter; } }
         public INode Node { get; private set; }
         public int Items { get; private set; }
         public uint LineNbr { get; private set; }
@@ -502,7 +637,7 @@ namespace DSEDiagnosticLibrary
         }
         public bool Equals(string other)
         {
-            return this.Name == other;
+            return this.Name == StringHelpers.RemoveQuotes(other);
         }
 
         #endregion
@@ -513,14 +648,7 @@ namespace DSEDiagnosticLibrary
             if (other == null) return false;
             if (ReferenceEquals(this, other)) return true;
 
-            return this.Name == other.Name
-                    && this.Keyspace.Equals(other.Keyspace)
-                    && this.Columns.SelectWithIndex((c, idx) => c.Equals(other.Columns.ElementAtOrDefault(idx))).All(r => r)
-                    && this.PrimaryKeys.SelectWithIndex((c, idx) => c.Equals(other.PrimaryKeys.ElementAtOrDefault(idx))).All(r => r)
-                    && this.ClusteringKeys.SelectWithIndex((c, idx) => c.Equals(other.ClusteringKeys.ElementAtOrDefault(idx))).All(r => r)
-                    && this.OrderByCols.SelectWithIndex((c, idx) => c.Equals(other.OrderByCols.ElementAtOrDefault(idx))).All(r => r)
-                    && this.Properties.Count == this.Properties.Count
-                    && this.Properties.All(p => { object dValue; return other.Properties.TryGetValue(p.Key, out dValue) && p.Value.Equals(dValue); });
+            return this.DDL == other.DDL;
         }
 
         #endregion

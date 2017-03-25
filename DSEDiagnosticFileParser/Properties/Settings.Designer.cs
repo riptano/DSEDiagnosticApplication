@@ -142,7 +142,12 @@ namespace DSEDiagnosticFileParser.Properties {
             "n)\\\\s*\\\\=\\\\s*(\\\\{.+\\\\})\\\\s*(?:and\\\\s+(durable_writes)\\\\s*\\\\=\\\\s*(\\\\w+))?\\\\;?\",\r\n" +
             "\t\t\t\t\"create\\\\s+(?:table|column\\\\s+family)\\\\s+(?:if\\\\s+not\\\\s+exists\\\\s+)?([a-z0-" +
             "9\\\\-_$%+=@!?<>^*&.\\\\\'\\\\\\\"]+)\\\\s+(?:\\\\(\\\\s*(.+)\\\\s*\\\\)\\\\s+with\\\\s+(.+)|\\\\(\\\\s*(.+" +
-            ")\\\\s*\\\\))\"\t\t\t\r\n\t\t\t]}\r\n}")]
+            ")\\\\s*\\\\))\",\r\n\t\t\t\t\"create\\\\s+type\\\\s+(?:if\\\\s+not\\\\s+exists\\\\s+)?([a-z0-9\\\\-_$%+=" +
+            "@!?<>^*&.\\\\\'\\\\\\\"]+)\\\\s+(?:\\\\(\\\\s*(.+)\\\\s*\\\\))\",\r\n\t\t\t\t\"create\\\\s+(custom\\\\s+)?ind" +
+            "ex\\\\s+(?:if\\\\s+not\\\\s+exists\\\\s+)?([a-z0-9\\\\-_$%+=@!?<>^*&\\\\\'\\\\\\\"]+)\\\\s+on\\\\s+([" +
+            "a-z0-9\\\\-_$%+=@!?<>^*&.\\\\\'\\\\\\\"]+)\\\\s+(?:\\\\(\\\\s*(.+)\\\\s*\\\\))(?:\\\\s+using\\\\s+([a-z" +
+            "0-9\\\\-_$%+=@!?<>^*&.\\\\\'\\\\\\\"]+))?(?:\\\\s+with\\\\s+options\\\\s*\\\\=\\\\s*(.+))?\"\r\n\t\t\t]}\r" +
+            "\n}")]
         public string DiagnosticFileRegExAssocations {
             get {
                 return ((string)(this["DiagnosticFileRegExAssocations"]));

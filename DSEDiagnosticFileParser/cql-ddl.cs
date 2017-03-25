@@ -81,7 +81,15 @@ namespace DSEDiagnosticFileParser
         // CREATE TABLE [IF NOT EXISTS] [keyspace_name.]table_name ( column_definition[, ...] PRIMARY KEY(column_name[, column_name...]) [WITH table_options | CLUSTERING ORDER BY(clustering_column_name order]) | ID = 'table_hash_tag' | COMPACT STORAGE]
         // null, [keyspace_name.]table_name, column_definition_clause, with_options, null
         // null, [keyspace_name.]table_name, column_definition_clause, null
-
+        //
+        // RegEx: 3
+        // CREATE TYPE [IF NOT EXISTS] [keyspace.]type_name ( field, field, ...)
+        // null, [keyspace_name.]table_name, column_definition_clause, null
+        //
+        // RegEx: 4
+        // CREATE [CUSTOM] INDEX [IF NOT EXISTS] index_name ON [keyspace_name.]table_name ( column_name, [KEYS ( column_name )] ) [USING class_name] [WITH OPTIONS = json-map]
+        // null, [CUSTOM], index_name, [keyspace_name.]table_name, column_definition_clause, [class_name], [json-map], null
+        //
         private List<IDDL> _ddlList = new List<IDDL>();
         private List<IKeyspace> _localKS = new List<IKeyspace>();
 
@@ -193,6 +201,28 @@ namespace DSEDiagnosticFileParser
                     }
                     continue;
                 }
+
+                regexMatch = this.RegExParser.Match(cqlStmt, 3); //create type
+
+                if (regexMatch.Success)
+                {
+                    if (ProcessDDLTable(regexMatch, itemNbr))
+                    {
+                        ++nbrGenerated;
+                    }
+                    continue;
+                }
+
+                regexMatch = this.RegExParser.Match(cqlStmt, 4); //create index
+
+                if (regexMatch.Success)
+                {
+                    if (ProcessDDLIndex(regexMatch, itemNbr))
+                    {
+                        ++nbrGenerated;
+                    }
+                    continue;
+                }
             }
 
             this.NbrItemsParsed = (int)itemNbr;
@@ -232,7 +262,9 @@ namespace DSEDiagnosticFileParser
         {
             var name = keyspaceMatch.Groups[1].Value.Trim();
             var replicationMap = JsonConvert.DeserializeObject<Dictionary<string, string>>(keyspaceMatch.Groups[3].Value);
-            var durableWrites = keyspaceMatch.Groups[4].Value.ToUpper() == "DURABLE_WRITES" ? bool.Parse(keyspaceMatch.Groups[5].Value) : true;
+            var durableWrites = keyspaceMatch.Groups[4].Success && keyspaceMatch.Groups[4].Value.ToUpper() == "DURABLE_WRITES"
+                                        ? bool.Parse(keyspaceMatch.Groups[5].Value)
+                                        : true;
             var strategy = replicationMap.FirstOrDefault().Value;
             var replications = replicationMap.Skip(1)
                                     .Select(r => new KeyspaceReplicationInfo(int.Parse(r.Value),
@@ -270,7 +302,7 @@ namespace DSEDiagnosticFileParser
             if (ksInstance.TryGetTable(kstblPair.Item2) == null)
             {
                 var strColumns = tableMatch.Groups[2].Value.Trim();
-                var strWithClause = tableMatch.Groups[3].Value.Trim().TrimEnd(';');
+                var strWithClause = tableMatch.Groups[3].Success ? tableMatch.Groups[3].Value.Trim().TrimEnd(';') : null;
                 var columnsSplit = Common.StringFunctions.Split(strColumns,
                                                                     ',',
                                                                     StringFunctions.IgnoreWithinDelimiterFlag.AngleBracket
@@ -281,13 +313,14 @@ namespace DSEDiagnosticFileParser
                 var orderByList = new List<CQLOrderByColumn>();
 
                 #region With Clause
+                if(!string.IsNullOrEmpty(strWithClause))
                 {
                     Match withMatchItem = WithOrderByRegEx.Match(strWithClause);
 
                     if (withMatchItem.Success)
                     {
                         var strOrderByCols = withMatchItem.Groups[1].Value;
-                        
+
                         properties.Add("clustering order by", strOrderByCols);
 
                         var orderByClauses = strOrderByCols.Split(',');
@@ -306,7 +339,7 @@ namespace DSEDiagnosticFileParser
 
                     if (withMatchItem.Success)
                     {
-                        properties.Add("compact storage", true);                        
+                        properties.Add("compact storage", true);
                     }
                 }
 
@@ -353,6 +386,117 @@ namespace DSEDiagnosticFileParser
                                                 this.Node);
 
                 this._ddlList.Add(cqlTable);
+
+                return true;
+            }
+
+            return false;
+        }
+
+        private bool ProcessDDLUDT(Match udtMatch, uint lineNbr)
+        {
+            var name = udtMatch.Groups[1].Value.Trim();
+            var kstblPair = StringHelpers.SplitTableName(name, null);
+            var ksInstance = string.IsNullOrEmpty(kstblPair.Item1) ? this._usingKeySpace : this.GetKeySpace(kstblPair.Item1);
+
+            if (ksInstance == null) throw new NullReferenceException(string.Format("CQL Type (UDT) \"{0}\" could not find associated keyspace \"{1}\". DDL: {2}",
+                                                                                     kstblPair.Item2,
+                                                                                     kstblPair.Item1 ?? "<CQL use stmt required or fully qualified name>",
+                                                                                     udtMatch.Groups[0].Value));
+
+            if (ksInstance.TryGetUDT(kstblPair.Item2) == null)
+            {
+                var strColumns = udtMatch.Groups[2].Value.Trim();
+                var columnsSplit = Common.StringFunctions.Split(strColumns,
+                                                                    ',',
+                                                                    StringFunctions.IgnoreWithinDelimiterFlag.AngleBracket
+                                                                        | StringFunctions.IgnoreWithinDelimiterFlag.Parenthese,
+                                                                    StringFunctions.SplitBehaviorOptions.StringTrimEachElement);
+                var columns = this.ProcessTableColumns(columnsSplit, ksInstance);
+
+                var cqlUDT = new CQLUserDefinedType(this.File,
+                                                        lineNbr,
+                                                        ksInstance,
+                                                        kstblPair.Item2,
+                                                        columns,
+                                                        udtMatch.Value,
+                                                        this.Node);
+
+                this._ddlList.Add(cqlUDT);
+
+                return true;
+            }
+
+            return false;
+        }
+
+        private bool ProcessDDLIndex(Match indexMatch, uint lineNbr)
+        {
+            var name = indexMatch.Groups[2].Value.Trim();
+            var tablename = indexMatch.Groups[3].Value.Trim();
+            var kstblPair = StringHelpers.SplitTableName(tablename, null);
+            var ksInstance = string.IsNullOrEmpty(kstblPair.Item1) ? this._usingKeySpace : this.GetKeySpace(kstblPair.Item1);
+
+            if (ksInstance == null) throw new NullReferenceException(string.Format("CQL Index \"{0}\" for Table \"{1}\" could not find associated keyspace \"{2}\". DDL: {3}",
+                                                                                     name,
+                                                                                     tablename,
+                                                                                     kstblPair.Item1 ?? "<CQL use stmt required or fully qualified name>",
+                                                                                     indexMatch.Groups[0].Value));
+            var tblInstance = ksInstance.TryGetTable(kstblPair.Item2);
+
+            if (tblInstance == null) throw new NullReferenceException(string.Format("CQL Index \"{0}\" could not find associated Table \"{1}\" in Keyspace \"{2}\". DDL: {3}",
+                                                                                     name,
+                                                                                     tablename,
+                                                                                     ksInstance.Name,
+                                                                                     indexMatch.Groups[0].Value));
+
+
+            if (ksInstance.TryGetIndex(name) == null)
+            {
+                var strColumns = indexMatch.Groups[4].Value.Trim();
+                var columnsSplit = Common.StringFunctions.Split(strColumns,
+                                                                    ',',
+                                                                    StringFunctions.IgnoreWithinDelimiterFlag.AngleBracket
+                                                                        | StringFunctions.IgnoreWithinDelimiterFlag.Parenthese,
+                                                                    StringFunctions.SplitBehaviorOptions.StringTrimEachElement);
+                var colFunctions = columnsSplit.Select(i =>
+                                    {
+                                        List<string> columns = new List<string>();
+                                        string functionName = null;
+
+                                        if(i.Last() == ')')
+                                        {
+                                            Common.StringFunctions.ParseIntoFuncationParams(i, out functionName, out columns);
+                                        }
+                                        else
+                                        {
+                                            columns.Add(i);
+                                        }
+
+                                        return new CQLFunctionColumn(functionName, tblInstance.TryGetColumns(columns), i);
+                                    });
+
+                var usingClass = indexMatch.Groups[5].Success
+                                    ? indexMatch.Groups[5].Value.Trim().TrimEnd(';')
+                                    : null;
+                var withOptions = indexMatch.Groups[6].Success
+                                    ? indexMatch.Groups[6].Value.Trim().TrimEnd(';')
+                                    : null;
+
+                var cqlUDT = new CQLIndex(this.File,
+                                            lineNbr,
+                                            name,
+                                            tblInstance,
+                                            colFunctions,
+                                            indexMatch.Groups[1].Success && indexMatch.Groups[1].Value.ToLower() == "custom",
+                                            usingClass,
+                                            string.IsNullOrEmpty(withOptions)
+                                                ? null
+                                                : JsonConvert.DeserializeObject<Dictionary<string,object>>(withOptions),
+                                            indexMatch.Value,
+                                            this.Node);
+
+                this._ddlList.Add(cqlUDT);
 
                 return true;
             }
@@ -453,11 +597,11 @@ namespace DSEDiagnosticFileParser
             var udtInstance = CQLUserDefinedType.TryGet(keyspace, colType);
             bool isUDT = false;
 
-            if (udtInstance.HasAtLeastOneElement())
+            if (udtInstance != null)
             {
                 var udtTypes = new List<CQLColumnType>();
 
-                ProcessUDTColumn(udtInstance.First(), udtTypes);
+                ProcessUDTColumn(udtInstance, udtTypes);
                 subTypes = udtTypes;
                 isUDT = true;
             }

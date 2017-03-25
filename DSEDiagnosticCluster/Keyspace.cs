@@ -12,10 +12,12 @@ namespace DSEDiagnosticLibrary
 	{
 		public uint Tables;
         public uint Columns;
-        public uint Indexes;
+        public uint SecondaryIndexes;
         public uint UserDefinedTypes;
         public uint MaterialViews;
+        public uint Triggers;
         public uint SolrIndexes;
+        public uint CustomIndexes;
         public uint NbrObjects;
         public uint NbrActive;
         /// <summary>
@@ -109,7 +111,11 @@ namespace DSEDiagnosticLibrary
         bool EverywhereStrategy { get; }
         IKeyspace AssociateItem(IDDL ddlItem);
         ICQLTable TryGetTable(string tableName);
+        ICQLIndex TryGetIndex(string indexName);
+        ICQLUserDefinedType TryGetUDT(string udtName);
         IEnumerable<ICQLTable> GetTables();
+        IEnumerable<ICQLUserDefinedType> GetUDTs();
+        IEnumerable<ICQLIndex> GetIndexes();
     }
 
     public sealed class KeySpace : IKeyspace, IEquatable<IKeyspace>
@@ -132,7 +138,7 @@ namespace DSEDiagnosticLibrary
             this.Node = defindingNode;
             this._cluster = cluster;
             this.LineNbr = lineNbr;
-            this.Name = name;
+            this.Name = StringHelpers.RemoveQuotes(name.Trim());
             this.ReplicationStrategy = replicationStrategy;
             this.DurableWrites = durableWrites;
             this.DDL = ddl;
@@ -196,7 +202,6 @@ namespace DSEDiagnosticLibrary
         uint MaterialViews;
 		uint SolrIndexes;
 		uint NbrActive;
-        UserDefinedTypes
              */
 
             ++this.Stats.NbrObjects;
@@ -228,6 +233,31 @@ namespace DSEDiagnosticLibrary
                 }
                 this.Stats.Columns += (uint)((ICQLTable)ddl).Columns.Sum(c => c is ICQLUserDefinedType ? ((ICQLUserDefinedType)c).Columns.Count() : 1);
             }
+            else if(ddl is ICQLUserDefinedType)
+            {
+                ++this.Stats.UserDefinedTypes;
+            }
+            else if (ddl is ICQLIndex)
+            {
+                var idxInstance = (ICQLIndex)ddl;
+
+                if(idxInstance.IsCustom)
+                {
+                    if(!string.IsNullOrEmpty(idxInstance.UsingClass) && idxInstance.UsingClass.EndsWith("SolrSecondaryIndex"))
+                    {
+                        ++this.Stats.SolrIndexes;
+                    }
+                    else
+                    {
+                        ++this.Stats.CustomIndexes;
+                    }
+                }
+                else
+                {
+                    ++this.Stats.SecondaryIndexes;
+                }
+            }
+
             lock (this._ddlList)
             {
                 this._ddlList.Add(ddl);
@@ -238,12 +268,35 @@ namespace DSEDiagnosticLibrary
 
         public ICQLTable TryGetTable(string tableName)
         {
+            tableName = StringHelpers.RemoveQuotes(tableName.Trim());
             return (ICQLTable) this._ddlList.FirstOrDefault(d => d is ICQLTable && d.Name == tableName);
+        }
+
+        public ICQLIndex TryGetIndex(string indexName)
+        {
+            indexName = StringHelpers.RemoveQuotes(indexName.Trim());
+            return (ICQLIndex)this._ddlList.FirstOrDefault(d => d is ICQLIndex && d.Name == indexName);
         }
 
         public IEnumerable<ICQLTable> GetTables()
         {
             return this._ddlList.Where(c => c is ICQLTable).Cast<ICQLTable>();
+        }
+
+        public IEnumerable<ICQLIndex> GetIndexes()
+        {
+            return this._ddlList.Where(c => c is ICQLIndex).Cast<ICQLIndex>();
+        }
+
+        public ICQLUserDefinedType TryGetUDT(string udtName)
+        {
+            udtName = StringHelpers.RemoveQuotes(udtName.Trim());
+            return (ICQLUserDefinedType)this._ddlList.FirstOrDefault(d => d is ICQLUserDefinedType && d.Name == udtName);
+        }
+
+        public IEnumerable<ICQLUserDefinedType> GetUDTs()
+        {
+            return this._ddlList.Where(c => c is ICQLUserDefinedType).Cast<ICQLUserDefinedType>();
         }
         #endregion
 
@@ -300,10 +353,11 @@ namespace DSEDiagnosticLibrary
 
         public static IEnumerable<IKeyspace> TryGet(Cluster cluster, string ksName)
         {
-            return cluster.GetKeyspaces(ksName);
+            return cluster.GetKeyspaces(StringHelpers.RemoveQuotes(ksName.Trim()));
         }
         public static IEnumerable<IKeyspace> TryGet(IDataCenter datacenter, string ksName)
         {
+            ksName = StringHelpers.RemoveQuotes(ksName.Trim());
             return datacenter.Keyspaces.Where(k => k.Name == ksName);
         }
 
