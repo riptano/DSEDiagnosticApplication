@@ -78,9 +78,9 @@ namespace DSEDiagnosticFileParser
         // null, keyspace_name, replication, { ... }, null
         //
         // RegEx: 2
-        // CREATE TABLE [IF NOT EXISTS] [keyspace_name.]table_name ( column_definition[, ...] PRIMARY KEY(column_name[, column_name...]) [WITH table_options | CLUSTERING ORDER BY(clustering_column_name order]) | ID = 'table_hash_tag' | COMPACT STORAGE]
+        // CREATE TABLE [IF NOT EXISTS] [keyspace_name.]table_name ( column_definition[, ...] PRIMARY KEY(column_name[, column_name...])) [WITH table_options | CLUSTERING ORDER BY(clustering_column_name order]) | ID = 'table_hash_tag' | COMPACT STORAGE]
         // null, [keyspace_name.]table_name, column_definition_clause, with_options, null
-        // null, [keyspace_name.]table_name, column_definition_clause, null
+        // null, [keyspace_name.]table_name, null, null, column_definition_clause, null
         //
         // RegEx: 3
         // CREATE TYPE [IF NOT EXISTS] [keyspace.]type_name ( field, field, ...)
@@ -301,8 +301,8 @@ namespace DSEDiagnosticFileParser
 
             if (ksInstance.TryGetTable(kstblPair.Item2) == null)
             {
-                var strColumns = tableMatch.Groups[2].Value.Trim();
-                var strWithClause = tableMatch.Groups[3].Success ? tableMatch.Groups[3].Value.Trim().TrimEnd(';') : null;
+                var strColumns = tableMatch.Groups[2].Success ? tableMatch.Groups[2].Value.Trim() : tableMatch.Groups[4].Value.Trim();
+                var strWithClause = tableMatch.Groups[3].Success ? tableMatch.Groups[3].Value.Trim() : null;
                 var columnsSplit = Common.StringFunctions.Split(strColumns,
                                                                     ',',
                                                                     StringFunctions.IgnoreWithinDelimiterFlag.AngleBracket
@@ -312,66 +312,7 @@ namespace DSEDiagnosticFileParser
                 var properties = new Dictionary<string, object>();
                 var orderByList = new List<CQLOrderByColumn>();
 
-                #region With Clause
-                if(!string.IsNullOrEmpty(strWithClause))
-                {
-                    Match withMatchItem = WithOrderByRegEx.Match(strWithClause);
-
-                    if (withMatchItem.Success)
-                    {
-                        var strOrderByCols = withMatchItem.Groups[1].Value;
-
-                        properties.Add("clustering order by", strOrderByCols);
-
-                        var orderByClauses = strOrderByCols.Split(',');
-
-                        foreach (var orderByClause in orderByClauses)
-                        {
-                            var coldirSplit = orderByClause.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-                            var colInstance = columns.FirstOrDefault(c => c.Name == coldirSplit[0]);
-
-                            colInstance.IsInOrderBy = true;
-                            orderByList.Add(new CQLOrderByColumn() { Column = colInstance, IsDescending = coldirSplit.Length > 1 ? coldirSplit[0].ToLower() == "desc" : false });
-                        }
-                    }
-
-                    withMatchItem = WithCompactStorageRegEx.Match(strWithClause);
-
-                    if (withMatchItem.Success)
-                    {
-                        properties.Add("compact storage", true);
-                    }
-                }
-
-                {
-                    var propertySplit = Common.StringFunctions.Split(strWithClause, " and ",
-                                                                        StringComparison.CurrentCultureIgnoreCase,
-                                                                        StringFunctions.IgnoreWithinDelimiterFlag.Brace
-                                                                            | StringFunctions.IgnoreWithinDelimiterFlag.Text,
-                                                                        StringFunctions.SplitBehaviorOptions.StringTrimEachElement
-                                                                            | StringFunctions.SplitBehaviorOptions.RemoveEmptyEntries
-                                                                        );
-                    foreach (var propertyvalue in propertySplit)
-                    {
-                        var propvalueSplitPos = propertyvalue.IndexOf('=');
-
-                        if (propvalueSplitPos > 0)
-                        {
-                            var propName = propertyvalue.Substring(0, propvalueSplitPos).Trim().ToLower();
-                            var propValue = propertyvalue.Substring(propvalueSplitPos + 1).Trim();
-
-                            if (propValue[0] == '{')
-                            {
-                                properties.Add(propName, JsonConvert.DeserializeObject<Dictionary<string, object>>(propValue));
-                            }
-                            else
-                            {
-                                properties.Add(propName, StringHelpers.DetermineProperObjectFormat(propValue, true, false));
-                            }
-                        }
-                    }
-                }
-                #endregion
+                ProcessWithOptions(strWithClause, columns, orderByList, properties);
 
                 var cqlTable = new CQLTable(this.File,
                                                 lineNbr,
@@ -477,10 +418,10 @@ namespace DSEDiagnosticFileParser
                                     });
 
                 var usingClass = indexMatch.Groups[5].Success
-                                    ? indexMatch.Groups[5].Value.Trim().TrimEnd(';')
+                                    ? indexMatch.Groups[5].Value.Trim()
                                     : null;
                 var withOptions = indexMatch.Groups[6].Success
-                                    ? indexMatch.Groups[6].Value.Trim().TrimEnd(';')
+                                    ? indexMatch.Groups[6].Value.Trim()
                                     : null;
 
                 var cqlUDT = new CQLIndex(this.File,
@@ -622,6 +563,73 @@ namespace DSEDiagnosticFileParser
                     ProcessUDTColumn((ICQLUserDefinedType)udtInstance, subTypes);
                 }
             }
+        }
+
+        private bool ProcessWithOptions(string strWithClause, IEnumerable<CQLColumn> columns, List<CQLOrderByColumn> orderByList, Dictionary<string, object> properties)
+        {
+            bool bResult = false;
+
+            if (!string.IsNullOrEmpty(strWithClause))
+            {
+                Match withMatchItem = WithOrderByRegEx.Match(strWithClause);
+
+                if (withMatchItem.Success)
+                {
+                    var strOrderByCols = withMatchItem.Groups[1].Value;
+
+                    properties.Add("clustering order by", strOrderByCols);
+
+                    var orderByClauses = strOrderByCols.Split(',');
+
+                    foreach (var orderByClause in orderByClauses)
+                    {
+                        var coldirSplit = orderByClause.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                        var colInstance = columns.FirstOrDefault(c => c.Name == coldirSplit[0]);
+
+                        colInstance.IsInOrderBy = true;
+                        orderByList.Add(new CQLOrderByColumn() { Column = colInstance, IsDescending = coldirSplit.Length > 1 ? coldirSplit[0].ToLower() == "desc" : false });
+                    }
+                    bResult = true;
+                }
+
+                withMatchItem = WithCompactStorageRegEx.Match(strWithClause);
+
+                if (withMatchItem.Success)
+                {
+                    properties.Add("compact storage", true);
+                    bResult = true;
+                }
+
+                var propertySplit = Common.StringFunctions.Split(strWithClause, " and ",
+                                                                    StringComparison.CurrentCultureIgnoreCase,
+                                                                    StringFunctions.IgnoreWithinDelimiterFlag.Brace
+                                                                        | StringFunctions.IgnoreWithinDelimiterFlag.Text,
+                                                                    StringFunctions.SplitBehaviorOptions.StringTrimEachElement
+                                                                        | StringFunctions.SplitBehaviorOptions.RemoveEmptyEntries
+                                                                    );
+                foreach (var propertyvalue in propertySplit)
+                {
+                    var propvalueSplitPos = propertyvalue.IndexOf('=');
+
+                    if (propvalueSplitPos > 0)
+                    {
+                        var propName = propertyvalue.Substring(0, propvalueSplitPos).Trim().ToLower();
+                        var propValue = propertyvalue.Substring(propvalueSplitPos + 1).Trim();
+
+                        if (propValue[0] == '{')
+                        {
+                            properties.Add(propName, JsonConvert.DeserializeObject<Dictionary<string, object>>(propValue));
+                        }
+                        else
+                        {
+                            properties.Add(propName, StringHelpers.DetermineProperObjectFormat(propValue, true, false));
+                        }
+                        bResult = true;
+                    }
+                }
+            }
+
+            return bResult;
         }
     }
 }

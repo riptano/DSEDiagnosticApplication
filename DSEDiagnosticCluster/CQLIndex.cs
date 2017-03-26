@@ -70,16 +70,7 @@ namespace DSEDiagnosticLibrary
         public string DDL { get; private set; }
         public object ToDump()
         {
-            return new
-            {
-                this.Keyspace,
-                this.Table,
-                this.Name,
-                this.Columns,
-                this.UsingClass,
-                this.WithOptions,
-                this.DDL
-            };
+            return this;
         }
         public bool Equals(string other)
         {

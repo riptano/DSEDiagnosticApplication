@@ -182,7 +182,7 @@ namespace DSEDiagnosticLibrary
         public string DDL { get; private set; }
         public object ToDump()
         {
-            return new { Name = this.Name, ReplicationStrategy = this.ReplicationStrategy, Replications = this.Replications, DDL = this.DDL, DDLs=this.DDLs };
+            return this;
         }
         #endregion
 
@@ -198,9 +198,9 @@ namespace DSEDiagnosticLibrary
         public IKeyspace AssociateItem(IDDL ddl)
         {
             /*
-		uint Indexes;
+		
         uint MaterialViews;
-		uint SolrIndexes;
+		
 		uint NbrActive;
              */
 
