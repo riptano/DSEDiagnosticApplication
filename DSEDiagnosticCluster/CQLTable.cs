@@ -365,6 +365,12 @@ namespace DSEDiagnosticLibrary
         public uint Frozens;
         public uint Tuples;
         public uint UDTs;
+
+        public uint NbrSecondaryIndexes;
+        public uint NbrSolrIndexes;
+        public uint NbrCustomIndexes;
+        public uint NbrMaterializedViews;
+        public uint NbrTriggers;
     }
 
     public interface ICQLTable : IDDLStmt, IEquatable<string>
@@ -386,6 +392,12 @@ namespace DSEDiagnosticLibrary
 
         IEnumerable<ICQLColumn> TryGetColumns(IEnumerable<string> columns);
         ICQLColumn TryGetColumn(string columnName);
+
+        /// <summary>
+        /// CQL statements associated with this table.
+        /// </summary>
+        IEnumerable<IDDL> DDLs { get; }
+        ICQLTable AssociateItem(IDDL ddl);
     }
 
     public sealed class CQLTable : ICQLTable, IEquatable<ICQLTable>
@@ -598,6 +610,40 @@ namespace DSEDiagnosticLibrary
                 this.IsActive = isActive;
             }
             return this.IsActive;
+        }
+
+        private List<IDDL> _ddlList = new List<IDDL>();
+        public IEnumerable<IDDL> DDLs { get { return this._ddlList; } }
+
+        public ICQLTable AssociateItem(IDDL ddl)
+        {
+            if (ddl is ICQLIndex)
+            {
+                var idxInstance = (ICQLIndex)ddl;
+
+                if (idxInstance.IsCustom)
+                {
+                    if (!string.IsNullOrEmpty(idxInstance.UsingClass) && idxInstance.UsingClass.EndsWith("SolrSecondaryIndex"))
+                    {
+                        ++this.Stats.NbrSolrIndexes;
+                    }
+                    else
+                    {
+                        ++this.Stats.NbrCustomIndexes;
+                    }
+                }
+                else
+                {
+                    ++this.Stats.NbrSecondaryIndexes;
+                }
+            }
+
+            lock (this._ddlList)
+            {
+                this._ddlList.Add(ddl);
+            }
+
+            return this;
         }
 
         public IEnumerable<ICQLColumn> TryGetColumns(IEnumerable<string> columns)

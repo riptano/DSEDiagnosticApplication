@@ -29,7 +29,8 @@ namespace DSEDiagnosticLibrary
                         Dictionary<string, object> withOptions,
                         string ddl,
                         INode defindingNode = null,
-                        bool associateIndexToKeyspace = true)
+                        bool associateIndexToKeyspace = true,
+                        bool associateIndexToTable = true)
         {
             if (string.IsNullOrEmpty(name)) throw new NullReferenceException("CQLIndex name cannot be null");
             if (table == null) throw new NullReferenceException("CQLIndex must be associated to a CQL Table. It cannot be null");
@@ -50,6 +51,10 @@ namespace DSEDiagnosticLibrary
             if (associateIndexToKeyspace)
             {
                 this.Keyspace.AssociateItem(this);
+            }
+            if(associateIndexToTable)
+            {
+                this.Table.AssociateItem(this);
             }
         }
 

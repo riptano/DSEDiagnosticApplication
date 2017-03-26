@@ -424,7 +424,7 @@ namespace DSEDiagnosticFileParser
                                     ? indexMatch.Groups[6].Value.Trim()
                                     : null;
 
-                var cqlUDT = new CQLIndex(this.File,
+                var cqlIdx = new CQLIndex(this.File,
                                             lineNbr,
                                             name,
                                             tblInstance,
@@ -437,8 +437,8 @@ namespace DSEDiagnosticFileParser
                                             indexMatch.Value,
                                             this.Node);
 
-                this._ddlList.Add(cqlUDT);
-
+                this._ddlList.Add(cqlIdx);
+                
                 return true;
             }
 
