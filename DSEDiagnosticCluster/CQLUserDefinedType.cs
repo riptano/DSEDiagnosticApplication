@@ -7,12 +7,12 @@ using Common;
 
 namespace DSEDiagnosticLibrary
 {
-    public interface ICQLUserDefinedType : IDDLStmt, IEquatable<string>
+    public interface ICQLUserDefinedType : IDDLStmt, IEquatable<string>, IEquatable<ICQLUserDefinedType>
     {
         IEnumerable<ICQLColumn> Columns { get; }
     }
 
-    public sealed class CQLUserDefinedType : ICQLUserDefinedType, IEquatable<ICQLUserDefinedType>
+    public sealed class CQLUserDefinedType : ICQLUserDefinedType
     {
         public CQLUserDefinedType(IFilePath cqlFile,
                                     uint lineNbr,

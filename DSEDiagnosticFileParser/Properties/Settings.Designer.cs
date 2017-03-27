@@ -149,9 +149,11 @@ namespace DSEDiagnosticFileParser.Properties {
             "\\))(?:\\\\s+using\\\\s+([a-z0-9\\\\-_$%+=@!?<>^*&.\\\\\'\\\\\\\"]+))?(?:\\\\s+with\\\\s+options\\\\" +
             "s*\\\\=\\\\s*(.+))?\\\\s*\\\\;?\",\r\n\t\t\t\t\"create\\\\s+materialized\\\\s+view\\\\s+(?:if\\\\s+not\\\\" +
             "s+exists\\\\s+)?([a-z0-9\\\\-_$%+=@!?<>^*&.\\\\\'\\\\\\\"]+)\\\\s+as\\\\s+select\\\\s+(.+)\\\\s+fro" +
-            "m\\\\s+([a-z0-9\\\\-_$%+=@!?<>^*&.\\\\\'\\\\\\\"]+)\\\\s+where\\\\s+(.+)\\\\s+primary\\\\s+key\\\\s*\\" +
-            "\\(\\\\s*([a-z0-9\\\\-_$%+=@!?<>^*&,.\\\\\'\\\\\\\"\\\\ ]+)\\\\s*\\\\)(?:\\\\s+with\\\\s+(.+))?\\\\s*\\\\;" +
-            "?\"\r\n\t\t\t]}\r\n}")]
+            "m\\\\s+([a-z0-9\\\\-_$%+=@!?<>^*&.\\\\\'\\\\\\\"]+)\\\\s+where\\\\s+(.+)\\\\s+primary\\\\s+key\\\\s*(" +
+            "?:\\\\(\\\\s*(.+)\\\\s*\\\\)\\\\s+with\\\\s+(.+)|\\\\(\\\\s*(.+)\\\\s*\\\\))\\\\s*\\\\;?\",\r\n            " +
+            "                                                   \"create\\\\s+trigger\\\\s+(?:if\\\\" +
+            "s+not\\\\s+exists\\\\s+)?([a-z0-9\\\\-_$%+=@!?<>^*&.\\\\\'\\\\\\\"]+)\\\\s+on\\\\s+([a-z0-9\\\\-_$%" +
+            "+=@!?<>^*&.\\\\\'\\\\\\\"]+)\\\\s+using\\\\s+(.+)\\\\s*\\\\;?\"\r\n\t\t\t]}\r\n}")]
         public string DiagnosticFileRegExAssocations {
             get {
                 return ((string)(this["DiagnosticFileRegExAssocations"]));

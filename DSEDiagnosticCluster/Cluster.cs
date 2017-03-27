@@ -60,6 +60,8 @@ namespace DSEDiagnosticLibrary
 
         public IEnumerable<IKeyspace> GetKeyspaces(string keyspaceName)
         {
+            keyspaceName = StringHelpers.RemoveQuotes(keyspaceName?.Trim());
+
             return this._keySpaces.Where(k => k.Name == keyspaceName);
         }
 

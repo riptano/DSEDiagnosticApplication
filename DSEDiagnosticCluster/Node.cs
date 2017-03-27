@@ -702,8 +702,7 @@ namespace DSEDiagnosticLibrary
 		IEnumerable<IEvent> Events { get; }
 		INode AssociateItem(IEnumerable<IEvent> eventItems);
 		IEnumerable<IConfigurationLine> Configurations { get; }
-		INode AssociateItem(IEnumerable<IDDL> eventItem);
-
+		
         object ToDump();
 	}
 
@@ -864,12 +863,6 @@ namespace DSEDiagnosticLibrary
 		public INode AssociateItem(IEnumerable<IEvent> eventItems)
 		{
             this._events.AddRange(eventItems);
-			return this;
-		}
-
-		public INode AssociateItem(IEnumerable<IDDL> ddlItems)
-		{
-            //this._ddls.AddRange(ddlItems);
 			return this;
 		}
 

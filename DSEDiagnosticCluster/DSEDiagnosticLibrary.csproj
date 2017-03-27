@@ -83,7 +83,9 @@
     <Compile Include="Cluster.cs" />
     <Compile Include="Configuration.cs" />
     <Compile Include="CQLIndex.cs" />
+    <Compile Include="CQLMaterializedView.cs" />
     <Compile Include="CQLTable.cs" />
+    <Compile Include="CQLTrigger.cs" />
     <Compile Include="CQLUserDefinedType.cs" />
     <Compile Include="DataCenter.cs" />
     <Compile Include="DDL.cs" />

@@ -7,35 +7,28 @@ using Common;
 
 namespace DSEDiagnosticLibrary
 {
-
-    public interface ICQLIndex : IDDLStmt, IEquatable<string>, IEquatable<ICQLIndex>
+    public interface ICQLTrigger : IDDLStmt, IEquatable<string>, IEquatable<ICQLTrigger>
     {
-        bool IsCustom { get; }
         ICQLTable Table { get; }
-        IEnumerable<CQLFunctionColumn> Columns { get; }
-        string UsingClass { get; }
-        Dictionary<string,object> WithOptions { get; }
+        string JavaClass { get; }
     }
 
-    public sealed class CQLIndex : ICQLIndex, IEquatable<ICQLTable>
+    public sealed class CQLTrigger : ICQLTrigger, IEquatable<ICQLTable>
     {
-        public CQLIndex(IFilePath cqlFile,
-                        uint lineNbr,
-                        string name,
-                        ICQLTable table,
-                        IEnumerable<CQLFunctionColumn> columns,
-                        bool isCustom,
-                        string usingClass,
-                        Dictionary<string, object> withOptions,
-                        string ddl,
-                        INode defindingNode = null,
-                        bool associateIndexToKeyspace = true,
-                        bool associateIndexToTable = true)
+        public CQLTrigger(IFilePath cqlFile,
+                            uint lineNbr,
+                            string name,
+                            ICQLTable table,
+                            string javaClass,
+                            string ddl,
+                            INode defindingNode = null,
+                            bool associateTriggerToKeyspace = true,
+                            bool associateTriggerToTable = true)
         {
-            if (string.IsNullOrEmpty(name)) throw new NullReferenceException("CQLIndex name cannot be null");
-            if (table == null) throw new NullReferenceException("CQLIndex must be associated to a CQL Table. It cannot be null");
-            if (columns == null || columns.IsEmpty()) throw new NullReferenceException("CQLIndex must have columns (cannot be null or a count of zero)");
-            if (string.IsNullOrEmpty(ddl)) throw new NullReferenceException("CQLIndex must have a DDL string");
+            if (string.IsNullOrEmpty(name)) throw new NullReferenceException("CQLTrigger name cannot be null");
+            if (table == null) throw new NullReferenceException("CQLTrigger must be associated to a CQL Table. It cannot be null");
+            if (string.IsNullOrEmpty(javaClass)) throw new NullReferenceException("CQLTrigger must have a Java Class");
+            if (string.IsNullOrEmpty(ddl)) throw new NullReferenceException("CQLTrigger must have a DDL string");
 
             this.Path = cqlFile;
             this.Table = table;
@@ -43,16 +36,14 @@ namespace DSEDiagnosticLibrary
             this.LineNbr = lineNbr;
             this.Name = StringHelpers.RemoveQuotes(name.Trim());
             this.DDL = ddl;
-            this.Columns = columns;
-            this.UsingClass = string.IsNullOrEmpty(usingClass) ? null : StringHelpers.RemoveQuotes(usingClass.Trim());
-            this.WithOptions = withOptions;
-            this.Items = this.Columns.Count();
+            this.JavaClass = StringHelpers.RemoveQuotes(javaClass.Trim());
+            this.Items = 1;
 
-            if (associateIndexToKeyspace)
+            if (associateTriggerToKeyspace)
             {
                 this.Keyspace.AssociateItem(this);
             }
-            if(associateIndexToTable)
+            if (associateTriggerToTable)
             {
                 this.Table.AssociateItem(this);
             }
@@ -84,17 +75,14 @@ namespace DSEDiagnosticLibrary
 
         #endregion
 
-        #region ICQLIndex
-        public bool IsCustom { get; private set; }
+        #region ICQLTrigger
         public ICQLTable Table { get; private set; }
-        public IEnumerable<CQLFunctionColumn> Columns { get; private set; }
-        public string UsingClass { get; private set; }
-        public Dictionary<string, object> WithOptions { get; private set; }
+        public string JavaClass { get; private set; }
         #endregion
 
         #region IEquatable
 
-        public bool Equals(ICQLIndex other)
+        public bool Equals(ICQLTrigger other)
         {
             if (other == null) return false;
             if (ReferenceEquals(this, other)) return true;
@@ -115,7 +103,7 @@ namespace DSEDiagnosticLibrary
             if (obj is IKeyspace) return this.Keyspace.Equals((IKeyspace)obj);
             if (obj is IDataCenter) return this.DataCenter.Equals((IDataCenter)obj);
             if (obj is ICQLTable) return this.Equals((ICQLTable)obj);
-            if (obj is ICQLIndex) return this.Equals((ICQLIndex)obj);
+            if (obj is ICQLTrigger) return this.Equals((ICQLTrigger)obj);
 
             return base.Equals(obj);
         }
@@ -127,7 +115,7 @@ namespace DSEDiagnosticLibrary
 
         public override string ToString()
         {
-            return string.Format("CQLIndex{{{0}}}", this.DDL);
+            return string.Format("CQLTrigger{{{0}}}", this.DDL);
         }
         #endregion
     }

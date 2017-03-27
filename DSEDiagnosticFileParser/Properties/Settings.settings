@@ -48,7 +48,8 @@
 				"create\\s+(?:table|column\\s+family)\\s+(?:if\\s+not\\s+exists\\s+)?([a-z0-9\\-_$%+=@!?&lt;&gt;^*&amp;.\\'\\\"]+)\\s+(?:\\(\\s*(.+)\\s*\\)\\s+with\\s+(.+)|(?:\\(\\s*(.+)\\s*\\)))\\s*\\;?",
 				"create\\s+type\\s+(?:if\\s+not\\s+exists\\s+)?([a-z0-9\\-_$%+=@!?&lt;&gt;^*&amp;.\\'\\\"]+)\\s+(?:\\(\\s*(.+)\\s*\\))\\s*\\;?",
 				"create\\s+(custom\\s+)?index\\s+(?:if\\s+not\\s+exists\\s+)?([a-z0-9\\-_$%+=@!?&lt;&gt;^*&amp;\\'\\\"]+)\\s+on\\s+([a-z0-9\\-_$%+=@!?&lt;&gt;^*&amp;.\\'\\\"]+)\\s+(?:\\(\\s*(.+)\\s*\\))(?:\\s+using\\s+([a-z0-9\\-_$%+=@!?&lt;&gt;^*&amp;.\\'\\\"]+))?(?:\\s+with\\s+options\\s*\\=\\s*(.+))?\\s*\\;?",
-				"create\\s+materialized\\s+view\\s+(?:if\\s+not\\s+exists\\s+)?([a-z0-9\\-_$%+=@!?&lt;&gt;^*&amp;.\\'\\\"]+)\\s+as\\s+select\\s+(.+)\\s+from\\s+([a-z0-9\\-_$%+=@!?&lt;&gt;^*&amp;.\\'\\\"]+)\\s+where\\s+(.+)\\s+primary\\s+key\\s*\\(\\s*([a-z0-9\\-_$%+=@!?&lt;&gt;^*&amp;,.\\'\\\"\\ ]+)\\s*\\)(?:\\s+with\\s+(.+))?\\s*\\;?"
+				"create\\s+materialized\\s+view\\s+(?:if\\s+not\\s+exists\\s+)?([a-z0-9\\-_$%+=@!?&lt;&gt;^*&amp;.\\'\\\"]+)\\s+as\\s+select\\s+(.+)\\s+from\\s+([a-z0-9\\-_$%+=@!?&lt;&gt;^*&amp;.\\'\\\"]+)\\s+where\\s+(.+)\\s+primary\\s+key\\s*(?:\\(\\s*(.+)\\s*\\)\\s+with\\s+(.+)|\\(\\s*(.+)\\s*\\))\\s*\\;?",
+                                                               "create\\s+trigger\\s+(?:if\\s+not\\s+exists\\s+)?([a-z0-9\\-_$%+=@!?&lt;&gt;^*&amp;.\\'\\\"]+)\\s+on\\s+([a-z0-9\\-_$%+=@!?&lt;&gt;^*&amp;.\\'\\\"]+)\\s+using\\s+(.+)\\s*\\;?"
 			]}
 }</Value>
     </Setting>

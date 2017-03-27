@@ -90,6 +90,16 @@ namespace DSEDiagnosticFileParser
         // CREATE [CUSTOM] INDEX [IF NOT EXISTS] index_name ON [keyspace_name.]table_name ( column_name, [KEYS ( column_name )] ) [USING class_name] [WITH OPTIONS = json-map]
         // null, [CUSTOM], index_name, [keyspace_name.]table_name, column_definition_clause, [class_name], [json-map], null
         //
+        // RegEx: 5
+        // CREATE MATERIALIZED VIEW [IF NOT EXISTS] [keyspace_name.] view_name AS SELECT column_list FROM[keyspace_name.] base_table_name WHERE column_name IS NOT NULL[AND column_name IS NOT NULL...] [AND relation...] PRIMARY KEY(column_list ) [WITH [table_properties] [AND CLUSTERING ORDER BY(cluster_column_name order_option)]]
+        // null, [keyspace_name.] view_name, column_list, [keyspace_name.]base_table, where clause, PRIMARY KEY column_list, with cluase, null
+        // null, [keyspace_name.] view_name, column_list, [keyspace_name.]base_table, where clause, null, null, PRIMARY KEY column_list, null
+        //
+        // RegEx: 6
+        // CREATE TRIGGER IF NOT EXISTS trigger_name ON [keyspace_name.]table_name USING 'java_class'
+        // null, trigger_name, [keyspace_name.]table_name, java_class, null
+
+
         private List<IDDL> _ddlList = new List<IDDL>();
         private List<IKeyspace> _localKS = new List<IKeyspace>();
 
@@ -223,6 +233,32 @@ namespace DSEDiagnosticFileParser
                     }
                     continue;
                 }
+
+                regexMatch = this.RegExParser.Match(cqlStmt, 5); //create materialized view
+
+                if (regexMatch.Success)
+                {
+                    if (ProcessDDLMaterializediew(regexMatch, itemNbr))
+                    {
+                        ++nbrGenerated;
+                    }
+                    continue;
+                }
+
+                regexMatch = this.RegExParser.Match(cqlStmt, 6); //create trigger
+
+                if (regexMatch.Success)
+                {
+                    if (ProcessDDLTrigger(regexMatch, itemNbr))
+                    {
+                        ++nbrGenerated;
+                    }
+                    continue;
+                }
+
+                Logger.Instance.ErrorFormat("{0}\t{1}\tCQL Statement Processing Error. Unknown CQL statement of \"{2}\".",
+                                                this.Node, this.File, cqlStatements);
+
             }
 
             this.NbrItemsParsed = (int)itemNbr;
@@ -374,16 +410,23 @@ namespace DSEDiagnosticFileParser
         private bool ProcessDDLIndex(Match indexMatch, uint lineNbr)
         {
             var name = indexMatch.Groups[2].Value.Trim();
+            var ksidxPair = StringHelpers.SplitTableName(name, null);
             var tablename = indexMatch.Groups[3].Value.Trim();
             var kstblPair = StringHelpers.SplitTableName(tablename, null);
-            var ksInstance = string.IsNullOrEmpty(kstblPair.Item1) ? this._usingKeySpace : this.GetKeySpace(kstblPair.Item1);
+            var ksTblInstance = string.IsNullOrEmpty(kstblPair.Item1) ? this._usingKeySpace : this.GetKeySpace(kstblPair.Item1);
+            var ksInstance = string.IsNullOrEmpty(ksidxPair.Item1) ? ksTblInstance : this.GetKeySpace(ksidxPair.Item1);
 
-            if (ksInstance == null) throw new NullReferenceException(string.Format("CQL Index \"{0}\" for Table \"{1}\" could not find associated keyspace \"{2}\". DDL: {3}",
-                                                                                     name,
-                                                                                     tablename,
-                                                                                     kstblPair.Item1 ?? "<CQL use stmt required or fully qualified name>",
-                                                                                     indexMatch.Groups[0].Value));
-            var tblInstance = ksInstance.TryGetTable(kstblPair.Item2);
+            if (ksTblInstance == null) throw new NullReferenceException(string.Format("CQL Index \"{0}\" for Table \"{1}\" could not find associated keyspace \"{2}\". DDL: {3}",
+                                                                                         name,
+                                                                                         tablename,
+                                                                                         kstblPair.Item1 ?? "<CQL use stmt required or fully qualified name>",
+                                                                                         indexMatch.Groups[0].Value));
+            if (ksInstance == null) throw new NullReferenceException(string.Format("CQL Index \"{0}\" could not find associated keyspace \"{1}\". DDL: {2}",
+                                                                                         name,
+                                                                                         ksidxPair.Item1 ?? "<CQL use stmt required or fully qualified name>",
+                                                                                         indexMatch.Groups[0].Value));
+
+            var tblInstance = ksTblInstance.TryGetTable(kstblPair.Item2);
 
             if (tblInstance == null) throw new NullReferenceException(string.Format("CQL Index \"{0}\" could not find associated Table \"{1}\" in Keyspace \"{2}\". DDL: {3}",
                                                                                      name,
@@ -392,7 +435,7 @@ namespace DSEDiagnosticFileParser
                                                                                      indexMatch.Groups[0].Value));
 
 
-            if (ksInstance.TryGetIndex(name) == null)
+            if (ksInstance.TryGetIndex(ksidxPair.Item2) == null)
             {
                 var strColumns = indexMatch.Groups[4].Value.Trim();
                 var columnsSplit = Common.StringFunctions.Split(strColumns,
@@ -426,7 +469,7 @@ namespace DSEDiagnosticFileParser
 
                 var cqlIdx = new CQLIndex(this.File,
                                             lineNbr,
-                                            name,
+                                            ksidxPair.Item2,
                                             tblInstance,
                                             colFunctions,
                                             indexMatch.Groups[1].Success && indexMatch.Groups[1].Value.ToLower() == "custom",
@@ -438,7 +481,153 @@ namespace DSEDiagnosticFileParser
                                             this.Node);
 
                 this._ddlList.Add(cqlIdx);
-                
+
+                return true;
+            }
+
+            return false;
+        }
+
+        private bool ProcessDDLMaterializediew(Match viewMatch, uint lineNbr)
+        {
+            var viewName = viewMatch.Groups[1].Value.Trim();
+            var viewKsTblPair = StringHelpers.SplitTableName(viewName, null);
+            var tblName = viewMatch.Groups[3].Value.Trim();
+            var tblKsTblPair = StringHelpers.SplitTableName(tblName, null);
+            var tblKSInstance = string.IsNullOrEmpty(tblKsTblPair.Item1) ? this._usingKeySpace : this.GetKeySpace(viewKsTblPair.Item1);
+            var viewKSInstance = string.IsNullOrEmpty(viewKsTblPair.Item1) ? tblKSInstance : this.GetKeySpace(viewKsTblPair.Item1);
+
+            if (viewKSInstance == null) throw new NullReferenceException(string.Format("CQL Materialized View \"{0}\" could not find associated keyspace \"{1}\". DDL: {2}",
+                                                                                     viewKsTblPair.Item2,
+                                                                                     viewKsTblPair.Item1 ?? "<CQL use stmt required or fully qualified name>",
+                                                                                     viewMatch.Groups[0].Value));
+
+            if (tblKSInstance == null) throw new NullReferenceException(string.Format("CQL Materialized View \"{0}\" could not find associated table keyspace \"{1}\". DDL: {2}",
+                                                                                        tblKsTblPair.Item2,
+                                                                                        tblKsTblPair.Item1 ?? "<CQL use stmt required or fully qualified name>",
+                                                                                        viewMatch.Groups[0].Value));
+            var tblInstance = tblKSInstance.TryGetTable(tblKsTblPair.Item2);
+
+            if (tblInstance == null) throw new NullReferenceException(string.Format("CQL Materialized View \"{0}\" could not find associated Table \"{1}\" in Keyspace \"{2}\". DDL: {3}",
+                                                                                     viewName,
+                                                                                     tblKsTblPair.Item2,
+                                                                                     tblKSInstance.Name,
+                                                                                     viewMatch.Groups[0].Value));
+
+            if (viewKSInstance.TryGetView(viewKsTblPair.Item2) == null)
+            {
+                var strColumns = viewMatch.Groups[2].Value.Trim();
+                var strPrimaryKeys = viewMatch.Groups[5].Success ? viewMatch.Groups[5].Value.Trim() : viewMatch.Groups[7].Value.Trim();
+                var strWithClause = viewMatch.Groups[6].Success ? viewMatch.Groups[6].Value.Trim() : null;
+                var strWhereClause = viewMatch.Groups[4].Value.Trim();
+                var columnsSplit = strColumns.Split(',');
+                IEnumerable<ICQLColumn> columns;
+                var pkList = new List<ICQLColumn>();
+                var ckList = new List<ICQLColumn>();
+
+                {
+                    var pkValues = Common.StringFunctions.Split(strPrimaryKeys,
+                                                                        ',',
+                                                                        StringFunctions.IgnoreWithinDelimiterFlag.AngleBracket
+                                                                            | StringFunctions.IgnoreWithinDelimiterFlag.Parenthese,
+                                                                        StringFunctions.SplitBehaviorOptions.StringTrimEachElement);
+                    ICQLColumn cqlColumn;
+
+                    if (pkValues[0][0] == '(')
+                    {
+                        var pkCols = pkValues[0].Substring(1, pkValues[0].Length - 2).Split(',');
+
+                        foreach (var pkCol in pkCols)
+                        {
+                            cqlColumn = tblInstance.TryGetColumn(pkCol)?.Copy();
+                            ((CQLColumn)cqlColumn).IsPrimaryKey = true;
+                            pkList.Add(cqlColumn);
+                        }
+                    }
+                    else
+                    {
+                        cqlColumn = tblInstance.TryGetColumn(pkValues[0])?.Copy();
+                        ((CQLColumn)cqlColumn).IsPrimaryKey = true;
+                        pkList.Add(cqlColumn);
+                    }
+
+                    foreach (var clusterCol in pkValues.Skip(1))
+                    {
+                        cqlColumn = tblInstance.TryGetColumn(clusterCol)?.Copy();
+                        ((CQLColumn)cqlColumn).IsClusteringKey = true;
+                        ckList.Add(cqlColumn);
+                    }
+
+                    columns = pkList.Concat(ckList.ToArray()).Concat(tblInstance.TryGetColumns(columnsSplit).Select(c => c.Copy()).ToArray());
+                }
+
+                var properties = new Dictionary<string, object>();
+                var orderByList = new List<CQLOrderByColumn>();
+
+                ProcessWithOptions(strWithClause, columns.Cast<CQLColumn>(), orderByList, properties);
+
+                var cqlView = new CQLMaterializedView(this.File,
+                                                        lineNbr,
+                                                        viewKSInstance,
+                                                        viewKsTblPair.Item2,
+                                                        tblInstance,
+                                                        columns,
+                                                        pkList,
+                                                        ckList,
+                                                        orderByList,
+                                                        properties,
+                                                        strWhereClause,
+                                                        viewMatch.Value,
+                                                        this.Node);
+
+                this._ddlList.Add(cqlView);
+
+                return true;
+            }
+
+            return false;
+        }
+
+        private bool ProcessDDLTrigger(Match triggerMatch, uint lineNbr)
+        {
+            var name = triggerMatch.Groups[1].Value.Trim();
+            var kstriggerPair = StringHelpers.SplitTableName(name, null);
+            var tablename = triggerMatch.Groups[2].Value.Trim();
+            var kstblPair = StringHelpers.SplitTableName(tablename, null);
+            var ksTblInstance = string.IsNullOrEmpty(kstblPair.Item1) ? this._usingKeySpace : this.GetKeySpace(kstblPair.Item1);
+            var ksInstance = string.IsNullOrEmpty(kstriggerPair.Item1) ? ksTblInstance : this.GetKeySpace(kstriggerPair.Item1);
+
+            if (ksTblInstance == null) throw new NullReferenceException(string.Format("CQL Trigger \"{0}\" for Table \"{1}\" could not find associated keyspace \"{2}\". DDL: {3}",
+                                                                                         name,
+                                                                                         tablename,
+                                                                                         kstblPair.Item1 ?? "<CQL use stmt required or fully qualified name>",
+                                                                                         triggerMatch.Groups[0].Value));
+            if (ksInstance == null) throw new NullReferenceException(string.Format("CQL Trigger \"{0}\" could not find associated keyspace \"{1}\". DDL: {2}",
+                                                                                         name,
+                                                                                         kstriggerPair.Item1 ?? "<CQL use stmt required or fully qualified name>",
+                                                                                         triggerMatch.Groups[0].Value));
+
+            var tblInstance = ksTblInstance.TryGetTable(kstblPair.Item2);
+
+            if (tblInstance == null) throw new NullReferenceException(string.Format("CQL Trigger \"{0}\" could not find associated Table \"{1}\" in Keyspace \"{2}\". DDL: {3}",
+                                                                                     name,
+                                                                                     tablename,
+                                                                                     ksInstance.Name,
+                                                                                     triggerMatch.Groups[0].Value));
+
+
+            if (ksInstance.TryGetTrigger(kstriggerPair.Item2) == null)
+            {
+                var cqlTrigger = new CQLTrigger(this.File,
+                                                lineNbr,
+                                                kstriggerPair.Item2,
+                                                tblInstance,
+                                                triggerMatch.Groups[3].Value.Trim(),
+                                                triggerMatch.Value,
+                                                this.Node);
+
+                this._ddlList.Add(cqlTrigger);
+
                 return true;
             }
 

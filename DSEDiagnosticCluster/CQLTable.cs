@@ -19,7 +19,8 @@ namespace DSEDiagnosticLibrary
                                 IEnumerable<CQLColumnType> cqlSubType,
                                 string ddl,
                                 ICQLColumn column = null,
-                                bool isUDT = false)
+                                bool isUDT = false,
+                                bool setBaseType = true)
         {
             if (string.IsNullOrEmpty(cqlType)) throw new NullReferenceException("cqlType cannot be null");
             if (string.IsNullOrEmpty(ddl)) throw new NullReferenceException("ddl cannot be null");
@@ -47,7 +48,11 @@ namespace DSEDiagnosticLibrary
                 {
                     this.HasTuple = this.CQLSubType.Any(c => c.IsTuple || c.HasTuple);
                 }
-                this.SetBaseType(null, true);
+
+                if (setBaseType)
+                {
+                    this.SetBaseType(null, true);
+                }
             }
         }
 
@@ -116,6 +121,17 @@ namespace DSEDiagnosticLibrary
             return this;
         }
 
+        public CQLColumnType Copy(ICQLColumn assocColumn = null,
+                                    bool setBaseType = true)
+        {
+            return new CQLColumnType(this.Name,
+                                        this.CQLSubType.Select(t => t.Copy(assocColumn, setBaseType)),
+                                        this.DDL,
+                                        assocColumn,
+                                        this.IsUDT,
+                                        setBaseType);
+        }
+
         public CQLColumnType SetColumn(ICQLColumn associatedColumn)
         {
             this.Column = associatedColumn;
@@ -139,7 +155,7 @@ namespace DSEDiagnosticLibrary
 
     }
 
-    public interface ICQLColumn : IEquatable<string>
+    public interface ICQLColumn : IEquatable<string>, IEquatable<ICQLColumn>
     {
         string Name { get; }
         ICQLTable Table { get; }
@@ -151,9 +167,15 @@ namespace DSEDiagnosticLibrary
         bool IsClusteringKey { get; }
         string DDL { get; }
         object ToDump();
+
+        ICQLColumn Copy(ICQLTable assocatedTbl = null,
+                            ICQLUserDefinedType associatedUDT = null,
+                            bool associateColumnToType = true,
+                            bool setBaseType = true,
+                            bool resetAttribs = true);
     }
 
-    public sealed class CQLColumn : ICQLColumn, IEquatable<ICQLColumn>
+    public sealed class CQLColumn : ICQLColumn
     {
         readonly Regex StaticRegEx = new Regex(LibrarySettings.StaticRegExStr, RegexOptions.Compiled | RegexOptions.IgnoreCase);
         readonly Regex PrimaryKeyRegEx = new Regex(LibrarySettings.PrimaryKeyRegExStr, RegexOptions.Compiled | RegexOptions.IgnoreCase);
@@ -236,6 +258,25 @@ namespace DSEDiagnosticLibrary
         public object ToDump()
         {
             return this;
+        }
+
+        public ICQLColumn Copy(ICQLTable assocatedTbl = null,
+                                    ICQLUserDefinedType associatedUDT = null,
+                                    bool associateColumnToType = true,
+                                    bool setBaseType = true,
+                                    bool resetAttribs = false)
+        {
+            return new CQLColumn(this.Name,
+                                    this.CQLType.Copy(null, setBaseType),
+                                    this.DDL,
+                                    associateColumnToType)
+            {
+                UDT = associatedUDT,
+                Table = assocatedTbl,
+                IsPrimaryKey = resetAttribs ? false : this.IsPrimaryKey,
+                IsInOrderBy = resetAttribs ? false : this.IsInOrderBy,
+                IsClusteringKey = resetAttribs ? false : this.IsClusteringKey
+            };
         }
     }
 
@@ -400,7 +441,7 @@ namespace DSEDiagnosticLibrary
         ICQLTable AssociateItem(IDDL ddl);
     }
 
-    public sealed class CQLTable : ICQLTable, IEquatable<ICQLTable>
+    public class CQLTable : ICQLTable, IEquatable<ICQLTable>
     {
         public CQLTable(IFilePath cqlFile,
                             uint lineNbr,
@@ -416,10 +457,10 @@ namespace DSEDiagnosticLibrary
                             bool associateTableToColumn = true,
                             bool associateTableToKeyspace = true)
         {
-            if (string.IsNullOrEmpty(name)) throw new NullReferenceException("CQLTable name cannot be null");
-            if (keyspace == null) throw new NullReferenceException("CQLTable must be associated to a keyspace. It cannot be null");
-            if (columns == null || columns.IsEmpty()) throw new NullReferenceException("CQLTable must have columns (cannot be null or a count of zero)");
-            if (string.IsNullOrEmpty(ddl)) throw new NullReferenceException("CQLTable must have a DDL string");
+            if (string.IsNullOrEmpty(name)) throw new NullReferenceException(string.Format("{0} name cannot be null", this.GetType().Name));
+            if (keyspace == null) throw new NullReferenceException(string.Format("{0} must be associated to a keyspace. It cannot be null", this.GetType().Name));
+            if (columns == null || columns.IsEmpty()) throw new NullReferenceException(string.Format("{0} must have columns (cannot be null or a count of zero)", this.GetType().Name));
+            if (string.IsNullOrEmpty(ddl)) throw new NullReferenceException(string.Format("{0} must have a DDL string", this.GetType().Name));
 
             this.Stats = new CQLTableStats();
             this.Path = cqlFile;
@@ -447,7 +488,7 @@ namespace DSEDiagnosticLibrary
             }
             #endregion
 
-            if (this.PrimaryKeys.IsEmpty()) throw new NullReferenceException("CQLTable must have primaryKeys (count of zero)");
+            if (this.PrimaryKeys.IsEmpty()) throw new NullReferenceException(string.Format("{0} must have primaryKeys (count of zero)", this.GetType().Name));
 
             #region Properties
 
@@ -617,7 +658,11 @@ namespace DSEDiagnosticLibrary
 
         public ICQLTable AssociateItem(IDDL ddl)
         {
-            if (ddl is ICQLIndex)
+            if(ddl is ICQLMaterializedView)
+            {
+                ++this.Stats.NbrMaterializedViews;
+            }
+            else if (ddl is ICQLIndex)
             {
                 var idxInstance = (ICQLIndex)ddl;
 
@@ -636,6 +681,10 @@ namespace DSEDiagnosticLibrary
                 {
                     ++this.Stats.NbrSecondaryIndexes;
                 }
+            }
+            else if(ddl is ICQLTrigger)
+            {
+                ++this.Stats.NbrTriggers;
             }
 
             lock (this._ddlList)

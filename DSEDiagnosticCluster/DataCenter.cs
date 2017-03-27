@@ -6,6 +6,7 @@ using System.Text;
 using Common.Patterns;
 using System.Threading.Tasks;
 using Common.Patterns.Tasks;
+using CPT = Common.Patterns.Collections.ThreadSafe;
 
 namespace DSEDiagnosticLibrary
 {
@@ -18,6 +19,8 @@ namespace DSEDiagnosticLibrary
 
         IEnumerable<INode> Nodes { get; }
 		IEnumerable<IKeyspace> Keyspaces { get; }
+
+        IKeyspace TryGetKeyspace(string ksName);
 
 		INode TryGetNode(string nodeId);
         INode TryGetAddNode(INode node);
@@ -70,7 +73,6 @@ namespace DSEDiagnosticLibrary
                             Cluster = this.Cluster,
                             Nodes = this.Nodes,
                             Keyspaces = this.Keyspaces,
-                            DDL = this.DDLs,
                             Configurations = this.Configurations,
                             Events = this.Events  };
         }
@@ -102,6 +104,11 @@ namespace DSEDiagnosticLibrary
         public IEnumerable<INode> Nodes
         {
             get { return this._nodes; }
+        }
+
+        virtual public IKeyspace TryGetKeyspace(string ksName)
+        {
+            throw new NotImplementedException();
         }
 
         public INode TryGetNode(string nodeId)
@@ -185,7 +192,14 @@ namespace DSEDiagnosticLibrary
 			this.Name = name;
 		}
 
-		public INode TryGetAddNode(string nodeId)
+        public override IKeyspace TryGetKeyspace(string ksName)
+        {
+            ksName = StringHelpers.RemoveQuotes(ksName?.Trim());
+
+            return this.Keyspaces.FirstOrDefault(k => k.Name == ksName);
+        }
+
+        public INode TryGetAddNode(string nodeId)
 		{
 			if(!NodeIdentifier.ValidNodeIdName(nodeId))
 			{ return null; }
@@ -255,11 +269,6 @@ namespace DSEDiagnosticLibrary
 
 			return this;
 		}
-		public IDataCenter AssociateItem(IDDL ddlItem)
-		{
-
-			return this;
-		}
 
         override public IEnumerable<IConfigurationLine> GetConfigurations(INode node)
         {
@@ -302,7 +311,13 @@ namespace DSEDiagnosticLibrary
 
         public new object ToDump()
         {
-            return new { Name = this.Name, Nodes = this.Nodes, Keyspaces = this.Keyspaces, DDL = this.DDLs, Configurations = this.Configurations, Events = this.Events };
+            return new { Name = this.Name,
+                            Cluster = this.Cluster,
+                            Nodes = this.Nodes,
+                            Keyspaces = this.Keyspaces,
+                            DDL = this.DDLs,
+                            Configurations = this.Configurations,
+                            Events = this.Events };
         }
 
         #region IDataCenter
@@ -316,7 +331,7 @@ namespace DSEDiagnosticLibrary
 		{
 			get
 			{
-				throw new NotImplementedException();
+                return this.Cluster.GetKeyspaces(this);
 			}
 		}
 
@@ -332,8 +347,13 @@ namespace DSEDiagnosticLibrary
 		private List<IConfigurationLine> _configurations = new List<IConfigurationLine>();
 		override public IEnumerable<IConfigurationLine> Configurations { get { lock (this._configurations) { return this._configurations.ToArray(); } } }
 
-		private List<IDDL> _ddls = new List<IDDL>();
-		override public IEnumerable<IDDL> DDLs { get { lock (this._ddls) { return this._ddls.ToArray(); } } }
+		override public IEnumerable<IDDL> DDLs
+        {
+            get
+            {
+                return this.Keyspaces.Concat(this.Keyspaces.SelectMany(k => k.DDLs));
+            }
+        }
 
 		#endregion
 

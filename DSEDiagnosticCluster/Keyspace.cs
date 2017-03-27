@@ -111,11 +111,15 @@ namespace DSEDiagnosticLibrary
         bool EverywhereStrategy { get; }
         IKeyspace AssociateItem(IDDL ddlItem);
         ICQLTable TryGetTable(string tableName);
+        ICQLMaterializedView TryGetView(string viewName);
         ICQLIndex TryGetIndex(string indexName);
+        ICQLTrigger TryGetTrigger(string triggerName);
         ICQLUserDefinedType TryGetUDT(string udtName);
         IEnumerable<ICQLTable> GetTables();
         IEnumerable<ICQLUserDefinedType> GetUDTs();
         IEnumerable<ICQLIndex> GetIndexes();
+        IEnumerable<ICQLTrigger> GetTriggers();
+        IEnumerable<ICQLMaterializedView> GetViews();
     }
 
     public sealed class KeySpace : IKeyspace, IEquatable<IKeyspace>
@@ -197,40 +201,40 @@ namespace DSEDiagnosticLibrary
         public bool DurableWrites { get; private set; }
         public IKeyspace AssociateItem(IDDL ddl)
         {
-            /*
-		
-        uint MaterialViews;
-		
-		uint NbrActive;
-             */
-
             ++this.Stats.NbrObjects;
 
             if(ddl is ICQLTable)
             {
-                ++this.Stats.Tables;
+                if (ddl is ICQLMaterializedView)
+                    ++this.Stats.MaterialViews;
+                else
+                    ++this.Stats.Tables;
 
-                switch(((ICQLTable) ddl).Compaction)
+                if(!string.IsNullOrEmpty(((ICQLTable)ddl).Compaction))
                 {
-                    case "SizeTieredCompactionStrategy":
-                        ++this.Stats.STCS;
-                        break;
-                    case "DateTieredCompactionStrategy":
-                        ++this.Stats.DTCS;
-                        break;
-                    case "LeveledCompactionStrategy":
-                        ++this.Stats.LCS;
-                        break;
-                    case "TimeWindowCompactionStrategy":
-                        ++this.Stats.TWCS;
-                        break;
-                    case "TieredCompactionStrategy":
-                        ++this.Stats.TCS;
-                        break;
-                    default:
-                        ++this.Stats.OtherStrategies;
-                        break;
+                    switch (((ICQLTable)ddl).Compaction)
+                    {
+                        case "SizeTieredCompactionStrategy":
+                            ++this.Stats.STCS;
+                            break;
+                        case "DateTieredCompactionStrategy":
+                            ++this.Stats.DTCS;
+                            break;
+                        case "LeveledCompactionStrategy":
+                            ++this.Stats.LCS;
+                            break;
+                        case "TimeWindowCompactionStrategy":
+                            ++this.Stats.TWCS;
+                            break;
+                        case "TieredCompactionStrategy":
+                            ++this.Stats.TCS;
+                            break;
+                        default:
+                            ++this.Stats.OtherStrategies;
+                            break;
+                    }
                 }
+
                 this.Stats.Columns += (uint)((ICQLTable)ddl).Columns.Sum(c => c is ICQLUserDefinedType ? ((ICQLUserDefinedType)c).Columns.Count() : 1);
             }
             else if(ddl is ICQLUserDefinedType)
@@ -257,6 +261,10 @@ namespace DSEDiagnosticLibrary
                     ++this.Stats.SecondaryIndexes;
                 }
             }
+            else if(ddl is ICQLTrigger)
+            {
+                ++this.Stats.Triggers;
+            }
 
             lock (this._ddlList)
             {
@@ -269,7 +277,13 @@ namespace DSEDiagnosticLibrary
         public ICQLTable TryGetTable(string tableName)
         {
             tableName = StringHelpers.RemoveQuotes(tableName.Trim());
-            return (ICQLTable) this._ddlList.FirstOrDefault(d => d is ICQLTable && d.Name == tableName);
+            return (ICQLTable) this._ddlList.FirstOrDefault(d => d is ICQLTable && !(d is ICQLMaterializedView) && d.Name == tableName);
+        }
+
+        public ICQLMaterializedView TryGetView(string viewName)
+        {
+            viewName = StringHelpers.RemoveQuotes(viewName.Trim());
+            return (ICQLMaterializedView)this._ddlList.FirstOrDefault(d => d is ICQLMaterializedView && d.Name == viewName);
         }
 
         public ICQLIndex TryGetIndex(string indexName)
@@ -278,14 +292,30 @@ namespace DSEDiagnosticLibrary
             return (ICQLIndex)this._ddlList.FirstOrDefault(d => d is ICQLIndex && d.Name == indexName);
         }
 
+        public ICQLTrigger TryGetTrigger(string triggerName)
+        {
+            triggerName = StringHelpers.RemoveQuotes(triggerName.Trim());
+            return (ICQLTrigger)this._ddlList.FirstOrDefault(d => d is ICQLTrigger && d.Name == triggerName);
+        }
+
         public IEnumerable<ICQLTable> GetTables()
         {
-            return this._ddlList.Where(c => c is ICQLTable).Cast<ICQLTable>();
+            return this._ddlList.Where(c => c is ICQLTable && !(c is ICQLMaterializedView)).Cast<ICQLTable>();
+        }
+
+        public IEnumerable<ICQLMaterializedView> GetViews()
+        {
+            return this._ddlList.Where(c => c is ICQLMaterializedView).Cast<ICQLMaterializedView>();
         }
 
         public IEnumerable<ICQLIndex> GetIndexes()
         {
             return this._ddlList.Where(c => c is ICQLIndex).Cast<ICQLIndex>();
+        }
+
+        public IEnumerable<ICQLTrigger> GetTriggers()
+        {
+            return this._ddlList.Where(c => c is ICQLTrigger).Cast<ICQLTrigger>();
         }
 
         public ICQLUserDefinedType TryGetUDT(string udtName)
