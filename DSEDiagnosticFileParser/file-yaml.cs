@@ -151,8 +151,7 @@ namespace DSEDiagnosticFileParser
             {
                 if(!this.Node.DSE.InstanceType.HasFlag(DSEInfo.InstanceTypes.Hadoop))
                 {
-                    this.Processed = false;
-                    this.NbrItemGenerated = 0;
+                    this.Processed = false;                    
                     this.NbrItemsParsed = 0;
                     return 0;
                 }
@@ -161,8 +160,7 @@ namespace DSEDiagnosticFileParser
             {
                 if (!this.Node.DSE.InstanceType.HasFlag(DSEInfo.InstanceTypes.Search))
                 {
-                    this.Processed = false;
-                    this.NbrItemGenerated = 0;
+                    this.Processed = false;                    
                     this.NbrItemsParsed = 0;
                     return 0;
                 }
@@ -171,8 +169,7 @@ namespace DSEDiagnosticFileParser
             {
                 if (!this.Node.DSE.InstanceType.HasFlag(DSEInfo.InstanceTypes.Analytics))
                 {
-                    this.Processed = false;
-                    this.NbrItemGenerated = 0;
+                    this.Processed = false;                    
                     this.NbrItemsParsed = 0;
                     return 0;
                 }
@@ -183,8 +180,7 @@ namespace DSEDiagnosticFileParser
 
                 if(snitchFile == null || this.File.FileName != snitchFile)
                 {
-                    this.Processed = false;
-                    this.NbrItemGenerated = 0;
+                    this.Processed = false;                    
                     this.NbrItemsParsed = 0;
                     return 0;
                 }

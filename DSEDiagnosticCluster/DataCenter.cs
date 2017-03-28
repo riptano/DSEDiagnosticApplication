@@ -6,7 +6,7 @@ using System.Text;
 using Common.Patterns;
 using System.Threading.Tasks;
 using Common.Patterns.Tasks;
-using CPT = Common.Patterns.Collections.ThreadSafe;
+using CTS = Common.Patterns.Collections.ThreadSafe;
 
 namespace DSEDiagnosticLibrary
 {
@@ -100,7 +100,7 @@ namespace DSEDiagnosticLibrary
             protected set { throw new NotImplementedException(); }
         }
 
-        protected ConcurrentBag<INode> _nodes = new ConcurrentBag<INode>();
+        protected CTS.List<INode> _nodes = new CTS.List<INode>();
         public IEnumerable<INode> Nodes
         {
             get { return this._nodes; }
@@ -204,15 +204,24 @@ namespace DSEDiagnosticLibrary
 			if(!NodeIdentifier.ValidNodeIdName(nodeId))
 			{ return null; }
 
-			var node = this._nodes.FirstOrDefault(n => n.Equals(nodeId));
+            this._nodes.Lock();
+            try
+            {
+                var node = this._nodes.UnSafe.FirstOrDefault(n => n.Equals(nodeId));
 
-			if(node == null)
-			{
-				node = new Node(this, nodeId);
-				this._nodes.Add(node);
-			}
+                if (node == null)
+                {
+                    node = new Node(this, nodeId);
+                    this._nodes.UnSafe.Add(node);
+                }
 
-			return node;
+                return node;
+            }
+            finally
+            {
+                this._nodes.UnLock();
+            }
+
 		}
 
 		public INode TryGetAddNode(NodeIdentifier nodeId)
@@ -220,15 +229,23 @@ namespace DSEDiagnosticLibrary
 			if (nodeId == null)
 			{ return null; }
 
-			var node = this._nodes.FirstOrDefault(n => n.Equals(nodeId));
+            this._nodes.Lock();
+            try
+            {
+                var node = this._nodes.UnSafe.FirstOrDefault(n => n.Equals(nodeId));
 
-			if (node == null)
-			{
-				node = new Node(this, nodeId);
-				this._nodes.Add(node);
-			}
+                if (node == null)
+                {
+                    node = new Node(this, nodeId);
+                    this._nodes.UnSafe.Add(node);
+                }
 
-			return node;
+                return node;
+            }
+            finally
+            {
+                this._nodes.UnLock();
+            }
 		}
 
 		override public INode TryGetAddNode(INode node)
@@ -236,21 +253,29 @@ namespace DSEDiagnosticLibrary
 			if (node == null)
 			{ return null; }
 
-			if(this._nodes.Contains(node))
-			{
-				node = this._nodes.First(n => n.Equals(node));
-			}
-			else
-			{
-				this._nodes.Add(node);
-			}
+            this._nodes.Lock();
+            try
+            {
+                if (this._nodes.UnSafe.Contains(node))
+                {
+                    node = this._nodes.UnSafe.First(n => n.Equals(node));
+                }
+                else
+                {
+                    this._nodes.UnSafe.Add(node);
+                }
 
-			if (node.DataCenter == null)
-			{
-				((Node)node).SetNodeToDataCenter(this);
-			}
+                if (node.DataCenter == null)
+                {
+                    ((Node)node).SetNodeToDataCenter(this);
+                }
 
-			return node;
+                return node;
+            }
+            finally
+            {
+                this._nodes.UnLock();
+            }
 		}
 		public IDataCenter AssociateItem(IEvent eventItem)
 		{

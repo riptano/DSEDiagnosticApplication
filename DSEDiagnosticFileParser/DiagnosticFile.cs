@@ -9,6 +9,7 @@ using Common;
 using Common.Path;
 using System.IO;
 using System.Threading;
+using Newtonsoft.Json;
 
 namespace DSEDiagnosticFileParser
 {
@@ -27,8 +28,18 @@ namespace DSEDiagnosticFileParser
 		}
 
         public static Dictionary<string, RegExParseString> RegExAssocations = LibrarySettings.DiagnosticFileRegExAssocations;
+        private static bool _DisableParallelProcessing = false;
+        public static bool DisableParallelProcessing
+        {
+            get { return _DisableParallelProcessing; }
+            set
+            {
+                _DisableParallelProcessing = value;
+                Logger.Instance.WarnFormat("DisableParallelProcessing: {0}", DisableParallelProcessing);
+            }
+        }
 
-		protected DiagnosticFile(CatagoryTypes catagory,
+        protected DiagnosticFile(CatagoryTypes catagory,
 									IDirectoryPath diagnosticDirectory,
 									IFilePath file,
 									INode node,
@@ -62,7 +73,8 @@ namespace DSEDiagnosticFileParser
         /// </summary>
         public bool Processed { get; protected set; }
         public System.Exception Exception { get; protected set; }
-        public int NbrItemGenerated { get; protected set; }
+        private int _nbrItemGenerated = 0;
+        public int NbrItemGenerated { get { return this._nbrItemGenerated; } }
         public RegExParseString RegExParser { get; protected set; }
         public CancellationToken CancellationToken { get; set; }
 
@@ -73,7 +85,7 @@ namespace DSEDiagnosticFileParser
         public IResult Result { get { return this.GetResult(); } }
 
         #endregion
-        
+
 		#region static
 
 		/// <summary>
@@ -132,6 +144,7 @@ namespace DSEDiagnosticFileParser
                             .OrderByDescending(o => o.ProcessPriorityLevel)
                             .ThenBy(o => DSEDiagnosticFileParser.FileMapper.DetermineParallelOptions(o.ProcessingTaskOption))
                             .GroupBy(k => new { ProcessPriorityLevel = k.ProcessPriorityLevel, ParallelProcessingWithinPriorityLevel = DSEDiagnosticFileParser.FileMapper.DetermineParallelOptions(k.ProcessingTaskOption) });
+            int mapperId = 0;
             var parallelOptions = new ParallelOptions();
 
             if(cancellationSource != null) parallelOptions.CancellationToken = cancellationSource.Token;
@@ -147,10 +160,17 @@ namespace DSEDiagnosticFileParser
                     fileMappings.Add(versionedMapper);
                 }
 
+                Logger.Instance.InfoFormat("FileMapper<{0}, {1}>",
+                                                mapperId = fileMappings.GetHashCode(),
+                                                JsonConvert.SerializeObject(fileMappings));
+
                 try
                 {
-                    if (mapperGroup.Key.ParallelProcessingWithinPriorityLevel.HasFlag(FileMapper.ProcessingTaskOptions.None))
+                    if (DisableParallelProcessing || mapperGroup.Key.ParallelProcessingWithinPriorityLevel == FileMapper.ProcessingTaskOptions.None)
                     {
+                        Logger.Instance.InfoFormat("FileMapper<{0}, SyncMode>",
+                                                    mapperId);
+
                         foreach (var fileMapper in fileMappings)
                         {
                             parallelOptions.CancellationToken.ThrowIfCancellationRequested();
@@ -166,6 +186,9 @@ namespace DSEDiagnosticFileParser
                     }
                     else if (mapperGroup.Key.ParallelProcessingWithinPriorityLevel.HasFlag(FileMapper.ProcessingTaskOptions.ParallelProcessing))
                     {
+                        Logger.Instance.InfoFormat("FileMapper<{0}, ParallelProcessing>",
+                                                    mapperId);
+
                         Parallel.ForEach(fileMappings, parallelOptions, fileMapper =>
                         {
                             if (fileMapper.CancellationSource == null && cancellationSource != null) fileMapper.CancellationSource = cancellationSource;
@@ -175,9 +198,15 @@ namespace DSEDiagnosticFileParser
                             diagFilesList.AddRange(diagnosticFiles);
                             parallelOptions.CancellationToken.ThrowIfCancellationRequested();
                         });
+
+                        Logger.Instance.InfoFormat("FileMapper<{0}, ParallelProcessing, Completed>",
+                                                    mapperId);
                     }
                     else if (mapperGroup.Key.ParallelProcessingWithinPriorityLevel.HasFlag(FileMapper.ProcessingTaskOptions.ParallelProcessingWithinPriorityLevel))
                     {
+                        Logger.Instance.InfoFormat("FileMapper<{0}, ParallelProcessingWithinPriorityLevel>",
+                                                    mapperId);
+
                         var localDiagFilesList = new List<DiagnosticFile>();
                         Parallel.ForEach(fileMappings, parallelOptions, fileMapper =>
                         {
@@ -189,7 +218,14 @@ namespace DSEDiagnosticFileParser
                             localDiagFilesList.AddRange(diagnosticFiles);
                             parallelOptions.CancellationToken.ThrowIfCancellationRequested();
                         });
+
+                        Logger.Instance.InfoFormat("FileMapper<{0}, ParallelProcessingWithinPriorityLevel, Waiting>",
+                                                    mapperId);
+
                         System.Threading.Tasks.Task.WaitAll(localDiagFilesList.Select(d => d.Task).ToArray());
+
+                        Logger.Instance.InfoFormat("FileMapper<{0}, ParallelProcessingWithinPriorityLevel, Completed>",
+                                                    mapperId);
                     }
                     else
                     {
@@ -343,7 +379,7 @@ namespace DSEDiagnosticFileParser
                                                             dataCenterName,
                                                             clusterName,
                                                             cancellationToken,
-                                                            fileMappings.ProcessingTaskOption.HasFlag(FileMapper.ProcessingTaskOptions.ParallelProcessFiles));
+                                                            !DisableParallelProcessing && fileMappings.ProcessingTaskOption.HasFlag(FileMapper.ProcessingTaskOptions.ParallelProcessFiles));
 
                             if (resultInstance != null)
                             {
@@ -362,7 +398,7 @@ namespace DSEDiagnosticFileParser
                                                         dataCenterName,
                                                         clusterName,
                                                         cancellationToken,
-                                                        fileMappings.ProcessingTaskOption.HasFlag(FileMapper.ProcessingTaskOptions.ParallelProcessFiles));
+                                                        !DisableParallelProcessing && fileMappings.ProcessingTaskOption.HasFlag(FileMapper.ProcessingTaskOptions.ParallelProcessFiles));
 
                         if (resultInstance != null)
                         {
@@ -383,7 +419,7 @@ namespace DSEDiagnosticFileParser
                                                         dataCenterName,
                                                         clusterName,
                                                         cancellationToken,
-                                                        fileMappings.ProcessingTaskOption.HasFlag(FileMapper.ProcessingTaskOptions.ParallelProcessFiles));
+                                                        !DisableParallelProcessing && fileMappings.ProcessingTaskOption.HasFlag(FileMapper.ProcessingTaskOptions.ParallelProcessFiles));
 
                         if (resultInstance != null)
                         {
@@ -437,7 +473,7 @@ namespace DSEDiagnosticFileParser
 
                     var nbrItems = processingFileInstance.ProcessFile();
 
-                    processingFileInstance.NbrItemGenerated = (int)nbrItems;
+                    processingFileInstance._nbrItemGenerated = (int)nbrItems;
 
                     if (!processingFileInstance.Processed && nbrItems > 0) processingFileInstance.Processed = true;
 
@@ -518,6 +554,18 @@ namespace DSEDiagnosticFileParser
 		#region abstracts
 
 		public abstract IResult GetResult();
+
+        /// <summary>
+        ///
+        ///
+        /// Processed
+        /// </summary>
+        /// <returns>
+        /// Returns the number of items created/generated. This number sets the NbrItemGenerated property and if greater than zero the Processed property is set to true.
+        /// </returns>
+        /// <remarks>
+        /// The implication of this method should also set the NbrItemsParsed property to the items read/parsed/reviewed.
+        /// </remarks>
 		public abstract uint ProcessFile();
 
 		#endregion

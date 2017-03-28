@@ -37,10 +37,7 @@ namespace DSEDiagnosticFileParser
                 case "dc":
                     if (this.Node.DataCenter == null)
                     {
-                        if (Cluster.AssociateDataCenterToNode(propvaluePair.Item2, this.Node) != null)
-                        {
-                            ++this.NbrItemGenerated;
-                        }
+                        Cluster.AssociateDataCenterToNode(propvaluePair.Item2, this.Node);                        
                     }
                     break;
                 case "rack":

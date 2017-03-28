@@ -7,13 +7,13 @@ using Common;
 
 namespace DSEDiagnosticLibrary
 {
-    public interface ICQLMaterializedView : ICQLTable, IEquatable<ICQLMaterializedView>
+    public interface ICQLMaterializedView : ICQLTable, IEquatable<ICQLMaterializedView>, IEquatable<ICQLTable>
     {
         ICQLTable Table { get; }
         string WhereClause { get; }
     }
 
-    public sealed class CQLMaterializedView : CQLTable, ICQLMaterializedView, IEquatable<ICQLTable>
+    public sealed class CQLMaterializedView : CQLTable, ICQLMaterializedView
     {
         public CQLMaterializedView(IFilePath cqlFile,
                                     uint lineNbr,

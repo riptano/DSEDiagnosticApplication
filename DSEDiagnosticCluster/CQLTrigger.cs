@@ -7,13 +7,13 @@ using Common;
 
 namespace DSEDiagnosticLibrary
 {
-    public interface ICQLTrigger : IDDLStmt, IEquatable<string>, IEquatable<ICQLTrigger>
+    public interface ICQLTrigger : IDDLStmt, IEquatable<string>, IEquatable<ICQLTrigger>, IEquatable<ICQLTable>
     {
         ICQLTable Table { get; }
         string JavaClass { get; }
     }
 
-    public sealed class CQLTrigger : ICQLTrigger, IEquatable<ICQLTable>
+    public sealed class CQLTrigger : ICQLTrigger
     {
         public CQLTrigger(IFilePath cqlFile,
                             uint lineNbr,

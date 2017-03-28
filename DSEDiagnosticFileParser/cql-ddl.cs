@@ -27,7 +27,25 @@ namespace DSEDiagnosticFileParser
 
             if (this.Cluster == null)
             {
-                this.Cluster = Cluster.GetCurrentOrMaster();
+                if (!string.IsNullOrEmpty(defaultClusterName))
+                {
+                    this.Cluster = Cluster.TryGetCluster(defaultClusterName);
+                }
+
+                if(this.Cluster == null)
+                {
+                    this.Cluster = Cluster.GetCurrentOrMaster();
+                }
+            }
+
+            if(this.Node != null)
+            {
+                this.DataCenter = this.Node.DataCenter;
+            }
+
+            if (this.DataCenter == null && !string.IsNullOrEmpty(defaultDCName))
+            {
+                this.DataCenter = Cluster.TryGetDataCenter(defaultDCName, this.Cluster);
             }
 
             this._result = new DDLResult(this);
@@ -60,6 +78,7 @@ namespace DSEDiagnosticFileParser
         private readonly DDLResult _result;
 
         public Cluster Cluster { get; private set; }
+        public IDataCenter DataCenter { get; private set; }
 
         public override IResult GetResult()
         {
@@ -272,7 +291,12 @@ namespace DSEDiagnosticFileParser
 
             if (ksInstance == null)
             {
-                ksInstance = this.Cluster.GetKeyspaces(ksName).FirstOrDefault();
+                var dcName = this.Node?.DataCenter.Name ?? this.DefaultDataCenterName;
+
+                if (dcName != null)
+                {
+                    ksInstance = this.Cluster.GetKeyspaces(ksName).FirstOrDefault(k => k.EverywhereStrategy || k.Replications.Any(r => r.DataCenter.Name == dcName));
+                }
             }
 
             return ksInstance;
@@ -286,9 +310,12 @@ namespace DSEDiagnosticFileParser
             {
                 ksInstance = this.Cluster.AssociateItem(keySpace);
                 this._localKS.Add(ksInstance);
-                this._ddlList.Add(ksInstance);
 
-                return ReferenceEquals(keySpace, ksInstance);
+                if (ReferenceEquals(keySpace, ksInstance))
+                {
+                    this._ddlList.Add(keySpace);
+                    return true;
+                }
             }
 
             return false;
@@ -296,6 +323,13 @@ namespace DSEDiagnosticFileParser
 
         private bool ProcessDDLKeyspace(Match keyspaceMatch, uint lineNbr)
         {
+            /*
+             CREATE KEYSPACE Excelsior
+                WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 3 };
+
+             CREATE KEYSPACE "Excalibur"
+                WITH REPLICATION = {'class' : 'NetworkTopologyStrategy', 'dc1' : 3, 'dc2' : 2};
+            */
             var name = keyspaceMatch.Groups[1].Value.Trim();
             var replicationMap = JsonConvert.DeserializeObject<Dictionary<string, string>>(keyspaceMatch.Groups[3].Value);
             var durableWrites = keyspaceMatch.Groups[4].Success && keyspaceMatch.Groups[4].Value.ToUpper() == "DURABLE_WRITES"
@@ -305,7 +339,7 @@ namespace DSEDiagnosticFileParser
             var replications = replicationMap.Skip(1)
                                     .Select(r => new KeyspaceReplicationInfo(int.Parse(r.Value),
                                                                                 r.Key.ToLower() == "replication_factor"
-                                                                                    ? this.Node?.DataCenter
+                                                                                    ? this.DataCenter //SimpleStrategy
                                                                                     : this.Cluster.TryGetDataCenter(r.Key)));
 
             var keyspace = new KeySpace(this.File,

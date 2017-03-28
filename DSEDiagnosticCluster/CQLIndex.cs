@@ -8,7 +8,7 @@ using Common;
 namespace DSEDiagnosticLibrary
 {
 
-    public interface ICQLIndex : IDDLStmt, IEquatable<string>, IEquatable<ICQLIndex>
+    public interface ICQLIndex : IDDLStmt, IEquatable<string>, IEquatable<ICQLIndex>, IEquatable<ICQLTable>
     {
         bool IsCustom { get; }
         ICQLTable Table { get; }
@@ -17,7 +17,7 @@ namespace DSEDiagnosticLibrary
         Dictionary<string,object> WithOptions { get; }
     }
 
-    public sealed class CQLIndex : ICQLIndex, IEquatable<ICQLTable>
+    public sealed class CQLIndex : ICQLIndex
     {
         public CQLIndex(IFilePath cqlFile,
                         uint lineNbr,

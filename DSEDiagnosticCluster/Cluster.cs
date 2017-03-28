@@ -14,7 +14,7 @@ namespace DSEDiagnosticLibrary
 	public class Cluster : IEquatable<Cluster>, IEquatable<string>
 	{
 		public static readonly Cluster MasterCluster = null;
-        public static ConcurrentBag<Cluster> Clusters = new ConcurrentBag<Cluster>();
+        public static CTS.List<Cluster> Clusters = new CTS.List<Cluster>();
 		private static CTS.List<INode> UnAssociatedNodes = new CTS.List<INode>();
 
 		static Cluster()
@@ -47,7 +47,7 @@ namespace DSEDiagnosticLibrary
 		private CTS.List<IDataCenter> _dataCenters = new CTS.List<IDataCenter>();
 		public IEnumerable<IDataCenter> DataCenters { get { return this._dataCenters; } }
 
-		private List<IEvent> _events = new List<IEvent>();
+		private CTS.List<IEvent> _events = new CTS.List<IEvent>();
 		public IEnumerable<IEvent> Events { get { lock (this._events) { return this._events.ToArray(); } } }
 
         private CTS.List<IKeyspace> _keySpaces = new CTS.List<IKeyspace>();
@@ -55,14 +55,30 @@ namespace DSEDiagnosticLibrary
 
         public IEnumerable<IKeyspace> GetKeyspaces(IDataCenter datacenter)
         {
-            return this._keySpaces.Where(k => k.DataCenters.Contains(datacenter));
+            this._keySpaces.Lock();
+            try
+            {
+                return this._keySpaces.UnSafe.Where(k => k.DataCenters.Contains(datacenter));
+            }
+            finally
+            {
+                this._keySpaces.UnLock();
+            }
         }
 
         public IEnumerable<IKeyspace> GetKeyspaces(string keyspaceName)
         {
             keyspaceName = StringHelpers.RemoveQuotes(keyspaceName?.Trim());
 
-            return this._keySpaces.Where(k => k.Name == keyspaceName);
+            this._keySpaces.Lock();
+            try
+            {
+                return this._keySpaces.UnSafe.Where(k => k.Name == keyspaceName);
+            }
+            finally
+            {
+                this._keySpaces.UnLock();
+            }
         }
 
         public OpsCenterInfo OpsCenter { get; private set; }
@@ -78,11 +94,11 @@ namespace DSEDiagnosticLibrary
             this._keySpaces.Lock();
             try
             {
-                var existingKS = this._keySpaces.FirstOrDefault(ks => ks.Equals(ksItem));
+                var existingKS = this._keySpaces.UnSafe.FirstOrDefault(ks => ks.Equals(ksItem));
 
                 if (existingKS == null)
                 {
-                    this._keySpaces.Add(ksItem);
+                    this._keySpaces.UnSafe.Add(ksItem);
                 }
                 else
                 {
@@ -99,7 +115,41 @@ namespace DSEDiagnosticLibrary
 
         public IDataCenter TryGetDataCenter(string dataCenterName)
         {
-           return this._dataCenters.FirstOrDefault(d => d.Name == dataCenterName);
+            this._dataCenters.Lock();
+            try
+            {
+                return this._dataCenters.UnSafe.FirstOrDefault(d => d.Name == dataCenterName);
+            }
+            finally
+            {
+                this._dataCenters.UnLock();
+            }
+        }
+
+        public INode TryGetNode(string nodeId)
+        {
+            this._dataCenters.Lock();
+            try
+            {
+                return this._dataCenters.UnSafe.SelectMany(dc => dc.Nodes).FirstOrDefault(n => n.Equals(nodeId));
+            }
+            finally
+            {
+                this._dataCenters.UnLock();
+            }
+        }
+
+        public INode TryGetNode(NodeIdentifier nodeId)
+        {
+            this._dataCenters.Lock();
+            try
+            {
+                return this._dataCenters.UnSafe.SelectMany(dc => dc.Nodes).FirstOrDefault(n => n.Equals(nodeId));
+            }
+            finally
+            {
+                this._dataCenters.UnLock();
+            }
         }
 
         public object ToDump()
@@ -121,33 +171,59 @@ namespace DSEDiagnosticLibrary
 
         public static Cluster TryGetAddCluster(string clusterName)
 		{
-			var cluster = Clusters.FirstOrDefault(c => c.Name == clusterName);
+            Clusters.Lock();
+            try
+            {
+                var cluster = Clusters.UnSafe.FirstOrDefault(c => c.Name == clusterName);
 
-			if (cluster == null)
-			{
-				cluster = new Cluster(clusterName);
-			}
+                if (cluster == null)
+                {
+                    cluster = new Cluster(clusterName);
+                }
 
-			return cluster;
+                return cluster;
+            }
+            finally
+            {
+                Clusters.UnLock();
+            }
 		}
 
         public static Cluster TryGetCluster(string clusterName)
         {
-            return Clusters.FirstOrDefault(c => c.Name == clusterName);
+            Clusters.Lock();
+            try
+            {
+                return Clusters.UnSafe.FirstOrDefault(c => c.Name == clusterName);
+            }
+            finally
+            {
+                Clusters.UnLock();
+            }
         }
 
         public static IDataCenter TryGetAddDataCenter(string dataCenterName, Cluster cluster = null)
 		{
-			var currentCuster = cluster == null ? MasterCluster : cluster;
-			var currentDC = currentCuster._dataCenters.FirstOrDefault(d => d.Name == dataCenterName);
+            var currentCuster = cluster == null ? MasterCluster : cluster;
 
-			if (currentDC == null)
-			{
-				currentDC = new DataCenter(currentCuster, dataCenterName);
-				currentCuster._dataCenters.Add(currentDC);
-			}
+            currentCuster._dataCenters.Lock();
+            try
+            {
+                var currentDC = currentCuster._dataCenters.UnSafe.FirstOrDefault(d => d.Name == dataCenterName);
 
-			return currentDC;
+                if (currentDC == null)
+                {
+                    currentDC = new DataCenter(currentCuster, dataCenterName);
+                    currentCuster._dataCenters.UnSafe.Add(currentDC);
+                }
+
+                return currentDC;
+            }
+            finally
+            {
+                currentCuster._dataCenters.UnLock();
+            }
+
 		}
 		public static IDataCenter TryGetAddDataCenter(string dataCenterName, string clusterName = null)
 		{
@@ -182,22 +258,30 @@ namespace DSEDiagnosticLibrary
 
 			if (currentDC == null)
 			{
-				var node = UnAssociatedNodes.FirstOrDefault(n => n.Equals(nodeId));
-
-				if (node == null)
-				{
-					var cluster = string.IsNullOrEmpty(clusterName) ? MasterCluster : TryGetAddCluster(clusterName);
-
-                    node = cluster.DataCenters.SelectMany(dc => dc.Nodes).FirstOrDefault(n => n.Equals(nodeId));
+                UnAssociatedNodes.Lock();
+                try
+                {
+                    var node = UnAssociatedNodes.UnSafe.FirstOrDefault(n => n.Equals(nodeId));
 
                     if (node == null)
                     {
-                        node = new Node(cluster, nodeId);
-                        UnAssociatedNodes.Add(node);
-                    }
-                }
+                        var cluster = string.IsNullOrEmpty(clusterName) ? MasterCluster : TryGetAddCluster(clusterName);
 
-				return node;
+                        node = cluster.TryGetNode(nodeId);
+
+                        if (node == null)
+                        {
+                            node = new Node(cluster, nodeId);
+                            UnAssociatedNodes.UnSafe.Add(node);
+                        }
+                    }
+
+                    return node;
+                }
+                finally
+                {
+                    UnAssociatedNodes.UnLock();
+                }
 			}
 
 			return currentDC.TryGetAddNode(nodeId);
@@ -220,22 +304,30 @@ namespace DSEDiagnosticLibrary
 
 			if (currentDC == null)
 			{
-				var node = UnAssociatedNodes.FirstOrDefault(n => n.Id == nodeId);
-
-				if (node == null)
-				{
-					var cluster = string.IsNullOrEmpty(clusterName) ? MasterCluster : TryGetAddCluster(clusterName);
-
-                    node = cluster.DataCenters.SelectMany(dc => dc.Nodes).FirstOrDefault(n => n.Id == nodeId);
+                UnAssociatedNodes.Lock();
+                try
+                {
+                    var node = UnAssociatedNodes.UnSafe.FirstOrDefault(n => n.Id == nodeId);
 
                     if (node == null)
                     {
-                        node = new Node(cluster, nodeId);
-                        UnAssociatedNodes.Add(node);
-                    }
-				}
+                        var cluster = string.IsNullOrEmpty(clusterName) ? MasterCluster : TryGetAddCluster(clusterName);
 
-				return node;
+                        node = cluster.TryGetNode(nodeId);
+
+                        if (node == null)
+                        {
+                            node = new Node(cluster, nodeId);
+                            UnAssociatedNodes.UnSafe.Add(node);
+                        }
+                    }
+
+                    return node;
+                }
+                finally
+                {
+                    UnAssociatedNodes.UnLock();
+                }
 			}
 
 			return currentDC.TryGetAddNode(nodeId);
@@ -289,15 +381,25 @@ namespace DSEDiagnosticLibrary
 			{ throw new ArgumentNullException("dataCenter cannot be null"); }
 
 			var currentDC = (DataCenter) TryGetAddDataCenter(dataCenterName, clusterName);
-			var node = (Node) UnAssociatedNodes.FirstOrDefault(n => n.Equals(nodeId));
 
-			if(node == null)
-			{
-				return currentDC.TryGetAddNode(nodeId);
-			}
+            UnAssociatedNodes.Lock();
+            try
+            {
+                var node = (Node)UnAssociatedNodes.UnSafe.FirstOrDefault(n => n.Equals(nodeId));
 
-			UnAssociatedNodes.Remove(node);
-			return currentDC.TryGetAddNode(node);
+                if (node == null)
+                {
+                    return currentDC.TryGetAddNode(nodeId);
+                }
+
+                UnAssociatedNodes.UnSafe.Remove(node);
+
+                return currentDC.TryGetAddNode(node);
+            }
+            finally
+            {
+                UnAssociatedNodes.UnLock();
+            }
 		}
 
         public static INode AssociateDataCenterToNode(string dataCenterName, INode node)
@@ -308,14 +410,24 @@ namespace DSEDiagnosticLibrary
             { throw new ArgumentNullException("dataCenter cannot be null"); }
 
             var currentDC = (DataCenter)TryGetAddDataCenter(dataCenterName, node.Cluster);
-            var removeAssocNode = (Node)UnAssociatedNodes.FirstOrDefault(n => n.Equals(node));
 
-            if (currentDC != null && removeAssocNode != null)
+            UnAssociatedNodes.Lock();
+            try
             {
-                UnAssociatedNodes.Remove(node);
+                var removeAssocNode = (Node)UnAssociatedNodes.UnSafe.FirstOrDefault(n => n.Equals(node));
+
+                if (currentDC != null && removeAssocNode != null)
+                {
+                    UnAssociatedNodes.UnSafe.Remove(node);
+                }
+
+                return currentDC?.TryGetAddNode(node);
+            }
+            finally
+            {
+                UnAssociatedNodes.UnLock();
             }
 
-            return currentDC?.TryGetAddNode(node);
         }
 
         /// <summary>
@@ -361,16 +473,26 @@ namespace DSEDiagnosticLibrary
                 {
                     var oldCluster = dc.Cluster;
 
-                    if (!cluster._dataCenters.Contains(dc))
+                    cluster._dataCenters.Lock();
+                    oldCluster._dataCenters.Lock();
+                    try
                     {
-                        cluster._dataCenters.Add(dc);
+                        if (!cluster._dataCenters.UnSafe.Contains(dc))
+                        {
+                            cluster._dataCenters.UnSafe.Add(dc);
+                        }
+
+                        ((DataCenter)dc).AssociateItem(cluster);
+
+                        if (!oldCluster.IsMaster)
+                        {
+                            oldCluster._dataCenters.UnSafe.Remove(dc);
+                        }
                     }
-
-                    ((DataCenter)dc).AssociateItem(cluster);
-
-                    if (!oldCluster.IsMaster)
+                    finally
                     {
-                        oldCluster._dataCenters.Remove(dc);
+                        oldCluster._dataCenters.UnLock();
+                        cluster._dataCenters.UnLock();
                     }
                 }
             }

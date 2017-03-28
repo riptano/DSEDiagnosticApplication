@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Common;
 using Common.Path;
+using CTS = Common.Patterns.Collections.ThreadSafe;
 
 namespace DSEDiagnosticLibrary
 {
@@ -100,8 +101,8 @@ namespace DSEDiagnosticLibrary
         }
     }
 
-	public interface IKeyspace : IDDL, IEquatable<string>
-	{
+	public interface IKeyspace : IDDL, IEquatable<string>, IEquatable<IKeyspace>
+    {
 		IEnumerable<IDDL> DDLs { get; }
 		string ReplicationStrategy { get; }
 		KeyspaceStats Stats { get; }
@@ -109,7 +110,7 @@ namespace DSEDiagnosticLibrary
         IEnumerable<KeyspaceReplicationInfo> Replications { get; }
         bool DurableWrites { get; }
         bool EverywhereStrategy { get; }
-        IKeyspace AssociateItem(IDDL ddlItem);
+        IDDL AssociateItem(IDDL ddlItem);
         ICQLTable TryGetTable(string tableName);
         ICQLMaterializedView TryGetView(string viewName);
         ICQLIndex TryGetIndex(string indexName);
@@ -122,7 +123,7 @@ namespace DSEDiagnosticLibrary
         IEnumerable<ICQLMaterializedView> GetViews();
     }
 
-    public sealed class KeySpace : IKeyspace, IEquatable<IKeyspace>
+    public sealed class KeySpace : IKeyspace
     {
         public KeySpace(IFilePath cqlFile,
                             uint lineNbr,
@@ -191,7 +192,7 @@ namespace DSEDiagnosticLibrary
         #endregion
 
         #region IKeyspace
-        private List<IDDL> _ddlList = new List<IDDL>();
+        private CTS.List<IDDL> _ddlList = new CTS.List<IDDL>();
         public IEnumerable<IDDL> DDLs { get { return this._ddlList; } }
         public string ReplicationStrategy { get; private set; }
         public bool EverywhereStrategy { get; private set; }
@@ -199,18 +200,37 @@ namespace DSEDiagnosticLibrary
         public IEnumerable<IDataCenter> DataCenters { get { return this.EverywhereStrategy ? this.Cluster?.DataCenters : this.Replications.Select(r => r.DataCenter); } }
         public IEnumerable<KeyspaceReplicationInfo> Replications { get; private set; }
         public bool DurableWrites { get; private set; }
-        public IKeyspace AssociateItem(IDDL ddl)
+        public IDDL AssociateItem(IDDL ddl)
         {
+            this._ddlList.Lock();
+            try
+            {
+                var item = this._ddlList.FirstOrDefault(d => d.Equals(ddl));
+
+                if (item == null)
+                {
+                    this._ddlList.UnSafe.Add(ddl);
+                }
+                else
+                {
+                    return item;
+                }
+            }
+            finally
+            {
+                this._ddlList.UnLock();
+            }
+
             ++this.Stats.NbrObjects;
 
-            if(ddl is ICQLTable)
+            if (ddl is ICQLTable)
             {
                 if (ddl is ICQLMaterializedView)
                     ++this.Stats.MaterialViews;
                 else
                     ++this.Stats.Tables;
 
-                if(!string.IsNullOrEmpty(((ICQLTable)ddl).Compaction))
+                if (!string.IsNullOrEmpty(((ICQLTable)ddl).Compaction))
                 {
                     switch (((ICQLTable)ddl).Compaction)
                     {
@@ -237,7 +257,7 @@ namespace DSEDiagnosticLibrary
 
                 this.Stats.Columns += (uint)((ICQLTable)ddl).Columns.Sum(c => c is ICQLUserDefinedType ? ((ICQLUserDefinedType)c).Columns.Count() : 1);
             }
-            else if(ddl is ICQLUserDefinedType)
+            else if (ddl is ICQLUserDefinedType)
             {
                 ++this.Stats.UserDefinedTypes;
             }
@@ -245,9 +265,9 @@ namespace DSEDiagnosticLibrary
             {
                 var idxInstance = (ICQLIndex)ddl;
 
-                if(idxInstance.IsCustom)
+                if (idxInstance.IsCustom)
                 {
-                    if(!string.IsNullOrEmpty(idxInstance.UsingClass) && idxInstance.UsingClass.EndsWith("SolrSecondaryIndex"))
+                    if (!string.IsNullOrEmpty(idxInstance.UsingClass) && idxInstance.UsingClass.EndsWith("SolrSecondaryIndex"))
                     {
                         ++this.Stats.SolrIndexes;
                     }
@@ -261,41 +281,72 @@ namespace DSEDiagnosticLibrary
                     ++this.Stats.SecondaryIndexes;
                 }
             }
-            else if(ddl is ICQLTrigger)
+            else if (ddl is ICQLTrigger)
             {
                 ++this.Stats.Triggers;
             }
 
-            lock (this._ddlList)
-            {
-                this._ddlList.Add(ddl);
-            }
-
-            return this;
+            return ddl;
         }
 
         public ICQLTable TryGetTable(string tableName)
         {
             tableName = StringHelpers.RemoveQuotes(tableName.Trim());
-            return (ICQLTable) this._ddlList.FirstOrDefault(d => d is ICQLTable && !(d is ICQLMaterializedView) && d.Name == tableName);
+
+            this._ddlList.Lock();
+            try
+            {
+                return (ICQLTable)this._ddlList.UnSafe.FirstOrDefault(d => d is ICQLTable && !(d is ICQLMaterializedView) && d.Name == tableName);
+            }
+            finally
+            {
+                this._ddlList.UnLock();
+            }
         }
 
         public ICQLMaterializedView TryGetView(string viewName)
         {
             viewName = StringHelpers.RemoveQuotes(viewName.Trim());
-            return (ICQLMaterializedView)this._ddlList.FirstOrDefault(d => d is ICQLMaterializedView && d.Name == viewName);
+
+            this._ddlList.Lock();
+            try
+            {
+                return (ICQLMaterializedView)this._ddlList.UnSafe.FirstOrDefault(d => d is ICQLMaterializedView && d.Name == viewName);
+            }
+            finally
+            {
+                this._ddlList.UnLock();
+            }
         }
 
         public ICQLIndex TryGetIndex(string indexName)
         {
             indexName = StringHelpers.RemoveQuotes(indexName.Trim());
-            return (ICQLIndex)this._ddlList.FirstOrDefault(d => d is ICQLIndex && d.Name == indexName);
+
+            this._ddlList.Lock();
+            try
+            {
+                return (ICQLIndex)this._ddlList.UnSafe.FirstOrDefault(d => d is ICQLIndex && d.Name == indexName);
+            }
+            finally
+            {
+                this._ddlList.UnLock();
+            }
         }
 
         public ICQLTrigger TryGetTrigger(string triggerName)
         {
             triggerName = StringHelpers.RemoveQuotes(triggerName.Trim());
-            return (ICQLTrigger)this._ddlList.FirstOrDefault(d => d is ICQLTrigger && d.Name == triggerName);
+
+            this._ddlList.Lock();
+            try
+            {
+                return (ICQLTrigger)this._ddlList.UnSafe.FirstOrDefault(d => d is ICQLTrigger && d.Name == triggerName);
+            }
+            finally
+            {
+                this._ddlList.UnLock();
+            }
         }
 
         public IEnumerable<ICQLTable> GetTables()
@@ -321,7 +372,16 @@ namespace DSEDiagnosticLibrary
         public ICQLUserDefinedType TryGetUDT(string udtName)
         {
             udtName = StringHelpers.RemoveQuotes(udtName.Trim());
-            return (ICQLUserDefinedType)this._ddlList.FirstOrDefault(d => d is ICQLUserDefinedType && d.Name == udtName);
+
+            this._ddlList.Lock();
+            try
+            {
+                return (ICQLUserDefinedType)this._ddlList.UnSafe.FirstOrDefault(d => d is ICQLUserDefinedType && d.Name == udtName);
+            }
+            finally
+            {
+                this._ddlList.UnLock();
+            }
         }
 
         public IEnumerable<ICQLUserDefinedType> GetUDTs()
@@ -342,12 +402,15 @@ namespace DSEDiagnosticLibrary
                     && this.ReplicationStrategy == other.ReplicationStrategy
                     && this.DurableWrites == other.DurableWrites)
             {
-                if(this.EverywhereStrategy == other.EverywhereStrategy)
+                if (this.EverywhereStrategy && other.EverywhereStrategy)
                 {
-                    if(this.EverywhereStrategy || this.Replications.IsEmpty()) return true;
+                    return true;
+                }
 
-                    if(this.Replications.Count() == other.Replications.Count())
-                        return this.Replications
+                if (!this.EverywhereStrategy && !other.EverywhereStrategy
+                        && this.Replications.Count() == other.Replications.Count())
+                {
+                    return this.Replications
                                     .SelectWithIndex((r, idx) => r.Equals(other.Replications.ElementAt(idx)))
                                     .All(b => b);
                 }

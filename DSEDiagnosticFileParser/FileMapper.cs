@@ -20,11 +20,13 @@ namespace DSEDiagnosticFileParser
             /// </summary>
             ScanForNode = 0x0001,
             /// <summary>
-            /// Process this file for using all nodes defined within a data center
+            /// Process this file using all nodes defined within a data center
+            /// Note that if the default data center name is not defined or not provided, this is the same as AllNodesInCluster.
             /// </summary>
             AllNodesInDataCenter = 0x0002,
             /// <summary>
-            /// Process this file for using all nodes defined within a cluster
+            /// Process this file using all nodes defined within a cluster
+            /// Note that if the default cluster name is not defined or not provided, the Local Master cluster is used.
             /// </summary>
             AllNodesInCluster = 0x0004,
             /// <summary>
@@ -56,7 +58,7 @@ namespace DSEDiagnosticFileParser
             ParallelProcessFiles = 0x0040,
             /// <summary>
             /// As soon as the first file is successfully processed, all reminding file to be process are canceled.
-            /// Warning: ParallelProcessFiles is ignored (all files are processed synchronous.
+            /// Warning: ParallelProcessFiles is ignored (all files are processed synchronous).
             /// </summary>
             OnlyOnce = 0x0080,
 

@@ -150,7 +150,7 @@ namespace DSEDiagnosticLibrary.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("\\s+tuple\\s*\\<")]
+        [global::System.Configuration.DefaultSettingValueAttribute("\\stuple\\s*\\<")]
         public string TupleRegEx {
             get {
                 return ((string)(this["TupleRegEx"]));
@@ -159,7 +159,7 @@ namespace DSEDiagnosticLibrary.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("\\s+frozen\\s*\\<")]
+        [global::System.Configuration.DefaultSettingValueAttribute("\\sfrozen\\s*\\<")]
         public string FrozenRegEx {
             get {
                 return ((string)(this["FrozenRegEx"]));
@@ -168,7 +168,7 @@ namespace DSEDiagnosticLibrary.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("\\s+static\\s*")]
+        [global::System.Configuration.DefaultSettingValueAttribute("\\sstatic\\s")]
         public string StaticRegEx {
             get {
                 return ((string)(this["StaticRegEx"]));
@@ -177,7 +177,7 @@ namespace DSEDiagnosticLibrary.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("\\s+primary\\s+key\\s*")]
+        [global::System.Configuration.DefaultSettingValueAttribute("\\sprimary\\s+key\\s?")]
         public string PrimaryKeyRegEx {
             get {
                 return ((string)(this["PrimaryKeyRegEx"]));

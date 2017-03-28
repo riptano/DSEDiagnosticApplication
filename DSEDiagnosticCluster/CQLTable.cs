@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Common;
 using Common.Path;
+using CTS = Common.Patterns.Collections.ThreadSafe;
 using Newtonsoft.Json;
 
 namespace DSEDiagnosticLibrary
@@ -414,7 +415,7 @@ namespace DSEDiagnosticLibrary
         public uint NbrTriggers;
     }
 
-    public interface ICQLTable : IDDLStmt, IEquatable<string>
+    public interface ICQLTable : IDDLStmt, IEquatable<string>, IEquatable<ICQLTable>
     {
         Guid Id { get; }
         IEnumerable<ICQLColumn> Columns { get; }
@@ -438,10 +439,10 @@ namespace DSEDiagnosticLibrary
         /// CQL statements associated with this table.
         /// </summary>
         IEnumerable<IDDL> DDLs { get; }
-        ICQLTable AssociateItem(IDDL ddl);
+        IDDL AssociateItem(IDDL ddl);
     }
 
-    public class CQLTable : ICQLTable, IEquatable<ICQLTable>
+    public class CQLTable : ICQLTable
     {
         public CQLTable(IFilePath cqlFile,
                             uint lineNbr,
@@ -653,11 +654,30 @@ namespace DSEDiagnosticLibrary
             return this.IsActive;
         }
 
-        private List<IDDL> _ddlList = new List<IDDL>();
+        private CTS.List<IDDL> _ddlList = new CTS.List<IDDL>();
         public IEnumerable<IDDL> DDLs { get { return this._ddlList; } }
 
-        public ICQLTable AssociateItem(IDDL ddl)
+        public IDDL AssociateItem(IDDL ddl)
         {
+            this._ddlList.Lock();
+            try
+            {
+                var item = this._ddlList.UnSafe.FirstOrDefault(d => d.Equals(ddl));
+
+                if (item == null)
+                {
+                    this._ddlList.UnSafe.Add(ddl);
+                }
+                else
+                {
+                    return item;
+                }
+            }
+            finally
+            {
+                this._ddlList.UnLock();
+            }
+
             if(ddl is ICQLMaterializedView)
             {
                 ++this.Stats.NbrMaterializedViews;
@@ -687,12 +707,7 @@ namespace DSEDiagnosticLibrary
                 ++this.Stats.NbrTriggers;
             }
 
-            lock (this._ddlList)
-            {
-                this._ddlList.Add(ddl);
-            }
-
-            return this;
+            return ddl;
         }
 
         public IEnumerable<ICQLColumn> TryGetColumns(IEnumerable<string> columns)
