@@ -128,7 +128,7 @@ namespace DSEDiagnosticFileParser
         {
             List<string> cqlStatements = new List<string>();
             StringBuilder strCQL = new StringBuilder();
-            uint nbrGenerated = 0;            
+            uint nbrGenerated = 0;
             bool multipleLineComment = false;
             string line;
 
@@ -278,7 +278,7 @@ namespace DSEDiagnosticFileParser
                                                 this.Node, this.File, cqlStatements);
 
             }
-            
+
             this.Processed = true;
             return nbrGenerated;
         }
@@ -353,8 +353,8 @@ namespace DSEDiagnosticFileParser
             return this.AddKeySpace(keyspace);
         }
 
-        static readonly Regex WithCompactStorageRegEx = new Regex(@"\s*compact\s+storage\s*", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        static readonly Regex WithOrderByRegEx = new Regex(@"\s*clustering\s+order\s+by\s*\(([a-z0-9\-_$%+=@!?^*&,\ ]+)\)\s*", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        static readonly Regex WithCompactStorageRegEx = new Regex(@"(?:\s|^)compact\s+storage(?:\s|\;|$)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        static readonly Regex WithOrderByRegEx = new Regex(@"(?:\s|^)clustering\s+order\s+by\s*\(([a-z0-9\-_$%+=@!?^*&,\ ]+)\)(?:\s|\;|$)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         private bool ProcessDDLTable(Match tableMatch, uint lineNbr)
         {
@@ -595,7 +595,7 @@ namespace DSEDiagnosticFileParser
                                                         .Where(c => !(pkList.Any(p => p.Name == c.Name)
                                                                             || ckList.Any(k => k.Name == c.Name)))
                                                         .Select(c => c.Copy()).ToArray());
-                                
+
                 }
 
                 var properties = new Dictionary<string, object>();

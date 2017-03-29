@@ -150,7 +150,7 @@ namespace DSEDiagnosticLibrary.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("\\s?tuple\\s*\\<")]
+        [global::System.Configuration.DefaultSettingValueAttribute("(?:\\s|^)tuple\\s*\\<")]
         public string TupleRegEx {
             get {
                 return ((string)(this["TupleRegEx"]));
@@ -159,7 +159,7 @@ namespace DSEDiagnosticLibrary.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("\\s?frozen\\s*\\<")]
+        [global::System.Configuration.DefaultSettingValueAttribute("(?:\\s|^)frozen\\s*\\<")]
         public string FrozenRegEx {
             get {
                 return ((string)(this["FrozenRegEx"]));
@@ -168,7 +168,7 @@ namespace DSEDiagnosticLibrary.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("\\sstatic\\s?")]
+        [global::System.Configuration.DefaultSettingValueAttribute("\\sstatic(?:\\s|$)")]
         public string StaticRegEx {
             get {
                 return ((string)(this["StaticRegEx"]));
@@ -177,7 +177,7 @@ namespace DSEDiagnosticLibrary.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("\\sprimary\\s+key\\s?")]
+        [global::System.Configuration.DefaultSettingValueAttribute("\\sprimary\\s+key(?:\\s|$)")]
         public string PrimaryKeyRegEx {
             get {
                 return ((string)(this["PrimaryKeyRegEx"]));
@@ -186,7 +186,7 @@ namespace DSEDiagnosticLibrary.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("\\s?blob\\s?")]
+        [global::System.Configuration.DefaultSettingValueAttribute("(?:\\s|^)blob(?:\\s|$)")]
         public string BlobRegEx {
             get {
                 return ((string)(this["BlobRegEx"]));
@@ -195,7 +195,7 @@ namespace DSEDiagnosticLibrary.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("\\s?counter\\s?")]
+        [global::System.Configuration.DefaultSettingValueAttribute("(?:\\s|^)counter(?:\\s|$)")]
         public string CounterRegEx {
             get {
                 return ((string)(this["CounterRegEx"]));
