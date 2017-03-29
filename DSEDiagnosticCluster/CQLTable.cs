@@ -13,8 +13,10 @@ namespace DSEDiagnosticLibrary
 {
     public sealed class CQLColumnType : IEquatable<string>, IEquatable<CQLColumnType>
     {
-        readonly Regex TupleRegEx = new Regex(LibrarySettings.TupleRegExStr, RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        readonly Regex FrozenRegEx = new Regex(LibrarySettings.FrozenRegExStr, RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        readonly static Regex TupleRegEx = new Regex(LibrarySettings.TupleRegExStr, RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        readonly static Regex FrozenRegEx = new Regex(LibrarySettings.FrozenRegExStr, RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        readonly static Regex BlobRegEx = new Regex(LibrarySettings.BlobRegExStr, RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        readonly static Regex CounterRegEx = new Regex(LibrarySettings.CounterRegExStr, RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         public CQLColumnType(string cqlType,
                                 IEnumerable<CQLColumnType> cqlSubType,
@@ -30,10 +32,13 @@ namespace DSEDiagnosticLibrary
             this.Column = column;
             this.DDL = ddl.Trim();
             this.CQLSubType = cqlSubType ?? Enumerable.Empty<CQLColumnType>();
+            this.IsUDT = this.HasUDT = isUDT;
 
             this.IsCollection = this.HasCollection = LibrarySettings.CQLCollectionTypes.Any(c => this.Name.ToLower() == c);
             this.IsFrozen = this.HasFrozen = FrozenRegEx.IsMatch(this.DDL);
             this.IsTuple = this.HasTuple = TupleRegEx.IsMatch(this.DDL);
+            this.IsCounter = this.HasCounter = CounterRegEx.IsMatch(this.DDL);
+            this.IsBlob = this.HasBlob = BlobRegEx.IsMatch(this.DDL);
 
             if (this.CQLSubType.HasAtLeastOneElement())
             {
@@ -48,6 +53,18 @@ namespace DSEDiagnosticLibrary
                 if (!this.HasTuple)
                 {
                     this.HasTuple = this.CQLSubType.Any(c => c.IsTuple || c.HasTuple);
+                }
+                if (!this.HasBlob)
+                {
+                    this.HasBlob = this.CQLSubType.Any(c => c.IsBlob || c.HasBlob);
+                }
+                if (!this.HasCounter)
+                {
+                    this.HasCounter = this.CQLSubType.Any(c => c.IsCounter || c.HasCounter);
+                }
+                if (!this.HasUDT)
+                {
+                    this.HasUDT = this.CQLSubType.Any(c => c.IsUDT || c.HasUDT);
                 }
 
                 if (setBaseType)
@@ -65,9 +82,14 @@ namespace DSEDiagnosticLibrary
         public bool IsCollection { get; private set; }
         public bool IsTuple { get; private set; }
         public bool IsUDT { get; private set; }
+        public bool IsBlob { get; private set; }
+        public bool IsCounter { get; private set; }
         public bool HasFrozen { get; private set; }
         public bool HasCollection { get; private set; }
         public bool HasTuple { get; private set; }
+        public bool HasBlob { get; private set; }
+        public bool HasCounter { get; private set; }
+        public bool HasUDT { get; private set; }
         public string DDL { get; private set; }
 
         #region overrides
@@ -147,7 +169,7 @@ namespace DSEDiagnosticLibrary
             {
                 foreach (var subType in this.CQLSubType)
                 {
-                    if (subType.BaseType == null) subType.SetBaseType(this);
+                    if (subType.BaseType == null) subType.SetBaseType(this, true);
                 }
             }
 
@@ -178,8 +200,8 @@ namespace DSEDiagnosticLibrary
 
     public sealed class CQLColumn : ICQLColumn
     {
-        readonly Regex StaticRegEx = new Regex(LibrarySettings.StaticRegExStr, RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        readonly Regex PrimaryKeyRegEx = new Regex(LibrarySettings.PrimaryKeyRegExStr, RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        static readonly Regex StaticRegEx = new Regex(LibrarySettings.StaticRegExStr, RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        static readonly Regex PrimaryKeyRegEx = new Regex(LibrarySettings.PrimaryKeyRegExStr, RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         public CQLColumn(string name,
                             CQLColumnType columnType,
@@ -408,6 +430,7 @@ namespace DSEDiagnosticLibrary
         public uint Tuples;
         public uint UDTs;
 
+        public uint NbrColumns;
         public uint NbrSecondaryIndexes;
         public uint NbrSolrIndexes;
         public uint NbrCustomIndexes;
@@ -458,10 +481,10 @@ namespace DSEDiagnosticLibrary
                             bool associateTableToColumn = true,
                             bool associateTableToKeyspace = true)
         {
-            if (string.IsNullOrEmpty(name)) throw new NullReferenceException(string.Format("{0} name cannot be null", this.GetType().Name));
-            if (keyspace == null) throw new NullReferenceException(string.Format("{0} must be associated to a keyspace. It cannot be null", this.GetType().Name));
-            if (columns == null || columns.IsEmpty()) throw new NullReferenceException(string.Format("{0} must have columns (cannot be null or a count of zero)", this.GetType().Name));
-            if (string.IsNullOrEmpty(ddl)) throw new NullReferenceException(string.Format("{0} must have a DDL string", this.GetType().Name));
+            if (string.IsNullOrEmpty(name)) throw new NullReferenceException(string.Format("{0} name cannot be null for CQL \"{1}\"", this.GetType().Name, ddl));
+            if (keyspace == null) throw new NullReferenceException(string.Format("{0} must be associated to a keyspace. It cannot be null for CQL \"{1}\"", this.GetType().Name, ddl));
+            if (columns == null || columns.IsEmpty()) throw new NullReferenceException(string.Format("{0} must have columns (cannot be null or a count of zero) for CQL \"{1}\"", this.GetType().Name, ddl));
+            if (string.IsNullOrEmpty(ddl)) throw new NullReferenceException(string.Format("{0} \"{1}\" must have a DDL string", this.GetType().Name, name));
 
             this.Stats = new CQLTableStats();
             this.Path = cqlFile;
@@ -551,63 +574,7 @@ namespace DSEDiagnosticLibrary
 
             #endregion
 
-            #region stats
-            foreach (var column in this.Columns)
-            {
-                this.Stats.Counters = 0;
-                this.Stats.Blobs = 0;
-
-                if(column is ICQLUserDefinedType)
-                {
-                    ++this.Stats.UDTs;
-                }
-                else
-                {
-                    var cqlColumn = (CQLColumn)column;
-
-                    if(cqlColumn.CQLType.HasCollection)
-                    {
-                        ++this.Stats.Collections;
-                    }
-                    if (cqlColumn.CQLType.HasFrozen)
-                    {
-                        ++this.Stats.Frozens;
-                    }
-                    if (cqlColumn.CQLType.HasTuple)
-                    {
-                        ++this.Stats.Tuples;
-                    }
-
-                    if (cqlColumn.CQLType.Name == "counter")
-                    {
-                        ++this.Stats.Counters;
-                    }
-                    else if (cqlColumn.CQLType.Name == "blob")
-                    {
-                        ++this.Stats.Blobs;
-                    }
-                    else
-                    {
-                        foreach (var subType in cqlColumn.CQLType.CQLSubType)
-                        {
-                            if (subType.Name == "counter")
-                            {
-                                ++this.Stats.Counters;
-                            }
-                            else if (subType.Name == "blob")
-                            {
-                                ++this.Stats.Blobs;
-                            }
-                        }
-                    }
-
-                    if (cqlColumn.IsStatic)
-                    {
-                        ++this.Stats.Statics;
-                    }
-                }
-            }
-            #endregion
+            this.UpdateColumnStats(this.Columns);
 
             if(associateTableToColumn)
             {
@@ -785,5 +752,53 @@ namespace DSEDiagnosticLibrary
         {
             return ksInstance.TryGetTable(name);
         }
+
+        #region private members
+
+        private void UpdateColumnStats(IEnumerable<ICQLColumn> columns)
+        {
+            this.Stats.NbrColumns += (uint) columns.Count();
+
+            foreach (var column in columns)
+            {
+                if (column.UDT == null)
+                {
+                    if (column.CQLType.HasCollection)
+                    {
+                        ++this.Stats.Collections;
+                    }
+                    if (column.CQLType.HasFrozen)
+                    {
+                        ++this.Stats.Frozens;
+                    }
+                    if (column.CQLType.HasTuple)
+                    {
+                        ++this.Stats.Tuples;
+                    }
+                    if (column.CQLType.HasCounter)
+                    {
+                        ++this.Stats.Counters;
+                    }
+                    if (column.CQLType.HasBlob)
+                    {
+                        ++this.Stats.Blobs;
+                    }
+                    if (column.CQLType.HasUDT)
+                    {
+                        ++this.Stats.UDTs;
+                    }
+                    if (column.IsStatic)
+                    {
+                        ++this.Stats.Statics;
+                    }
+                }
+                else
+                {
+                    this.UpdateColumnStats(column.UDT.Columns);
+                }
+            }
+        }
+
+        #endregion
     }
 }

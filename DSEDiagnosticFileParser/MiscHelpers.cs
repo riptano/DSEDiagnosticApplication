@@ -13,7 +13,7 @@ using System.Net;
 
 namespace DSEDiagnosticFileParser
 {
-    public static class MiscHelpers
+    public static partial class MiscHelpers
     {        
         /// <summary>
         ///

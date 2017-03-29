@@ -76,8 +76,8 @@ namespace DSEDiagnosticLibrary
 			return null;
 		}
 
-		static Regex IPAddressRegEx = new Regex(LibrarySettings.IPAdressRegEx,
-													RegexOptions.Compiled);
+		public static readonly Regex IPAddressRegEx = new Regex(LibrarySettings.IPAdressRegEx,
+													                RegexOptions.Compiled);
 
 		public IPAddress SetIPAddressOrHostName(string strIPAddressOrHostName, bool tryParseAsIPAddress = true)
 		{
@@ -702,7 +702,7 @@ namespace DSEDiagnosticLibrary
 		IEnumerable<IEvent> Events { get; }
 		INode AssociateItem(IEnumerable<IEvent> eventItems);
 		IEnumerable<IConfigurationLine> Configurations { get; }
-		
+
         object ToDump();
 	}
 

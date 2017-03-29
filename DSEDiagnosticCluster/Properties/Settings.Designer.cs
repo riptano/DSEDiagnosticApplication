@@ -150,7 +150,7 @@ namespace DSEDiagnosticLibrary.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("\\stuple\\s*\\<")]
+        [global::System.Configuration.DefaultSettingValueAttribute("\\s?tuple\\s*\\<")]
         public string TupleRegEx {
             get {
                 return ((string)(this["TupleRegEx"]));
@@ -159,7 +159,7 @@ namespace DSEDiagnosticLibrary.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("\\sfrozen\\s*\\<")]
+        [global::System.Configuration.DefaultSettingValueAttribute("\\s?frozen\\s*\\<")]
         public string FrozenRegEx {
             get {
                 return ((string)(this["FrozenRegEx"]));
@@ -168,7 +168,7 @@ namespace DSEDiagnosticLibrary.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("\\sstatic\\s")]
+        [global::System.Configuration.DefaultSettingValueAttribute("\\sstatic\\s?")]
         public string StaticRegEx {
             get {
                 return ((string)(this["StaticRegEx"]));
@@ -181,6 +181,24 @@ namespace DSEDiagnosticLibrary.Properties {
         public string PrimaryKeyRegEx {
             get {
                 return ((string)(this["PrimaryKeyRegEx"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("\\s?blob\\s?")]
+        public string BlobRegEx {
+            get {
+                return ((string)(this["BlobRegEx"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("\\s?counter\\s?")]
+        public string CounterRegEx {
+            get {
+                return ((string)(this["CounterRegEx"]));
             }
         }
     }

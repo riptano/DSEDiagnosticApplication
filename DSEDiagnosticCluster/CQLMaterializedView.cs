@@ -45,7 +45,7 @@ namespace DSEDiagnosticLibrary
                     associateViewToColumn,
                     false)
         {
-            if (baseTable == null) throw new NullReferenceException("CQLMaterializedView must be associated to a CQL Table. It cannot be null");
+            if (baseTable == null) throw new NullReferenceException(string.Format("CQLMaterializedView must be associated to a CQL Table. It cannot be null for CQL \"{0}\"", ddl));
 
             this.Table = baseTable;
             this.WhereClause = whereClause;

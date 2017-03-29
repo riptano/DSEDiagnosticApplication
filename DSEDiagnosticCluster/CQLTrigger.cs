@@ -25,10 +25,10 @@ namespace DSEDiagnosticLibrary
                             bool associateTriggerToKeyspace = true,
                             bool associateTriggerToTable = true)
         {
-            if (string.IsNullOrEmpty(name)) throw new NullReferenceException("CQLTrigger name cannot be null");
-            if (table == null) throw new NullReferenceException("CQLTrigger must be associated to a CQL Table. It cannot be null");
-            if (string.IsNullOrEmpty(javaClass)) throw new NullReferenceException("CQLTrigger must have a Java Class");
-            if (string.IsNullOrEmpty(ddl)) throw new NullReferenceException("CQLTrigger must have a DDL string");
+            if (string.IsNullOrEmpty(name)) throw new NullReferenceException(string.Format("CQLTrigger name cannot be null for CQL \"{0}\"", ddl));
+            if (table == null) throw new NullReferenceException(string.Format("CQLTrigger must be associated to a CQL Table. It cannot be null for CQL \"{0}\"", ddl));
+            if (string.IsNullOrEmpty(javaClass)) throw new NullReferenceException(string.Format("CQLTrigger must have a Java Class for CQL \"{0}\"", ddl));
+            if (string.IsNullOrEmpty(ddl)) throw new NullReferenceException(string.Format("CQLTrigger \"{0}\" must have a DDL string", name));
 
             this.Path = cqlFile;
             this.Table = table;

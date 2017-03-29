@@ -28,6 +28,7 @@ namespace DSEDiagnosticLibrary
         string Value { get; }
         string NormalizeValue();
         string NormalizeProperty();
+        object ParsedValue();
 
         bool Match(IConfigurationLine configItem);
         bool Match(IDataCenter dataCenter,
@@ -260,6 +261,24 @@ namespace DSEDiagnosticLibrary
                         : this._normalizedValue;
         }
 
+        private object _parsedValue = null;
+        public object ParsedValue()
+        {
+            if(this._parsedValue == null)
+            {
+                if (string.IsNullOrEmpty(this.Value)) return null;
+
+                if (this.Value.Contains(','))
+                {
+                    return this._parsedValue = StringFunctions.Split(StringHelpers.RemoveQuotes(this.Value), ",")
+                                                                .Select(s => StringHelpers.DetermineProperObjectFormat(s, true, false, true, this.Property));
+                }
+
+                this._parsedValue = StringHelpers.DetermineProperObjectFormat(this.Value, true, false, true, this.Property);
+            }
+
+            return this._parsedValue;
+        }
         public bool Match(IConfigurationLine configItem)
         {
             return configItem != null
@@ -287,7 +306,18 @@ namespace DSEDiagnosticLibrary
 
         public object ToDump()
         {
-            return new { Common=this.IsCommonToDataCenter, Node=this.Node, File=this.Path.PathResolved, Source=this.Source, Type=this.Type, Property=this.Property, Value=this.Value };
+            return new
+            {
+                Common = this.IsCommonToDataCenter,
+                Node = this.Node,
+                File = this.Path.PathResolved,
+                Source = this.Source,
+                Type = this.Type,
+                Property = this.Property,
+                Value = this.Value,
+                ParsedValueType = this.ParsedValue()?.GetType().Name,
+                ParsedValue = this.ParsedValue()
+            };
         }
 
         #endregion

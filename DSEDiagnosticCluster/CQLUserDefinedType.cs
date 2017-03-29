@@ -24,10 +24,10 @@ namespace DSEDiagnosticLibrary
                                     bool associateUDTToColumn = true,
                                     bool associateUDTToKeyspace = true)
         {
-            if (string.IsNullOrEmpty(name)) throw new NullReferenceException("CQLUserDefinedType name cannot be null");
-            if (keyspace == null) throw new NullReferenceException("CQLUserDefinedType must be associated to a keyspace. It cannot be null");
-            if (columns == null || columns.IsEmpty()) throw new NullReferenceException("CQLUserDefinedType must have columns (cannot be null or a count of zero)");
-            if (string.IsNullOrEmpty(ddl)) throw new NullReferenceException("CQLUserDefinedType must have a DDL string");
+            if (string.IsNullOrEmpty(name)) throw new NullReferenceException(string.Format("CQLUserDefinedType name cannot be null for CQL \"{0}\"", ddl));
+            if (keyspace == null) throw new NullReferenceException(string.Format("CQLUserDefinedType must be associated to a keyspace. It cannot be null for CQL \"{0}\"", ddl));
+            if (columns == null || columns.IsEmpty()) throw new NullReferenceException(string.Format("CQLUserDefinedType must have columns (cannot be null or a count of zero) for CQL \"{0}\"", ddl));
+            if (string.IsNullOrEmpty(ddl)) throw new NullReferenceException(string.Format("CQLUserDefinedType \"{0}\" must have a DDL string", name));
 
             this.Path = cqlFile;
             this.Keyspace = keyspace;

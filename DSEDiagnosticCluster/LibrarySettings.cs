@@ -28,6 +28,8 @@ namespace DSEDiagnosticLibrary
         public static string FrozenRegExStr = Properties.Settings.Default.FrozenRegEx;
         public static string StaticRegExStr = Properties.Settings.Default.StaticRegEx;
         public static string PrimaryKeyRegExStr = Properties.Settings.Default.PrimaryKeyRegEx;
+        public static string BlobRegExStr = Properties.Settings.Default.BlobRegEx;
+        public static string CounterRegExStr = Properties.Settings.Default.CounterRegEx;
 
         public static T ParseEnum<T>(string enumValue)
             where T : struct

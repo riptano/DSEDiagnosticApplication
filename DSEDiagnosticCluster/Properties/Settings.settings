@@ -65,16 +65,22 @@
 &lt;/ArrayOfString&gt;</Value>
     </Setting>
     <Setting Name="TupleRegEx" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">\stuple\s*\&lt;</Value>
+      <Value Profile="(Default)">\s?tuple\s*\&lt;</Value>
     </Setting>
     <Setting Name="FrozenRegEx" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">\sfrozen\s*\&lt;</Value>
+      <Value Profile="(Default)">\s?frozen\s*\&lt;</Value>
     </Setting>
     <Setting Name="StaticRegEx" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">\sstatic\s</Value>
+      <Value Profile="(Default)">\sstatic\s?</Value>
     </Setting>
     <Setting Name="PrimaryKeyRegEx" Type="System.String" Scope="Application">
       <Value Profile="(Default)">\sprimary\s+key\s?</Value>
+    </Setting>
+    <Setting Name="BlobRegEx" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">\s?blob\s?</Value>
+    </Setting>
+    <Setting Name="CounterRegEx" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">\s?counter\s?</Value>
     </Setting>
   </Settings>
 </SettingsFile>

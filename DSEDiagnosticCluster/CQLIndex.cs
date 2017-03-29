@@ -32,10 +32,10 @@ namespace DSEDiagnosticLibrary
                         bool associateIndexToKeyspace = true,
                         bool associateIndexToTable = true)
         {
-            if (string.IsNullOrEmpty(name)) throw new NullReferenceException("CQLIndex name cannot be null");
-            if (table == null) throw new NullReferenceException("CQLIndex must be associated to a CQL Table. It cannot be null");
-            if (columns == null || columns.IsEmpty()) throw new NullReferenceException("CQLIndex must have columns (cannot be null or a count of zero)");
-            if (string.IsNullOrEmpty(ddl)) throw new NullReferenceException("CQLIndex must have a DDL string");
+            if (string.IsNullOrEmpty(name)) throw new NullReferenceException(string.Format("CQLIndex name cannot be null for CQL \"{0}\"", ddl));
+            if (table == null) throw new NullReferenceException(string.Format("CQLIndex must be associated to a CQL Table. It cannot be null for CQL \"{0}\"", ddl));
+            if (columns == null || columns.IsEmpty()) throw new NullReferenceException(string.Format("CQLIndex must have columns (cannot be null or a count of zero) for CQL \"{0}\"", ddl));
+            if (string.IsNullOrEmpty(ddl)) throw new NullReferenceException(string.Format("CQLIndex \"{0}\" must have a DDL string for CQL \"{0}\"", name));
 
             this.Path = cqlFile;
             this.Table = table;

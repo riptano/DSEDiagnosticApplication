@@ -51,7 +51,30 @@ namespace DSEDiagnosticLibrary
 		public IEnumerable<IEvent> Events { get { lock (this._events) { return this._events.ToArray(); } } }
 
         private CTS.List<IKeyspace> _keySpaces = new CTS.List<IKeyspace>();
-        public IEnumerable<IKeyspace> Keyspaces { get { return this._keySpaces; } }
+        public IEnumerable<IKeyspace> Keyspaces
+        {
+            get
+            {
+                if(this.IsMaster)
+                {
+                    return this.UnderlyingCluster.SelectMany(c => c.Keyspaces);
+                }
+                return this._keySpaces;
+            }
+        }
+
+        public IEnumerable<Cluster> UnderlyingCluster
+        {
+            get
+            {
+                if(this.IsMaster)
+                {
+                    return Clusters.Where(c => !c.IsMaster);
+                }
+
+                return Enumerable.Empty<Cluster>();
+            }
+        }
 
         public IEnumerable<IKeyspace> GetKeyspaces(IDataCenter datacenter)
         {

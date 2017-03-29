@@ -128,8 +128,7 @@ namespace DSEDiagnosticFileParser
         {
             List<string> cqlStatements = new List<string>();
             StringBuilder strCQL = new StringBuilder();
-            uint nbrGenerated = 0;
-            uint itemNbr = 0;
+            uint nbrGenerated = 0;            
             bool multipleLineComment = false;
             string line;
 
@@ -194,7 +193,7 @@ namespace DSEDiagnosticFileParser
 
             foreach (var cqlStmt in cqlStatements)
             {
-                ++itemNbr;
+                ++this.NbrItemsParsed;
                 regexMatch = this.RegExParser.Match(cqlStmt, 0); //cql use
 
                 if (regexMatch.Success)
@@ -213,7 +212,7 @@ namespace DSEDiagnosticFileParser
 
                 if (regexMatch.Success)
                 {
-                    if (ProcessDDLKeyspace(regexMatch, itemNbr))
+                    if (ProcessDDLKeyspace(regexMatch, (uint)this.NbrItemsParsed))
                     {
                         ++nbrGenerated;
                     }
@@ -224,7 +223,7 @@ namespace DSEDiagnosticFileParser
 
                 if (regexMatch.Success)
                 {
-                    if (ProcessDDLTable(regexMatch, itemNbr))
+                    if (ProcessDDLTable(regexMatch, (uint)this.NbrItemsParsed))
                     {
                         ++nbrGenerated;
                     }
@@ -235,7 +234,7 @@ namespace DSEDiagnosticFileParser
 
                 if (regexMatch.Success)
                 {
-                    if (ProcessDDLTable(regexMatch, itemNbr))
+                    if (ProcessDDLUDT(regexMatch, (uint)this.NbrItemsParsed))
                     {
                         ++nbrGenerated;
                     }
@@ -246,7 +245,7 @@ namespace DSEDiagnosticFileParser
 
                 if (regexMatch.Success)
                 {
-                    if (ProcessDDLIndex(regexMatch, itemNbr))
+                    if (ProcessDDLIndex(regexMatch, (uint)this.NbrItemsParsed))
                     {
                         ++nbrGenerated;
                     }
@@ -257,7 +256,7 @@ namespace DSEDiagnosticFileParser
 
                 if (regexMatch.Success)
                 {
-                    if (ProcessDDLMaterializediew(regexMatch, itemNbr))
+                    if (ProcessDDLMaterializediew(regexMatch, (uint)this.NbrItemsParsed))
                     {
                         ++nbrGenerated;
                     }
@@ -268,7 +267,7 @@ namespace DSEDiagnosticFileParser
 
                 if (regexMatch.Success)
                 {
-                    if (ProcessDDLTrigger(regexMatch, itemNbr))
+                    if (ProcessDDLTrigger(regexMatch, (uint)this.NbrItemsParsed))
                     {
                         ++nbrGenerated;
                     }
@@ -279,8 +278,7 @@ namespace DSEDiagnosticFileParser
                                                 this.Node, this.File, cqlStatements);
 
             }
-
-            this.NbrItemsParsed = (int)itemNbr;
+            
             this.Processed = true;
             return nbrGenerated;
         }
@@ -355,8 +353,8 @@ namespace DSEDiagnosticFileParser
             return this.AddKeySpace(keyspace);
         }
 
-        readonly Regex WithCompactStorageRegEx = new Regex(@"\s*compact\s+storage\s*", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        readonly Regex WithOrderByRegEx = new Regex(@"\s*clustering\s+order\s+by\s*\(([a-z0-9\-_$%+=@!?^*&,\ ]+)\)\s*", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        static readonly Regex WithCompactStorageRegEx = new Regex(@"\s*compact\s+storage\s*", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        static readonly Regex WithOrderByRegEx = new Regex(@"\s*clustering\s+order\s+by\s*\(([a-z0-9\-_$%+=@!?^*&,\ ]+)\)\s*", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         private bool ProcessDDLTable(Match tableMatch, uint lineNbr)
         {
@@ -592,7 +590,12 @@ namespace DSEDiagnosticFileParser
                         ckList.Add(cqlColumn);
                     }
 
-                    columns = pkList.Concat(ckList.ToArray()).Concat(tblInstance.TryGetColumns(columnsSplit).Select(c => c.Copy()).ToArray());
+                    columns = pkList.Concat(ckList.ToArray())
+                                .Concat(tblInstance.TryGetColumns(columnsSplit)
+                                                        .Where(c => !(pkList.Any(p => p.Name == c.Name)
+                                                                            || ckList.Any(k => k.Name == c.Name)))
+                                                        .Select(c => c.Copy()).ToArray());
+                                
                 }
 
                 var properties = new Dictionary<string, object>();
@@ -715,7 +718,8 @@ namespace DSEDiagnosticFileParser
                                                             ' ',
                                                             StringFunctions.IgnoreWithinDelimiterFlag.AngleBracket
                                                                 | StringFunctions.IgnoreWithinDelimiterFlag.Parenthese,
-                                                            StringFunctions.SplitBehaviorOptions.StringTrimEachElement);
+                                                            StringFunctions.SplitBehaviorOptions.StringTrimEachElement
+                                                                | StringFunctions.SplitBehaviorOptions.RemoveEmptyEntries);
 
             string colName = columntype[0];
             string colType = columntype[1];
@@ -845,7 +849,7 @@ namespace DSEDiagnosticFileParser
                         }
                         else
                         {
-                            properties.Add(propName, StringHelpers.DetermineProperObjectFormat(propValue, true, false));
+                            properties.Add(propName, StringHelpers.DetermineProperObjectFormat(propValue, true, false, false, propName));
                         }
                         bResult = true;
                     }

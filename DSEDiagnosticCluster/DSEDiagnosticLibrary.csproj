@@ -93,6 +93,7 @@
     <Compile Include="IResult.cs" />
     <Compile Include="Keyspace.cs" />
     <Compile Include="LibrarySettings.cs" />
+    <Compile Include="MiscHelpers1.cs" />
     <Compile Include="Node.cs" />
     <Compile Include="Parsed.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

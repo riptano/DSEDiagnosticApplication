@@ -73,7 +73,7 @@ namespace DSEDiagnosticLibrary
             WholeNumber = Bit | Byte | NS | us
         }
 
-        static Regex RegExValueUOF = new Regex(@"([0-9\-.+,]+)\s*([a-z0-9%#/]*)", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace);
+        readonly static Regex RegExValueUOF = new Regex(@"([0-9\-.+,]+)\s*([a-z0-9%#/]*)", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace);
 
         public UnitOfMeasure() { }
 
@@ -723,27 +723,79 @@ namespace DSEDiagnosticLibrary
             return uof.HasValue ? new UnitOfMeasure(uof.Value, uofType) : null;
         }
 
-        #endregion
-
-        #region private methods
-        static Types ConvertToType(string uof, Types uofType)
+        public static Types ConvertToType(string uof, Types uofType = Types.Unknown)
         {
-            if(string.IsNullOrEmpty(uof))
+            if (string.IsNullOrEmpty(uof))
             {
                 return Types.NaN | uofType;
             }
 
-            if(uof.IndexOf('/') >= 0)
+            if (uof.IndexOf('/') >= 0)
             {
                 var split = uof.Split('/');
                 Types newUOF = uofType;
+                Types returnedUOF;
+
+                if (split.ElementAtOrDefault(0) == "min") //assume minimal if first word
+                {
+                    split = split.Skip(1).ToArray();
+                }
 
                 foreach (var item in split)
                 {
-                    newUOF |= ConvertToType(item, Types.Unknown);
+                    returnedUOF = ConvertToType(item, Types.Unknown);
+
+                    if ((returnedUOF & Types.TimeUnits) != 0
+                            && (newUOF & Types.SEC) != 0)
+                    {
+                        newUOF &= ~Types.SEC;
+                    }
+
+                    newUOF |= returnedUOF;
                 }
 
-                return newUOF;
+                if ((newUOF & Types.TimeUnits) != 0
+                    || (newUOF & Types.SizeUnits) != 0
+                    || (newUOF & Types.NaN) != 0)
+                {
+                    return newUOF;
+                }
+
+                return uofType;
+            }
+
+            if (uof.LastIndexOf('_') >= 0)
+            {
+                var split = uof.Split('_');
+                Types newUOF = uofType;
+                Types returnedUOF;
+
+                if(split.ElementAtOrDefault(0) == "min") //assume minimal if first word
+                {
+                    split = split.Skip(1).ToArray();
+                }
+
+                foreach (var item in split)
+                {
+                    returnedUOF = ConvertToType(item, Types.Unknown);
+
+                    if((returnedUOF & Types.TimeUnits) != 0
+                        && (newUOF & Types.SEC) != 0)
+                    {
+                        newUOF &= ~Types.SEC;
+                    }
+
+                    newUOF |= returnedUOF;
+                }
+
+                if((newUOF & Types.TimeUnits) != 0
+                    || (newUOF & Types.SizeUnits) != 0
+                    || (newUOF & Types.NaN) != 0)
+                {
+                    return newUOF;
+                }
+
+                return uofType;
             }
 
             switch (uof.Trim().ToLower())
@@ -822,6 +874,7 @@ namespace DSEDiagnosticLibrary
                 case "percent":
                 case "%":
                 case "pct":
+                case "chance":
                     return Types.Percent | uofType;
                 case "microsecond":
                 case "microseconds":
@@ -839,7 +892,15 @@ namespace DSEDiagnosticLibrary
                 case "null":
                     return Types.NaN;
                 case "mbps":
-                    return Types.MiB | Types.SEC | uofType;
+                    return Types.MiB | Types.SEC | Types.Rate | uofType;
+                case "rate":
+                case "throughput":
+                case "per":
+                    return Types.Rate | uofType;
+                case "period":
+                case "periods":
+                case "ttl":
+                    return Types.SEC | Types.Time | uofType;
             }
 
             Types parsedType;
@@ -850,15 +911,15 @@ namespace DSEDiagnosticLibrary
 
             return uofType;
         }
-        static decimal ConvertToDecimal(string value)
+        public static decimal ConvertToDecimal(string value)
         {
             return decimal.Parse(value, System.Globalization.NumberStyles.Number);
         }
-        static bool IsNaN(string value)
+        public static bool IsNaN(string value, bool emptynullIsNaN = true)
         {
             value = value?.Trim();
 
-            if (string.IsNullOrEmpty(value))
+            if (emptynullIsNaN && string.IsNullOrEmpty(value))
             {
                 return true;
             }
