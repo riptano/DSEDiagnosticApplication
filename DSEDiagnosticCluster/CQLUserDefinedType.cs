@@ -68,6 +68,7 @@ namespace DSEDiagnosticLibrary
         #region IDDLStmt
         public IKeyspace Keyspace { get; private set; }
         public string Name { get; private set; }
+        public string FullName { get { return this.Keyspace.Name + '.' + this.Name; } }
         public string DDL { get; private set; }
         public object ToDump()
         {
@@ -105,7 +106,7 @@ namespace DSEDiagnosticLibrary
 
         public override int GetHashCode()
         {
-            return (this.Keyspace.Name + "." + this.Name).GetHashCode();
+            return this.FullName.GetHashCode();
         }
 
         public override string ToString()

@@ -9,7 +9,7 @@ using DSEDiagnosticLibrary;
 
 namespace DSEDiagnosticFileParser
 {
-    internal sealed class file_ntpstat : DiagnosticFile
+    public sealed class file_ntpstat : DiagnosticFile
     {
         public file_ntpstat(CatagoryTypes catagory,
                                 IDirectoryPath diagnosticDirectory,

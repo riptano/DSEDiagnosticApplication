@@ -8,7 +8,7 @@ using DSEDiagnosticLibrary;
 
 namespace DSEDiagnosticFileParser
 {
-    internal sealed class file_nodetool_ring : DiagnosticFile
+    public sealed class file_nodetool_ring : DiagnosticFile
     {
         public file_nodetool_ring(CatagoryTypes catagory,
                                     IDirectoryPath diagnosticDirectory,

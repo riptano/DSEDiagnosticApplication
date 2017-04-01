@@ -368,7 +368,7 @@ namespace DSEDiagnosticLibrary
             return null;
         }
 
-        public static IEnumerable<INode> GetNodes(string dataCenterName = null, string clusterName = null, bool includeUnAssociatedNodes = true)
+        public static IEnumerable<INode> GetNodes(string dataCenterName, string clusterName = null, bool includeUnAssociatedNodes = true)
         {
             if(!string.IsNullOrEmpty(dataCenterName))
             {
@@ -396,7 +396,28 @@ namespace DSEDiagnosticLibrary
             return clusterNodes == null ? Enumerable.Empty<INode>() : clusterNodes;
         }
 
-		public static INode AssociateDataCenterToNode(string dataCenterName, string nodeId, string clusterName = null)
+        public static IEnumerable<INode> GetNodes(bool includeUnAssociatedNodes = true)
+        {
+            var clusterNodes = Cluster.MasterCluster.DataCenters.SelectMany(dc => dc.Nodes);
+
+            if (includeUnAssociatedNodes)
+            {
+                if (clusterNodes == null)
+                {
+                    return UnAssociatedNodes.ToList();
+                }
+
+                var listNodes = clusterNodes.ToList();
+
+                listNodes.AddRange(UnAssociatedNodes);
+
+                return listNodes;
+            }
+
+            return clusterNodes;
+        }
+
+        public static INode AssociateDataCenterToNode(string dataCenterName, string nodeId, string clusterName = null)
 		{
 			if (string.IsNullOrEmpty(nodeId))
 			{ throw new ArgumentNullException("nodeId cannot be null"); }

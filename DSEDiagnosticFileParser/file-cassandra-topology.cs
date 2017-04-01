@@ -51,36 +51,68 @@ namespace DSEDiagnosticFileParser
 
             if(!ProcessedFile)
             {
+                string defaultDC = null;
+                string defaultRack = null;
+
                 foreach (var pair in propvaluePairs)
                 {
                     var hostDCSplit = pair.Item1.Split('=');
 
-                    if(hostDCSplit.Length == 2
-                        && (hostDCSplit[0].ToLower().Trim() != "default"
-                                || hostDCSplit[0].ToLower().Trim() != "unknown"))
+                    if (hostDCSplit.Length == 2
+                        && hostDCSplit[0].ToLower().Trim() != "unknown")
                     {
-                        var node = Cluster.TryGetNode(hostDCSplit[0].Trim(), hostDCSplit[1].Trim(), this.Node.Cluster.Name);
-
-                        if(node == null)
+                        if (hostDCSplit[0].ToLower().Trim() != "default")
                         {
-                            Logger.Instance.WarnFormat("{0}\t{1}\tSnitch defined Node \"{2}\" for DataCenter \"{3}\" for Rack \"{4}\" but wasn't found in current processing. This may indicated an error with the Snitch file or this processing.",
-                                                            this.Node.Id,
-                                                            this.File,
-                                                            hostDCSplit[0],
-                                                            hostDCSplit[1],
-                                                            pair.Item2);
+                            defaultDC = hostDCSplit[1].Trim();
+                            if (pair.Item2.ToLower() != "unknown")
+                            {
+                                defaultRack = pair.Item2;
+                            }
                         }
-                        else if(node.DataCenter == null)
+                        else
                         {
-                            Cluster.AssociateDataCenterToNode(hostDCSplit[1].Trim(), node);
-                        }
+                            var node = Cluster.TryGetNode(hostDCSplit[0].Trim(), hostDCSplit[1].Trim(), this.Node.Cluster.Name);
 
-                        if(node.DSE.Rack == null && pair.Item2.ToLower() != "unknown")
-                        {
-                            node.DSE.Rack = pair.Item2;
+                            if (node == null)
+                            {
+                                Logger.Instance.WarnFormat("{0}\t{1}\tSnitch defined Node \"{2}\" for DataCenter \"{3}\" for Rack \"{4}\" but wasn't found in current processing. This may indicated an error with the Snitch file or this processing.",
+                                                                this.Node.Id,
+                                                                this.File,
+                                                                hostDCSplit[0],
+                                                                hostDCSplit[1],
+                                                                pair.Item2);
+                            }
+                            else
+                            {
+                                if (node.DataCenter == null)
+                                {
+                                    Cluster.AssociateDataCenterToNode(hostDCSplit[1].Trim(), node);
+                                }
+
+                                if (node.DSE.Rack == null && pair.Item2.ToLower() != "unknown")
+                                {
+                                    node.DSE.Rack = pair.Item2;
+                                }
+                            }
                         }
                     }
                 }
+
+                if(!string.IsNullOrEmpty(defaultDC))
+                {
+                    Cluster.GetNodes()
+                        .Where(n => n.DataCenter == null)
+                        .ForEach(n =>
+                        {
+                            Cluster.AssociateDataCenterToNode(defaultDC, n);
+
+                            if(n.DSE.Rack == null && !string.IsNullOrEmpty(defaultRack))
+                            {
+                                n.DSE.Rack = defaultRack;
+                            }
+                        });
+                }
+
                 ProcessedFile = true;
             }
         }

@@ -178,10 +178,11 @@ namespace DSEDiagnosticFileParser.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute(@"[
+{""Item1"":""_Comments_"",""Item2"":""Item1 is case sensitive. Item2 Canbe a list of file names delimited by comma. Begginning files will be selected only if no later files in the list exist""},
 {""Item1"":""SimpleSnitch"",""Item2"":null},
 {""Item1"":""RackInferringSnitch"",""Item2"":null},
 {""Item1"":""PropertyFileSnitch"",""Item2"":""cassandra-topology.properties""},
-{""Item1"":""GossipingPropertyFileSnitch"",""Item2"":""cassandra-rackdc.properties""},
+{""Item1"":""GossipingPropertyFileSnitch"",""Item2"":""cassandra-topology.properties,cassandra-rackdc.properties""},
 {""Item1"":""CloudstackSnitch"",""Item2"":null},
 {""Item1"":""GoogleClouldSnitch"",""Item2"":""cassandra-rackdc.properties""},
 {""Item1"":""EC2Snitch"",""Item2"":""cassandra-rackdc.properties""},
@@ -191,6 +192,26 @@ namespace DSEDiagnosticFileParser.Properties {
         public string SnitchFileMappings {
             get {
                 return ((string)(this["SnitchFileMappings"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute(@"[
+{""ConfigType"":""DSE"",""ContainsString"":""dse"",""MatchAction"":""FileNameOnly,Equals""},
+{""ConfigType"":""Solr"",""ContainsString"":""solr"",""MatchAction"":""FileNameOnly,StartsWith""},
+{""ConfigType"":""Spark"",""ContainsString"":""spark"",""MatchAction"":""FileNameOnly,StartsWith""},
+{""ConfigType"":""Spark"",""ContainsString"":""spark"",""MatchAction"":""FileNameOnly,EndsWith""},
+{""ConfigType"":""Spark"",""ContainsString"":""dse-spark"",""MatchAction"":""FileNameOnly,StartsWith""},
+{""ConfigType"":""Hadoop"",""ContainsString"":""hadoop"",""MatchAction"":""FileNameOnly,Contains""},
+{""ConfigType"":""Snitch"",""ContainsString"":""cassandra-topology.properties"",""MatchAction"":""FileNamewExtension,Equals""},
+{""ConfigType"":""Snitch"",""ContainsString"":""cassandra-rackdc.properties"",""MatchAction"":""FileNamewExtension,Equals""},
+{""ConfigType"":""Snitch"",""ContainsString"":""cassandra-topology.yaml"",""MatchAction"":""FileNamewExtension,Equals""},
+{""ConfigType"":""Cassandra"",""ContainsString"":""cassandra"",""MatchAction"":""FileNameOnly,StartsWith""}
+]")]
+        public string ConfigTypeMappers {
+            get {
+                return ((string)(this["ConfigTypeMappers"]));
             }
         }
     }

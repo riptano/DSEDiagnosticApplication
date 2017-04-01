@@ -30,7 +30,7 @@ namespace DSEDiagnosticFileParser
             {
                 foreach (var item in configObj)
                 {
-                    dict.Add(item.Item1.ToLower(), item.Item2);
+                    dict.Add(item.Item1, item.Item2);
                 }
             }
 

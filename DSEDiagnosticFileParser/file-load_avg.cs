@@ -8,7 +8,7 @@ using DSEDiagnosticLibrary;
 
 namespace DSEDiagnosticFileParser
 {
-    internal sealed class file_load_avg : DiagnosticFile
+    public sealed class file_load_avg : DiagnosticFile
     {
         public file_load_avg(CatagoryTypes catagory,
                                 IDirectoryPath diagnosticDirectory,

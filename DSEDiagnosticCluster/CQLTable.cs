@@ -552,7 +552,31 @@ namespace DSEDiagnosticLibrary
 
                     if (isEnabled)
                     {
-                        this.Compression = StringHelpers.RemoveNamespace((string)((Dictionary<string, object>)pValue)["class"]);
+                        object compressionType;
+                        if(compressionProps.TryGetValue("sstable_compression", out compressionType))
+                        {
+                            if(string.IsNullOrEmpty((string) compressionType))
+                            {
+                                this.Compression = null;
+                                isEnabled = false;
+                            }
+                            else
+                            {
+                                this.Compression = StringHelpers.RemoveNamespace((string)compressionType);
+                            }
+                        }
+                        else if (compressionProps.TryGetValue("class", out compressionType))
+                        {
+                            if (string.IsNullOrEmpty((string)compressionType))
+                            {
+                                this.Compression = null;
+                                isEnabled = false;
+                            }
+                            else
+                            {
+                                this.Compression = StringHelpers.RemoveNamespace((string)compressionType);
+                            }
+                        }
                     }
                     else
                     {
@@ -703,6 +727,7 @@ namespace DSEDiagnosticLibrary
         #region IDDLStmt
         public IKeyspace Keyspace { get; private set; }
         public string Name { get; private set; }
+        public string FullName { get { return this.Keyspace.Name + '.' + this.Name; } }
         public string DDL { get; private set; }
         public object ToDump()
         {
@@ -740,7 +765,7 @@ namespace DSEDiagnosticLibrary
 
         public override int GetHashCode()
         {
-            return (this.Keyspace.Name + "." + this.Name).GetHashCode();
+            return this.FullName.GetHashCode();
         }
 
         public override string ToString()

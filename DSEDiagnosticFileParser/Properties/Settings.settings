@@ -62,10 +62,11 @@
     </Setting>
     <Setting Name="SnitchFileMappings" Type="System.String" Scope="Application">
       <Value Profile="(Default)">[
+{"Item1":"_Comments_","Item2":"Item1 is case sensitive. Item2 Canbe a list of file names delimited by comma. Begginning files will be selected only if no later files in the list exist"},
 {"Item1":"SimpleSnitch","Item2":null},
 {"Item1":"RackInferringSnitch","Item2":null},
 {"Item1":"PropertyFileSnitch","Item2":"cassandra-topology.properties"},
-{"Item1":"GossipingPropertyFileSnitch","Item2":"cassandra-rackdc.properties"},
+{"Item1":"GossipingPropertyFileSnitch","Item2":"cassandra-topology.properties,cassandra-rackdc.properties"},
 {"Item1":"CloudstackSnitch","Item2":null},
 {"Item1":"GoogleClouldSnitch","Item2":"cassandra-rackdc.properties"},
 {"Item1":"EC2Snitch","Item2":"cassandra-rackdc.properties"},

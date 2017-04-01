@@ -110,6 +110,7 @@ namespace DSEDiagnosticLibrary
         IEnumerable<KeyspaceReplicationInfo> Replications { get; }
         bool DurableWrites { get; }
         bool EverywhereStrategy { get; }
+        bool LocalStrategy { get; }
         IDDL AssociateItem(IDDL ddlItem);
         ICQLTable TryGetTable(string tableName);
         ICQLMaterializedView TryGetView(string viewName);
@@ -149,10 +150,11 @@ namespace DSEDiagnosticLibrary
             this.DDL = ddl;
             this.Replications = replications;
             this.EverywhereStrategy = this.ReplicationStrategy.ToUpper() == "EVERYWHERESTRATEGY";
+            this.LocalStrategy = this.ReplicationStrategy.ToUpper() == "LOCALSTRATEGY";
 
             if (this.Replications == null || this.Replications.Count() == 0)
             {
-                if (this.EverywhereStrategy)
+                if (this.EverywhereStrategy || this.LocalStrategy)
                 {
                     if(this.Replications == null)
                     {
@@ -184,6 +186,7 @@ namespace DSEDiagnosticLibrary
 
         #region IDDL
         public string Name { get; private set; }
+        public string FullName { get { return this.Name; } }
         public string DDL { get; private set; }
         public object ToDump()
         {
@@ -196,8 +199,9 @@ namespace DSEDiagnosticLibrary
         public IEnumerable<IDDL> DDLs { get { return this._ddlList; } }
         public string ReplicationStrategy { get; private set; }
         public bool EverywhereStrategy { get; private set; }
+        public bool LocalStrategy { get; private set; }
         public KeyspaceStats Stats { get; private set; }
-        public IEnumerable<IDataCenter> DataCenters { get { return this.EverywhereStrategy ? this.Cluster?.DataCenters : this.Replications.Select(r => r.DataCenter); } }
+        public IEnumerable<IDataCenter> DataCenters { get { return this.EverywhereStrategy || this.LocalStrategy ? this.Cluster?.DataCenters : this.Replications.Select(r => r.DataCenter); } }
         public IEnumerable<KeyspaceReplicationInfo> Replications { get; private set; }
         public bool DurableWrites { get; private set; }
         public IDDL AssociateItem(IDDL ddl)
@@ -407,7 +411,13 @@ namespace DSEDiagnosticLibrary
                     return true;
                 }
 
+                if (this.LocalStrategy && other.LocalStrategy)
+                {
+                    return true;
+                }
+
                 if (!this.EverywhereStrategy && !other.EverywhereStrategy
+                        && !this.LocalStrategy && !other.LocalStrategy
                         && this.Replications.Count() == other.Replications.Count())
                 {
                     return this.Replications
@@ -435,7 +445,7 @@ namespace DSEDiagnosticLibrary
 
         public override int GetHashCode()
         {
-            return this.Name.GetHashCode();
+            return this.FullName.GetHashCode();
         }
 
         public override string ToString()

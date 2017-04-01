@@ -19,8 +19,7 @@ namespace DSEDiagnosticLibrary
         public static UnitOfMeasure.Types DefaultMemoryRate = ParseEnum<UnitOfMeasure.Types>(Properties.Settings.Default.DefaultMemoryRate);
         public static UnitOfMeasure.Types DefaultStorageRate = ParseEnum<UnitOfMeasure.Types>(Properties.Settings.Default.DefaultStorageRate);
         public static UnitOfMeasure.Types DefaultTimeUnit = ParseEnum<UnitOfMeasure.Types>(Properties.Settings.Default.DefaultTimeUnit);
-        public static string IPAdressRegEx = Properties.Settings.Default.IPAdressRegEx;
-        public static Dictionary<string, string> SnitchFileMappings = CreateSnitchDictionary(Properties.Settings.Default.SnitchFileMappings);
+        public static string IPAdressRegEx = Properties.Settings.Default.IPAdressRegEx;        
         public static List<YamlConfigurationLine.ConfigTypeMapper> ConfigTypeMappers = JsonConvert.DeserializeObject<List<YamlConfigurationLine.ConfigTypeMapper>>(Properties.Settings.Default.ConfigTypeMappers);
         public static int UnitOfMeasureRoundDecimals = Properties.Settings.Default.UnitOfMeasureRoundDecimals;
         public static string[] CQLCollectionTypes = Properties.Settings.Default.CQLCollectionTypes.ToArray();
@@ -44,20 +43,5 @@ namespace DSEDiagnosticLibrary
             return default(T);
         }
 
-        public static Dictionary<string, string> CreateSnitchDictionary(string configString)
-        {
-            var configObj = Newtonsoft.Json.JsonConvert.DeserializeObject<Tuple<string, string>[]>(configString);
-            var dict = new Dictionary<string, string>();
-
-            if (configObj != null)
-            {
-                foreach (var item in configObj)
-                {
-                    dict.Add(item.Item1.ToLower(), item.Item2);
-                }
-            }
-
-            return dict;
-        }
     }
 }

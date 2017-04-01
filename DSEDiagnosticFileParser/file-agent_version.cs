@@ -8,7 +8,7 @@ using DSEDiagnosticLibrary;
 
 namespace DSEDiagnosticFileParser
 {
-    internal sealed class file_agent_version : DiagnosticFile
+    public sealed class file_agent_version : DiagnosticFile
     {
         public file_agent_version(CatagoryTypes catagory, 
                                     IDirectoryPath diagnosticDirectory,

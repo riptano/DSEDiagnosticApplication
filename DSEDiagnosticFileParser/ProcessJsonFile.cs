@@ -12,7 +12,7 @@ using System.IO;
 
 namespace DSEDiagnosticFileParser
 {
-	internal abstract class ProcessJsonFile : DiagnosticFile
+	public abstract class ProcessJsonFile : DiagnosticFile
 	{
 		public ProcessJsonFile(CatagoryTypes catagory,
 									IDirectoryPath diagnosticDirectory,

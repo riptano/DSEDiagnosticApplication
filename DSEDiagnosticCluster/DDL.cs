@@ -9,6 +9,7 @@ namespace DSEDiagnosticLibrary
 	public interface IDDL : IParsed
 	{
 		string Name { get; }
+        string FullName { get; }
 		string DDL { get; }
         object ToDump();
     }

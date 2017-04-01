@@ -8,7 +8,7 @@ using DSEDiagnosticLibrary;
 
 namespace DSEDiagnosticFileParser
 {
-    internal class file_yaml : DiagnosticFile
+    public class file_yaml : DiagnosticFile
     {
         public file_yaml(CatagoryTypes catagory,
                                 IDirectoryPath diagnosticDirectory,
@@ -151,7 +151,7 @@ namespace DSEDiagnosticFileParser
             {
                 if(!this.Node.DSE.InstanceType.HasFlag(DSEInfo.InstanceTypes.Hadoop))
                 {
-                    this.Processed = false;                    
+                    this.Processed = false;
                     this.NbrItemsParsed = 0;
                     return 0;
                 }
@@ -160,7 +160,7 @@ namespace DSEDiagnosticFileParser
             {
                 if (!this.Node.DSE.InstanceType.HasFlag(DSEInfo.InstanceTypes.Search))
                 {
-                    this.Processed = false;                    
+                    this.Processed = false;
                     this.NbrItemsParsed = 0;
                     return 0;
                 }
@@ -169,21 +169,51 @@ namespace DSEDiagnosticFileParser
             {
                 if (!this.Node.DSE.InstanceType.HasFlag(DSEInfo.InstanceTypes.Analytics))
                 {
-                    this.Processed = false;                    
+                    this.Processed = false;
                     this.NbrItemsParsed = 0;
                     return 0;
                 }
             }
             else if (this.ConfigType == ConfigTypes.Snitch && this.Node.DSE.EndpointSnitch != null)
             {
-                var snitchFile = LibrarySettings.SnitchFileMappings.TryGetValue(this.Node.DSE.EndpointSnitch);
+                var snitchFiles = LibrarySettings.SnitchFileMappings.TryGetValue(this.Node.DSE.EndpointSnitch);
+                var snitchFileSplit = snitchFiles?.Split(',');
+                var processThisFilePos = snitchFileSplit == null
+                                            ? -1
+                                            : snitchFileSplit.IndexOf(f => f.Trim().ToLower() == this.File.FileName.ToLower());
+                var processThisFile = processThisFilePos >= 0;
 
-                if(snitchFile == null || this.File.FileName != snitchFile)
+                if (processThisFile
+                        && snitchFileSplit.Length > 1
+                        && processThisFilePos + 1 < snitchFileSplit.Length)
                 {
-                    this.Processed = false;                    
+                    IFilePath checkSnitchFile;
+                    foreach (var snitchFile in snitchFileSplit.GetRange(processThisFilePos + 1))
+                    {
+                        if(this.File.ParentDirectoryPath.MakeFile(snitchFile, out checkSnitchFile)
+                                && checkSnitchFile.Exist())
+                        {
+                            processThisFile = false;
+                            break;
+                        }
+                    }
+                }
+
+                if (!processThisFile)
+                {
+                    this.Processed = false;
                     this.NbrItemsParsed = 0;
                     return 0;
                 }
+            }
+            else if(this.ConfigType == ConfigTypes.Unkown)
+            {
+                Logger.Instance.WarnFormat("{0}\t{1}\tUnknown configuration type for this file. File will be ignored.",
+                                                this.Node.Id,
+                                                this.File);
+                this.Processed = false;
+                this.NbrItemsParsed = 0;
+                return 0;
             }
 
             var fileLines = this.File.ReadAllLines();
@@ -429,7 +459,7 @@ namespace DSEDiagnosticFileParser
             if(datafiledirectories.Count > 0)
             {
                 this.Node.DSE.Locations.DataDirs = datafiledirectories;
-            }            
+            }
         }
     }
 }

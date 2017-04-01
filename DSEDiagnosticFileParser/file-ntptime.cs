@@ -8,7 +8,7 @@ using DSEDiagnosticLibrary;
 
 namespace DSEDiagnosticFileParser
 {
-    internal sealed class file_ntptime : DiagnosticFile
+    public sealed class file_ntptime : DiagnosticFile
     {
         public file_ntptime(CatagoryTypes catagory,
                                 IDirectoryPath diagnosticDirectory,

@@ -10,7 +10,7 @@ using DSEDiagnosticLibrary;
 
 namespace DSEDiagnosticFileParser
 {
-    internal class cql_ddl : DiagnosticFile
+    public class cql_ddl : DiagnosticFile
     {
         public cql_ddl(CatagoryTypes catagory,
                             IDirectoryPath diagnosticDirectory,
@@ -293,7 +293,7 @@ namespace DSEDiagnosticFileParser
 
                 if (dcName != null)
                 {
-                    ksInstance = this.Cluster.GetKeyspaces(ksName).FirstOrDefault(k => k.EverywhereStrategy || k.Replications.Any(r => r.DataCenter.Name == dcName));
+                    ksInstance = this.Cluster.GetKeyspaces(ksName).FirstOrDefault(k => k.EverywhereStrategy || k.LocalStrategy || k.Replications.Any(r => r.DataCenter.Name == dcName));
                 }
             }
 

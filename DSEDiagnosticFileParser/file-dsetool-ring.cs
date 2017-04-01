@@ -9,7 +9,7 @@ using DSEDiagnosticLibrary;
 
 namespace DSEDiagnosticFileParser
 {
-    internal sealed class file_dsetool_ring : DiagnosticFile
+    public sealed class file_dsetool_ring : DiagnosticFile
     {
         public file_dsetool_ring(CatagoryTypes catagory,
                                     IDirectoryPath diagnosticDirectory,
