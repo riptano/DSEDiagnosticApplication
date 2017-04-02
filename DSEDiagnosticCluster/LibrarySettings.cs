@@ -29,6 +29,10 @@ namespace DSEDiagnosticLibrary
         public static string PrimaryKeyRegExStr = Properties.Settings.Default.PrimaryKeyRegEx;
         public static string BlobRegExStr = Properties.Settings.Default.BlobRegEx;
         public static string CounterRegExStr = Properties.Settings.Default.CounterRegEx;
+        public static string[] SystemKeyspaces = Properties.Settings.Default.SystemKeyspaces.ToArray();
+        public static string[] DSEKeyspaces = Properties.Settings.Default.DSEKeyspaces.ToArray();
+        public static string[] PerformanceKeyspaces = Properties.Settings.Default.DSEKeyspaces.ToArray();
+        public static string[] TablesUsageFlag = Properties.Settings.Default.TablesUsageFlag.ToArray();
 
         public static T ParseEnum<T>(string enumValue)
             where T : struct

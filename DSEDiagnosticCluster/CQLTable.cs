@@ -462,6 +462,9 @@ namespace DSEDiagnosticLibrary
         /// CQL statements associated with this table.
         /// </summary>
         IEnumerable<IDDL> DDLs { get; }
+
+        bool IsFlagged { get; }
+
         IDDL AssociateItem(IDDL ddl);
     }
 
@@ -499,6 +502,12 @@ namespace DSEDiagnosticLibrary
             this.OrderByCols = orderByCols ?? Enumerable.Empty<CQLOrderByColumn>();
             this.Properties = properties ?? new Dictionary<string, object>(0);
             this.Items = this.Columns.Count();
+            this.IsFlagged = LibrarySettings.TablesUsageFlag.Contains(this.FullName);
+
+            if(!this.IsFlagged)
+            {
+                this.IsFlagged = LibrarySettings.TablesUsageFlag.Contains(this.Keyspace.Name);
+            }
 
             #region Generate Primary Key/Cluster Key Enums, if required
 
@@ -711,6 +720,8 @@ namespace DSEDiagnosticLibrary
 
             return this.Columns.FirstOrDefault(c => c.Name == columnName);
         }
+
+        public bool IsFlagged { get; protected set; }
         #endregion
 
         #region IParsed

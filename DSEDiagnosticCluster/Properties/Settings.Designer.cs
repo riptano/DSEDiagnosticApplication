@@ -184,5 +184,66 @@ namespace DSEDiagnosticLibrary.Properties {
                 return ((string)(this["CounterRegEx"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute(@"<?xml version=""1.0"" encoding=""utf-16""?>
+<ArrayOfString xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"">
+  <string>system_auth</string>
+  <string>system_distributed</string>
+  <string>system_schema</string>
+  <string>system</string>
+  <string>system_traces</string>
+</ArrayOfString>")]
+        public global::System.Collections.Specialized.StringCollection SystemKeyspaces {
+            get {
+                return ((global::System.Collections.Specialized.StringCollection)(this["SystemKeyspaces"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute(@"<?xml version=""1.0"" encoding=""utf-16""?>
+<ArrayOfString xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"">
+  <string>dse_system</string>
+  <string>dse_security</string>
+  <string>solr_admin</string>
+  <string>dse_auth</string>
+  <string>dse_leases</string>
+  <string>dse_perf</string>
+  <string>OpsCenter</string>
+</ArrayOfString>")]
+        public global::System.Collections.Specialized.StringCollection DSEKeyspaces {
+            get {
+                return ((global::System.Collections.Specialized.StringCollection)(this["DSEKeyspaces"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("<?xml version=\"1.0\" encoding=\"utf-16\"?>\r\n<ArrayOfString xmlns:xsi=\"http://www.w3." +
+            "org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\r\n  <s" +
+            "tring>system_traces</string>\r\n  <string>dse_perf</string>\r\n</ArrayOfString>")]
+        public global::System.Collections.Specialized.StringCollection PerformanceKeyspaces {
+            get {
+                return ((global::System.Collections.Specialized.StringCollection)(this["PerformanceKeyspaces"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute(@"<?xml version=""1.0"" encoding=""utf-16""?>
+<ArrayOfString xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"">
+  <string>system.paxos</string>
+  <string>system_traces</string>
+  <string>dse_perf</string>
+  <string>system_auth</string>
+  <string>dse_security</string>
+</ArrayOfString>")]
+        public global::System.Collections.Specialized.StringCollection TablesUsageFlag {
+            get {
+                return ((global::System.Collections.Specialized.StringCollection)(this["TablesUsageFlag"]));
+            }
+        }
     }
 }

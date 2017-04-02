@@ -122,6 +122,10 @@ namespace DSEDiagnosticLibrary
         IEnumerable<ICQLIndex> GetIndexes();
         IEnumerable<ICQLTrigger> GetTriggers();
         IEnumerable<ICQLMaterializedView> GetViews();
+
+        bool IsSystemKeyspace { get; }
+        bool IsDSEKeyspace { get; }
+        bool IsPerformanceKeyspace { get; }
     }
 
     public sealed class KeySpace : IKeyspace
@@ -136,8 +140,8 @@ namespace DSEDiagnosticLibrary
                             INode defindingNode,
                             Cluster cluster)
         {
-            if (string.IsNullOrEmpty(name)) throw new NullReferenceException("CQLKeyspace name cannot be null");
-            if (string.IsNullOrEmpty(ddl)) throw new NullReferenceException("CQLKeyspace must have a DDL string");
+            if (string.IsNullOrEmpty(name)) throw new NullReferenceException(string.Format("CQLKeyspace name cannot be null DDL: {0}", ddl));
+            if (string.IsNullOrEmpty(ddl)) throw new NullReferenceException(string.Format("CQLKeyspace must have a DDL string for Name {0}", name));
 
             this.Stats = new KeyspaceStats();
             this.Path = cqlFile;
@@ -151,6 +155,9 @@ namespace DSEDiagnosticLibrary
             this.Replications = replications;
             this.EverywhereStrategy = this.ReplicationStrategy.ToUpper() == "EVERYWHERESTRATEGY";
             this.LocalStrategy = this.ReplicationStrategy.ToUpper() == "LOCALSTRATEGY";
+            this.IsDSEKeyspace = LibrarySettings.DSEKeyspaces.Contains(this.Name);
+            this.IsSystemKeyspace = LibrarySettings.SystemKeyspaces.Contains(this.Name);
+            this.IsPerformanceKeyspace = LibrarySettings.PerformanceKeyspaces.Contains(this.Name);
 
             if (this.Replications == null || this.Replications.Count() == 0)
             {
@@ -392,6 +399,11 @@ namespace DSEDiagnosticLibrary
         {
             return this._ddlList.Where(c => c is ICQLUserDefinedType).Cast<ICQLUserDefinedType>();
         }
+
+        public bool IsSystemKeyspace { get; private set; }
+        public bool IsDSEKeyspace { get; private set; }
+        public bool IsPerformanceKeyspace { get; private set; }
+
         #endregion
 
         #region IEquatable
