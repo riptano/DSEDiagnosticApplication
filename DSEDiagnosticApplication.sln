@@ -9,8 +9,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSEDiagnosticLibrary", "DSE
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSEDiagnosticFileParser", "DSEDiagnosticFileParser\DSEDiagnosticFileParser.csproj", "{50DB5780-7118-44E2-8D1F-E7288304EAC5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ICSharpCode.SharpZipLib", "..\..\..\GitLibs\SharpZipLib\ICSharpCode.SharpZipLib.NET45\ICSharpCode.SharpZipLib.csproj", "{0E7413FF-EB9E-4714-ACF2-BE3A6A7B2FFD}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSEDiagnosticLibraryTests", "DSEDiagnosticLibraryTests\DSEDiagnosticLibraryTests.csproj", "{045F2AAB-D1DF-4D36-8A92-CA8DD2AEDF79}"
 EndProject
 Global
@@ -31,10 +29,6 @@ Global
 		{50DB5780-7118-44E2-8D1F-E7288304EAC5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{50DB5780-7118-44E2-8D1F-E7288304EAC5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{50DB5780-7118-44E2-8D1F-E7288304EAC5}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0E7413FF-EB9E-4714-ACF2-BE3A6A7B2FFD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0E7413FF-EB9E-4714-ACF2-BE3A6A7B2FFD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0E7413FF-EB9E-4714-ACF2-BE3A6A7B2FFD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0E7413FF-EB9E-4714-ACF2-BE3A6A7B2FFD}.Release|Any CPU.Build.0 = Release|Any CPU
 		{045F2AAB-D1DF-4D36-8A92-CA8DD2AEDF79}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{045F2AAB-D1DF-4D36-8A92-CA8DD2AEDF79}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{045F2AAB-D1DF-4D36-8A92-CA8DD2AEDF79}.Release|Any CPU.ActiveCfg = Release|Any CPU
