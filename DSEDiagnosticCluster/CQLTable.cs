@@ -433,6 +433,7 @@ namespace DSEDiagnosticLibrary
         public uint NbrColumns;
         public uint NbrSecondaryIndexes;
         public uint NbrSolrIndexes;
+        public uint NbrSasIIIndexes;
         public uint NbrCustomIndexes;
         public uint NbrMaterializedViews;
         public uint NbrTriggers;
@@ -688,9 +689,13 @@ namespace DSEDiagnosticLibrary
 
                 if (idxInstance.IsCustom)
                 {
-                    if (!string.IsNullOrEmpty(idxInstance.UsingClass) && idxInstance.UsingClass.EndsWith("SolrSecondaryIndex"))
+                    if (idxInstance.IsSolr)
                     {
                         ++this.Stats.NbrSolrIndexes;
+                    }
+                    else if (idxInstance.IsSasII)
+                    {
+                        ++this.Stats.NbrSasIIIndexes;
                     }
                     else
                     {

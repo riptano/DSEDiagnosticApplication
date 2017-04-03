@@ -33,6 +33,8 @@ namespace DSEDiagnosticLibrary
         public static string[] DSEKeyspaces = Properties.Settings.Default.DSEKeyspaces.ToArray();
         public static string[] PerformanceKeyspaces = Properties.Settings.Default.DSEKeyspaces.ToArray();
         public static string[] TablesUsageFlag = Properties.Settings.Default.TablesUsageFlag.ToArray();
+        public static string[] IsSasIIIndexClasses = Properties.Settings.Default.IsSasIIIndexClasses.ToArray();
+        public static string[] IsSolrIndexClass = Properties.Settings.Default.IsSolrIndexClass.ToArray();
 
         public static T ParseEnum<T>(string enumValue)
             where T : struct

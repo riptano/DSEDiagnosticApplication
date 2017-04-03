@@ -18,6 +18,7 @@ namespace DSEDiagnosticLibrary
         public uint MaterialViews;
         public uint Triggers;
         public uint SolrIndexes;
+        public uint SasIIIndexes;
         public uint CustomIndexes;
         public uint NbrObjects;
         public uint NbrActive;
@@ -278,9 +279,13 @@ namespace DSEDiagnosticLibrary
 
                 if (idxInstance.IsCustom)
                 {
-                    if (!string.IsNullOrEmpty(idxInstance.UsingClass) && idxInstance.UsingClass.EndsWith("SolrSecondaryIndex"))
+                    if (idxInstance.IsSolr)
                     {
                         ++this.Stats.SolrIndexes;
+                    }
+                    else if (idxInstance.IsSasII)
+                    {
+                        ++this.Stats.SasIIIndexes;
                     }
                     else
                     {

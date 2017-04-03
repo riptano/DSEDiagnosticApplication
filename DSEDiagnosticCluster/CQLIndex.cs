@@ -11,6 +11,8 @@ namespace DSEDiagnosticLibrary
     public interface ICQLIndex : IDDLStmt, IEquatable<string>, IEquatable<ICQLIndex>, IEquatable<ICQLTable>
     {
         bool IsCustom { get; }
+        bool IsSolr { get; }
+        bool IsSasII { get; }
         ICQLTable Table { get; }
         IEnumerable<CQLFunctionColumn> Columns { get; }
         string UsingClass { get; }
@@ -35,7 +37,7 @@ namespace DSEDiagnosticLibrary
             if (string.IsNullOrEmpty(name)) throw new NullReferenceException(string.Format("CQLIndex name cannot be null for CQL \"{0}\"", ddl));
             if (table == null) throw new NullReferenceException(string.Format("CQLIndex must be associated to a CQL Table. It cannot be null for CQL \"{0}\"", ddl));
             if (columns == null || columns.IsEmpty()) throw new NullReferenceException(string.Format("CQLIndex must have columns (cannot be null or a count of zero) for CQL \"{0}\"", ddl));
-            if (string.IsNullOrEmpty(ddl)) throw new NullReferenceException(string.Format("CQLIndex \"{0}\" must have a DDL string for CQL \"{0}\"", name));
+            if (string.IsNullOrEmpty(ddl)) throw new NullReferenceException(string.Format("CQLIndex \"{0}\" must have a DDL string", name));
 
             this.Path = cqlFile;
             this.Table = table;
@@ -48,6 +50,8 @@ namespace DSEDiagnosticLibrary
             this.WithOptions = withOptions;
             this.Items = this.Columns.Count();
 
+            if (this.IsCustom && this.UsingClass == null) throw new NullReferenceException(string.Format("CQLIndex \"{0}\" must have a usingClass string for custom index's for CQL \"{1}\"", name, ddl));
+
             if (associateIndexToKeyspace)
             {
                 this.Keyspace.AssociateItem(this);
@@ -55,6 +59,15 @@ namespace DSEDiagnosticLibrary
             if(associateIndexToTable)
             {
                 this.Table.AssociateItem(this);
+            }
+
+            if(this.IsCustom)
+            {
+                this.IsSolr = LibrarySettings.IsSolrIndexClass.Contains(this.UsingClass);
+                if (!this.IsSolr)
+                {
+                    this.IsSasII = LibrarySettings.IsSasIIIndexClasses.Contains(this.UsingClass);
+                }
             }
         }
 
@@ -88,6 +101,8 @@ namespace DSEDiagnosticLibrary
 
         #region ICQLIndex
         public bool IsCustom { get; private set; }
+        public bool IsSolr { get; private set; }
+        public bool IsSasII { get; private set; }
         public ICQLTable Table { get; private set; }
         public IEnumerable<CQLFunctionColumn> Columns { get; private set; }
         public string UsingClass { get; private set; }
