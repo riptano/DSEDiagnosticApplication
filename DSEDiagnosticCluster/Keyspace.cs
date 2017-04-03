@@ -460,9 +460,16 @@ namespace DSEDiagnosticLibrary
             return base.Equals(obj);
         }
 
+        private int _hashcode = 0;
         public override int GetHashCode()
         {
-            return this.FullName.GetHashCode();
+            unchecked
+            {
+                if (this._hashcode != 0) return this._hashcode;
+                if (this.Cluster.IsMaster) return this.FullName.GetHashCode();
+
+                return this._hashcode = (589 + this.Cluster.GetHashCode()) * 31 + this.FullName.GetHashCode();
+            }
         }
 
         public override string ToString()

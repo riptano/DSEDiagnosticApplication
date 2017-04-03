@@ -71,7 +71,17 @@ namespace DSEDiagnosticLibrary
         }
         public bool Equals(string other)
         {
-            return this.Name == other;
+            var kstblpair = StringHelpers.SplitTableName(other);
+
+            if (kstblpair.Item1 != null)
+            {
+                if (!this.Keyspace.Equals(kstblpair.Item1))
+                {
+                    return false;
+                }
+            }
+
+            return this.Name == kstblpair.Item2;
         }
 
         #endregion
@@ -109,9 +119,16 @@ namespace DSEDiagnosticLibrary
             return base.Equals(obj);
         }
 
+        private int _hashcode = 0;
         public override int GetHashCode()
         {
-            return this.FullName.GetHashCode();
+            unchecked
+            {
+                if (this._hashcode != 0) return this._hashcode;
+                if (this.Keyspace.Cluster.IsMaster) return this.FullName.GetHashCode();
+
+                return this._hashcode = this.Keyspace.GetHashCode() * 31 + this.Name.GetHashCode();
+            }            
         }
 
         public override string ToString()

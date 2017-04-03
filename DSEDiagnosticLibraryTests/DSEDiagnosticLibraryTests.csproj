@@ -56,7 +56,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DSEDiagnosticCluster\DSEDiagnosticLibrary.csproj">
-      <Project>{AA88D5C0-9218-445C-885C-4B64FBFB9257}</Project>
+      <Project>{aa88d5c0-9218-445c-885c-4b64fbfb9257}</Project>
       <Name>DSEDiagnosticLibrary</Name>
     </ProjectReference>
   </ItemGroup>

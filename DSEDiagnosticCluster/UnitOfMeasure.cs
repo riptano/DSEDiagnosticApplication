@@ -70,15 +70,18 @@ namespace DSEDiagnosticLibrary
             NaN = 0x4000000,
             SizeUnits = Bit | Byte | KiB | MiB | GiB | TiB | PiB,
             TimeUnits = NS | MS | SEC | MIN | HR | Day | us,
-            WholeNumber = Bit | Byte | NS | us
+            WholeNumber = Bit | Byte | NS | us,
+            Attrs = NaN | Memory | Rate | Load | Percent | Time | Frequency | Utilization
         }
 
         readonly static Regex RegExValueUOF = new Regex(@"([0-9\-.+,]+)\s*([a-z0-9%#/]*)", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace);
 
         public UnitOfMeasure() { }
 
+        public UnitOfMeasure(Types uofType) { this.UnitType = uofType; }
+
         public UnitOfMeasure(string uofString, Types uofType = Types.Unknown)
-        {
+        {            
             var uofValues = RegExValueUOF.Match(uofString);
 
             if (uofValues.Success)
@@ -112,8 +115,10 @@ namespace DSEDiagnosticLibrary
             this.UnitType = newUOM;
         }
 
-        public Types UnitType { get; set; }
-        public decimal Value { get; set; }
+        public Types UnitType { get; private set; }
+        public decimal Value { get; private set; }
+
+        public bool NaN { get { return this.UnitType.HasFlag(Types.NaN); } }
 
         /// <summary>
         /// Returns a new UOM based on the default normalized types.
@@ -124,7 +129,7 @@ namespace DSEDiagnosticLibrary
             {
                 if ((this.UnitType & Types.SizeUnits) != 0 && (this.UnitType & Types.TimeUnits) != 0)
                 {
-                    var newUOM = (this.UnitType & ~Types.SizeUnits) & ~Types.TimeUnits;
+                    var newUOM = ((this.UnitType & ~Types.SizeUnits) & ~Types.TimeUnits) & ~Types.Attrs;
 
                     if(this.UnitType.HasFlag(Types.Storage))
                     {
@@ -135,12 +140,14 @@ namespace DSEDiagnosticLibrary
                         newUOM |= LibrarySettings.DefaultMemoryRate;
                     }
 
-                    return new UnitOfMeasure(this.ConvertTo(newUOM), newUOM);
+                    return (this.UnitType & Types.NaN) != 0 
+                                ? new UnitOfMeasure(newUOM | Types.NaN)
+                                : new UnitOfMeasure(this.ConvertTo(newUOM), newUOM);
                 }
 
                 if ((this.UnitType & Types.SizeUnits) != 0)
                 {
-                    var newUOM = this.UnitType & ~Types.SizeUnits;
+                    var newUOM = (this.UnitType & ~Types.SizeUnits) & ~Types.Attrs;
 
                     if (this.UnitType.HasFlag(Types.Storage))
                     {
@@ -151,14 +158,18 @@ namespace DSEDiagnosticLibrary
                         newUOM |= LibrarySettings.DefaultMemorySizeUnit;
                     }
 
-                    return new UnitOfMeasure(this.ConvertSizeUOM(newUOM), newUOM);
+                    return (this.UnitType & Types.NaN) != 0
+                                ? new UnitOfMeasure(newUOM | Types.NaN)
+                                : new UnitOfMeasure(this.ConvertSizeUOM(newUOM), newUOM);
                 }
 
                 if ((this.UnitType & Types.TimeUnits) != 0)
                 {
-                    var newUOM = (this.UnitType & ~Types.TimeUnits) | LibrarySettings.DefaultTimeUnit;
+                    var newUOM = ((this.UnitType & ~Types.TimeUnits) & ~Types.Attrs) | LibrarySettings.DefaultTimeUnit;
 
-                    return new UnitOfMeasure(this.ConvertTimeUOM(newUOM), newUOM);
+                    return (this.UnitType & Types.NaN) != 0
+                                ? new UnitOfMeasure(newUOM | Types.NaN)
+                                : new UnitOfMeasure(this.ConvertTimeUOM(newUOM), newUOM);
                 }
 
                 return new UnitOfMeasure(this);
@@ -169,6 +180,8 @@ namespace DSEDiagnosticLibrary
 
         public decimal ConvertTo(Types newUOM)
         {
+            if((this.UnitType & Types.NaN) != 0) throw new ArgumentException(string.Format("Cannot convert a NaN from {0} to {1}", this.UnitType, newUOM));
+
             if ((this.UnitType & Types.SizeUnits) != 0 && (this.UnitType & Types.TimeUnits) != 0)
             {
                 if ((newUOM & Types.SizeUnits) != 0 && (newUOM & Types.TimeUnits) != 0)
@@ -197,6 +210,8 @@ namespace DSEDiagnosticLibrary
 
         public decimal ConvertSizeUOM(Types newUOM)
         {
+            if ((this.UnitType & Types.NaN) != 0) throw new ArgumentException(string.Format("Cannot convert a NaN from {0} to {1}", this.UnitType, newUOM));
+
             return ConvertSizeUOM(this.Value, this.UnitType, newUOM);
         }
 
@@ -422,6 +437,8 @@ namespace DSEDiagnosticLibrary
 
         public decimal ConvertTimeUOM(Types newUOM)
         {
+            if ((this.UnitType & Types.NaN) != 0) throw new ArgumentException(string.Format("Cannot convert a NaN from {0} to {1}", this.UnitType, newUOM));
+
             return ConvertTimeUOM(this.Value, this.UnitType, newUOM);
         }
 
@@ -661,6 +678,16 @@ namespace DSEDiagnosticLibrary
             }
 
             throw new InvalidCastException(string.Format("Trying to cast from a {0} to a TimeSpan which is invalid.", uom.UnitType));
+        }
+
+        public static bool operator==(UnitOfMeasure a, UnitOfMeasure b)
+        {
+            return ReferenceEquals(a, b) ? true : (ReferenceEquals(a,null) ? ReferenceEquals(b, null) : a.Equals(b));
+        }
+
+        public static bool operator !=(UnitOfMeasure a, UnitOfMeasure b)
+        {
+            return ReferenceEquals(a, b) ? false : (ReferenceEquals(a, null) ? !ReferenceEquals(b, null) : !(a.Equals(b)));
         }
 
         public static UnitOfMeasure Create(string value, string uof, Types uofType = Types.Unknown)
@@ -946,13 +973,38 @@ namespace DSEDiagnosticLibrary
         public bool Equals(UnitOfMeasure other)
         {
             if (ReferenceEquals(this, other)) return true;
-            if (other == null) return false;
+            if (ReferenceEquals(other,null)) return false;
 
-            return this.Value == other.Value;
+            var thisN = this.NormalizedValue;
+            var otherN = other.NormalizedValue;
+
+            if(thisN.UnitType == otherN.UnitType)
+            {
+                return thisN.Value == otherN.Value;
+            }
+
+            return false;
         }
         #endregion
 
         #region overrides
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj is UnitOfMeasure) return this.Equals((UnitOfMeasure)obj);
+
+            return base.Equals(obj);
+        }
+
+        private int _hashcode = 0;
+        public override int GetHashCode()
+        {
+            if (this._hashcode != 0) return this._hashcode;
+
+            var thisN = this.NormalizedValue;
+            return this._hashcode = (589 + thisN.UnitType.GetHashCode()) * 31 + thisN.Value.GetHashCode();
+        }
 
         public override string ToString()
         {

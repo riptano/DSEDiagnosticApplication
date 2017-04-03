@@ -119,6 +119,36 @@ namespace DSEDiagnosticLibrary.Tests
 
             Assert.AreEqual(1m, result.Value);
             Assert.AreEqual(UnitOfMeasure.Types.SEC | UnitOfMeasure.Types.MiB, result.UnitType);
+
+            var resultA = new UnitOfMeasure("1 MB/Sec");
+
+            Assert.AreEqual(resultA.Value, result.Value);
+            Assert.AreEqual(resultA.UnitType, result.UnitType);
+
+            Assert.IsTrue(resultA.Equals(result));
+
+            actual = new UnitOfMeasure("1024 KB/Sec", UnitOfMeasure.Types.Rate);
+            result = actual.NormalizedValue;
+
+            Assert.AreEqual(1m, result.Value);
+            Assert.AreEqual(UnitOfMeasure.Types.SEC | UnitOfMeasure.Types.MiB, result.UnitType);
+
+            resultA = new UnitOfMeasure("1 MB/Sec");
+
+            Assert.AreEqual(resultA.Value, result.Value);
+            Assert.AreEqual(resultA.UnitType, result.UnitType);
+
+            Assert.IsTrue(resultA.Equals(result));
+            Assert.IsTrue(resultA == result);
+            Assert.IsFalse(resultA != result);
+            Assert.AreEqual(result.GetHashCode(), resultA.GetHashCode());
+
+            resultA = new UnitOfMeasure("2 MB/Sec");
+
+            Assert.IsFalse(resultA.Equals(result));
+            Assert.IsFalse(resultA == result);
+            Assert.IsTrue(resultA != result);
+            Assert.AreNotEqual(result.GetHashCode(), resultA.GetHashCode());
         }
 
         [TestMethod()]
@@ -130,11 +160,11 @@ namespace DSEDiagnosticLibrary.Tests
             Assert.AreEqual(UnitOfMeasure.Types.HR, result.UnitType);
 
             Assert.AreEqual(0.041666667m, result.ConvertTo(UnitOfMeasure.Types.Day));
-            Assert.AreEqual(60m, result.ConvertTo(UnitOfMeasure.Types.MIN));            
+            Assert.AreEqual(60m, result.ConvertTo(UnitOfMeasure.Types.MIN));
             Assert.AreEqual(1m, result.ConvertTo(UnitOfMeasure.Types.HR));
             Assert.AreEqual(3.6e+6m, result.ConvertTo(UnitOfMeasure.Types.MS));
             Assert.AreEqual(3.6e+12m, result.ConvertTo(UnitOfMeasure.Types.NS));
-            
+
             result = new UnitOfMeasure("10 HR");
 
             Assert.AreEqual(10m, result.Value);

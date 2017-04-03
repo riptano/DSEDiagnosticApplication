@@ -367,6 +367,7 @@ namespace DSEDiagnosticLibrary
             newId.HostName = this.HostName;
 
             this._addresses.ForEach(a => newId._addresses.Add(a));
+            newId._hashCode = this._hashCode;
 
             return newId;
         }
@@ -409,14 +410,19 @@ namespace DSEDiagnosticLibrary
             return base.ToString();
 		}
 
+        private int _hashCode = 0;
 		public override int GetHashCode()
 		{
+            if (this._hashCode != 0) return this._hashCode;
+
 			if(string.IsNullOrEmpty(this.HostName))
 			{
-				return this._addresses.GetHashCode();
+                if (this._addresses.Count == 0) return 0;
+
+                return this._hashCode = this._addresses.First().GetHashCode();                
 			}
 
-			return this.HostName.GetHashCode();
+			return this._hashCode = this.HostName.GetHashCode();
 		}
 
         public object ToDump()
@@ -916,9 +922,17 @@ namespace DSEDiagnosticLibrary
 			return false;
 		}
 
+        private int _hashcode = 0;
 		public override int GetHashCode()
-		{
-			return this.Id == null ? 0 : this.Id.GetHashCode();
+		{            
+            unchecked
+            {
+                if (this._hashcode != 0) return this._hashcode;
+                if (this.Id == null) return 0;
+                if (this.Cluster.IsMaster) return this.Id.GetHashCode();
+
+                return this._hashcode = (589 + this.Cluster.GetHashCode()) * 31 + this.Id.GetHashCode();
+            }
 		}
 
 		public override string ToString()

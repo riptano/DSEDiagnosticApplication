@@ -585,9 +585,12 @@ namespace DSEDiagnosticLibrary
 			return false;
 		}
 
+        private int _hashcode = 0;
 		public override int GetHashCode()
 		{
-			return string.IsNullOrEmpty(this.Name) ? 0 : this.Name.GetHashCode();
+            if (this._hashcode != 0) return this._hashcode;
+
+			return string.IsNullOrEmpty(this.Name) ? 0 : this._hashcode = this.Name.GetHashCode();
 		}
 
 		#endregion

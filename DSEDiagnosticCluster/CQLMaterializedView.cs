@@ -79,10 +79,7 @@ namespace DSEDiagnosticLibrary
         #region overrides
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj is string) return this.Equals((string)obj);
-            if (obj is IKeyspace) return this.Keyspace.Equals((IKeyspace)obj);
-            if (obj is IDataCenter) return this.DataCenter.Equals((IDataCenter)obj);
+            if (ReferenceEquals(this, obj)) return true;            
             if (obj is ICQLMaterializedView) return this.Equals((ICQLMaterializedView)obj);
             if (obj is ICQLTable) return this.Equals((ICQLTable)obj);
 
@@ -91,7 +88,7 @@ namespace DSEDiagnosticLibrary
 
         public override int GetHashCode()
         {
-            return (this.Keyspace.Name + "." + this.Name).GetHashCode();
+            return base.GetHashCode();
         }
 
         public override string ToString()

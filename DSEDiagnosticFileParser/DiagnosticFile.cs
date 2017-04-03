@@ -240,12 +240,18 @@ namespace DSEDiagnosticFileParser
                 }
                 catch (AggregateException ae)
                 {
+                    bool canceled = false;
+
                     foreach (Exception e in ae.InnerExceptions)
                     {
                         if (e is TaskCanceledException)
                         {
-                            Logger.Instance.WarnFormat("{0}\t{1}\tProcessing was canceled for Mapping Level.",
-                                                        mapperGroup.Key.ProcessPriorityLevel, mapperGroup.Key.ParallelProcessingWithinPriorityLevel);
+                            if (!canceled)
+                            {
+                                canceled = true;
+                                Logger.Instance.WarnFormat("{0}\t{1}\tProcessing was canceled for Mapping Level.",
+                                                            mapperGroup.Key.ProcessPriorityLevel, mapperGroup.Key.ParallelProcessingWithinPriorityLevel);
+                            }
                             continue;
                         }
                         Logger.Instance.Error("Exception during FileMapping Processing", e);
@@ -498,16 +504,21 @@ namespace DSEDiagnosticFileParser
                 catch (AggregateException ae)
                 {
                     bool otherExceptions = false;
+                    bool canceled = false;
 
                     foreach (Exception e in ae.InnerExceptions)
                     {
                         if (e is TaskCanceledException)
                         {
-                            Logger.Instance.WarnFormat("{0}\t{1}\tProcessing was canceled.",
-                                                            node, processFile.PathResolved);
-                            if (processingFileInstance != null)
+                            if (!canceled)
                             {
-                                processingFileInstance.Canceled = true;
+                                Logger.Instance.WarnFormat("{0}\t{1}\tProcessing was canceled.",
+                                                            node, processFile.PathResolved);
+                                if (processingFileInstance != null)
+                                {
+                                    processingFileInstance.Canceled = true;
+                                }
+                                canceled = true;
                             }
                             continue;
                         }
