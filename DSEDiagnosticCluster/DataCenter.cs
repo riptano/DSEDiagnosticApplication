@@ -34,7 +34,7 @@ namespace DSEDiagnosticLibrary
         object ToDump();
     }
 
-    internal class PlaceholderDataCenter : IDataCenter
+    public class PlaceholderDataCenter : IDataCenter
     {
         protected PlaceholderDataCenter()
         { }
@@ -144,12 +144,12 @@ namespace DSEDiagnosticLibrary
 
         virtual public bool Equals(IDataCenter other)
         {
-            if (other is DataCenter)
-            {
-                return other == null ? false : this._name == other.Name;
-            }
+            if (ReferenceEquals(this, other)) return true;
+            if (ReferenceEquals(other,null)) return false;
 
-            return other == null ? false : this._name == ((PlaceholderDataCenter)other)._name;
+            if (this.Cluster.IsMaster || other.Cluster.IsMaster) return this._name == ((PlaceholderDataCenter)other)._name;
+
+            return this.Cluster.Equals(other.Cluster) && this._name == ((PlaceholderDataCenter)other)._name;
         }
         #endregion
 
@@ -167,9 +167,15 @@ namespace DSEDiagnosticLibrary
             return false;
         }
 
+        private int _hashcode = 0;
         public override int GetHashCode()
         {
-            return base.GetHashCode();
+            unchecked
+            {
+                if (this.Cluster.IsMaster) return this._name.GetHashCode();
+
+                return this._hashcode = (589 + this.Cluster.GetHashCode()) * 31 + this._name.GetHashCode() ;
+            }
         }
 
         public override string ToString()
@@ -181,7 +187,7 @@ namespace DSEDiagnosticLibrary
 
     }
 
-    internal sealed class DataCenter : PlaceholderDataCenter
+    public sealed class DataCenter : PlaceholderDataCenter
 	{
 		public DataCenter()
 		{ }
@@ -385,12 +391,12 @@ namespace DSEDiagnosticLibrary
 		#region IEquatable
 		override public bool Equals(string other)
 		{
-			return this.Name == other;
+            return base.Equals(other);
 		}
 
 		override public bool Equals(IDataCenter other)
 		{
-			return other == null ? false : this.Name == other.Name;
+            return base.Equals(other);
 		}
 		#endregion
 
@@ -398,19 +404,12 @@ namespace DSEDiagnosticLibrary
 
 		public override bool Equals(object obj)
 		{
-			if(ReferenceEquals(this, obj))
-			{ return true; }
-			if(obj is IDataCenter)
-			{ return this.Equals((IDataCenter)obj); }
-			if(obj is string)
-			{ return this.Equals((string) obj);}
-
-			return false;
+            return base.Equals(obj);
 		}
 
 		public override int GetHashCode()
 		{
-			return this.Name == null ? 0 : this.Name.GetHashCode();
+			return base.GetHashCode();
 		}
 
 		public override string ToString()
