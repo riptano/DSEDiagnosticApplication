@@ -49,6 +49,8 @@ namespace DSEDiagnosticFileParser
 
             foreach (var nodetoolLine in fileLines)
             {
+                this.CancellationToken.ThrowIfCancellationRequested();
+
                 ++this.NbrItemsParsed;
                 line = nodetoolLine.Trim();
 

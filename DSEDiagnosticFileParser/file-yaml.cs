@@ -230,6 +230,8 @@ namespace DSEDiagnosticFileParser
 
             foreach (var fileLine in fileLines)
             {
+                this.CancellationToken.ThrowIfCancellationRequested();
+
                 ++this.NbrItemsParsed;
 
                 line = fileLine.TrimStart();

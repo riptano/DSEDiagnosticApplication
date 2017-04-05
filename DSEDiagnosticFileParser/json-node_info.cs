@@ -34,6 +34,8 @@ namespace DSEDiagnosticFileParser
 
             foreach (var ipAdress in this.Node.Id.Addresses)
             {
+                this.CancellationToken.ThrowIfCancellationRequested();
+
                 ++this.NbrItemsParsed;
                 nodeInfo = jObject.TryGetValue(ipAdress.ToString());
 

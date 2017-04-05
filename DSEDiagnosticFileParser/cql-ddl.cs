@@ -134,6 +134,8 @@ namespace DSEDiagnosticFileParser
 
             foreach (var fileLine in this.File.ReadAllLines())
             {
+                this.CancellationToken.ThrowIfCancellationRequested();
+
                 line = fileLine.Trim();
 
                 if (multipleLineComment)

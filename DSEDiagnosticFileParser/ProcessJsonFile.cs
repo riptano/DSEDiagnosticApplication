@@ -31,7 +31,9 @@ namespace DSEDiagnosticFileParser
             using (StreamReader fileStream = this.File.OpenText())
             using (JsonTextReader reader = new JsonTextReader(fileStream))
             {
-                jsonObject = (JObject)JToken.ReadFrom(reader);
+                this.CancellationToken.ThrowIfCancellationRequested();
+
+                jsonObject = (JObject)JToken.ReadFrom(reader);                
             }
 
             return jsonObject == null ? 0 : this.ProcessJSON(jsonObject);
