@@ -77,8 +77,6 @@ namespace DSEDiagnosticFileParser
         public int NbrItemGenerated { get { return this._nbrItemGenerated; } }
         public RegExParseString RegExParser { get; protected set; }
         public CancellationToken CancellationToken { get; set; }
-
-        public bool CancelPending { get { return !this.Canceled && this.CancellationToken.IsCancellationRequested; } }
         public bool Canceled { get; protected set; }
         public Task<DiagnosticFile> Task { get; protected set; }
 
@@ -472,10 +470,7 @@ namespace DSEDiagnosticFileParser
                 {
                     Logger.Instance.InfoFormat("{0}\t{1}\tBegin{2}Processing of File", node, processFile.PathResolved, runAsTask ? " (Async) " : " ");
 
-                    if(processingFileInstance.CancelPending || processingFileInstance.Canceled)
-                    {
-                        throw new TaskCanceledException();
-                    }
+                    processingFileInstance.CancellationToken.ThrowIfCancellationRequested();
 
                     var nbrItems = processingFileInstance.ProcessFile();
 

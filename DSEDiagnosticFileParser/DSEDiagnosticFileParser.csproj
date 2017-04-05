@@ -65,12 +65,12 @@
       <HintPath>..\packages\ICSharpCode.SharpZipLib-dogfood.1.0.198\lib\Net45\ICSharpCode.SharpZipLib.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="log4net, Version=2.0.7.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
-      <HintPath>..\packages\log4net.2.0.7\lib\net45-full\log4net.dll</HintPath>
+    <Reference Include="log4net, Version=2.0.8.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>..\packages\log4net.2.0.8\lib\net45-full\log4net.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.10.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -121,18 +121,22 @@
     <Compile Include="RegExParseString.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\DSEDiagnosticCluster\DSEDiagnosticLibrary.csproj">
-      <Project>{aa88d5c0-9218-445c-885c-4b64fbfb9257}</Project>
-      <Name>DSEDiagnosticLibrary</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DSEDiagnosticLibrary\DSEDiagnosticLibrary.csproj">
+      <Project>{aa88d5c0-9218-445c-885c-4b64fbfb9257}</Project>
+      <Name>DSEDiagnosticLibrary</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DSEDiagnosticLog4NetParser\DSEDiagnosticLog4NetParser.csproj">
+      <Project>{b81ff061-57dc-469f-94e4-967a17bce4ad}</Project>
+      <Name>DSEDiagnosticLog4NetParser</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

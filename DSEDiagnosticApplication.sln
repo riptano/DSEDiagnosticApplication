@@ -5,11 +5,20 @@ VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSEDiagnosticApplication", "DSEDiagnosticApplication\DSEDiagnosticApplication.csproj", "{90703BD3-CE05-46BE-95DE-6B288819552D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSEDiagnosticLibrary", "DSEDiagnosticCluster\DSEDiagnosticLibrary.csproj", "{AA88D5C0-9218-445C-885C-4B64FBFB9257}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSEDiagnosticFileParser", "DSEDiagnosticFileParser\DSEDiagnosticFileParser.csproj", "{50DB5780-7118-44E2-8D1F-E7288304EAC5}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSEDiagnosticLibraryTests", "DSEDiagnosticLibraryTests\DSEDiagnosticLibraryTests.csproj", "{045F2AAB-D1DF-4D36-8A92-CA8DD2AEDF79}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSEDiagnosticLibrary", "DSEDiagnosticLibrary\DSEDiagnosticLibrary.csproj", "{AA88D5C0-9218-445C-885C-4B64FBFB9257}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSEDiagnosticLog4NetParser", "DSEDiagnosticLog4NetParser\DSEDiagnosticLog4NetParser.csproj", "{B81FF061-57DC-469F-94E4-967A17BCE4AD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{3B766FE0-C11F-4FC7-8988-0DEEFE631339}"
+	ProjectSection(SolutionItems) = preProject
+		DSEDiagnosticLog4NetParserTests\LogMessagesTests.cs = DSEDiagnosticLog4NetParserTests\LogMessagesTests.cs
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSEDiagnosticLog4NetParserTests", "DSEDiagnosticLog4NetParserTests\DSEDiagnosticLog4NetParserTests.csproj", "{66163F9D-4E74-4C9A-974C-CB469215A524}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,10 +30,6 @@ Global
 		{90703BD3-CE05-46BE-95DE-6B288819552D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{90703BD3-CE05-46BE-95DE-6B288819552D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{90703BD3-CE05-46BE-95DE-6B288819552D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{AA88D5C0-9218-445C-885C-4B64FBFB9257}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AA88D5C0-9218-445C-885C-4B64FBFB9257}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AA88D5C0-9218-445C-885C-4B64FBFB9257}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AA88D5C0-9218-445C-885C-4B64FBFB9257}.Release|Any CPU.Build.0 = Release|Any CPU
 		{50DB5780-7118-44E2-8D1F-E7288304EAC5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{50DB5780-7118-44E2-8D1F-E7288304EAC5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{50DB5780-7118-44E2-8D1F-E7288304EAC5}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -33,6 +38,18 @@ Global
 		{045F2AAB-D1DF-4D36-8A92-CA8DD2AEDF79}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{045F2AAB-D1DF-4D36-8A92-CA8DD2AEDF79}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{045F2AAB-D1DF-4D36-8A92-CA8DD2AEDF79}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AA88D5C0-9218-445C-885C-4B64FBFB9257}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AA88D5C0-9218-445C-885C-4B64FBFB9257}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AA88D5C0-9218-445C-885C-4B64FBFB9257}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AA88D5C0-9218-445C-885C-4B64FBFB9257}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B81FF061-57DC-469F-94E4-967A17BCE4AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B81FF061-57DC-469F-94E4-967A17BCE4AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B81FF061-57DC-469F-94E4-967A17BCE4AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B81FF061-57DC-469F-94E4-967A17BCE4AD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{66163F9D-4E74-4C9A-974C-CB469215A524}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{66163F9D-4E74-4C9A-974C-CB469215A524}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{66163F9D-4E74-4C9A-974C-CB469215A524}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{66163F9D-4E74-4C9A-974C-CB469215A524}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

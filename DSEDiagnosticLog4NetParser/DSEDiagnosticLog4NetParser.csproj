@@ -4,17 +4,15 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{90703BD3-CE05-46BE-95DE-6B288819552D}</ProjectGuid>
-    <OutputType>WinExe</OutputType>
+    <ProjectGuid>{B81FF061-57DC-469F-94E4-967A17BCE4AD}</ProjectGuid>
+    <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>DSEDiagnosticApplication</RootNamespace>
-    <AssemblyName>DSEDiagnosticApplication</AssemblyName>
+    <RootNamespace>DSEDiagnosticLog4NetParser</RootNamespace>
+    <AssemblyName>DSEDiagnosticLog4NetParser</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -24,7 +22,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -33,12 +30,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Common.Functions, Version=4.0.7.0, Culture=neutral, PublicKeyToken=75d1a63e21e859f1, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="Common.Functions">
       <HintPath>..\..\..\..\Common Patterns\Assemblies\40\Release\Common.Functions.dll</HintPath>
     </Reference>
-    <Reference Include="Common.Path, Version=4.0.5.0, Culture=neutral, PublicKeyToken=75d1a63e21e859f1, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="Common.Path">
       <HintPath>..\..\..\..\Common Patterns\Assemblies\40\Release\Common.Path.dll</HintPath>
     </Reference>
     <Reference Include="log4net, Version=2.0.8.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
@@ -51,61 +46,24 @@
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Deployment" />
-    <Reference Include="System.Drawing" />
     <Reference Include="System.Net.Http" />
-    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Form1.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Form1.Designer.cs">
-      <DependentUpon>Form1.cs</DependentUpon>
-    </Compile>
+    <Compile Include="Log4NetPatternImporter.cs" />
     <Compile Include="Logger.cs" />
-    <Compile Include="Program.cs" />
+    <Compile Include="LogMessage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="Form1.resx">
-      <DependentUpon>Form1.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-    <None Include="packages.config" />
-    <None Include="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
-    <Compile Include="Properties\Settings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-    </Compile>
+    <Compile Include="ReadLogFile.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\DSEDiagnosticFileParser\DSEDiagnosticFileParser.csproj">
-      <Project>{50db5780-7118-44e2-8d1f-e7288304eac5}</Project>
-      <Name>DSEDiagnosticFileParser</Name>
-    </ProjectReference>
     <ProjectReference Include="..\DSEDiagnosticLibrary\DSEDiagnosticLibrary.csproj">
       <Project>{aa88d5c0-9218-445c-885c-4b64fbfb9257}</Project>
       <Name>DSEDiagnosticLibrary</Name>
     </ProjectReference>
-    <ProjectReference Include="..\DSEDiagnosticLog4NetParser\DSEDiagnosticLog4NetParser.csproj">
-      <Project>{b81ff061-57dc-469f-94e4-967a17bce4ad}</Project>
-      <Name>DSEDiagnosticLog4NetParser</Name>
-    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

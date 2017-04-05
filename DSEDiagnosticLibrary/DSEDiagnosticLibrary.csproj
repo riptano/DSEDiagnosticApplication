@@ -67,7 +67,7 @@
       <HintPath>..\..\..\..\Common Patterns\Assemblies\40\Release\Common.TimeZones.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.10.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\packages\Newtonsoft.Json.10.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -93,6 +93,7 @@
     <Compile Include="IResult.cs" />
     <Compile Include="Keyspace.cs" />
     <Compile Include="LibrarySettings.cs" />
+    <Compile Include="LogMessage.cs" />
     <Compile Include="MiscHelpers1.cs" />
     <Compile Include="Node.cs" />
     <Compile Include="Parsed.cs" />
