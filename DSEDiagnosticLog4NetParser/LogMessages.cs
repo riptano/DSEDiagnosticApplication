@@ -242,18 +242,56 @@ namespace DSEDiagnosticLog4NetParser
             return logMessage;
         }
 
-        #region IDisposable
+        #region Dispose Methods
+
+        public bool Disposed { get; private set; }
+
+        // Implement IDisposable.
+        // Do not make this method virtual.
+        // A derived class should not be able to override this method.
         public void Dispose()
         {
-            if (this._logMessages != null) this._logMessages.Clear();
-            if (this._errors != null) this._errors.Clear();
-            this.Log4NetConversionPatternRegExLine = null;
-            this._logMessages = null;
-            this._lastMessage = null;
-            this._errors = null;
+        	Dispose(true);
+        	// This object will be cleaned up by the Dispose method.
+        	// Therefore, you should call GC.SupressFinalize to
+        	// take this object off the finalization queue
+        	// and prevent finalization code for this object
+        	// from executing a second time.
+        	GC.SuppressFinalize(this);
         }
 
-        #endregion
+        // Dispose(bool disposing) executes in two distinct scenarios.
+        // If disposing equals true, the method has been called directly
+        // or indirectly by a user's code. Managed and unmanaged resources
+        // can be disposed.
+        // If disposing equals false, the method has been called by the
+        // runtime from inside the finalizer and you should not reference
+        // other objects. Only unmanaged resources can be disposed.
+        private void Dispose(bool disposing)
+        {
+        	// Check to see if Dispose has already been called.
+        	if(!this.Disposed)
+        	{
+
+        		if(disposing)
+        		{
+                    // Dispose all managed resources.
+                    if (this._logMessages != null) this._logMessages.Clear();
+                    if (this._errors != null) this._errors.Clear();
+                    this.Log4NetConversionPatternRegExLine = null;
+                    this._logMessages = null;
+                    this._lastMessage = null;
+                    this._errors = null;
+                }
+
+        		//Dispose of all unmanaged resources
+
+        		// Note disposing has been done.
+        		this.Disposed = true;
+
+        	}
+        }
+        #endregion //end of Dispose Methods
 
         #region private members
 

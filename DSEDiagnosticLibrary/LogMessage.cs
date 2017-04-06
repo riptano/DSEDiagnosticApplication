@@ -52,6 +52,7 @@ namespace DSEDiagnosticLibrary
         DateTimeRange LogTimeRange { get; }
         IEnumerable<string> Errors { get; }
 
+        bool Disposed { get; }
     }
 
     /// <summary>
@@ -77,5 +78,7 @@ namespace DSEDiagnosticLibrary
 
         Task<ILogMessages> ProcessLogFile(IFilePath logFile);
         Task<ILogMessages> ProcessLogFile();
+
+        bool Disposed { get; }
     }
 }
