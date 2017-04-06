@@ -15,8 +15,9 @@ namespace DSEDiagnosticFileParser
                                 IFilePath file,
                                 INode node,
                                 string defaultClusterName,
-                                string defaultDCName)
-            : base(catagory, diagnosticDirectory, file, node, defaultClusterName, defaultDCName)
+                                string defaultDCName,
+                                Version targetDSEVersion)
+            : base(catagory, diagnosticDirectory, file, node, defaultClusterName, defaultDCName,targetDSEVersion)
         {
         }
 

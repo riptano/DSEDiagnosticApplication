@@ -44,7 +44,8 @@ namespace DSEDiagnosticFileParser
 									IFilePath file,
 									INode node,
                                     string defaultClusterName,
-                                    string defaultDCName)
+                                    string defaultDCName,
+                                    Version targetDSEVersion)
 		{
 			this.Catagory = catagory;
 			this.DiagnosticDirectory = diagnosticDirectory;
@@ -54,6 +55,7 @@ namespace DSEDiagnosticFileParser
 			this.ParsedTimeRange.SetMinimal(DateTime.Now);
             this.DefaultClusterName = defaultClusterName;
             this.DefaultDataCenterName = defaultDCName;
+            this.TargetDSEVersion = targetDSEVersion;
 
             this.RegExParser = RegExAssocations.TryGetValue(this.GetType().Name);
         }
@@ -66,6 +68,7 @@ namespace DSEDiagnosticFileParser
         public string DefaultClusterName { get; private set; }
         public string DefaultDataCenterName { get; private set; }
         public DateTimeRange ParseOnlyInTimeRange { get; protected set; }
+        public Version TargetDSEVersion { get; protected set; }
         public int NbrItemsParsed { get; protected set; }
 		public DateTimeRange ParsedTimeRange { get; protected set; }
         /// <summary>
@@ -175,7 +178,7 @@ namespace DSEDiagnosticFileParser
 
                             if (fileMapper.CancellationSource == null && cancellationSource != null) fileMapper.CancellationSource = cancellationSource;
 
-                            var diagnosticFiles = ProcessFile(diagnosticDirectory, fileMapper, dataCenterName, clusterName);
+                            var diagnosticFiles = ProcessFile(diagnosticDirectory, fileMapper, dataCenterName, clusterName, dseVersion);
 
                             diagFilesList.AddRange(diagnosticFiles);
 
@@ -191,7 +194,7 @@ namespace DSEDiagnosticFileParser
                         {
                             if (fileMapper.CancellationSource == null && cancellationSource != null) fileMapper.CancellationSource = cancellationSource;
 
-                            var diagnosticFiles = ProcessFile(diagnosticDirectory, fileMapper, dataCenterName, clusterName);
+                            var diagnosticFiles = ProcessFile(diagnosticDirectory, fileMapper, dataCenterName, clusterName, dseVersion);
 
                             diagFilesList.AddRange(diagnosticFiles);
                             parallelOptions.CancellationToken.ThrowIfCancellationRequested();
@@ -210,7 +213,7 @@ namespace DSEDiagnosticFileParser
                         {
                             if (fileMapper.CancellationSource == null && cancellationSource != null) fileMapper.CancellationSource = cancellationSource;
 
-                            var diagnosticFiles = ProcessFile(diagnosticDirectory, fileMapper, dataCenterName, clusterName);
+                            var diagnosticFiles = ProcessFile(diagnosticDirectory, fileMapper, dataCenterName, clusterName, dseVersion);
 
                             diagFilesList.AddRange(diagnosticFiles);
                             localDiagFilesList.AddRange(diagnosticFiles);
@@ -269,7 +272,8 @@ namespace DSEDiagnosticFileParser
         public static IEnumerable<DiagnosticFile> ProcessFile(IDirectoryPath diagnosticDirectory,
                                                                             FileMapper fileMappings,
                                                                             string dataCenterName = null,
-                                                                            string clusterName = null)
+                                                                            string clusterName = null,
+                                                                            Version targetDSEVersion = null)
 		{
             var ignoreFilesRegEx = string.IsNullOrEmpty(fileMappings?.IgnoreFilesMatchingRegEx)
                                             ? null
@@ -383,6 +387,7 @@ namespace DSEDiagnosticFileParser
                                                             dataCenterName,
                                                             clusterName,
                                                             cancellationToken,
+                                                            targetDSEVersion,
                                                             !DisableParallelProcessing && fileMappings.ProcessingTaskOption.HasFlag(FileMapper.ProcessingTaskOptions.ParallelProcessFiles));
 
                             if (resultInstance != null)
@@ -402,6 +407,7 @@ namespace DSEDiagnosticFileParser
                                                         dataCenterName,
                                                         clusterName,
                                                         cancellationToken,
+                                                        targetDSEVersion,
                                                         !DisableParallelProcessing && fileMappings.ProcessingTaskOption.HasFlag(FileMapper.ProcessingTaskOptions.ParallelProcessFiles));
 
                         if (resultInstance != null)
@@ -423,6 +429,7 @@ namespace DSEDiagnosticFileParser
                                                         dataCenterName,
                                                         clusterName,
                                                         cancellationToken,
+                                                        targetDSEVersion,
                                                         !DisableParallelProcessing && fileMappings.ProcessingTaskOption.HasFlag(FileMapper.ProcessingTaskOptions.ParallelProcessFiles));
 
                         if (resultInstance != null)
@@ -454,10 +461,11 @@ namespace DSEDiagnosticFileParser
 																string dataCenterName = null,
 																string clusterName = null,
                                                                 CancellationToken? cancellationToken = null,
+                                                                Version targetDSEVersion = null,
                                                                 bool runAsTask = false)
 		{
 			var node = useNode == null ? Cluster.TryGetAddNode(nodeId, dataCenterName, clusterName) : useNode;
-			var processingFileInstance = (DiagnosticFile) Activator.CreateInstance(instanceType, catagory, diagnosticDirectory, processFile, node, clusterName, dataCenterName);
+			var processingFileInstance = (DiagnosticFile) Activator.CreateInstance(instanceType, catagory, diagnosticDirectory, processFile, node, clusterName, dataCenterName, targetDSEVersion);
 
             if(cancellationToken.HasValue)
             {
