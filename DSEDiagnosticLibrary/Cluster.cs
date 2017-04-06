@@ -37,7 +37,7 @@ namespace DSEDiagnosticLibrary
 		public Cluster(string clusterName)
 			: this()
 		{
-			this.Name = clusterName;
+			this.Name = StringHelpers.RemoveQuotes(clusterName);
 		}
 
 		public string Name { get; private set; }
@@ -91,7 +91,7 @@ namespace DSEDiagnosticLibrary
 
         public IEnumerable<IKeyspace> GetKeyspaces(string keyspaceName)
         {
-            keyspaceName = StringHelpers.RemoveQuotes(keyspaceName?.Trim());
+            keyspaceName = keyspaceName == null ? null : StringHelpers.RemoveQuotes(keyspaceName.Trim());
 
             this._keySpaces.Lock();
             try
@@ -197,6 +197,8 @@ namespace DSEDiagnosticLibrary
             Clusters.Lock();
             try
             {
+                clusterName = StringHelpers.RemoveQuotes(clusterName.Trim());
+
                 var cluster = Clusters.UnSafe.FirstOrDefault(c => c.Name == clusterName);
 
                 if (cluster == null)
@@ -217,6 +219,7 @@ namespace DSEDiagnosticLibrary
             Clusters.Lock();
             try
             {
+                clusterName = StringHelpers.RemoveQuotes(clusterName.Trim());
                 return Clusters.UnSafe.FirstOrDefault(c => c.Name == clusterName);
             }
             finally

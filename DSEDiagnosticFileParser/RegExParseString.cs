@@ -9,27 +9,21 @@ namespace DSEDiagnosticFileParser
 {
     public sealed class RegExParseString
     {
-        private Regex[] _compiledRegEx = null;
+        private readonly Regex[] _compiledRegEx = null;
 
         private RegExParseString() { }
 
         public RegExParseString(params string[] regExStrings)
         {
             this.RegExStrings = regExStrings;
-            this.CacheStrings();
-        }
-
-        public string[] RegExStrings { get; private set; }
-
-        public RegExParseString CacheStrings()
-        {
             if (this._compiledRegEx == null || this._compiledRegEx.Length != this.RegExStrings.Length)
             {
                 this._compiledRegEx = this.RegExStrings.Select(s => new Regex(s, RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.Compiled))
                                                         .ToArray();
             }
-            return this;
         }
+
+        public readonly string[] RegExStrings;
 
         public string[] Split(string input, int regexIndex = 0)
         {
