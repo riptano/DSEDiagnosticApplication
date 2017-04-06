@@ -43,13 +43,13 @@
 "file_dsetool_ring":{"RegExStrings":["([a-z0-9.:_\\-+%]+)\\s+([a-z0-9\\-_$%+=@!?&lt;&gt;^*&amp;]+)\\s+([a-z0-9\\-_$%+=@!?&lt;&gt;^*&amp;]+)\\s+([a-z]+)\\s+([a-z]+)\\s+([a-z]+)\\s+([a-z]+)\\s+([0-9.]+\\s*[a-z]{1,2})\\s+(\\w+|\\?)\\s+([0-9\\-]+)"]},
 "file_nodetool_ring":{"RegExStrings":["datacenter:\\s+([a-z0-9\\-_$%+=@!?&lt;&gt;^*&amp;]+)\\s*","\\s*([0-9\\-]+)",
 					"([a-z0-9.:_\\-+%]+)\\s+([a-z0-9\\-_$%+=@!?&lt;&gt;^*&amp;]+)\\s+([a-z]+)\\s+([a-z]+)\\s+([0-9.]+\\s*[a-z]{1,2})\\s+(\\w+|\\?)\\s+([0-9\\-]+)"]},
-"cql_ddl":{"RegExStrings":["use\\s+(?:\\'|\\\")([a-z0-9\\-_$%+=@!?&lt;&gt;^*&amp;]+)(?:\\'|\\\")",
-				"create\\s+(?:keyspace|schema)\\s+(?:if\\s+not\\s+exists\\s+)?(?:\\'|\\\")?([a-z0-9\\-_$%+=@!?&lt;&gt;^*&amp;]+)(?:\\'|\\\")?\\s+with\\s+(replication)\\s*\\=\\s*(\\{.+\\})\\s*(?:and\\s+(durable_writes)\\s*\\=\\s*(\\w+))?\\s*\\;?",
-				"create\\s+(?:table|column\\s+family)\\s+(?:if\\s+not\\s+exists\\s+)?([a-z0-9\\-_$%+=@!?&lt;&gt;^*&amp;.\\'\\\"]+)\\s+(?:\\(\\s*(.+)\\s*\\)\\s+with\\s+(.+)|(?:\\(\\s*(.+)\\s*\\)))\\s*\\;?",
-				"create\\s+type\\s+(?:if\\s+not\\s+exists\\s+)?([a-z0-9\\-_$%+=@!?&lt;&gt;^*&amp;.\\'\\\"]+)\\s+(?:\\(\\s*(.+)\\s*\\))\\s*\\;?",
-				"create\\s+(custom\\s+)?index\\s+(?:if\\s+not\\s+exists\\s+)?([a-z0-9\\-_$%+=@!?&lt;&gt;^*&amp;\\'\\\"]+)\\s+on\\s+([a-z0-9\\-_$%+=@!?&lt;&gt;^*&amp;.\\'\\\"]+)\\s+(?:\\(\\s*(.+)\\s*\\))(?:\\s+using\\s+([a-z0-9\\-_$%+=@!?&lt;&gt;^*&amp;.\\'\\\"]+))?(?:\\s+with\\s+options\\s*\\=\\s*(.+))?\\s*\\;?",
-				"create\\s+materialized\\s+view\\s+(?:if\\s+not\\s+exists\\s+)?([a-z0-9\\-_$%+=@!?&lt;&gt;^*&amp;.\\'\\\"]+)\\s+as\\s+select\\s+(.+)\\s+from\\s+([a-z0-9\\-_$%+=@!?&lt;&gt;^*&amp;.\\'\\\"]+)\\s+where\\s+(.+)\\s+primary\\s+key\\s*(?:\\(\\s*(.+)\\s*\\)\\s+with\\s+(.+)|\\(\\s*(.+)\\s*\\))\\s*\\;?",
-                                                               "create\\s+trigger\\s+(?:if\\s+not\\s+exists\\s+)?([a-z0-9\\-_$%+=@!?&lt;&gt;^*&amp;.\\'\\\"]+)\\s+on\\s+([a-z0-9\\-_$%+=@!?&lt;&gt;^*&amp;.\\'\\\"]+)\\s+using\\s+(.+)\\s*\\;?"
+"cql_ddl":{"RegExStrings":["^use\\s+(?:\\'|\\\")([a-z0-9\\-_$%+=@!?&lt;&gt;^*&amp;]+)(?:\\'|\\\")\\;?$",
+				"^create\\s+(?:keyspace|schema)\\s+(?:if\\s+not\\s+exists\\s+)?(?:\\'|\\\")?([a-z0-9\\-_$%+=@!?&lt;&gt;^*&amp;]+)(?:\\'|\\\")?\\s+with\\s+(replication)\\s*\\=\\s*(\\{.+\\})\\s*(?:and\\s+(durable_writes)\\s*\\=\\s*(\\w+))?\\s*\\;?$",
+				"^create\\s+(?:table|column\\s+family)\\s+(?:if\\s+not\\s+exists\\s+)?([a-z0-9\\-_$%+=@!?&lt;&gt;^*&amp;.\\'\\\"]+)\\s+(?:\\(\\s*(.+)\\s*\\)\\s+with\\s+(.+)|(?:\\(\\s*(.+)\\s*\\)))\\s*\\;?$",
+				"^create\\s+type\\s+(?:if\\s+not\\s+exists\\s+)?([a-z0-9\\-_$%+=@!?&lt;&gt;^*&amp;.\\'\\\"]+)\\s+(?:\\(\\s*(.+)\\s*\\))\\s*\\;?$",
+				"^create\\s+(custom\\s+)?index\\s+(?:if\\s+not\\s+exists\\s+)?([a-z0-9\\-_$%+=@!?&lt;&gt;^*&amp;\\'\\\"]+)\\s+on\\s+([a-z0-9\\-_$%+=@!?&lt;&gt;^*&amp;.\\'\\\"]+)\\s+(?:\\(\\s*(.+)\\s*\\))(?:\\s+using\\s+([a-z0-9\\-_$%+=@!?&lt;&gt;^*&amp;.\\'\\\"]+))?(?:\\s+with\\s+options\\s*\\=\\s*(.+))?\\s*\\;?$",
+				"^create\\s+materialized\\s+view\\s+(?:if\\s+not\\s+exists\\s+)?([a-z0-9\\-_$%+=@!?&lt;&gt;^*&amp;.\\'\\\"]+)\\s+as\\s+select\\s+(.+)\\s+from\\s+([a-z0-9\\-_$%+=@!?&lt;&gt;^*&amp;.\\'\\\"]+)\\s+where\\s+(.+)\\s+primary\\s+key\\s*(?:\\(\\s*(.+)\\s*\\)\\s+with\\s+(.+)|\\(\\s*(.+)\\s*\\))\\s*\\;?$",
+                                                               "^create\\s+trigger\\s+(?:if\\s+not\\s+exists\\s+)?([a-z0-9\\-_$%+=@!?&lt;&gt;^*&amp;.\\'\\\"]+)\\s+on\\s+([a-z0-9\\-_$%+=@!?&lt;&gt;^*&amp;.\\'\\\"]+)\\s+using\\s+(.+)\\s*\\;?$"
 			]}
 }</Value>
     </Setting>

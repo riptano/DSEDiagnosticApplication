@@ -148,8 +148,13 @@ namespace DSEDiagnosticFileParser
                     continue;
                 }
 
-                if (!string.IsNullOrEmpty(line))
+                if (line.Length > 0)
                 {
+                    if (line[0] == '\u001b' || line[0] == '\n' || line[0] == '\r')
+                    {
+                        continue;
+                    }
+
                     if (line.StartsWith(@"--") || line.StartsWith(@"//"))
                     {
                         continue;
@@ -365,10 +370,10 @@ namespace DSEDiagnosticFileParser
             var kstblPair = StringHelpers.SplitTableName(name, null);
             var ksInstance = string.IsNullOrEmpty(kstblPair.Item1) ? this._usingKeySpace : this.GetKeySpace(kstblPair.Item1);
 
-            if (ksInstance == null) throw new NullReferenceException(string.Format("CQL Table \"{0}\" could not find associated keyspace \"{1}\". DDL: {2}",
-                                                                                     kstblPair.Item2,
-                                                                                     kstblPair.Item1 ?? "<CQL use stmt required or fully qualified name>",
-                                                                                     tableMatch.Groups[0].Value));
+            if (ksInstance == null) throw new ArgumentNullException("keyspace", string.Format("CQL Table \"{0}\" could not find associated keyspace \"{1}\". DDL: {2}",
+                                                                                                 kstblPair.Item2,
+                                                                                                 kstblPair.Item1 ?? "<CQL use stmt required or fully qualified name>",
+                                                                                                 tableMatch.Groups[0].Value));
 
             if (ksInstance.TryGetTable(kstblPair.Item2) == null)
             {
@@ -411,10 +416,10 @@ namespace DSEDiagnosticFileParser
             var kstblPair = StringHelpers.SplitTableName(name, null);
             var ksInstance = string.IsNullOrEmpty(kstblPair.Item1) ? this._usingKeySpace : this.GetKeySpace(kstblPair.Item1);
 
-            if (ksInstance == null) throw new NullReferenceException(string.Format("CQL Type (UDT) \"{0}\" could not find associated keyspace \"{1}\". DDL: {2}",
-                                                                                     kstblPair.Item2,
-                                                                                     kstblPair.Item1 ?? "<CQL use stmt required or fully qualified name>",
-                                                                                     udtMatch.Groups[0].Value));
+            if (ksInstance == null) throw new ArgumentNullException("keyspace", string.Format("CQL Type (UDT) \"{0}\" could not find associated keyspace \"{1}\". DDL: {2}",
+                                                                                                 kstblPair.Item2,
+                                                                                                 kstblPair.Item1 ?? "<CQL use stmt required or fully qualified name>",
+                                                                                                 udtMatch.Groups[0].Value));
 
             if (ksInstance.TryGetUDT(kstblPair.Item2) == null)
             {
@@ -451,23 +456,23 @@ namespace DSEDiagnosticFileParser
             var ksTblInstance = string.IsNullOrEmpty(kstblPair.Item1) ? this._usingKeySpace : this.GetKeySpace(kstblPair.Item1);
             var ksInstance = string.IsNullOrEmpty(ksidxPair.Item1) ? ksTblInstance : this.GetKeySpace(ksidxPair.Item1);
 
-            if (ksTblInstance == null) throw new NullReferenceException(string.Format("CQL Index \"{0}\" for Table \"{1}\" could not find associated keyspace \"{2}\". DDL: {3}",
-                                                                                         name,
-                                                                                         tablename,
-                                                                                         kstblPair.Item1 ?? "<CQL use stmt required or fully qualified name>",
-                                                                                         indexMatch.Groups[0].Value));
-            if (ksInstance == null) throw new NullReferenceException(string.Format("CQL Index \"{0}\" could not find associated keyspace \"{1}\". DDL: {2}",
-                                                                                         name,
-                                                                                         ksidxPair.Item1 ?? "<CQL use stmt required or fully qualified name>",
-                                                                                         indexMatch.Groups[0].Value));
+            if (ksTblInstance == null) throw new ArgumentNullException("TableKeyspace", string.Format("CQL Index \"{0}\" for Table \"{1}\" could not find associated keyspace \"{2}\". DDL: {3}",
+                                                                                                         name,
+                                                                                                         tablename,
+                                                                                                         kstblPair.Item1 ?? "<CQL use stmt required or fully qualified name>",
+                                                                                                         indexMatch.Groups[0].Value));
+            if (ksInstance == null) throw new ArgumentNullException("Keyspace", string.Format("CQL Index \"{0}\" could not find associated keyspace \"{1}\". DDL: {2}",
+                                                                                                 name,
+                                                                                                 ksidxPair.Item1 ?? "<CQL use stmt required or fully qualified name>",
+                                                                                                 indexMatch.Groups[0].Value));
 
             var tblInstance = ksTblInstance.TryGetTable(kstblPair.Item2);
 
-            if (tblInstance == null) throw new NullReferenceException(string.Format("CQL Index \"{0}\" could not find associated Table \"{1}\" in Keyspace \"{2}\". DDL: {3}",
-                                                                                     name,
-                                                                                     tablename,
-                                                                                     ksInstance.Name,
-                                                                                     indexMatch.Groups[0].Value));
+            if (tblInstance == null) throw new ArgumentNullException("Table", string.Format("CQL Index \"{0}\" could not find associated Table \"{1}\" in Keyspace \"{2}\". DDL: {3}",
+                                                                                             name,
+                                                                                             tablename,
+                                                                                             ksInstance.Name,
+                                                                                             indexMatch.Groups[0].Value));
 
 
             if (ksInstance.TryGetIndex(ksidxPair.Item2) == null)
@@ -532,22 +537,22 @@ namespace DSEDiagnosticFileParser
             var tblKSInstance = string.IsNullOrEmpty(tblKsTblPair.Item1) ? this._usingKeySpace : this.GetKeySpace(viewKsTblPair.Item1);
             var viewKSInstance = string.IsNullOrEmpty(viewKsTblPair.Item1) ? tblKSInstance : this.GetKeySpace(viewKsTblPair.Item1);
 
-            if (viewKSInstance == null) throw new NullReferenceException(string.Format("CQL Materialized View \"{0}\" could not find associated keyspace \"{1}\". DDL: {2}",
-                                                                                     viewKsTblPair.Item2,
-                                                                                     viewKsTblPair.Item1 ?? "<CQL use stmt required or fully qualified name>",
-                                                                                     viewMatch.Groups[0].Value));
+            if (viewKSInstance == null) throw new ArgumentNullException("Keyspace", string.Format("CQL Materialized View \"{0}\" could not find associated keyspace \"{1}\". DDL: {2}",
+                                                                                                         viewKsTblPair.Item2,
+                                                                                                         viewKsTblPair.Item1 ?? "<CQL use stmt required or fully qualified name>",
+                                                                                                         viewMatch.Groups[0].Value));
 
-            if (tblKSInstance == null) throw new NullReferenceException(string.Format("CQL Materialized View \"{0}\" could not find associated table keyspace \"{1}\". DDL: {2}",
-                                                                                        tblKsTblPair.Item2,
-                                                                                        tblKsTblPair.Item1 ?? "<CQL use stmt required or fully qualified name>",
-                                                                                        viewMatch.Groups[0].Value));
+            if (tblKSInstance == null) throw new ArgumentNullException("TableKeyspace", string.Format("CQL Materialized View \"{0}\" could not find associated table keyspace \"{1}\". DDL: {2}",
+                                                                                                        tblKsTblPair.Item2,
+                                                                                                        tblKsTblPair.Item1 ?? "<CQL use stmt required or fully qualified name>",
+                                                                                                        viewMatch.Groups[0].Value));
             var tblInstance = tblKSInstance.TryGetTable(tblKsTblPair.Item2);
 
-            if (tblInstance == null) throw new NullReferenceException(string.Format("CQL Materialized View \"{0}\" could not find associated Table \"{1}\" in Keyspace \"{2}\". DDL: {3}",
-                                                                                     viewName,
-                                                                                     tblKsTblPair.Item2,
-                                                                                     tblKSInstance.Name,
-                                                                                     viewMatch.Groups[0].Value));
+            if (tblInstance == null) throw new ArgumentNullException("Table", string.Format("CQL Materialized View \"{0}\" could not find associated Table \"{1}\" in Keyspace \"{2}\". DDL: {3}",
+                                                                                             viewName,
+                                                                                             tblKsTblPair.Item2,
+                                                                                             tblKSInstance.Name,
+                                                                                             viewMatch.Groups[0].Value));
 
             if (viewKSInstance.TryGetView(viewKsTblPair.Item2) == null)
             {
@@ -637,23 +642,23 @@ namespace DSEDiagnosticFileParser
             var ksTblInstance = string.IsNullOrEmpty(kstblPair.Item1) ? this._usingKeySpace : this.GetKeySpace(kstblPair.Item1);
             var ksInstance = string.IsNullOrEmpty(kstriggerPair.Item1) ? ksTblInstance : this.GetKeySpace(kstriggerPair.Item1);
 
-            if (ksTblInstance == null) throw new NullReferenceException(string.Format("CQL Trigger \"{0}\" for Table \"{1}\" could not find associated keyspace \"{2}\". DDL: {3}",
-                                                                                         name,
-                                                                                         tablename,
-                                                                                         kstblPair.Item1 ?? "<CQL use stmt required or fully qualified name>",
-                                                                                         triggerMatch.Groups[0].Value));
-            if (ksInstance == null) throw new NullReferenceException(string.Format("CQL Trigger \"{0}\" could not find associated keyspace \"{1}\". DDL: {2}",
-                                                                                         name,
-                                                                                         kstriggerPair.Item1 ?? "<CQL use stmt required or fully qualified name>",
-                                                                                         triggerMatch.Groups[0].Value));
+            if (ksTblInstance == null) throw new ArgumentNullException("TableKeyspace", string.Format("CQL Trigger \"{0}\" for Table \"{1}\" could not find associated keyspace \"{2}\". DDL: {3}",
+                                                                                                         name,
+                                                                                                         tablename,
+                                                                                                         kstblPair.Item1 ?? "<CQL use stmt required or fully qualified name>",
+                                                                                                         triggerMatch.Groups[0].Value));
+            if (ksInstance == null) throw new ArgumentNullException("Keyspace", string.Format("CQL Trigger \"{0}\" could not find associated keyspace \"{1}\". DDL: {2}",
+                                                                                                 name,
+                                                                                                 kstriggerPair.Item1 ?? "<CQL use stmt required or fully qualified name>",
+                                                                                                 triggerMatch.Groups[0].Value));
 
             var tblInstance = ksTblInstance.TryGetTable(kstblPair.Item2);
 
-            if (tblInstance == null) throw new NullReferenceException(string.Format("CQL Trigger \"{0}\" could not find associated Table \"{1}\" in Keyspace \"{2}\". DDL: {3}",
-                                                                                     name,
-                                                                                     tablename,
-                                                                                     ksInstance.Name,
-                                                                                     triggerMatch.Groups[0].Value));
+            if (tblInstance == null) throw new ArgumentNullException("Table", string.Format("CQL Trigger \"{0}\" could not find associated Table \"{1}\" in Keyspace \"{2}\". DDL: {3}",
+                                                                                             name,
+                                                                                             tablename,
+                                                                                             ksInstance.Name,
+                                                                                             triggerMatch.Groups[0].Value));
 
 
             if (ksInstance.TryGetTrigger(kstriggerPair.Item2) == null)

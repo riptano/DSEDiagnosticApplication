@@ -38,6 +38,6 @@ namespace DSEDiagnosticFileParser
         public bool IsMatch(string input, int regexIndex = 0)
         {
             return this._compiledRegEx[regexIndex].IsMatch(input);
-        }        
+        }
     }
 }

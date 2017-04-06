@@ -139,24 +139,24 @@ namespace DSEDiagnosticFileParser.Properties {
             "file_nodetool_ring\":{\"RegExStrings\":[\"datacenter:\\\\s+([a-z0-9\\\\-_$%+=@!?<>^*&]+)" +
             "\\\\s*\",\"\\\\s*([0-9\\\\-]+)\",\r\n\t\t\t\t\t\"([a-z0-9.:_\\\\-+%]+)\\\\s+([a-z0-9\\\\-_$%+=@!?<>^*&]" +
             "+)\\\\s+([a-z]+)\\\\s+([a-z]+)\\\\s+([0-9.]+\\\\s*[a-z]{1,2})\\\\s+(\\\\w+|\\\\?)\\\\s+([0-9\\\\-]" +
-            "+)\"]},\r\n\"cql_ddl\":{\"RegExStrings\":[\"use\\\\s+(?:\\\\\'|\\\\\\\")([a-z0-9\\\\-_$%+=@!?<>^*&]" +
-            "+)(?:\\\\\'|\\\\\\\")\",\r\n\t\t\t\t\"create\\\\s+(?:keyspace|schema)\\\\s+(?:if\\\\s+not\\\\s+exists\\\\" +
-            "s+)?(?:\\\\\'|\\\\\\\")?([a-z0-9\\\\-_$%+=@!?<>^*&]+)(?:\\\\\'|\\\\\\\")?\\\\s+with\\\\s+(replicatio" +
-            "n)\\\\s*\\\\=\\\\s*(\\\\{.+\\\\})\\\\s*(?:and\\\\s+(durable_writes)\\\\s*\\\\=\\\\s*(\\\\w+))?\\\\s*\\\\;?" +
-            "\",\r\n\t\t\t\t\"create\\\\s+(?:table|column\\\\s+family)\\\\s+(?:if\\\\s+not\\\\s+exists\\\\s+)?([a" +
-            "-z0-9\\\\-_$%+=@!?<>^*&.\\\\\'\\\\\\\"]+)\\\\s+(?:\\\\(\\\\s*(.+)\\\\s*\\\\)\\\\s+with\\\\s+(.+)|(?:\\\\(" +
-            "\\\\s*(.+)\\\\s*\\\\)))\\\\s*\\\\;?\",\r\n\t\t\t\t\"create\\\\s+type\\\\s+(?:if\\\\s+not\\\\s+exists\\\\s+)?" +
-            "([a-z0-9\\\\-_$%+=@!?<>^*&.\\\\\'\\\\\\\"]+)\\\\s+(?:\\\\(\\\\s*(.+)\\\\s*\\\\))\\\\s*\\\\;?\",\r\n\t\t\t\t\"cr" +
-            "eate\\\\s+(custom\\\\s+)?index\\\\s+(?:if\\\\s+not\\\\s+exists\\\\s+)?([a-z0-9\\\\-_$%+=@!?<>^" +
-            "*&\\\\\'\\\\\\\"]+)\\\\s+on\\\\s+([a-z0-9\\\\-_$%+=@!?<>^*&.\\\\\'\\\\\\\"]+)\\\\s+(?:\\\\(\\\\s*(.+)\\\\s*\\" +
-            "\\))(?:\\\\s+using\\\\s+([a-z0-9\\\\-_$%+=@!?<>^*&.\\\\\'\\\\\\\"]+))?(?:\\\\s+with\\\\s+options\\\\" +
-            "s*\\\\=\\\\s*(.+))?\\\\s*\\\\;?\",\r\n\t\t\t\t\"create\\\\s+materialized\\\\s+view\\\\s+(?:if\\\\s+not\\\\" +
-            "s+exists\\\\s+)?([a-z0-9\\\\-_$%+=@!?<>^*&.\\\\\'\\\\\\\"]+)\\\\s+as\\\\s+select\\\\s+(.+)\\\\s+fro" +
-            "m\\\\s+([a-z0-9\\\\-_$%+=@!?<>^*&.\\\\\'\\\\\\\"]+)\\\\s+where\\\\s+(.+)\\\\s+primary\\\\s+key\\\\s*(" +
-            "?:\\\\(\\\\s*(.+)\\\\s*\\\\)\\\\s+with\\\\s+(.+)|\\\\(\\\\s*(.+)\\\\s*\\\\))\\\\s*\\\\;?\",\r\n            " +
-            "                                                   \"create\\\\s+trigger\\\\s+(?:if\\\\" +
-            "s+not\\\\s+exists\\\\s+)?([a-z0-9\\\\-_$%+=@!?<>^*&.\\\\\'\\\\\\\"]+)\\\\s+on\\\\s+([a-z0-9\\\\-_$%" +
-            "+=@!?<>^*&.\\\\\'\\\\\\\"]+)\\\\s+using\\\\s+(.+)\\\\s*\\\\;?\"\r\n\t\t\t]}\r\n}")]
+            "+)\"]},\r\n\"cql_ddl\":{\"RegExStrings\":[\"^use\\\\s+(?:\\\\\'|\\\\\\\")([a-z0-9\\\\-_$%+=@!?<>^*&" +
+            "]+)(?:\\\\\'|\\\\\\\")\\\\;?$\",\r\n\t\t\t\t\"^create\\\\s+(?:keyspace|schema)\\\\s+(?:if\\\\s+not\\\\s+e" +
+            "xists\\\\s+)?(?:\\\\\'|\\\\\\\")?([a-z0-9\\\\-_$%+=@!?<>^*&]+)(?:\\\\\'|\\\\\\\")?\\\\s+with\\\\s+(rep" +
+            "lication)\\\\s*\\\\=\\\\s*(\\\\{.+\\\\})\\\\s*(?:and\\\\s+(durable_writes)\\\\s*\\\\=\\\\s*(\\\\w+))?\\" +
+            "\\s*\\\\;?$\",\r\n\t\t\t\t\"^create\\\\s+(?:table|column\\\\s+family)\\\\s+(?:if\\\\s+not\\\\s+exists" +
+            "\\\\s+)?([a-z0-9\\\\-_$%+=@!?<>^*&.\\\\\'\\\\\\\"]+)\\\\s+(?:\\\\(\\\\s*(.+)\\\\s*\\\\)\\\\s+with\\\\s+(." +
+            "+)|(?:\\\\(\\\\s*(.+)\\\\s*\\\\)))\\\\s*\\\\;?$\",\r\n\t\t\t\t\"^create\\\\s+type\\\\s+(?:if\\\\s+not\\\\s+e" +
+            "xists\\\\s+)?([a-z0-9\\\\-_$%+=@!?<>^*&.\\\\\'\\\\\\\"]+)\\\\s+(?:\\\\(\\\\s*(.+)\\\\s*\\\\))\\\\s*\\\\;?" +
+            "$\",\r\n\t\t\t\t\"^create\\\\s+(custom\\\\s+)?index\\\\s+(?:if\\\\s+not\\\\s+exists\\\\s+)?([a-z0-9\\" +
+            "\\-_$%+=@!?<>^*&\\\\\'\\\\\\\"]+)\\\\s+on\\\\s+([a-z0-9\\\\-_$%+=@!?<>^*&.\\\\\'\\\\\\\"]+)\\\\s+(?:\\\\(" +
+            "\\\\s*(.+)\\\\s*\\\\))(?:\\\\s+using\\\\s+([a-z0-9\\\\-_$%+=@!?<>^*&.\\\\\'\\\\\\\"]+))?(?:\\\\s+with" +
+            "\\\\s+options\\\\s*\\\\=\\\\s*(.+))?\\\\s*\\\\;?$\",\r\n\t\t\t\t\"^create\\\\s+materialized\\\\s+view\\\\s" +
+            "+(?:if\\\\s+not\\\\s+exists\\\\s+)?([a-z0-9\\\\-_$%+=@!?<>^*&.\\\\\'\\\\\\\"]+)\\\\s+as\\\\s+select" +
+            "\\\\s+(.+)\\\\s+from\\\\s+([a-z0-9\\\\-_$%+=@!?<>^*&.\\\\\'\\\\\\\"]+)\\\\s+where\\\\s+(.+)\\\\s+prim" +
+            "ary\\\\s+key\\\\s*(?:\\\\(\\\\s*(.+)\\\\s*\\\\)\\\\s+with\\\\s+(.+)|\\\\(\\\\s*(.+)\\\\s*\\\\))\\\\s*\\\\;?$" +
+            "\",\r\n                                                               \"^create\\\\s+t" +
+            "rigger\\\\s+(?:if\\\\s+not\\\\s+exists\\\\s+)?([a-z0-9\\\\-_$%+=@!?<>^*&.\\\\\'\\\\\\\"]+)\\\\s+on\\" +
+            "\\s+([a-z0-9\\\\-_$%+=@!?<>^*&.\\\\\'\\\\\\\"]+)\\\\s+using\\\\s+(.+)\\\\s*\\\\;?$\"\r\n\t\t\t]}\r\n}")]
         public string DiagnosticFileRegExAssocations {
             get {
                 return ((string)(this["DiagnosticFileRegExAssocations"]));
@@ -192,26 +192,6 @@ namespace DSEDiagnosticFileParser.Properties {
         public string SnitchFileMappings {
             get {
                 return ((string)(this["SnitchFileMappings"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute(@"[
-{""ConfigType"":""DSE"",""ContainsString"":""dse"",""MatchAction"":""FileNameOnly,Equals""},
-{""ConfigType"":""Solr"",""ContainsString"":""solr"",""MatchAction"":""FileNameOnly,StartsWith""},
-{""ConfigType"":""Spark"",""ContainsString"":""spark"",""MatchAction"":""FileNameOnly,StartsWith""},
-{""ConfigType"":""Spark"",""ContainsString"":""spark"",""MatchAction"":""FileNameOnly,EndsWith""},
-{""ConfigType"":""Spark"",""ContainsString"":""dse-spark"",""MatchAction"":""FileNameOnly,StartsWith""},
-{""ConfigType"":""Hadoop"",""ContainsString"":""hadoop"",""MatchAction"":""FileNameOnly,Contains""},
-{""ConfigType"":""Snitch"",""ContainsString"":""cassandra-topology.properties"",""MatchAction"":""FileNamewExtension,Equals""},
-{""ConfigType"":""Snitch"",""ContainsString"":""cassandra-rackdc.properties"",""MatchAction"":""FileNamewExtension,Equals""},
-{""ConfigType"":""Snitch"",""ContainsString"":""cassandra-topology.yaml"",""MatchAction"":""FileNamewExtension,Equals""},
-{""ConfigType"":""Cassandra"",""ContainsString"":""cassandra"",""MatchAction"":""FileNameOnly,StartsWith""}
-]")]
-        public string ConfigTypeMappers {
-            get {
-                return ((string)(this["ConfigTypeMappers"]));
             }
         }
     }

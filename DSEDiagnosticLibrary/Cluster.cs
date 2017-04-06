@@ -219,7 +219,7 @@ namespace DSEDiagnosticLibrary
             Clusters.Lock();
             try
             {
-                clusterName = StringHelpers.RemoveQuotes(clusterName.Trim());
+                clusterName = clusterName == null ? null : StringHelpers.RemoveQuotes(clusterName.Trim());
                 return Clusters.UnSafe.FirstOrDefault(c => c.Name == clusterName);
             }
             finally
