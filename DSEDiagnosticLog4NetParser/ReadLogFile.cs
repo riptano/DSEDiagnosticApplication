@@ -13,21 +13,35 @@ namespace DSEDiagnosticLog4NetParser
     public sealed class ReadLogFile : IReadLogFile
     {
         public ReadLogFile() { }
-        public ReadLogFile(IFilePath logFilePath, string log4netConversionPattern)
+        public ReadLogFile(IFilePath logFilePath, string log4netConversionPattern, INode node = null)
         {
             this.LogFile = logFilePath;
             this.Log4NetConversionPattern = log4netConversionPattern;
+            this.Node = node;
         }
 
-        public ReadLogFile(IFilePath logFilePath, string log4netConversionPattern, CancellationToken cancellationToken)
-            : this(logFilePath, log4netConversionPattern)
-        {           
+        public ReadLogFile(IFilePath logFilePath, string log4netConversionPattern, CancellationToken cancellationToken, INode node = null)
+            : this(logFilePath, log4netConversionPattern, node)
+        {
             this.CancellationToken = cancellationToken;
+        }
+
+        public ReadLogFile(IFilePath logFilePath, string log4netConversionPattern, string ianaTimezone)
+            : this(logFilePath, log4netConversionPattern)
+        {
+            this._ianaTimeZone = ianaTimezone;
+        }
+
+        public ReadLogFile(IFilePath logFilePath, string log4netConversionPattern, CancellationToken cancellationToken, string ianaTimezone)
+            : this(logFilePath, log4netConversionPattern, cancellationToken)
+        {
+            this._ianaTimeZone = ianaTimezone;
         }
 
         public string Log4NetConversionPattern { get; set; }
 
         #region IReadLogFile
+        public INode Node { get; private set; }
         public IFilePath LogFile { get; set; }
         public ILogMessages Log { get; private set; }
         public uint LinesRead { get; private set; }
@@ -35,6 +49,8 @@ namespace DSEDiagnosticLog4NetParser
         public CancellationToken CancellationToken { get; set; }
 
         public bool Completed { get; private set; }
+        public event Action<IReadLogFile, ILogMessages, ILogMessage> ProcessedLogLineAction;
+
         public async Task<ILogMessages> ProcessLogFile(IFilePath logFile)
         {
             this.LogFile = logFile;
@@ -44,7 +60,9 @@ namespace DSEDiagnosticLog4NetParser
         {
             if (this.LogFile == null) throw new ArgumentNullException("LogFile");
 
-            var logMessages = new LogMessages(this.LogFile, this.Log4NetConversionPattern);
+            var logMessages = string.IsNullOrEmpty(this._ianaTimeZone) || this.Node != null
+                                ? new LogMessages(this.LogFile, this.Log4NetConversionPattern, this.Node)
+                                : new LogMessages(this.LogFile, this.Log4NetConversionPattern, this._ianaTimeZone);
             this.Log = logMessages;
             this.CancellationToken.ThrowIfCancellationRequested();
 
@@ -54,6 +72,7 @@ namespace DSEDiagnosticLog4NetParser
                 LogMessage logMessage;
                 string logLine;
                 Task<string> nextLogLine = readStream.ReadLineAsync();
+                var eventAction = this.ProcessedLogLineAction;
 
                 for (;;)
                 {
@@ -64,7 +83,9 @@ namespace DSEDiagnosticLog4NetParser
                     this.CancellationToken.ThrowIfCancellationRequested();
 
                     nextLogLine = readStream.ReadLineAsync();
-                    logMessage = logMessages.AddMessage(logLine, ++this.LinesRead);                    
+                    logMessage = logMessages.AddMessage(logLine, ++this.LinesRead);
+
+                    eventAction?.Invoke(this, logMessages, logMessage);
                 }
             }
 
@@ -72,6 +93,10 @@ namespace DSEDiagnosticLog4NetParser
             return this.Log;
         }
 
+        #endregion
+
+        #region private members
+        string _ianaTimeZone = null;
         #endregion
 
         #region IDisposable

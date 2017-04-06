@@ -22,6 +22,17 @@ namespace DSEDiagnosticLibrary
     {
        LogLevels Level { get;}
         DateTime LogDateTime { get; }
+        /// <summary>
+        /// LogDateTime&apos;s value based on the Node&apos;s timezone.
+        /// If a node instance is not provided this value will be set to LogDateTime using UTC TZ.
+        /// </summary>
+        DateTimeOffset LogDateTimewTZOffset { get; }
+        /// <summary>
+        /// Populated by the log4net &apos;timestamp&apos; pattern name.
+        /// </summary>
+        /// <remarks>
+        /// Log4net timestamp is the number of milliseconds elapsed since the start of the application until the creation of the logging event.
+        /// </remarks>
         TimeSpan LogTimeSpan { get; }
         string ThreadId { get; }
         string FileName { get;  }
@@ -34,6 +45,8 @@ namespace DSEDiagnosticLibrary
 
     public interface ILogMessages : IDisposable
     {
+        INode Node { get; }
+        string IANATimeZoneName { get; }
         IFilePath LogFile { get; }
         IEnumerable<ILogMessage> Messages { get; }
         DateTimeRange LogTimeRange { get; }
@@ -46,12 +59,21 @@ namespace DSEDiagnosticLibrary
     /// </summary>
     public interface IReadLogFile : IDisposable
     {
+        INode Node { get; }
         IFilePath LogFile { get; set; }
         ILogMessages Log { get; }
         uint LinesRead { get; }
         int Errors { get; }
-        CancellationToken CancellationToken { get; set; }        
+        CancellationToken CancellationToken { get; set; }
         bool Completed { get; }
+
+        /// <summary>
+        /// Invoked after a Log Line is processed.
+        /// </summary>
+        /// <remarks>
+        /// It is up to the consumer to properly handle exceptions including cancellations. This event is invoked synchronously.
+        /// </remarks>
+        event Action<IReadLogFile, ILogMessages, ILogMessage> ProcessedLogLineAction;
 
         Task<ILogMessages> ProcessLogFile(IFilePath logFile);
         Task<ILogMessages> ProcessLogFile();

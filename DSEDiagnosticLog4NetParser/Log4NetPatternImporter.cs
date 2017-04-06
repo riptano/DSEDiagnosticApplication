@@ -11,7 +11,7 @@ using System.IO;
 
 namespace DSEDiagnosticLog4NetParser
 {
-    public class Log4NetPatternImporter : IDisposable
+    public class Log4NetPatternImporter
     {
         readonly static bool IgnoreNewLineExpression = true;
 
@@ -24,16 +24,14 @@ namespace DSEDiagnosticLog4NetParser
             public string CodeType;
         };
         Dictionary<string, OutputField> _outputFields = new Dictionary<string, OutputField>();
-        CodeDomProvider _csharpProvider;
+        //CodeDomProvider _csharpProvider;
 
         public static IDictionary<string, OutputField> GenerateRegularGrammarElement(string pattern)
         {
             var elements = new Dictionary<string, OutputField>();
+            Log4NetPatternImporter obj = new Log4NetPatternImporter();
 
-            using (Log4NetPatternImporter obj = new Log4NetPatternImporter())
-            {
-                obj.GenerateRegularGrammarElementInt(elements, pattern);
-            }
+            obj.GenerateRegularGrammarElementInt(elements, pattern);
 
             return elements;
         }
@@ -42,16 +40,6 @@ namespace DSEDiagnosticLog4NetParser
         {
             this._lineRegExStr.AppendLine();
         }
-
-        #region IDisposable Members
-
-        public void Dispose()
-        {
-            if (this._csharpProvider != null)
-                this._csharpProvider.Dispose();
-        }
-
-        #endregion
 
         void GenerateRegularGrammarElementInt(Dictionary<string, OutputField> elements, string pattern)
         {
@@ -163,27 +151,14 @@ namespace DSEDiagnosticLog4NetParser
             f.Code.Append(code);
         }
 
-        CodeDomProvider GetCSharpProvider()
-        {
-            if (this._csharpProvider == null)
-                this._csharpProvider = Microsoft.CSharp.CSharpCodeProvider.CreateProvider("C#");
-            return this._csharpProvider;
-        }
-
-        string GetCSharpStringLiteral(string value)
-        {
-            StringWriter sw = new StringWriter();
-            this.GetCSharpProvider().GenerateCodeFromExpression(new CodePrimitiveExpression(value), sw, new CodeGeneratorOptions());
-            return sw.ToString();
-        }
-
         void HandleText(PatternToken t)
         {
             StringBuilder reToAppend = this._lineRegExStr;
 
             reToAppend.AppendFormat("{0} # fixed text '{1}'{2}", Regex.Escape(t.Value), t.Value, Environment.NewLine);
 
-            this.ConcatToBody(GetCSharpStringLiteral(t.Value));
+            //this.ConcatToBody(GetCSharpStringLiteral(t.Value));
+            this.ConcatToBody(t.Value);
         }
 
         string GetDateRe(string format)

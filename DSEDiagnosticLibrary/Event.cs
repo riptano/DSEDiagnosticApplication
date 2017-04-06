@@ -31,11 +31,13 @@ namespace DSEDiagnosticLibrary
         MemtableFlush,
         GC,
         Pause,
-        Repair
+        Repair,
+        Drops,
+        Performance
     }
 
 	public interface IEvent : IParsed
-	{        
+	{
         EventTypes Type { get; }
         EventClasses Class { get; }
         /// <summary>
@@ -48,17 +50,18 @@ namespace DSEDiagnosticLibrary
         /// </summary>
         Guid Id { get; }
         /// <summary>
-        /// Start Time for Duration Events
+        /// Events associated with this event so that nesting
+        /// </summary>
+        IList<Guid> ParentEvents { get; }
+        /// <summary>
+        /// Time event Occurred (e.g., This would be the logged time)
         /// </summary>
         DateTimeOffset EventTime { get; }
-        DateTimeOffset? CompletedTime { get; }
-        UnitOfMeasure Duration { get; }
+        DateTime EventTimeLocal { get; }
+        DateTimeOffset EventTimeDurationStart { get; }
+        TimeSpan Duration { get; }
 
         IKeyspace Keyspace { get; }
-        /// <summary>
-        /// e.g., Table
-        /// </summary>
-        IDDL Statement { get; }
-
+        ICQLTable Table { get; }
     }
 }
