@@ -527,14 +527,13 @@ namespace DSEDiagnosticLibrary
                         if (!cluster._dataCenters.UnSafe.Contains(dc))
                         {
                             cluster._dataCenters.UnSafe.Add(dc);
+                            if (!oldCluster.IsMaster)
+                            {
+                                oldCluster._dataCenters.UnSafe.Remove(dc);
+                            }
                         }
 
-                        ((DataCenter)dc).AssociateItem(cluster);
-
-                        if (!oldCluster.IsMaster)
-                        {
-                            oldCluster._dataCenters.UnSafe.Remove(dc);
-                        }
+                        ((DataCenter)dc).AssociateItem(cluster);                        
                     }
                     finally
                     {

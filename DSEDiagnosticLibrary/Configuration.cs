@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using Common;
-using CTS = Common.Patterns.Collections.ThreadSafe;
+using Newtonsoft.Json;
 
 namespace DSEDiagnosticLibrary
 {
@@ -270,7 +269,15 @@ namespace DSEDiagnosticLibrary
 
                 if (this.Value.Contains(','))
                 {
-                    return this._parsedValue = StringFunctions.Split(StringHelpers.RemoveQuotes(this.Value), ",")
+                    var collectionValue = this.Value;
+
+                    if(collectionValue.Last() == '}'
+                        && collectionValue.IndexOf('{') > 0)
+                    {
+                        return this._parsedValue = (IDictionary<string,object>) JsonConvert.DeserializeObject<Dictionary<string, object>>(collectionValue);
+                    }
+
+                    return this._parsedValue = StringFunctions.Split(StringHelpers.RemoveQuotes(collectionValue), ",")
                                                                 .Select(s => StringHelpers.DetermineProperObjectFormat(s, true, false, true, this.Property));
                 }
 
@@ -379,6 +386,14 @@ namespace DSEDiagnosticLibrary
 
             if(value.Contains(','))
             {
+                if (value.Last() == '}'
+                        && value.IndexOf('{') > 0)
+                {
+                    var collection = JsonConvert.DeserializeObject<Dictionary<string, object>>(value)
+                                        .OrderBy(d => d.Key);
+                    return "{" + string.Join(", ", collection.Select(p => p.Key + ":" + p.Value.ToString())) + "}";
+                }
+
                 var valueItems = StringFunctions.Split(value, ",")
                                     .Select(s => StringHelpers.DetermineProperFormat(s))
                                     .Sort();

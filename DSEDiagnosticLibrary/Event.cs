@@ -33,7 +33,8 @@ namespace DSEDiagnosticLibrary
         Pause,
         Repair,
         Drops,
-        Performance
+        Performance,
+        GCStats
     }
 
 	public interface IEvent : IParsed

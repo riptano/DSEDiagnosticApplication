@@ -50,5 +50,8 @@ namespace DSEDiagnosticLibrary
         public IKeyspace Keyspace { get { return this._keyspace ?? this.Table?.Keyspace; } }
         public ICQLTable Table { get; private set; }
         #endregion
+
+        private Dictionary<string, object> _logProperties = new Dictionary<string, object>();
+        public IDictionary<string, object> LogProperties { get { return this._logProperties; } }
     }
 }

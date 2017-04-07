@@ -22,7 +22,7 @@ namespace DSEDiagnosticApplication
         private void button1_Click(object sender, EventArgs e)
         {
             Logger.Instance.Info("test");
-
+            DSEDiagnosticFileParser.DiagnosticFile.DisableParallelProcessing = true;
             //var diagPath = PathUtils.BuildDirectoryPath(@"C:\Users\Richard\Desktop\Diag-Customer\TestUnZip");
             //var diagPath = PathUtils.BuildDirectoryPath(@"C:\Users\Richard\Desktop\Diag-Customer\Y31169_cluster-diagnostics-2017_01_06_08_02_04_UTC");
             //var diagPath = PathUtils.BuildDirectoryPath(@"C:\Users\Richard\Desktop\Diag-Customer\prod_cassandra_4-diagnostics-2017_02_20_08_26_20_UTC");
@@ -34,7 +34,7 @@ namespace DSEDiagnosticApplication
 
             tasks.Wait();
 
-            var z = DSEDiagnosticLibrary.Cluster.MasterCluster;
+            var z = DSEDiagnosticLibrary.Cluster.Clusters;
             //Task.WhenAll(tasks).Wait();
         }
     }

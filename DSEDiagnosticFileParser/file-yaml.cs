@@ -218,6 +218,7 @@ namespace DSEDiagnosticFileParser
             }
 
             var fileLines = this.File.ReadAllLines();
+            int fileLineIdx = 0;
             string line = null;
             int nPos = -1;
             int nLineLevel = 0;
@@ -226,24 +227,48 @@ namespace DSEDiagnosticFileParser
             string[] lineSplit = null;
             string lastValue = null;
             bool listCmdElement = false;
+            StringBuilder multipleLine = null;
+            string[] multipleLineItems = null;
+            int multipleLineItemPos = 0;
 
             List<Tuple<string,string>> cmdPathValueList = new List<Tuple<string, string>>();
 
-            foreach (var fileLine in fileLines)
+            for(;fileLineIdx < fileLines.Length;)
             {
                 this.CancellationToken.ThrowIfCancellationRequested();
 
                 ++this.NbrItemsParsed;
 
-                line = fileLine.TrimStart();
-
-                if(string.IsNullOrEmpty(line)
-                    || line[0] == CommentDelimiter)
+                if (multipleLineItems == null)
                 {
-                    continue;
-                }
+                    line = fileLines[fileLineIdx].TrimStart();
 
-                line = fileLine.Replace('\t', ' ').TrimEnd();
+                    if (string.IsNullOrEmpty(line)
+                        || line[0] == CommentDelimiter)
+                    {
+                        ++fileLineIdx;
+                        continue;
+                    }
+
+                    line = fileLines[fileLineIdx].Replace('\t', ' ').TrimEnd();
+                    ++fileLineIdx;
+                }
+                else if(multipleLine == null)
+                {
+                    line = multipleLineItems[multipleLineItemPos++].TrimEnd();
+
+
+                    if (nestedCmdLevels.Count > 0)
+                    {
+                        line = new string(' ', nestedCmdLevels.Last().Item2 + 1) + line;
+                    }
+
+                    if (multipleLineItemPos >= multipleLineItems.Length)
+                    {
+                        multipleLineItemPos = 0;
+                        multipleLineItems = null;
+                    }
+                }
 
                 nPos = line.IndexOf(CommentDelimiter);
 
@@ -254,6 +279,83 @@ namespace DSEDiagnosticFileParser
 
                 nLineLevel = line.TakeWhile(Char.IsWhiteSpace).Count();
                 line = line.TrimStart();
+
+                if(multipleLine == null
+                        && line.Last() == '}'
+                        && line.IndexOf('{') > 0)
+                {
+                    if (nLineLevel > 0)
+                    {
+                        multipleLine = new StringBuilder(new string(' ', nLineLevel));
+                    }
+                    else
+                    {
+                        multipleLine = new StringBuilder();
+                    }
+                }
+
+                //Multiple Lines
+                if(multipleLine != null)
+                {
+                    if (line.Last() == '}')
+                    {
+                        multipleLine.Append(line);
+                        line = multipleLine.ToString();
+                        multipleLine = null;
+
+                        var multipleLineCmdPos = line.ToString().IndexOf(':');
+                        var braceFirst = line.IndexOf('{');
+                        var braceLast = line.LastIndexOf('}');
+
+                        multipleLineItems = StringFunctions.Split(line.Substring(0, braceFirst) + ' ' + line.Substring(braceFirst + 1, line.Length - braceFirst - 2),
+                                                                        ',',
+                                                                        StringFunctions.IgnoreWithinDelimiterFlag.All,
+                                                                        StringFunctions.SplitBehaviorOptions.IgnoreMismatchedWithinDelimiters)
+                                                                    .ToArray();
+                        multipleLineItemPos = 0;
+
+                        if (multipleLineCmdPos < braceFirst)
+                        {
+                            line = multipleLineItems[0].Substring(0, multipleLineCmdPos + 1).TrimEnd();
+                            multipleLineItems[0] = multipleLineItems[0].Substring(multipleLineCmdPos + 1).Trim();
+                            nLineLevel = line.TakeWhile(Char.IsWhiteSpace).Count();
+                            line = line.TrimStart();
+                        }
+                        else
+                        {
+                            continue;
+                        }
+                    }
+                    else if (line.Last() == ',')
+                    {
+                        multipleLine.Append(line);
+                    }
+                    else
+                    {
+                        Logger.Instance.ErrorFormat("{0}\t{1}\tInvalid configuration line \"{2}\" at line position {3}.", this.Node.Id, this.File, multipleLine, this.NbrItemsParsed);
+                        multipleLine = null;
+                    }
+                }
+                else if (line.Last() == ',')
+                {
+                    var bracePos = line.LastIndexOf('{');
+
+                    if (bracePos >= 0
+                            && line.IndexOf('}', bracePos) < 0)
+                    {
+                        if (nLineLevel > 0)
+                        {
+                            multipleLine = new StringBuilder(new string(' ', nLineLevel));
+                        }
+                        else
+                        {
+                            multipleLine = new StringBuilder();
+                        }
+
+                        multipleLine.Append(line);
+                        continue;
+                    }
+                }
 
                 if (nestedCmdLevels.Count > 0
                         && nLineLevel <= nestedCmdLevels.Last().Item2)

@@ -46,9 +46,22 @@ namespace DSEDiagnosticFileParser
             10.14.150.236    Brondby              RAC1         Cassandra            no     Up      Normal   31.46 GB         ?                    256                                          0.90
             Note: you must specify a keyspace to get ownership information.
             */
+            /*
+             Note: Ownership information does not include topology, please specify a keyspace.
+            Address          DC           Rack         Workload         Status  State    Load             Owns                 VNodes
+            10.1.36.100      DC1          RAC1         Cassandra        Up      Normal   432.26 GB        15.24%               256
+            10.1.37.0        DC1_SPARK    RAC1         Cassandra        Up      Normal   822.63 GB        4.50%                64
+            10.1.38.59       DC1          RAC1         Cassandra        Up      Normal   405.2 GB         14.20%               256
+            10.1.39.216      DC1          RAC1         Cassandra        Up      Normal   502.72 GB        16.67%               256
+            10.1.44.100      DC1          RAC1         Cassandra        Up      Normal   481.85 GB        14.23%               256
+            10.1.44.20       DC1          RAC1         Cassandra        Up      Normal   438.59 GB        15.10%               256
+            10.1.44.21       DC1          RAC1         Cassandra        Up      Normal   452.61 GB        14.94%               256
+            10.1.46.110      DC1_SPARK    RAC1         Cassandra        Up      Normal   916.67 GB        5.12%                64
+             */
 
             string line = null;
             string[] regExSplit = null;
+            bool graphStatusCol = true;
 
             foreach (var element in fileLines)
             {
@@ -67,13 +80,21 @@ namespace DSEDiagnosticFileParser
                 //null,10.14.149.207,Ejby,RAC1,Cassandra,no,Up,Normal,24.23 GB,?,256
                 regExSplit = this.RegExParser.Split(line);
 
-                if(regExSplit.Length <= 10)
+                if(regExSplit.Length != 12)
                 {
-                    Logger.Instance.ErrorFormat("<NoNodeId>\t{0}\tInvalid Line \"{1}\" found in DSETool Ring File.",
-                                                this.File,
-                                                line);
+                    regExSplit = this.RegExParser.Split(line, 1);
+                    graphStatusCol = false;
+
+                    if (regExSplit.Length != 11)
+                    {
+                        Logger.Instance.ErrorFormat("<NoNodeId>\t{0}\tInvalid Line \"{1}\" found in DSETool Ring File.",
+                                                    this.File,
+                                                    line);
+                        regExSplit = null;
+                    }
                 }
-                else
+                
+                if(regExSplit != null)
                 {
                     var node = Cluster.TryGetAddNode(regExSplit[1], regExSplit[2], this.DefaultClusterName);
 
@@ -97,23 +118,26 @@ namespace DSEDiagnosticFileParser
                                                             this.File,
                                                             regExSplit[4]);
                         }
-                        if(regExSplit[5].ToLower() == "yes")
+
+                        var offset = graphStatusCol ? 0 : -1;
+
+                        if(graphStatusCol && regExSplit[5].ToLower() == "yes")
                         {
                             node.DSE.InstanceType |= DSEInfo.InstanceTypes.Graph;
                         }
-                        if (regExSplit[6].ToLower() == "up")
+                        if (regExSplit[6 + offset].ToLower() == "up")
                         {
                             node.DSE.Statuses = DSEInfo.DSEStatuses.Up;
                         }
 
-                        node.DSE.StorageUsed = new UnitOfMeasure(regExSplit[8]);
+                        node.DSE.StorageUsed = new UnitOfMeasure(regExSplit[8 + offset]);
 
-                        if (uint.TryParse(regExSplit[10], out vNodes))
+                        if (uint.TryParse(regExSplit[10 + offset], out vNodes))
                         {
                             node.DSE.NbrTokens = vNodes;
                             node.DSE.VNodesEnabled = vNodes > 1;
                         }
-                        else if(!string.IsNullOrEmpty(regExSplit[10]))
+                        else if(!string.IsNullOrEmpty(regExSplit[10 + offset]))
                         {
                             node.DSE.VNodesEnabled = false;
                         }

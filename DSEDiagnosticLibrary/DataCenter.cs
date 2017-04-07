@@ -74,7 +74,8 @@ namespace DSEDiagnosticLibrary
                             Nodes = this.Nodes,
                             Keyspaces = this.Keyspaces,
                             Configurations = this.Configurations,
-                            Events = this.Events  };
+                            Events = this.Events,
+                            PlaceHolder=true};
         }
 
         #region IDataCenter
@@ -146,7 +147,7 @@ namespace DSEDiagnosticLibrary
         {
             if (ReferenceEquals(this, other)) return true;
             if (ReferenceEquals(other,null)) return false;
-
+            
             if (this.Cluster.IsMaster || other.Cluster.IsMaster) return this._name == ((PlaceholderDataCenter)other)._name;
 
             return this.Cluster.Equals(other.Cluster) && this._name == ((PlaceholderDataCenter)other)._name;
@@ -391,13 +392,18 @@ namespace DSEDiagnosticLibrary
 		#region IEquatable
 		override public bool Equals(string other)
 		{
-            return base.Equals(other);
-		}
+            return this.Name == other;
+        }
 
 		override public bool Equals(IDataCenter other)
 		{
-            return base.Equals(other);
-		}
+            if (ReferenceEquals(this, other)) return true;
+            if (ReferenceEquals(other, null)) return false;
+            
+            if (this.Cluster.IsMaster || other.Cluster.IsMaster) return this.Name == other.Name;
+
+            return this.Cluster.Equals(other.Cluster) && this.Name == other.Name;
+        }
 		#endregion
 
 		#region overrides
