@@ -15,6 +15,9 @@ namespace DSEDiagnosticFileParser
         public static Dictionary<string,RegExParseString> DiagnosticFileRegExAssocations = JsonConvert.DeserializeObject<Dictionary<string, RegExParseString>>(Properties.Settings.Default.DiagnosticFileRegExAssocations);
         public static string[] ObscureFiledValues = Properties.Settings.Default.ObscureFiledValues.ToArray();
         public static Dictionary<string, string> SnitchFileMappings = CreateDictionary(Properties.Settings.Default.SnitchFileMappings);
+        public static string Log4NetConversionPattern = Properties.Settings.Default.Log4NetConversionPattern;
+        public static CLogTypeParser Log4NetParser = JsonConvert.DeserializeObject<CLogTypeParser>(Properties.Settings.Default.Log4NetParser);
+        public static string[] CodeDomAssemblies = Properties.Settings.Default.CodeDomAssemblies.ToArray();
 
         private static IFilePath MakeFilePath(string filePath)
         {

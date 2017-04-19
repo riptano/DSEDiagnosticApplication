@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
+using System.Globalization;
 using System.Net;
 using Common;
 
@@ -100,12 +101,20 @@ namespace DSEDiagnosticLibrary
         }
 
         readonly static Regex BooleanRegEx = new Regex("^(true|false|enable[d]?|disable[d]?|y[es]?|n[o]?)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        readonly static Regex UOMRegEx = new Regex(@"^\-?(?:[0-9,]+|[0-9,]+\.[0-9]+|\.[0-9]+)\s*[a-zA-Z%,_/\ ]+$", RegexOptions.Compiled);
+
+        //scores-name-1-08bdd2d2126e11e78866d792efac3044
+        // null, scores-name-1, 08bdd2d2126e11e78866d792efac3044
+        readonly static Regex SSTableCQLTableNameRegEx = new Regex(@"^([a-z0-9\-_$%+=@!?<>^*&]+)\-([0-9a-f]{32})$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        readonly static string[] DateTimeFormats = new string[] { "yyyy-MM-dd HH:mm:ss,fff",
+                                                                   "yyyy-MM-dd HH:mm:ss.fff"};
 
         static public object DetermineProperObjectFormat(string strValue,
                                                             bool ignoreBraces = false,
                                                             bool removeNamespace = true,
                                                             bool tryParseIPAddress = true,
-                                                            string convertToUOMBasedOnContext = null)
+                                                            string convertToUOMBasedOnContext = null,
+                                                            bool checkforDate = false)
         {
             object item;
 
@@ -145,6 +154,31 @@ namespace DSEDiagnosticLibrary
                     || strValue.StartsWith("n", StringComparison.OrdinalIgnoreCase))
                 {
                     return false;
+                }
+            }
+
+            if (checkforDate)
+            {
+                TimeSpan ts;
+
+                if (TimeSpan.TryParse(strValue, out ts))
+                {
+                    return ts;
+                }
+
+
+                DateTime dt;
+
+                if (DateTime.TryParse(strValue, out dt))
+                {
+                    return dt;
+                }
+                
+                const DateTimeStyles style = DateTimeStyles.AllowWhiteSpaces;
+                if (DateTime.TryParseExact(strValue, DateTimeFormats,
+                                            CultureInfo.InvariantCulture, style, out dt))
+                {
+                    return dt;
                 }
             }
 
@@ -214,10 +248,15 @@ namespace DSEDiagnosticLibrary
                 }
             }
 
-            //if (IPAddressStr(strValue, out strValueA))
-            //{
-            //    return strValueA;
-            //}
+            if(UOMRegEx.IsMatch(strValue))
+            {                
+                var uom = UnitOfMeasure.Create(strValue);
+
+                if (uom != null && uom.UnitType != UnitOfMeasure.Types.Unknown)
+                {
+                    return uom;
+                }
+            }
 
             if (strValue.IndexOfAny(new char[] { '/', '\\', ':' }) >= 0)
             {
@@ -246,6 +285,42 @@ namespace DSEDiagnosticLibrary
             }
 
             return removeNamespace ? RemoveNamespace(strValue) : strValue;
+        }
+
+
+
+        /// <summary>
+        /// Parses a SSTable path file into the keyspace and table names plus the table&apos;s guid
+        /// </summary>
+        /// <param name="sstableFilePath"></param>
+        /// <returns>
+        /// null if the sstableFilePath is not a vlaid sstable path format
+        /// a tuple where
+        ///     Item1 -- keyspace name
+        ///     Item2 -- table name
+        ///     Item3 -- table&apos;s guid id
+        /// </returns>
+        static public Tuple<string,string,string> ParseSSTableFileIntoKSTableNames(string sstableFilePath)
+        {
+            // "/mnt/dse/data1/homeKS/homebase_tasktracking_ops_l3-737682f0599311e6ad0fa12fb1b6cb6e/homeKS-homebase_tasktracking_ops_l3-tmp-ka-15175-Data.db"
+            // "/var/lib/cassandra/data/cfs/inode-76298b94ca5f375cab5bb674eddd3d51/cfs-inode.cfs_parent_path-tmp-ka-71-Data.db"
+            // C 2.1 -- <keyspace>-<column family>-[tmp marker]-<version>-<generation>-<component>.db
+            // C* 3.X -- /mnt/cassandra/data/data/keyspace1/scores-08bdd2d2126e11e78866d792efac3044/mb-1-big-Data.db
+            //
+            var sstableFilePathParts = sstableFilePath.Split('/');
+
+            if (sstableFilePathParts.Length >= 3)
+            {
+                var ksName = sstableFilePathParts[sstableFilePathParts.Length - 3];
+                var tblNameMatch = SSTableCQLTableNameRegEx.Match(sstableFilePathParts[sstableFilePathParts.Length - 2]);
+
+                if (tblNameMatch.Success)
+                {
+                    return new Tuple<string, string, string>(ksName, tblNameMatch.Groups[1].Value, tblNameMatch.Groups[2].Value);
+                }
+            }
+
+            return null;
         }
     }
 }

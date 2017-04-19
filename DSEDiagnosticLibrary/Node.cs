@@ -419,7 +419,7 @@ namespace DSEDiagnosticLibrary
 			{
                 if (this._addresses.Count == 0) return 0;
 
-                return this._hashCode = this._addresses.First().GetHashCode();                
+                return this._hashCode = this._addresses.First().GetHashCode();
 			}
 
 			return this._hashCode = this.HostName.GetHashCode();
@@ -550,8 +550,10 @@ namespace DSEDiagnosticLibrary
 
 		public sealed class TokenRangeInfo
 		{
+            static readonly Regex RegExTokenRange = new Regex(Properties.Settings.Default.TokenRangeRegEx, RegexOptions.Compiled);
+
             private TokenRangeInfo() { }
-            public TokenRangeInfo(long startToken, long endToken, UnitOfMeasure loadToken)
+            public TokenRangeInfo(long startToken, long endToken, UnitOfMeasure loadToken = null)
             {
                 this.StartRange = startToken;
                 this.EndRange = endToken;
@@ -568,7 +570,7 @@ namespace DSEDiagnosticLibrary
                     this.Slots = (ulong) (this.EndRange - this.StartRange);
                 }
             }
-            public TokenRangeInfo(string startToken, string endToken, string loadToken)
+            public TokenRangeInfo(string startToken, string endToken, string loadToken = null)
             {
                 if(!long.TryParse(startToken, out this.StartRange))
                 {
@@ -578,7 +580,7 @@ namespace DSEDiagnosticLibrary
                 {
                     throw new ArgumentException(string.Format("Could not parse value \"{0}\" into a long End Token value.", endToken), "endToken");
                 }
-                this.Load = UnitOfMeasure.Create(loadToken);
+                this.Load = string.IsNullOrEmpty(loadToken) ? null : UnitOfMeasure.Create(loadToken);
 
                 if (this.StartRange > 0 && this.EndRange < 0)
                 {
@@ -589,6 +591,40 @@ namespace DSEDiagnosticLibrary
                 else
                 {
                     this.Slots = (ulong)(this.EndRange - this.StartRange);
+                }
+            }
+            public TokenRangeInfo(string tokenRange, string loadToken = null)
+            {
+                var tokenMatch = RegExTokenRange.Match(tokenRange);
+
+                if(tokenMatch.Success)
+                {
+                    var startToken = tokenMatch.Groups[1].Value;
+                    var endToken = tokenMatch.Groups[2].Value;
+
+                    if (!long.TryParse(startToken, out this.StartRange))
+                    {
+                        throw new ArgumentException(string.Format("Could not parse value \"{0}\" ({1}) into a long Start Token value.", startToken, tokenRange), "tokenRange");
+                    }
+                    if (!long.TryParse(endToken, out this.EndRange))
+                    {
+                        throw new ArgumentException(string.Format("Could not parse value \"{0}\" ({1}) into a long End Token value.", endToken, tokenRange), "tokenRange");
+                    }
+                    this.Load = string.IsNullOrEmpty(loadToken) ? null : UnitOfMeasure.Create(loadToken);
+                    if (this.StartRange > 0 && this.EndRange < 0)
+                    {
+                        this.Slots = (ulong)((this.EndRange - long.MinValue)
+                                                + (long.MaxValue - this.StartRange));
+                        WrapsRange = true;
+                    }
+                    else
+                    {
+                        this.Slots = (ulong)(this.EndRange - this.StartRange);
+                    }
+                }
+                else
+                {
+                    throw new ArgumentException(string.Format("Could not parse value \"{0}\" into a Token Range.", tokenRange), "tokenRange");
                 }
             }
 
@@ -627,11 +663,11 @@ namespace DSEDiagnosticLibrary
 
             public override string ToString()
             {
-                return string.Format("TokenRangeInfo{{Range:({0},{1}], Slots:{2:###,###,###,###,##0}, Load:{3}}}",
+                return string.Format("TokenRangeInfo{{Range:({0},{1}], Slots:{2:###,###,###,###,##0}{3}}}",
                                         this.StartRange,
                                         this.EndRange,
                                         this.Slots,
-                                        this.Load);
+                                        this.Load == null ? string.Empty : string.Format("Load:{0}", this.Load));
             }
         }
 
@@ -924,7 +960,7 @@ namespace DSEDiagnosticLibrary
 
         private int _hashcode = 0;
 		public override int GetHashCode()
-		{            
+		{
             unchecked
             {
                 if (this._hashcode != 0) return this._hashcode;

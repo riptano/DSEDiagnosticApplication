@@ -269,5 +269,14 @@ namespace DSEDiagnosticLibrary.Properties {
                 return ((global::System.Collections.Specialized.StringCollection)(this["IsSolrIndexClass"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("^\\s*\\(?(\\-?\\d+)\\s*\\,\\s*(\\-?\\d+)\\s*\\]?\\s*$")]
+        public string TokenRangeRegEx {
+            get {
+                return ((string)(this["TokenRangeRegEx"]));
+            }
+        }
     }
 }

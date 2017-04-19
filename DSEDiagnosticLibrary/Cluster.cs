@@ -6,7 +6,6 @@ using System.Text;
 using Common;
 using Common.Patterns;
 using System.Threading.Tasks;
-using Common.Patterns.Tasks;
 using CTS = Common.Patterns.Collections.ThreadSafe;
 
 namespace DSEDiagnosticLibrary
@@ -533,7 +532,7 @@ namespace DSEDiagnosticLibrary
                             }
                         }
 
-                        ((DataCenter)dc).AssociateItem(cluster);                        
+                        ((DataCenter)dc).AssociateItem(cluster);
                     }
                     finally
                     {
@@ -546,6 +545,62 @@ namespace DSEDiagnosticLibrary
             return cluster;
         }
 
+        /// <summary>
+        /// Tries to find a Table, View, or Index based on either a SSTable file path or a keyspace.&lt;item name&gt; where item is a table, view, or index name.
+        /// </summary>
+        /// <param name="SSTableOrKSItemName">
+        /// a SSTable file path or a keyspace.&lt;item name&gt; where item is a table, view, or index name
+        /// </param>
+        /// <param name="clusterName"></param>
+        /// <param name="defaultKSName">
+        /// only used if the keyspace name is not found. Ignored for SSTable file
+        /// </param>
+        /// <returns>
+        /// Returns null if not found or a Table, view, index instance.
+        /// </returns>
+        public static IDDLStmt TryGetTableIndexViewbyString(string SSTableOrKSItemName, string clusterName, string defaultKSName = null)
+        {
+            if(string.IsNullOrEmpty(SSTableOrKSItemName))
+            {
+                return null;
+            }
+
+            var cluster = TryGetCluster(clusterName);
+            IEnumerable<IKeyspace> ksInstances;
+
+            if(SSTableOrKSItemName[0] == '/')
+            {
+                var kstblTuple = StringHelpers.ParseSSTableFileIntoKSTableNames(SSTableOrKSItemName);
+
+                if(kstblTuple != null)
+                {
+                    ksInstances = cluster.GetKeyspaces(kstblTuple.Item1);
+                    var tableviewInstances = ksInstances.Select(k => k.TryGetTable(kstblTuple.Item2) ?? k.TryGetView(kstblTuple.Item2));
+                    var tableviewInstance = tableviewInstances.FirstOrDefault(t => t?.Id.ToString("N") == kstblTuple.Item3);
+
+                    if(tableviewInstance == null)
+                    {
+                        tableviewInstance = tableviewInstances.FirstOrDefault();
+                    }
+
+                    if(tableviewInstance == null)
+                    {
+                        return null;
+                    }
+
+                    return tableviewInstance;
+                }
+            }
+
+            var parsedName = StringHelpers.SplitTableName(SSTableOrKSItemName);
+            ksInstances = cluster.GetKeyspaces(parsedName.Item1 ?? defaultKSName);
+
+            var tableviewindexInstances = ksInstances.Select(k => ((IDDLStmt) k.TryGetTable(parsedName.Item2) ?? (IDDLStmt) k.TryGetView(parsedName.Item2)) ?? (IDDLStmt) k.TryGetIndex(parsedName.Item2));
+            var tableviewindexInstance = tableviewindexInstances.FirstOrDefault();
+
+            return tableviewindexInstance;
+
+        }
         #endregion
 
 		#region IEquatable

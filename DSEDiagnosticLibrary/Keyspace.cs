@@ -118,6 +118,7 @@ namespace DSEDiagnosticLibrary
         ICQLIndex TryGetIndex(string indexName);
         ICQLTrigger TryGetTrigger(string triggerName);
         ICQLUserDefinedType TryGetUDT(string udtName);
+        IDDLStmt TryGetDDL(string ddlName);
         IEnumerable<ICQLTable> GetTables();
         IEnumerable<ICQLUserDefinedType> GetUDTs();
         IEnumerable<ICQLIndex> GetIndexes();
@@ -393,6 +394,26 @@ namespace DSEDiagnosticLibrary
             try
             {
                 return (ICQLUserDefinedType)this._ddlList.UnSafe.FirstOrDefault(d => d is ICQLUserDefinedType && d.Name == udtName);
+            }
+            finally
+            {
+                this._ddlList.UnLock();
+            }
+        }
+
+        public IDDLStmt TryGetDDL(string ddlName)
+        {
+            ddlName = StringHelpers.RemoveQuotes(ddlName.Trim());
+
+            this._ddlList.Lock();
+            try
+            {
+                return (IDDLStmt)this._ddlList
+                                        .UnSafe
+                                        .FirstOrDefault(d => (d is ICQLTable
+                                                                || d is ICQLMaterializedView
+                                                                || d is ICQLIndex
+                                                                || d is ICQLTrigger) && d.Name == ddlName);
             }
             finally
             {

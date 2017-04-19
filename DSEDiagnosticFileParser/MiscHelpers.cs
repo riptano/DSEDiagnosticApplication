@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.CodeDom.Compiler;
+using Microsoft.CSharp;
 using Common;
 using Common.Patterns.Threading;
 using Newtonsoft.Json.Linq;
@@ -14,7 +16,7 @@ using System.Net;
 namespace DSEDiagnosticFileParser
 {
     public static partial class MiscHelpers
-    {        
+    {
         /// <summary>
         ///
         /// </summary>
@@ -197,6 +199,131 @@ namespace DSEDiagnosticFileParser
             }
 
             return default(V);
+        }
+
+        public static bool TryAddValue<K, V>(this Dictionary<K, V> collection, K key, V value)
+            where V : class
+        {
+            if (collection != null && !collection.ContainsKey(key))
+            {
+                collection.Add(key, value);
+                return true;
+            }
+
+            return false;
+        }
+
+        private static Dictionary<int, Assembly> CompiledSources = new Dictionary<int, Assembly>();
+
+        public static Assembly CompileSource(string sourceCode, IEnumerable<Assembly> addedAssemblies = null)
+        {
+            sourceCode = sourceCode?.Trim();
+
+            if(string.IsNullOrEmpty(sourceCode))
+            {
+                throw new ArgumentNullException("souceCode");
+            }
+
+            Assembly compiledAssembly;
+
+            if(CompiledSources.TryGetValue(sourceCode.GetHashCode(), out compiledAssembly))
+            {
+                return compiledAssembly;
+            }
+
+            CodeDomProvider cpd = new CSharpCodeProvider();
+            CompilerParameters cp = new CompilerParameters();
+
+            cp.ReferencedAssemblies.Add(Assembly.GetExecutingAssembly().Location);
+            cp.ReferencedAssemblies.Add(typeof(DSEDiagnosticFileParser.MiscHelpers).Assembly.Location);
+            cp.ReferencedAssemblies.Add(typeof(DSEDiagnosticLibrary.MiscHelpers).Assembly.Location);
+            cp.ReferencedAssemblies.Add(typeof(DSEDiagnosticLog4NetParser.Logger).Assembly.Location);
+
+            foreach (var assemblyName in LibrarySettings.CodeDomAssemblies)
+            {
+                if (assemblyName.Length > 1 && assemblyName[0] == '-') continue;
+
+                var file = Common.ConfigHelper.Parse(assemblyName);
+
+                if (string.IsNullOrEmpty(file))
+                {
+                    Logger.Instance.WarnFormat("Dynamic Compiling Assembly Loading Failure for \"{0}\"", assemblyName);
+                    System.Diagnostics.Debug.WriteLine(string.Format("Dynamic Compiling Assembly Loading Failure for \"{0}\"", assemblyName), "Warning");
+                }
+                else
+                {
+                    cp.ReferencedAssemblies.Add(file);
+                }
+            }
+
+            if(addedAssemblies != null)
+            {
+                foreach (var assembly in addedAssemblies.DuplicatesRemoved(a => a.Location))
+                {
+                    cp.ReferencedAssemblies.Add(assembly.Location);
+                }
+            }
+
+            cp.GenerateExecutable = false;
+            cp.GenerateInMemory = true;
+            cp.CompilerOptions = "/optimize";
+            cp.IncludeDebugInformation = false;
+
+            // Invoke compilation.
+            CompilerResults cr = cpd.CompileAssemblyFromSource(cp, sourceCode);
+
+            if(cr.Errors.Count > 0)
+            {
+                Logger.Instance.ErrorFormat("Dynamic Compiling Error for body \"{0}\".", sourceCode);
+                var errorStr = new StringBuilder();
+
+                foreach (var error in cr.Errors)
+                {
+                    Logger.Instance.Error(error.ToString());
+                    errorStr.Append('\t');
+                    errorStr.AppendLine(error.ToString());
+                }
+                throw new ApplicationException(string.Format("Dynamic Compiling Error for {0}{1}{0}with Errors:{0}{2}",
+                                                                Environment.NewLine,
+                                                                sourceCode,
+                                                                errorStr));
+            }
+
+            compiledAssembly = cr.CompiledAssembly;
+            CompiledSources.Add(sourceCode.GetHashCode(), compiledAssembly);
+
+            return compiledAssembly;
+        }
+
+        public static MethodInfo CompileMethod(string methodName, Type returnType, IEnumerable<Tuple<Type, string>> arguments, string body, string defaultStaticClassName = null)
+        {
+            var className = string.IsNullOrEmpty(defaultStaticClassName) ? methodName + "_class" : defaultStaticClassName;
+            methodName = methodName.Trim();
+
+            var methodBody = string.Format(Properties.Settings.Default.CodeDomClassTemplate,
+                                            className,
+                                            returnType == null ? "void" : returnType.FullName,
+                                            methodName,
+                                            arguments == null || arguments.Count() == 0
+                                                ? string.Empty
+                                                : string.Join(",", arguments.Select(a => string.Format("{0} {1}", a.Item1.FullName, a.Item2.Trim()))),
+                                            body);
+
+            List<Assembly> typeAssemblies = new List<Assembly>();
+
+            if(arguments != null)
+            {
+                typeAssemblies.AddRange(arguments.Select(a => a.Item1.Assembly));
+            }
+            if(returnType != null)
+            {
+                typeAssemblies.Add(returnType.Assembly);
+            }
+
+            var ca = CompileSource(methodBody, typeAssemblies);
+            var t = ca.GetType(className);
+
+            return t.GetMethod(methodName, arguments?.Select(a => a.Item1).ToArray() ?? new Type[0]);
         }
 
         #region JSON

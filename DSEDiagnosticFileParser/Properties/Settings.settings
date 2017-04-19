@@ -30,7 +30,7 @@
 {"Catagory": "CommandOutputFile", "FilePatterns": [".\\nodes\\*\\nodetool\\info"], "FileParsingClass": "DSEDiagnosticFileParser.file_nodetool_info", "NodeIdPos": -1, "ProcessingTaskOption":"ScanForNode,ParallelProcessing,ParallelProcessFiles", "ProcessPriorityLevel":100},
 {"Catagory": "SystemOutputFile", "FilePatterns": [".\\nodes\\*\\conf\\location.json"], "FileParsingClass": "DSEDiagnosticFileParser.json_location", "NodeIdPos": -1, "ProcessingTaskOption":"ScanForNode,ParallelProcessing,ParallelProcessFiles", "ProcessPriorityLevel":100},
 {"Catagory": "CQLFile", "FilePatterns": [".\\nodes\\*\\cqlsh\\describe_schema"], "FileParsingClass": "DSEDiagnosticFileParser.cql_ddl", "NodeIdPos": -1, "ProcessingTaskOption":"ScanForNode,ParallelProcessing", "ProcessPriorityLevel":100},
-{"Catagory": "LogFile", "FilePatterns": [".\\nodes\\*\\logs\\cassandra\\system.log"], "FileParsingClass": "UserQuery.TestClass", "NodeIdPos": -1}
+{"Catagory": "LogFile", "FilePatterns": [".\\nodes\\10.1.36.100\\logs\\cassandra\\system.log"], "FileParsingClass": "DSEDiagnosticFileParser.file_cassandra_log4net", "NodeIdPos": -1}
 ]</Value>
     </Setting>
     <Setting Name="DiagnosticFileRegExAssocations" Type="System.String" Scope="Application">
@@ -74,6 +74,54 @@
 {"Item1":"EC2MultiRegionSnitch","Item2":"cassandra-rackdc.properties"},
 {"Item1":"YamlFileNetworkTopologySnitch","Item2":"cassandra-topology.yaml"}
 ]</Value>
+    </Setting>
+    <Setting Name="Log4NetConversionPattern" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">%-5level [%thread] %date{ISO8601} %F:%L - %msg%n</Value>
+    </Setting>
+    <Setting Name="Log4NetParser" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">{"LogClass":"file_cassandra_log4net","Parsers":
+	[ {"MatchVersion":null,
+		"LevelMatch":{"RegExStrings":["INFO"]},
+		"ThreadIdMatch":null,
+		"FileNameMatch":{"RegExStrings":["CompactionTask.java"]},
+		"FileLineMatch":null,
+		"MessageMatch":{"RegExStrings":["^Compacted\\s\\d+\\ssstables.+$"]},
+		"ParseMessage":{"RegExStrings":["^Compacted\\s(?&lt;sstables&gt;\\d+)\\ssstables\\sto\\s\\[(?&lt;SSTABLEPATH&gt;.+)\\]\\.\\s+(?&lt;size&gt;\\d+\\s+[a-z]+).+\\sin\\s+(?&lt;DURATION&gt;\\d+ms)\\s+.+"]},
+		"ParseThreadId":null,
+		"EventType":1,
+		"EventClass":32,
+		"SubClass":null,
+		"Product":1
+	} ]
+}</Value>
+    </Setting>
+    <Setting Name="CodeDomAssemblies" Type="System.Collections.Specialized.StringCollection" Scope="Application">
+      <Value Profile="(Default)">&lt;?xml version="1.0" encoding="utf-16"?&gt;
+&lt;ArrayOfString xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"&gt;
+  &lt;string&gt;mscorlib.dll&lt;/string&gt;
+  &lt;string&gt;System.dll&lt;/string&gt;
+  &lt;string&gt;System.Core.dll&lt;/string&gt;
+  &lt;string&gt;--[Search([AssemblyDir];[WorkingDir];[AppRunTimeDir],DSEDiagnosticLibrary.dll)]&lt;/string&gt;
+  &lt;string&gt;--[Search([AssemblyDir];[WorkingDir];[AppRunTimeDir],DSEDiagnosticLog4NetParser.dll)]&lt;/string&gt;
+&lt;/ArrayOfString&gt;</Value>
+    </Setting>
+    <Setting Name="CodeDomClassTemplate" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
+using DSEDiagnosticFileParser;
+using DSEDiagnosticLibrary;
+using DSEDiagnosticLog4NetParser;
+
+public static class {0}
+{{
+    public static {1} {2} ( {3} )
+    {{
+        {4}
+    }}
+}}</Value>
     </Setting>
   </Settings>
 </SettingsFile>

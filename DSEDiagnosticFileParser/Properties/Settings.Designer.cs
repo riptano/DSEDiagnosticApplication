@@ -112,8 +112,9 @@ namespace DSEDiagnosticFileParser.Properties {
             "l\":100},\r\n{\"Catagory\": \"CQLFile\", \"FilePatterns\": [\".\\\\nodes\\\\*\\\\cqlsh\\\\describe" +
             "_schema\"], \"FileParsingClass\": \"DSEDiagnosticFileParser.cql_ddl\", \"NodeIdPos\": -" +
             "1, \"ProcessingTaskOption\":\"ScanForNode,ParallelProcessing\", \"ProcessPriorityLeve" +
-            "l\":100},\r\n{\"Catagory\": \"LogFile\", \"FilePatterns\": [\".\\\\nodes\\\\*\\\\logs\\\\cassandra" +
-            "\\\\system.log\"], \"FileParsingClass\": \"UserQuery.TestClass\", \"NodeIdPos\": -1}\r\n]")]
+            "l\":100},\r\n{\"Catagory\": \"LogFile\", \"FilePatterns\": [\".\\\\nodes\\\\10.1.36.100\\\\logs\\" +
+            "\\cassandra\\\\system.log\"], \"FileParsingClass\": \"DSEDiagnosticFileParser.file_cass" +
+            "andra_log4net\", \"NodeIdPos\": -1}\r\n]")]
         public string ProcessFileMappings {
             get {
                 return ((string)(this["ProcessFileMappings"]));
@@ -195,6 +196,78 @@ namespace DSEDiagnosticFileParser.Properties {
         public string SnitchFileMappings {
             get {
                 return ((string)(this["SnitchFileMappings"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("%-5level [%thread] %date{ISO8601} %F:%L - %msg%n")]
+        public string Log4NetConversionPattern {
+            get {
+                return ((string)(this["Log4NetConversionPattern"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute(@"{""LogClass"":""file_cassandra_log4net"",""Parsers"":
+	[ {""MatchVersion"":null,
+		""LevelMatch"":{""RegExStrings"":[""INFO""]},
+		""ThreadIdMatch"":null,
+		""FileNameMatch"":{""RegExStrings"":[""CompactionTask.java""]},
+		""FileLineMatch"":null,
+		""MessageMatch"":{""RegExStrings"":[""^Compacted\\s\\d+\\ssstables.+$""]},
+		""ParseMessage"":{""RegExStrings"":[""^Compacted\\s(?<sstables>\\d+)\\ssstables\\sto\\s\\[(?<SSTABLEPATH>.+)\\]\\.\\s+(?<size>\\d+\\s+[a-z]+).+\\sin\\s+(?<DURATION>\\d+ms)\\s+.+""]},
+		""ParseThreadId"":null,
+		""EventType"":1,
+		""EventClass"":32,
+		""SubClass"":null,
+		""Product"":1
+	} ]
+}")]
+        public string Log4NetParser {
+            get {
+                return ((string)(this["Log4NetParser"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute(@"<?xml version=""1.0"" encoding=""utf-16""?>
+<ArrayOfString xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"">
+  <string>mscorlib.dll</string>
+  <string>System.dll</string>
+  <string>System.Core.dll</string>
+  <string>--[Search([AssemblyDir];[WorkingDir];[AppRunTimeDir],DSEDiagnosticLibrary.dll)]</string>
+  <string>--[Search([AssemblyDir];[WorkingDir];[AppRunTimeDir],DSEDiagnosticLog4NetParser.dll)]</string>
+</ArrayOfString>")]
+        public global::System.Collections.Specialized.StringCollection CodeDomAssemblies {
+            get {
+                return ((global::System.Collections.Specialized.StringCollection)(this["CodeDomAssemblies"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute(@"using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
+using DSEDiagnosticFileParser;
+using DSEDiagnosticLibrary;
+using DSEDiagnosticLog4NetParser;
+
+public static class {0}
+{{
+    public static {1} {2} ( {3} )
+    {{
+        {4}
+    }}
+}}")]
+        public string CodeDomClassTemplate {
+            get {
+                return ((string)(this["CodeDomClassTemplate"]));
             }
         }
     }

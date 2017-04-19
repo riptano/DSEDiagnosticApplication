@@ -74,14 +74,26 @@ namespace DSEDiagnosticLibrary
             Attrs = NaN | Memory | Rate | Load | Percent | Time | Frequency | Utilization
         }
 
-        readonly static Regex RegExValueUOF = new Regex(@"([0-9\-.+,]+)\s*([a-z0-9%#/]*)", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace);
+        readonly static Regex RegExValueUOF = new Regex(@"^(\-?[0-9,]*(?:\.[0-9]+)?)\s*([a-z%,_/\ ]*)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
-        public UnitOfMeasure() { }
+        public UnitOfMeasure()
+        {
+            this.UnitType = Types.NaN;
+            this.Value = decimal.MinValue;
+        }
 
-        public UnitOfMeasure(Types uofType) { this.UnitType = uofType; }
+        public UnitOfMeasure(Types uofType)
+        {
+            this.UnitType = uofType;
+
+            if(this.NaN)
+            {
+                this.Value = decimal.MinValue;
+            }
+        }
 
         public UnitOfMeasure(string uofString, Types uofType = Types.Unknown)
-        {            
+        {
             var uofValues = RegExValueUOF.Match(uofString);
 
             if (uofValues.Success)
@@ -118,7 +130,7 @@ namespace DSEDiagnosticLibrary
         public Types UnitType { get; private set; }
         public decimal Value { get; private set; }
 
-        public bool NaN { get { return this.UnitType.HasFlag(Types.NaN); } }
+        public bool NaN { get { return (this.UnitType & Types.NaN) != 0; } }
 
         /// <summary>
         /// Returns a new UOM based on the default normalized types.
@@ -131,7 +143,7 @@ namespace DSEDiagnosticLibrary
                 {
                     var newUOM = ((this.UnitType & ~Types.SizeUnits) & ~Types.TimeUnits) & ~Types.Attrs;
 
-                    if(this.UnitType.HasFlag(Types.Storage))
+                    if((this.UnitType & Types.Storage) != 0)
                     {
                         newUOM |= LibrarySettings.DefaultStorageRate;
                     }
@@ -140,7 +152,7 @@ namespace DSEDiagnosticLibrary
                         newUOM |= LibrarySettings.DefaultMemoryRate;
                     }
 
-                    return (this.UnitType & Types.NaN) != 0 
+                    return (this.UnitType & Types.NaN) != 0
                                 ? new UnitOfMeasure(newUOM | Types.NaN)
                                 : new UnitOfMeasure(this.ConvertTo(newUOM), newUOM);
                 }
@@ -149,7 +161,7 @@ namespace DSEDiagnosticLibrary
                 {
                     var newUOM = (this.UnitType & ~Types.SizeUnits) & ~Types.Attrs;
 
-                    if (this.UnitType.HasFlag(Types.Storage))
+                    if ((this.UnitType & Types.Storage) != 0)
                     {
                         newUOM |= LibrarySettings.DefaultStorageSizeUnit;
                     }
@@ -670,9 +682,28 @@ namespace DSEDiagnosticLibrary
             return uom.Value;
         }
 
+        public static explicit operator decimal?(UnitOfMeasure uom)
+        {
+            if (uom == null || uom.NaN) return null;
+
+            return uom.Value;
+        }
+
         public static explicit operator TimeSpan(UnitOfMeasure uom)
         {
-            if(uom.UnitType.HasFlag(Types.TimeUnits))
+            if((uom.UnitType & Types.TimeUnits) != 0)
+            {
+                return TimeSpan.FromMilliseconds((double)uom.ConvertTimeUOM(Types.MS));
+            }
+
+            throw new InvalidCastException(string.Format("Trying to cast from a {0} to a TimeSpan which is invalid.", uom.UnitType));
+        }
+
+        public static explicit operator TimeSpan?(UnitOfMeasure uom)
+        {
+            if (uom == null || uom.NaN) return null;
+
+            if ((uom.UnitType & Types.TimeUnits) != 0)
             {
                 return TimeSpan.FromMilliseconds((double)uom.ConvertTimeUOM(Types.MS));
             }
@@ -697,17 +728,38 @@ namespace DSEDiagnosticLibrary
                 return null;
             }
 
-            return new UnitOfMeasure(value, uof, uofType);
+            try
+            {
+                return new UnitOfMeasure(value, uof, uofType);
+            }
+            catch
+            { }
+
+            return null;
         }
 
-        public static UnitOfMeasure Create(string uofString, Types uofType = Types.Unknown)
+        public static UnitOfMeasure Create(string uofString, Types uofType = Types.Unknown, bool emptyNullIsNan = true)
         {
-            if (IsNaN(uofString))
+            if (IsNaN(uofString, emptyNullIsNan))
             {
-                return null;
+                return emptyNullIsNan ? new UnitOfMeasure(Types.NaN | uofType) : null;
             }
 
-            return new UnitOfMeasure(uofString, uofType);
+            try
+            {
+                var uofValues = RegExValueUOF.Match(uofString);
+
+                if (uofValues.Success)
+                {
+                    return new UnitOfMeasure(ConvertToDecimal(uofValues.Groups[1].Value),
+                                                ConvertToType(uofValues.Groups[2].Value,
+                                                uofType));
+                }
+            }
+            catch
+            {}
+
+            return null;
         }
 
         public static UnitOfMeasure Create(int uof, Types uofType)
@@ -757,52 +809,24 @@ namespace DSEDiagnosticLibrary
                 return Types.NaN | uofType;
             }
 
-            if (uof.IndexOf('/') >= 0)
+            string[] splitUOFs = null;
+
+            if (uof.IndexOfAny(new char[] { '/', '_', ',', ' ' }) >= 0)
             {
-                var split = uof.Split('/');
-                Types newUOF = uofType;
-                Types returnedUOF;
-
-                if (split.ElementAtOrDefault(0) == "min") //assume minimal if first word
-                {
-                    split = split.Skip(1).ToArray();
-                }
-
-                foreach (var item in split)
-                {
-                    returnedUOF = ConvertToType(item, Types.Unknown);
-
-                    if ((returnedUOF & Types.TimeUnits) != 0
-                            && (newUOF & Types.SEC) != 0)
-                    {
-                        newUOF &= ~Types.SEC;
-                    }
-
-                    newUOF |= returnedUOF;
-                }
-
-                if ((newUOF & Types.TimeUnits) != 0
-                    || (newUOF & Types.SizeUnits) != 0
-                    || (newUOF & Types.NaN) != 0)
-                {
-                    return newUOF;
-                }
-
-                return uofType;
+                splitUOFs = uof.Split(new char[] { '/', '_', ',', ' ' });
             }
 
-            if (uof.LastIndexOf('_') >= 0)
+            if (splitUOFs != null)
             {
-                var split = uof.Split('_');
                 Types newUOF = uofType;
                 Types returnedUOF;
 
-                if(split.ElementAtOrDefault(0) == "min") //assume minimal if first word
+                if(splitUOFs.ElementAtOrDefault(0) == "min") //assume minimal if first word
                 {
-                    split = split.Skip(1).ToArray();
+                    splitUOFs = splitUOFs.Skip(1).ToArray();
                 }
 
-                foreach (var item in split)
+                foreach (var item in splitUOFs)
                 {
                     returnedUOF = ConvertToType(item, Types.Unknown);
 
@@ -1008,7 +1032,7 @@ namespace DSEDiagnosticLibrary
 
         public override string ToString()
         {
-            return string.Format("{0} {1}", this.Value, this.UnitType);
+            return this.NaN ? this.UnitType.ToString() : string.Format("{0} {1}", this.Value, this.UnitType);
         }
 
         #endregion
