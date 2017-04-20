@@ -446,7 +446,7 @@ namespace DSEDiagnosticFileParser
 
                 var ksddlnameItems = StringHelpers.ParseSSTableFileIntoKSTableNames(path);
 
-                if(ksddlnameItems != null)
+                if (ksddlnameItems != null)
                 {
                     if (returnKeyspaceName)
                         name = ksddlnameItems.Item1;
@@ -456,6 +456,7 @@ namespace DSEDiagnosticFileParser
             }
             return name;
         }
+    }
 
     public sealed class CLogTypeParser
     {
