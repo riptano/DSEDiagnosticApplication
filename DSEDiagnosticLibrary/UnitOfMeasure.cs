@@ -68,10 +68,11 @@ namespace DSEDiagnosticLibrary
             /// Not a Number
             /// </summary>
             NaN = 0x4000000,
+            Operations = 0x8000000,
             SizeUnits = Bit | Byte | KiB | MiB | GiB | TiB | PiB,
             TimeUnits = NS | MS | SEC | MIN | HR | Day | us,
             WholeNumber = Bit | Byte | NS | us,
-            Attrs = NaN | Memory | Rate | Load | Percent | Time | Frequency | Utilization
+            Attrs = NaN | Memory | Rate | Load | Percent | Time | Frequency | Utilization | Operations
         }
 
         readonly static Regex RegExValueUOF = new Regex(@"^(\-?[0-9,]*(?:\.[0-9]+)?)\s*([a-z%,_/\ ]*)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
@@ -944,6 +945,9 @@ namespace DSEDiagnosticLibrary
                     return Types.NaN;
                 case "mbps":
                     return Types.MiB | Types.SEC | Types.Rate | uofType;
+                case "operations":
+                case "operation":
+                    return Types.Operations | Types.Rate | uofType;
                 case "rate":
                 case "throughput":
                 case "per":
@@ -952,6 +956,8 @@ namespace DSEDiagnosticLibrary
                 case "periods":
                 case "ttl":
                     return Types.SEC | Types.Time | uofType;
+                case "ops":
+                    return Types.SEC | Types.Operations | Types.Rate | uofType;
             }
 
             Types parsedType;

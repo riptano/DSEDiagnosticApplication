@@ -188,9 +188,30 @@ namespace DSEDiagnosticFileParser
                                                                 || logMessage.LogDateTimewTZOffset <= e.EventTimeEnd.Value)));
             string sessionKey = null;
             LogCassandraEvent sessionEvent = null;
+            var eventType = matchItem.Item5.EventType;
 
             #region Session Instance
-            if(matchItem.Item5.EventType == EventTypes.SessionBegin)
+            if(eventType == EventTypes.SessionBeginOrItem)
+            {
+                sessionEvent = matchItem.Item5.DetermineOpenSession(this.Cluster,
+                                                                    this.Node,
+                                                                    primaryKS,
+                                                                    logProperties,
+                                                                    logMessage,
+                                                                    this._sessionEvents,
+                                                                    this._openSessions);
+
+                if(sessionEvent == null)
+                {
+                    eventType = EventTypes.SessionBegin;
+                }
+                else
+                {
+                    eventType = EventTypes.SessionItem;
+                }
+            }
+
+            if (eventType == EventTypes.SessionBegin)
             {
                 sessionKey = matchItem.Item5.DetermineSessionKey(this.Cluster,
                                                                     this.Node,
@@ -200,7 +221,7 @@ namespace DSEDiagnosticFileParser
                                                                     this._sessionEvents,
                                                                     this._openSessions);
             }
-            else if((matchItem.Item5.EventType & EventTypes.SessionItem) != 0)
+            else if(sessionEvent == null && (eventType & EventTypes.SessionItem) != 0)
             {
                 sessionEvent = matchItem.Item5.DetermineOpenSession(this.Cluster,
                                                                     this.Node,
@@ -335,8 +356,40 @@ namespace DSEDiagnosticFileParser
                 tokenRanges = tokenList;
             }
             #endregion
+            #region Determine primary Keyspace (if missing) and/or DDLs from SSTables
+            if(sstableFilePaths != null && sstableFilePaths.HasAtLeastOneElement())
+            {
+                var ddlFromSSTables = sstableFilePaths.Select(f => StringHelpers.ParseSSTableFileIntoKSTableNames(f))
+                                                        .Where(i => i != null);
+                var ddlItems = ddlFromSSTables.Select(i => Cluster.TryGetTableIndexViewbyString(i.Item1, this.Cluster.Name, i.Item2))
+                                                .Where(i => i != null);
+                if(ddlName.HasAtLeastOneElement())
+                {
+                    if(ddlInstances == null || ddlInstances.IsEmpty())
+                    {
+                        ddlInstances = ddlItems;
+                    }
+                    else
+                    {
+                        ddlInstances = ddlInstances.Append(ddlItems.ToArray());
+                    }
+                }
+
+                if(primaryKS == null && ddlInstances != null)
+                {
+                    var firstKS = ddlInstances.FirstOrDefault()?.Keyspace.FullName;
+
+                    if(firstKS != null)
+                    {
+                        if(ddlInstances.All(k => k.FullName == firstKS))
+                        {
+                            primaryKS = ddlInstances.First().Keyspace;
+                        }
+                    }
+                }
+            }
+            #endregion
             LogCassandraEvent logEvent = null;
-            var eventType = matchItem.Item5.EventType;
             #region Log Level
             switch (logMessage.Level)
             {
@@ -391,10 +444,10 @@ namespace DSEDiagnosticFileParser
                                                         primaryKS,
                                                         primaryDDL,
                                                         logProperties,
-                                                        sstableFilePaths,
-                                                        ddlInstances,
-                                                        assocatedNodes,
-                                                        tokenRanges,
+                                                        sstableFilePaths?.DuplicatesRemoved(s => s),
+                                                        ddlInstances?.DuplicatesRemoved(d => d.FullName),
+                                                        assocatedNodes?.DuplicatesRemoved(s => s.Id),
+                                                        tokenRanges?.DuplicatesRemoved(t => t),
                                                         matchItem.Item5.Product);
                 }
                 else if (eventType != EventTypes.SessionBegin && duration != null)
@@ -415,10 +468,10 @@ namespace DSEDiagnosticFileParser
                                                         primaryKS,
                                                         primaryDDL,
                                                         logProperties,
-                                                        sstableFilePaths,
-                                                        ddlInstances,
-                                                        assocatedNodes,
-                                                        tokenRanges,
+                                                        sstableFilePaths?.DuplicatesRemoved(s => s),
+                                                        ddlInstances?.DuplicatesRemoved(d => d.FullName),
+                                                        assocatedNodes?.DuplicatesRemoved(s => s.Id),
+                                                        tokenRanges?.DuplicatesRemoved(t => t),
                                                         matchItem.Item5.Product);
                 }
                 else
@@ -439,10 +492,10 @@ namespace DSEDiagnosticFileParser
                                                         primaryDDL,
                                                         (TimeSpan?)duration,
                                                         logProperties,
-                                                        sstableFilePaths,
-                                                        ddlInstances,
-                                                        assocatedNodes,
-                                                        tokenRanges,
+                                                        sstableFilePaths?.DuplicatesRemoved(s => s),
+                                                        ddlInstances?.DuplicatesRemoved(d => d.FullName),
+                                                        assocatedNodes?.DuplicatesRemoved(s => s.Id),
+                                                        tokenRanges?.DuplicatesRemoved(t => t),
                                                         matchItem.Item5.Product);
 
                     if(logEvent.Type == EventTypes.SessionBegin)
@@ -472,10 +525,10 @@ namespace DSEDiagnosticFileParser
                                                         primaryKS,
                                                         primaryDDL,
                                                         logProperties,
-                                                        sstableFilePaths,
-                                                        ddlInstances,
-                                                        assocatedNodes,
-                                                        tokenRanges,
+                                                        sstableFilePaths?.DuplicatesRemoved(s => s),
+                                                        ddlInstances?.DuplicatesRemoved(d => d.FullName),
+                                                        assocatedNodes?.DuplicatesRemoved(s => s.Id),
+                                                        tokenRanges?.DuplicatesRemoved(t => t),
                                                         matchItem.Item5.Product);
 
                     sessionEvent.UpdateEndingTimeStamp(logMessage.LogDateTime);
@@ -499,10 +552,10 @@ namespace DSEDiagnosticFileParser
                                                         primaryDDL,
                                                         (TimeSpan?)duration,
                                                         logProperties,
-                                                        sstableFilePaths,
-                                                        ddlInstances,
-                                                        assocatedNodes,
-                                                        tokenRanges,
+                                                        sstableFilePaths?.DuplicatesRemoved(s => s),
+                                                        ddlInstances?.DuplicatesRemoved(d => d.FullName),
+                                                        assocatedNodes?.DuplicatesRemoved(s => s.Id),
+                                                        tokenRanges?.DuplicatesRemoved(t => t),
                                                         matchItem.Item5.Product);
                 }
             }

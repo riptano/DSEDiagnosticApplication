@@ -548,7 +548,7 @@ namespace DSEDiagnosticLibrary
 			public Version OpsCenterAgent;
 		}
 
-		public sealed class TokenRangeInfo
+		public sealed class TokenRangeInfo : IEquatable<TokenRangeInfo>
 		{
             static readonly Regex RegExTokenRange = new Regex(Properties.Settings.Default.TokenRangeRegEx, RegexOptions.Compiled);
 
@@ -669,6 +669,29 @@ namespace DSEDiagnosticLibrary
                                         this.Slots,
                                         this.Load == null ? string.Empty : string.Format("Load:{0}", this.Load));
             }
+
+            #region Overrides/Equals
+            public bool Equals(TokenRangeInfo other)
+            {
+                if (other == null) return false;
+                if (ReferenceEquals(this, other)) return true;
+
+                return this.EndRange == other.EndRange
+                        && this.StartRange == other.StartRange;
+            }
+
+            public override bool Equals(object other)
+            {
+                if (other is TokenRangeInfo) return this.Equals((TokenRangeInfo)other);
+
+                return false;
+            }
+
+            public override int GetHashCode()
+            {
+                return (589 + this.StartRange.GetHashCode()) * 31 + this.EndRange.GetHashCode();
+            }
+            #endregion
         }
 
         public sealed class DirectoryLocations

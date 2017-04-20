@@ -20,11 +20,13 @@ namespace DSEDiagnosticFileParser
                                     string messageMatchRegEx,
                                     string parsemessageRegEx,
                                     string parsethreadidRegEx,
+                                    string sessionKey,
                                     EventTypes eventType,
                                     EventClasses eventClass,
                                     string subClass = null,
                                     Version matchVersion = null,
-                                    DSEInfo.InstanceTypes product = DSEInfo.InstanceTypes.Cassandra)
+                                    DSEInfo.InstanceTypes product = DSEInfo.InstanceTypes.Cassandra,
+                                    string[] examples = null)
             : this(string.IsNullOrEmpty(levelMatchRegEx) ? null : new RegExParseString(levelMatchRegEx),
                       string.IsNullOrEmpty(threadidMatchRegEx) ? null : new RegExParseString(threadidMatchRegEx),
                       string.IsNullOrEmpty(filenameMatchRegEx) ? null : new RegExParseString(filenameMatchRegEx),
@@ -32,11 +34,13 @@ namespace DSEDiagnosticFileParser
                       string.IsNullOrEmpty(messageMatchRegEx) ? null : new RegExParseString(messageMatchRegEx),
                       string.IsNullOrEmpty(parsemessageRegEx) ? null : new RegExParseString(parsemessageRegEx),
                       string.IsNullOrEmpty(threadidMatchRegEx) ? null : new RegExParseString(threadidMatchRegEx),
+                      sessionKey,
                       eventType,
                       eventClass,
                       subClass,
                       matchVersion,
-                      product)
+                      product,
+                      examples)
         { }
 
         public CLogLineTypeParser(RegExParseString levelMatchRegEx,
@@ -46,11 +50,13 @@ namespace DSEDiagnosticFileParser
                                     RegExParseString messageMatchRegEx,
                                     RegExParseString parsemessageRegEx,
                                     RegExParseString parsethreadidRegEx,
+                                    string sessionKey,
                                     EventTypes eventType,
                                     EventClasses eventClass,
                                     string subClass = null,
                                     Version matchVersion = null,
-                                    DSEInfo.InstanceTypes product = DSEInfo.InstanceTypes.Cassandra)
+                                    DSEInfo.InstanceTypes product = DSEInfo.InstanceTypes.Cassandra,
+                                    string[] examples = null)
         {
             this.MatchVersion = matchVersion;
             this.LevelMatch = levelMatchRegEx;
@@ -64,6 +70,8 @@ namespace DSEDiagnosticFileParser
             this.EventClass = eventClass;
             this.SubClass = subClass;
             this.Product = product;
+            this.SessionKey = sessionKey;
+            this.Examples = null;
         }
 
         /// <summary>
@@ -193,6 +201,8 @@ namespace DSEDiagnosticFileParser
         ///         FileName
         ///         FileNameLine (file name and line number)
         ///         A capture group name (e.g., SSTABLEPATH) as defined in the <see cref="ParseMessage"/> and <see cref="ParseThreadId"/> properties
+        ///         SSTABLEPATH=>DDLITEMNAME -- obtains the DDL Item name from the SSTable Path string
+        ///         SSTABLEPATH=>KEYSPACE -- obtains the keyspace name from the SSTable Path string
         /// --or--
         ///     A C# expression that returns the following based on EventType property:
         ///         -- EventTypes.TimespanBegin, must return a string that represents the session key. This string should be able to be generated for any Timespan sessions and will be used to find the LogCassandraEvent instance when the log line is not a TimespanBegin.
@@ -241,10 +251,11 @@ namespace DSEDiagnosticFileParser
             }
         }
 
+        public string[] Examples;
         private System.Reflection.MethodInfo _sessionkeyMethodInfo = null;
         private bool _sessionkeyKeywordIsGroupName = false;
         private string _sessionkeyKeyword = null;
-        private readonly static string[] SessionKeywords = new string[] { "ThreadId", "FileName", "FileNameLine" };
+        private readonly static string[] SessionKeywords = new string[] { "ThreadId", "FileName", "FileNameLine", "SSTABLEPATH=>DDLITEMNAME", "SSTABLEPATH=>KEYSPACE" };
 
         public LogCassandraEvent DetermineOpenSession(Cluster cluster,
                                                         INode node,
@@ -386,6 +397,12 @@ namespace DSEDiagnosticFileParser
                         case "FileNameLine":
                             objSessionKey = logLineMessage.FileName + ":" + logLineMessage.FileLine.ToString();
                             break;
+                        case "SSTABLEPATH=>DDLITEMNAME":
+                            objSessionKey = DetermineNameFromSSTablePath(logLineProperties, false);
+                            break;
+                        case "SSTABLEPATH=>KEYSPACE":
+                            objSessionKey = DetermineNameFromSSTablePath(logLineProperties, true);
+                            break;
                         default:
                             break;
                     }
@@ -406,7 +423,39 @@ namespace DSEDiagnosticFileParser
             sessionKey = null;
             return false;
         }
-    }
+
+        private string DetermineNameFromSSTablePath(IDictionary<string, object> logLineProperties, bool returnKeyspaceName)
+        {
+            object objSessionKey = null;
+            string name = null;
+
+            logLineProperties.TryGetValue("SSTABLEPATH", out objSessionKey);
+
+            if (objSessionKey != null)
+            {
+                string path = null;
+
+                if (objSessionKey is string)
+                {
+                    path = (string)objSessionKey;
+                }
+                else if (objSessionKey is System.Collections.IEnumerable)
+                {
+                    path = ((IEnumerable<string>)objSessionKey).FirstOrDefault();
+                }
+
+                var ksddlnameItems = StringHelpers.ParseSSTableFileIntoKSTableNames(path);
+
+                if(ksddlnameItems != null)
+                {
+                    if (returnKeyspaceName)
+                        name = ksddlnameItems.Item1;
+                    else
+                        name = ksddlnameItems.Item2;
+                }
+            }
+            return name;
+        }
 
     public sealed class CLogTypeParser
     {

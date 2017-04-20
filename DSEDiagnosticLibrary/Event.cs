@@ -19,7 +19,8 @@ namespace DSEDiagnosticLibrary
         /// </summary>
         SessionItem = 0x0002,
         SessionBegin = 0x0002 | 0x0004,
-        SessionEnd = 0x0002 | 0x0008
+        SessionEnd = 0x0002 | 0x0008,
+        SessionBeginOrItem = 0x0002 | 0x0004 | 0x0010
     }
 
     [Flags]
