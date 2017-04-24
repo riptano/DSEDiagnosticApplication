@@ -239,24 +239,27 @@ namespace DSEDiagnosticFileParser
             cp.ReferencedAssemblies.Add(typeof(DSEDiagnosticLibrary.MiscHelpers).Assembly.Location);
             cp.ReferencedAssemblies.Add(typeof(DSEDiagnosticLog4NetParser.Logger).Assembly.Location);
 
-            foreach (var assemblyName in LibrarySettings.CodeDomAssemblies)
+            if (LibrarySettings.CodeDomAssemblies != null)
             {
-                if (assemblyName.Length > 1 && assemblyName[0] == '-') continue;
-
-                var file = Common.ConfigHelper.Parse(assemblyName);
-
-                if (string.IsNullOrEmpty(file))
+                foreach (var assemblyName in LibrarySettings.CodeDomAssemblies)
                 {
-                    Logger.Instance.WarnFormat("Dynamic Compiling Assembly Loading Failure for \"{0}\"", assemblyName);
-                    System.Diagnostics.Debug.WriteLine(string.Format("Dynamic Compiling Assembly Loading Failure for \"{0}\"", assemblyName), "Warning");
-                }
-                else
-                {
-                    cp.ReferencedAssemblies.Add(file);
+                    if (assemblyName.Length > 1 && assemblyName[0] == '-') continue;
+
+                    var file = Common.ConfigHelper.Parse(assemblyName);
+
+                    if (string.IsNullOrEmpty(file))
+                    {
+                        Logger.Instance.WarnFormat("Dynamic Compiling Assembly Loading Failure for \"{0}\"", assemblyName);
+                        System.Diagnostics.Debug.WriteLine(string.Format("Dynamic Compiling Assembly Loading Failure for \"{0}\"", assemblyName), "Warning");
+                    }
+                    else
+                    {
+                        cp.ReferencedAssemblies.Add(file);
+                    }
                 }
             }
 
-            if(addedAssemblies != null)
+            if (addedAssemblies != null)
             {
                 foreach (var assembly in addedAssemblies.DuplicatesRemoved(a => a.Location))
                 {
@@ -302,11 +305,13 @@ namespace DSEDiagnosticFileParser
 
             var methodBody = string.Format(Properties.Settings.Default.CodeDomClassTemplate,
                                             className,
-                                            returnType == null ? "void" : returnType.FullName,
+                                            returnType == null ? "void" : Common.ReflectionInfoHelper.MakeNormaizedClassName(returnType.FullName),
                                             methodName,
                                             arguments == null || arguments.Count() == 0
                                                 ? string.Empty
-                                                : string.Join(",", arguments.Select(a => string.Format("{0} {1}", a.Item1.FullName, a.Item2.Trim()))),
+                                                : string.Join(",", arguments.Select(a => string.Format("{0} {1}",
+                                                                                        Common.ReflectionInfoHelper.MakeNormaizedClassName(a.Item1.FullName),
+                                                                                        a.Item2.Trim()))),
                                             body);
 
             List<Assembly> typeAssemblies = new List<Assembly>();

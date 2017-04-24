@@ -11,6 +11,50 @@ namespace DSEDiagnosticFileParser
 {
     public sealed class CLogLineTypeParser
     {
+        #region private properties
+        private class CacheInfo
+        {
+            public System.Reflection.MethodInfo KeyMethodInfo;
+            public bool KeyMethodInfoIsMethod;
+            public bool KeyIsGroupName;
+            public bool KeyIsStatic;
+            public string KeyValue;
+
+            readonly static CacheInfo[] CachedInfo = new CacheInfo[] { new CacheInfo(), new CacheInfo(), new CacheInfo() };
+            public static CacheInfo GetCacheInfo(int cacheIdx)
+            {
+                return CachedInfo[cacheIdx];
+            }
+
+            public static string VarName(int cacheIdx)
+            {
+                if (cacheIdx == SessionKeyIdx)
+                    return "SessionKey";
+                else if (cacheIdx == SessionIdKeyIdx)
+                    return "SessionIdKey";
+                else if (cacheIdx == SubClassIdx)
+                    return "SubClass";
+
+                return "<Unknown CLogLineTypeParser Property Name>";
+            }
+
+            public static string VarValue(CLogLineTypeParser clogLineTypePasrer, int cacheIdx)
+            {
+                if (cacheIdx == SessionKeyIdx)
+                    return clogLineTypePasrer._sessionKey;
+                else if (cacheIdx == SessionIdKeyIdx)
+                    return clogLineTypePasrer._sessionIdKey;
+                else if (cacheIdx == SubClassIdx)
+                    return clogLineTypePasrer._subclass;
+
+                return null;
+            }
+        }
+
+        private readonly static string[] SessionKeywords = new string[] { "ThreadId", "FileName", "FileNameLine", "SSTABLEPATH=>DDLITEMNAME", "SSTABLEPATH=>KEYSPACE", "SSTABLEPATH=>KEYSPACEDDLNAME", "SSTABLEPATHS=>DDLITEMNAME", "SSTABLEPATHS=>KEYSPACE", "SSTABLEPATHS=>KEYSPACEDDLNAME" };
+
+        #endregion
+
         public CLogLineTypeParser() { }
 
         public CLogLineTypeParser(string levelMatchRegEx,
@@ -184,12 +228,30 @@ namespace DSEDiagnosticFileParser
         public RegExParseString ParseThreadId { get; set; }
         public EventTypes EventType { get; set; }
         public EventClasses EventClass { get; set; }
+
+        private const int SubClassIdx = 1;
+        private string _subclass = null;
         /// <summary>
         /// e.g., Hint, Tombstone, etc. or null
+        /// This takes the same values as <see cref="SessionKey"/>
+        /// Callers should call the <see cref="DetermineSubClass(Cluster, INode, IKeyspace, IDictionary{string, object}, ILogMessage, IList{LogCassandraEvent}, IList{Tuple{string, List{LogCassandraEvent}}})"/> method to obtain the correct value.
         /// </summary>
-        public string SubClass { get; set; }
+        public string SubClass
+        {
+            get { return this._subclass; }
+            set
+            {
+                if(value != this._subclass)
+                {
+                    this._subclass = value;
+                    CacheSessionKey(this, ref this._subclass, SubClassIdx);
+                }
+            }
+        }
+
         public DSEInfo.InstanceTypes Product { get; set; }
 
+        private const int SessionKeyIdx = 0;
         private string _sessionKey = null;
         /// <summary>
         /// This value is used to &quot;tie&quot; together timespan sessions between log lines/events. For beginning timespan events this is used to generate the Session Key.
@@ -200,14 +262,17 @@ namespace DSEDiagnosticFileParser
         ///         ThreadId
         ///         FileName
         ///         FileNameLine (file name and line number)
+        ///         EventClass
+        ///         SubClass
+        ///         SessionIdKey
+        ///         Product
         ///         A capture group name (e.g., SSTABLEPATH) as defined in the <see cref="ParseMessage"/> and <see cref="ParseThreadId"/> properties
         ///         SSTABLEPATH=>DDLITEMNAME -- obtains the DDL Item name from the SSTable Path string
         ///         SSTABLEPATH=>KEYSPACE -- obtains the keyspace name from the SSTable Path string
+        ///         SSTABLEPATH=>KEYSPACEDDLNAME -- obtains the keyspace and DDL names from the SSTable Path string
         /// --or--
-        ///     A C# expression that returns the following based on EventType property:
-        ///         -- EventTypes.TimespanBegin, must return a string that represents the session key. This string should be able to be generated for any Timespan sessions and will be used to find the LogCassandraEvent instance when the log line is not a TimespanBegin.
+        ///     A C# expression that returns a string that represents the session key. This string should be able to be generated for any Timespan sessions and will be used to find the LogCassandraEvent instance when the log line is not a TimespanBegin.
         ///             This session key is item1 in the Tuple in the openTimeSpanSessions local variable.
-        ///         -- EventTypes.Timespan and EventTypes.TimespanEnd, must return LogCassandraEvent instance found in the openTimeSpanSessions or timespanSessions local variables based on the session key generated on the TimespanBegin event.
         ///     This express must start with a &apos;{&apos; and end with a &apos;}&apos;
         ///     It must follow C# syntax. It has the following locally defined variables:
         ///         <code>clogLineTypeParser</code> -- A CLogLineTypeParser instance which is an instance of this information
@@ -216,8 +281,10 @@ namespace DSEDiagnosticFileParser
         ///         <code>keyspace</code>           -- Current IKeyspace instance assocated with this log line. Could be null.
         ///         <code>logLineProperties</code>  -- A IDictionary&lt;string, object&gt; instance where the key is the capture group&apos;s name and the assocated value
         ///         <code>logLineMessage</code>     -- An ILogMessage instance that consistence of this parsed log line
-        ///         <code>timespanSessions</code>   -- A IList<LogCassandraEvent> of all timespan sessions for this log file
-        ///         <code>openTimeSpanSessions</code> -- A IList<Tuple<string,LogCassandraEvent>> of only open timespan sessions for this log file. The first item is the SesionKey and the second item is always the TimespanBegin LogCassandraEvent instance.
+        /// --or--
+        ///     A static value that must be surrounded in quotes.
+        /// --or--
+        ///     A set of keywords seperated by a &apos;+&apos; where the values are concatenated.
         ///
         /// </summary>
         /// <remarks>
@@ -246,147 +313,243 @@ namespace DSEDiagnosticFileParser
                 if (value != this._sessionKey)
                 {
                     this._sessionKey = value;
-                    this.CacheSessionKey();
+                    CacheSessionKey(this, ref this._sessionKey, SessionKeyIdx);
+                }
+            }
+        }
+
+        private const int SessionIdKeyIdx = 2;
+        private string _sessionIdKey = null;
+        /// <summary>
+        /// Value uses as a key to associated related Session log items by sharing the same Log Id (guid).
+        /// This takes the same values as <see cref="SessionKey"/>
+        /// Callers should call the <see cref="DetermineSessionIdKey(Cluster, INode, IKeyspace, IDictionary{string, object}, ILogMessage, IList{LogCassandraEvent}, IList{Tuple{string, List{LogCassandraEvent}}})"/> method to obtain the correct value.
+        /// </summary>
+        public string SessionIdKey
+        {
+            get { return this._sessionIdKey; }
+            set
+            {
+                if (value != this._sessionIdKey)
+                {
+                    this._sessionIdKey = value;
+                    CacheSessionKey(this, ref this._sessionIdKey, SessionIdKeyIdx);
                 }
             }
         }
 
         public string[] Examples;
-        private System.Reflection.MethodInfo _sessionkeyMethodInfo = null;
-        private bool _sessionkeyKeywordIsGroupName = false;
-        private string _sessionkeyKeyword = null;
-        private readonly static string[] SessionKeywords = new string[] { "ThreadId", "FileName", "FileNameLine", "SSTABLEPATH=>DDLITEMNAME", "SSTABLEPATH=>KEYSPACE" };
-
-        public LogCassandraEvent DetermineOpenSession(Cluster cluster,
-                                                        INode node,
-                                                        IKeyspace keyspace,
-                                                        IDictionary<string, object> logLineProperties,
-                                                        ILogMessage logLineMessage,
-                                                        IList<LogCassandraEvent> timespanSessions,
-                                                        IList<Tuple<string, LogCassandraEvent>> openTimeSpanSessions)
-        {
-            if (this.EventType == EventTypes.SingleInstance || this.EventType == EventTypes.SessionBegin)
-            {
-                return null;
-            }
-
-            if (this._sessionkeyMethodInfo != null)
-            {
-                return this._sessionkeyMethodInfo.Invoke(null, new object[] { cluster, node, keyspace, logLineProperties, logLineMessage, timespanSessions, openTimeSpanSessions }) as LogCassandraEvent;
-            }
-            else
-            {
-                string sessionKey;
-
-                if (!this.GetSessionKey(logLineProperties, logLineMessage, out sessionKey))
-                {
-                    if (sessionKey == null)
-                    {
-                        throw new ArgumentException(string.Format("SessionKey \"{0}\" was not valid.", this._sessionKey), "SessionKey");
-                    }
-                }
-
-                return openTimeSpanSessions.LastOrDefault(s => s.Item1 == sessionKey)?.Item2;
-            }
-        }
 
         public string DetermineSessionKey(Cluster cluster,
                                             INode node,
                                             IKeyspace keyspace,
                                             IDictionary<string, object> logLineProperties,
-                                            ILogMessage logLineMessage,
-                                            IList<LogCassandraEvent> timespanSessions,
-                                            IList<Tuple<string, LogCassandraEvent>> openTimeSpanSessions)
+                                            ILogMessage logLineMessage)
         {
-            if (this.EventType == EventTypes.SingleInstance || this.EventType == EventTypes.SessionItem || this.EventType == EventTypes.SessionEnd)
-            {
-                return null;
-            }
-
-            if (this._sessionkeyMethodInfo != null)
-            {
-                return this._sessionkeyMethodInfo.Invoke(null, new object[] { cluster, node, keyspace, logLineProperties, logLineMessage, timespanSessions, openTimeSpanSessions }) as string;
-            }
-            else
-            {
-                string sessionKey;
-
-                if (!this.GetSessionKey(logLineProperties, logLineMessage, out sessionKey))
-                {
-                    if (sessionKey == null)
-                    {
-                        throw new ArgumentException(string.Format("SessionKey \"{0}\" was not valid.", this._sessionKey), "SessionKey");
-                    }
-                }
-
-                return sessionKey;
-            }
+            return this._sessionKey == null
+                    ? null
+                    : DetermineKeyValue(this,
+                                        SessionKeyIdx,
+                                        cluster,
+                                        node,
+                                        keyspace,
+                                        logLineProperties,
+                                        logLineMessage);
         }
 
-        private void CacheSessionKey()
+        public string DetermineSubClass(Cluster cluster,
+                                        INode node,
+                                        IKeyspace keyspace,
+                                        IDictionary<string, object> logLineProperties,
+                                        ILogMessage logLineMessage)
         {
-            if (this.EventType == EventTypes.SingleInstance)
+            return this._subclass == null
+                    ? null
+                    : DetermineKeyValue(this,
+                                        SubClassIdx,
+                                        cluster,
+                                        node,
+                                        keyspace,
+                                        logLineProperties,
+                                        logLineMessage);
+        }
+
+        public string DetermineSessionIdKey(Cluster cluster,
+                                                INode node,
+                                                IKeyspace keyspace,
+                                                IDictionary<string, object> logLineProperties,
+                                                ILogMessage logLineMessage)
+        {
+            return this._sessionIdKey == null
+                    ? null
+                    : DetermineKeyValue(this,
+                                        SessionIdKeyIdx,
+                                        cluster,
+                                        node,
+                                        keyspace,
+                                        logLineProperties,
+                                        logLineMessage);
+        }
+
+        #region Private Methods
+        private static void CacheSessionKey(CLogLineTypeParser logLineParser,
+                                            ref string propValue,
+                                            int cacheIdx)
+        {
+            var cacheInfo = CacheInfo.GetCacheInfo(cacheIdx);
+
+            if (logLineParser.EventType == EventTypes.SingleInstance)
             {
-                this._sessionkeyMethodInfo = null;
-                this._sessionkeyKeyword = null;
-                this._sessionkeyKeywordIsGroupName = false;
+                cacheInfo.KeyMethodInfo = null;
+                cacheInfo.KeyMethodInfoIsMethod = false;
+                cacheInfo.KeyValue = null;
+                cacheInfo.KeyIsGroupName = false;
+                cacheInfo.KeyIsStatic = false;
                 return;
             }
 
-            this._sessionKey = this._sessionKey?.Trim();
+            propValue = propValue?.Trim();
 
-            if (string.IsNullOrEmpty(this._sessionKey))
+            if (string.IsNullOrEmpty(propValue))
             {
-                this._sessionkeyMethodInfo = null;
-                this._sessionkeyKeyword = "ID";
-                this._sessionkeyKeywordIsGroupName = true;
+                cacheInfo.KeyMethodInfo = null;
+                cacheInfo.KeyMethodInfoIsMethod = false;
+                cacheInfo.KeyValue = null;
+                cacheInfo.KeyIsGroupName = true;
+                cacheInfo.KeyIsStatic = false;
                 return;
             }
 
-            if (this._sessionKey[0] == '{')
+            if(propValue == CacheInfo.VarName(cacheIdx))
             {
-                bool beginTimespan = this.EventType == EventTypes.SessionBegin;
-                this._sessionkeyMethodInfo = MiscHelpers.CompileMethod(string.Format("{0}_{1}_{2}_{3}",
-                                                                                        this.Product,
-                                                                                        this.EventClass,
-                                                                                        this.EventType,
-                                                                                        beginTimespan ? "DetermineSessionKey" : "DetermineOpenSession"),
-                                                                        beginTimespan ? typeof(string) : typeof(LogCassandraEvent),
-                                                                        new Tuple<Type, string>[]
-                                                                        {
-                                                                            new Tuple<Type, string>(typeof(CLogLineTypeParser), "clogLineTypeParser"),
-                                                                            new Tuple<Type,string>(typeof(Cluster), "cluster"),
-                                                                            new Tuple<Type,string>(typeof(INode), "node"),
-                                                                            new Tuple<Type,string>(typeof(IKeyspace), "keyspace"),
-                                                                            new Tuple<Type,string>(typeof(IDictionary<string,object>), "logLineProperties"),
-                                                                            new Tuple<Type,string>(typeof(ILogMessage), "logLineMessage"),
-                                                                            new Tuple<Type,string>(typeof(IList<LogCassandraEvent>), "timespanSessions"),
-                                                                            new Tuple<Type,string>(typeof(IList<Tuple<string, LogCassandraEvent>>), "openTimeSpanSessions")
-                                                                        },
-                                                                        this._sessionKey);
+                cacheInfo.KeyMethodInfo = typeof(CLogLineTypeParser).GetMethod(string.Format("Determine{0}", CacheInfo.VarName(cacheIdx)),
+                                                                                    new Type[]
+                                                                                    {
+                                                                                        typeof(Cluster),
+                                                                                        typeof(INode),
+                                                                                        typeof(IKeyspace),
+                                                                                        typeof(IDictionary<string,object>),
+                                                                                        typeof(ILogMessage)
+                                                                                    });
+                cacheInfo.KeyMethodInfoIsMethod = true;
+                cacheInfo.KeyValue = null;
+                cacheInfo.KeyIsGroupName = true;
+                cacheInfo.KeyIsStatic = false;
+                return;
+            }
+
+            if (propValue.IndexOf('+') > 0)
+            {
+                var keywords = propValue.Split('+')
+                                    .Select(i =>
+                                    {
+                                        i = i.Trim();
+
+                                        if (i[0] == '"')
+                                            return i;
+                                        if (i[0] == '\'')
+                                            return '"' + i.Substring(1, i.Length - 2) + '"';
+                                        if (i == "EventClass")
+                                            return '"' + logLineParser.EventClass.ToString() + '"'; 
+                                        if (i == "Product")
+                                            return '"' + logLineParser.Product.ToString() + '"';
+                                        return string.Format("CLogLineTypeParser.GenerateSessionKey(\"{0}\", " +
+                                                                                                    "{1}, " +
+                                                                                                    "clogLineTypeParser, " +
+                                                                                                    "{2}, " +
+                                                                                                    "cluster, " +
+                                                                                                    "node, " +
+                                                                                                    "keyspace, " +
+                                                                                                    "logLineProperties, " +
+                                                                                                    "logLineMessage)",
+                                                                                                    i,
+                                                                                                    (!SessionKeywords.Contains(i)).ToString().ToLower(),
+                                                                                                    cacheIdx);
+                                    });
+                cacheInfo.KeyMethodInfo = MiscHelpers.CompileMethod(string.Format("{0}_{1}_{2}_Get{3}",
+                                                                                    logLineParser.Product.ToString(),
+                                                                                    logLineParser.EventClass.ToString(),
+                                                                                    logLineParser.EventType.ToString(),
+                                                                                    CacheInfo.VarName(cacheIdx)),
+                                                                                    typeof(string),
+                                                                                    new Tuple<Type, string>[]
+                                                                                    {
+                                                                                        new Tuple<Type, string>(typeof(CLogLineTypeParser), "clogLineTypeParser"),
+                                                                                        new Tuple<Type,string>(typeof(Cluster), "cluster"),
+                                                                                        new Tuple<Type,string>(typeof(INode), "node"),
+                                                                                        new Tuple<Type,string>(typeof(IKeyspace), "keyspace"),
+                                                                                        new Tuple<Type,string>(typeof(IDictionary<string,object>), "logLineProperties"),
+                                                                                        new Tuple<Type,string>(typeof(ILogMessage), "logLineMessage")
+                                                                                    },
+                                                                                    string.Format("return {0};",
+                                                                                                    string.Join(" + '-' + ", keywords)));
+                cacheInfo.KeyValue = null;
+                cacheInfo.KeyMethodInfoIsMethod = false;
+                cacheInfo.KeyIsGroupName = false;
+                cacheInfo.KeyIsStatic = false;
+                return;
+            }
+
+            if (propValue[0] == '"' || propValue[0] == '\'')
+            {
+                cacheInfo.KeyIsStatic = true;
+                cacheInfo.KeyValue = StringHelpers.RemoveQuotes(propValue);
+            }
+            else if (propValue[0] == '{')
+            {
+                cacheInfo.KeyMethodInfoIsMethod = false;
+                cacheInfo.KeyMethodInfo = MiscHelpers.CompileMethod(string.Format("{0}_{1}_{2}_Determine{3}",
+                                                                                        logLineParser.Product.ToString(),
+                                                                                        logLineParser.EventClass.ToString(),
+                                                                                        logLineParser.EventType.ToString(),
+                                                                                        CacheInfo.VarName(cacheIdx)),
+                                                                                    typeof(string),
+                                                                                    new Tuple<Type, string>[]
+                                                                                    {
+                                                                                        new Tuple<Type, string>(typeof(CLogLineTypeParser), "clogLineTypeParser"),
+                                                                                        new Tuple<Type,string>(typeof(Cluster), "cluster"),
+                                                                                        new Tuple<Type,string>(typeof(INode), "node"),
+                                                                                        new Tuple<Type,string>(typeof(IKeyspace), "keyspace"),
+                                                                                        new Tuple<Type,string>(typeof(IDictionary<string,object>), "logLineProperties"),
+                                                                                        new Tuple<Type,string>(typeof(ILogMessage), "logLineMessage")
+                                                                                    },
+                                                                                    propValue);
             }
             else
             {
-                this._sessionkeyKeyword = this._sessionKey;
-                this._sessionkeyKeywordIsGroupName = !SessionKeywords.Contains(this._sessionKey);
+                cacheInfo.KeyValue = propValue;
+                cacheInfo.KeyIsGroupName = !SessionKeywords.Contains(propValue);
             }
         }
 
-        private bool GetSessionKey(IDictionary<string, object> logLineProperties,
-                                            ILogMessage logLineMessage,
-                                            out string sessionKey)
+
+        private static bool GenerateSessionKey(CLogLineTypeParser logLineParser,
+                                                    int cacheIdx,
+                                                    Cluster cluster,
+                                                    INode node,
+                                                    IKeyspace keyspace,
+                                                    IDictionary<string, object> logLineProperties,
+                                                    ILogMessage logLineMessage,
+                                                    out string sessionKey)
         {
-            if (this._sessionkeyKeyword != null)
+            var cacheInfo = CacheInfo.GetCacheInfo(cacheIdx);
+
+            if (cacheInfo.KeyValue != null)
             {
                 object objSessionKey = null;
 
-                if (this._sessionkeyKeywordIsGroupName)
+                if(cacheInfo.KeyIsStatic)
                 {
-                    logLineProperties.TryGetValue(this._sessionkeyKeyword, out objSessionKey);
+                    sessionKey = cacheInfo.KeyValue;
+                    return true;
+                }
+                else if (cacheInfo.KeyIsGroupName)
+                {
+                    logLineProperties.TryGetValue(cacheInfo.KeyValue, out objSessionKey);
                 }
                 else
                 {
-                    switch (this._sessionkeyKeyword)
+                    switch (cacheInfo.KeyValue)
                     {
                         case "ThreadId":
                             objSessionKey = logLineMessage.ThreadId;
@@ -394,29 +557,74 @@ namespace DSEDiagnosticFileParser
                         case "FileName":
                             objSessionKey = logLineMessage.FileName;
                             break;
+                        case "EventClass":
+                            objSessionKey = logLineParser.EventClass.ToString();
+                            break;
+                        case "Product":
+                            objSessionKey = logLineParser.Product.ToString();
+                            break;
                         case "FileNameLine":
                             objSessionKey = logLineMessage.FileName + ":" + logLineMessage.FileLine.ToString();
                             break;
                         case "SSTABLEPATH=>DDLITEMNAME":
+                        case "SSTABLEPATHS=>DDLITEMNAME":
                             objSessionKey = DetermineNameFromSSTablePath(logLineProperties, false);
                             break;
                         case "SSTABLEPATH=>KEYSPACE":
+                        case "SSTABLEPATHS=>KEYSPACE":
                             objSessionKey = DetermineNameFromSSTablePath(logLineProperties, true);
                             break;
+                        case "SSTABLEPATH=>KEYSPACEDDLNAME":
+                        case "SSTABLEPATHS=>KEYSPACEDDLNAME":
+                            objSessionKey = DetermineNameFromSSTablePath(logLineProperties);
+                            break;
                         default:
+                            {
+                                if (cacheIdx != SubClassIdx
+                                        && cacheInfo.KeyValue == CacheInfo.VarName(SubClassIdx))
+                                {
+                                    objSessionKey = logLineParser.DetermineSubClass(cluster,
+                                                                                    node,
+                                                                                    keyspace,
+                                                                                    logLineProperties,
+                                                                                    logLineMessage);
+                                }
+                                else if (cacheIdx != SessionKeyIdx
+                                            && cacheInfo.KeyValue == CacheInfo.VarName(SessionKeyIdx))
+                                {
+                                    objSessionKey = logLineParser.DetermineSessionKey(cluster,
+                                                                                        node,
+                                                                                        keyspace,
+                                                                                        logLineProperties,
+                                                                                        logLineMessage);
+                                }
+                                else if (cacheIdx != SessionIdKeyIdx
+                                            && cacheInfo.KeyValue == CacheInfo.VarName(SessionIdKeyIdx))
+                                {
+                                    objSessionKey = logLineParser.DetermineSessionIdKey(cluster,
+                                                                                        node,
+                                                                                        keyspace,
+                                                                                        logLineProperties,
+                                                                                        logLineMessage);
+                                }
+                            }
                             break;
                     }
                 }
 
-                if (objSessionKey is string)
+                if (objSessionKey != null)
                 {
-                    sessionKey = (string)objSessionKey;
+                    if (!(objSessionKey is string) && objSessionKey is System.Collections.IEnumerable)
+                    {
+                        sessionKey = ((IEnumerable<object>)objSessionKey).Sum(s => s.GetHashCode()).ToString();
+                        return false;
+                    }
+                    else
+                    {
+                        sessionKey = objSessionKey.ToString();
+                    }
+
                     return true;
-                }
-                else if (objSessionKey is System.Collections.IEnumerable)
-                {
-                    sessionKey = ((IEnumerable<object>)objSessionKey).Sum(s => s.GetHashCode()).ToString();
-                    return false;
                 }
             }
 
@@ -424,12 +632,170 @@ namespace DSEDiagnosticFileParser
             return false;
         }
 
-        private string DetermineNameFromSSTablePath(IDictionary<string, object> logLineProperties, bool returnKeyspaceName)
+        public static string GenerateSessionKey(string varName,
+                                                    bool isGroupName,
+                                                    CLogLineTypeParser logLineParser,
+                                                    int cacheIdx,
+                                                    Cluster cluster,
+                                                    INode node,
+                                                    IKeyspace keyspace,
+                                                    IDictionary<string, object> logLineProperties,
+                                                    ILogMessage logLineMessage)
+        {
+            object objSessionKey = null;
+
+            if (isGroupName)
+            {
+                logLineProperties.TryGetValue(varName, out objSessionKey);
+            }
+            else
+            {
+                switch (varName)
+                {
+                    case "ThreadId":
+                        objSessionKey = logLineMessage.ThreadId;
+                        break;
+                    case "FileName":
+                        objSessionKey = logLineMessage.FileName;
+                        break;
+                    case "EventClass":
+                        objSessionKey = logLineParser.EventClass.ToString();
+                        break;
+                    case "Product":
+                        objSessionKey = logLineParser.Product.ToString();
+                        break;
+                    case "FileNameLine":
+                        objSessionKey = logLineMessage.FileName + ":" + logLineMessage.FileLine.ToString();
+                        break;
+                    case "SSTABLEPATH=>DDLITEMNAME":
+                    case "SSTABLEPATHS=>DDLITEMNAME":
+                        objSessionKey = DetermineNameFromSSTablePath(logLineProperties, false);
+                        break;
+                    case "SSTABLEPATH=>KEYSPACE":
+                    case "SSTABLEPATHS=>KEYSPACE":
+                        objSessionKey = DetermineNameFromSSTablePath(logLineProperties, true);
+                        break;
+                    case "SSTABLEPATH=>KEYSPACEDDLNAME":
+                    case "SSTABLEPATHS=>KEYSPACEDDLNAME":
+                        objSessionKey = DetermineNameFromSSTablePath(logLineProperties);
+                        break;
+                    default:
+                        {
+                            if (cacheIdx != SubClassIdx
+                                        && varName == CacheInfo.VarName(SubClassIdx))
+                            {
+                                objSessionKey = logLineParser.DetermineSubClass(cluster,
+                                                                                node,
+                                                                                keyspace,
+                                                                                logLineProperties,
+                                                                                logLineMessage);
+                            }
+                            else if (cacheIdx != SessionKeyIdx
+                                        && varName == CacheInfo.VarName(SessionKeyIdx))
+                            {
+                                objSessionKey = logLineParser.DetermineSessionKey(cluster,
+                                                                                    node,
+                                                                                    keyspace,
+                                                                                    logLineProperties,
+                                                                                    logLineMessage);
+                            }
+                            else if (cacheIdx != SessionIdKeyIdx
+                                        && varName == CacheInfo.VarName(SessionIdKeyIdx))
+                            {
+                                objSessionKey = logLineParser.DetermineSessionIdKey(cluster,
+                                                                                    node,
+                                                                                    keyspace,
+                                                                                    logLineProperties,
+                                                                                    logLineMessage);
+                            }
+                            else
+                            {
+                                objSessionKey = varName;
+                            }
+                        }
+                        break;
+                }
+            }
+
+            if (objSessionKey != null)
+            {
+                if (!(objSessionKey is string) && objSessionKey is System.Collections.IEnumerable)
+                {
+                    return ((IEnumerable<object>)objSessionKey).Sum(s => s.GetHashCode()).ToString();
+                }
+                else
+                {
+                    return objSessionKey.ToString();
+                }
+            }
+
+            return string.Empty;
+        }
+
+        private static string DetermineKeyValue(CLogLineTypeParser logLineParser,
+                                                int cacheIdx,
+                                                Cluster cluster,
+                                                INode node,
+                                                IKeyspace keyspace,
+                                                IDictionary<string, object> logLineProperties,
+                                                ILogMessage logLineMessage)
+        {
+            if (logLineParser.EventType == EventTypes.SingleInstance)
+            {
+                return null;
+            }
+
+            var cacheInfo = CacheInfo.GetCacheInfo(cacheIdx);
+
+            if (cacheInfo.KeyMethodInfo != null)
+            {
+                return cacheInfo.KeyMethodInfoIsMethod
+                        ? cacheInfo.KeyMethodInfo.Invoke(logLineParser, new object[] { cluster,
+                                                                                        node,
+                                                                                        keyspace,
+                                                                                        logLineProperties,
+                                                                                        logLineMessage }) as string
+                        : cacheInfo.KeyMethodInfo.Invoke(null, new object[] { logLineParser,
+                                                                                cluster,
+                                                                                node,
+                                                                                keyspace,
+                                                                                logLineProperties,
+                                                                                logLineMessage }) as string;
+            }
+            else
+            {
+                string sessionKey;
+
+                if (!GenerateSessionKey(logLineParser,
+                                        cacheIdx,
+                                        cluster,
+                                        node,
+                                        keyspace,
+                                        logLineProperties,
+                                        logLineMessage,
+                                        out sessionKey))
+                {
+                    if (sessionKey == null)
+                    {
+                        throw new ArgumentException(string.Format("{0} \"{1}\" was not valid.",
+                                                                    CacheInfo.VarName(cacheIdx),
+                                                                    CacheInfo.VarValue(logLineParser, cacheIdx)),
+                                                                    CacheInfo.VarName(cacheIdx));
+                    }
+                }
+
+                return sessionKey;
+            }
+        }
+        private static string DetermineNameFromSSTablePath(IDictionary<string, object> logLineProperties, bool returnKeyspaceName)
         {
             object objSessionKey = null;
             string name = null;
 
-            logLineProperties.TryGetValue("SSTABLEPATH", out objSessionKey);
+            if(!logLineProperties.TryGetValue("SSTABLEPATH", out objSessionKey))
+            {
+                logLineProperties.TryGetValue("SSTABLEPATHS", out objSessionKey);
+            }
 
             if (objSessionKey != null)
             {
@@ -456,6 +822,45 @@ namespace DSEDiagnosticFileParser
             }
             return name;
         }
+
+        private static string DetermineNameFromSSTablePath(IDictionary<string, object> logLineProperties)
+        {
+            object objSessionKey = null;
+            string name = null;
+
+            if (!logLineProperties.TryGetValue("SSTABLEPATH", out objSessionKey))
+            {
+                logLineProperties.TryGetValue("SSTABLEPATHS", out objSessionKey);
+            }
+
+            if (objSessionKey != null)
+            {
+                string path = null;
+
+                if (objSessionKey is string)
+                {
+                    path = (string)objSessionKey;
+                }
+                else if (objSessionKey is System.Collections.IEnumerable)
+                {
+                    path = ((IEnumerable<object>)objSessionKey).FirstOrDefault()?.ToString();
+                }
+                else
+                {
+                    path = objSessionKey.ToString();
+                }
+
+                var ksddlnameItems = StringHelpers.ParseSSTableFileIntoKSTableNames(path);
+
+                if (ksddlnameItems != null)
+                {
+                    name = (ksddlnameItems.Item1 ?? string.Empty) + '.' + (ksddlnameItems.Item2 ?? string.Empty);
+                }
+            }
+            return name;
+        }
+
+        #endregion
     }
 
     public sealed class CLogTypeParser

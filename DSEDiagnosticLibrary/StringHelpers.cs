@@ -157,11 +157,11 @@ namespace DSEDiagnosticLibrary
                 }
             }
 
-            if (checkforDate)
+            if (convertToUOMBasedOnContext == null && checkforDate)
             {
                 TimeSpan ts;
 
-                if (TimeSpan.TryParse(strValue, out ts))
+                if (strValue.IndexOf(':') > 0 && TimeSpan.TryParse(strValue, out ts))
                 {
                     return ts;
                 }

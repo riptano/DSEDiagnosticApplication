@@ -7,11 +7,23 @@ using System.Threading.Tasks;
 using DSEDiagnosticLibrary;
 using Common;
 using DSEDiagnosticLog4NetParser;
+using CTS = Common.Patterns.Collections.ThreadSafe;
 
 namespace DSEDiagnosticFileParser
 {
     public sealed class file_cassandra_log4net : DiagnosticFile
     {
+        struct CurrentSessionLineTick
+        {
+            public DateTime LogTick;
+            public LogCassandraEvent CurrentSession;
+        }
+
+        private CurrentSessionLineTick _priorSessionLineTick;
+        private List<LogCassandraEvent> _sessionEvents = new List<LogCassandraEvent>();
+        private List<Tuple<string, List<LogCassandraEvent>>> _openSessions = new List<Tuple<string, List<LogCassandraEvent>>>();
+        private Dictionary<string, string> _sessionLogIds = new Dictionary<string, string>();
+
         public file_cassandra_log4net(CatagoryTypes catagory,
                                     IDirectoryPath diagnosticDirectory,
                                     IFilePath file,
@@ -64,6 +76,7 @@ namespace DSEDiagnosticFileParser
 
         CLogLineTypeParser[] _parser = null;
         List<LogCassandraEvent> _logEvents = new List<LogCassandraEvent>();
+        public static readonly CTS.List<LogCassandraEvent> OrphanedSessionEvents = new CTS.List<LogCassandraEvent>();
 
         public override uint ProcessFile()
         {
@@ -114,6 +127,8 @@ namespace DSEDiagnosticFileParser
                 }
             }
 
+            OrphanedSessionEvents.AddRange(this._openSessions.SelectMany(s => { s.Item2.ForEach(e => e.MarkAsOrphaned()); return s.Item2; }));
+
             return 0;
         }
 
@@ -132,8 +147,30 @@ namespace DSEDiagnosticFileParser
             return null;
         }
 
-        private List<LogCassandraEvent> _sessionEvents = new List<LogCassandraEvent>();
-        private List<Tuple<string,LogCassandraEvent>> _openSessions = new List<Tuple<string,LogCassandraEvent>>();
+        /* INFO  [CompactionExecutor:749] 2017-02-11 00:17:43,927  CompactionTask.java:141 - Compacting [SSTableReader(path='/data/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/system-compactions_in_progress-ka-156636-Data.db'), SSTableReader(path='/data/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/system-compactions_in_progress-ka-156635-Data.db'), SSTableReader(path='/data/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/system-compactions_in_progress-ka-156638-Data.db'), SSTableReader(path='/data/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/system-compactions_in_progress-ka-156637-Data.db')]
+            INFO  [CompactionExecutor:747] 2017-02-11 00:17:43,941  ColumnFamilyStore.java:905 - Enqueuing flush of compactions_in_progress: 1320 (0%) on-heap, 0 (0%) off-heap
+            INFO  [MemtableFlushWriter:880] 2017-02-11 00:17:43,942  Memtable.java:347 - Writing Memtable-compactions_in_progress@707819311(0.149KiB serialized bytes, 9 ops, 0%/0% of on/off-heap limit)
+            INFO  [MemtableFlushWriter:880] 2017-02-11 00:17:43,946  Memtable.java:382 - Completed flushing /data/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/system-compactions_in_progress-tmp-ka-156640-Data.db (0.000KiB) for commitlog position ReplayPosition(segmentId=1486705955830, position=14267865)
+            INFO  [CompactionExecutor:749] 2017-02-11 00:17:43,975  CompactionTask.java:274 - Compacted 4 sstables to [/data/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/system-compactions_in_progress-ka-156639,].  444 bytes to 64 (~14% of original) in 48ms = 0.001272MB/s.  5 total partitions merged to 1.  Partition merge counts were {1:1, 2:2, }
+
+            INFO  [CompactionExecutor:810] 2017-02-11 01:42:30,054  CompactionTask.java:141 - Compacting [SSTableReader(path='/data/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/system-compactions_in_progress-ka-156701-Data.db'), SSTableReader(path='/data/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/system-compactions_in_progress-ka-156702-Data.db'), SSTableReader(path='/data/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/system-compactions_in_progress-ka-156703-Data.db'), SSTableReader(path='/data/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/system-compactions_in_progress-ka-156704-Data.db'), SSTableReader(path='/data/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/system-compactions_in_progress-ka-156700-Data.db'), SSTableReader(path='/data/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/system-compactions_in_progress-ka-156699-Data.db')]
+            INFO  [CompactionExecutor:809] 2017-02-11 01:42:30,095  ColumnFamilyStore.java:905 - Enqueuing flush of compactions_in_progress: 165 (0%) on-heap, 0 (0%) off-heap
+            INFO  [MemtableFlushWriter:914] 2017-02-11 01:42:30,096  Memtable.java:347 - Writing Memtable-compactions_in_progress@1885049902(0.008KiB serialized bytes, 1 ops, 0%/0% of on/off-heap limit)
+            INFO  [MemtableFlushWriter:914] 2017-02-11 01:42:30,097  Memtable.java:382 - Completed flushing /data/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/system-compactions_in_progress-tmp-ka-156706-Data.db (0.000KiB) for commitlog position ReplayPosition(segmentId=1486705955849, position=5679993)
+            INFO  [CompactionExecutor:807] 2017-02-11 01:42:30,119  ColumnFamilyStore.java:905 - Enqueuing flush of compactions_in_progress: 165 (0%) on-heap, 0 (0%) off-heap
+            INFO  [MemtableFlushWriter:916] 2017-02-11 01:42:30,119  Memtable.java:347 - Writing Memtable-compactions_in_progress@1191566985(0.008KiB serialized bytes, 1 ops, 0%/0% of on/off-heap limit)
+            INFO  [MemtableFlushWriter:916] 2017-02-11 01:42:30,122  Memtable.java:382 - Completed flushing /data/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/system-compactions_in_progress-tmp-ka-156707-Data.db (0.000KiB) for commitlog position ReplayPosition(segmentId=1486705955849, position=5680064)
+            INFO  [CompactionExecutor:810] 2017-02-11 01:42:30,129  CompactionTask.java:274 - Compacted 6 sstables to [/data/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/system-compactions_in_progress-ka-156705,].  993 bytes to 457 (~46% of original) in 73ms = 0.005970MB/s.  5 total partitions merged to 4.  Partition merge counts were {1:3, 2:1, }
+
+            Open SSTable event
+            INFO  [ValidationExecutor:2] 2017-02-11 00:00:29,417  SSTableReader.java:475 - Opening /data/cassandra/data/usprodrst/taxtype_31-699c56608e9a11e6953741bf7da4d7d7/snapshots/0213b9a0-f017-11e6-a2c9-555b697ee5b0/usprodrst-taxtype_31-ka-33 (14170 bytes)
+
+            Reversed
+            INFO  [MemtableFlushWriter:2168] 2017-02-11 23:59:52,790  Memtable.java:382 - Completed flushing /data/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/system-compactions_in_progress-tmp-ka-159454-Data.db (0.000KiB) for commitlog position ReplayPosition(segmentId=1486705956468, position=30163060)
+            INFO  [MemtableFlushWriter:2165] 2017-02-11 23:59:52,790  Memtable.java:347 - Writing Memtable-compactions_in_progress@561831731(0.173KiB serialized bytes, 9 ops, 0%/0% of on/off-heap limit)
+
+        */
+
 
         private LogCassandraEvent PorcessMatch(ILogMessage logMessage, Tuple<Regex, Match, Regex, Match, CLogLineTypeParser> matchItem)
         {
@@ -149,7 +186,6 @@ namespace DSEDiagnosticFileParser
                 UpdateMatchProperties(matchItem.Item3, matchItem.Item4, logProperties);
             }
 
-            string subClass = matchItem.Item5.SubClass ?? logProperties.TryGetValue("SUBCLASS")?.ToString();
             string logId = logProperties.TryGetValue("ID")?.ToString();
             object objDuration = logProperties.TryGetValue("DURATION");
             UnitOfMeasure duration = objDuration is UnitOfMeasure
@@ -163,10 +199,11 @@ namespace DSEDiagnosticFileParser
 
             var keyspaceName = (string) logProperties.TryGetValue("KEYSPACE");
             var ddlName = (string)logProperties.TryGetValue("DDLITEMNAME");
-            var sstableFilePath = logProperties.TryGetValue("SSTABLEPATH") as string;
+            var sstableFilePath = (string) logProperties.TryGetValue("SSTABLEPATH");
             var keyspaceNames = TurnPropertyIntoCollection(logProperties, "KEYSPACES");
             var ddlNames = TurnPropertyIntoCollection(logProperties, "DDLITEMNAMES");
-            var sstableFilePaths = TurnPropertyIntoCollection(logProperties, "SSTABLEPATHS");
+            var sstableFilePaths = TurnPropertyIntoCollection(logProperties, "SSTABLEPATHS")
+                                    ?.DuplicatesRemoved(p => p);
             EventClasses eventClass = matchItem.Item5.EventClass;
 
             IKeyspace primaryKS = string.IsNullOrEmpty(keyspaceName)
@@ -177,7 +214,8 @@ namespace DSEDiagnosticFileParser
                                                             ? null
                                                             : keyspaceNames
                                                                     .Select(k => this._dcKeyspaces.FirstOrDefault(ki => ki.Equals(k)))
-                                                                    .Where(k => k != null);
+                                                                    .Where(k => k != null)
+                                                                    .DuplicatesRemoved(k => k.FullName);
             IEnumerable<IDDLStmt> ddlInstances = null;
             IEnumerable<INode> assocatedNodes = null;
             IEnumerable<DSEInfo.TokenRangeInfo> tokenRanges = null;
@@ -185,68 +223,15 @@ namespace DSEDiagnosticFileParser
                                 .Where(e => e.Type == EventTypes.SessionBegin
                                                 && (logMessage.LogDateTimewTZOffset >= e.EventTime
                                                         && (!e.EventTimeEnd.HasValue
-                                                                || logMessage.LogDateTimewTZOffset <= e.EventTimeEnd.Value)));
+                                                                || logMessage.LogDateTimewTZOffset <= e.EventTimeEnd.Value)))
+                                    .ToList();
             string sessionKey = null;
             LogCassandraEvent sessionEvent = null;
+            List<LogCassandraEvent> sessionEventList = null;
             var eventType = matchItem.Item5.EventType;
+            bool orphanedSession = false;
 
-            #region Session Instance
-            if(eventType == EventTypes.SessionBeginOrItem)
-            {
-                sessionEvent = matchItem.Item5.DetermineOpenSession(this.Cluster,
-                                                                    this.Node,
-                                                                    primaryKS,
-                                                                    logProperties,
-                                                                    logMessage,
-                                                                    this._sessionEvents,
-                                                                    this._openSessions);
-
-                if(sessionEvent == null)
-                {
-                    eventType = EventTypes.SessionBegin;
-                }
-                else
-                {
-                    eventType = EventTypes.SessionItem;
-                }
-            }
-
-            if (eventType == EventTypes.SessionBegin)
-            {
-                sessionKey = matchItem.Item5.DetermineSessionKey(this.Cluster,
-                                                                    this.Node,
-                                                                    primaryKS,
-                                                                    logProperties,
-                                                                    logMessage,
-                                                                    this._sessionEvents,
-                                                                    this._openSessions);
-            }
-            else if(sessionEvent == null && (eventType & EventTypes.SessionItem) != 0)
-            {
-                sessionEvent = matchItem.Item5.DetermineOpenSession(this.Cluster,
-                                                                    this.Node,
-                                                                    primaryKS,
-                                                                    logProperties,
-                                                                    logMessage,
-                                                                    this._sessionEvents,
-                                                                    this._openSessions);
-            }
-            #endregion
             #region Determine Keyspace/DDLs
-            if(primaryKS == null)
-            {
-                if(keyspaceInstances == null || keyspaceInstances.IsEmpty())
-                {
-                    if(sessionEvent != null)
-                    {
-                        primaryKS = sessionEvent.Keyspace;
-                    }
-                }
-                else
-                {
-                    primaryKS = keyspaceInstances.First();
-                }
-            }
 
             if (ddlNames != null && ddlNames.HasAtLeastOneElement())
             {
@@ -259,18 +244,25 @@ namespace DSEDiagnosticFileParser
 
                 if (primaryKS == null)
                 {
-                    ddlInstances = ddlNames.SelectMany(d => this.DataCenter.Keyspaces.Select(k => k.TryGetDDL(d))).Where(d => d != null);
+                    ddlInstances = ddlNames.SelectMany(d => this.DataCenter.Keyspaces.Select(k => k.TryGetDDL(d)))
+                                    .Where(d => d != null)
+                                    .DuplicatesRemoved(d => d.FullName);
                 }
                 else
                 {
-                    ddlInstances = ddlNames.Select(d => primaryKS.TryGetDDL(d)).Where(d => d != null);
+                    ddlInstances = ddlNames.Select(d => primaryKS.TryGetDDL(d))
+                                    .Where(d => d != null)
+                                    .DuplicatesRemoved(d => d.FullName);
                 }
             }
-            else if (!string.IsNullOrEmpty(ddlName))
+
+            if (!string.IsNullOrEmpty(ddlName))
             {
                 if (primaryKS == null)
                 {
-                    ddlInstances = this.DataCenter.Keyspaces.Select(k => k.TryGetDDL(ddlName)).Where(d => d != null);
+                    ddlInstances = this.DataCenter.Keyspaces.Select(k => k.TryGetDDL(ddlName))
+                                        .Where(d => d != null)
+                                        .DuplicatesRemoved(d => d.FullName);
                 }
                 else
                 {
@@ -284,6 +276,28 @@ namespace DSEDiagnosticFileParser
             if(!string.IsNullOrEmpty(ddlName))
             {
                 primaryDDL = ddlInstances.FirstOrDefault(d => d.Name == ddlName);
+
+                if(primaryKS == null && primaryDDL != null)
+                {
+                    primaryKS = primaryDDL.Keyspace;
+                }
+            }
+
+            if(primaryKS == null)
+            {
+                if(keyspaceInstances != null && keyspaceInstances.HasAtLeastOneElement())
+                {
+                    var fndKS = keyspaceInstances.First();
+
+                    if(keyspaceInstances.All(k => k.Equals(fndKS)))
+                    {
+                        primaryKS = fndKS;
+                    }
+                }
+            }
+            if(primaryDDL != null && primaryKS == null)
+            {
+                primaryKS = primaryDDL.Keyspace;
             }
 
             if (!string.IsNullOrEmpty(sstableFilePath))
@@ -294,21 +308,27 @@ namespace DSEDiagnosticFileParser
                 }
                 else
                 {
-                    sstableFilePaths = new List<string>(sstableFilePaths);
-                    ((List<string>)sstableFilePaths).Add(StringHelpers.RemoveQuotes(sstableFilePath));
+                    if (!sstableFilePaths.Contains(sstableFilePath = StringHelpers.RemoveQuotes(sstableFilePath)))
+                    {
+                        sstableFilePaths = new List<string>(sstableFilePaths);
+                        ((List<string>)sstableFilePaths).Add(sstableFilePath);
+                    }
                 }
             }
             #endregion
             #region Assocated Nodes
             {
-                var assocNode = logProperties.TryGetValue("NODE") as string;
+                var nodeItem = logProperties.TryGetValue("NODE");
+                var assocNode = nodeItem is string ? (string) nodeItem : nodeItem?.ToString();
                 var assocNodes = TurnPropertyIntoCollection(logProperties, "NODES");
 
                 if (string.IsNullOrEmpty(assocNode))
                 {
                     if(assocNodes != null)
                     {
-                        assocatedNodes = assocNodes.Select(n => this.Cluster.TryGetNode(n)).Where(n => n != null);
+                        assocatedNodes = assocNodes.Select(n => this.Cluster.TryGetNode(n))
+                                            .Where(n => n != null)
+                                            .DuplicatesRemoved(n => n);
                     }
                 }
                 else
@@ -322,7 +342,9 @@ namespace DSEDiagnosticFileParser
                         var assocNodesList = new List<string>(assocNodes);
                         assocNodesList.Add(assocNode);
 
-                        assocatedNodes = assocNodesList.Select(n => this.Cluster.TryGetNode(n)).Where(n => n != null);
+                        assocatedNodes = assocNodesList.Select(n => this.Cluster.TryGetNode(n))
+                                            .Where(n => n != null)
+                                            .DuplicatesRemoved(n => n);
                     }
                 }
             }
@@ -359,37 +381,137 @@ namespace DSEDiagnosticFileParser
             #region Determine primary Keyspace (if missing) and/or DDLs from SSTables
             if(sstableFilePaths != null && sstableFilePaths.HasAtLeastOneElement())
             {
-                var ddlFromSSTables = sstableFilePaths.Select(f => StringHelpers.ParseSSTableFileIntoKSTableNames(f))
-                                                        .Where(i => i != null);
-                var ddlItems = ddlFromSSTables.Select(i => Cluster.TryGetTableIndexViewbyString(i.Item1, this.Cluster.Name, i.Item2))
+                var ddlItems = sstableFilePaths.Select(i => Cluster.TryGetTableIndexViewbyString(i, this.Cluster.Name))
                                                 .Where(i => i != null);
-                if(ddlName.HasAtLeastOneElement())
+                if(ddlItems.HasAtLeastOneElement())
                 {
                     if(ddlInstances == null || ddlInstances.IsEmpty())
                     {
-                        ddlInstances = ddlItems;
+                        ddlInstances = ddlItems.DuplicatesRemoved(d => d.FullName);
                     }
                     else
                     {
-                        ddlInstances = ddlInstances.Append(ddlItems.ToArray());
+                        ddlInstances = ddlInstances.Append(ddlItems.ToArray()).DuplicatesRemoved(d => d.FullName);
                     }
                 }
+            }
 
-                if(primaryKS == null && ddlInstances != null)
+            if (ddlInstances != null && ddlInstances.HasAtLeastOneElement())
+            {
+                if (primaryKS == null)
                 {
-                    var firstKS = ddlInstances.FirstOrDefault()?.Keyspace.FullName;
+                    var firstKS = ddlInstances.First()?.Keyspace.FullName;
 
-                    if(firstKS != null)
+                    if (ddlInstances.All(k => k.Keyspace.FullName == firstKS))
                     {
-                        if(ddlInstances.All(k => k.FullName == firstKS))
-                        {
-                            primaryKS = ddlInstances.First().Keyspace;
-                        }
+                        primaryKS = ddlInstances.First().Keyspace;
+                    }
+                }
+                if (primaryDDL == null)
+                {
+                    var firstDDL = ddlInstances.First()?.FullName;
+
+                    if (ddlInstances.All(k => k.FullName == firstDDL))
+                    {
+                        primaryDDL = ddlInstances.First();
                     }
                 }
             }
             #endregion
-            LogCassandraEvent logEvent = null;
+
+            string subClass = matchItem.Item5.DetermineSubClass(this.Cluster,
+                                                                            this.Node,
+                                                                            primaryKS,
+                                                                            logProperties,
+                                                                            logMessage)
+                                        ?? logProperties.TryGetValue("SUBCLASS")?.ToString();
+
+            #region Session Instance
+
+            if ((eventType & EventTypes.SessionItem) != 0)
+            {
+                sessionKey = matchItem.Item5.DetermineSessionKey(this.Cluster,
+                                                                    this.Node,
+                                                                    primaryKS,
+                                                                    logProperties,
+                                                                    logMessage);
+
+                if (sessionKey != null)
+                {
+                    sessionEventList = this._openSessions.Find(s => s.Item1 == sessionKey)?.Item2;
+
+                    if (eventType == EventTypes.SessionBeginOrItem)
+                    {
+                        if (sessionEventList == null)
+                        {
+                            eventType = EventTypes.SessionBegin;
+                        }
+                        else
+                        {
+                            eventType = EventTypes.SessionItem;
+                        }
+                    }
+
+                    if ((eventType & EventTypes.SessionBegin) != 0)
+                    {
+                        if (primaryKS == null && sessionEventList != null && sessionEventList.HasAtLeastOneElement())
+                        {
+                           primaryKS = sessionEventList.First().Keyspace;
+                        }
+                    }
+                    else
+                    {
+                        sessionEvent = sessionEventList?.LastOrDefault();
+
+                        if (sessionEvent != null)
+                        {
+                            if(primaryKS == null) primaryKS = sessionEvent.Keyspace;
+                            logId = sessionEvent.Id.ToString();
+                        }
+                    }                    
+                }
+
+                if (sessionEvent == null
+                        && sessionKey == null
+                        && sessionEventList == null)
+                {
+                    orphanedSession = true;
+                    eventClass |= EventClasses.Orphaned;
+                }
+            }
+
+            //Session GUID
+            {
+                var sessionIdKey = matchItem.Item5.DetermineSessionIdKey(this.Cluster,
+                                                                            this.Node,
+                                                                            primaryKS,
+                                                                            logProperties,
+                                                                            logMessage);
+
+                if(sessionIdKey != null)
+                {
+                    if((eventType & EventTypes.SessionId) != 0)
+                    {
+                        if (string.IsNullOrEmpty(logId)) logId = Guid.NewGuid().ToString();
+                        if(this._sessionLogIds.ContainsKey(sessionIdKey))
+                        {
+                            this._sessionLogIds[sessionIdKey] = logId;
+                        }
+                        else
+                        {
+                            this._sessionLogIds.Add(sessionIdKey, logId);
+                        }
+
+                        eventType = EventTypes.SessionItemInfo;
+                    }
+                    else
+                    {
+                        this._sessionLogIds.TryGetValue(sessionIdKey, out logId);
+                    }
+                }
+            }
+
+            #endregion
             #region Log Level
             switch (logMessage.Level)
             {
@@ -419,14 +541,12 @@ namespace DSEDiagnosticFileParser
             }
             #endregion
 
-            if(sessionEvent == null)
-            {
-                if (eventType == EventTypes.SessionItem)
-                {
-                    eventType = EventTypes.SessionBegin;
-                }
+            LogCassandraEvent logEvent = null;
 
-                if (eventType != EventTypes.SessionBegin && eventDurationTime.HasValue)
+            #region Generate Log Event
+            if (sessionEvent == null)
+            {
+                if ((eventType & EventTypes.SessionBegin) == 0 && eventDurationTime.HasValue)
                 {
                     logEvent = new LogCassandraEvent(this.File,
                                                         this.Node,
@@ -439,18 +559,19 @@ namespace DSEDiagnosticFileParser
                                                         eventType,
                                                         logId,
                                                         subClass,
-                                                        parentEvents.Select(i => i.Id),
+                                                        parentEvents,
                                                         this.Node.Machine.TimeZone,
                                                         primaryKS,
                                                         primaryDDL,
                                                         logProperties,
-                                                        sstableFilePaths?.DuplicatesRemoved(s => s),
-                                                        ddlInstances?.DuplicatesRemoved(d => d.FullName),
-                                                        assocatedNodes?.DuplicatesRemoved(s => s.Id),
-                                                        tokenRanges?.DuplicatesRemoved(t => t),
+                                                        sstableFilePaths,
+                                                        ddlInstances,
+                                                        assocatedNodes,
+                                                        tokenRanges,
+                                                        sessionKey ?? sessionEvent?.SessionTieOutId,
                                                         matchItem.Item5.Product);
                 }
-                else if (eventType != EventTypes.SessionBegin && duration != null)
+                else if ((eventType & EventTypes.SessionBegin) == 0 && duration != null)
                 {
                     logEvent = new LogCassandraEvent(this.File,
                                                         this.Node,
@@ -463,15 +584,16 @@ namespace DSEDiagnosticFileParser
                                                         eventType,
                                                         logId,
                                                         subClass,
-                                                        parentEvents.Select(i => i.Id),
+                                                        parentEvents,
                                                         this.Node.Machine.TimeZone,
                                                         primaryKS,
                                                         primaryDDL,
                                                         logProperties,
-                                                        sstableFilePaths?.DuplicatesRemoved(s => s),
-                                                        ddlInstances?.DuplicatesRemoved(d => d.FullName),
-                                                        assocatedNodes?.DuplicatesRemoved(s => s.Id),
-                                                        tokenRanges?.DuplicatesRemoved(t => t),
+                                                        sstableFilePaths,
+                                                        ddlInstances,
+                                                        assocatedNodes,
+                                                        tokenRanges,
+                                                        sessionKey ?? sessionEvent?.SessionTieOutId,
                                                         matchItem.Item5.Product);
                 }
                 else
@@ -486,28 +608,28 @@ namespace DSEDiagnosticFileParser
                                                         eventType,
                                                         logId,
                                                         subClass,
-                                                        parentEvents.Select(i => i.Id),
+                                                        parentEvents,
                                                         this.Node.Machine.TimeZone,
                                                         primaryKS,
                                                         primaryDDL,
                                                         (TimeSpan?)duration,
                                                         logProperties,
-                                                        sstableFilePaths?.DuplicatesRemoved(s => s),
-                                                        ddlInstances?.DuplicatesRemoved(d => d.FullName),
-                                                        assocatedNodes?.DuplicatesRemoved(s => s.Id),
-                                                        tokenRanges?.DuplicatesRemoved(t => t),
+                                                        sstableFilePaths,
+                                                        ddlInstances,
+                                                        assocatedNodes,
+                                                        tokenRanges,
+                                                        sessionKey ?? sessionEvent?.SessionTieOutId,
                                                         matchItem.Item5.Product);
 
-                    if(logEvent.Type == EventTypes.SessionBegin)
+                    if ((logEvent.Type & EventTypes.SessionBegin) != 0)
                     {
-                        this._sessionEvents.Add(logEvent);
-                        this._openSessions.Add(new Tuple<string,LogCassandraEvent>(sessionKey, logEvent));
+                        this.AddNewSessionToOpenSessions(logEvent, sessionEventList, sessionKey);
                     }
                 }
             }
             else
             {
-                if (eventType == EventTypes.SessionEnd)
+                if ((eventType & EventTypes.SessionEnd) != 0)
                 {
                     logEvent = new LogCassandraEvent(this.File,
                                                         this.Node,
@@ -520,19 +642,21 @@ namespace DSEDiagnosticFileParser
                                                         eventType,
                                                         logId,
                                                         subClass,
-                                                        parentEvents.Select(i => i.Id),
+                                                        parentEvents,
                                                         this.Node.Machine.TimeZone,
                                                         primaryKS,
                                                         primaryDDL,
                                                         logProperties,
-                                                        sstableFilePaths?.DuplicatesRemoved(s => s),
-                                                        ddlInstances?.DuplicatesRemoved(d => d.FullName),
-                                                        assocatedNodes?.DuplicatesRemoved(s => s.Id),
-                                                        tokenRanges?.DuplicatesRemoved(t => t),
+                                                        sstableFilePaths,
+                                                        ddlInstances,
+                                                        assocatedNodes,
+                                                        tokenRanges,
+                                                        sessionKey ?? sessionEvent?.SessionTieOutId,
                                                         matchItem.Item5.Product);
 
                     sessionEvent.UpdateEndingTimeStamp(logMessage.LogDateTime);
-                    this._openSessions.RemoveAll(s => s.Item1 == sessionKey);
+
+                    this.RemoveSessionFromOpenSessions(logEvent, sessionEventList, sessionKey, sessionEvent);
                 }
                 else
                 {
@@ -546,21 +670,122 @@ namespace DSEDiagnosticFileParser
                                                         eventType,
                                                         logId,
                                                         subClass,
-                                                        parentEvents.Select(i => i.Id),
+                                                        parentEvents,
                                                         this.Node.Machine.TimeZone,
                                                         primaryKS,
                                                         primaryDDL,
                                                         (TimeSpan?)duration,
                                                         logProperties,
-                                                        sstableFilePaths?.DuplicatesRemoved(s => s),
-                                                        ddlInstances?.DuplicatesRemoved(d => d.FullName),
-                                                        assocatedNodes?.DuplicatesRemoved(s => s.Id),
-                                                        tokenRanges?.DuplicatesRemoved(t => t),
+                                                        sstableFilePaths,
+                                                        ddlInstances,
+                                                        assocatedNodes,
+                                                        tokenRanges,
+                                                        sessionKey ?? sessionEvent?.SessionTieOutId,
                                                         matchItem.Item5.Product);
+                }
+            }
+            #endregion
+
+            if (logEvent != null)
+            {
+                if ((logEvent.Type & EventTypes.SessionItem) != 0)
+                {
+                    if(orphanedSession && this._priorSessionLineTick.LogTick == logEvent.EventTimeLocal)
+                    {
+                        var checkSessionKey = logEvent.SessionTieOutId ?? matchItem.Item5.DetermineSessionKey(this.Cluster,
+                                                                                                                this.Node,
+                                                                                                                primaryKS,
+                                                                                                                logProperties,
+                                                                                                                logMessage);
+
+                        if (this._priorSessionLineTick.CurrentSession.Type == EventTypes.SessionEnd
+                                && checkSessionKey == this._priorSessionLineTick.CurrentSession.SessionTieOutId)
+                        {
+                            if((logEvent.Type & EventTypes.SessionBegin) != 0)
+                            {
+                                if(this._priorSessionLineTick.CurrentSession.FixSessionEvent(logEvent))
+                                {
+                                    orphanedSession = false;
+                                }
+                            }
+                            else if(logEvent.FixSessionEvent(this._priorSessionLineTick.CurrentSession))
+                            {
+                                orphanedSession = false;
+                            }
+                        }
+                    }
+
+                    if ((logEvent.Type & EventTypes.SessionEnd) != 0)
+                    {
+                        this._priorSessionLineTick.LogTick = logEvent.EventTimeLocal;
+                        this._priorSessionLineTick.CurrentSession = logEvent;
+                    }
+                }
+
+                if (orphanedSession)
+                {
+                    OrphanedSessionEvents.Add(logEvent);
                 }
             }
 
             return logEvent;
+        }
+
+        private void AddNewSessionToOpenSessions(LogCassandraEvent logEvent,
+                                                    List<LogCassandraEvent> sessionEventList,
+                                                    string sessionKey)
+        {
+            this._sessionEvents.Add(logEvent);
+            if (sessionEventList == null)
+            {
+                this._openSessions.Add(new Tuple<string, List<LogCassandraEvent>>(sessionKey, new List<LogCassandraEvent>() { logEvent }));
+            }
+            else
+            {
+                sessionEventList.Add(logEvent);
+            }
+        }
+
+        private void RemoveSessionFromOpenSessions(LogCassandraEvent logEvent,
+                                                        List<LogCassandraEvent> sessionEventList,
+                                                        string sessionKey,
+                                                        LogCassandraEvent sessionEvent)
+        {
+            if (sessionEventList == null || sessionEventList.Count < 2)
+            {
+                this._openSessions.RemoveAt(this._openSessions.FindIndex(s => s.Item1 == (sessionKey ?? sessionEvent.SessionTieOutId)));
+            }
+            else
+            {
+                sessionEventList.Remove(sessionEvent);
+            }
+
+            /*
+            if (logEvent.Class == EventClasses.MemtableFlush && logEvent.TableViewIndex != null)
+            {
+                var compactionList = this._openSessions.LastOrDefault(c => c.Item2.HasAtLeastOneElement()
+                                                                        && c.Item2.First().Class == EventClasses.Compaction
+                                                                        && c.Item2.Any(i => i.TableViewIndex != null
+                                                                                                && i.TableViewIndex.Equals(logEvent.TableViewIndex)));
+                if (compactionList != null)
+                {
+                    var compaction = compactionList.Item2.LastOrDefault(c => sessionEvent.EventTime <= c.EventTime);
+
+                    if (compaction != null)
+                    {
+                        compaction.UpdateEndingTimeStamp(logEvent.EventTimeLocal);
+
+                        if (compactionList.Item2.Count < 2)
+                        {
+                            this._openSessions.RemoveAt(this._openSessions.FindIndex(s => s.Item1 == compaction.SessionTieOutId));
+                        }
+                        else
+                        {
+                            compactionList.Item2.Remove(compaction);
+                        }
+                    }
+                }
+            }*/
         }
 
         private static void UpdateMatchProperties(Regex matchRegEx, Match matchItem, Dictionary<string, object> logProperties)
@@ -588,7 +813,7 @@ namespace DSEDiagnosticFileParser
 
                     var groupInstance = matchItem.Groups[groupName];
 
-                    if (groupInstance.Captures.Count == 0)
+                    if (groupInstance.Captures.Count <= 1)
                     {
                         logProperties.TryAddValue(normalizedGroupName,
                                                     StringHelpers.DetermineProperObjectFormat(matchItem.Groups[groupName].Value,
@@ -602,7 +827,7 @@ namespace DSEDiagnosticFileParser
                     {
                         var groupCaptures = new List<object>(groupInstance.Captures.Count);
 
-                        foreach(Group capture in groupInstance.Captures)
+                        foreach(Capture capture in groupInstance.Captures)
                         {
                             groupCaptures.Add(StringHelpers.DetermineProperObjectFormat(capture.Value,
                                                                                             true,
@@ -628,8 +853,12 @@ namespace DSEDiagnosticFileParser
                 {
                     return new List<string>() { (string)propValue };
                 }
+                else if(propValue is IEnumerable<object>)
+                {
+                    return ((IEnumerable<object>)propValue).Select(o => o.ToString());
+                }
 
-                return propValue as IEnumerable<string>;
+                return new List<string>() { propValue.ToString() };
             }
 
             return null;
