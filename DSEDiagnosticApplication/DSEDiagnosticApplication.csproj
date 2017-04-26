@@ -83,6 +83,18 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <None Include="..\DSEDiagnosticFileParser\Json\DiagnosticFileRegExAssocations.json">
+      <Link>DiagnosticFileRegExAssocations.json</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\DSEDiagnosticFileParser\Json\Log4NetParser.json">
+      <Link>Log4NetParser.json</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\DSEDiagnosticFileParser\Json\ProcessFileMappings.json">
+      <Link>ProcessFileMappings.json</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

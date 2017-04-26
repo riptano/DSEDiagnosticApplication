@@ -47,32 +47,41 @@ namespace DSEDiagnosticFileParser
                 return default(T);
             }
 
-            if(jsonStringOrFile[0] == '{' || jsonStringOrFile.IndexOf('{') > 0)
+            try
             {
-                return JsonConvert.DeserializeObject<T>(jsonStringOrFile);
-            }
 
-            IFilePath jsonPath = null;
-
-            foreach (var filePath in jsonStringOrFile.Split(','))
-            {
-                jsonPath = Common.Path.PathUtils.BuildFilePath(filePath);
-
-                if(jsonPath.Exist())
+                if (jsonStringOrFile[0] == '{' || jsonStringOrFile.IndexOf('{') > 0)
                 {
-                    break;
+                    return JsonConvert.DeserializeObject<T>(jsonStringOrFile);
                 }
-                jsonPath = null;
-            }
 
-            if (jsonPath == null)
+                IFilePath jsonPath = null;
+
+                foreach (var filePath in jsonStringOrFile.Split(','))
+                {
+                    jsonPath = Common.Path.PathUtils.BuildFilePath(filePath);
+
+                    if (jsonPath.Exist())
+                    {
+                        break;
+                    }
+                    jsonPath = null;
+                }
+
+                if (jsonPath == null)
+                {
+                    throw new System.IO.FileNotFoundException("Json File Path was not found.", jsonStringOrFile);
+                }
+
+                var jsonString = jsonPath.ReadAllText();
+
+                return ReadJsonFileIntoObject<T>(jsonString);
+            }
+            catch (Exception e)
             {
-                throw new ArgumentException(string.Format("Invalid Json Value or File Path. Value is: \"{0}\"", jsonStringOrFile), "jsonStringOrFile");
+                Logger.Instance.Error(string.Format("Invalid Json Value or File Path. Value is: \"{0}\"", jsonStringOrFile), e);
+                throw;
             }
-
-            var jsonString = jsonPath.ReadAllText();
-
-            return ReadJsonFileIntoObject<T>(jsonString);
         }
     }
 }
