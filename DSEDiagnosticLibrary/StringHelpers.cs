@@ -294,7 +294,7 @@ namespace DSEDiagnosticLibrary
         /// </summary>
         /// <param name="sstableFilePath"></param>
         /// <returns>
-        /// null if the sstableFilePath is not a vlaid sstable path format
+        /// null if the sstableFilePath is not a valid sstable path format
         /// a tuple where
         ///     Item1 -- keyspace name
         ///     Item2 -- table name
@@ -321,6 +321,71 @@ namespace DSEDiagnosticLibrary
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Removes all inline comments (begins with /* and ends with */) within a string.
+        /// </summary>
+        /// <param name="strValue"></param>
+        /// <param name="newValue">
+        /// outputs the new string. 
+        /// </param>
+        /// <param name="startIndex">
+        /// if negative, the complete string is scanned.
+        /// </param>
+        /// <param name="removePartial">
+        /// if true (default false) and if a string only has one side of the delimiter, that side comment is removed.  
+        /// </param>
+        /// <returns>
+        /// 0 -- no inline comments found and newString is the same as strValue.
+        /// 1 -- a complete inline comment(s) found and removed or an ending delimiter found and removePartial is true.
+        /// -1 -- an beginning inline comment found (no end delimiter found) and may have been removed depending on removePartial
+        /// </returns>
+        static public int RemoveInLineComment(string strValue, out string newValue, int startIndex = -1, bool removePartial = false)
+        {
+            int nResult = 0;
+            newValue = strValue;
+
+            var startComment = startIndex > 0 ? strValue.LastIndexOf(@"/*", startIndex) : strValue.LastIndexOf(@"/*");
+
+            if (startComment >= 0)
+            {
+                var endComment = strValue.IndexOf(@"*/", startComment);
+
+                if (endComment < 0)
+                {
+                    if (removePartial)
+                    {
+                        newValue = strValue.Substring(0, startComment);
+                        RemoveInLineComment(newValue, out newValue, -1, removePartial);
+                    }
+
+                    return -1;
+                }
+
+                if (endComment + 2 < strValue.Length)
+                {
+                    newValue = (strValue.Substring(0, startComment) + " " + strValue.Substring(endComment + 2)).TrimEnd();
+                }
+                else
+                {
+                    newValue = strValue.Substring(0, startComment).TrimEnd();
+                }
+                
+                nResult = RemoveInLineComment(newValue, out newValue, -1, removePartial) == -1 ? -1 : 1;
+            }
+            else if (removePartial)
+            {
+                var endComment = strValue.IndexOf(@"*/");
+
+                if (endComment >= 0)
+                {
+                    newValue = endComment + 2 >= strValue.Length ? string.Empty : strValue.Substring(endComment + 2);
+                    nResult = RemoveInLineComment(newValue, out newValue, -1, removePartial) == -1 ? -1 : 1;                    
+                }
+            }
+
+            return nResult;
         }
     }
 }

@@ -141,11 +141,24 @@ namespace DSEDiagnosticFileParser
 
                 if (multipleLineComment)
                 {
-                    if (line.EndsWith(@"*/"))
+                    string newLine;
+                    int inlinecomment = StringHelpers.RemoveInLineComment(line, out newLine, -1, true);
+
+                    if (inlinecomment == 0)
+                    {
+                        continue;
+                    }
+                    else if (inlinecomment == 1)
                     {
                         multipleLineComment = false;
                     }
-                    continue;
+                    
+                    line = newLine.Trim();
+
+                    if (line == string.Empty)
+                    {
+                        continue;
+                    }                    
                 }
 
                 if (line.Length > 0)
@@ -159,28 +172,27 @@ namespace DSEDiagnosticFileParser
                     {
                         continue;
                     }
-                    var startComment = line.LastIndexOf(@"/*");
 
-                    if (startComment >= 0)
                     {
-                        var endComment = line.Substring(startComment + 1).LastIndexOf(@"*/");
+                        string newLine;
+                        int inlinecomment = StringHelpers.RemoveInLineComment(line, out newLine, -1, true);
 
-                        if (endComment < 0)
+                        if (inlinecomment != 0)
                         {
-                            multipleLineComment = true;
-                            continue;
-                        }
+                            if (inlinecomment == -1)
+                            {
+                                multipleLineComment = true;
+                            }
 
-                        if (endComment + 2 < line.Length)
-                        {
-                            line = (line.Substring(0, startComment) + " " + line.Substring(endComment + 2)).TrimEnd();
-                        }
-                        else
-                        {
-                            line = line.Substring(0, startComment).TrimEnd();
+                            line = newLine.Trim();
+
+                            if (line == string.Empty)
+                            {
+                                continue;
+                            }
                         }
                     }
-
+                    
                     strCQL.Append(line + " ");
 
                     if (line.TrimEnd().Last() == ';')
