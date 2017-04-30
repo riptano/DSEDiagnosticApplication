@@ -52,7 +52,10 @@ namespace DSEDiagnosticFileParser
 
                 if (jsonStringOrFile[0] == '{' || jsonStringOrFile.IndexOf('{') > 0)
                 {
-                    return JsonConvert.DeserializeObject<T>(jsonStringOrFile);
+                    string removeComments;
+                    DSEDiagnosticLibrary.StringHelpers.RemoveInLineComment(jsonStringOrFile, out removeComments);
+
+                    return JsonConvert.DeserializeObject<T>(removeComments);
                 }
 
                 IFilePath jsonPath = null;
@@ -73,7 +76,8 @@ namespace DSEDiagnosticFileParser
                     throw new System.IO.FileNotFoundException("Json File Path was not found.", jsonStringOrFile);
                 }
 
-                var jsonString = jsonPath.ReadAllText();
+                string jsonString;
+                DSEDiagnosticLibrary.StringHelpers.RemoveInLineComment(jsonPath.ReadAllText(), out jsonString);
 
                 return ReadJsonFileIntoObject<T>(jsonString);
             }

@@ -173,7 +173,7 @@ namespace DSEDiagnosticLibrary
                 {
                     return dt;
                 }
-                
+
                 const DateTimeStyles style = DateTimeStyles.AllowWhiteSpaces;
                 if (DateTime.TryParseExact(strValue, DateTimeFormats,
                                             CultureInfo.InvariantCulture, style, out dt))
@@ -249,7 +249,7 @@ namespace DSEDiagnosticLibrary
             }
 
             if(UOMRegEx.IsMatch(strValue))
-            {                
+            {
                 var uom = UnitOfMeasure.Create(strValue);
 
                 if (uom != null && uom.UnitType != UnitOfMeasure.Types.Unknown)
@@ -328,13 +328,13 @@ namespace DSEDiagnosticLibrary
         /// </summary>
         /// <param name="strValue"></param>
         /// <param name="newValue">
-        /// outputs the new string. 
+        /// outputs the new string.
         /// </param>
         /// <param name="startIndex">
         /// if negative, the complete string is scanned.
         /// </param>
         /// <param name="removePartial">
-        /// if true (default false) and if a string only has one side of the delimiter, that side comment is removed.  
+        /// if true (default false) and if a string only has one side of the delimiter, that side comment is removed.
         /// </param>
         /// <returns>
         /// 0 -- no inline comments found and newString is the same as strValue.
@@ -371,7 +371,7 @@ namespace DSEDiagnosticLibrary
                 {
                     newValue = strValue.Substring(0, startComment).TrimEnd();
                 }
-                
+
                 nResult = RemoveInLineComment(newValue, out newValue, -1, removePartial) == -1 ? -1 : 1;
             }
             else if (removePartial)
@@ -381,7 +381,7 @@ namespace DSEDiagnosticLibrary
                 if (endComment >= 0)
                 {
                     newValue = endComment + 2 >= strValue.Length ? string.Empty : strValue.Substring(endComment + 2);
-                    nResult = RemoveInLineComment(newValue, out newValue, -1, removePartial) == -1 ? -1 : 1;                    
+                    nResult = RemoveInLineComment(newValue, out newValue, -1, removePartial) == -1 ? -1 : 1;
                 }
             }
 

@@ -1,4 +1,222 @@
-﻿{
+﻿/*
+  public sealed class RegExParseString
+  {
+      public readonly string[] RegExStrings;
+  }
+
+  [Flags]
+	public enum InstanceTypes
+	{
+		Unkown = 0,
+		Cassandra = 0x0001,
+		Search = 0x0002,
+		Analytics = 0x0004,
+		TT = 0x0008,
+		JT = 0x0010,
+    Graph = 0x0020,
+    AdvancedReplication = 0x0040,
+    Hadoop = 0x0080,
+    CFS = 0x0100,
+    Analytics_TT = Analytics | TT,
+		Analytics_JS = Analytics | JT
+	}
+
+  public sealed class CLogLineTypeParser
+  {
+	  /// <summary>
+	  /// If null any DSE version will match this mappings.
+	  /// If defined, any DSE version that is equal to or greater than this version will match this mapping.
+	  /// </summary>
+	  /// <example>
+	  /// Match Versions:
+	  ///     4.7.0
+	  ///     4.7.5
+	  ///     4.8.0
+	  ///     4.8.5
+	  ///     5.0.0
+	  /// DSE Version 4.8.12 -> 4.8.5
+	  ///             4.8.4  -> 4.8.0
+	  ///             4.8.0  -> 4.8.0
+	  /// </example>
+	  public Version MatchVersion
+
+	  /// <summary>
+	  /// RegEx used to match the log line's level. e.g., Debug, Info, Warn, Error, Fatal
+	  /// </summary>
+	  public RegExParseString LevelMatch
+
+	  /// <summary>
+	  /// Log line: INFO  [STREAM-INIT-/10.198.59.26:57796] 2017-01-16 13:34:17,782  StreamResultFuture.java:109 - [Stream #8cf4e000-dc33-11e6-acce-516f8727826c ID#0] Creating new streaming plan for Repair
+	  /// RegEx used to match the log line's Thread Id value. e.g.,  "STREAM-IN-/10.198.59.26 "
+	  /// </summary>
+	  public RegExParseString ThreadIdMatch
+
+	  /// <summary>
+	  /// Log line: INFO  [STREAM-INIT-/10.198.59.26:57796] 2017-01-16 13:34:17,782  StreamResultFuture.java:109 - [Stream #8cf4e000-dc33-11e6-acce-516f8727826c ID#0] Creating new streaming plan for Repair
+	  /// RegEx used to match the log line's file name value. e.g.,  "StreamResultFuture.java "
+	  /// </summary>
+	  public RegExParseString FileNameMatch
+
+	  /// <summary>
+	  /// Log line: INFO  [STREAM-INIT-/10.198.59.26:57796] 2017-01-16 13:34:17,782  StreamResultFuture.java:109 - [Stream #8cf4e000-dc33-11e6-acce-516f8727826c ID#0] Creating new streaming plan for Repair
+	  /// RegEx used to match the log line's file line position within the file name. e.g., 109
+	  /// </summary>
+	  public RegExParseString FileLineMatch
+
+	  /// <summary>
+	  /// Log line: INFO  [STREAM-INIT-/10.198.59.26:57796] 2017-01-16 13:34:17,782  StreamResultFuture.java:109 - [Stream #8cf4e000-dc33-11e6-acce-516f8727826c ID#0] Creating new streaming plan for Repair
+	  /// RegEx used to match the log line's message value. e.g., "[Stream #8cf4e000-dc33-11e6-acce-516f8727826c ID#0] Creating new streaming plan for Repair "
+	  /// </summary>
+	  public RegExParseString MessageMatch
+
+	  /// <summary>
+	  /// A RegEx that is used splits the log message into different components used to populate the LogCassandraEvent's LogProperties member property dictionary.
+	  /// The key is the RegEx named capture group or the capture group position. The dictionary value is the Captured group's value that is converted to the proper type.
+	  /// If named capture group is a unit of measure (not a date or time frame), the UOM can be defined by placing type after the name separated by an underscore.
+	  /// e.g., "(?<mygroupname_mb_sec>.+)" where the property key is "mygroupname" and the group's UOM type is a megabyte per second.
+	  ///
+	  /// There are special group names. They are:
+	  ///     "SUBCLASS&quot                                 -- this will map the capture group's value to property "SubClass" of LogCassandraEvent class
+	  ///     "ID"                                        -- this will map the capture group's value to property "Id" of LogCassandraEvent class. It must be a valid GUID.
+	  ///     "DURATION_xxx" or "DURATION"    	   -- this will map the capture group's value to property "Duration" of LogCassandraEvent class
+	  ///                                                             "xxx" is the time unit. If not provided the time unit must be part of the capture (e.g., "10 ms")
+	  ///     "EVENTDURATIONDATETIME"                   -- this will map the capture group's value to property "EventTimeDuration" and calaculates the "Duration" of the LogCassandraEvent class
+	  ///                                                             The value must be valid date-time syntax
+	  ///     "KEYSPACE"                                -- this will map the capture group's value to property "Keyspace" of the LogCassandraEvent class
+	  ///     "DDLITEMNAME"                             -- this will map the capture group's value to property "DDLItems" of the LogCassandraEvent class.
+	  ///                                                             This can be table, view, or index qualifier with optional keyspace qualifier. The separator can be a period or slash.
+	  ///     "SSTABLEPATH"                             -- this will be used to obtain the keyspace and DDL item plus map to the capture group's value to property "SSTables" of the LogCassandraEvent class
+	  ///     "NODE"                                    -- An IP Adress (can be IP4 or IP6) or a host name.
+	  ///     "KEYSPACES"                               -- A single or list of keyspaces (see KEYSPACE above)
+	  ///                                                             This is either a repeating capture group or a set of capture groups with the same name.
+	  ///     "DDLITEMNAMES"                            -- A single or list of DDL items (see DDLITEMNAME above)
+	  ///                                                             This is either a repeating capture group or a set of capture groups with the same name.
+	  ///     "SSTABLEPATHS"                            -- A single or list of sstable pathes (see SSTABLEPATHS above)
+	  ///                                                             This is either a repeating capture group or a set of capture groups with the same name.
+	  ///     "NODES"                                   -- A single or a list of nodes (see NODE above)
+	  ///                                                             This is either a repeating capture group or a set of capture groups with the same name.
+	  ///     "TOKENRANGE"                              -- A single pair (e.g., "(8464140199242376099,8468771495322313740]") or a list of tokens (e.g., "(8464140199242376099,8468771495322313740],(8501968907842620341,8530644509697221859]")
+	  ///                                                             This is either a repeating capture group or a set of capture groups with the same name.
+	  ///     "TOKENSTART" or "TOKENEND"      -- A single token (e.g., "8464140199242376099") or a list of tokens (e.g., "8464140199242376099,8468771495322313740,8501968907842620341,8530644509697221859")
+	  ///                                                             This is either a repeating capture group or a set of capture groups with the same name.
+	  /// </summary>
+	  /// <remarks>
+	  /// A collection of values can be defined by using a repeating capture group or a set of capture groups with the same capture group name.
+	  /// A RegEx examples:
+	  ///     RegEx: ^Compacting\s+\[(?:SSTableReader\(path=(?<SSTABLES>\'[a-z0-9._@\-/]+\')\s*\)\s*\,?\s*)+\]$
+	  ///     Returns a named capture group "SSTABLES" with a list of sstables:
+	  ///<code>
+	  ///         '/data/cassandra/data/usprodofrs/newoffer_3_2_10-70a332308e9a11e6953741bf7da4d7d7/usprodofrs-newoffer_3_2_10-ka-459576-Data.db'
+	  ///         '/data/cassandra/data/usprodofrs/newoffer_3_2_10-70a332308e9a11e6953741bf7da4d7d7/usprodofrs-newoffer_3_2_10-ka-459599-Data.db'
+	  ///         '/data/cassandra/data/usprodofrs/newoffer_3_2_10-70a332308e9a11e6953741bf7da4d7d7/usprodofrs-newoffer_3_2_10-ka-459573-Data.db'
+	  ///         '/data/cassandra/data/usprodofrs/newoffer_3_2_10-70a332308e9a11e6953741bf7da4d7d7/usprodofrs-newoffer_3_2_10-ka-459574-Data.db'
+	  ///         '/data/cassandra/data/usprodofrs/newoffer_3_2_10-70a332308e9a11e6953741bf7da4d7d7/usprodofrs-newoffer_3_2_10-ka-459590-Data.db'
+	  ///         '/data/cassandra/data/usprodofrs/newoffer_3_2_10-70a332308e9a11e6953741bf7da4d7d7/usprodofrs-newoffer_3_2_10-ka-459587-Data.db'
+	  ///         '/data/cassandra/data/usprodofrs/newoffer_3_2_10-70a332308e9a11e6953741bf7da4d7d7/usprodofrs-newoffer_3_2_10-ka-459559-Data.db'
+	  ///         '/data/cassandra/data/usprodofrs/newoffer_3_2_10-70a332308e9a11e6953741bf7da4d7d7/usprodofrs-newoffer_3_2_10-ka-459560-Data.db'
+	  ///         '/data/cassandra/data/usprodofrs/newoffer_3_2_10-70a332308e9a11e6953741bf7da4d7d7/usprodofrs-newoffer_3_2_10-ka-459558-Data.db'
+	  ///         '/data/cassandra/data/usprodofrs/newoffer_3_2_10-70a332308e9a11e6953741bf7da4d7d7/usprodofrs-newoffer_3_2_10-ka-459557-Data.db'
+	  ///         '/data/cassandra/data/usprodofrs/newoffer_3_2_10-70a332308e9a11e6953741bf7da4d7d7/usprodofrs-newoffer_3_2_10-ka-459567-Data.db'
+	  ///         '/data/cassandra/data/usprodofrs/newoffer_3_2_10-70a332308e9a11e6953741bf7da4d7d7/usprodofrs-newoffer_3_2_10-ka-459568-Data.db'
+	  ///         '/data/cassandra/data/usprodofrs/newoffer_3_2_10-70a332308e9a11e6953741bf7da4d7d7/usprodofrs-newoffer_3_2_10-ka-459566-Data.db'
+	  ///         '/data/cassandra/data/usprodofrs/newoffer_3_2_10-70a332308e9a11e6953741bf7da4d7d7/usprodofrs-newoffer_3_2_10-ka-459563-Data.db'
+	  ///</code>
+	  ///
+	  ///     RegEx: ^Compacting\s+\[SSTableReader\(path=(?<SSTABLES>\'[a-z0-9._@\-/]+\')\s*\)\s*\,\s*SSTableReader\(path=(?<SSTABLES>\'[a-z0-9._@\-/]+\')\s*\)\s*\,\s*(?:SSTableReader\(path=(?<SSTABLES>\'[a-z0-9._@\-/]+\')\s*\)\s*\,?\s*)+\]$
+	  ///     This RegEx string will product the same result as above even though three separate capture groups with the same name (SSTABLE) are defined.
+	  /// </remarks>
+	  public RegExParseString ParseMessage
+
+	  /// <summary>
+	  /// A RegEx that is used splits the log threadid into different components used to populate the LogCassandraEvent's LogProperties member property dictionary.
+	  /// The key is the RegEx named capture group or the capture group position. The dictionary value is the Captured group's value that is converted to the proper type.
+	  /// If named capture group is a unit of measure (not a date or time frame), the UOM can be defined by placing type after the name separated by an underscore.
+	  /// e.g., "(?<mygroupname_mb_sec>.+)" where the property key is "mygroupname" and the group's UOM type is a megabyte per second.
+	  ///
+	  /// There are special group names. They are:
+	  /// <see cref="ParseMessage"/>
+	  /// </summary>
+	  public RegExParseString ParseThreadId
+
+	  public EventTypes EventType
+
+	  public EventClasses EventClass
+
+	  /// <summary>
+	  /// e.g., Hint, Tombstone, etc. or null
+	  /// This takes the same values as <see cref="SessionKey"/>
+	  /// Callers should call the <see cref="DetermineSubClass(Cluster, INode, IKeyspace, IDictionary{string, object}, ILogMessage, IList{LogCassandraEvent}, IList{Tuple{string, List{LogCassandraEvent}}})"/> method to obtain the correct value.
+	  /// </summary>
+	  public string SubClass
+
+	  public DSEInfo.InstanceTypes Product
+
+	  /// <summary>
+	  /// This value is used to "tie" together timespan sessions between log lines/events. For beginning timespan events this is used to generate the Session Key.
+	  /// For middle/ending timespan events that is used to determine the TimespanBegin LogCassandraEvent instance so that the same event Id and other attributes are shared with the related sessions.
+	  ///
+	  /// If a keyword is used, the string value is used to create the session key or determine the LogCassandraEvent instance in the open sessions list. Note that the events must be of the same Event Class.
+	  ///     Keywords can be:
+	  ///         ThreadId
+	  ///         FileName
+	  ///         FileNameLine (file name and line number)
+	  ///         EventClass
+	  ///         SubClass
+	  ///         SessionIdKey
+	  ///         Product
+	  ///         A capture group name (e.g., SSTABLEPATH) as defined in the <see cref="ParseMessage"/> and <see cref="ParseThreadId"/> properties
+	  ///         SSTABLEPATH=>DDLITEMNAME -- obtains the DDL Item name from the SSTable Path string
+	  ///         SSTABLEPATH=>KEYSPACE -- obtains the keyspace name from the SSTable Path string
+	  ///         SSTABLEPATH=>KEYSPACEDDLNAME -- obtains the keyspace and DDL names from the SSTable Path string
+	  /// --or--
+	  ///     A C# expression that returns a string that represents the session key. This string should be able to be generated for any Timespan sessions and will be used to find the LogCassandraEvent instance when the log line is not a TimespanBegin.
+	  ///             This session key is item1 in the Tuple in the openTimeSpanSessions local variable.
+	  ///     This express must start with a '{' and end with a '}'
+	  ///     It must follow C# syntax. It has the following locally defined variables:
+	  ///         <code>clogLineTypeParser</code> -- A CLogLineTypeParser instance which is an instance of this information
+	  ///         <code>cluster</code>            -- A Cluster instance assocated with this log parsing file
+	  ///         <code>node</code>               -- An INode instance assocated with this log parsing file
+	  ///         <code>keyspace</code>           -- Current IKeyspace instance assocated with this log line. Could be null.
+	  ///         <code>logLineProperties</code>  -- A IDictionary<string, object> instance where the key is the capture group's name and the assocated value
+	  ///         <code>logLineMessage</code>     -- An ILogMessage instance that consistence of this parsed log line
+	  /// --or--
+	  ///     A static value that must be surrounded in quotes.
+	  /// --or--
+	  ///     A set of keywords seperated by a '+' where the values are concatenated.
+	  ///
+	  /// </summary>
+	  /// <remarks>
+	  /// Below is an example where the SessionKey would be the "ThreadId" since this is used to identify a compacation timespan session for all log lines.
+	  /// Log line 1 will define the session key with "CompactionExecutor:734". The remaining log logs will use the ThreadId to get the beginning event.
+	  /// <code>
+	  /// INFO  [CompactionExecutor:734] 2017-02-11 23:58:47,586  CompactionTask.java:141 - Compacting [SSTableReader(path='/data/cassandra/data/usprodsec/session_3-ca531e218ed211e6ab872748a53d9d02/usprodsec-session_3-ka-78735-Data.db'), SSTableReader(path='/data/cassandra/data/usprodsec/session_3-ca531e218ed211e6ab872748a53d9d02/usprodsec-session_3-ka-78732-Data.db'), SSTableReader(path='/data/cassandra/data/usprodsec/session_3-ca531e218ed211e6ab872748a53d9d02/usprodsec-session_3-ka-78734-Data.db'), SSTableReader(path='/data/cassandra/data/usprodsec/session_3-ca531e218ed211e6ab872748a53d9d02/usprodsec-session_3-ka-78733-Data.db')]
+	  /// INFO  [CompactionExecutor:734] 2017-02-11 23:58:47,668  ColumnFamilyStore.java:905 - Enqueuing flush of compactions_in_progress: 164 (0%) on-heap, 0 (0%) off-heap
+	  /// INFO  [CompactionExecutor:734] 2017-02-11 23:58:47,715  CompactionTask.java:274 - Compacted 4 sstables to[/ data / cassandra / data / usprodsec / session_3 - ca531e218ed211e6ab872748a53d9d02 / usprodsec - session_3 - ka - 78741,].  3,541 bytes to 1,079 (~30% of original) in 128ms = 0.008039MB/s.  35 total partitions merged to 12.  Partition merge counts were {1:1, 3:10, 4:1, }
+	  /// </code>
+	  ///
+	  /// Below is an example where a capture group could be used (i.e., DDLITEMNAMES/ColumnFamily Name) as the SessionKey.
+	  /// Log line 1 will define the session key with "product_3_2_0" (i.e., DDLITEMNAMES). The remaining log logs will use the DDLITEMNAMES to get the beginning event.
+	  /// <code>
+	  /// INFO  [SlabPoolCleaner] 2017-02-12 00:09:07,183  ColumnFamilyStore.java:1211 - Flushing largest CFS(Keyspace='usprodrp', ColumnFamily='product_3_2_0') to free up room. Used total: 0.20/0.00, live: 0.20/0.00, flushing: 0.00/0.00, this: 0.07/0.07
+	  /// INFO [SlabPoolCleaner] 2017-02-12 00:09:07,183  ColumnFamilyStore.java:905 - Enqueuing flush of product_3_2_0: 146449687 (7%) on-heap, 0 (0%) off-heap
+	  /// INFO [MemtableFlushWriter:3768] 2017-02-12 00:09:07,183  Memtable.java:347 - Writing Memtable-product_3_2_0@1706942500(20.930MiB serialized bytes, 856689 ops, 7%/0% of on/off-heap limit)
+	  /// INFO [MemtableFlushWriter:3768] 2017-02-12 00:09:07,384  Memtable.java:382 - Completed flushing /data/cassandra/data/usprodrp/product_3_2_0-ebf4f370e6a511e6a5513b7f00393f0e/usprodrp-product_3_2_0-tmp-ka-1740-Data.db (3.681MiB) for commitlog position ReplayPosition(segmentId= 1486705770182, position= 19949509)
+	  /// </code>
+	  /// </remarks>
+	  public string SessionKey
+
+	  /// <summary>
+	  /// Value uses as a key to associated related Session log items by sharing the same Log Id (guid).
+	  /// This takes the same values as <see cref="SessionKey"/>
+	  /// Callers should call the <see cref="DetermineSessionIdKey(Cluster, INode, IKeyspace, IDictionary{string, object}, ILogMessage, IList{LogCassandraEvent}, IList{Tuple{string, List{LogCassandraEvent}}})"/> method to obtain the correct value.
+	  /// </summary>
+	  public string SessionIdKey
+
+	  public string[] Examples;
+  }
+*/
+
+{
   "LogClass": "file_cassandra_log4net",
   "Parsers": [
     {
@@ -52,19 +270,14 @@
       "FileNameMatch": { "RegExStrings": [ "^ColumnFamilyStore.java$" ] },
       "FileLineMatch": { "RegExStrings": [ "^1211$" ] },
       "MessageMatch": { "RegExStrings": [ "^Flushing\\s+largest\\s+\\w+\\s*\\(" ] },
-      "ParseMessage": { "RegExStrings": [ "^Flushing\\s+largest\\s+\\w+\\s*\\(\\s*Keyspace\\s*=\\s*'?(?<KEYSPACE>[a-z0-9\\\\-_$%+=!?<>^*&@]+)'?,\\s+\\w+\\s*=\\s*'?(?<DDLITEMNAME>[a-z0-9\\\\-_$%+=!?<>^*&@]+)'?\\)\\s+to\\s+(?<reason>[^.]+)\\.\\s+Used\\s+total:\\s+(?<totalthresholdonheap>[0-9,.]+)\\s*/\\s*(?<totalthresholdoffheap>[0-9.,]+)\\s*,\\s*live:\\s+(?<livethresholdonheap>[0-9,.]+)\\s*/\\s*(?<livethresholdoffheap>[0-9,.]+)\\s*,\\s+flushing:\\s+(?<flushthresholdonheap>[0-9.]+)\\s*/\\s*(?<flushthresholdoffheap>[0-9.]+)\\s*,\\s+this:\\s+(?<thisthresholdonheap>[0-9.,]+)\\s*/\\s*(?<thisthresholdoffheap>[0-9,.]+)$" ] },
+      "ParseMessage": { "RegExStrings": [ "^Flushing\\s+largest\\s+\\w+\\s*\\(\\s*Keyspace\\s*=\\s*'?(?<KEYSPACE>[a-z0-9\\\\-_$%+=!?<>^*&@]+)'?,\\s+\\w+\\s*=\\s*'?(?<DDLITEMNAME>[a-z0-9\\\\-_$%+=!?<>^*&@]+)'?\\)\\s+to\\s+(?<reason>[^.]+)\\.\\s+Used\\s+total:\\s+(?<totalthresholdonheap>[0-9,.]+)\\s*/ \\s*(?<totalthresholdoffheap> [ 0-9., ]+)\\s*,\\s*live:\\s+(?<livethresholdonheap> [ 0 -9, . ]+)\\s*/\\s*(?<livethresholdoffheap> [ 0 -9, . ]+)\\s*,\\s+flushing:\\s+(?<flushthresholdonheap> [ 0-9. ]+)\\s*/\\s*(?<flushthresholdoffheap> [ 0-9. ]+)\\s*,\\s+this:\\s+(?<thisthresholdonheap> [ 0-9., ]+)\\s*/\\s*(?<thisthresholdoffheap> [ 0 -9, . ]+)$" ] },
       "ParseThreadId": null,
       "EventType": "SessionId",
       "EventClass": "MemtableFlush",
       "SubClass": "ThreadId",
       "Product": "Cassandra",
       "SessionIdKey": "EventClass + DDLITEMNAME",
-      "Examples": [
-        "=> INFO  [SlabPoolCleaner] 2017-01-16 13:51:50,636  ColumnFamilyStore.java:1211 - Flushing largest CFS(Keyspace='OpsCenter', ColumnFamily='rollup_state') to free up room. Used total: 0.33/0.00, live: 0.33/0.00, flushing: 0.00/0.00, this: 0.14/0.14",
-        "INFO  [SlabPoolCleaner] 2017-01-16 13:51:50,636  ColumnFamilyStore.java:905 - Enqueuing flush of rollup_state: 221288084 (14%) on-heap, 0 (0%) off-heap",
-        "INFO  [MemtableFlushWriter:8021] 2017-01-16 13:51:50,637  Memtable.java:347 - Writing Memtable-rollup_state@1750499154(8.948MiB serialized bytes, 3237264 ops, 14%/0% of on/off-heap limit)",
-        "INFO  [MemtableFlushWriter:8021] 2017-01-16 13:51:51,353  Memtable.java:382 - Completed flushing /var/lib/cassandra/data/OpsCenter/rollup_state-9b934af0746111e68dd04f228b4be406/OpsCenter-rollup_state-tmp-ka-7811-Data.db (1.797MiB) for commitlog position ReplayPosition(segmentId=1483996065725, position=29889014)"
-      ]
+      "Examples": [ "=> INFO  [SlabPoolCleaner] 2017-01-16 13:51:50,636  ColumnFamilyStore.java:1211 - Flushing largest CFS(Keyspace='OpsCenter', ColumnFamily='rollup_state') to free up room. Used total: 0.33/0.00, live: 0.33/0.00, flushing: 0.00/0.00, this: 0.14/0.14", "INFO  [SlabPoolCleaner] 2017-01-16 13:51:50,636  ColumnFamilyStore.java:905 - Enqueuing flush of rollup_state: 221288084 (14%) on-heap, 0 (0%) off-heap", "INFO  [MemtableFlushWriter:8021] 2017-01-16 13:51:50,637  Memtable.java:347 - Writing Memtable-rollup_state@1750499154(8.948MiB serialized bytes, 3237264 ops, 14%/0% of on/off-heap limit)", "INFO  [MemtableFlushWriter:8021] 2017-01-16 13:51:51,353  Memtable.java:382 - Completed flushing /var/lib/cassandra/data/OpsCenter/rollup_state-9b934af0746111e68dd04f228b4be406/OpsCenter-rollup_state-tmp-ka-7811-Data.db (1.797MiB) for commitlog position ReplayPosition(segmentId=1483996065725, position=29889014)" ]
     },
     {
       "MatchVersion": null,

@@ -1,4 +1,14 @@
-﻿{
+﻿/*
+  Dictionary<string, RegExParseString>>
+  Key is the class name.
+
+  public sealed class RegExParseString
+  {
+      public readonly string[] RegExStrings;
+  }
+*/
+
+{
   "file_nodetool_status": {
     "RegExStrings": [
       "datacenter:\\s+([a-z0-9\\-_$%+=@!?<>^*&]+)\\s*",
