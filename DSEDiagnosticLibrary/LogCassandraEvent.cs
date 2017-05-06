@@ -79,7 +79,7 @@ namespace DSEDiagnosticLibrary
                 this.EventTime = Common.TimeZones.ConvertToOffset(this.EventTimeLocal, this.TimeZone);
             }
 
-            if(this.Type == EventTypes.SessionBegin)
+            if((this.Type & EventTypes.SessionBegin) == EventTypes.SessionBegin)
             {
                 this.EventTimeBegin = this.EventTime;
             }
@@ -261,8 +261,7 @@ namespace DSEDiagnosticLibrary
                     if(this.Class == matchEvent.Class)
                     {
                         if(this.Type == matchEvent.Type
-                                || ((this.Type & EventTypes.SessionItem) != 0
-                                        && (matchEvent.Type & EventTypes.SessionItem) != 0))
+                                || (this.Type & EventTypes.SessionElement) == EventTypes.SessionElement)
                         {
                             return !mustMatchKeyspaceDDL
                                         || (this.Keyspace?.FullName == matchEvent.Keyspace?.FullName
@@ -270,6 +269,57 @@ namespace DSEDiagnosticLibrary
                         }
                     }
                 }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Returns true if the arguments match.
+        /// </summary>
+        /// <param name="possibleDDLName">
+        /// Can be null, if so this argument is ignored
+        /// If possibleKeyspaceName is given, the keyspace must also match the DDL statement.
+        /// </param>
+        /// <param name="possibleKeyspaceName">
+        /// Can be null, if so this argument is ignored.
+        /// </param>
+        /// <param name="possibleNode">
+        /// Can be null, if so this argument is ignored
+        /// </param>
+        /// <param name="checkDDLItems"></param>
+        /// <returns></returns>
+        public bool Match(string possibleDDLName, string possibleKeyspaceName, INode possibleNode = null, bool checkDDLItems = false)
+        {
+            if(possibleNode != null)
+            {
+                if(!this.Node.Equals(possibleNode))
+                {
+                    return false;
+                }
+            }
+
+            if(!string.IsNullOrEmpty(possibleDDLName) && this.TableViewIndex != null)
+            {
+                if(this.TableViewIndex.Name == possibleDDLName)
+                {
+                    return string.IsNullOrEmpty(possibleKeyspaceName)
+                                ? true
+                                : (this.Keyspace == null ? true : this.Keyspace.Name == possibleKeyspaceName);
+                }
+            }
+
+            if(!string.IsNullOrEmpty(possibleKeyspaceName) && this.Keyspace != null)
+            {
+                return this.Keyspace.Name == possibleKeyspaceName;
+            }
+
+            if(checkDDLItems
+                    && (!string.IsNullOrEmpty(possibleDDLName) || !string.IsNullOrEmpty(possibleKeyspaceName))
+                    && this.DDLItems.HasAtLeastOneElement())
+            {
+                return this.DDLItems.Any(d => (string.IsNullOrEmpty(possibleKeyspaceName) ? true : d.Keyspace.Name == possibleKeyspaceName)
+                                                && (string.IsNullOrEmpty(possibleDDLName) ? true : d.Name == possibleDDLName));
             }
 
             return false;
@@ -291,40 +341,41 @@ namespace DSEDiagnosticLibrary
 
             if (this.Match(beginendEvent, true, false))
             {
-                if (this.Type == EventTypes.SessionItem
-                        && (beginendEvent.Type == EventTypes.SessionBegin
-                                || beginendEvent.Type == EventTypes.SessionEnd
-                                || beginendEvent.Type == EventTypes.SessionBeginOrItem)
+                if ((this.Type & EventTypes.SessionItem) == EventTypes.SessionItem
+                        && ((beginendEvent.Type & EventTypes.SessionBegin) == EventTypes.SessionBegin
+                                || (beginendEvent.Type & EventTypes.SessionEnd) == EventTypes.SessionEnd
+                                || (beginendEvent.Type & EventTypes.SessionBeginOrItem) == EventTypes.SessionBeginOrItem)
                         && !this.ParentEvents.Any(i => i.Equals(beginendEvent)))
                 {
-                    if (this._keyspace == null)
-                    {
-                        this._keyspace = beginendEvent.Keyspace;
-                    }
                     if (this.TableViewIndex == null)
                     {
                         this.TableViewIndex = beginendEvent.TableViewIndex;
+                    }
+                    if (this.Keyspace == null)
+                    {
+                        this._keyspace = beginendEvent.Keyspace;
                     }
 
                     this.ParentEvents = new List<IEvent>(this.ParentEvents) { beginendEvent };
                     this.SessionTieOutId = beginendEvent.SessionTieOutId;
                     bResult = true;
                 }
-                else if(this.Type == EventTypes.SessionEnd && beginendEvent.Type == EventTypes.SessionBegin)
+                else if((this.Type & EventTypes.SessionEnd) == EventTypes.SessionEnd
+                            && (beginendEvent.Type & EventTypes.SessionBegin) == EventTypes.SessionBegin)
                 {
-                    if (this._keyspace == null)
-                    {
-                        this._keyspace = beginendEvent.Keyspace;
-                    }
                     if (this.TableViewIndex == null)
                     {
                         this.TableViewIndex = beginendEvent.TableViewIndex;
+                    }
+                    if (this.Keyspace == null)
+                    {
+                        this._keyspace = beginendEvent.Keyspace;
                     }
 
                     this.ParentEvents = new List<IEvent>(this.ParentEvents) { beginendEvent };
                     this.SessionTieOutId = beginendEvent.SessionTieOutId;
                     bResult = true;
-                }                
+                }
             }
 
             return bResult;

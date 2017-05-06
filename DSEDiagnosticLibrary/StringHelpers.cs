@@ -104,8 +104,10 @@ namespace DSEDiagnosticLibrary
         readonly static Regex UOMRegEx = new Regex(@"^\-?(?:[0-9,]+|[0-9,]+\.[0-9]+|\.[0-9]+)\s*[a-zA-Z%,_/\ ]+$", RegexOptions.Compiled);
 
         //scores-name-1-08bdd2d2126e11e78866d792efac3044
-        // null, scores-name-1, 08bdd2d2126e11e78866d792efac3044
-        readonly static Regex SSTableCQLTableNameRegEx = new Regex(@"^([a-z0-9\-_$%+=@!?<>^*&]+)\-([0-9a-f]{32})$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        // null, scores-name-1, 08bdd2d2126e11e78866d792efac3044, null
+        //scores-name-1
+        // null, null, null, scores-name-1
+        readonly static Regex SSTableCQLTableNameRegEx = new Regex(Properties.Settings.Default.SSTableColumnFamilyRegEx, RegexOptions.Compiled | RegexOptions.IgnoreCase);
         readonly static string[] DateTimeFormats = new string[] { "yyyy-MM-dd HH:mm:ss,fff",
                                                                    "yyyy-MM-dd HH:mm:ss.fff"};
 
@@ -297,26 +299,80 @@ namespace DSEDiagnosticLibrary
         /// null if the sstableFilePath is not a valid sstable path format
         /// a tuple where
         ///     Item1 -- keyspace name
-        ///     Item2 -- table name
+        ///     Item2 -- table/secondary index name
         ///     Item3 -- table&apos;s guid id
+        ///     Item4 -- if secondary index name, the table name otherwise null.
         /// </returns>
-        static public Tuple<string,string,string> ParseSSTableFileIntoKSTableNames(string sstableFilePath)
+        static public Tuple<string,string,string,string> ParseSSTableFileIntoKSTableNames(string sstableFilePath)
         {
             // "/mnt/dse/data1/homeKS/homebase_tasktracking_ops_l3-737682f0599311e6ad0fa12fb1b6cb6e/homeKS-homebase_tasktracking_ops_l3-tmp-ka-15175-Data.db"
             // "/var/lib/cassandra/data/cfs/inode-76298b94ca5f375cab5bb674eddd3d51/cfs-inode.cfs_parent_path-tmp-ka-71-Data.db"
-            // C 2.1 -- <keyspace>-<column family>-[tmp marker]-<version>-<generation>-<component>.db
-            // C* 3.X -- /mnt/cassandra/data/data/keyspace1/scores-08bdd2d2126e11e78866d792efac3044/mb-1-big-Data.db
+            // "/data/cassandra/data/usprodda/digitalasset_3_0_2-42613c599c943db2b2805c31c2d36acb/usprodda-digitalasset_3_0_2.digitalasset_3_0_2_id-tmp-ka-308-Data.db"
+            // "/mnt/cassandra/data/data/keyspace1/digitalasset_3_0_2-980fca722ea611e78ff92901fcc7f505/.index2_tags/mb-1-big-Data.db"
+            // "/var/lib/cassandra/data/Keyspace1/digitalasset_3_0_2/Keyspace1-digitalasset_3_0_2-jb-1-Data.db"
+            // "/var/lib/cassandra/data/Keyspace1/digitalasset_3_0_2/Keyspace1-digitalasset_3_0_2.digitalasset_3_0_2_id-jb-1-Data.db"
             //
+            // C* 2.0 -- /mnt/dse/data1/<keyspace>/<column family>/<keyspace>-<column family>-<version>-<generation>-<component>.db
+            // C* 2.0 -- /mnt/dse/data1/<keyspace>/<column family>/<keyspace>-<column family>.<SecondaryIndex>-<version>-<generation>-<component>.db
+            //
+            // C* 2.1 -- /mnt/dse/data1/<keyspace>/<column family>-<uuid>/<keyspace>-<column family>-[tmp marker]-<version>-<generation>-<component>.db
+            // C* 2.1 -- /mnt/dse/data1/<keyspace>/<column family>-<uuid>/<keyspace>-<column family>.<SecondaryIndex>-[tmp marker]-<version>-<generation>-<component>.db
+            //
+            // C* 3.X -- /mnt/dse/data1/<keyspace>/<column family>-<uuid>/mb-1-big-Data.db
+            // C* 3.X -- /mnt/dse/data1/<keyspace>/<column family>-<uuid>/.<secondary index>/mb-1-big-Data.db
+            //
+            // Where <version> can be 'jb', 'ka', 'ja', and 'ic' and [tmp marker] can be 'tmp'
             var sstableFilePathParts = sstableFilePath.Split('/');
 
             if (sstableFilePathParts.Length >= 3)
             {
-                var ksName = sstableFilePathParts[sstableFilePathParts.Length - 3];
-                var tblNameMatch = SSTableCQLTableNameRegEx.Match(sstableFilePathParts[sstableFilePathParts.Length - 2]);
+                var idxOffset = sstableFilePathParts[sstableFilePathParts.Length - 2][0] == '.' ? 1 : 0; //used to offset C* 3.x secondary index format
+
+                var ksName = sstableFilePathParts[sstableFilePathParts.Length - 3 + idxOffset];
+                var tblNameMatch = SSTableCQLTableNameRegEx.Match(sstableFilePathParts[sstableFilePathParts.Length - 2 + idxOffset]);
 
                 if (tblNameMatch.Success)
                 {
-                    return new Tuple<string, string, string>(ksName, tblNameMatch.Groups[1].Value, tblNameMatch.Groups[2].Value);
+                    var columnFamily = tblNameMatch.Groups[1].Value ?? tblNameMatch.Groups[3].Value;
+                    var cfUUID = tblNameMatch.Groups[2].Value;
+                    string secondTblName = null;
+
+                    if (idxOffset == 1)
+                    {
+                        secondTblName = sstableFilePathParts[sstableFilePathParts.Length - 2].Substring(1);
+                    }
+                    else if (sstableFilePathParts.Last()[ksName.Length + columnFamily.Length + 1] == '.')
+                    {
+                        var lastNode = sstableFilePathParts.Last();
+                        int tmpPos = -1;
+                        int startPos = ksName.Length + columnFamily.Length + 2;
+
+                        foreach (var ssVersion in LibrarySettings.SSTableVersionMarkers)
+                        {
+                            tmpPos = lastNode.IndexOf('-' + ssVersion + '-');
+
+                            if(tmpPos > 0)
+                            {
+                                break;
+                            }
+                        }
+
+                        if (tmpPos > 0)
+                        {
+                            secondTblName = lastNode.Substring(startPos, tmpPos - startPos);
+                        }
+                        else
+                        {
+                            throw new ArgumentException(string.Format("Could not find the Secondary Index name in SSTable '{0}' within path node '{1}'",
+                                                                        sstableFilePath,
+                                                                        lastNode));
+                        }
+                    }
+
+                    return new Tuple<string, string, string, string>(ksName,
+                                                                        secondTblName ?? columnFamily,
+                                                                        cfUUID,
+                                                                        secondTblName == null ? null : columnFamily);
                 }
             }
 

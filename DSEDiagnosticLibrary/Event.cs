@@ -7,13 +7,14 @@ using Common.Patterns.TimeZoneInfo;
 
 namespace DSEDiagnosticLibrary
 {
+    [Flags]
     public enum EventTypes
     {
         Unkown = 0,
         /// <summary>
         /// Only one occurrence like an exception, etc.
         /// </summary>
-        SingleInstance,
+        SingleInstance = 0x0001,
         SessionElement = 0x0002,
         /// <summary>
         /// A Session log item that is part of group of items that make up a session (e.g., compaction).
@@ -21,35 +22,28 @@ namespace DSEDiagnosticLibrary
         /// This log entry will use the associated SessionBegin&apos;s log id.
         /// If the start is not associated for this item it will be marked as orphaned.
         /// </summary>
-        SessionItem = 0x0002 | 0x0080,
+        SessionItem = SessionElement | 0x0004,
         /// <summary>
         /// A Session log item that is part of group of items that make up a session (e.g., compaction).
         /// This log entry marks the beginning (start) of the session and is tracked. All entries between SessionBegin and SessionEnd are considered children of this entry.
         /// </summary>
-        SessionBegin = 0x0002 | 0x0004 | 0x0080,
+        SessionBegin = SessionItem | 0x0008,
         /// <summary>
         /// A Session log item that is part of group of items that make up a session (e.g., compaction).
         /// This log entry marks the end of the session.
         /// </summary>
-        SessionEnd = 0x0002 | 0x0008 | 0x0080,
+        SessionEnd = SessionItem | 0x0010,
         /// <summary>
         /// A special option used to determined if the log entry already has an associated SessionBegin.
         /// If the entry does not, it will be marked as a SessionBegin, otherwise it will be marked as SessionItem.
         /// </summary>
         /// <seealso cref="SessionBegin"/>
         /// <seealso cref="SessionItem"/>
-        SessionBeginOrItem = 0x0002 | 0x0004 | 0x0010 | 0x0080,
-        /// <summary>
-        /// A special option where the log id/guid is cached and can be used by other log entries so that theses entries can be tied together.
-        /// Log entries will be remarked as SessionItemInfo.
-        /// </summary>
-        /// <seealso cref="SessionItemInfo"/>
-        SessionId = 0x0002 | 0x0020,
-        /// <summary>
-        /// A Session log item that is NOT directly part of group of items that make up a session (e.g., compaction) but instead is additional information about that group.
-        /// This log item is not the start or end of this session.
-        /// </summary>
-        SessionItemInfo = 0x0002 | 0x0040
+        SessionBeginOrItem = SessionBegin | 0x0020,
+        SessionBeginForcePriorEnd = SessionBegin | 0x0040,
+        SessionBeginOrItemForcePriorEnd = SessionBeginForcePriorEnd | 0x0020,
+        SessionBeginReset = SessionBeginForcePriorEnd | 0x0080,
+        SessionReset = 0x0080
     }
 
     [Flags]
@@ -71,6 +65,9 @@ namespace DSEDiagnosticLibrary
         Performance = 0x1000,
         GCStats = 0x2000,
         Orphaned = 0x4000,
+        HintHandOff = 0x8000,
+
+        StatusTypes = Information | Warning | Error | Exception | Fatal | Orphaned
     }
 
 	public interface IEvent : IParsed, IEquatable<Guid>, IEquatable<IEvent>

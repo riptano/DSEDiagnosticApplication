@@ -19,41 +19,58 @@ namespace DSEDiagnosticFileParser
             public bool KeyIsGroupName;
             public bool KeyIsStatic;
             public string KeyValue;
-
-            readonly static CacheInfo[] CachedInfo = new CacheInfo[] { new CacheInfo(), new CacheInfo(), new CacheInfo() };
-            public static CacheInfo GetCacheInfo(int cacheIdx)
-            {
-                return CachedInfo[cacheIdx];
-            }
-
-            public static string VarName(int cacheIdx)
-            {
-                if (cacheIdx == SessionKeyIdx)
-                    return "SessionKey";
-                else if (cacheIdx == SessionIdKeyIdx)
-                    return "SessionIdKey";
-                else if (cacheIdx == SubClassIdx)
-                    return "SubClass";
-
-                return "<Unknown CLogLineTypeParser Property Name>";
-            }
-
-            public static string VarValue(CLogLineTypeParser clogLineTypePasrer, int cacheIdx)
-            {
-                if (cacheIdx == SessionKeyIdx)
-                    return clogLineTypePasrer._sessionKey;
-                else if (cacheIdx == SessionIdKeyIdx)
-                    return clogLineTypePasrer._sessionIdKey;
-                else if (cacheIdx == SubClassIdx)
-                    return clogLineTypePasrer._subclass;
-
-                return null;
-            }
         }
 
         private readonly static string[] SessionKeywords = new string[] { "ThreadId", "FileName", "FileNameLine", "SSTABLEPATH=>DDLITEMNAME", "SSTABLEPATH=>KEYSPACE", "SSTABLEPATH=>KEYSPACEDDLNAME", "SSTABLEPATHS=>DDLITEMNAME", "SSTABLEPATHS=>KEYSPACE", "SSTABLEPATHS=>KEYSPACEDDLNAME" };
 
+        readonly CacheInfo[] CachedInfo = new CacheInfo[] { new CacheInfo(), new CacheInfo(), new CacheInfo() };
+        private CacheInfo GetCacheInfo(int cacheIdx)
+        {
+            return CachedInfo[cacheIdx];
+        }
+
+        private string CacheInfoVarName(int cacheIdx)
+        {
+            if (cacheIdx == SessionKeyIdx)
+                return "SessionKey";
+            else if (cacheIdx == SessionKeyLookupIdx)
+                return "SessionKeyLookup";
+            else if (cacheIdx == SubClassIdx)
+                return "SubClass";
+
+            return "<Unknown CLogLineTypeParser Property Name>";
+        }
+
+        private string CacheInfoVarValue(CLogLineTypeParser clogLineTypePasrer, int cacheIdx)
+        {
+            if (cacheIdx == SessionKeyIdx)
+                return clogLineTypePasrer._sessionKey;
+            else if (cacheIdx == SessionKeyLookupIdx)
+                return clogLineTypePasrer._sessionKeyLookup;
+            else if (cacheIdx == SubClassIdx)
+                return clogLineTypePasrer._subclass;
+
+            return null;
+        }
+
         #endregion
+
+        public enum SessionLookupTypes
+        {
+            Session = 0,
+            ReadLabel = 1,
+            DefineLabel = 2,
+            DeleteLabel = 3,
+            ReadRemoveLabel = 4
+        }
+
+        public enum SessionKeyTypes
+        {
+            Auto = 0,
+            Add = 1,
+            Read = 2,
+            Delete = 3
+        }
 
         public CLogLineTypeParser() { }
 
@@ -164,6 +181,8 @@ namespace DSEDiagnosticFileParser
         /// The key is the RegEx named capture group or the capture group position. The dictionary value is the Captured group&apos;s value that is converted to the proper type.
         /// If named capture group is a unit of measure (not a date or time frame), the UOM can be defined by placing type after the name separated by an underscore.
         /// e.g., &quot;(?&lt;mygroupname_mb_sec&gt;.+)&quot; where the property key is &quot;mygroupname&quot; and the group&apos;s UOM type is a megabyte per second.
+        /// If separated by two underscores, the separated value should be an already defined property name where that UOM would be used.
+        /// e.g., &quot;(?&lt;myothername__mygroupname&gt;.+)&quot; where the property key is &quot;myothername&quot; and the group&apos;s UOM type is based on the property &quot;mygroupname&quot; (i.e., megabyte per second).
         ///
         /// There are special group names. They are:
         ///     &quot;SUBCLASS&quot                                 -- this will map the capture group&apos;s value to property &quot;SubClass&quot; of LogCassandraEvent class
@@ -318,27 +337,93 @@ namespace DSEDiagnosticFileParser
             }
         }
 
-        private const int SessionIdKeyIdx = 2;
-        private string _sessionIdKey = null;
-        /// <summary>
-        /// Value uses as a key to associated related Session log items by sharing the same Log Id (guid).
-        /// This takes the same values as <see cref="SessionKey"/>
-        /// Callers should call the <see cref="DetermineSessionIdKey(Cluster, INode, IKeyspace, IDictionary{string, object}, ILogMessage, IList{LogCassandraEvent}, IList{Tuple{string, List{LogCassandraEvent}}})"/> method to obtain the correct value.
-        /// </summary>
-        public string SessionIdKey
+        public SessionKeyTypes SessionKeyType { get; set; }
+
+        public bool SessionKeyUsesThreadId()
         {
-            get { return this._sessionIdKey; }
+            return this._sessionKey == null ? false : this._sessionKey.StartsWith("ThreadId");
+        }
+
+        private const int SessionKeyLookupIdx = 2;
+        private string _sessionKeyLookup = null;
+        private Regex _sessionLookupRegEx = null;
+        /// <summary>
+        /// Alternative Value used to lookup the session.
+        /// This takes the same values as <see cref="SessionKey"/>
+        /// Callers should call the <see cref="DetermineSessionKeyLookup(Cluster, INode, IKeyspace, IDictionary{string, object}, ILogMessage)"/> method to obtain the correct value.
+        /// </summary>
+        public string SessionKeyLookup
+        {
+            get { return this._sessionKeyLookup; }
             set
             {
-                if (value != this._sessionIdKey)
+                if (value != this._sessionKeyLookup)
                 {
-                    this._sessionIdKey = value;
-                    CacheSessionKey(this, ref this._sessionIdKey, SessionIdKeyIdx);
+                    this._sessionKeyLookup = value;
+                    CacheSessionKey(this, ref this._sessionKeyLookup, SessionKeyLookupIdx);
+
+                    var cacheInfo = this.GetCacheInfo(SessionKeyLookupIdx);
+                    if (cacheInfo.KeyIsStatic && cacheInfo.KeyValue != null && cacheInfo.KeyValue.Contains('#'))
+                    {
+                        this._sessionLookupRegEx = new Regex(cacheInfo.KeyValue.Replace("#", string.Empty), RegexOptions.Compiled);
+                    }
                 }
             }
         }
 
+        public SessionLookupTypes SessionLookupType { get; set; }
+
         public string[] Examples;
+
+        public struct SessionInfo
+        {
+            public string SessionId;
+            public SessionKeyTypes SessionType;
+            public string SessionLookup;
+            public SessionLookupTypes LookupType;
+            public Regex SessionLookupRegEx;
+
+            public bool IsLookupMatch(string checkValue)
+            {
+                return this.SessionLookupRegEx == null ? this.SessionLookup == checkValue : this.SessionLookupRegEx.IsMatch(checkValue);
+            }
+        }
+
+        public SessionInfo DetermineSessionInfo(Cluster cluster,
+                                                    INode node,
+                                                    IKeyspace keyspace,
+                                                    IDictionary<string, object> logLineProperties,
+                                                    ILogMessage logLineMessage)
+        {
+            SessionInfo sessionInfo;
+
+            sessionInfo.SessionType = this.SessionKeyType;
+            sessionInfo.LookupType = this.SessionLookupType;
+
+            sessionInfo.SessionId = this.DetermineSessionKey(cluster, node, keyspace, logLineProperties, logLineMessage);
+
+            if (this._sessionLookupRegEx == null)
+            {
+                sessionInfo.SessionLookup = this.DetermineSessionKeyLookup(cluster, node, keyspace, logLineProperties, logLineMessage);
+
+                if (sessionInfo.SessionLookup != null && sessionInfo.SessionLookup.Contains('#'))
+                {
+                    sessionInfo.SessionLookupRegEx = new Regex(sessionInfo.SessionLookup.Replace("#", string.Empty));
+                    sessionInfo.SessionLookup = null;
+                }
+                else
+                {
+                    sessionInfo.SessionLookupRegEx = null;
+                }
+            }
+            else
+            {
+                sessionInfo.SessionLookupRegEx = this._sessionLookupRegEx;
+                sessionInfo.SessionLookup = null;
+            }
+
+            return sessionInfo;
+        }
 
         public string DetermineSessionKey(Cluster cluster,
                                             INode node,
@@ -374,16 +459,16 @@ namespace DSEDiagnosticFileParser
                                         logLineMessage);
         }
 
-        public string DetermineSessionIdKey(Cluster cluster,
+        public string DetermineSessionKeyLookup(Cluster cluster,
                                                 INode node,
                                                 IKeyspace keyspace,
                                                 IDictionary<string, object> logLineProperties,
                                                 ILogMessage logLineMessage)
         {
-            return this._sessionIdKey == null
+            return this._sessionKeyLookup == null
                     ? null
                     : DetermineKeyValue(this,
-                                        SessionIdKeyIdx,
+                                        SessionKeyLookupIdx,
                                         cluster,
                                         node,
                                         keyspace,
@@ -396,7 +481,7 @@ namespace DSEDiagnosticFileParser
                                             ref string propValue,
                                             int cacheIdx)
         {
-            var cacheInfo = CacheInfo.GetCacheInfo(cacheIdx);
+            var cacheInfo = logLineParser.GetCacheInfo(cacheIdx);
 
             if (logLineParser.EventType == EventTypes.SingleInstance)
             {
@@ -420,9 +505,9 @@ namespace DSEDiagnosticFileParser
                 return;
             }
 
-            if(propValue == CacheInfo.VarName(cacheIdx))
+            if(propValue == logLineParser.CacheInfoVarName(cacheIdx))
             {
-                cacheInfo.KeyMethodInfo = typeof(CLogLineTypeParser).GetMethod(string.Format("Determine{0}", CacheInfo.VarName(cacheIdx)),
+                cacheInfo.KeyMethodInfo = typeof(CLogLineTypeParser).GetMethod(string.Format("Determine{0}", logLineParser.CacheInfoVarName(cacheIdx)),
                                                                                     new Type[]
                                                                                     {
                                                                                         typeof(Cluster),
@@ -440,7 +525,7 @@ namespace DSEDiagnosticFileParser
 
             if (propValue.IndexOf('+') > 0)
             {
-                var keywords = propValue.Split('+')
+                var keywords = Common.StringFunctions.Split(propValue, '+')
                                     .Select(i =>
                                     {
                                         i = i.Trim();
@@ -450,7 +535,7 @@ namespace DSEDiagnosticFileParser
                                         if (i[0] == '\'')
                                             return '"' + i.Substring(1, i.Length - 2) + '"';
                                         if (i == "EventClass")
-                                            return '"' + logLineParser.EventClass.ToString() + '"'; 
+                                            return '"' + logLineParser.EventClass.ToString() + '"';
                                         if (i == "Product")
                                             return '"' + logLineParser.Product.ToString() + '"';
                                         return string.Format("CLogLineTypeParser.GenerateSessionKey(\"{0}\", " +
@@ -470,7 +555,7 @@ namespace DSEDiagnosticFileParser
                                                                                     logLineParser.Product.ToString(),
                                                                                     logLineParser.EventClass.ToString(),
                                                                                     logLineParser.EventType.ToString(),
-                                                                                    CacheInfo.VarName(cacheIdx)),
+                                                                                    logLineParser.CacheInfoVarName(cacheIdx)),
                                                                                     typeof(string),
                                                                                     new Tuple<Type, string>[]
                                                                                     {
@@ -482,7 +567,7 @@ namespace DSEDiagnosticFileParser
                                                                                         new Tuple<Type,string>(typeof(ILogMessage), "logLineMessage")
                                                                                     },
                                                                                     string.Format("return {0};",
-                                                                                                    string.Join(" + '-' + ", keywords)));
+                                                                                                    string.Join(" + ", keywords)));
                 cacheInfo.KeyValue = null;
                 cacheInfo.KeyMethodInfoIsMethod = false;
                 cacheInfo.KeyIsGroupName = false;
@@ -502,7 +587,7 @@ namespace DSEDiagnosticFileParser
                                                                                         logLineParser.Product.ToString(),
                                                                                         logLineParser.EventClass.ToString(),
                                                                                         logLineParser.EventType.ToString(),
-                                                                                        CacheInfo.VarName(cacheIdx)),
+                                                                                        logLineParser.CacheInfoVarName(cacheIdx)),
                                                                                     typeof(string),
                                                                                     new Tuple<Type, string>[]
                                                                                     {
@@ -532,7 +617,7 @@ namespace DSEDiagnosticFileParser
                                                     ILogMessage logLineMessage,
                                                     out string sessionKey)
         {
-            var cacheInfo = CacheInfo.GetCacheInfo(cacheIdx);
+            var cacheInfo = logLineParser.GetCacheInfo(cacheIdx);
 
             if (cacheInfo.KeyValue != null)
             {
@@ -581,7 +666,7 @@ namespace DSEDiagnosticFileParser
                         default:
                             {
                                 if (cacheIdx != SubClassIdx
-                                        && cacheInfo.KeyValue == CacheInfo.VarName(SubClassIdx))
+                                        && cacheInfo.KeyValue == logLineParser.CacheInfoVarName(SubClassIdx))
                                 {
                                     objSessionKey = logLineParser.DetermineSubClass(cluster,
                                                                                     node,
@@ -590,7 +675,7 @@ namespace DSEDiagnosticFileParser
                                                                                     logLineMessage);
                                 }
                                 else if (cacheIdx != SessionKeyIdx
-                                            && cacheInfo.KeyValue == CacheInfo.VarName(SessionKeyIdx))
+                                            && cacheInfo.KeyValue == logLineParser.CacheInfoVarName(SessionKeyIdx))
                                 {
                                     objSessionKey = logLineParser.DetermineSessionKey(cluster,
                                                                                         node,
@@ -598,10 +683,10 @@ namespace DSEDiagnosticFileParser
                                                                                         logLineProperties,
                                                                                         logLineMessage);
                                 }
-                                else if (cacheIdx != SessionIdKeyIdx
-                                            && cacheInfo.KeyValue == CacheInfo.VarName(SessionIdKeyIdx))
+                                else if (cacheIdx != SessionKeyLookupIdx
+                                            && cacheInfo.KeyValue == logLineParser.CacheInfoVarName(SessionKeyLookupIdx))
                                 {
-                                    objSessionKey = logLineParser.DetermineSessionIdKey(cluster,
+                                    objSessionKey = logLineParser.DetermineSessionKeyLookup(cluster,
                                                                                         node,
                                                                                         keyspace,
                                                                                         logLineProperties,
@@ -682,7 +767,7 @@ namespace DSEDiagnosticFileParser
                     default:
                         {
                             if (cacheIdx != SubClassIdx
-                                        && varName == CacheInfo.VarName(SubClassIdx))
+                                        && varName == logLineParser.CacheInfoVarName(SubClassIdx))
                             {
                                 objSessionKey = logLineParser.DetermineSubClass(cluster,
                                                                                 node,
@@ -691,7 +776,7 @@ namespace DSEDiagnosticFileParser
                                                                                 logLineMessage);
                             }
                             else if (cacheIdx != SessionKeyIdx
-                                        && varName == CacheInfo.VarName(SessionKeyIdx))
+                                        && varName == logLineParser.CacheInfoVarName(SessionKeyIdx))
                             {
                                 objSessionKey = logLineParser.DetermineSessionKey(cluster,
                                                                                     node,
@@ -699,10 +784,10 @@ namespace DSEDiagnosticFileParser
                                                                                     logLineProperties,
                                                                                     logLineMessage);
                             }
-                            else if (cacheIdx != SessionIdKeyIdx
-                                        && varName == CacheInfo.VarName(SessionIdKeyIdx))
+                            else if (cacheIdx != SessionKeyLookupIdx
+                                        && varName == logLineParser.CacheInfoVarName(SessionKeyLookupIdx))
                             {
-                                objSessionKey = logLineParser.DetermineSessionIdKey(cluster,
+                                objSessionKey = logLineParser.DetermineSessionKeyLookup(cluster,
                                                                                     node,
                                                                                     keyspace,
                                                                                     logLineProperties,
@@ -745,9 +830,13 @@ namespace DSEDiagnosticFileParser
                 return null;
             }
 
-            var cacheInfo = CacheInfo.GetCacheInfo(cacheIdx);
+            var cacheInfo = logLineParser.GetCacheInfo(cacheIdx);
 
-            if (cacheInfo.KeyMethodInfo != null)
+            if(cacheInfo.KeyIsStatic)
+            {
+                return cacheInfo.KeyValue;
+            }
+            else if (cacheInfo.KeyMethodInfo != null)
             {
                 return cacheInfo.KeyMethodInfoIsMethod
                         ? cacheInfo.KeyMethodInfo.Invoke(logLineParser, new object[] { cluster,
@@ -778,9 +867,9 @@ namespace DSEDiagnosticFileParser
                     if (sessionKey == null)
                     {
                         throw new ArgumentException(string.Format("{0} \"{1}\" was not valid.",
-                                                                    CacheInfo.VarName(cacheIdx),
-                                                                    CacheInfo.VarValue(logLineParser, cacheIdx)),
-                                                                    CacheInfo.VarName(cacheIdx));
+                                                                    logLineParser.CacheInfoVarName(cacheIdx),
+                                                                    logLineParser.CacheInfoVarValue(logLineParser, cacheIdx)),
+                                                                    logLineParser.CacheInfoVarName(cacheIdx));
                     }
                 }
 
@@ -807,7 +896,11 @@ namespace DSEDiagnosticFileParser
                 }
                 else if (objSessionKey is System.Collections.IEnumerable)
                 {
-                    path = ((IEnumerable<string>)objSessionKey).FirstOrDefault();
+                    path = ((IEnumerable<object>)objSessionKey).FirstOrDefault()?.ToString();
+                }
+                else
+                {
+                    path = objSessionKey.ToString();
                 }
 
                 var ksddlnameItems = StringHelpers.ParseSSTableFileIntoKSTableNames(path);

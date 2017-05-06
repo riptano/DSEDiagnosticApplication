@@ -21,8 +21,9 @@ namespace DSEDiagnosticFileParser
 
         private CurrentSessionLineTick _priorSessionLineTick;
         private List<LogCassandraEvent> _sessionEvents = new List<LogCassandraEvent>();
-        private List<Tuple<string, List<LogCassandraEvent>>> _openSessions = new List<Tuple<string, List<LogCassandraEvent>>>();
-        private Dictionary<string, string> _sessionLogIds = new Dictionary<string, string>();
+        private Dictionary<string,LogCassandraEvent> _openSessions = new Dictionary<string, LogCassandraEvent>();
+        private Dictionary<string, LogCassandraEvent> _lookupSessionLabels = new Dictionary<string, LogCassandraEvent>();
+        private List<LogCassandraEvent> _orphanedSessionEvents = new List<LogCassandraEvent>();
 
         public file_cassandra_log4net(CatagoryTypes catagory,
                                     IDirectoryPath diagnosticDirectory,
@@ -63,7 +64,40 @@ namespace DSEDiagnosticFileParser
 
             this._parser = LibrarySettings.Log4NetParser.DetermineParsers(targetDSEVersion);
             this._dcKeyspaces = this.Cluster.GetKeyspaces(this.DataCenter);
+
+            this._result = new LogResults(this);
         }
+
+        public sealed class LogResults : IResult
+        {
+            private LogResults() { }
+            internal LogResults(file_cassandra_log4net fileInstance)
+            {
+                this.Path = fileInstance.File;
+                this.Node = fileInstance.Node;
+                this._eventList = fileInstance._logEvents;
+                this.OrphanedSessionEvents = fileInstance._orphanedSessionEvents;
+                this.OpenSessionEvents = fileInstance._openSessions.Select(i => i.Value);
+            }
+
+            private readonly List<LogCassandraEvent> _eventList;
+
+            public readonly IEnumerable<LogCassandraEvent> OrphanedSessionEvents;
+            public readonly IEnumerable<LogCassandraEvent> OpenSessionEvents;
+
+            #region IResult
+            public IPath Path { get; private set; }
+            public Cluster Cluster { get { return this.DataCenter?.Cluster; } }
+            public IDataCenter DataCenter { get { return this.Node?.DataCenter; } }
+            public INode Node { get; private set; }
+            public int NbrItems { get { return this._eventList.Count; } }
+
+            public IEnumerable<IParsed> Results { get { return this._eventList; } }
+
+            #endregion
+        }
+
+        private readonly LogResults _result;
 
         public Cluster Cluster { get; private set; }
         public IDataCenter DataCenter { get; private set; }
@@ -71,7 +105,7 @@ namespace DSEDiagnosticFileParser
 
         public override IResult GetResult()
         {
-            throw new NotImplementedException();
+            return this._result;
         }
 
         CLogLineTypeParser[] _parser = null;
@@ -80,15 +114,21 @@ namespace DSEDiagnosticFileParser
 
         public override uint ProcessFile()
         {
+            this.CancellationToken.ThrowIfCancellationRequested();
+
             using (var logFileInstance = new ReadLogFile(this.File, LibrarySettings.Log4NetConversionPattern, this.Node))
             {
-                System.Threading.Tasks.Task.Factory.StartNew(() =>
-                                                                logFileInstance.ProcessLogFile().Wait()).Wait();
+               System.Threading.Tasks.Task.Factory.StartNew(() =>
+                                                                logFileInstance.ProcessLogFile().Wait(),
+                                                            this.CancellationToken).Wait();
 
                 var logMessages = logFileInstance.Log;
+                this.NbrItemsParsed = unchecked((int)logFileInstance.LinesRead);
 
                 Tuple<Regex, Match, Regex, Match, CLogLineTypeParser> matchItem;
                 LogCassandraEvent logEvent;
+
+                this.CancellationToken.ThrowIfCancellationRequested();
 
                 foreach (var logMessage in logMessages.Messages)
                 {
@@ -124,12 +164,16 @@ namespace DSEDiagnosticFileParser
                         this.PorcessException();
                     }
 
+                    this.CancellationToken.ThrowIfCancellationRequested();
                 }
             }
 
-            OrphanedSessionEvents.AddRange(this._openSessions.SelectMany(s => { s.Item2.ForEach(e => e.MarkAsOrphaned()); return s.Item2; }));
+            this.CancellationToken.ThrowIfCancellationRequested();
 
-            return 0;
+            OrphanedSessionEvents.AddRange(this._orphanedSessionEvents);
+            //OrphanedSessionEvents.AddRange(this._openSessions.Select(s => { s.Value.MarkAsOrphaned(); return s.Value; }));
+        
+            return (uint) this._logEvents.Count;
         }
 
         private LogCassandraEvent PorcessUnhandledError()
@@ -219,15 +263,15 @@ namespace DSEDiagnosticFileParser
             IEnumerable<IDDLStmt> ddlInstances = null;
             IEnumerable<INode> assocatedNodes = null;
             IEnumerable<DSEInfo.TokenRangeInfo> tokenRanges = null;
-            var parentEvents = this._sessionEvents
-                                .Where(e => e.Type == EventTypes.SessionBegin
+            IEnumerable<LogCassandraEvent> parentEvents = null; /* this._sessionEvents
+                                .Where(e => (e.Type & EventTypes.SessionBegin) == EventTypes.SessionBegin
                                                 && (logMessage.LogDateTimewTZOffset >= e.EventTime
                                                         && (!e.EventTimeEnd.HasValue
                                                                 || logMessage.LogDateTimewTZOffset <= e.EventTimeEnd.Value)))
-                                    .ToList();
-            string sessionKey = null;
+                                    .ToList();*/
+            CLogLineTypeParser.SessionInfo sessionInfo = new CLogLineTypeParser.SessionInfo();
+            string sessionId = null;           
             LogCassandraEvent sessionEvent = null;
-            List<LogCassandraEvent> sessionEventList = null;
             var eventType = matchItem.Item5.EventType;
             bool orphanedSession = false;
 
@@ -260,32 +304,70 @@ namespace DSEDiagnosticFileParser
             {
                 if (primaryKS == null)
                 {
-                    ddlInstances = this.DataCenter.Keyspaces.Select(k => k.TryGetDDL(ddlName))
-                                        .Where(d => d != null)
-                                        .DuplicatesRemoved(d => d.FullName);
+                    var ddls = this.DataCenter.Keyspaces.Select(k => k.TryGetDDL(ddlName))
+                                                                .Where(d => d != null)
+                                                                .DuplicatesRemoved(d => d.FullName);
+
+                    if(ddlInstances != null)
+                    {
+                        ddlInstances = ddlInstances.Append(ddls.ToArray()).DuplicatesRemoved(d => d.FullName);
+                    }
+                    else
+                    {
+                        ddlInstances = ddls;
+                    }
                 }
                 else
                 {
                     var ddlInstance = primaryKS.TryGetDDL(ddlName);
 
-                    if(ddlInstance != null)
-                        ddlInstances = new List<IDDLStmt>() { ddlInstance };
+                    if (ddlInstance != null)
+                    {
+                        if (ddlInstances != null)
+                        {
+                            ddlInstances = ddlInstances.Append(ddlInstance).DuplicatesRemoved(d => d.FullName);
+                        }
+                        else
+                        {
+                            ddlInstances = new List<IDDLStmt>() { ddlInstance };
+                        }
+                    }
                 }
-            }
 
-            if(!string.IsNullOrEmpty(ddlName))
-            {
-                primaryDDL = ddlInstances.FirstOrDefault(d => d.Name == ddlName);
-
-                if(primaryKS == null && primaryDDL != null)
+                if (ddlInstances != null && ddlInstances.HasAtLeastOneElement())
                 {
-                    primaryKS = primaryDDL.Keyspace;
+                    var possiblePrimaryDDLs = ddlInstances.Where(d => d.Name == ddlName && (primaryKS == null || d.Keyspace.Equals(primaryKS)));
+
+                    if(possiblePrimaryDDLs.Count() == 1)
+                    {
+                        primaryDDL = possiblePrimaryDDLs.First();
+                    }
+
+                    if (primaryKS == null && primaryDDL != null)
+                    {
+                        primaryKS = primaryDDL.Keyspace;
+                    }
                 }
             }
 
-            if(primaryKS == null)
+            if (primaryDDL != null && primaryKS == null)
             {
-                if(keyspaceInstances != null && keyspaceInstances.HasAtLeastOneElement())
+                primaryKS = primaryDDL.Keyspace;
+            }
+
+            if (primaryKS == null)
+            {
+                if(ddlInstances != null && ddlInstances.HasAtLeastOneElement())
+                {
+                    var possibleKS = ddlInstances.First().Keyspace;
+
+                    if(ddlInstances.All(d => d.Keyspace.Equals(possibleKS)))
+                    {
+                        primaryKS = possibleKS;
+                    }
+                }
+
+                if(primaryKS == null && keyspaceInstances != null && keyspaceInstances.HasAtLeastOneElement())
                 {
                     var fndKS = keyspaceInstances.First();
 
@@ -294,10 +376,6 @@ namespace DSEDiagnosticFileParser
                         primaryKS = fndKS;
                     }
                 }
-            }
-            if(primaryDDL != null && primaryKS == null)
-            {
-                primaryKS = primaryDDL.Keyspace;
             }
 
             if (!string.IsNullOrEmpty(sstableFilePath))
@@ -398,22 +476,21 @@ namespace DSEDiagnosticFileParser
 
             if (ddlInstances != null && ddlInstances.HasAtLeastOneElement())
             {
-                if (primaryKS == null)
+                if (ddlInstances.Count() == 1)
                 {
-                    var firstKS = ddlInstances.First()?.Keyspace.FullName;
-
-                    if (ddlInstances.All(k => k.Keyspace.FullName == firstKS))
-                    {
-                        primaryKS = ddlInstances.First().Keyspace;
-                    }
+                    if(primaryKS == null) primaryKS = ddlInstances.First().Keyspace;
+                    if(primaryDDL == null) primaryDDL = ddlInstances.First();
                 }
-                if (primaryDDL == null)
+                else
                 {
-                    var firstDDL = ddlInstances.First()?.FullName;
-
-                    if (ddlInstances.All(k => k.FullName == firstDDL))
+                    if (primaryKS == null)
                     {
-                        primaryDDL = ddlInstances.First();
+                        var firstKS = ddlInstances.First()?.Keyspace.FullName;
+
+                        if (ddlInstances.All(k => k.Keyspace.FullName == firstKS))
+                        {
+                            primaryKS = ddlInstances.First().Keyspace;
+                        }
                     }
                 }
             }
@@ -428,85 +505,70 @@ namespace DSEDiagnosticFileParser
 
             #region Session Instance
 
-            if ((eventType & EventTypes.SessionItem) != 0)
+            if ((eventType & EventTypes.SessionItem) == EventTypes.SessionItem)
             {
-                sessionKey = matchItem.Item5.DetermineSessionKey(this.Cluster,
-                                                                    this.Node,
-                                                                    primaryKS,
-                                                                    logProperties,
-                                                                    logMessage);
+                sessionInfo = matchItem.Item5.DetermineSessionInfo(this.Cluster,
+                                                                        this.Node,
+                                                                        primaryKS,
+                                                                        logProperties,
+                                                                        logMessage);
 
-                if (sessionKey != null)
+                var eventInfo = this.GetLogEvent(sessionInfo);
+
+                sessionEvent = eventInfo.Item1;
+                sessionId = eventInfo.Item2;
+
+                if((eventType & EventTypes.SessionBeginForcePriorEnd) == EventTypes.SessionBeginForcePriorEnd)
                 {
-                    sessionEventList = this._openSessions.Find(s => s.Item1 == sessionKey)?.Item2;
+                    eventType &= ~EventTypes.SessionBeginForcePriorEnd;
+                    eventType |= EventTypes.SessionBegin;
 
-                    if (eventType == EventTypes.SessionBeginOrItem)
+                    if (sessionEvent != null &&
+                            (((eventType & EventTypes.SessionBeginOrItem) != EventTypes.SessionBeginOrItem
+                                    && (eventType & EventTypes.SessionReset) != EventTypes.SessionReset)
+                                || ((sessionEvent.Class & ~EventClasses.StatusTypes) == (eventClass & ~EventClasses.StatusTypes)
+                                        && sessionEvent.SubClass == subClass)))
                     {
-                        if (sessionEventList == null)
-                        {
-                            eventType = EventTypes.SessionBegin;
-                        }
-                        else
-                        {
-                            eventType = EventTypes.SessionItem;
-                        }
+                        var removeOpenSessions = this._openSessions.Where(kv => kv.Value.Id == sessionEvent.Id).Select(kv => kv.Key).ToArray();
+                        removeOpenSessions.ForEach(s => this._openSessions.Remove(s));
+                        sessionEvent = null;
                     }
 
-                    if ((eventType & EventTypes.SessionBegin) != 0)
+                    eventType &= ~EventTypes.SessionReset;
+                }
+
+                if (sessionEvent == null)
+                {
+                    if ((eventType & EventTypes.SessionBeginOrItem) == EventTypes.SessionBeginOrItem)
                     {
-                        if (primaryKS == null && sessionEventList != null && sessionEventList.HasAtLeastOneElement())
-                        {
-                           primaryKS = sessionEventList.First().Keyspace;
-                        }
+                        eventType &= ~EventTypes.SessionBeginOrItem;
+                        eventType |= EventTypes.SessionBegin;
+                    }
+
+                    if ((eventType & EventTypes.SessionBegin) != EventTypes.SessionBegin)
+                    {
+                        orphanedSession = true;
+                        eventClass |= EventClasses.Orphaned;
+                    }
+                }
+                else
+                {
+                    if ((eventType & EventTypes.SessionBeginOrItem) == EventTypes.SessionBeginOrItem)
+                    {
+                        eventType &= ~EventTypes.SessionBeginOrItem;
+                        eventType |= EventTypes.SessionItem;                                                
+                    }
+
+                    if (primaryKS == null) primaryKS = sessionEvent.Keyspace;
+                    logId = sessionEvent.Id.ToString();
+
+                    if(parentEvents == null)
+                    {
+                        parentEvents = new List<LogCassandraEvent>() { sessionEvent };
                     }
                     else
                     {
-                        sessionEvent = sessionEventList?.LastOrDefault();
-
-                        if (sessionEvent != null)
-                        {
-                            if(primaryKS == null) primaryKS = sessionEvent.Keyspace;
-                            logId = sessionEvent.Id.ToString();
-                        }
-                    }                    
-                }
-
-                if (sessionEvent == null
-                        && sessionKey == null
-                        && sessionEventList == null)
-                {
-                    orphanedSession = true;
-                    eventClass |= EventClasses.Orphaned;
-                }
-            }
-
-            //Session GUID
-            {
-                var sessionIdKey = matchItem.Item5.DetermineSessionIdKey(this.Cluster,
-                                                                            this.Node,
-                                                                            primaryKS,
-                                                                            logProperties,
-                                                                            logMessage);
-
-                if(sessionIdKey != null)
-                {
-                    if((eventType & EventTypes.SessionId) != 0)
-                    {
-                        if (string.IsNullOrEmpty(logId)) logId = Guid.NewGuid().ToString();
-                        if(this._sessionLogIds.ContainsKey(sessionIdKey))
-                        {
-                            this._sessionLogIds[sessionIdKey] = logId;
-                        }
-                        else
-                        {
-                            this._sessionLogIds.Add(sessionIdKey, logId);
-                        }
-
-                        eventType = EventTypes.SessionItemInfo;
-                    }
-                    else
-                    {
-                        this._sessionLogIds.TryGetValue(sessionIdKey, out logId);
+                        parentEvents = parentEvents.Append(sessionEvent);
                     }
                 }
             }
@@ -546,7 +608,7 @@ namespace DSEDiagnosticFileParser
             #region Generate Log Event
             if (sessionEvent == null)
             {
-                if ((eventType & EventTypes.SessionBegin) == 0 && eventDurationTime.HasValue)
+                if ((eventType & EventTypes.SessionItem) != EventTypes.SessionItem && eventDurationTime.HasValue)
                 {
                     logEvent = new LogCassandraEvent(this.File,
                                                         this.Node,
@@ -568,10 +630,10 @@ namespace DSEDiagnosticFileParser
                                                         ddlInstances,
                                                         assocatedNodes,
                                                         tokenRanges,
-                                                        sessionKey ?? sessionEvent?.SessionTieOutId,
+                                                        sessionId ?? sessionEvent?.SessionTieOutId,
                                                         matchItem.Item5.Product);
                 }
-                else if ((eventType & EventTypes.SessionBegin) == 0 && duration != null)
+                else if ((eventType & EventTypes.SessionItem) != EventTypes.SessionItem && duration != null)
                 {
                     logEvent = new LogCassandraEvent(this.File,
                                                         this.Node,
@@ -593,7 +655,7 @@ namespace DSEDiagnosticFileParser
                                                         ddlInstances,
                                                         assocatedNodes,
                                                         tokenRanges,
-                                                        sessionKey ?? sessionEvent?.SessionTieOutId,
+                                                        sessionId ?? sessionEvent?.SessionTieOutId,
                                                         matchItem.Item5.Product);
                 }
                 else
@@ -618,18 +680,13 @@ namespace DSEDiagnosticFileParser
                                                         ddlInstances,
                                                         assocatedNodes,
                                                         tokenRanges,
-                                                        sessionKey ?? sessionEvent?.SessionTieOutId,
+                                                        sessionId ?? sessionEvent?.SessionTieOutId,
                                                         matchItem.Item5.Product);
-
-                    if ((logEvent.Type & EventTypes.SessionBegin) != 0)
-                    {
-                        this.AddNewSessionToOpenSessions(logEvent, sessionEventList, sessionKey);
-                    }
                 }
             }
             else
             {
-                if ((eventType & EventTypes.SessionEnd) != 0)
+                if ((eventType & EventTypes.SessionEnd) == EventTypes.SessionEnd)
                 {
                     logEvent = new LogCassandraEvent(this.File,
                                                         this.Node,
@@ -651,12 +708,10 @@ namespace DSEDiagnosticFileParser
                                                         ddlInstances,
                                                         assocatedNodes,
                                                         tokenRanges,
-                                                        sessionKey ?? sessionEvent?.SessionTieOutId,
+                                                        sessionId ?? sessionEvent?.SessionTieOutId,
                                                         matchItem.Item5.Product);
 
                     sessionEvent.UpdateEndingTimeStamp(logMessage.LogDateTime);
-
-                    this.RemoveSessionFromOpenSessions(logEvent, sessionEventList, sessionKey, sessionEvent);
                 }
                 else
                 {
@@ -680,7 +735,7 @@ namespace DSEDiagnosticFileParser
                                                         ddlInstances,
                                                         assocatedNodes,
                                                         tokenRanges,
-                                                        sessionKey ?? sessionEvent?.SessionTieOutId,
+                                                        sessionId ?? sessionEvent?.SessionTieOutId,
                                                         matchItem.Item5.Product);
                 }
             }
@@ -688,9 +743,10 @@ namespace DSEDiagnosticFileParser
 
             if (logEvent != null)
             {
-                if ((logEvent.Type & EventTypes.SessionItem) != 0)
+                #region Log Event and Orphan processing
+                if ((logEvent.Type & EventTypes.SessionItem) == EventTypes.SessionItem)
                 {
-                    if(orphanedSession && this._priorSessionLineTick.LogTick == logEvent.EventTimeLocal)
+                    if (orphanedSession && this._priorSessionLineTick.LogTick == logEvent.EventTimeLocal)
                     {
                         var checkSessionKey = logEvent.SessionTieOutId ?? matchItem.Item5.DetermineSessionKey(this.Cluster,
                                                                                                                 this.Node,
@@ -701,7 +757,7 @@ namespace DSEDiagnosticFileParser
                         if (this._priorSessionLineTick.CurrentSession.Type == EventTypes.SessionEnd
                                 && checkSessionKey == this._priorSessionLineTick.CurrentSession.SessionTieOutId)
                         {
-                            if((logEvent.Type & EventTypes.SessionBegin) != 0)
+                            if((logEvent.Type & EventTypes.SessionBegin) == EventTypes.SessionBegin)
                             {
                                 if(this._priorSessionLineTick.CurrentSession.FixSessionEvent(logEvent))
                                 {
@@ -715,7 +771,7 @@ namespace DSEDiagnosticFileParser
                         }
                     }
 
-                    if ((logEvent.Type & EventTypes.SessionEnd) != 0)
+                    if ((logEvent.Type & EventTypes.SessionEnd) == EventTypes.SessionEnd)
                     {
                         this._priorSessionLineTick.LogTick = logEvent.EventTimeLocal;
                         this._priorSessionLineTick.CurrentSession = logEvent;
@@ -724,68 +780,138 @@ namespace DSEDiagnosticFileParser
 
                 if (orphanedSession)
                 {
-                    OrphanedSessionEvents.Add(logEvent);
+                    this._orphanedSessionEvents.Add(logEvent);
                 }
+                #endregion
+
+                #region Session Key and Lookup addition/removal
+
+                this.DetermineSessionStatus(sessionInfo, logEvent);
+
+                #endregion
             }
 
             return logEvent;
         }
 
-        private void AddNewSessionToOpenSessions(LogCassandraEvent logEvent,
-                                                    List<LogCassandraEvent> sessionEventList,
-                                                    string sessionKey)
+        private Tuple<LogCassandraEvent, string> GetLogEvent(CLogLineTypeParser.SessionInfo logLineParserInfo)
         {
-            this._sessionEvents.Add(logEvent);
-            if (sessionEventList == null)
-            {
-                this._openSessions.Add(new Tuple<string, List<LogCassandraEvent>>(sessionKey, new List<LogCassandraEvent>() { logEvent }));
-            }
-            else
-            {
-                sessionEventList.Add(logEvent);
-            }
-        }
+            string sessionKey = null;
+            LogCassandraEvent logEvent = null;
 
-        private void RemoveSessionFromOpenSessions(LogCassandraEvent logEvent,
-                                                        List<LogCassandraEvent> sessionEventList,
-                                                        string sessionKey,
-                                                        LogCassandraEvent sessionEvent)
-        {
-            if (sessionEventList == null || sessionEventList.Count < 2)
+            if(logLineParserInfo.SessionId != null
+                    && (logLineParserInfo.SessionType == CLogLineTypeParser.SessionKeyTypes.Auto
+                            || logLineParserInfo.SessionType == CLogLineTypeParser.SessionKeyTypes.Read))
             {
-                this._openSessions.RemoveAt(this._openSessions.FindIndex(s => s.Item1 == (sessionKey ?? sessionEvent.SessionTieOutId)));
-            }
-            else
-            {
-                sessionEventList.Remove(sessionEvent);
+                logEvent = this._openSessions.TryGetValue(logLineParserInfo.SessionId);
+                sessionKey = logEvent == null ? null : logLineParserInfo.SessionId;
             }
 
-            /*
-            if (logEvent.Class == EventClasses.MemtableFlush && logEvent.TableViewIndex != null)
+            if(logEvent == null)
             {
-                var compactionList = this._openSessions.LastOrDefault(c => c.Item2.HasAtLeastOneElement()
-                                                                        && c.Item2.First().Class == EventClasses.Compaction
-                                                                        && c.Item2.Any(i => i.TableViewIndex != null
-                                                                                                && i.TableViewIndex.Equals(logEvent.TableViewIndex)));
-                if (compactionList != null)
+                switch (logLineParserInfo.LookupType)
                 {
-                    var compaction = compactionList.Item2.LastOrDefault(c => sessionEvent.EventTime <= c.EventTime);
-
-                    if (compaction != null)
-                    {
-                        compaction.UpdateEndingTimeStamp(logEvent.EventTimeLocal);
-
-                        if (compactionList.Item2.Count < 2)
+                    case CLogLineTypeParser.SessionLookupTypes.Session:
+                        if (logLineParserInfo.SessionLookupRegEx == null)
                         {
-                            this._openSessions.RemoveAt(this._openSessions.FindIndex(s => s.Item1 == compaction.SessionTieOutId));
+                            if (logLineParserInfo.SessionLookup != null)
+                            {
+                                logEvent = this._openSessions.TryGetValue(logLineParserInfo.SessionLookup);
+                            }
                         }
                         else
                         {
-                            compactionList.Item2.Remove(compaction);
+                            logEvent = this._openSessions.FirstOrDefault(kv => logLineParserInfo.IsLookupMatch(kv.Key)).Value;
                         }
+                        break;
+                    case CLogLineTypeParser.SessionLookupTypes.ReadLabel:
+                    case CLogLineTypeParser.SessionLookupTypes.ReadRemoveLabel:
+                        if (logLineParserInfo.SessionLookupRegEx == null)
+                        {
+                            if (logLineParserInfo.SessionLookup != null)
+                            {
+                                logEvent = this._lookupSessionLabels.TryGetValue(logLineParserInfo.SessionLookup);
+                            }
+                        }
+                        else
+                        {
+                            logEvent = this._lookupSessionLabels.FirstOrDefault(kv => logLineParserInfo.IsLookupMatch(kv.Key)).Value;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+                sessionKey = logEvent == null ? null : logLineParserInfo.SessionLookup;
+            }
+
+            return new Tuple<LogCassandraEvent, string>(logEvent, sessionKey);
+        }
+
+        private void DetermineSessionStatus(CLogLineTypeParser.SessionInfo logLineParserInfo,
+                                            LogCassandraEvent logEvent,
+                                            bool addSessionKey = false)
+        {
+            if (logEvent == null) return;
+
+            if (logLineParserInfo.SessionId != null)
+            {
+                var sessionType = logLineParserInfo.SessionType;
+
+                if(addSessionKey)
+                {
+                    sessionType = CLogLineTypeParser.SessionKeyTypes.Add;
+                }
+                else if (sessionType == CLogLineTypeParser.SessionKeyTypes.Auto)
+                {
+                    switch (logEvent.Type)
+                    {
+                        case EventTypes.SessionBegin:
+                            sessionType = CLogLineTypeParser.SessionKeyTypes.Add;
+                            break;
+                        case EventTypes.SessionEnd:
+                            sessionType = CLogLineTypeParser.SessionKeyTypes.Delete;
+                            break;
+                        default:
+                            break;
                     }
                 }
-            }*/
+
+                switch (sessionType)
+                {
+                    case CLogLineTypeParser.SessionKeyTypes.Add:
+                        this._openSessions[logLineParserInfo.SessionId] = logEvent;
+                        break;
+                    case CLogLineTypeParser.SessionKeyTypes.Delete:
+                        this._openSessions.Remove(logLineParserInfo.SessionId);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            if(logLineParserInfo.SessionLookupRegEx == null && logLineParserInfo.SessionLookup != null)
+            {
+                switch (logLineParserInfo.LookupType)
+                {
+                    case CLogLineTypeParser.SessionLookupTypes.DefineLabel:
+                        this._lookupSessionLabels[logLineParserInfo.SessionLookup] = logEvent;
+                        break;
+                    case CLogLineTypeParser.SessionLookupTypes.DeleteLabel:
+                    case CLogLineTypeParser.SessionLookupTypes.ReadRemoveLabel:
+                        this._lookupSessionLabels.Remove(logLineParserInfo.SessionLookup);
+                        break;
+                    default:
+                        break;
+                }
+            }
+            else if (logLineParserInfo.SessionLookupRegEx != null
+                        && (logLineParserInfo.LookupType == CLogLineTypeParser.SessionLookupTypes.DeleteLabel
+                                || logLineParserInfo.LookupType == CLogLineTypeParser.SessionLookupTypes.ReadRemoveLabel))
+            {
+                this._lookupSessionLabels.Where(kv => logLineParserInfo.IsLookupMatch(kv.Key))
+                        .Select(kv => kv.Key)
+                        .ForEach(k => this._lookupSessionLabels.Remove(k));
+            }
         }
 
         private static void UpdateMatchProperties(Regex matchRegEx, Match matchItem, Dictionary<string, object> logProperties)
@@ -800,7 +926,24 @@ namespace DSEDiagnosticFileParser
                 {
                     groupNamePos = groupName.IndexOf('_');
 
-                    if (groupNamePos > 0)
+                    if (groupNamePos > 0
+                            && groupName[groupNamePos + 1] == '_')
+                    {
+                        normalizedGroupName = groupName.Substring(0, groupNamePos);
+                        var lookupVar = groupName.Substring(groupNamePos + 2);
+                        object lookupValue;
+
+                        if(logProperties.TryGetValue(lookupVar, out lookupValue)
+                                && lookupValue is UnitOfMeasure)
+                        {
+                            uomType = ((UnitOfMeasure)lookupValue).UnitType.ToString();
+                        }
+                        else
+                        {
+                            uomType = null;
+                        }
+                    }
+                    else if (groupNamePos > 0)
                     {
                         normalizedGroupName = groupName.Substring(0, groupNamePos);
                         uomType = groupName.Substring(groupNamePos + 1);

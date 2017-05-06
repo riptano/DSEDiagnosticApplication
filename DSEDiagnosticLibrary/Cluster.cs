@@ -575,17 +575,22 @@ namespace DSEDiagnosticLibrary
                 if(kstblTuple != null)
                 {
                     ksInstances = cluster.GetKeyspaces(kstblTuple.Item1);
-                    var tableviewInstances = ksInstances.Select(k => k.TryGetTable(kstblTuple.Item2) ?? k.TryGetView(kstblTuple.Item2));
-                    var tableviewInstance = tableviewInstances.FirstOrDefault(t => t?.Id.ToString("N") == kstblTuple.Item3);
+                    var tableviewInstances = ksInstances.Select(k => (IDDLStmt) k.TryGetTable(kstblTuple.Item2) ?? (IDDLStmt) k.TryGetView(kstblTuple.Item2) ?? (IDDLStmt) k.TryGetIndex(kstblTuple.Item2));
+                    var tableviewInstance = tableviewInstances.FirstOrDefault(t => t is ICQLTable
+                                                                                        ? ((ICQLTable)t).Id == null || ((ICQLTable)t).Id.ToString("N") == kstblTuple.Item3
+                                                                                        : kstblTuple.Item3 != null);
 
                     if(tableviewInstance == null)
                     {
                         tableviewInstance = tableviewInstances.FirstOrDefault();
                     }
 
-                    if(tableviewInstance == null)
+                    if(tableviewInstance != null
+                        && kstblTuple.Item3 != null
+                        && tableviewInstance is ICQLTable
+                        && ((ICQLTable)tableviewInstance).Id == null)
                     {
-                        return null;
+                        ((ICQLTable)tableviewInstance).SetID(kstblTuple.Item3);
                     }
 
                     return tableviewInstance;

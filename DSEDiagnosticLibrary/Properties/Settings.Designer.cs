@@ -278,5 +278,30 @@ namespace DSEDiagnosticLibrary.Properties {
                 return ((string)(this["TokenRangeRegEx"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute(@"<?xml version=""1.0"" encoding=""utf-16""?>
+<ArrayOfString xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"">
+  <string>tmp</string>
+  <string>ka</string>
+  <string>jb</string>
+  <string>ja</string>
+  <string>ic</string>
+</ArrayOfString>")]
+        public global::System.Collections.Specialized.StringCollection SSTableVersionMarkers {
+            get {
+                return ((global::System.Collections.Specialized.StringCollection)(this["SSTableVersionMarkers"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("^(?:([a-z0-9\\-_$%+=@!?<>^*&]+)\\-([0-9a-f]{32})$|([a-z0-9\\-_$%+=@!?<>^*&]+)$)")]
+        public string SSTableColumnFamilyRegEx {
+            get {
+                return ((string)(this["SSTableColumnFamilyRegEx"]));
+            }
+        }
     }
 }

@@ -35,6 +35,7 @@ namespace DSEDiagnosticLibrary
         public static string[] TablesUsageFlag = Properties.Settings.Default.TablesUsageFlag.ToArray();
         public static string[] IsSasIIIndexClasses = Properties.Settings.Default.IsSasIIIndexClasses.ToArray();
         public static string[] IsSolrIndexClass = Properties.Settings.Default.IsSolrIndexClass.ToArray();
+        public static string[] SSTableVersionMarkers = Properties.Settings.Default.SSTableVersionMarkers.ToArray();
 
         public static T ParseEnum<T>(string enumValue)
             where T : struct

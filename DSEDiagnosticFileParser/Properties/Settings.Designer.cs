@@ -35,8 +35,10 @@ namespace DSEDiagnosticFileParser.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("[ApplicationRunTimeDirectory]\\Json\\ProcessFileMappings.json,[ApplicationRunTimeDi" +
-            "rectory]\\ProcessFileMappings.json,.\\ProcessFileMappings.json")]
+        [global::System.Configuration.DefaultSettingValueAttribute("[cpld]\\Json\\ProcessFileMappings.json,[cpld]\\ProcessFileMappings.json,[Application" +
+            "RunTimeDirectory]\\Json\\ProcessFileMappings.json,[ApplicationRunTimeDirectory]\\Pr" +
+            "ocessFileMappings.json,.\\Json\\ProcessFileMappings.json,.\\ProcessFileMappings.jso" +
+            "n")]
         public string ProcessFileMappings {
             get {
                 return ((string)(this["ProcessFileMappings"]));
@@ -45,9 +47,7 @@ namespace DSEDiagnosticFileParser.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("[ApplicationRunTimeDirectory]\\Json\\DiagnosticFileRegExAssocations.json,[Applicati" +
-            "onRunTimeDirectory]\\DiagnosticFileRegExAssocations.json,.\\DiagnosticFileRegExAss" +
-            "ocations.json")]
+        [global::System.Configuration.DefaultSettingValueAttribute(@"[cpld]\Json\DiagnosticFileRegExAssocations.json,[cpld]\DiagnosticFileRegExAssocations.json,[ApplicationRunTimeDirectory]\Json\DiagnosticFileRegExAssocations.json,[ApplicationRunTimeDirectory]\DiagnosticFileRegExAssocations.json,.\DiagnosticFileRegExAssocations.json,.\Json\DiagnosticFileRegExAssocations.json")]
         public string DiagnosticFileRegExAssocations {
             get {
                 return ((string)(this["DiagnosticFileRegExAssocations"]));
@@ -97,8 +97,9 @@ namespace DSEDiagnosticFileParser.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("[ApplicationRunTimeDirectory]\\Json\\Log4NetParser.json,[ApplicationRunTimeDirector" +
-            "y]\\Log4NetParser.json,.\\Log4NetParser.json")]
+        [global::System.Configuration.DefaultSettingValueAttribute("[cpld]\\Json\\Log4NetParser.json,[cpld]\\Log4NetParser.json,[ApplicationRunTimeDirec" +
+            "tory]\\Json\\Log4NetParser.json,[ApplicationRunTimeDirectory]\\Log4NetParser.json,." +
+            "\\Log4NetParser.json,.\\Json\\Log4NetParser.json")]
         public string Log4NetParser {
             get {
                 return ((string)(this["Log4NetParser"]));

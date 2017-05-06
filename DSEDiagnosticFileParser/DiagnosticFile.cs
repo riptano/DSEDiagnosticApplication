@@ -482,7 +482,7 @@ namespace DSEDiagnosticFileParser
 
                     var nbrItems = processingFileInstance.ProcessFile();
 
-                    processingFileInstance._nbrItemGenerated = (int)nbrItems;
+                    processingFileInstance._nbrItemGenerated = unchecked((int)nbrItems);
 
                     if (!processingFileInstance.Processed && nbrItems > 0) processingFileInstance.Processed = true;
 

@@ -467,6 +467,8 @@ namespace DSEDiagnosticLibrary
         bool IsFlagged { get; }
 
         IDDL AssociateItem(IDDL ddl);
+
+        void SetID(string uuid);
     }
 
     public class CQLTable : ICQLTable
@@ -713,6 +715,25 @@ namespace DSEDiagnosticLibrary
             }
 
             return ddl;
+        }
+
+        public void SetID(string uuid)
+        {
+            if(!string.IsNullOrEmpty(uuid))
+            {
+                if (this.Id == null)
+                {
+                    this.Id = new Guid(uuid);
+                }
+                else if(this.Id.ToString("N") != uuid)
+                {
+                    throw new ArgumentException(string.Format("Trying to set the Id on \"{0}\" which already exists. Current Id {1}; Setting Value {2}",
+                                                                this.FullName,
+                                                                this.Id,
+                                                                uuid),
+                                                "Id");
+                }
+            }
         }
 
         public IEnumerable<ICQLColumn> TryGetColumns(IEnumerable<string> columns)

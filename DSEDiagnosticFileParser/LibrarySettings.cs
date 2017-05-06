@@ -59,6 +59,7 @@ namespace DSEDiagnosticFileParser
                 }
 
                 IFilePath jsonPath = null;
+                List<string> triedPaths = new List<string>();
 
                 foreach (var filePath in jsonStringOrFile.Split(','))
                 {
@@ -68,12 +69,13 @@ namespace DSEDiagnosticFileParser
                     {
                         break;
                     }
+                    triedPaths.Add(jsonPath.PathResolved);
                     jsonPath = null;
                 }
 
                 if (jsonPath == null)
                 {
-                    throw new System.IO.FileNotFoundException("Json File Path was not found.", jsonStringOrFile);
+                    throw new System.IO.FileNotFoundException(string.Format("Json File Path was not found. Tried: {{{0}}}", string.Join(", ", triedPaths)), jsonStringOrFile);
                 }
 
                 string jsonString;
