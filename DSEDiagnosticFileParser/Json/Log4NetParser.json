@@ -510,11 +510,12 @@
       "MessageMatch": { "RegExStrings": [ "^Handshaking\\s" ] },
       "ParseMessage": { "RegExStrings": [ "^Handshaking\\s+\\w+\\s+\\w+\\s+/?\\s*(?<NODE>[^ ]+)$" ] },
       "ParseThreadId": null,
-      "EventType": "SessionItem",
+      "EventType": "SessionItem, SessionIgnore",
       "EventClass": "HintHandOff",
       "SubClass": null,
       "Product": "Cassandra",
-      "SessionKey": "'HintHandoff' + NODE",
+      "SessionKeyLookup": "'HintHandoff' + NODE",
+      "SessionLookupType" : "Session",
       "Examples": [
         "INFO  [CompactionExecutor:1658] 2017-02-12 02:14:00,978  CompactionTask.java:141 - Compacting [SSTableReader(path='/data/cassandra/data/system/hints-2666e20573ef38b390fefecf96e8f0c7/system-hints-ka-429-Data.db')]",
 
@@ -554,6 +555,45 @@
         "INFO  [MemtableFlushWriter:2276] 2017-02-12 02:14:01,022  Memtable.java:347 - Writing Memtable-hints@1107882196(0.258KiB serialized bytes, 16 ops, 0%/0% of on/off-heap limit)",
         "INFO  [MemtableFlushWriter:2276] 2017-02-12 02:14:01,023  Memtable.java:382 - Completed flushing /data/cassandra/data/system/hints-2666e20573ef38b390fefecf96e8f0c7/system-hints-tmp-ka-430-Data.db (0.000KiB) for commitlog position ReplayPosition(segmentId=1486705956518, position=18941784)"
       ]
+    },
+    {
+      "MatchVersion": null,
+      "LevelMatch": { "RegExStrings": [ "INFO" ] },
+      "ThreadIdMatch": null,
+      "FileNameMatch": { "RegExStrings": [ "^Gossiper.java$" ] },
+      "FileLineMatch": { "RegExStrings": [ "^1008$" ] },
+      "MessageMatch": null,
+      "ParseMessage": { "RegExStrings": [ "^InetAddress\\s+/?\\s*(?<NODE>[^ ]+)\\s+\\w+\\s+\\w+\\s+(?<status>DOWN)$" ] },
+      "ParseThreadId": null,
+      "EventType": "SessionBegin",
+      "EventClass": "NodeDetection",
+      "SubClass": null,
+      "Product": "Cassandra",
+      "SessionKey": "EventClass + NODE",      
+      "Examples": [
+        "=> INFO  [GossipTasks:1] 2017-02-12 02:13:59,976  Gossiper.java:1008 - InetAddress /10.1.37.0 is now DOWN",        
+        "INFO  [SharedPool-Worker-1] 2017-02-12 02:14:00,978  Gossiper.java:993 - InetAddress /10.1.37.0 is now UP"
+      ]
+    },
+    {
+      "MatchVersion": null,
+      "LevelMatch": { "RegExStrings": [ "INFO" ] },
+      "ThreadIdMatch": null,
+      "FileNameMatch": { "RegExStrings": [ "^Gossiper.java$" ] },
+      "FileLineMatch": { "RegExStrings": [ "^993$" ] },
+      "MessageMatch": null,
+      "ParseMessage": { "RegExStrings": [ "^InetAddress\\s+/?\\s*(?<NODE>[^ ]+)\\s+\\w+\\s+\\w+\\s+(?<status>UP)$" ] },
+      "ParseThreadId": null,
+      "EventType": "SessionEnd",
+      "EventClass": "NodeDetection",
+      "SubClass": null,
+      "Product": "Cassandra",
+      "SessionKey": "EventClass + NODE",      
+      "Examples": [
+        "INFO  [GossipTasks:1] 2017-02-12 02:13:59,976  Gossiper.java:1008 - InetAddress /10.1.37.0 is now DOWN",        
+        "=> INFO  [SharedPool-Worker-1] 2017-02-12 02:14:00,978  Gossiper.java:993 - InetAddress /10.1.37.0 is now UP"
+      ]
     }
+
   ]
 }

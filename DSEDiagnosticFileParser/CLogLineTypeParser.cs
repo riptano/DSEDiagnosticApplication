@@ -60,8 +60,10 @@ namespace DSEDiagnosticFileParser
             Session = 0,
             ReadLabel = 1,
             DefineLabel = 2,
-            DeleteLabel = 3,
-            ReadRemoveLabel = 4
+            DeleteLabel = 3,           
+            ReadRemoveLabel = 4,
+            DefineSession = 5,
+            DeleteSession = 6
         }
 
         public enum SessionKeyTypes
@@ -247,6 +249,10 @@ namespace DSEDiagnosticFileParser
         public RegExParseString ParseThreadId { get; set; }
         public EventTypes EventType { get; set; }
         public EventClasses EventClass { get; set; }
+        /// <summary>
+        /// If true, the event is ignored and not processed.
+        /// </summary>
+        public bool IgnoreEvent { get; set; }
 
         private const int SubClassIdx = 1;
         private string _subclass = null;
@@ -530,12 +536,16 @@ namespace DSEDiagnosticFileParser
                                     {
                                         i = i.Trim();
 
-                                        if (i[0] == '"')
+                                        if (i[0] == '"' && i.Last() == '"')
                                             return i;
-                                        if (i[0] == '\'')
+                                        if (i[0] == '\'' && i.Last() == '\'')
                                             return '"' + i.Substring(1, i.Length - 2) + '"';
+                                        if (i[0] == '"' || i.Last() == '"' || i[0] == '\'' || i.Last() == '\'')
+                                            throw new ArgumentException(string.Format("Invalid parameter value of \"{0}\" found. Improper quotes found.", i), "propertyValue");
                                         if (i == "EventClass")
                                             return '"' + logLineParser.EventClass.ToString() + '"';
+                                        if (i == "EventType")
+                                            return '"' + logLineParser.EventType.ToString() + '"';
                                         if (i == "Product")
                                             return '"' + logLineParser.Product.ToString() + '"';
                                         return string.Format("CLogLineTypeParser.GenerateSessionKey(\"{0}\", " +

@@ -128,10 +128,10 @@ namespace DSEDiagnosticFileParser
                 Tuple<Regex, Match, Regex, Match, CLogLineTypeParser> matchItem;
                 LogCassandraEvent logEvent;
 
-                this.CancellationToken.ThrowIfCancellationRequested();
-
                 foreach (var logMessage in logMessages.Messages)
                 {
+                    this.CancellationToken.ThrowIfCancellationRequested();
+
                     matchItem = CLogTypeParser.FindMatch(this._parser, logMessage);
 
                     if(matchItem == null)
@@ -151,6 +151,10 @@ namespace DSEDiagnosticFileParser
                                 this._logEvents.Add(logEvent);
                         }
                     }
+                    else if(matchItem.Item5.IgnoreEvent)
+                    {
+                        continue;
+                    }
                     else
                     {
                         logEvent = this.PorcessMatch(logMessage, matchItem);
@@ -163,8 +167,6 @@ namespace DSEDiagnosticFileParser
                     {
                         this.PorcessException();
                     }
-
-                    this.CancellationToken.ThrowIfCancellationRequested();
                 }
             }
 
@@ -172,7 +174,7 @@ namespace DSEDiagnosticFileParser
 
             OrphanedSessionEvents.AddRange(this._orphanedSessionEvents);
             //OrphanedSessionEvents.AddRange(this._openSessions.Select(s => { s.Value.MarkAsOrphaned(); return s.Value; }));
-        
+
             return (uint) this._logEvents.Count;
         }
 
@@ -270,7 +272,7 @@ namespace DSEDiagnosticFileParser
                                                                 || logMessage.LogDateTimewTZOffset <= e.EventTimeEnd.Value)))
                                     .ToList();*/
             CLogLineTypeParser.SessionInfo sessionInfo = new CLogLineTypeParser.SessionInfo();
-            string sessionId = null;           
+            string sessionId = null;
             LogCassandraEvent sessionEvent = null;
             var eventType = matchItem.Item5.EventType;
             bool orphanedSession = false;
@@ -539,6 +541,11 @@ namespace DSEDiagnosticFileParser
 
                 if (sessionEvent == null)
                 {
+                    if((eventType & EventTypes.SessionIgnore) == EventTypes.SessionIgnore)
+                    {
+                        return null;
+                    }
+
                     if ((eventType & EventTypes.SessionBeginOrItem) == EventTypes.SessionBeginOrItem)
                     {
                         eventType &= ~EventTypes.SessionBeginOrItem;
@@ -556,7 +563,7 @@ namespace DSEDiagnosticFileParser
                     if ((eventType & EventTypes.SessionBeginOrItem) == EventTypes.SessionBeginOrItem)
                     {
                         eventType &= ~EventTypes.SessionBeginOrItem;
-                        eventType |= EventTypes.SessionItem;                                                
+                        eventType |= EventTypes.SessionItem;
                     }
 
                     if (primaryKS == null) primaryKS = sessionEvent.Keyspace;
@@ -893,6 +900,12 @@ namespace DSEDiagnosticFileParser
             {
                 switch (logLineParserInfo.LookupType)
                 {
+                    case CLogLineTypeParser.SessionLookupTypes.DefineSession:
+                        this._openSessions[logLineParserInfo.SessionLookup] = logEvent;
+                        break;
+                    case CLogLineTypeParser.SessionLookupTypes.DeleteSession:
+                        this._openSessions.Remove(logLineParserInfo.SessionLookup);
+                        break;
                     case CLogLineTypeParser.SessionLookupTypes.DefineLabel:
                         this._lookupSessionLabels[logLineParserInfo.SessionLookup] = logEvent;
                         break;
@@ -904,13 +917,21 @@ namespace DSEDiagnosticFileParser
                         break;
                 }
             }
-            else if (logLineParserInfo.SessionLookupRegEx != null
-                        && (logLineParserInfo.LookupType == CLogLineTypeParser.SessionLookupTypes.DeleteLabel
-                                || logLineParserInfo.LookupType == CLogLineTypeParser.SessionLookupTypes.ReadRemoveLabel))
+            else if (logLineParserInfo.SessionLookupRegEx != null)
             {
-                this._lookupSessionLabels.Where(kv => logLineParserInfo.IsLookupMatch(kv.Key))
-                        .Select(kv => kv.Key)
-                        .ForEach(k => this._lookupSessionLabels.Remove(k));
+                if (logLineParserInfo.LookupType == CLogLineTypeParser.SessionLookupTypes.DeleteLabel
+                                || logLineParserInfo.LookupType == CLogLineTypeParser.SessionLookupTypes.ReadRemoveLabel)
+                {
+                    this._lookupSessionLabels.Where(kv => logLineParserInfo.IsLookupMatch(kv.Key))
+                            .Select(kv => kv.Key)
+                            .ForEach(k => this._lookupSessionLabels.Remove(k));
+                }
+                else if(logLineParserInfo.LookupType == CLogLineTypeParser.SessionLookupTypes.DeleteSession)
+                {
+                    this._openSessions.Where(kv => logLineParserInfo.IsLookupMatch(kv.Key))
+                            .Select(kv => kv.Key)
+                            .ForEach(k => this._openSessions.Remove(k));
+                }
             }
         }
 
