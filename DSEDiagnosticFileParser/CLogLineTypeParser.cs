@@ -55,15 +55,23 @@ namespace DSEDiagnosticFileParser
 
         #endregion
 
+        [Flags]
         public enum SessionLookupTypes
         {
-            Session = 0,
-            ReadLabel = 1,
-            DefineLabel = 2,
-            DeleteLabel = 3,           
-            ReadRemoveLabel = 4,
-            DefineSession = 5,
-            DeleteSession = 6
+            Default = 0,
+            Label = 0x0001,
+            Session = 0x0002,
+            Read = 0x0004,
+            Define = 0x0008,
+            Delete = 0x0010,
+            ReadSession = Read | Session,
+            ReadLabel = Read | Label,
+            DefineLabel = Define | Label,
+            DeleteLabel = Delete | Label,
+            ReadRemoveLabel = Read | Delete | Label,
+            ReadRemoveSession = Read | Delete | Session,
+            DefineSession = Define | Session,
+            DeleteSession = Delete | Session
         }
 
         public enum SessionKeyTypes
@@ -74,7 +82,11 @@ namespace DSEDiagnosticFileParser
             Delete = 3
         }
 
-        public CLogLineTypeParser() { }
+        public CLogLineTypeParser()
+        {
+            if (SessionLookupType == SessionLookupTypes.Default)
+                this.SessionLookupType = SessionLookupTypes.ReadSession;
+        }
 
         public CLogLineTypeParser(string levelMatchRegEx,
                                     string threadidMatchRegEx,
@@ -134,7 +146,10 @@ namespace DSEDiagnosticFileParser
             this.SubClass = subClass;
             this.Product = product;
             this.SessionKey = sessionKey;
-            this.Examples = null;
+            this.Examples = examples;
+
+            if (this.SessionLookupType == SessionLookupTypes.Default)
+                this.SessionLookupType = SessionLookupTypes.ReadSession;
         }
 
         /// <summary>
