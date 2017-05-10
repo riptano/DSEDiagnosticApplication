@@ -325,15 +325,15 @@ namespace DSEDiagnosticLibrary
             return false;
         }
 
-        public void UpdateEndingTimeStamp(DateTime eventTimeLocalEnd, bool checkEndTime = true)
+        public void UpdateEndingTimeStamp(DateTime eventTimeLocalEnd, bool checkEndTime = true, bool forceUpdate = false)
         {
             var newEndTime = new DateTimeOffset(eventTimeLocalEnd, this.EventTime.Offset);
 
-            if (!this.EventTimeEnd.HasValue || (checkEndTime && newEndTime > this.EventTimeEnd))
+            if (forceUpdate || !this.EventTimeEnd.HasValue || (checkEndTime && newEndTime > this.EventTimeEnd))
             {
                 this.EventTimeEnd = newEndTime;
 
-                if (!this.Duration.HasValue)
+                if (forceUpdate || !checkEndTime || !this.Duration.HasValue)
                 {
                     this.Duration = this.EventTimeEnd - this.EventTimeBegin;
                 }
