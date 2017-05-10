@@ -14,6 +14,8 @@ namespace DSEDiagnosticLibrary
     {
         static public string RemoveQuotes(string item, bool checkbrackets = true)
         {
+            if (string.IsNullOrEmpty(item)) return null;
+
             RemoveQuotes(item, out item, checkbrackets);
             return item;
         }

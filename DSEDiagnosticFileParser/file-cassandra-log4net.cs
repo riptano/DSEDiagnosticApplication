@@ -19,6 +19,13 @@ namespace DSEDiagnosticFileParser
             public LogCassandraEvent CurrentSession;
         }
 
+        struct LateDDLResolution
+        {
+            public string KSName;
+            public string DDLSSTableName;
+            public IEnumerable<string> DDLNames;
+        }
+
         private CurrentSessionLineTick _priorSessionLineTick;
         private List<LogCassandraEvent> _sessionEvents = new List<LogCassandraEvent>();
         private Dictionary<string,LogCassandraEvent> _openSessions = new Dictionary<string, LogCassandraEvent>();
@@ -111,6 +118,7 @@ namespace DSEDiagnosticFileParser
         CLogLineTypeParser[] _parser = null;
         List<LogCassandraEvent> _logEvents = new List<LogCassandraEvent>();
         public static readonly CTS.List<LogCassandraEvent> OrphanedSessionEvents = new CTS.List<LogCassandraEvent>();
+        List<Tuple<LogCassandraEvent, LateDDLResolution>> _lateResolutionEvents = new List<Tuple<LogCassandraEvent, LateDDLResolution>>();
 
         public override uint ProcessFile()
         {
@@ -243,155 +251,191 @@ namespace DSEDiagnosticFileParser
                                                 : null));
             DateTime? eventDurationTime = logProperties.TryGetValue("EVENTDURATIONDATETIME") as DateTime?;
 
-            var keyspaceName = (string) logProperties.TryGetValue("KEYSPACE");
-            var ddlName = (string)logProperties.TryGetValue("DDLITEMNAME");
-            var sstableFilePath = (string) logProperties.TryGetValue("SSTABLEPATH");
+            var keyspaceName = StringHelpers.RemoveQuotes((string) logProperties.TryGetValue("KEYSPACE"));
+            var ddlName = StringHelpers.RemoveQuotes((string)logProperties.TryGetValue("DDLITEMNAME") ?? (string)logProperties.TryGetValue("TABLEVIEWNAME"));
+            var sstableFilePath = StringHelpers.RemoveQuotes((string) logProperties.TryGetValue("SSTABLEPATH"));
             var keyspaceNames = TurnPropertyIntoCollection(logProperties, "KEYSPACES");
             var ddlNames = TurnPropertyIntoCollection(logProperties, "DDLITEMNAMES");
-            var sstableFilePaths = TurnPropertyIntoCollection(logProperties, "SSTABLEPATHS")
-                                    ?.DuplicatesRemoved(p => p);
+            var sstableFilePaths = TurnPropertyIntoCollection(logProperties, "SSTABLEPATHS");
             EventClasses eventClass = matchItem.Item5.EventClass;
 
-            IKeyspace primaryKS = string.IsNullOrEmpty(keyspaceName)
-                                    ? null
-                                    : this._dcKeyspaces.FirstOrDefault(k => k.Equals(keyspaceName));
-            IDDLStmt primaryDDL = null;
+            IKeyspace primaryKS = null;
+            IDDLStmt primaryDDL = Cluster.TryGetTableIndexViewbyString(sstableFilePath ?? ddlName, this.Cluster, this.DataCenter, keyspaceName);
             IEnumerable<IKeyspace> keyspaceInstances = keyspaceNames == null
                                                             ? null
                                                             : keyspaceNames
                                                                     .Select(k => this._dcKeyspaces.FirstOrDefault(ki => ki.Equals(k)))
                                                                     .Where(k => k != null)
                                                                     .DuplicatesRemoved(k => k.FullName);
-            IEnumerable<IDDLStmt> ddlInstances = null;
+            List<IDDLStmt> ddlInstances = null;
             IEnumerable<INode> assocatedNodes = null;
             IEnumerable<DSEInfo.TokenRangeInfo> tokenRanges = null;
-            IEnumerable<LogCassandraEvent> parentEvents = null; /* this._sessionEvents
-                                .Where(e => (e.Type & EventTypes.SessionBegin) == EventTypes.SessionBegin
-                                                && (logMessage.LogDateTimewTZOffset >= e.EventTime
-                                                        && (!e.EventTimeEnd.HasValue
-                                                                || logMessage.LogDateTimewTZOffset <= e.EventTimeEnd.Value)))
-                                    .ToList();*/
+            List<LogCassandraEvent> parentEvents = null;
             CLogLineTypeParser.SessionInfo sessionInfo = new CLogLineTypeParser.SessionInfo();
             string sessionId = null;
             LogCassandraEvent sessionEvent = null;
             var eventType = matchItem.Item5.EventType;
             bool orphanedSession = false;
+            LateDDLResolution? lateDDLresolution = null;
 
             #region Determine Keyspace/DDLs
-
-            if (ddlNames != null && ddlNames.HasAtLeastOneElement())
             {
-                if (!string.IsNullOrEmpty(ddlName))
+                IEnumerable<IDDLStmt> sstableDDLInstance = null;
+
+                if(primaryDDL != null)
                 {
-                    var ddlNameList = new List<string>(ddlNames);
-                    ddlNameList.Add(ddlName);
-                    ddlNames = ddlNameList;
+                    primaryKS = primaryDDL.Keyspace;
+                }
+                else if (primaryKS == null && !string.IsNullOrEmpty(keyspaceName))
+                {
+                    primaryKS = this._dcKeyspaces.FirstOrDefault(ki => ki.Equals(keyspaceName));
                 }
 
-                if (primaryKS == null)
+                if (!string.IsNullOrEmpty(sstableFilePath))
                 {
-                    ddlInstances = ddlNames.SelectMany(d => this.DataCenter.Keyspaces.Select(k => k.TryGetDDL(d)))
-                                    .Where(d => d != null)
-                                    .DuplicatesRemoved(d => d.FullName);
-                }
-                else
-                {
-                    ddlInstances = ddlNames.Select(d => primaryKS.TryGetDDL(d))
-                                    .Where(d => d != null)
-                                    .DuplicatesRemoved(d => d.FullName);
-                }
-            }
-
-            if (!string.IsNullOrEmpty(ddlName))
-            {
-                if (primaryKS == null)
-                {
-                    var ddls = this.DataCenter.Keyspaces.Select(k => k.TryGetDDL(ddlName))
-                                                                .Where(d => d != null)
-                                                                .DuplicatesRemoved(d => d.FullName);
-
-                    if(ddlInstances != null)
+                    if (sstableFilePaths == null)
                     {
-                        ddlInstances = ddlInstances.Append(ddls.ToArray()).DuplicatesRemoved(d => d.FullName);
+                        sstableFilePaths = new List<string>() { sstableFilePath };
                     }
                     else
                     {
-                        ddlInstances = ddls;
+                        if (!sstableFilePaths.Contains(sstableFilePath))
+                        {
+                            sstableFilePaths.Add(sstableFilePath);
+                        }
                     }
                 }
-                else
-                {
-                    var ddlInstance = primaryKS.TryGetDDL(ddlName);
 
-                    if (ddlInstance != null)
+                if (sstableFilePaths != null && sstableFilePaths.HasAtLeastOneElement())
+                {
+                    sstableFilePaths = sstableFilePaths.Select(p => StringHelpers.RemoveQuotes(p)).DuplicatesRemoved(p => p).ToList();
+
+                    var ddlItems = sstableFilePaths.SelectMany(i => Cluster.TryGetTableIndexViewsbyString(i, this.Cluster, this.DataCenter))
+                                                    .DuplicatesRemoved(d => d.FullName);
+
+                    if (ddlItems.HasAtLeastOneElement())
                     {
-                        if (ddlInstances != null)
+                        if (ddlInstances == null || ddlInstances.IsEmpty())
                         {
-                            ddlInstances = ddlInstances.Append(ddlInstance).DuplicatesRemoved(d => d.FullName);
+                            ddlInstances = ddlItems.ToList();
                         }
                         else
                         {
-                            ddlInstances = new List<IDDLStmt>() { ddlInstance };
+                            ddlInstances.AddRange(ddlItems);
+                        }
+
+                        sstableDDLInstance = ddlItems;
+                    }
+                }
+
+                if(!string.IsNullOrEmpty(ddlName))
+                {
+                    if(ddlNames == null || ddlNames.IsEmpty())
+                    {
+                        ddlNames = new List<string>() { ddlName };
+                    }
+                    else
+                    {
+                        ddlNames.Add(ddlName);
+                    }
+                }
+
+                if (ddlNames != null && ddlNames.HasAtLeastOneElement())
+                {
+                    var ddlItems = ddlNames.SelectMany(i => Cluster.TryGetTableIndexViewsbyString(i, this.Cluster, this.DataCenter))
+                                                    .DuplicatesRemoved(d => d.FullName);
+
+                    if (ddlItems.HasAtLeastOneElement())
+                    {
+                        if (ddlInstances == null || ddlInstances.IsEmpty())
+                        {
+                            ddlInstances = ddlItems.ToList();
+                        }
+                        else
+                        {
+                            ddlInstances.AddRange(ddlItems);
                         }
                     }
                 }
 
-                if (ddlInstances != null && ddlInstances.HasAtLeastOneElement())
+                if(primaryKS == null
+                        && ddlInstances != null
+                        && ddlInstances.HasAtLeastOneElement())
                 {
-                    var possiblePrimaryDDLs = ddlInstances.Where(d => d.Name == ddlName && (primaryKS == null || d.Keyspace.Equals(primaryKS)));
-
-                    if(possiblePrimaryDDLs.Count() == 1)
+                    if (ddlInstances.Count() == 1)
                     {
-                        primaryDDL = possiblePrimaryDDLs.First();
-                    }
-
-                    if (primaryKS == null && primaryDDL != null)
-                    {
+                        primaryDDL = ddlInstances.First();
                         primaryKS = primaryDDL.Keyspace;
                     }
+                    else
+                    {
+                        var possibleKS = ddlInstances.First().Keyspace;
+
+                        if (ddlInstances.All(d => d.Keyspace.Equals(possibleKS)))
+                        {
+                            primaryKS = possibleKS;
+                        }
+                    }
                 }
-            }
 
-            if (primaryDDL != null && primaryKS == null)
-            {
-                primaryKS = primaryDDL.Keyspace;
-            }
-
-            if (primaryKS == null)
-            {
-                if(ddlInstances != null && ddlInstances.HasAtLeastOneElement())
+                if(primaryKS == null
+                        && keyspaceInstances != null
+                        && keyspaceInstances.HasAtLeastOneElement())
                 {
-                    var possibleKS = ddlInstances.First().Keyspace;
+                    var possibleKS = keyspaceInstances.First();
 
-                    if(ddlInstances.All(d => d.Keyspace.Equals(possibleKS)))
+                    if (keyspaceInstances.All(d => d.Equals(possibleKS)))
                     {
                         primaryKS = possibleKS;
                     }
                 }
 
-                if(primaryKS == null && keyspaceInstances != null && keyspaceInstances.HasAtLeastOneElement())
-                {
-                    var fndKS = keyspaceInstances.First();
+                var ddlInstancesCnt = ddlInstances == null ? 0 : ddlInstances.Count();
+                var ddlNamesCnt = (ddlNames == null ? 0 : ddlNames.Count())
+                                    + (sstableDDLInstance == null ? 0 : sstableDDLInstance.Count());
 
-                    if(keyspaceInstances.All(k => k.Equals(fndKS)))
+                if (ddlInstancesCnt != ddlNamesCnt)
+                {
+                    if(primaryKS == null && ddlInstancesCnt > ddlNamesCnt)
                     {
-                        primaryKS = fndKS;
+                        lateDDLresolution = new LateDDLResolution()
+                        {
+                            KSName = keyspaceName,
+                            DDLSSTableName = sstableFilePath ?? ddlName,
+                            DDLNames = ddlNames
+                        };
+                        ddlInstances = null;
                     }
-                }
-            }
-
-            if (!string.IsNullOrEmpty(sstableFilePath))
-            {
-                if(sstableFilePaths == null)
-                {
-                    sstableFilePaths = new List<string>() { StringHelpers.RemoveQuotes(sstableFilePath) };
-                }
-                else
-                {
-                    if (!sstableFilePaths.Contains(sstableFilePath = StringHelpers.RemoveQuotes(sstableFilePath)))
+                    else
                     {
-                        sstableFilePaths = new List<string>(sstableFilePaths);
-                        ((List<string>)sstableFilePaths).Add(sstableFilePath);
+                        var instanceNames = ddlInstances?.Select(d => primaryKS == null ? d.Name : d.FullName);
+                        var names = new List<string>();
+
+                        if(ddlNames != null)
+                        {
+                            names.AddRange(primaryKS == null ? ddlNames : ddlNames.Select(s => s.Contains('.') ? s : primaryKS.Name + '.' + s));
+                        }
+                        if (sstableFilePaths != null)
+                        {
+                            names.AddRange(sstableDDLInstance.Select(d => primaryKS == null ? d.Name : d.FullName));
+                        }
+
+                        var diffNames = ddlInstancesCnt > ddlNamesCnt
+                                            ? instanceNames.Complement(names)
+                                            : names.Complement(instanceNames);
+
+                        if(diffNames.IsEmpty())
+                        {
+                            diffNames = names;
+                        }
+
+                        Logger.Instance.ErrorFormat("{0}\t{1}\tCasandra Log Event at {2:yyyy-MM-dd HH:mm:ss,fff} has {3} DDL statements for {{{4}}} in regards to line \"{5}\". DDLItems property may contain invalid instances.",
+                                                    this.Node,
+                                                    this.File.PathResolved,
+                                                    logMessage.LogDateTime,
+                                                    ddlInstancesCnt > ddlNamesCnt ? "multiple resolutions" : "unresolved",
+                                                    string.Join(",", diffNames),
+                                                    logMessage.Message);
                     }
                 }
             }
@@ -458,45 +502,6 @@ namespace DSEDiagnosticFileParser
                 tokenRanges = tokenList;
             }
             #endregion
-            #region Determine primary Keyspace (if missing) and/or DDLs from SSTables
-            if(sstableFilePaths != null && sstableFilePaths.HasAtLeastOneElement())
-            {
-                var ddlItems = sstableFilePaths.Select(i => Cluster.TryGetTableIndexViewbyString(i, this.Cluster.Name))
-                                                .Where(i => i != null);
-                if(ddlItems.HasAtLeastOneElement())
-                {
-                    if(ddlInstances == null || ddlInstances.IsEmpty())
-                    {
-                        ddlInstances = ddlItems.DuplicatesRemoved(d => d.FullName);
-                    }
-                    else
-                    {
-                        ddlInstances = ddlInstances.Append(ddlItems.ToArray()).DuplicatesRemoved(d => d.FullName);
-                    }
-                }
-            }
-
-            if (ddlInstances != null && ddlInstances.HasAtLeastOneElement())
-            {
-                if (ddlInstances.Count() == 1)
-                {
-                    if(primaryKS == null) primaryKS = ddlInstances.First().Keyspace;
-                    if(primaryDDL == null) primaryDDL = ddlInstances.First();
-                }
-                else
-                {
-                    if (primaryKS == null)
-                    {
-                        var firstKS = ddlInstances.First()?.Keyspace.FullName;
-
-                        if (ddlInstances.All(k => k.Keyspace.FullName == firstKS))
-                        {
-                            primaryKS = ddlInstances.First().Keyspace;
-                        }
-                    }
-                }
-            }
-            #endregion
 
             string subClass = matchItem.Item5.DetermineSubClass(this.Cluster,
                                                                             this.Node,
@@ -520,25 +525,6 @@ namespace DSEDiagnosticFileParser
                 sessionEvent = eventInfo.Item1;
                 sessionId = eventInfo.Item2;
 
-                if((eventType & EventTypes.SessionBeginForcePriorEnd) == EventTypes.SessionBeginForcePriorEnd)
-                {
-                    eventType &= ~EventTypes.SessionBeginForcePriorEnd;
-                    eventType |= EventTypes.SessionBegin;
-
-                    if (sessionEvent != null &&
-                            (((eventType & EventTypes.SessionBeginOrItem) != EventTypes.SessionBeginOrItem
-                                    && (eventType & EventTypes.SessionReset) != EventTypes.SessionReset)
-                                || ((sessionEvent.Class & ~EventClasses.StatusTypes) == (eventClass & ~EventClasses.StatusTypes)
-                                        && sessionEvent.SubClass == subClass)))
-                    {
-                        var removeOpenSessions = this._openSessions.Where(kv => kv.Value.Id == sessionEvent.Id).Select(kv => kv.Key).ToArray();
-                        removeOpenSessions.ForEach(s => this._openSessions.Remove(s));
-                        sessionEvent = null;
-                    }
-
-                    eventType &= ~EventTypes.SessionReset;
-                }
-
                 if (sessionEvent == null)
                 {
                     if ((eventType & EventTypes.SessionBeginOrItem) == EventTypes.SessionBeginOrItem)
@@ -547,7 +533,11 @@ namespace DSEDiagnosticFileParser
                         eventType |= EventTypes.SessionBegin;
                     }
 
-                    if ((eventType & EventTypes.SessionBegin) != EventTypes.SessionBegin)
+                    if ((eventType & EventTypes.SessionBegin) == EventTypes.SessionBegin)
+                    {
+                        sessionId = sessionInfo.SessionId ?? sessionInfo.SessionLookup;
+                    }
+                    else
                     {
                         if ((eventType & EventTypes.SessionIgnore) == EventTypes.SessionIgnore)
                         {
@@ -566,18 +556,36 @@ namespace DSEDiagnosticFileParser
                         eventType |= EventTypes.SessionItem;
                     }
 
-                    if (primaryKS == null) primaryKS = sessionEvent.Keyspace;
                     logId = sessionEvent.Id.ToString();
 
-                    if(parentEvents == null)
+                    if (parentEvents == null)
                     {
-                        parentEvents = new List<LogCassandraEvent>() { sessionEvent };
+                        parentEvents = new List<LogCassandraEvent>();
                     }
-                    else
+
+                    if (sessionEvent.ParentEvents.HasAtLeastOneElement())
                     {
-                        parentEvents = parentEvents.Append(sessionEvent);
+                        parentEvents.AddRange(sessionEvent.ParentEvents.Cast<LogCassandraEvent>());
                     }
+                    parentEvents.Add(sessionEvent);
                 }
+            }
+
+            if(sessionEvent != null
+                && primaryDDL == null
+                && sessionEvent.Keyspace != null
+                && lateDDLresolution.HasValue
+                && (lateDDLresolution.Value.KSName == null || sessionEvent.Keyspace.Equals(lateDDLresolution.Value.KSName)))
+            {
+                primaryKS = sessionEvent.Keyspace;
+
+                ddlInstances = lateDDLresolution.Value.DDLNames.SelectMany(n => Cluster.TryGetTableIndexViewsbyString(n, this.Cluster, this.DataCenter, primaryKS.Name)).ToList();
+
+                if(lateDDLresolution.Value.DDLSSTableName != null)
+                {
+                    primaryDDL = Cluster.TryGetTableIndexViewbyString(lateDDLresolution.Value.DDLSSTableName, this.Cluster, this.DataCenter, primaryKS.Name);
+                }
+                lateDDLresolution = null;
             }
 
             #endregion
@@ -637,7 +645,7 @@ namespace DSEDiagnosticFileParser
                                                         ddlInstances,
                                                         assocatedNodes,
                                                         tokenRanges,
-                                                        sessionId ?? sessionEvent?.SessionTieOutId,
+                                                        sessionId,
                                                         matchItem.Item5.Product);
                 }
                 else if ((eventType & EventTypes.SessionItem) != EventTypes.SessionItem && duration != null)
@@ -662,7 +670,7 @@ namespace DSEDiagnosticFileParser
                                                         ddlInstances,
                                                         assocatedNodes,
                                                         tokenRanges,
-                                                        sessionId ?? sessionEvent?.SessionTieOutId,
+                                                        sessionId,
                                                         matchItem.Item5.Product);
                 }
                 else
@@ -687,7 +695,7 @@ namespace DSEDiagnosticFileParser
                                                         ddlInstances,
                                                         assocatedNodes,
                                                         tokenRanges,
-                                                        sessionId ?? sessionEvent?.SessionTieOutId,
+                                                        sessionId,
                                                         matchItem.Item5.Product);
                 }
             }
@@ -715,10 +723,18 @@ namespace DSEDiagnosticFileParser
                                                         ddlInstances,
                                                         assocatedNodes,
                                                         tokenRanges,
-                                                        sessionId ?? sessionEvent?.SessionTieOutId,
+                                                        sessionId,
                                                         matchItem.Item5.Product);
 
                     sessionEvent.UpdateEndingTimeStamp(logMessage.LogDateTime);
+
+                    if(sessionEvent.ParentEvents.HasAtLeastOneElement())
+                    {
+                        sessionEvent.ParentEvents
+                                .Where(p => (p.Type & EventTypes.SessionBegin) == EventTypes.SessionBegin)
+                                .Cast<LogCassandraEvent>()
+                                .ForEach(p => p.UpdateEndingTimeStamp(logMessage.LogDateTime, false));
+                    }
                 }
                 else
                 {
@@ -742,7 +758,7 @@ namespace DSEDiagnosticFileParser
                                                         ddlInstances,
                                                         assocatedNodes,
                                                         tokenRanges,
-                                                        sessionId ?? sessionEvent?.SessionTieOutId,
+                                                        sessionId,
                                                         matchItem.Item5.Product);
                 }
             }
@@ -761,7 +777,7 @@ namespace DSEDiagnosticFileParser
                                                                                                                 logProperties,
                                                                                                                 logMessage);
 
-                        if (this._priorSessionLineTick.CurrentSession.Type == EventTypes.SessionEnd
+                        if ((this._priorSessionLineTick.CurrentSession.Type & EventTypes.SessionEnd) == EventTypes.SessionEnd
                                 && checkSessionKey == this._priorSessionLineTick.CurrentSession.SessionTieOutId)
                         {
                             if((logEvent.Type & EventTypes.SessionBegin) == EventTypes.SessionBegin)
@@ -789,6 +805,37 @@ namespace DSEDiagnosticFileParser
                 {
                     this._orphanedSessionEvents.Add(logEvent);
                 }
+
+                if(lateDDLresolution.HasValue)
+                {
+                    this._lateResolutionEvents.Add(new Tuple<LogCassandraEvent, LateDDLResolution>(logEvent, lateDDLresolution.Value));
+                }
+                else if((logEvent.Type & EventTypes.SessionEnd) == EventTypes.SessionEnd)
+                {
+                    var updateDDLs = this._lateResolutionEvents.Where(i => i.Item1.Id == logEvent.Id);
+
+                    if(updateDDLs.HasAtLeastOneElement())
+                    {
+                        var defaultKS = logEvent.Keyspace.Name;
+
+                        foreach (var ddlItem in updateDDLs)
+                        {
+                            if (ddlItem.Item2.KSName == null || ddlItem.Item2.KSName == defaultKS)
+                            {
+                                var ddls = ddlItem.Item2.DDLNames.SelectMany(n => Cluster.TryGetTableIndexViewsbyString(n, this.Cluster, this.DataCenter, defaultKS)).ToList();
+                                IDDLStmt ddl = null;
+
+                                if (ddlItem.Item2.DDLSSTableName != null)
+                                {
+                                    ddl = Cluster.TryGetTableIndexViewbyString(ddlItem.Item2.DDLSSTableName, this.Cluster, this.DataCenter, defaultKS);
+                                }
+                                ddlItem.Item1.UpdateDDLItems(logEvent.Keyspace, ddl, ddls);
+                            }                            
+                        }
+                        this._lateResolutionEvents.RemoveAll(i => i.Item1.Id == logEvent.Id);
+                    }
+                }
+
                 #endregion
 
                 #region Session Key and Lookup addition/removal
@@ -807,17 +854,18 @@ namespace DSEDiagnosticFileParser
             LogCassandraEvent logEvent = null;
 
             if(logLineParserInfo.SessionId != null
-                    && (logLineParserInfo.SessionType == CLogLineTypeParser.SessionKeyTypes.Auto
-                            || logLineParserInfo.SessionType == CLogLineTypeParser.SessionKeyTypes.Read))
+                    && (logLineParserInfo.SessionAction == CLogLineTypeParser.SessionKeyActions.Auto
+                            || logLineParserInfo.SessionAction == CLogLineTypeParser.SessionKeyActions.Read
+                            || logLineParserInfo.SessionAction == CLogLineTypeParser.SessionKeyActions.ReadRemove))
             {
                 logEvent = this._openSessions.TryGetValue(logLineParserInfo.SessionId);
                 sessionKey = logEvent == null ? null : logLineParserInfo.SessionId;
             }
 
             if(logEvent == null
-                    && (logLineParserInfo.LookupType & CLogLineTypeParser.SessionLookupTypes.Read) == CLogLineTypeParser.SessionLookupTypes.Read)
+                    && (logLineParserInfo.SessionLookupAction & CLogLineTypeParser.SessionLookupActions.Read) == CLogLineTypeParser.SessionLookupActions.Read)
             {
-                if ((logLineParserInfo.LookupType & CLogLineTypeParser.SessionLookupTypes.Session) == CLogLineTypeParser.SessionLookupTypes.Session)
+                if ((logLineParserInfo.SessionLookupAction & CLogLineTypeParser.SessionLookupActions.Session) == CLogLineTypeParser.SessionLookupActions.Session)
                 {
                     if (logLineParserInfo.SessionLookupRegEx == null)
                     {
@@ -833,7 +881,7 @@ namespace DSEDiagnosticFileParser
                 }
 
                 if (logEvent == null
-                        && (logLineParserInfo.LookupType & CLogLineTypeParser.SessionLookupTypes.Label) == CLogLineTypeParser.SessionLookupTypes.Label)
+                        && (logLineParserInfo.SessionLookupAction & CLogLineTypeParser.SessionLookupActions.Label) == CLogLineTypeParser.SessionLookupActions.Label)
                 {
                     if (logLineParserInfo.SessionLookupRegEx == null)
                     {
@@ -862,33 +910,31 @@ namespace DSEDiagnosticFileParser
 
             if (logLineParserInfo.SessionId != null)
             {
-                var sessionType = logLineParserInfo.SessionType;
+                var sessionType = logLineParserInfo.SessionAction;
 
                 if(addSessionKey)
                 {
-                    sessionType = CLogLineTypeParser.SessionKeyTypes.Add;
+                    sessionType = CLogLineTypeParser.SessionKeyActions.Add;
                 }
-                else if (sessionType == CLogLineTypeParser.SessionKeyTypes.Auto)
+                else if (sessionType == CLogLineTypeParser.SessionKeyActions.Auto)
                 {
-                    switch (logEvent.Type)
+                    if((logEvent.Type & EventTypes.SessionBegin) == EventTypes.SessionBegin)
                     {
-                        case EventTypes.SessionBegin:
-                            sessionType = CLogLineTypeParser.SessionKeyTypes.Add;
-                            break;
-                        case EventTypes.SessionEnd:
-                            sessionType = CLogLineTypeParser.SessionKeyTypes.Delete;
-                            break;
-                        default:
-                            break;
+                        sessionType = CLogLineTypeParser.SessionKeyActions.Add;
+                    }
+                    else if((logEvent.Type & EventTypes.SessionEnd) == EventTypes.SessionEnd)
+                    {
+                        sessionType = CLogLineTypeParser.SessionKeyActions.Delete;
                     }
                 }
 
                 switch (sessionType)
                 {
-                    case CLogLineTypeParser.SessionKeyTypes.Add:
+                    case CLogLineTypeParser.SessionKeyActions.Add:
                         this._openSessions[logLineParserInfo.SessionId] = logEvent;
                         break;
-                    case CLogLineTypeParser.SessionKeyTypes.Delete:
+                    case CLogLineTypeParser.SessionKeyActions.Delete:
+                    case CLogLineTypeParser.SessionKeyActions.ReadRemove:
                         this._openSessions.Remove(logLineParserInfo.SessionId);
                         break;
                     default:
@@ -898,40 +944,40 @@ namespace DSEDiagnosticFileParser
 
             if(logLineParserInfo.SessionLookupRegEx == null && logLineParserInfo.SessionLookup != null)
             {
-                if((logLineParserInfo.LookupType & CLogLineTypeParser.SessionLookupTypes.Session) == CLogLineTypeParser.SessionLookupTypes.Session)
+                if((logLineParserInfo.SessionLookupAction & CLogLineTypeParser.SessionLookupActions.Session) == CLogLineTypeParser.SessionLookupActions.Session)
                 {
-                    if((logLineParserInfo.LookupType & CLogLineTypeParser.SessionLookupTypes.Define) == CLogLineTypeParser.SessionLookupTypes.Define)
+                    if((logLineParserInfo.SessionLookupAction & CLogLineTypeParser.SessionLookupActions.Define) == CLogLineTypeParser.SessionLookupActions.Define)
                     {
                         this._openSessions[logLineParserInfo.SessionLookup] = logEvent;
                     }
-                    else if ((logLineParserInfo.LookupType & CLogLineTypeParser.SessionLookupTypes.Delete) == CLogLineTypeParser.SessionLookupTypes.Delete)
+                    else if ((logLineParserInfo.SessionLookupAction & CLogLineTypeParser.SessionLookupActions.Delete) == CLogLineTypeParser.SessionLookupActions.Delete)
                     {
                         this._openSessions.Remove(logLineParserInfo.SessionLookup);
                     }
                 }
 
-                if ((logLineParserInfo.LookupType & CLogLineTypeParser.SessionLookupTypes.Label) == CLogLineTypeParser.SessionLookupTypes.Label)
+                if ((logLineParserInfo.SessionLookupAction & CLogLineTypeParser.SessionLookupActions.Label) == CLogLineTypeParser.SessionLookupActions.Label)
                 {
-                    if ((logLineParserInfo.LookupType & CLogLineTypeParser.SessionLookupTypes.Define) == CLogLineTypeParser.SessionLookupTypes.Define)
+                    if ((logLineParserInfo.SessionLookupAction & CLogLineTypeParser.SessionLookupActions.Define) == CLogLineTypeParser.SessionLookupActions.Define)
                     {
                         this._lookupSessionLabels[logLineParserInfo.SessionLookup] = logEvent;
                     }
-                    else if ((logLineParserInfo.LookupType & CLogLineTypeParser.SessionLookupTypes.Delete) == CLogLineTypeParser.SessionLookupTypes.Delete)
+                    else if ((logLineParserInfo.SessionLookupAction & CLogLineTypeParser.SessionLookupActions.Delete) == CLogLineTypeParser.SessionLookupActions.Delete)
                     {
                         this._lookupSessionLabels.Remove(logLineParserInfo.SessionLookup);
                     }
                 }
             }
             else if (logLineParserInfo.SessionLookupRegEx != null
-                        && (logLineParserInfo.LookupType & CLogLineTypeParser.SessionLookupTypes.Delete) == CLogLineTypeParser.SessionLookupTypes.Delete)
+                        && (logLineParserInfo.SessionLookupAction & CLogLineTypeParser.SessionLookupActions.Delete) == CLogLineTypeParser.SessionLookupActions.Delete)
             {
-                if ((logLineParserInfo.LookupType & CLogLineTypeParser.SessionLookupTypes.Label) == CLogLineTypeParser.SessionLookupTypes.Label)
+                if ((logLineParserInfo.SessionLookupAction & CLogLineTypeParser.SessionLookupActions.Label) == CLogLineTypeParser.SessionLookupActions.Label)
                 {
                     this._lookupSessionLabels.Where(kv => logLineParserInfo.IsLookupMatch(kv.Key))
                             .Select(kv => kv.Key)
                             .ForEach(k => this._lookupSessionLabels.Remove(k));
                 }
-                if((logLineParserInfo.LookupType & CLogLineTypeParser.SessionLookupTypes.Session) == CLogLineTypeParser.SessionLookupTypes.Session)
+                if((logLineParserInfo.SessionLookupAction & CLogLineTypeParser.SessionLookupActions.Session) == CLogLineTypeParser.SessionLookupActions.Session)
                 {
                     this._openSessions.Where(kv => logLineParserInfo.IsLookupMatch(kv.Key))
                             .Select(kv => kv.Key)
@@ -982,37 +1028,40 @@ namespace DSEDiagnosticFileParser
 
                     var groupInstance = matchItem.Groups[groupName];
 
-                    if (groupInstance.Captures.Count <= 1)
+                    if (groupInstance.Success)
                     {
-                        logProperties.TryAddValue(normalizedGroupName,
-                                                    StringHelpers.DetermineProperObjectFormat(matchItem.Groups[groupName].Value,
+                        if (groupInstance.Captures.Count <= 1)
+                        {
+                            logProperties.TryAddValue(normalizedGroupName,
+                                                        StringHelpers.DetermineProperObjectFormat(matchItem.Groups[groupName].Value,
+                                                                                                    true,
+                                                                                                    false,
+                                                                                                    true,
+                                                                                                    uomType,
+                                                                                                    true));
+                        }
+                        else
+                        {
+                            var groupCaptures = new List<object>(groupInstance.Captures.Count);
+
+                            foreach (Capture capture in groupInstance.Captures)
+                            {
+                                groupCaptures.Add(StringHelpers.DetermineProperObjectFormat(capture.Value,
                                                                                                 true,
                                                                                                 false,
                                                                                                 true,
                                                                                                 uomType,
                                                                                                 true));
-                    }
-                    else
-                    {
-                        var groupCaptures = new List<object>(groupInstance.Captures.Count);
+                            }
 
-                        foreach(Capture capture in groupInstance.Captures)
-                        {
-                            groupCaptures.Add(StringHelpers.DetermineProperObjectFormat(capture.Value,
-                                                                                            true,
-                                                                                            false,
-                                                                                            true,
-                                                                                            uomType,
-                                                                                            true));
+                            logProperties.TryAddValue(normalizedGroupName, groupCaptures);
                         }
-
-                        logProperties.TryAddValue(normalizedGroupName, groupCaptures);
                     }
                 }
             }
         }
 
-        private static IEnumerable<string> TurnPropertyIntoCollection(Dictionary<string, object> logProperties, string key)
+        private static List<string> TurnPropertyIntoCollection(Dictionary<string, object> logProperties, string key)
         {
             var propValue = logProperties.TryGetValue(key);
 
@@ -1024,7 +1073,7 @@ namespace DSEDiagnosticFileParser
                 }
                 else if(propValue is IEnumerable<object>)
                 {
-                    return ((IEnumerable<object>)propValue).Select(o => o.ToString());
+                    return ((IEnumerable<object>)propValue).Select(o => o.ToString()).ToList();
                 }
 
                 return new List<string>() { propValue.ToString() };

@@ -39,30 +39,11 @@ namespace DSEDiagnosticLibrary
         /// </summary>
         /// <seealso cref="SessionBegin"/>
         /// <seealso cref="SessionItem"/>
-        SessionBeginOrItem = SessionBegin | 0x0020,
-        /// <summary>
-        /// If any prior sessions are still considered open (no end session detected) are forced closed upon this log entry.
-        /// This includes open sessions associated with this log entry regardless of EventClass.
-        /// <seealso cref="SessionBegin"/>
-        /// </summary>
-        SessionBeginForcePriorEnd = SessionBegin | 0x0040,
-        /// <summary>
-        /// Similar to <see cref="SessionBeginForcePriorEnd"/>, except the session is closed only if it is the same Event class and SubClass.
-        /// <seealso cref="SessionBeginOrItem"/>
-        /// </summary>
-        SessionBeginOrItemForcePriorEnd = SessionBeginForcePriorEnd | 0x0020,
-        /// <summary>
-        /// Similar to <see cref="SessionBeginForcePriorEnd"/>, except the session is closed only if it is the same Event class and SubClass.
-        /// </summary>
-        SessionBeginReset = SessionBeginForcePriorEnd | 0x0080,
-        /// <summary>
-        /// Internal use only
-        /// </summary>
-        SessionReset = 0x0080,
+        SessionBeginOrItem = SessionBegin | 0x0020,        
         /// <summary>
         /// If not within a session the log entry will be ignored
         /// </summary>
-        SessionIgnore = SessionElement | 0x0100,       
+        SessionIgnore = SessionElement | 0x0100  
     }
 
     [Flags]

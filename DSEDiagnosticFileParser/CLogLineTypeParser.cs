@@ -21,7 +21,7 @@ namespace DSEDiagnosticFileParser
             public string KeyValue;
         }
 
-        private readonly static string[] SessionKeywords = new string[] { "ThreadId", "FileName", "FileNameLine", "SSTABLEPATH=>DDLITEMNAME", "SSTABLEPATH=>KEYSPACE", "SSTABLEPATH=>KEYSPACEDDLNAME", "SSTABLEPATHS=>DDLITEMNAME", "SSTABLEPATHS=>KEYSPACE", "SSTABLEPATHS=>KEYSPACEDDLNAME" };
+        private readonly static string[] SessionKeywords = new string[] { "ThreadId", "FileName", "FileNameLine", "SSTABLEPATH=>DDLITEMNAME", "SSTABLEPATH=>KEYSPACE", "SSTABLEPATH=>KEYSPACEDDLNAME", "SSTABLEPATHS=>DDLITEMNAME", "SSTABLEPATHS=>KEYSPACE", "SSTABLEPATHS=>KEYSPACEDDLNAME", "SSTABLEPATH=>TABLEVIEWNAME", "SSTABLEPATH=>KEYSPACETABLEVIEWNAME", "SSTABLEPATHS=>TABLEVIEWNAME", "SSTABLEPATHS=>KEYSPACETABLEVIEWNAME" };
 
         readonly CacheInfo[] CachedInfo = new CacheInfo[] { new CacheInfo(), new CacheInfo(), new CacheInfo() };
         private CacheInfo GetCacheInfo(int cacheIdx)
@@ -56,7 +56,7 @@ namespace DSEDiagnosticFileParser
         #endregion
 
         [Flags]
-        public enum SessionLookupTypes
+        public enum SessionLookupActions
         {
             Default = 0,
             Label = 0x0001,
@@ -74,18 +74,19 @@ namespace DSEDiagnosticFileParser
             DeleteSession = Delete | Session
         }
 
-        public enum SessionKeyTypes
+        public enum SessionKeyActions
         {
             Auto = 0,
             Add = 1,
             Read = 2,
-            Delete = 3
+            Delete = 3,
+            ReadRemove = 4
         }
 
         public CLogLineTypeParser()
         {
-            if (SessionLookupType == SessionLookupTypes.Default)
-                this.SessionLookupType = SessionLookupTypes.ReadSession;
+            if (SessionLookupAction == SessionLookupActions.Default)
+                this.SessionLookupAction = SessionLookupActions.ReadSession;
         }
 
         public CLogLineTypeParser(string levelMatchRegEx,
@@ -148,8 +149,8 @@ namespace DSEDiagnosticFileParser
             this.SessionKey = sessionKey;
             this.Examples = examples;
 
-            if (this.SessionLookupType == SessionLookupTypes.Default)
-                this.SessionLookupType = SessionLookupTypes.ReadSession;
+            if (this.SessionLookupAction == SessionLookupActions.Default)
+                this.SessionLookupAction = SessionLookupActions.ReadSession;
         }
 
         /// <summary>
@@ -209,9 +210,14 @@ namespace DSEDiagnosticFileParser
         ///     &quot;EVENTDURATIONDATETIME&quot;                   -- this will map the capture group&apos;s value to property &quot;EventTimeDuration&quot; and calaculates the &quot;Duration&quot; of the LogCassandraEvent class
         ///                                                             The value must be valid date-time syntax
         ///     &quot;KEYSPACE&quot;                                -- this will map the capture group&apos;s value to property &quot;Keyspace&quot; of the LogCassandraEvent class
+        ///                                                             This should be considered the &quot;primary&quot; keyspace for the event.
         ///     &quot;DDLITEMNAME&quot;                             -- this will map the capture group&apos;s value to property &quot;DDLItems&quot; of the LogCassandraEvent class.
         ///                                                             This can be table, view, or index qualifier with optional keyspace qualifier. The separator can be a period or slash.
+        ///                                                             This should be considered the &quot;primary&quot; DDL item for the event.
+        ///     &quot;TABLEVIEWNAME&quot;                           -- Similar to DDLITEMNAME except that only a table or view name is defined. e.g., tablea.indexa DDLITEMNAME would be &quot;indexa&quot; but TABLEVIEWNAME would be &quot;tablea&quot;
+        ///                                                             If TABLEVIEWNAME is not found DDLITEMNAME is used.
         ///     &quot;SSTABLEPATH&quot;                             -- this will be used to obtain the keyspace and DDL item plus map to the capture group&apos;s value to property &quot;SSTables&quot; of the LogCassandraEvent class
+        ///                                                             This should be considered the &quot;primary&quot; keyspace and DDL item for the event. This will overide the KEYSPACE and DDLITEMNAME for primary. If this is not the case use SSTABLEPATHS.
         ///     &quot;NODE&quot;                                    -- An IP Adress (can be IP4 or IP6) or a host name.
         ///     &quot;KEYSPACES&quot;                               -- A single or list of keyspaces (see KEYSPACE above)
         ///                                                             This is either a repeating capture group or a set of capture groups with the same name.
@@ -310,6 +316,8 @@ namespace DSEDiagnosticFileParser
         ///         SSTABLEPATH=>DDLITEMNAME -- obtains the DDL Item name from the SSTable Path string
         ///         SSTABLEPATH=>KEYSPACE -- obtains the keyspace name from the SSTable Path string
         ///         SSTABLEPATH=>KEYSPACEDDLNAME -- obtains the keyspace and DDL names from the SSTable Path string
+        ///         SSTABLEPATH=>TABLEVIEWNAME -- obtains the table or view name from the SSTable Path string
+        ///         SSTABLEPATH=>KEYSPACETABLEVIEWNAME -- obtains the keyspace and table/view name from the SSTable Path string
         /// --or--
         ///     A C# expression that returns a string that represents the session key. This string should be able to be generated for any Timespan sessions and will be used to find the LogCassandraEvent instance when the log line is not a TimespanBegin.
         ///             This session key is item1 in the Tuple in the openTimeSpanSessions local variable.
@@ -358,7 +366,7 @@ namespace DSEDiagnosticFileParser
             }
         }
 
-        public SessionKeyTypes SessionKeyType { get; set; }
+        public SessionKeyActions SessionKeyAction { get; set; }
 
         public bool SessionKeyUsesThreadId()
         {
@@ -371,9 +379,9 @@ namespace DSEDiagnosticFileParser
         /// <summary>
         /// Alternative Value used to lookup the session.
         /// This takes the same values as <see cref="SessionKey"/>
-        /// Callers should call the <see cref="DetermineSessionKeyLookup(Cluster, INode, IKeyspace, IDictionary{string, object}, ILogMessage)"/> method to obtain the correct value.
+        /// Callers should call the <see cref="DetermineSessionLookup(Cluster, INode, IKeyspace, IDictionary{string, object}, ILogMessage)"/> method to obtain the correct value.
         /// </summary>
-        public string SessionKeyLookup
+        public string SessionLookup
         {
             get { return this._sessionKeyLookup; }
             set
@@ -392,16 +400,16 @@ namespace DSEDiagnosticFileParser
             }
         }
 
-        public SessionLookupTypes SessionLookupType { get; set; }
+        public SessionLookupActions SessionLookupAction { get; set; }
 
         public string[] Examples;
 
         public struct SessionInfo
         {
             public string SessionId;
-            public SessionKeyTypes SessionType;
+            public SessionKeyActions SessionAction;
             public string SessionLookup;
-            public SessionLookupTypes LookupType;
+            public SessionLookupActions SessionLookupAction;
             public Regex SessionLookupRegEx;
 
             public bool IsLookupMatch(string checkValue)
@@ -418,14 +426,14 @@ namespace DSEDiagnosticFileParser
         {
             SessionInfo sessionInfo;
 
-            sessionInfo.SessionType = this.SessionKeyType;
-            sessionInfo.LookupType = this.SessionLookupType;
+            sessionInfo.SessionAction = this.SessionKeyAction;
+            sessionInfo.SessionLookupAction = this.SessionLookupAction;
 
             sessionInfo.SessionId = this.DetermineSessionKey(cluster, node, keyspace, logLineProperties, logLineMessage);
 
             if (this._sessionLookupRegEx == null)
             {
-                sessionInfo.SessionLookup = this.DetermineSessionKeyLookup(cluster, node, keyspace, logLineProperties, logLineMessage);
+                sessionInfo.SessionLookup = this.DetermineSessionLookup(cluster, node, keyspace, logLineProperties, logLineMessage);
 
                 if (sessionInfo.SessionLookup != null && sessionInfo.SessionLookup.Contains('#'))
                 {
@@ -480,7 +488,7 @@ namespace DSEDiagnosticFileParser
                                         logLineMessage);
         }
 
-        public string DetermineSessionKeyLookup(Cluster cluster,
+        public string DetermineSessionLookup(Cluster cluster,
                                                 INode node,
                                                 IKeyspace keyspace,
                                                 IDictionary<string, object> logLineProperties,
@@ -655,7 +663,13 @@ namespace DSEDiagnosticFileParser
                 }
                 else if (cacheInfo.KeyIsGroupName)
                 {
-                    logLineProperties.TryGetValue(cacheInfo.KeyValue, out objSessionKey);
+                    if (!logLineProperties.TryGetValue(cacheInfo.KeyValue, out objSessionKey))
+                    {
+                        if (cacheInfo.KeyValue == "TABLEVIEWNAME")
+                        {
+                            logLineProperties.TryGetValue("DDLITEMNAME", out objSessionKey);
+                        }
+                    }
                 }
                 else
                 {
@@ -678,15 +692,23 @@ namespace DSEDiagnosticFileParser
                             break;
                         case "SSTABLEPATH=>DDLITEMNAME":
                         case "SSTABLEPATHS=>DDLITEMNAME":
-                            objSessionKey = DetermineNameFromSSTablePath(logLineProperties, false);
+                            objSessionKey = DetermineNameFromSSTablePath(logLineProperties, false, false, false);
                             break;
                         case "SSTABLEPATH=>KEYSPACE":
                         case "SSTABLEPATHS=>KEYSPACE":
-                            objSessionKey = DetermineNameFromSSTablePath(logLineProperties, true);
+                            objSessionKey = DetermineNameFromSSTablePath(logLineProperties, true, false, false);
                             break;
                         case "SSTABLEPATH=>KEYSPACEDDLNAME":
                         case "SSTABLEPATHS=>KEYSPACEDDLNAME":
-                            objSessionKey = DetermineNameFromSSTablePath(logLineProperties);
+                            objSessionKey = DetermineNameFromSSTablePath(logLineProperties, false, true, false);
+                            break;
+                        case "SSTABLEPATH=>TABLEVIEWNAME":
+                        case "SSTABLEPATHS=>TABLEVIEWNAME":
+                            objSessionKey = DetermineNameFromSSTablePath(logLineProperties, false, false, true);
+                            break;
+                        case "SSTABLEPATH=>KEYSPACETABLEVIEWNAME":
+                        case "SSTABLEPATHS=>KEYSPACETABLEVIEWNAME":
+                            objSessionKey = DetermineNameFromSSTablePath(logLineProperties, false, true, true);
                             break;
                         default:
                             {
@@ -711,7 +733,7 @@ namespace DSEDiagnosticFileParser
                                 else if (cacheIdx != SessionKeyLookupIdx
                                             && cacheInfo.KeyValue == logLineParser.CacheInfoVarName(SessionKeyLookupIdx))
                                 {
-                                    objSessionKey = logLineParser.DetermineSessionKeyLookup(cluster,
+                                    objSessionKey = logLineParser.DetermineSessionLookup(cluster,
                                                                                         node,
                                                                                         keyspace,
                                                                                         logLineProperties,
@@ -756,7 +778,13 @@ namespace DSEDiagnosticFileParser
 
             if (isGroupName)
             {
-                logLineProperties.TryGetValue(varName, out objSessionKey);
+                if(!logLineProperties.TryGetValue(varName, out objSessionKey))
+                {
+                    if (varName == "TABLEVIEWNAME")
+                    {
+                        logLineProperties.TryGetValue("DDLITEMNAME", out objSessionKey);
+                    }
+                }
             }
             else
             {
@@ -779,15 +807,23 @@ namespace DSEDiagnosticFileParser
                         break;
                     case "SSTABLEPATH=>DDLITEMNAME":
                     case "SSTABLEPATHS=>DDLITEMNAME":
-                        objSessionKey = DetermineNameFromSSTablePath(logLineProperties, false);
+                        objSessionKey = DetermineNameFromSSTablePath(logLineProperties, false, false, false);
                         break;
                     case "SSTABLEPATH=>KEYSPACE":
                     case "SSTABLEPATHS=>KEYSPACE":
-                        objSessionKey = DetermineNameFromSSTablePath(logLineProperties, true);
+                        objSessionKey = DetermineNameFromSSTablePath(logLineProperties, true, false, false);
                         break;
                     case "SSTABLEPATH=>KEYSPACEDDLNAME":
                     case "SSTABLEPATHS=>KEYSPACEDDLNAME":
-                        objSessionKey = DetermineNameFromSSTablePath(logLineProperties);
+                        objSessionKey = DetermineNameFromSSTablePath(logLineProperties, false, true, false);
+                        break;
+                    case "SSTABLEPATH=>TABLEVIEWNAME":
+                    case "SSTABLEPATHS=>TABLEVIEWNAME":
+                        objSessionKey = DetermineNameFromSSTablePath(logLineProperties, false, false, true);
+                        break;
+                    case "SSTABLEPATH=>KEYSPACETABLEVIEWNAME":
+                    case "SSTABLEPATHS=>KEYSPACETABLEVIEWNAME":
+                        objSessionKey = DetermineNameFromSSTablePath(logLineProperties, false, true, true);
                         break;
                     default:
                         {
@@ -812,7 +848,7 @@ namespace DSEDiagnosticFileParser
                             else if (cacheIdx != SessionKeyLookupIdx
                                         && varName == logLineParser.CacheInfoVarName(SessionKeyLookupIdx))
                             {
-                                objSessionKey = logLineParser.DetermineSessionKeyLookup(cluster,
+                                objSessionKey = logLineParser.DetermineSessionLookup(cluster,
                                                                                     node,
                                                                                     keyspace,
                                                                                     logLineProperties,
@@ -901,7 +937,10 @@ namespace DSEDiagnosticFileParser
                 return sessionKey;
             }
         }
-        private static string DetermineNameFromSSTablePath(IDictionary<string, object> logLineProperties, bool returnKeyspaceName)
+        private static string DetermineNameFromSSTablePath(IDictionary<string, object> logLineProperties,
+                                                            bool returnKeyspaceNameOnly,
+                                                            bool returnFullName,
+                                                            bool onlyTableName)
         {
             object objSessionKey = null;
             string name = null;
@@ -932,47 +971,16 @@ namespace DSEDiagnosticFileParser
 
                 if (ksddlnameItems != null)
                 {
-                    if (returnKeyspaceName)
+                    var ddlName = onlyTableName ? (ksddlnameItems.Item4 ?? ksddlnameItems.Item2) : ksddlnameItems.Item2;
+
+                    if(returnFullName)
+                    {
+                        name = (ksddlnameItems.Item1 ?? string.Empty) + '.' + (ddlName ?? string.Empty);
+                    }
+                    else if (returnKeyspaceNameOnly)
                         name = ksddlnameItems.Item1;
                     else
-                        name = ksddlnameItems.Item2;
-                }
-            }
-            return name;
-        }
-
-        private static string DetermineNameFromSSTablePath(IDictionary<string, object> logLineProperties)
-        {
-            object objSessionKey = null;
-            string name = null;
-
-            if (!logLineProperties.TryGetValue("SSTABLEPATH", out objSessionKey))
-            {
-                logLineProperties.TryGetValue("SSTABLEPATHS", out objSessionKey);
-            }
-
-            if (objSessionKey != null)
-            {
-                string path = null;
-
-                if (objSessionKey is string)
-                {
-                    path = (string)objSessionKey;
-                }
-                else if (objSessionKey is System.Collections.IEnumerable)
-                {
-                    path = ((IEnumerable<object>)objSessionKey).FirstOrDefault()?.ToString();
-                }
-                else
-                {
-                    path = objSessionKey.ToString();
-                }
-
-                var ksddlnameItems = StringHelpers.ParseSSTableFileIntoKSTableNames(path);
-
-                if (ksddlnameItems != null)
-                {
-                    name = (ksddlnameItems.Item1 ?? string.Empty) + '.' + (ksddlnameItems.Item2 ?? string.Empty);
+                        name = ddlName;
                 }
             }
             return name;

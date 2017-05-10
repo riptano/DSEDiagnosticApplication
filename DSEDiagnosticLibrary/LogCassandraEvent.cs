@@ -325,13 +325,37 @@ namespace DSEDiagnosticLibrary
             return false;
         }
 
-        public void UpdateEndingTimeStamp(DateTime eventTimeLocalEnd)
+        public void UpdateEndingTimeStamp(DateTime eventTimeLocalEnd, bool checkEndTime = true)
         {
-            this.EventTimeEnd = new DateTimeOffset(eventTimeLocalEnd, this.EventTime.Offset);
+            var newEndTime = new DateTimeOffset(eventTimeLocalEnd, this.EventTime.Offset);
 
-            if(!this.Duration.HasValue)
+            if (!this.EventTimeEnd.HasValue || (checkEndTime && newEndTime > this.EventTimeEnd))
             {
-                this.Duration = this.EventTimeEnd - this.EventTimeBegin;
+                this.EventTimeEnd = newEndTime;
+
+                if (!this.Duration.HasValue)
+                {
+                    this.Duration = this.EventTimeEnd - this.EventTimeBegin;
+                }
+            }
+        }
+
+        public void UpdateDDLItems(IKeyspace newKeyspace, IDDLStmt newTableIndexView, IEnumerable<IDDLStmt> newDDLs)
+        {
+            if(newTableIndexView != null)
+            {
+                this._keyspace = null;
+                this.TableViewIndex = newTableIndexView;
+            }
+
+            if(newKeyspace != null && this.TableViewIndex == null)
+            {
+                this._keyspace = newKeyspace;
+            }
+
+            if(newDDLs != null)
+            {
+                this.DDLItems = newDDLs;
             }
         }
 

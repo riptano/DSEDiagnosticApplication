@@ -95,7 +95,7 @@ namespace DSEDiagnosticLibrary
             this._keySpaces.Lock();
             try
             {
-                return this._keySpaces.UnSafe.Where(k => k.Name == keyspaceName);
+                return string.IsNullOrEmpty(keyspaceName) ? this._keySpaces : this._keySpaces.UnSafe.Where(k => k.Name == keyspaceName);
             }
             finally
             {
@@ -140,7 +140,7 @@ namespace DSEDiagnosticLibrary
             this._dataCenters.Lock();
             try
             {
-                return this._dataCenters.UnSafe.FirstOrDefault(d => d.Name == dataCenterName);
+                return string.IsNullOrEmpty(dataCenterName) ? null : this._dataCenters.UnSafe.FirstOrDefault(d => d.Name == dataCenterName);
             }
             finally
             {
@@ -551,21 +551,21 @@ namespace DSEDiagnosticLibrary
         /// <param name="SSTableOrKSItemName">
         /// a SSTable file path or a keyspace.&lt;item name&gt; where item is a table, view, or index name
         /// </param>
-        /// <param name="clusterName"></param>
+        /// <param name="cluster"></param>
+        /// <param name="dc"></param>
         /// <param name="defaultKSName">
         /// only used if the keyspace name is not found. Ignored for SSTable file
         /// </param>
         /// <returns>
-        /// Returns null if not found or a Table, view, index instance.
+        /// Returns null if not found, multiple names found, SSTableOrKSItemName and/or cluster is null. Otherwise a Table, view, index instance is returned.
         /// </returns>
-        public static IDDLStmt TryGetTableIndexViewbyString(string SSTableOrKSItemName, string clusterName, string defaultKSName = null)
+        public static IDDLStmt TryGetTableIndexViewbyString(string SSTableOrKSItemName, Cluster cluster, IDataCenter dc = null, string defaultKSName = null)
         {
-            if(string.IsNullOrEmpty(SSTableOrKSItemName))
+            if(string.IsNullOrEmpty(SSTableOrKSItemName) || cluster == null)
             {
                 return null;
             }
 
-            var cluster = TryGetCluster(clusterName);
             IEnumerable<IKeyspace> ksInstances;
 
             if(SSTableOrKSItemName[0] == '/')
@@ -574,11 +574,20 @@ namespace DSEDiagnosticLibrary
 
                 if(kstblTuple != null)
                 {
-                    ksInstances = cluster.GetKeyspaces(kstblTuple.Item1);
-                    var tableviewInstances = ksInstances.Select(k => (IDDLStmt) k.TryGetTable(kstblTuple.Item2) ?? (IDDLStmt) k.TryGetView(kstblTuple.Item2) ?? (IDDLStmt) k.TryGetIndex(kstblTuple.Item2));
-                    var tableviewInstance = tableviewInstances.FirstOrDefault(t => t is ICQLTable
-                                                                                        ? ((ICQLTable)t).Id == null || ((ICQLTable)t).Id.ToString("N") == kstblTuple.Item3
-                                                                                        : kstblTuple.Item3 != null);
+                    defaultKSName = kstblTuple.Item1 ?? defaultKSName;
+                    ksInstances = dc == null
+                                    ? cluster.GetKeyspaces(kstblTuple.Item1)
+                                    : (defaultKSName == null
+                                            ? cluster.GetKeyspaces(dc)
+                                            : cluster.GetKeyspaces(dc).Where(ks => ks.Equals(defaultKSName)));
+
+                    var tableviewInstances = ksInstances.Select(k => (IDDLStmt) k.TryGetTable(kstblTuple.Item2) ?? (IDDLStmt) k.TryGetView(kstblTuple.Item2) ?? (IDDLStmt) k.TryGetIndex(kstblTuple.Item2))
+                                                .Where(d => d != null);
+                    var tableviewInstance = kstblTuple.Item3 == null || tableviewInstances.Count() <= 1
+                                                    ? tableviewInstances.FirstOrDefault()
+                                                    : tableviewInstances.FirstOrDefault(t => t is ICQLTable
+                                                                                            ? ((ICQLTable)t).Id.ToString("N") == kstblTuple.Item3
+                                                                                            : kstblTuple.Item3 != null);
 
                     if(tableviewInstance == null)
                     {
@@ -586,9 +595,9 @@ namespace DSEDiagnosticLibrary
                     }
 
                     if(tableviewInstance != null
-                        && kstblTuple.Item3 != null
-                        && tableviewInstance is ICQLTable
-                        && ((ICQLTable)tableviewInstance).Id == null)
+                            && kstblTuple.Item3 != null
+                            && tableviewInstance is ICQLTable
+                            && ((ICQLTable)tableviewInstance).Id == null)
                     {
                         ((ICQLTable)tableviewInstance).SetID(kstblTuple.Item3);
                     }
@@ -598,18 +607,74 @@ namespace DSEDiagnosticLibrary
             }
 
             var parsedName = StringHelpers.SplitTableName(SSTableOrKSItemName);
-            ksInstances = cluster.GetKeyspaces(parsedName.Item1 ?? defaultKSName);
+            defaultKSName = parsedName.Item1 ?? defaultKSName;
+            ksInstances = dc == null
+                            ? cluster.GetKeyspaces(parsedName.Item1 ?? defaultKSName)
+                            : (defaultKSName == null
+                                    ? cluster.GetKeyspaces(dc)
+                                    : cluster.GetKeyspaces(dc).Where(ks => ks.Equals(defaultKSName)));
 
-            var tableviewindexInstances = ksInstances.Select(k => ((IDDLStmt) k.TryGetTable(parsedName.Item2) ?? (IDDLStmt) k.TryGetView(parsedName.Item2)) ?? (IDDLStmt) k.TryGetIndex(parsedName.Item2));
-            var tableviewindexInstance = tableviewindexInstances.FirstOrDefault();
+            var tableviewindexInstances = ksInstances.Select(k => ((IDDLStmt) k.TryGetTable(parsedName.Item2) ?? (IDDLStmt) k.TryGetView(parsedName.Item2)) ?? (IDDLStmt) k.TryGetIndex(parsedName.Item2))
+                                            .Where(d => d != null);
 
-            return tableviewindexInstance;
-
+            return tableviewindexInstances.Count() == 1 ? tableviewindexInstances.FirstOrDefault() : null;
         }
+
+        public static IDDLStmt TryGetTableIndexViewbyString(string SSTableOrKSItemName, string clusterName, string dcName = null, string defaultKSName = null)
+        {
+            var cluster = Cluster.TryGetCluster(clusterName);
+            return TryGetTableIndexViewbyString(SSTableOrKSItemName, cluster, cluster?.TryGetDataCenter(dcName), defaultKSName);
+        }
+
+        public static IEnumerable<IDDLStmt> TryGetTableIndexViewsbyString(string SSTableOrKSItemName, Cluster cluster, IDataCenter dc = null, string defaultKSName = null)
+        {
+            if (string.IsNullOrEmpty(SSTableOrKSItemName) || cluster == null)
+            {
+                return Enumerable.Empty<IDDLStmt>();
+            }
+
+            IEnumerable<IKeyspace> ksInstances;
+
+            if (SSTableOrKSItemName[0] == '/')
+            {
+                var kstblTuple = StringHelpers.ParseSSTableFileIntoKSTableNames(SSTableOrKSItemName);
+
+                if (kstblTuple != null)
+                {
+                    defaultKSName = kstblTuple.Item1 ?? defaultKSName;
+                    ksInstances = dc == null
+                                    ? cluster.GetKeyspaces(kstblTuple.Item1)
+                                    : (defaultKSName == null
+                                            ? cluster.GetKeyspaces(dc)
+                                            : cluster.GetKeyspaces(dc).Where(ks => ks.Equals(defaultKSName)));
+
+                    return ksInstances.Select(k => (IDDLStmt)k.TryGetTable(kstblTuple.Item2) ?? (IDDLStmt)k.TryGetView(kstblTuple.Item2) ?? (IDDLStmt)k.TryGetIndex(kstblTuple.Item2))
+                                .Where(d => d != null);
+                }
+            }
+
+            var parsedName = StringHelpers.SplitTableName(SSTableOrKSItemName);
+            defaultKSName = parsedName.Item1 ?? defaultKSName;
+            ksInstances = dc == null
+                            ? cluster.GetKeyspaces(parsedName.Item1 ?? defaultKSName)
+                            : (defaultKSName == null
+                                    ? cluster.GetKeyspaces(dc)
+                                    : cluster.GetKeyspaces(dc).Where(ks => ks.Equals(defaultKSName)));
+
+            return ksInstances.Select(k => ((IDDLStmt)k.TryGetTable(parsedName.Item2) ?? (IDDLStmt)k.TryGetView(parsedName.Item2)) ?? (IDDLStmt)k.TryGetIndex(parsedName.Item2))
+                        .Where(d => d != null);
+        }
+
+        public static IEnumerable<IDDLStmt> TryGetTableIndexViewsbyString(string SSTableOrKSItemName, string clusterName, string dcName = null, string defaultKSName = null)
+        {
+            var cluster = Cluster.TryGetCluster(clusterName);
+            return TryGetTableIndexViewsbyString(SSTableOrKSItemName, cluster, cluster?.TryGetDataCenter(dcName), defaultKSName);
+        }
+
         #endregion
 
-		#region IEquatable
-		public bool Equals(Cluster other)
+        #region IEquatable
+        public bool Equals(Cluster other)
 		{
 			if (ReferenceEquals(this, other))
 			{ return true; }
