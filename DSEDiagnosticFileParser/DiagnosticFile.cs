@@ -471,7 +471,7 @@ namespace DSEDiagnosticFileParser
             {
                 processingFileInstance.CancellationToken = cancellationToken.Value;
             }
-
+        
             var action = (Action)(() =>
             {
                 try

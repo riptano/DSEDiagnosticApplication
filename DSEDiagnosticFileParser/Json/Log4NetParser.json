@@ -37,7 +37,7 @@
       "SubClass": null,
       "Product": "Cassandra",
       "SessionKey": "ThreadId + SSTABLEPATH=>DDLITEMNAME",
-      "SessionKeyAction" :  "Add",
+      "SessionKeyAction": "Add",
       "SessionLookup": "'CompactionExecutor' + SSTABLEPATH=>DDLITEMNAME",
       "SessionLookupAction": "DefineLabel",
       "Examples": [
@@ -90,7 +90,7 @@
       "SubClass": "ThreadId",
       "Product": "Cassandra",
       "SessionKey": "ThreadId + DDLITEMNAME",
-      "SessionKeyAction": "ReadRemove",
+      "SessionKeyAction": "Read",
       "SessionLookupAction": "DefineLabel",
       "SessionLookup": "EventClass + DDLITEMNAME",
       "Examples": [
