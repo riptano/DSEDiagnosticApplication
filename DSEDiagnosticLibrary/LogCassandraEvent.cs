@@ -332,7 +332,10 @@ namespace DSEDiagnosticLibrary
             if (forceUpdate || !this.EventTimeEnd.HasValue || (checkEndTime && newEndTime > this.EventTimeEnd))
             {
                 this.EventTimeEnd = newEndTime;
-                this.Duration = this.EventTimeEnd - this.EventTimeBegin;
+                if (this.Duration.HasValue || this.EventTimeBegin.HasValue)
+                {
+                    this.Duration = this.EventTimeEnd - this.EventTimeBegin;
+                }
             }
         }
 
@@ -393,7 +396,10 @@ namespace DSEDiagnosticLibrary
                     if(!this.EventTimeBegin.HasValue)
                     {
                         this.EventTimeBegin = beginendEvent.EventTimeBegin;
-                        this.Duration = this.EventTimeEnd - this.EventTimeBegin;
+                        if (this.Duration.HasValue || this.EventTimeEnd.HasValue)
+                        {
+                            this.Duration = this.EventTimeEnd - this.EventTimeBegin;
+                        }
                     }
 
                     bResult = true;
@@ -439,9 +445,18 @@ namespace DSEDiagnosticLibrary
 
         #region Overrides
 
+        private int _hashcode = 0;
         public override int GetHashCode()
         {
-            return this.Id.GetHashCode();
+            unchecked
+            {
+                if (this._hashcode != 0) return this._hashcode;
+
+                return this._hashcode = (this.Node.GetHashCode()
+                                            + (this.SessionTieOutId == null ? 0 : this.SessionTieOutId.GetHashCode())
+                                            + this.EventTimeLocal.GetHashCode()) * 31
+                                            + this.LogMessage.GetHashCode();
+            }
         }
 
         public override string ToString()
