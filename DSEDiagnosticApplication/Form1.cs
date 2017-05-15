@@ -21,6 +21,10 @@ namespace DSEDiagnosticApplication
 
         private void button1_Click(object sender, EventArgs e)
         {
+            var buttonLabel = this.button1.Text;
+            this.button1.Enabled = false;
+            this.button1.Text = "Running...";
+
             Logger.Instance.Info("test");
             DSEDiagnosticFileParser.DiagnosticFile.DisableParallelProcessing = true;
             //var diagPath = PathUtils.BuildDirectoryPath(@"C:\Users\Richard\Desktop\Diag-Customer\TestUnZip");
@@ -36,6 +40,9 @@ namespace DSEDiagnosticApplication
 
             var z = DSEDiagnosticLibrary.Cluster.Clusters;
             //Task.WhenAll(tasks).Wait();
+
+            this.button1.Text = buttonLabel;
+            this.button1.Enabled = true;
         }
     }
 }

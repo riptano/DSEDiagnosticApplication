@@ -766,9 +766,9 @@ namespace DSEDiagnosticLibrary
         public string Name { get; private set; }
         public string FullName { get { return this.Keyspace.Name + '.' + this.Name; } }
         public string DDL { get; private set; }
-        public object ToDump()
+        public virtual object ToDump()
         {
-            return this;
+            return new { Table = this.FullName, Cluster = this.Cluster.Name, DataCenter = this.DataCenter.Name, Me = this };
         }
         public bool Equals(string other)
         {

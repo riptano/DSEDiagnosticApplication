@@ -209,7 +209,7 @@ namespace DSEDiagnosticLibrary
         /// <summary>
         /// If not defined one is generated. For session this should by the same guid for the complete session.
         /// </summary>
-        public Guid Id { get; }
+        public Guid Id { get; private set; }
         /// <summary>
         /// Events associated with this event so that nesting
         /// </summary>
@@ -258,7 +258,7 @@ namespace DSEDiagnosticLibrary
 
                 if(!mustMatchNode || this.Node.Equals(matchEvent.Node))
                 {
-                    if(this.Class == matchEvent.Class)
+                    if((this.Class & ~EventClasses.StatusTypes) == (matchEvent.Class & ~EventClasses.StatusTypes))
                     {
                         if(this.Type == matchEvent.Type
                                 || (this.Type & EventTypes.SessionElement) == EventTypes.SessionElement)
@@ -332,11 +332,7 @@ namespace DSEDiagnosticLibrary
             if (forceUpdate || !this.EventTimeEnd.HasValue || (checkEndTime && newEndTime > this.EventTimeEnd))
             {
                 this.EventTimeEnd = newEndTime;
-
-                if (forceUpdate || !checkEndTime || !this.Duration.HasValue)
-                {
-                    this.Duration = this.EventTimeEnd - this.EventTimeBegin;
-                }
+                this.Duration = this.EventTimeEnd - this.EventTimeBegin;
             }
         }
 
@@ -380,24 +376,26 @@ namespace DSEDiagnosticLibrary
                         this._keyspace = beginendEvent.Keyspace;
                     }
 
-                    this.ParentEvents = new List<IEvent>(this.ParentEvents) { beginendEvent };
-                    this.SessionTieOutId = beginendEvent.SessionTieOutId;
-                    bResult = true;
-                }
-                else if((this.Type & EventTypes.SessionEnd) == EventTypes.SessionEnd
-                            && (beginendEvent.Type & EventTypes.SessionBegin) == EventTypes.SessionBegin)
-                {
-                    if (this.TableViewIndex == null)
+                    if (this.ParentEvents.IsEmpty())
                     {
-                        this.TableViewIndex = beginendEvent.TableViewIndex;
+                        this.ParentEvents = new List<IEvent>(this.ParentEvents) { beginendEvent };
                     }
-                    if (this.Keyspace == null)
+                    else
                     {
-                        this._keyspace = beginendEvent.Keyspace;
+                        this.ParentEvents = this.ParentEvents.Append(beginendEvent).OrderBy(p => p.EventTimeLocal);
                     }
 
-                    this.ParentEvents = new List<IEvent>(this.ParentEvents) { beginendEvent };
                     this.SessionTieOutId = beginendEvent.SessionTieOutId;
+                    this.Class &= ~EventClasses.Orphaned;
+                    this.Id = beginendEvent.Id;
+
+                    beginendEvent.UpdateEndingTimeStamp(this.EventTimeLocal);
+                    if(!this.EventTimeBegin.HasValue)
+                    {
+                        this.EventTimeBegin = beginendEvent.EventTimeBegin;
+                        this.Duration = this.EventTimeEnd - this.EventTimeBegin;
+                    }
+
                     bResult = true;
                 }
             }

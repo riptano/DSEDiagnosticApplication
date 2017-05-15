@@ -199,7 +199,7 @@ namespace DSEDiagnosticLibrary
         public string DDL { get; private set; }
         public object ToDump()
         {
-            return this;
+            return new { KeySpace = this.Name, Cluster = this.Cluster.Name, DataCenter = this.DataCenter.Name, Me = this };
         }
         #endregion
 

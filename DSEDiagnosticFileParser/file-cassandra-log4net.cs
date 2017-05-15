@@ -84,7 +84,7 @@ namespace DSEDiagnosticFileParser
                 this.Node = fileInstance.Node;
                 this._eventList = fileInstance._logEvents;
                 this.OrphanedSessionEvents = fileInstance._orphanedSessionEvents;
-                this.OpenSessionEvents = fileInstance._openSessions.Select(i => i.Value);
+                this.OpenSessionEvents = fileInstance._openSessions.Where(i => !i.Value.EventTimeEnd.HasValue).Select(i => i.Value);
             }
 
             private readonly List<LogCassandraEvent> _eventList;
@@ -178,10 +178,17 @@ namespace DSEDiagnosticFileParser
                 }
             }
 
-            this.CancellationToken.ThrowIfCancellationRequested();
+            //foreach(var orphanedSession in this._orphanedSessionEvents.Where(o => (o.Type & EventTypes.SessionEnd) == EventTypes.SessionEnd && o.Keyspace == null).ToArray())
+            //{
+            //    var beginEvent = this._openSessions.LastOrDefault(o => o.Value.EventTimeLocal <= orphanedSession.EventTimeLocal && o.Key.StartsWith(orphanedSession.SessionTieOutId)).Value;
 
-            OrphanedSessionEvents.AddRange(this._orphanedSessionEvents);
-            //OrphanedSessionEvents.AddRange(this._openSessions.Select(s => { s.Value.MarkAsOrphaned(); return s.Value; }));
+            //    if(beginEvent != null && orphanedSession.FixSessionEvent(beginEvent))
+            //    {
+            //            this._orphanedSessionEvents.Remove(orphanedSession);
+            //    }
+            //}
+
+            this._orphanedSessionEvents.AddRange(this._openSessions.Where(s => !s.Value.EventTimeEnd.HasValue).Select(s => { s.Value.MarkAsOrphaned(); return s.Value; }));
 
             return (uint) this._logEvents.Count;
         }
@@ -514,6 +521,7 @@ namespace DSEDiagnosticFileParser
 
             if ((eventType & EventTypes.SessionItem) == EventTypes.SessionItem)
             {
+                var fndTime = new DateTime(2017, 02, 12, 02, 14, 00, 979);
                 sessionInfo = matchItem.Item5.DetermineSessionInfo(this.Cluster,
                                                                         this.Node,
                                                                         primaryKS,
@@ -567,7 +575,11 @@ namespace DSEDiagnosticFileParser
                     {
                         parentEvents.AddRange(sessionEvent.ParentEvents.Cast<LogCassandraEvent>());
                     }
-                    parentEvents.Add(sessionEvent);
+
+                    if ((sessionEvent.Type & EventTypes.SessionBegin) == EventTypes.SessionBegin)
+                    {
+                        parentEvents.Add(sessionEvent);
+                    }
                 }
             }
 
@@ -726,15 +738,8 @@ namespace DSEDiagnosticFileParser
                                                         sessionId,
                                                         matchItem.Item5.Product);
 
-                    sessionEvent.UpdateEndingTimeStamp(logMessage.LogDateTime);
-
-                    if(sessionEvent.ParentEvents.HasAtLeastOneElement())
-                    {
-                        sessionEvent.ParentEvents
-                                .Where(p => (p.Type & EventTypes.SessionBegin) == EventTypes.SessionBegin)
-                                .Cast<LogCassandraEvent>()
-                                .ForEach(p => p.UpdateEndingTimeStamp(logMessage.LogDateTime, false));
-                    }
+                    ((LogCassandraEvent)logEvent.ParentEvents.LastOrDefault(p => ((LogCassandraEvent)p).SessionTieOutId == logEvent.SessionTieOutId))?.UpdateEndingTimeStamp(logEvent.EventTimeLocal);
+                    ((LogCassandraEvent)logEvent.ParentEvents.FirstOrDefault())?.UpdateEndingTimeStamp(logEvent.EventTimeLocal);
                 }
                 else
                 {
@@ -801,6 +806,19 @@ namespace DSEDiagnosticFileParser
                     }
                 }
 
+                if (orphanedSession
+                        && (logEvent.Type & EventTypes.SessionEnd) == EventTypes.SessionEnd
+                        && logEvent.Keyspace == null
+                        && logEvent.SessionTieOutId != null)
+                {
+                    var beginEvent = this._openSessions.LastOrDefault(o => o.Key.StartsWith(logEvent.SessionTieOutId)).Value;
+
+                    if (beginEvent != null && logEvent.FixSessionEvent(beginEvent))
+                    {
+                        orphanedSession = false;
+                    }
+                }
+
                 if (orphanedSession)
                 {
                     this._orphanedSessionEvents.Add(logEvent);
@@ -830,7 +848,7 @@ namespace DSEDiagnosticFileParser
                                     ddl = Cluster.TryGetTableIndexViewbyString(ddlItem.Item2.DDLSSTableName, this.Cluster, this.DataCenter, defaultKS);
                                 }
                                 ddlItem.Item1.UpdateDDLItems(logEvent.Keyspace, ddl, ddls);
-                            }                            
+                            }
                         }
                         this._lateResolutionEvents.RemoveAll(i => i.Item1.Id == logEvent.Id);
                     }
@@ -859,7 +877,7 @@ namespace DSEDiagnosticFileParser
                             || logLineParserInfo.SessionAction == CLogLineTypeParser.SessionKeyActions.ReadRemove))
             {
                 logEvent = this._openSessions.TryGetValue(logLineParserInfo.SessionId);
-                sessionKey = logEvent == null ? null : logLineParserInfo.SessionId;
+                sessionKey = logLineParserInfo.SessionId;
             }
 
             if(logEvent == null
@@ -872,11 +890,13 @@ namespace DSEDiagnosticFileParser
                         if (logLineParserInfo.SessionLookup != null)
                         {
                             logEvent = this._openSessions.TryGetValue(logLineParserInfo.SessionLookup);
+                            sessionKey = logLineParserInfo.SessionLookup;
                         }
                     }
                     else
                     {
-                        logEvent = this._openSessions.FirstOrDefault(kv => logLineParserInfo.IsLookupMatch(kv.Key)).Value;
+                        logEvent = this._openSessions.FirstOrDefault(kv => logLineParserInfo.IsLookupMatch(sessionKey = kv.Key)).Value;
+                        if (logEvent == null) sessionKey = null;
                     }
                 }
 
@@ -888,15 +908,16 @@ namespace DSEDiagnosticFileParser
                         if (logLineParserInfo.SessionLookup != null)
                         {
                             logEvent = this._lookupSessionLabels.TryGetValue(logLineParserInfo.SessionLookup);
+                            sessionKey = logLineParserInfo.SessionId ?? logLineParserInfo.SessionLookup;
                         }
                     }
                     else
                     {
-                        logEvent = this._lookupSessionLabels.FirstOrDefault(kv => logLineParserInfo.IsLookupMatch(kv.Key)).Value;
+                        string possibleSessionLookup = null;
+                        logEvent = this._lookupSessionLabels.FirstOrDefault(kv => logLineParserInfo.IsLookupMatch(possibleSessionLookup = kv.Key)).Value;
+                        sessionKey = logLineParserInfo.SessionId ?? possibleSessionLookup;
                     }
                 }
-
-                sessionKey = logEvent == null ? null : logLineParserInfo.SessionLookup;
             }
 
             return new Tuple<LogCassandraEvent, string>(logEvent, sessionKey);

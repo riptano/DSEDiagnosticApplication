@@ -336,6 +336,8 @@ namespace DSEDiagnosticFileParser
         ///
         /// </summary>
         /// <remarks>
+        /// If values are concatenated, the ordering is important. Values that are always present (e.g., ThreadId) should be first and values that may not be present or optional should be later (e.g., DDLITEMNAME).
+        ///
         /// Below is an example where the SessionKey would be the &quot;ThreadId&quot; since this is used to identify a compacation timespan session for all log lines.
         /// Log line 1 will define the session key with &quot;CompactionExecutor:734&quot;. The remaining log logs will use the ThreadId to get the beginning event.
         /// <code>

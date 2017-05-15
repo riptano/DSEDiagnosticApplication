@@ -72,7 +72,7 @@ namespace DSEDiagnosticLibrary
         public string DDL { get; private set; }
         public object ToDump()
         {
-            return this;
+            return new { UserDefnedType = this.FullName, Cluster = this.Cluster.Name, DataCenter = this.DataCenter.Name, Me = this };
         }
         public bool Equals(string other)
         {

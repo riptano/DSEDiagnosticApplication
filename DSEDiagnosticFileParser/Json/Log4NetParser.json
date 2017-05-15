@@ -15,6 +15,8 @@
       "SubClass": null,
       "Product": "Cassandra",
       "SessionKey": "ThreadId + SSTABLEPATH=>DDLITEMNAME",
+      "SessionLookup": "'CompactionExecutor' + SSTABLEPATH=>DDLITEMNAME",
+      "SessionLookupAction": "DeleteLabel",
       "Examples": [
         "INFO  [CompactionExecutor:3211] 2017-01-16 13:33:04,872  CompactionTask.java:141 - Compacting [SSTableReader(path='/var/lib/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/system-compactions_in_progress-ka-90586-Data.db'), SSTableReader(path='/var/lib/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/system-compactions_in_progress-ka-90588-Data.db'), SSTableReader(path='/var/lib/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/system-compactions_in_progress-ka-90587-Data.db'), SSTableReader(path='/var/lib/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/system-compactions_in_progress-ka-90589-Data.db')]",
         "==> INFO  [CompactionExecutor:3211] 2017-01-16 13:33:06,380  CompactionTask.java:274 - Compacted 4 sstables to [/var/lib/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/system-compactions_in_progress-ka-90590,].  590 bytes to 196 (~33% of original) in 15ms = 0.012461MB/s.  3 total partitions merged to 2.  Partition merge counts were {1:1, 2:1, }",
@@ -106,6 +108,7 @@
         "INFO  [MemtableFlushWriter:8012] 2017-01-16 13:34:17,796  Memtable.java:347 - Writing Memtable-push_device@1956470048(2.617KiB serialized bytes, 22 ops, 0%/0% of on/off-heap limit)",
         "INFO  [MemtableFlushWriter:8012] 2017-01-16 13:34:17,797  Memtable.java:382 - Completed flushing /var/lib/cassandra/data/push/push_device-109860416f0511e6aeacd54e2d191f81/push-push_device-tmp-ka-278157-Data.db (0.000KiB) for commitlog position ReplayPosition(segmentId=1483996065722, position=19852124)",
 
+        "INFO  [CompactionExecutor:3211] 2017-01-16 13:33:04,872  CompactionTask.java:141 - Compacting [SSTableReader(path='/var/lib/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/system-compactions_in_progress-ka-90586-Data.db'), SSTableReader(path='/var/lib/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/system-compactions_in_progress-ka-90588-Data.db'), SSTableReader(path='/var/lib/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/system-compactions_in_progress-ka-90587-Data.db'), SSTableReader(path='/var/lib/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/system-compactions_in_progress-ka-90589-Data.db')]",
         "=> INFO  [CompactionExecutor:3211] 2017-01-16 13:34:17,817  ColumnFamilyStore.java:905 - Enqueuing flush of compactions_in_progress: 1315 (0%) on-heap, 0 (0%) off-heap",
         "INFO  [MemtableFlushWriter:8011] 2017-01-16 13:34:17,849  Memtable.java:347 - Writing Memtable-compactions_in_progress@1461142581(0.146KiB serialized bytes, 9 ops, 0%/0% of on/off-heap limit)",
         "INFO  [MemtableFlushWriter:8011] 2017-01-16 13:34:17,850  Memtable.java:382 - Completed flushing /var/lib/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/system-compactions_in_progress-tmp-ka-90592-Data.db (0.000KiB) for commitlog position ReplayPosition(segmentId=1483996065722, position=19853243)",
@@ -230,12 +233,12 @@
       "MessageMatch": { "RegExStrings": [ "^Handshaking\\s" ] },
       "ParseMessage": { "RegExStrings": [ "^Handshaking\\s+\\w+\\s+\\w+\\s+/?\\s*(?<NODE>[^ ]+)$" ] },
       "ParseThreadId": null,
-      "EventType": "SessionBeginOrItem",
+      "EventType": "SessionItem, SessionIgnore",
       "EventClass": "HintHandOff",
       "SubClass": null,
       "Product": "Cassandra",
       "SessionKey": "'HintHandoff' + NODE",
-      "SessionKeyAction" : "Auto",
+      "SessionKeyAction" : "Read",
       "Examples": [
         "INFO  [CompactionExecutor:1658] 2017-02-12 02:14:00,978  CompactionTask.java:141 - Compacting [SSTableReader(path='/data/cassandra/data/system/hints-2666e20573ef38b390fefecf96e8f0c7/system-hints-ka-429-Data.db')]",
 

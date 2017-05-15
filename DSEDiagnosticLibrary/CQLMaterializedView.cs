@@ -63,6 +63,12 @@ namespace DSEDiagnosticLibrary
         #region ICQLMaterializedView
         public ICQLTable Table { get; private set; }
         public string WhereClause { get; private set; }
+
+        public new object ToDump()
+        {
+            return new { MaterializedView = this.FullName, Cluster = this.Cluster.Name, DataCenter = this.DataCenter.Name, Me = this };
+        }
+
         #endregion
 
         #region IEquatable<ICQLMaterializedView>
