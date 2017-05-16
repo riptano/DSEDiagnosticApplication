@@ -93,7 +93,7 @@
       "Product": "Cassandra",
       "SessionKey": "ThreadId + DDLITEMNAME",
       "SessionKeyAction": "Read",
-      "SessionLookupAction": "DefineLabel",
+      "SessionLookupAction": "DefineLabel, Stack",
       "SessionLookup": "EventClass + DDLITEMNAME",
       "Examples": [
         "=> INFO  [ValidationExecutor:800] 2017-01-16 13:34:06,722  ColumnFamilyStore.java:905 - Enqueuing flush of push_device: 2202847 (0%) on-heap, 0 (0%) off-heap",
@@ -142,7 +142,7 @@
       "SubClass": null,
       "Product": "Cassandra",
       "SessionKey": "ThreadId + DDLITEMNAME",
-      "SessionLookupAction": "ReadRemoveLabel",
+      "SessionLookupAction": "ReadRemoveLabel, Stack",
       "SessionLookup": "EventClass + TABLEVIEWNAME",
       "Examples": [
         "INFO  [ValidationExecutor:800] 2017-01-16 13:34:06,722  ColumnFamilyStore.java:905 - Enqueuing flush of push_device: 2202847 (0%) on-heap, 0 (0%) off-heap",

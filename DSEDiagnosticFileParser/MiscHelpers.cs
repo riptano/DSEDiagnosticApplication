@@ -201,8 +201,20 @@ namespace DSEDiagnosticFileParser
             return default(V);
         }
 
+        public static T TryGetValue<K, T>(this Dictionary<K, Stack<T>> collection, K key)
+            where T : class
+        {
+            Stack<T> getValue;
+
+            if (collection != null && collection.TryGetValue(key, out getValue))
+            {
+                return getValue.Count == 0 ? default(T) : getValue.Peek();
+            }
+
+            return default(T);
+        }
+
         public static bool TryAddValue<K, V>(this Dictionary<K, V> collection, K key, V value)
-            where V : class
         {
             if (collection != null && !collection.ContainsKey(key))
             {
@@ -211,6 +223,92 @@ namespace DSEDiagnosticFileParser
             }
 
             return false;
+        }
+
+        public static V SwapValue<K, V>(this Dictionary<K, V> collection, K key, V value, Action<K,V> oldValueAction)
+        {
+            V getValue;
+
+            if (oldValueAction != null && collection.TryGetValue(key, out getValue))
+            {
+                oldValueAction(key, getValue);
+            }
+
+            return collection[key] = value;
+        }
+
+        public static V SwapValue<K, V>(this Dictionary<K, V> collection, K key, V value)
+        {
+            V getValue = default(V);
+
+            collection.TryGetValue(key, out getValue);
+            collection[key] = value;
+
+            return getValue;
+        }
+
+        public static V TryAddUpdate<K, V>(this Dictionary<K, V> collection, K key, Func<K, V> addFunc, Func<K, V, V> updateFunc)
+        {
+            V getValue;
+
+            if (collection.TryGetValue(key, out getValue))
+            {
+                return collection[key] = updateFunc(key, getValue);
+            }
+
+            return collection[key] = addFunc(key);
+        }
+
+        public static Stack<T> TryAddAppendCollection<K, T>(this Dictionary<K, Stack<T>> collection, K key, T element)
+        {
+            Stack<T> collectionValue;
+
+            if (collection.ContainsKey(key))
+            {
+                collectionValue = collection[key];
+                collectionValue.Push(element);
+                return collectionValue;
+            }
+
+            collection[key] = collectionValue = new Stack<T>();
+            collectionValue.Push(element);
+
+            return collectionValue;
+        }
+
+        public static Stack<T> TryAddOrUpdateCollection<K, T>(this Dictionary<K, Stack<T>> collection, K key, T element)
+        {
+            Stack<T> collectionValue;
+
+            if (collection.ContainsKey(key))
+            {
+                collectionValue = collection[key];
+                collectionValue.Clear();
+                collectionValue.Push(element);
+                return collectionValue;
+            }
+
+            collection[key] = collectionValue = new Stack<T>();
+            collectionValue.Push(element);
+
+            return collectionValue;
+        }
+
+        public static Stack<T> TryRemoveCollection<K, T>(this Dictionary<K, Stack<T>> collection, K key)
+        {
+            Stack<T> collectionValue;
+
+            if (collection.ContainsKey(key))
+            {
+                collectionValue = collection[key];
+
+                if(collectionValue.Count > 0)
+                    collectionValue.Pop();
+
+                return collectionValue;
+            }
+
+            return null;
         }
 
         private static Dictionary<int, Assembly> CompiledSources = new Dictionary<int, Assembly>();

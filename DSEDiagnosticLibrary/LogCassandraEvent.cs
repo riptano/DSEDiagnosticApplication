@@ -332,6 +332,7 @@ namespace DSEDiagnosticLibrary
             if (forceUpdate || !this.EventTimeEnd.HasValue || (checkEndTime && newEndTime > this.EventTimeEnd))
             {
                 this.EventTimeEnd = newEndTime;
+                this.Class &= ~EventClasses.Orphaned;
                 if (this.Duration.HasValue || this.EventTimeBegin.HasValue)
                 {
                     this.Duration = this.EventTimeEnd - this.EventTimeBegin;

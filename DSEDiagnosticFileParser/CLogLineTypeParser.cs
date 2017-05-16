@@ -64,6 +64,7 @@ namespace DSEDiagnosticFileParser
             Read = 0x0004,
             Define = 0x0008,
             Delete = 0x0010,
+            Stack = 0x0020,
             ReadSession = Read | Session,
             ReadLabel = Read | Label,
             DefineLabel = Define | Label,
@@ -417,6 +418,164 @@ namespace DSEDiagnosticFileParser
             public bool IsLookupMatch(string checkValue)
             {
                 return this.SessionLookupRegEx == null ? this.SessionLookup == checkValue : this.SessionLookupRegEx.IsMatch(checkValue);
+            }
+
+            public Tuple<LogCassandraEvent, string> GetLogEvent(Dictionary<string, LogCassandraEvent> openSessions,
+                                                                    Dictionary<string, Stack<LogCassandraEvent>> lookupSessionLabels)
+            {
+                string sessionKey = null;
+                LogCassandraEvent logEvent = null;
+
+                if (this.SessionId != null
+                        && (this.SessionAction == SessionKeyActions.Auto
+                                || this.SessionAction == SessionKeyActions.Read
+                                || this.SessionAction == SessionKeyActions.ReadRemove))
+                {
+                    logEvent = openSessions.TryGetValue(this.SessionId);
+                    sessionKey = this.SessionId;
+                }
+
+                if (logEvent == null
+                        && (this.SessionLookupAction & CLogLineTypeParser.SessionLookupActions.Read) == CLogLineTypeParser.SessionLookupActions.Read)
+                {
+                    if ((this.SessionLookupAction & CLogLineTypeParser.SessionLookupActions.Session) == CLogLineTypeParser.SessionLookupActions.Session)
+                    {
+                        if (this.SessionLookupRegEx == null)
+                        {
+                            if (this.SessionLookup != null)
+                            {
+                                logEvent = openSessions.TryGetValue(this.SessionLookup);
+                                sessionKey = this.SessionLookup;
+                            }
+                        }
+                        else
+                        {
+                            var refThis = this;
+                            logEvent = openSessions.FirstOrDefault(kv => refThis.IsLookupMatch(sessionKey = kv.Key)).Value;
+                            if (logEvent == null) sessionKey = null;
+                        }
+                    }
+
+                    if (logEvent == null
+                            && (this.SessionLookupAction & CLogLineTypeParser.SessionLookupActions.Label) == CLogLineTypeParser.SessionLookupActions.Label)
+                    {
+                        if (this.SessionLookupRegEx == null)
+                        {
+                            if (this.SessionLookup != null)
+                            {
+                                logEvent = lookupSessionLabels.TryGetValue(this.SessionLookup);
+                                sessionKey = this.SessionId ?? this.SessionLookup;
+                            }
+                        }
+                        else
+                        {
+                            string possibleSessionLookup = null;
+                            var refThis = this;
+                            var stackItem = lookupSessionLabels.FirstOrDefault(kv => refThis.IsLookupMatch(possibleSessionLookup = kv.Key)).Value;
+                            logEvent = stackItem == null ? null : (stackItem.Count == 0 ? null : stackItem.Peek());
+                            sessionKey = this.SessionId ?? possibleSessionLookup;
+                        }
+                    }
+                }
+
+                return new Tuple<LogCassandraEvent, string>(logEvent, sessionKey);
+            }
+
+            public LogCassandraEvent UpdateSessionStatus(Dictionary<string, LogCassandraEvent> openSessions,
+                                                            Dictionary<string, Stack<LogCassandraEvent>> lookupSessionLabels,
+                                                            LogCassandraEvent logEvent,
+                                                            bool addSessionKey = false)
+            {
+                if (logEvent == null) return null;
+                LogCassandraEvent oldValue = null;
+
+                if (this.SessionId != null)
+                {
+                    var sessionType = this.SessionAction;
+
+                    if (addSessionKey)
+                    {
+                        sessionType = SessionKeyActions.Add;
+                    }
+                    else if (sessionType == SessionKeyActions.Auto)
+                    {
+                        if ((logEvent.Type & EventTypes.SessionBegin) == EventTypes.SessionBegin)
+                        {
+                            sessionType = SessionKeyActions.Add;
+                        }
+                        else if ((logEvent.Type & EventTypes.SessionEnd) == EventTypes.SessionEnd)
+                        {
+                            sessionType = SessionKeyActions.Delete;
+                        }
+                    }
+
+                    switch (sessionType)
+                    {
+                        case SessionKeyActions.Add:
+                            oldValue = openSessions.SwapValue(this.SessionId, logEvent);
+                            break;
+                        case SessionKeyActions.Delete:
+                        case SessionKeyActions.ReadRemove:
+                            openSessions.Remove(this.SessionId);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                if (this.SessionLookupRegEx == null && this.SessionLookup != null)
+                {
+                    if ((this.SessionLookupAction & SessionLookupActions.Session) == SessionLookupActions.Session)
+                    {
+                        if ((this.SessionLookupAction & SessionLookupActions.Define) == SessionLookupActions.Define)
+                        {
+                            oldValue = openSessions.SwapValue(this.SessionLookup, logEvent);
+                        }
+                        else if ((this.SessionLookupAction & SessionLookupActions.Delete) == SessionLookupActions.Delete)
+                        {
+                            openSessions.Remove(this.SessionLookup);
+                        }
+                    }
+
+                    if ((this.SessionLookupAction & SessionLookupActions.Label) == SessionLookupActions.Label)
+                    {
+                        if ((this.SessionLookupAction & SessionLookupActions.Define) == SessionLookupActions.Define)
+                        {
+                            if ((this.SessionLookupAction & SessionLookupActions.Stack) == SessionLookupActions.Stack)
+                            {
+                                lookupSessionLabels.TryAddAppendCollection(this.SessionLookup, logEvent);
+                            }
+                            else
+                            {
+                                lookupSessionLabels.TryAddOrUpdateCollection(this.SessionLookup, logEvent);
+                            }
+                        }
+                        else if ((this.SessionLookupAction & SessionLookupActions.Delete) == SessionLookupActions.Delete)
+                        {
+                            lookupSessionLabels.TryRemoveCollection(this.SessionLookup);
+                        }
+                    }
+                }
+                else if (this.SessionLookupRegEx != null
+                            && (this.SessionLookupAction & SessionLookupActions.Delete) == SessionLookupActions.Delete)
+                {
+                    if ((this.SessionLookupAction & SessionLookupActions.Label) == SessionLookupActions.Label)
+                    {
+                        var refThis = this;
+                        lookupSessionLabels.Where(kv => refThis.IsLookupMatch(kv.Key))
+                                .Select(kv => kv.Key)
+                                .ForEach(k => lookupSessionLabels.Remove(k));
+                    }
+                    if ((this.SessionLookupAction & SessionLookupActions.Session) == SessionLookupActions.Session)
+                    {
+                        var refThis = this;
+                        openSessions.Where(kv => refThis.IsLookupMatch(kv.Key))
+                                .Select(kv => kv.Key)
+                                .ForEach(k => openSessions.Remove(k));
+                    }
+                }
+
+                return oldValue;
             }
         }
 
