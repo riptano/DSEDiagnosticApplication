@@ -516,7 +516,16 @@ namespace DSEDiagnosticFileParser
                             break;
                         case SessionKeyActions.Delete:
                         case SessionKeyActions.ReadRemove:
-                            openSessions.Remove(this.SessionId);
+                            if(!openSessions.Remove(this.SessionId))
+                            {
+                                var refSessionId = this.SessionId;
+                                var delSessionId = openSessions.FirstOrDefault(s => s.Value.Id == logEvent.Id && s.Key.StartsWith(refSessionId)).Key;
+
+                                if(delSessionId != null)
+                                {
+                                    openSessions.Remove(delSessionId);
+                                }
+                            }
                             break;
                         default:
                             break;
@@ -533,7 +542,16 @@ namespace DSEDiagnosticFileParser
                         }
                         else if ((this.SessionLookupAction & SessionLookupActions.Delete) == SessionLookupActions.Delete)
                         {
-                            openSessions.Remove(this.SessionLookup);
+                            if (!openSessions.Remove(this.SessionLookup))
+                            {
+                                var refSessionId = this.SessionLookup;
+                                var delSessionId = openSessions.FirstOrDefault(s => s.Value.Id == logEvent.Id && s.Key.StartsWith(refSessionId)).Key;
+
+                                if (delSessionId != null)
+                                {
+                                    openSessions.Remove(delSessionId);
+                                }
+                            }
                         }
                     }
 
@@ -1088,7 +1106,7 @@ namespace DSEDiagnosticFileParser
                 {
                     if (sessionKey == null)
                     {
-                        throw new ArgumentException(string.Format("{0} \"{1}\" was not valid.",
+                        throw new ArgumentException(string.Format("{0} \"{1}\" was not valid for \"{2}\".",
                                                                     logLineParser.CacheInfoVarName(cacheIdx),
                                                                     logLineParser.CacheInfoVarValue(logLineParser, cacheIdx)),
                                                                     logLineParser.CacheInfoVarName(cacheIdx));

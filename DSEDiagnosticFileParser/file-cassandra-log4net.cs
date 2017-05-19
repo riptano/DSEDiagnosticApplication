@@ -122,7 +122,7 @@ namespace DSEDiagnosticFileParser
         public override uint ProcessFile()
         {
             this.CancellationToken.ThrowIfCancellationRequested();
-           
+
             using (var logFileInstance = new ReadLogFile(this.File, LibrarySettings.Log4NetConversionPattern, this.Node))
             {
                System.Threading.Tasks.Task.Factory.StartNew(() =>
@@ -530,7 +530,6 @@ namespace DSEDiagnosticFileParser
 
             if ((eventType & EventTypes.SessionItem) == EventTypes.SessionItem)
             {
-                var fndTime = new DateTime(2017, 02, 12, 02, 14, 00, 979);
                 sessionInfo = matchItem.Item5.DetermineSessionInfo(this.Cluster,
                                                                         this.Node,
                                                                         primaryKS,
@@ -890,75 +889,115 @@ namespace DSEDiagnosticFileParser
         {
             string normalizedGroupName;
             string uomType;
-            int groupNamePos;
+            bool processedKeyValues = false;
 
             foreach (var groupName in matchRegEx.GetGroupNames())
             {
                 if (groupName != "0")
                 {
-                    groupNamePos = groupName.IndexOf('_');
-
-                    if (groupNamePos > 0
-                            && groupName[groupNamePos + 1] == '_')
+                    if (groupName == "KEY" || groupName == "VALUE")
                     {
-                        normalizedGroupName = groupName.Substring(0, groupNamePos);
-                        var lookupVar = groupName.Substring(groupNamePos + 2);
-                        object lookupValue;
+                        if (!processedKeyValues)
+                        {
+                            var groupKeyInstance = matchItem.Groups["KEY"];
+                            var groupValueInstance = matchItem.Groups["VALUE"];
 
-                        if(logProperties.TryGetValue(lookupVar, out lookupValue)
-                                && lookupValue is UnitOfMeasure)
-                        {
-                            uomType = ((UnitOfMeasure)lookupValue).UnitType.ToString();
+                            if (groupKeyInstance.Success && groupValueInstance.Success)
+                            {
+                                var groupMaxLength = Math.Min(groupKeyInstance.Captures.Count, groupValueInstance.Captures.Count);
+
+                                processedKeyValues = true;
+
+                                for (int nIdx = 0; nIdx < groupMaxLength; ++nIdx)
+                                {
+                                    normalizedGroupName = groupKeyInstance.Captures[nIdx].Value;
+                                    NormalizedGroupName(normalizedGroupName, logProperties, out uomType);
+
+                                    logProperties.TryAddValue(normalizedGroupName,
+                                                                StringHelpers.DetermineProperObjectFormat(groupValueInstance.Captures[nIdx].Value,
+                                                                                                            false,
+                                                                                                            false,
+                                                                                                            true,
+                                                                                                            uomType,
+                                                                                                            true));
+                                }
+                            }
                         }
-                        else
-                        {
-                            uomType = null;
-                        }
-                    }
-                    else if (groupNamePos > 0)
-                    {
-                        normalizedGroupName = groupName.Substring(0, groupNamePos);
-                        uomType = groupName.Substring(groupNamePos + 1);
                     }
                     else
                     {
-                        normalizedGroupName = groupName;
-                        uomType = null;
-                    }
+                        normalizedGroupName = NormalizedGroupName(groupName, logProperties, out uomType);
 
-                    var groupInstance = matchItem.Groups[groupName];
+                        var groupInstance = matchItem.Groups[groupName];
 
-                    if (groupInstance.Success)
-                    {
-                        if (groupInstance.Captures.Count <= 1)
+                        if (groupInstance.Success)
                         {
-                            logProperties.TryAddValue(normalizedGroupName,
-                                                        StringHelpers.DetermineProperObjectFormat(matchItem.Groups[groupName].Value,
+                            if (groupInstance.Captures.Count <= 1)
+                            {
+                                logProperties.TryAddValue(normalizedGroupName,
+                                                            StringHelpers.DetermineProperObjectFormat(groupInstance.Value,
+                                                                                                        true,
+                                                                                                        false,
+                                                                                                        true,
+                                                                                                        uomType,
+                                                                                                        true));
+                            }
+                            else
+                            {
+                                var groupCaptures = new List<object>(groupInstance.Captures.Count);
+
+                                foreach (Capture capture in groupInstance.Captures)
+                                {
+                                    groupCaptures.Add(StringHelpers.DetermineProperObjectFormat(capture.Value,
                                                                                                     true,
                                                                                                     false,
                                                                                                     true,
                                                                                                     uomType,
                                                                                                     true));
-                        }
-                        else
-                        {
-                            var groupCaptures = new List<object>(groupInstance.Captures.Count);
+                                }
 
-                            foreach (Capture capture in groupInstance.Captures)
-                            {
-                                groupCaptures.Add(StringHelpers.DetermineProperObjectFormat(capture.Value,
-                                                                                                true,
-                                                                                                false,
-                                                                                                true,
-                                                                                                uomType,
-                                                                                                true));
+                                logProperties.TryAddValue(normalizedGroupName, groupCaptures);
                             }
-
-                            logProperties.TryAddValue(normalizedGroupName, groupCaptures);
                         }
                     }
                 }
             }
+        }
+
+        private static string NormalizedGroupName(string groupName, Dictionary<string, object> logProperties, out string uomType)
+        {
+            var groupNamePos = groupName.IndexOf('_');
+            string normalizedGroupName;
+
+            if (groupNamePos > 0
+                    && groupName[groupNamePos + 1] == '_')
+            {
+                normalizedGroupName = groupName.Substring(0, groupNamePos);
+                var lookupVar = groupName.Substring(groupNamePos + 2);
+                object lookupValue;
+
+                if (logProperties.TryGetValue(lookupVar, out lookupValue)
+                        && lookupValue is UnitOfMeasure)
+                {
+                    uomType = ((UnitOfMeasure)lookupValue).UnitType.ToString();
+                }
+                else
+                {
+                    uomType = null;
+                }
+            }
+            else if (groupNamePos > 0)
+            {
+                normalizedGroupName = groupName.Substring(0, groupNamePos);
+                uomType = groupName.Substring(groupNamePos + 1);
+            }
+            else
+            {
+                normalizedGroupName = groupName;
+                uomType = null;
+            }
+
+            return normalizedGroupName;
         }
 
         private static List<string> TurnPropertyIntoCollection(Dictionary<string, object> logProperties, string key)
