@@ -12,6 +12,7 @@ using Newtonsoft.Json.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Net;
+using DSEDiagnosticLogger;
 
 namespace DSEDiagnosticFileParser
 {
@@ -335,7 +336,8 @@ namespace DSEDiagnosticFileParser
             cp.ReferencedAssemblies.Add(Assembly.GetExecutingAssembly().Location);
             cp.ReferencedAssemblies.Add(typeof(DSEDiagnosticFileParser.MiscHelpers).Assembly.Location);
             cp.ReferencedAssemblies.Add(typeof(DSEDiagnosticLibrary.MiscHelpers).Assembly.Location);
-            cp.ReferencedAssemblies.Add(typeof(DSEDiagnosticLog4NetParser.Logger).Assembly.Location);
+            cp.ReferencedAssemblies.Add(typeof(DSEDiagnosticLogger.Logger).Assembly.Location);
+            cp.ReferencedAssemblies.Add(typeof(DSEDiagnosticLog4NetParser.LogMessage).Assembly.Location);
 
             if (LibrarySettings.CodeDomAssemblies != null)
             {

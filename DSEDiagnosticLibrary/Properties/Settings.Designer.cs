@@ -303,5 +303,14 @@ namespace DSEDiagnosticLibrary.Properties {
                 return ((string)(this["SSTableColumnFamilyRegEx"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("100")]
+        public int LogMessageToStringMaxLength {
+            get {
+                return ((int)(this["LogMessageToStringMaxLength"]));
+            }
+        }
     }
 }

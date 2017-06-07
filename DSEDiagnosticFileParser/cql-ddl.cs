@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Common;
 using Newtonsoft.Json;
 using DSEDiagnosticLibrary;
+using DSEDiagnosticLogger;
 
 namespace DSEDiagnosticFileParser
 {

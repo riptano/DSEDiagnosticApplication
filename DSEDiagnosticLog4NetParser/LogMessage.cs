@@ -21,7 +21,7 @@ namespace DSEDiagnosticLog4NetParser
         /// </summary>
         public DateTimeOffset LogDateTimewTZOffset { get; set; }
         /// <summary>
-        /// Populated by the log4net &apos;timestamp&apos; pattern name.        
+        /// Populated by the log4net &apos;timestamp&apos; pattern name.
         /// </summary>
         /// <remarks>
         /// Log4net timestamp is the number of milliseconds elapsed since the start of the application until the creation of the logging event.
@@ -46,6 +46,34 @@ namespace DSEDiagnosticLog4NetParser
                 this._extraMessages.Add(extraMessage);
             }
         }
+
+        #region overrides
+
+        public override string ToString()
+        {
+            return this.ToString(LibrarySettings.LogMessageToStringMaxLength);
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="maxMessageLength">if a negitive number, complete message is used</param>
+        /// <returns></returns>
+        public string ToString(int maxMessageLength)
+        {
+            return string.Format("{0}\t{1:d\\.hh\\:mm\\:ss\\.fff}\t{2:yyyy-MM-dd hh\\:mm\\:ss\\.fff K}\t{3}\t{4}\t{5}.{6}\t{7}{8}",
+                                    this.LogLinePosition,
+                                    this.LogTimeSpan,
+                                    this.LogDateTimewTZOffset,
+                                    this.Level,
+                                    this.ThreadId,
+                                    this.FileName,
+                                    this.FileLine,
+                                    maxMessageLength >= 0 && this.Message.Length > maxMessageLength ? this.Message.Substring(0, maxMessageLength) + "..." : this.Message,
+                                    this._extraMessages.Count > 0 ? string.Format("\t<{0} Additional Messages>", this._extraMessages.Count) : string.Empty);
+        }
+
+        #endregion
     }
 
 }

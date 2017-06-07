@@ -1,381 +1,991 @@
-﻿{
-  "LogClass": "file_cassandra_log4net",
-  "Parsers": [
-    {
-      "MatchVersion": null,
-      "LevelMatch": { "RegExStrings": [ "INFO" ] },
-      "ThreadIdMatch": null,
-      "FileNameMatch": { "RegExStrings": [ "^CompactionTask.java$" ] },
-      "FileLineMatch": null,
-      "MessageMatch": { "RegExStrings": [ "^Compacted\\s\\d+\\ssstables\\s" ] },
-      "ParseMessage": { "RegExStrings": [ "^Compacted\\s(?<sstables>\\d+)\\ssstables\\s+to\\s*\\[(?<SSTABLEPATHS>[a-z0-9\\-_@#/.,\\ +%]*)\\]\\.\\s+(?<size>[0-9.,]+\\s+[a-z]+)\\s+to\\s+(?<newsize__size>[0-9.,]+)\\s\\([0-9a-z\\ %~,.]+\\)+\\sin\\s+(?<DURATION>[0-9.,]+\\s*[a-z/]+)\\s*\\=\\s*(?<iorate>[0-9.,]+\\s*[a-z/]+)\\.\\s+(?<totalpartions>[0-9,]+)\\s+total\\s+partitions\\s+merged\\s+to\\s+(?<mergedpartitions>[0-9,]+)\\.\\s+Partition\\s+merge\\s+counts\\s+were\\s+\\{(?<mergecounts>[0-9:\\ ,]+)\\s*\\}$" ] },
-      "ParseThreadId": null,
-      "EventType": "SessionEnd",
-      "EventClass": "Compaction",
-      "SubClass": null,
-      "Product": "Cassandra",
-      "SessionKey": "ThreadId + SSTABLEPATH=>DDLITEMNAME",
-      "SessionKeyAction": "ReadRemove",
-      "SessionLookup": "'CompactionExecutor' + SSTABLEPATH=>DDLITEMNAME",
-      "SessionLookupAction": "DeleteLabel",
-      "Examples": [
-        "INFO  [CompactionExecutor:3211] 2017-01-16 13:33:04,872  CompactionTask.java:141 - Compacting [SSTableReader(path='/var/lib/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/system-compactions_in_progress-ka-90586-Data.db'), SSTableReader(path='/var/lib/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/system-compactions_in_progress-ka-90588-Data.db'), SSTableReader(path='/var/lib/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/system-compactions_in_progress-ka-90587-Data.db'), SSTableReader(path='/var/lib/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/system-compactions_in_progress-ka-90589-Data.db')]",
-        "==> INFO  [CompactionExecutor:3211] 2017-01-16 13:33:06,380  CompactionTask.java:274 - Compacted 4 sstables to [/var/lib/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/system-compactions_in_progress-ka-90590,].  590 bytes to 196 (~33% of original) in 15ms = 0.012461MB/s.  3 total partitions merged to 2.  Partition merge counts were {1:1, 2:1, }",
-
-        "INFO  [CompactionExecutor:734] 2017-02-11 23:58:47,586  CompactionTask.java:141 - Compacting [SSTableReader(path='/data/cassandra/data/usprodsec/session_3-ca531e218ed211e6ab872748a53d9d02/usprodsec-session_3-ka-78735-Data.db'), SSTableReader(path='/data/cassandra/data/usprodsec/session_3-ca531e218ed211e6ab872748a53d9d02/usprodsec-session_3-ka-78732-Data.db'), SSTableReader(path='/data/cassandra/data/usprodsec/session_3-ca531e218ed211e6ab872748a53d9d02/usprodsec-session_3-ka-78734-Data.db'), SSTableReader(path='/data/cassandra/data/usprodsec/session_3-ca531e218ed211e6ab872748a53d9d02/usprodsec-session_3-ka-78733-Data.db')]",
-        "INFO  [CompactionExecutor:734] 2017-02-11 23:58:47,715  CompactionTask.java:274 - Compacted 4 sstables to[/ data / cassandra / data / usprodsec / session_3 - ca531e218ed211e6ab872748a53d9d02 / usprodsec - session_3 - ka - 78741,].  3,541 bytes to 1,079 (~30% of original) in 128ms = 0.008039MB/s.  35 total partitions merged to 12.  Partition merge counts were {1:1, 3:10, 4:1, }"
-      ]
-    },
-    {
-      "MatchVersion": null,
-      "LevelMatch": { "RegExStrings": [ "INFO" ] },
-      "ThreadIdMatch": null,
-      "FileNameMatch": { "RegExStrings": [ "^CompactionTask.java$" ] },
-      "FileLineMatch": null,
-      "MessageMatch": { "RegExStrings": [ "^Compacting\\s+\\[" ] },
-      "ParseMessage": { "RegExStrings": [ "^Compacting\\s+\\[(?:SSTableReader\\s*\\(\\s*path\\s*=\\s*'\\s*(?<SSTABLEPATHS>[a-z0-9\\-_@#/.,\\ +%]+)\\s*'\\s*\\),?\\s*)+\\s*\\]$" ] },
-      "ParseThreadId": null,
-      "EventType": "SessionBegin",
-      "EventClass": "Compaction",
-      "SubClass": null,
-      "Product": "Cassandra",
-      "SessionKey": "ThreadId + SSTABLEPATH=>DDLITEMNAME",
-      "SessionKeyAction": "Add",
-      "SessionLookup": "'CompactionExecutor' + SSTABLEPATH=>DDLITEMNAME",
-      "SessionLookupAction": "DefineLabel",
-      "Examples": [
-        "==> INFO  [CompactionExecutor:3211] 2017-01-16 13:33:04,872  CompactionTask.java:141 - Compacting [SSTableReader(path='/var/lib/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/system-compactions_in_progress-ka-90586-Data.db'), SSTableReader(path='/var/lib/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/system-compactions_in_progress-ka-90588-Data.db'), SSTableReader(path='/var/lib/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/system-compactions_in_progress-ka-90587-Data.db'), SSTableReader(path='/var/lib/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/system-compactions_in_progress-ka-90589-Data.db')]",
-        "INFO  [CompactionExecutor:3211] 2017-01-16 13:33:06,380  CompactionTask.java:274 - Compacted 4 sstables to [/var/lib/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/system-compactions_in_progress-ka-90590,].  590 bytes to 196 (~33% of original) in 15ms = 0.012461MB/s.  3 total partitions merged to 2.  Partition merge counts were {1:1, 2:1, }",
-
-        "INFO  [CompactionExecutor:734] 2017-02-11 23:58:47,586  CompactionTask.java:141 - Compacting [SSTableReader(path='/data/cassandra/data/usprodsec/session_3-ca531e218ed211e6ab872748a53d9d02/usprodsec-session_3-ka-78735-Data.db'), SSTableReader(path='/data/cassandra/data/usprodsec/session_3-ca531e218ed211e6ab872748a53d9d02/usprodsec-session_3-ka-78732-Data.db'), SSTableReader(path='/data/cassandra/data/usprodsec/session_3-ca531e218ed211e6ab872748a53d9d02/usprodsec-session_3-ka-78734-Data.db'), SSTableReader(path='/data/cassandra/data/usprodsec/session_3-ca531e218ed211e6ab872748a53d9d02/usprodsec-session_3-ka-78733-Data.db')]",
-        "INFO  [CompactionExecutor:734] 2017-02-11 23:58:47,715  CompactionTask.java:274 - Compacted 4 sstables to[/ data / cassandra / data / usprodsec / session_3 - ca531e218ed211e6ab872748a53d9d02 / usprodsec - session_3 - ka - 78741,].  3,541 bytes to 1,079 (~30% of original) in 128ms = 0.008039MB/s.  35 total partitions merged to 12.  Partition merge counts were {1:1, 3:10, 4:1, }"
-      ]
-    },
-    {
-      "MatchVersion": null,
-      "LevelMatch": { "RegExStrings": [ "INFO" ] },
-      "ThreadIdMatch": null,
-      "FileNameMatch": { "RegExStrings": [ "^ColumnFamilyStore.java$" ] },
-      "FileLineMatch": { "RegExStrings": [ "^1211$" ] },
-      "MessageMatch": { "RegExStrings": [ "^Flushing\\s+largest\\s+\\w+\\s*\\(" ] },
-      "ParseMessage": { "RegExStrings": [ "^Flushing\\s+largest\\s+\\w+\\s*\\(\\s*Keyspace\\s*=\\s*'?(?<KEYSPACE>[a-z0-9\\\\-_$%+=!?<>^*&@]+)'?,\\s+\\w+\\s*=\\s*'?(?<DDLITEMNAME>[a-z0-9\\\\-_$%+=!?<>^*&@]+)'?\\)\\s+to\\s+(?<reason>[^.]+)\\.\\s+Used\\s+total:\\s+(?<totalthresholdonheap>[0-9,.]+)\\s*/\\s*(?<totalthresholdoffheap>[0-9.,]+)\\s*,\\s*live:\\s+(?<livethresholdonheap>[0-9,9,.]+)\\s*/\\s*(?<livethresholdoffheap>[0-9,.]+)\\s*,\\s+flushing:\\s+(?<flushthresholdonheap>[0-9,.]+)\\s*/\\s*(?<flushthresholdoffheap>[0-9.,]+)\\s*,\\s+this:\\s+(?<thisthresholdonheap>[0-9,.]+)\\s*/\\s*(?<thisthresholdoffheap>[0-9,.]+)$" ] },
-      "ParseThreadId": null,
-      "EventType": "SessionBegin",
-      "EventClass": "MemtableFlush",
-      "SubClass": "ThreadId",
-      "Product": "Cassandra",
-      "SessionKey": "ThreadId + DDLITEMNAME",
-      "SessionKeyAction": "Add",
-      "SessionLookup": null,
-      "Examples": [
-        "=> INFO  [SlabPoolCleaner] 2017-01-16 13:51:50,636  ColumnFamilyStore.java:1211 - Flushing largest CFS(Keyspace='OpsCenter', ColumnFamily='rollup_state') to free up room. Used total: 0.33/0.00, live: 0.33/0.00, flushing: 0.00/0.00, this: 0.14/0.14",
-        "INFO  [SlabPoolCleaner] 2017-01-16 13:51:50,636  ColumnFamilyStore.java:905 - Enqueuing flush of rollup_state: 221288084 (14%) on-heap, 0 (0%) off-heap",
-        "INFO  [MemtableFlushWriter:8021] 2017-01-16 13:51:50,637  Memtable.java:347 - Writing Memtable-rollup_state@1750499154(8.948MiB serialized bytes, 3237264 ops, 14%/0% of on/off-heap limit)",
-        "INFO  [MemtableFlushWriter:8021] 2017-01-16 13:51:51,353  Memtable.java:382 - Completed flushing /var/lib/cassandra/data/OpsCenter/rollup_state-9b934af0746111e68dd04f228b4be406/OpsCenter-rollup_state-tmp-ka-7811-Data.db (1.797MiB) for commitlog position ReplayPosition(segmentId=1483996065725, position=29889014)"
-      ]
-    },
-    {
-      "MatchVersion": null,
-      "LevelMatch": { "RegExStrings": [ "INFO" ] },
-      "ThreadIdMatch": null,
-      "FileNameMatch": { "RegExStrings": [ "^ColumnFamilyStore.java$" ] },
-      "FileLineMatch": { "RegExStrings": [ "^905$" ] },
-      "MessageMatch": { "RegExStrings": [ "^Enqueuing\\s+flush\\s" ] },
-      "ParseMessage": {
-        "RegExStrings": [
-          "^Enqueuing\\s+flush\\s+of\\s+Memtable\\-(?<KEYSPACE>[a-z0-9'\\-_$%+=!?<>^*&@]+)\\.(?<DDLITEMNAME>[a-z0-9'\\-_$%+=!?<>^*&@]+)\\@\\d+\\((?<onheapserialized_bytes>\\d+)\\/(?<onheap_bytes>[0-9.,]+)\\s+\\w+\\/\\w+\\s+\\w+,\\s+(?<operationspersec>[0-9,]+\\s+[a-z]+)\\s*\\)",
-          "^Enqueuing\\s+flush\\s+of\\s+(?<DDLITEMNAME>[a-z0-9'\\-_$%+=@!?<>^*&]+)\\s*\\:\\s+(?<onheap_bytes>[0-9,.]+)\\s+\\((?<onheappercent>[0-9,.]+\\%)\\)\\s+on-heap,\\s+(?<offheap_bytes>[0-9,.]+)\\s+\\((?<offheappercent>[0-9,.]+\\s*[a-z/%]+)\\)\\s"
-        ]
-      },
-      "ParseThreadId": null,
-      "EventType": "SessionBeginOrItem",
-      "EventClass": "MemtableFlush",
-      "SubClass": "ThreadId",
-      "Product": "Cassandra",
-      "SessionKey": "ThreadId + DDLITEMNAME",
-      "SessionKeyAction": "Read",
-      "SessionLookupAction": "DefineLabel, Stack",
-      "SessionLookup": "EventClass + DDLITEMNAME",
-      "Examples": [
-        "=> INFO  [ValidationExecutor:800] 2017-01-16 13:34:06,722  ColumnFamilyStore.java:905 - Enqueuing flush of push_device: 2202847 (0%) on-heap, 0 (0%) off-heap",
-        "INFO  [MemtableFlushWriter:8011] 2017-01-16 13:34:06,722  Memtable.java:347 - Writing Memtable-push_device@1288484782(622.872KiB serialized bytes, 10486 ops, 0%/0% of on/off-heap limit)",
-        "INFO  [MemtableFlushWriter:8011] 2017-01-16 13:34:06,762  Memtable.java:382 - Completed flushing /var/lib/cassandra/data/push/push_device-109860416f0511e6aeacd54e2d191f81/push-push_device-tmp-ka-278155-Data.db (147.118KiB) for commitlog position ReplayPosition(segmentId=1483996065722, position=19434795)",
-
-        "=> INFO  [AntiEntropyStage:1] 2017-01-16 13:34:17,620  ColumnFamilyStore.java:905 - Enqueuing flush of push_device: 264396 (0%) on-heap, 0 (0%) off-heap",
-        "INFO  [MemtableFlushWriter:8011] 2017-01-16 13:34:17,621  Memtable.java:347 - Writing Memtable-push_device@1330163944(63.895KiB serialized bytes, 1327 ops, 0%/0% of on/off-heap limit)",
-        "INFO  [MemtableFlushWriter:8011] 2017-01-16 13:34:17,628  Memtable.java:382 - Completed flushing /var/lib/cassandra/data/push/push_device-109860416f0511e6aeacd54e2d191f81/push-push_device-tmp-ka-278156-Data.db (16.152KiB) for commitlog position ReplayPosition(segmentId=1483996065722, position=19845421)",
-
-        "=> INFO  [STREAM-IN-/10.198.59.26] 2017-01-16 13:34:17,795  ColumnFamilyStore.java:905 - Enqueuing flush of push_device: 7762 (0%) on-heap, 0 (0%) off-heap",
-        "INFO  [MemtableFlushWriter:8012] 2017-01-16 13:34:17,796  Memtable.java:347 - Writing Memtable-push_device@1956470048(2.617KiB serialized bytes, 22 ops, 0%/0% of on/off-heap limit)",
-        "INFO  [MemtableFlushWriter:8012] 2017-01-16 13:34:17,797  Memtable.java:382 - Completed flushing /var/lib/cassandra/data/push/push_device-109860416f0511e6aeacd54e2d191f81/push-push_device-tmp-ka-278157-Data.db (0.000KiB) for commitlog position ReplayPosition(segmentId=1483996065722, position=19852124)",
-
-        "INFO  [CompactionExecutor:3211] 2017-01-16 13:33:04,872  CompactionTask.java:141 - Compacting [SSTableReader(path='/var/lib/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/system-compactions_in_progress-ka-90586-Data.db'), SSTableReader(path='/var/lib/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/system-compactions_in_progress-ka-90588-Data.db'), SSTableReader(path='/var/lib/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/system-compactions_in_progress-ka-90587-Data.db'), SSTableReader(path='/var/lib/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/system-compactions_in_progress-ka-90589-Data.db')]",
-        "=> INFO  [CompactionExecutor:3211] 2017-01-16 13:34:17,817  ColumnFamilyStore.java:905 - Enqueuing flush of compactions_in_progress: 1315 (0%) on-heap, 0 (0%) off-heap",
-        "INFO  [MemtableFlushWriter:8011] 2017-01-16 13:34:17,849  Memtable.java:347 - Writing Memtable-compactions_in_progress@1461142581(0.146KiB serialized bytes, 9 ops, 0%/0% of on/off-heap limit)",
-        "INFO  [MemtableFlushWriter:8011] 2017-01-16 13:34:17,850  Memtable.java:382 - Completed flushing /var/lib/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/system-compactions_in_progress-tmp-ka-90592-Data.db (0.000KiB) for commitlog position ReplayPosition(segmentId=1483996065722, position=19853243)",
-
-        "=> INFO  [BatchlogTasks:1] 2017-01-16 13:35:06,379  ColumnFamilyStore.java:905 - Enqueuing flush of batchlog: 213016 (0%) on-heap, 0 (0%) off-heap",
-        "INFO  [MemtableFlushWriter:8011] 2017-01-16 13:35:06,379  Memtable.java:347 - Writing Memtable-batchlog@1763876046(112.479KiB serialized bytes, 775 ops, 0%/0% of on/off-heap limit)",
-        "INFO  [MemtableFlushWriter:8011] 2017-01-16 13:35:06,380  Memtable.java:393 - Completed flushing /var/lib/cassandra/data/system/batchlog-0290003c977e397cac3efdfdc01d626b/system-batchlog-tmp-ka-10184-Data.db; nothing needed to be retained.  Commitlog position was ReplayPosition(segmentId=1483996065722, position=32855484)",
-        "=> Enqueuing flush of Memtable-user_ids.user_ids_gid@1844633142(189/1890 serialized/live bytes, 7 ops)",
-
-        "=> INFO  [AntiEntropyStage:1] 2017-02-11 01:41:57,862  ColumnFamilyStore.java:905 - Enqueuing flush of digitalasset_3_0_2: 38866 (0%) on-heap, 0 (0%) off-heap",
-        "INFO  [MemtableFlushWriter:913] 2017-02-11 01:41:57,863  Memtable.java:347 - Writing Memtable-digitalasset_3_0_2.digitalasset_3_0_2_id@153078410(3.746KiB serialized bytes, 123 ops, 0%/0% of on/off-heap limit)",
-        "INFO  [MemtableFlushWriter:913] 2017-02-11 01:41:57,864  Memtable.java:382 - Completed flushing /data/cassandra/data/usprodda/digitalasset_3_0_2-42613c599c943db2b2805c31c2d36acb/usprodda-digitalasset_3_0_2.digitalasset_3_0_2_id-tmp-ka-308-Data.db (0.000KiB) for commitlog position ReplayPosition(segmentId=1486705955848, position=25089636)",
-
-        "INFO  [SlabPoolCleaner] 2017-01-16 13:51:50,636  ColumnFamilyStore.java:1211 - Flushing largest CFS(Keyspace='OpsCenter', ColumnFamily='rollup_state') to free up room. Used total: 0.33/0.00, live: 0.33/0.00, flushing: 0.00/0.00, this: 0.14/0.14",
-        "=> INFO  [SlabPoolCleaner] 2017-01-16 13:51:50,636  ColumnFamilyStore.java:905 - Enqueuing flush of rollup_state: 221288084 (14%) on-heap, 0 (0%) off-heap",
-        "INFO  [MemtableFlushWriter:8021] 2017-01-16 13:51:50,637  Memtable.java:347 - Writing Memtable-rollup_state@1750499154(8.948MiB serialized bytes, 3237264 ops, 14%/0% of on/off-heap limit)",
-        "INFO  [MemtableFlushWriter:8021] 2017-01-16 13:51:51,353  Memtable.java:382 - Completed flushing /var/lib/cassandra/data/OpsCenter/rollup_state-9b934af0746111e68dd04f228b4be406/OpsCenter-rollup_state-tmp-ka-7811-Data.db (1.797MiB) for commitlog position ReplayPosition(segmentId=1483996065725, position=29889014)"
-      ]
-    },
-    {
-      "MatchVersion": null,
-      "LevelMatch": { "RegExStrings": [ "INFO" ] },
-      "ThreadIdMatch": null,
-      "FileNameMatch": { "RegExStrings": [ "^Memtable.java$" ] },
-      "FileLineMatch": { "RegExStrings": [ "^347$" ] },
-      "MessageMatch": { "RegExStrings": [ "^Writing\\s+Memtable-" ] },
-      "ParseMessage": { "RegExStrings": [ "^Writing\\s+Memtable-\\s*(?:(?<TABLEVIEWNAME>[a-z0-9'\\-_$%+=!?<>^*&@]+)\\.(?<DDLITEMNAME>[a-z0-9'\\-_$%+=!?<>^*&@]+)|(?<DDLITEMNAME>[a-z0-9'\\-_$%+=!?<>^*&@]+))?@\\d+\\((?<serializedheap>[0-9.]+\\s*\\w+)\\s+serialized\\s+bytes,\\s+(?<operationspersec_ops>[0-9,]+)\\s+ops,\\s+(?<onheapthresholdpercent>[0-9.,]+\\s*[a-z/%]+)\\s*/\\s*(?<offheapthresholdpercent>[0-9.,]+\\s*[a-z/%]+)\\s" ] },
-      "ParseThreadId": null,
-      "EventType": "SessionBegin",
-      "EventClass": "MemtableFlush",
-      "SubClass": null,
-      "Product": "Cassandra",
-      "SessionKey": "ThreadId + DDLITEMNAME",
-      "SessionLookupAction": "ReadRemoveLabel, Stack",
-      "SessionLookup": "EventClass + TABLEVIEWNAME",
-      "Examples": [
-        "INFO  [ValidationExecutor:800] 2017-01-16 13:34:06,722  ColumnFamilyStore.java:905 - Enqueuing flush of push_device: 2202847 (0%) on-heap, 0 (0%) off-heap",
-        "=> INFO  [MemtableFlushWriter:8011] 2017-01-16 13:34:06,722  Memtable.java:347 - Writing Memtable-push_device@1288484782(622.872KiB serialized bytes, 10486 ops, 0%/0% of on/off-heap limit)",
-        "INFO  [MemtableFlushWriter:8011] 2017-01-16 13:34:06,762  Memtable.java:382 - Completed flushing /var/lib/cassandra/data/push/push_device-109860416f0511e6aeacd54e2d191f81/push-push_device-tmp-ka-278155-Data.db (147.118KiB) for commitlog position ReplayPosition(segmentId=1483996065722, position=19434795)",
-
-        "INFO  [SlabPoolCleaner] 2017-01-16 13:51:50,636  ColumnFamilyStore.java:1211 - Flushing largest CFS(Keyspace='OpsCenter', ColumnFamily='rollup_state') to free up room. Used total: 0.33/0.00, live: 0.33/0.00, flushing: 0.00/0.00, this: 0.14/0.14",
-        "INFO  [SlabPoolCleaner] 2017-01-16 13:51:50,636  ColumnFamilyStore.java:905 - Enqueuing flush of rollup_state: 221288084 (14%) on-heap, 0 (0%) off-heap",
-        "=> INFO  [MemtableFlushWriter:8021] 2017-01-16 13:51:50,637  Memtable.java:347 - Writing Memtable-rollup_state@1750499154(8.948MiB serialized bytes, 3237264 ops, 14%/0% of on/off-heap limit)",
-        "INFO  [MemtableFlushWriter:8021] 2017-01-16 13:51:51,353  Memtable.java:382 - Completed flushing /var/lib/cassandra/data/OpsCenter/rollup_state-9b934af0746111e68dd04f228b4be406/OpsCenter-rollup_state-tmp-ka-7811-Data.db (1.797MiB) for commitlog position ReplayPosition(segmentId=1483996065725, position=29889014)",
-
-        "INFO  [SlabPoolCleaner] 2017-02-13 03:08:36,836  ColumnFamilyStore.java:1211 - Flushing largest CFS(Keyspace='usprodda', ColumnFamily='digitalasset_3_0_2') to free up room. Used total: 0.20/0.00, live: 0.20/0.00, flushing: 0.00/0.00, this: 0.02/0.02",
-        "INFO  [SlabPoolCleaner] 2017-02-13 03:08:36,837  ColumnFamilyStore.java:905 - Enqueuing flush of digitalasset_3_0_2: 49836322 (2%) on-heap, 0 (0%) off-heap",
-        "=> INFO  [MemtableFlushWriter:3523] 2017-02-13 03:08:36,838  Memtable.java:347 - Writing Memtable-digitalasset_3_0_2@391065586(20.901MiB serialized bytes, 11725 ops, 2%/0% of on/off-heap limit)",
-        "INFO  [MemtableFlushWriter:3523] 2017-02-13 03:08:36,910  Memtable.java:382 - Completed flushing /data/cassandra/data/usprodda/digitalasset_3_0_2-42613c599c943db2b2805c31c2d36acb/usprodda-digitalasset_3_0_2-tmp-ka-362-Data.db (8.778MiB) for commitlog position ReplayPosition(segmentId=1486705957188, position=9102086)",
-        "=> INFO  [MemtableFlushWriter:3523] 2017-02-13 03:08:36,966  Memtable.java:347 - Writing Memtable-digitalasset_3_0_2.digitalasset_3_0_2_id@458035203(108.106KiB serialized bytes, 2786 ops, 0%/0% of on/off-heap limit)",
-        "INFO  [MemtableFlushWriter:3523] 2017-02-13 03:08:36,978  Memtable.java:382 - Completed flushing /data/cassandra/data/usprodda/digitalasset_3_0_2-42613c599c943db2b2805c31c2d36acb/usprodda-digitalasset_3_0_2.digitalasset_3_0_2_id-tmp-ka-319-Data.db (46.885KiB) for commitlog position ReplayPosition(segmentId=1486705957188, position=9102086)",
-
-        "INFO  [AntiEntropyStage:1] 2017-02-11 01:41:57,862  ColumnFamilyStore.java:905 - Enqueuing flush of digitalasset_3_0_2: 38866 (0%) on-heap, 0 (0%) off-heap",
-        "=> INFO  [MemtableFlushWriter:913] 2017-02-11 01:41:57,863  Memtable.java:347 - Writing Memtable-digitalasset_3_0_2.digitalasset_3_0_2_id@153078410(3.746KiB serialized bytes, 123 ops, 0%/0% of on/off-heap limit)",
-        "INFO  [MemtableFlushWriter:913] 2017-02-11 01:41:57,864  Memtable.java:382 - Completed flushing /data/cassandra/data/usprodda/digitalasset_3_0_2-42613c599c943db2b2805c31c2d36acb/usprodda-digitalasset_3_0_2.digitalasset_3_0_2_id-tmp-ka-308-Data.db (0.000KiB) for commitlog position ReplayPosition(segmentId=1486705955848, position=25089636)",
-
-        "INFO  [AntiEntropyStage:1] 2017-02-11 01:41:57,862  ColumnFamilyStore.java:905 - Enqueuing flush of digitalasset_3_0_2: 38866 (0%) on-heap, 0 (0%) off-heap",
-        "=> INFO  [MemtableFlushWriter:913] 2017-02-11 01:41:57,863  Memtable.java:347 - Writing Memtable-digitalasset_3_0_2.digitalasset_3_0_2_id@153078410(3.746KiB serialized bytes, 123 ops, 0%/0% of on/off-heap limit)",
-        "INFO  [MemtableFlushWriter:913] 2017-02-11 01:41:57,864  Memtable.java:382 - Completed flushing /data/cassandra/data/usprodda/digitalasset_3_0_2-42613c599c943db2b2805c31c2d36acb/usprodda-digitalasset_3_0_2.digitalasset_3_0_2_id-tmp-ka-308-Data.db (0.000KiB) for commitlog position ReplayPosition(segmentId=1486705955848, position=25089636)"
-      ]
-    },
-    {
-      "MatchVersion": null,
-      "LevelMatch": { "RegExStrings": [ "INFO" ] },
-      "ThreadIdMatch": null,
-      "FileNameMatch": { "RegExStrings": [ "^Memtable.java$" ] },
-      "FileLineMatch": { "RegExStrings": [ "^382$" ] },
-      "MessageMatch": { "RegExStrings": [ "^Completed\\s+flushing\\s" ] },
-      "ParseMessage": { "RegExStrings": [ "^Completed\\s+flushing\\s+(?<SSTABLEPATH>[^ ]+)\\s+\\((?<flushedstorage>[0-9.,]+\\s*\\w+)\\)\\s+for\\s+.+\\(segmentId\\s*=\\s*(?<replaysegmentid>[0-9,]+)\\s*,\\s+position\\s*=\\s*(?<replayposition>[0-9,]+)\\)$" ] },
-      "ParseThreadId": null,
-      "EventType": "SessionEnd",
-      "EventClass": "MemtableFlush",
-      "SubClass": null,
-      "Product": "Cassandra",
-      "SessionKey": "ThreadId + SSTABLEPATH=>DDLITEMNAME",
-      "Examples": [
-        "INFO  [ValidationExecutor:800] 2017-01-16 13:34:06,722  ColumnFamilyStore.java:905 - Enqueuing flush of push_device: 2202847 (0%) on-heap, 0 (0%) off-heap",
-        "INFO  [MemtableFlushWriter:8011] 2017-01-16 13:34:06,722  Memtable.java:347 - Writing Memtable-push_device@1288484782(622.872KiB serialized bytes, 10486 ops, 0%/0% of on/off-heap limit)",
-        "=> INFO  [MemtableFlushWriter:8011] 2017-01-16 13:34:06,762  Memtable.java:382 - Completed flushing /var/lib/cassandra/data/push/push_device-109860416f0511e6aeacd54e2d191f81/push-push_device-tmp-ka-278155-Data.db (147.118KiB) for commitlog position ReplayPosition(segmentId=1483996065722, position=19434795)",
-
-        "INFO  [SlabPoolCleaner] 2017-01-16 13:51:50,636  ColumnFamilyStore.java:1211 - Flushing largest CFS(Keyspace='OpsCenter', ColumnFamily='rollup_state') to free up room. Used total: 0.33/0.00, live: 0.33/0.00, flushing: 0.00/0.00, this: 0.14/0.14",
-        "INFO  [SlabPoolCleaner] 2017-01-16 13:51:50,636  ColumnFamilyStore.java:905 - Enqueuing flush of rollup_state: 221288084 (14%) on-heap, 0 (0%) off-heap",
-        "INFO  [MemtableFlushWriter:8021] 2017-01-16 13:51:50,637  Memtable.java:347 - Writing Memtable-rollup_state@1750499154(8.948MiB serialized bytes, 3237264 ops, 14%/0% of on/off-heap limit)",
-        "=>INFO  [MemtableFlushWriter:8021] 2017-01-16 13:51:51,353  Memtable.java:382 - Completed flushing /var/lib/cassandra/data/OpsCenter/rollup_state-9b934af0746111e68dd04f228b4be406/OpsCenter-rollup_state-tmp-ka-7811-Data.db (1.797MiB) for commitlog position ReplayPosition(segmentId=1483996065725, position=29889014)"
-      ]
-    },
-    {
-      "MatchVersion": null,
-      "LevelMatch": { "RegExStrings": [ "INFO" ] },
-      "ThreadIdMatch": null,
-      "FileNameMatch": { "RegExStrings": [ "^HintedHandOffManager.java$" ] },
-      "FileLineMatch": null,
-      "MessageMatch": { "RegExStrings": [ "^Started\\s+hinted\\s+handoff\\s" ] },
-      "ParseMessage": { "RegExStrings": [ "^started\\s+hinted\\s+handoff\\s+\\w+\\s+host:\\s+(?<hostid>[0-9a-f]{8}\\-[0-9a-f]{4}\\-[0-9a-f]{4}\\-[0-9a-f]{4}\\-[0-9a-f]{12})\\s+\\w+\\s+ip:\\s+/?\\s*(?<NODE>[^ ]+)$" ] },
-      "ParseThreadId": null,
-      "EventType": "SessionBegin",
-      "EventClass": "HintHandOff",
-      "SubClass": null,
-      "Product": "Cassandra",
-      "SessionLookupAction": "ReadRemoveLabel",
-      "SessionLookup": "'CompactionExecutorhints'",
-      "SessionKey": "'HintHandoff' + NODE",
-      "SessionKeyAction": "Auto",
-      "Examples": [
-        "INFO  [CompactionExecutor:1658] 2017-02-12 02:14:00,978  CompactionTask.java:141 - Compacting [SSTableReader(path='/data/cassandra/data/system/hints-2666e20573ef38b390fefecf96e8f0c7/system-hints-ka-429-Data.db')]",
-
-        "=> INFO  [HintedHandoff:2] 2017-02-12 02:14:00,979  HintedHandOffManager.java:367 - Started hinted handoff for host: 8e443e52-6421-440f-9e37-1b946cb9c690 with IP: /10.1.37.0",
-        "INFO  [HANDSHAKE-/10.1.37.0] 2017-02-12 02:14:00,980  OutboundTcpConnection.java:488 - Handshaking version with /10.1.37.0",
-        "INFO  [HintedHandoff:2] 2017-02-12 02:14:01,022  HintedHandOffManager.java:399 - Finished hinted handoff of 8 rows to endpoint /10.1.37.0",
-
-        "INFO  [HintedHandoff:2] 2017-02-12 02:14:01,022  ColumnFamilyStore.java:905 - Enqueuing flush of hints: 6569 (0%) on-heap, 0 (0%) off-heap",
-        "INFO  [MemtableFlushWriter:2276] 2017-02-12 02:14:01,022  Memtable.java:347 - Writing Memtable-hints@1107882196(0.258KiB serialized bytes, 16 ops, 0%/0% of on/off-heap limit)",
-        "INFO  [MemtableFlushWriter:2276] 2017-02-12 02:14:01,023  Memtable.java:382 - Completed flushing /data/cassandra/data/system/hints-2666e20573ef38b390fefecf96e8f0c7/system-hints-tmp-ka-430-Data.db (0.000KiB) for commitlog position ReplayPosition(segmentId=1486705956518, position=18941784)"
-      ]
-    },
-    {
-      "MatchVersion": null,
-      "LevelMatch": { "RegExStrings": [ "INFO" ] },
-      "ThreadIdMatch": null,
-      "FileNameMatch": { "RegExStrings": [ "^OutboundTcpConnection.java$" ] },
-      "FileLineMatch": null,
-      "MessageMatch": { "RegExStrings": [ "^Handshaking\\s" ] },
-      "ParseMessage": { "RegExStrings": [ "^Handshaking\\s+\\w+\\s+\\w+\\s+/?\\s*(?<NODE>[^ ]+)$" ] },
-      "ParseThreadId": null,
-      "EventType": "SessionItem, SessionIgnore",
-      "EventClass": "HintHandOff",
-      "SubClass": null,
-      "Product": "Cassandra",
-      "SessionKey": "'HintHandoff' + NODE",
-      "SessionKeyAction": "Read",
-      "Examples": [
-        "INFO  [CompactionExecutor:1658] 2017-02-12 02:14:00,978  CompactionTask.java:141 - Compacting [SSTableReader(path='/data/cassandra/data/system/hints-2666e20573ef38b390fefecf96e8f0c7/system-hints-ka-429-Data.db')]",
-
-        "INFO  [HintedHandoff:2] 2017-02-12 02:14:00,979  HintedHandOffManager.java:367 - Started hinted handoff for host: 8e443e52-6421-440f-9e37-1b946cb9c690 with IP: /10.1.37.0",
-        "=> INFO  [HANDSHAKE-/10.1.37.0] 2017-02-12 02:14:00,980  OutboundTcpConnection.java:488 - Handshaking version with /10.1.37.0",
-        "INFO  [HintedHandoff:2] 2017-02-12 02:14:01,022  HintedHandOffManager.java:399 - Finished hinted handoff of 8 rows to endpoint /10.1.37.0",
-
-        "INFO  [HintedHandoff:2] 2017-02-12 02:14:01,022  ColumnFamilyStore.java:905 - Enqueuing flush of hints: 6569 (0%) on-heap, 0 (0%) off-heap",
-        "INFO  [MemtableFlushWriter:2276] 2017-02-12 02:14:01,022  Memtable.java:347 - Writing Memtable-hints@1107882196(0.258KiB serialized bytes, 16 ops, 0%/0% of on/off-heap limit)",
-        "INFO  [MemtableFlushWriter:2276] 2017-02-12 02:14:01,023  Memtable.java:382 - Completed flushing /data/cassandra/data/system/hints-2666e20573ef38b390fefecf96e8f0c7/system-hints-tmp-ka-430-Data.db (0.000KiB) for commitlog position ReplayPosition(segmentId=1486705956518, position=18941784)"
-      ]
-    },
-    {
-      "MatchVersion": null,
-      "LevelMatch": { "RegExStrings": [ "INFO" ] },
-      "ThreadIdMatch": null,
-      "FileNameMatch": { "RegExStrings": [ "^HintedHandOffManager.java$" ] },
-      "FileLineMatch": null,
-      "MessageMatch": { "RegExStrings": [ "^Finished\\s+hinted\\s+handoff\\s" ] },
-      "ParseMessage": { "RegExStrings": [ "^Finished\\s+hinted\\s+handoff\\s+of\\s+(?<rowshandedoff>[0-9,]+)\\s+rows\\s+\\w+\\s+endpoint\\s+/?\\s*(?<NODE>[^ ]+)$" ] },
-      "ParseThreadId": null,
-      "EventType": "SessionEnd",
-      "EventClass": "HintHandOff",
-      "SubClass": null,
-      "Product": "Cassandra",
-      "SessionLookup": "'HintHandoff' + NODE",
-      "SessionLookupAction": "ReadRemoveSession",
-      "SessionKey": "ThreadId + 'hints'",
-      "SessionKeyAction": "Add",
-      "Examples": [
-        "INFO  [CompactionExecutor:1658] 2017-02-12 02:14:00,978  CompactionTask.java:141 - Compacting [SSTableReader(path='/data/cassandra/data/system/hints-2666e20573ef38b390fefecf96e8f0c7/system-hints-ka-429-Data.db')]",
-
-        "INFO  [HintedHandoff:2] 2017-02-12 02:14:00,979  HintedHandOffManager.java:367 - Started hinted handoff for host: 8e443e52-6421-440f-9e37-1b946cb9c690 with IP: /10.1.37.0",
-        "INFO  [HANDSHAKE-/10.1.37.0] 2017-02-12 02:14:00,980  OutboundTcpConnection.java:488 - Handshaking version with /10.1.37.0",
-        "=> INFO  [HintedHandoff:2] 2017-02-12 02:14:01,022  HintedHandOffManager.java:399 - Finished hinted handoff of 8 rows to endpoint /10.1.37.0",
-
-        "INFO  [HintedHandoff:2] 2017-02-12 02:14:01,022  ColumnFamilyStore.java:905 - Enqueuing flush of hints: 6569 (0%) on-heap, 0 (0%) off-heap",
-        "INFO  [MemtableFlushWriter:2276] 2017-02-12 02:14:01,022  Memtable.java:347 - Writing Memtable-hints@1107882196(0.258KiB serialized bytes, 16 ops, 0%/0% of on/off-heap limit)",
-        "INFO  [MemtableFlushWriter:2276] 2017-02-12 02:14:01,023  Memtable.java:382 - Completed flushing /data/cassandra/data/system/hints-2666e20573ef38b390fefecf96e8f0c7/system-hints-tmp-ka-430-Data.db (0.000KiB) for commitlog position ReplayPosition(segmentId=1486705956518, position=18941784)"
-      ]
-    },
-    {
-      "MatchVersion": null,
-      "LevelMatch": { "RegExStrings": [ "INFO" ] },
-      "ThreadIdMatch": null,
-      "FileNameMatch": { "RegExStrings": [ "^Gossiper.java$" ] },
-      "FileLineMatch": { "RegExStrings": [ "^1008$" ] },
-      "MessageMatch": null,
-      "ParseMessage": { "RegExStrings": [ "^InetAddress\\s+/?\\s*(?<NODE>[^ ]+)\\s+\\w+\\s+\\w+\\s+(?<status>DOWN)$" ] },
-      "ParseThreadId": null,
-      "EventType": "SessionBegin",
-      "EventClass": "NodeDetection",
-      "SubClass": null,
-      "Product": "Cassandra",
-      "SessionKey": "EventClass + NODE",
-      "SessionKeyAction": "Add",
-      "Examples": [
-        "=> INFO  [GossipTasks:1] 2017-02-12 02:13:59,976  Gossiper.java:1008 - InetAddress /10.1.37.0 is now DOWN",
-        "INFO  [SharedPool-Worker-1] 2017-02-12 02:14:00,978  Gossiper.java:993 - InetAddress /10.1.37.0 is now UP"
-      ]
-    },
-    {
-      "MatchVersion": null,
-      "LevelMatch": { "RegExStrings": [ "INFO" ] },
-      "ThreadIdMatch": null,
-      "FileNameMatch": { "RegExStrings": [ "^Gossiper.java$" ] },
-      "FileLineMatch": { "RegExStrings": [ "^993$" ] },
-      "MessageMatch": null,
-      "ParseMessage": { "RegExStrings": [ "^InetAddress\\s+/?\\s*(?<NODE>[^ ]+)\\s+\\w+\\s+\\w+\\s+(?<status>UP)$" ] },
-      "ParseThreadId": null,
-      "EventType": "SessionEnd, SessionIgnore",
-      "EventClass": "NodeDetection",
-      "SubClass": null,
-      "Product": "Cassandra",
-      "SessionKey": "EventClass + NODE",
-      "Examples": [
-        "INFO  [GossipTasks:1] 2017-02-12 02:13:59,976  Gossiper.java:1008 - InetAddress /10.1.37.0 is now DOWN",
-        "=> INFO  [SharedPool-Worker-1] 2017-02-12 02:14:00,978  Gossiper.java:993 - InetAddress /10.1.37.0 is now UP"
-      ]
-    },
-    {
-      "MatchVersion": null,
-      "LevelMatch": { "RegExStrings": [ "INFO" ] },
-      "ThreadIdMatch": null,
-      "FileNameMatch": { "RegExStrings": [ "^DseDaemon.java$" ] },
-      "FileLineMatch": { "RegExStrings": [ "^542$" ] },
-      "MessageMatch": null,
-      "ParseMessage": { "RegExStrings": [ "^\\w+\\s+(?<SUBCLASS>shutdown\\s+\\w+)\\s*\\.$" ] },
-      "ParseThreadId": null,
-      "EventType": "SessionBegin",
-      "EventClass": "NodeDetection",
-      "SubClass": null,
-      "Product": "Cassandra",
-      "SessionKey": "EventClass + 'Shutdown'",
-      "SessionKeyAction": "Add",
-      "Examples": [
-        "=> INFO  [Daemon shutdown] 2017-05-01 15:20:06,377  DseDaemon.java:542 - DSE shutdown complete.",
-        "INFO  [main] 2017-05-16 13:39:58,892  DseDaemon.java:827 - DSE startup complete."
-      ]
-    },
-    {
-      "MatchVersion": null,
-      "LevelMatch": { "RegExStrings": [ "INFO" ] },
-      "ThreadIdMatch": null,
-      "FileNameMatch": { "RegExStrings": [ "^DseDaemon.java$" ] },
-      "FileLineMatch": { "RegExStrings": [ "^827$" ] },
-      "MessageMatch": null,
-      "ParseMessage": { "RegExStrings": [ "^\\w+\\s+(?<SUBCLASS>startup\\s+\\w+)\\s*\\.$" ] },
-      "ParseThreadId": null,
-      "EventType": "SessionEnd",
-      "EventClass": "NodeDetection",
-      "SubClass": null,
-      "Product": "Cassandra",
-      "SessionKey": "EventClass + 'Shutdown'",
-      "SessionKeyAction": "ReadRemove",
-      "Examples": [
-        "INFO  [Daemon shutdown] 2017-05-01 15:20:06,377  DseDaemon.java:542 - DSE shutdown complete.",
-        "=> INFO  [main] 2017-05-16 13:39:58,892  DseDaemon.java:827 - DSE startup complete."
-      ]
-    },
-    {
-      "MatchVersion": null,
-      "LevelMatch": { "RegExStrings": [ "INFO" ] },
-      "ThreadIdMatch": null,
-      "FileNameMatch": { "RegExStrings": [ "^Config.java$" ] },
-      "FileLineMatch": { "RegExStrings": [ "^440$" ] },
-      "MessageMatch": null,
-      "ParseMessage": { "RegExStrings": [ "^Node\\s+configuration\\:\\s*\\[\\s*(?:(?<KEY>[a-z0-9\\-_.]+)\\s*\\=\\s*(?<VALUE>(?:\\[Ljava.lang.String\\;\\@[a-f0-9]+)|[a-z0-9.,\\-_{}=<> //\\]\\[]+)\\s*(?:\\;|\\])\\s*)+" ] },
-      "ParseThreadId": null,
-      "EventType": "SingleInstance",
-      "EventClass": "Config",
-      "SubClass": null,
-      "Product": "Cassandra",
-      "Examples": [
-        "=> INFO  [main] 2017-05-16 13:39:43,277  Config.java:440 - Node configuration:[allocate_tokens_for_keyspace=null; authenticator=AllowAllAuthenticator; authorizer=AllowAllAuthorizer; auto_bootstrap=true; auto_snapshot=true; batch_size_fail_threshold_in_kb=640; batch_size_warn_threshold_in_kb=64; batchlog_replay_throttle_in_kb=1024; broadcast_address=null; broadcast_rpc_address=null; buffer_pool_use_heap_if_exhausted=true; cas_contention_timeout_in_ms=1000; client_encryption_options=<REDACTED>; cluster_name=Andersen 5.0 Test Cluster; column_index_size_in_kb=64; commit_failure_policy=stop; commitlog_compression=null; commitlog_directory=/mnt/cassandra/commitlog/commitlog; commitlog_max_compression_buffers_in_pool=3; commitlog_periodic_queue_size=-1; commitlog_segment_size_in_mb=32; commitlog_sync=periodic; commitlog_sync_batch_window_in_ms=null; commitlog_sync_period_in_ms=10000; commitlog_total_space_in_mb=null; compaction_large_partition_warning_threshold_mb=100; compaction_throughput_mb_per_sec=16; concurrent_compactors=null; concurrent_counter_writes=32; concurrent_materialized_view_writes=32; concurrent_reads=32; concurrent_replicates=null; concurrent_writes=32; counter_cache_keys_to_save=2147483647; counter_cache_save_period=7200; counter_cache_size_in_mb=null; counter_write_request_timeout_in_ms=5000; cross_node_timeout=false; data_file_directories=[Ljava.lang.String;@1a45193b; disk_access_mode=auto; disk_failure_policy=stop; disk_optimization_estimate_percentile=0.95; disk_optimization_page_cross_chance=0.1; disk_optimization_strategy=ssd; dynamic_snitch=true; dynamic_snitch_badness_threshold=0.1; dynamic_snitch_reset_interval_in_ms=600000; dynamic_snitch_update_interval_in_ms=100; enable_scripted_user_defined_functions=false; enable_user_defined_functions=false; enable_user_defined_functions_threads=true; encryption_options=null; endpoint_snitch=com.datastax.bdp.snitch.DseDelegateSnitch; file_cache_size_in_mb=512; gc_warn_threshold_in_ms=1000; hinted_handoff_disabled_datacenters=[]; hinted_handoff_enabled=true; hinted_handoff_throttle_in_kb=1024; hints_compression=null; hints_directory=/mnt/cassandra/savedcache/hints; hints_flush_period_in_ms=10000; incremental_backups=false; index_interval=null; index_summary_capacity_in_mb=null; index_summary_resize_interval_in_minutes=60; initial_token=null; inter_dc_stream_throughput_outbound_megabits_per_sec=200; inter_dc_tcp_nodelay=false; internode_authenticator=null; internode_compression=dc; internode_recv_buff_size_in_bytes=null; internode_send_buff_size_in_bytes=null; key_cache_keys_to_save=2147483647; key_cache_save_period=14400; key_cache_size_in_mb=null; listen_address=192.168.247.69; listen_interface=null; listen_interface_prefer_ipv6=false; listen_on_broadcast_address=false; max_hint_window_in_ms=10800000; max_hints_delivery_threads=2; max_hints_file_size_in_mb=128; max_mutation_size_in_kb=null; max_streaming_retries=3; max_value_size_in_mb=256; memtable_allocation_type=heap_buffers; memtable_cleanup_threshold=null; memtable_flush_writers=null; memtable_heap_space_in_mb=null; memtable_offheap_space_in_mb=null; native_transport_max_concurrent_connections=-1; native_transport_max_concurrent_connections_per_ip=-1; native_transport_max_frame_size_in_mb=256; native_transport_max_threads=128; native_transport_port=9042; native_transport_port_ssl=null; num_tokens=128; otc_coalescing_strategy=TIMEHORIZON; otc_coalescing_window_us=200; partitioner=org.apache.cassandra.dht.Murmur3Partitioner; permissions_cache_max_entries=1000; permissions_update_interval_in_ms=-1; permissions_validity_in_ms=2000; phi_convict_threshold=8.0; range_request_timeout_in_ms=10000; read_request_timeout_in_ms=5000; request_scheduler=org.apache.cassandra.scheduler.NoScheduler; request_scheduler_id=null; request_scheduler_options=null; request_timeout_in_ms=10000; role_manager=com.datastax.bdp.cassandra.auth.DseRoleManager; roles_cache_max_entries=1000; roles_update_interval_in_ms=-1; roles_validity_in_ms=2000; row_cache_class_name=org.apache.cassandra.cache.OHCProvider; row_cache_keys_to_save=2147483647; row_cache_save_period=0; row_cache_size_in_mb=0; rpc_address=192.168.247.69; rpc_interface=null; rpc_interface_prefer_ipv6=false; rpc_keepalive=true; rpc_listen_backlog=50; rpc_max_threads=2147483647; rpc_min_threads=16; rpc_port=9160; rpc_recv_buff_size_in_bytes=null; rpc_send_buff_size_in_bytes=null; rpc_server_type=sync; saved_caches_directory=/mnt/cassandra/savedcache/saved_caches; seed_provider=org.apache.cassandra.locator.SimpleSeedProvider{seeds=192.168.247.69}; server_encryption_options=<REDACTED>; snapshot_before_compaction=false; ssl_storage_port=7001; sstable_preemptive_open_interval_in_mb=50; start_native_transport=true; start_rpc=true; storage_port=7000; stream_throughput_outbound_megabits_per_sec=200; streaming_socket_timeout_in_ms=86400000; thrift_framed_transport_size_in_mb=15; thrift_max_message_length_in_mb=16; tombstone_failure_threshold=100000; tombstone_warn_threshold=1000; tracetype_query_ttl=86400; tracetype_repair_ttl=604800; trickle_fsync=true; trickle_fsync_interval_in_kb=10240; truncate_request_timeout_in_ms=60000; unlogged_batch_across_partitions_warn_threshold=10; user_defined_function_fail_timeout=1500; user_defined_function_warn_timeout=500; user_function_timeout_policy=die; windows_timer_interval=1; write_request_timeout_in_ms=2000]"
-      ]
-    }
-  ]
+{
+	"LogClass": "file_cassandra_log4net",
+	"Parsers":
+	[
+		{
+			"TagId": 1.1,
+			"MatchVersion": null,
+			"LevelMatch":
+			{
+				"RegExStrings":
+				[
+					"INFO"
+				]
+			},
+			"ThreadIdMatch": null,
+			"FileNameMatch":
+			{
+				"RegExStrings":
+				[
+					"^CompactionTask.java$"
+				]
+			},
+			"FileLineMatch": null,
+			"MessageMatch":
+			{
+				"RegExStrings":
+				[
+					"^Compacted\\s\\d+\\ssstables\\s"
+				]
+			},
+			"ParseMessage":
+			{
+				"RegExStrings":
+				[
+					"^Compacted\\s(?<sstables>\\d+)\\ssstables\\s+to\\s*\\[(?<SSTABLEPATHS>[a-z0-9\\-_@#/.,\\ +%]*)\\]\\.\\s+(?<size>[0-9.,]+\\s+[a-z]+)\\s+to\\s+(?<newsize__size>[0-9.,]+)\\s\\([0-9a-z\\ %~,.]+\\)+\\sin\\s+(?<DURATION>[0-9.,]+\\s*[a-z/]+)\\s*\\=\\s*(?<iorate>[0-9.,]+\\s*[a-z/]+)\\.\\s+(?<totalpartions>[0-9,]+)\\s+total\\s+partitions\\s+merged\\s+to\\s+(?<mergedpartitions>[0-9,]+)\\.\\s+Partition\\s+merge\\s+counts\\s+were\\s+\\{(?<mergecounts>[0-9:\\ ,]+)\\s*\\}$"
+				]
+			},
+			"ParseThreadId": null,
+			"EventType": "SessionEnd",
+			"EventClass": "Compaction",
+			"SubClass": null,
+			"Product": "Cassandra",
+			"SessionKey": "ThreadId + SSTABLEPATH=>DDLITEMNAME",
+			"SessionKeyAction": "ReadRemove",
+			"SessionLookup": "'CompactionExecutor' + SSTABLEPATH=>DDLITEMNAME",
+			"SessionLookupAction": "DeleteLabel",
+			"Examples":
+			[
+				"INFO  [CompactionExecutor:3211] 2017-01-16 13:33:04,872  CompactionTask.java:141 - Compacting [SSTableReader(path='/var/lib/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/system-compactions_in_progress-ka-90586-Data.db'), SSTableReader(path='/var/lib/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/system-compactions_in_progress-ka-90588-Data.db'), SSTableReader(path='/var/lib/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/system-compactions_in_progress-ka-90587-Data.db'), SSTableReader(path='/var/lib/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/system-compactions_in_progress-ka-90589-Data.db')]",
+				"==> INFO  [CompactionExecutor:3211] 2017-01-16 13:33:06,380  CompactionTask.java:274 - Compacted 4 sstables to [/var/lib/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/system-compactions_in_progress-ka-90590,].  590 bytes to 196 (~33% of original) in 15ms = 0.012461MB/s.  3 total partitions merged to 2.  Partition merge counts were {1:1, 2:1, }",
+				"INFO  [CompactionExecutor:734] 2017-02-11 23:58:47,586  CompactionTask.java:141 - Compacting [SSTableReader(path='/data/cassandra/data/usprodsec/session_3-ca531e218ed211e6ab872748a53d9d02/usprodsec-session_3-ka-78735-Data.db'), SSTableReader(path='/data/cassandra/data/usprodsec/session_3-ca531e218ed211e6ab872748a53d9d02/usprodsec-session_3-ka-78732-Data.db'), SSTableReader(path='/data/cassandra/data/usprodsec/session_3-ca531e218ed211e6ab872748a53d9d02/usprodsec-session_3-ka-78734-Data.db'), SSTableReader(path='/data/cassandra/data/usprodsec/session_3-ca531e218ed211e6ab872748a53d9d02/usprodsec-session_3-ka-78733-Data.db')]",
+				"INFO  [CompactionExecutor:734] 2017-02-11 23:58:47,715  CompactionTask.java:274 - Compacted 4 sstables to[/ data / cassandra / data / usprodsec / session_3 - ca531e218ed211e6ab872748a53d9d02 / usprodsec - session_3 - ka - 78741,].  3,541 bytes to 1,079 (~30% of original) in 128ms = 0.008039MB/s.  35 total partitions merged to 12.  Partition merge counts were {1:1, 3:10, 4:1, }"
+			]
+		},
+		{
+			"TagId": 1.0,
+			"MatchVersion": null,
+			"LevelMatch":
+			{
+				"RegExStrings":
+				[
+					"INFO"
+				]
+			},
+			"ThreadIdMatch": null,
+			"FileNameMatch":
+			{
+				"RegExStrings":
+				[
+					"^CompactionTask.java$"
+				]
+			},
+			"FileLineMatch": null,
+			"MessageMatch":
+			{
+				"RegExStrings":
+				[
+					"^Compacting\\s+\\["
+				]
+			},
+			"ParseMessage":
+			{
+				"RegExStrings":
+				[
+					"^Compacting\\s+\\[(?:SSTableReader\\s*\\(\\s*path\\s*=\\s*'\\s*(?<SSTABLEPATHS>[a-z0-9\\-_@#/.,\\ +%]+)\\s*'\\s*\\),?\\s*)+\\s*\\]$"
+				]
+			},
+			"ParseThreadId": null,
+			"EventType": "SessionBegin",
+			"EventClass": "Compaction",
+			"SubClass": null,
+			"Product": "Cassandra",
+			"SessionKey": "ThreadId + SSTABLEPATH=>DDLITEMNAME",
+			"SessionKeyAction": "Add",
+			"SessionLookup": "'CompactionExecutor' + SSTABLEPATH=>DDLITEMNAME",
+			"SessionLookupAction": "DefineLabel",
+			"Examples":
+			[
+				"==> INFO  [CompactionExecutor:3211] 2017-01-16 13:33:04,872  CompactionTask.java:141 - Compacting [SSTableReader(path='/var/lib/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/system-compactions_in_progress-ka-90586-Data.db'), SSTableReader(path='/var/lib/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/system-compactions_in_progress-ka-90588-Data.db'), SSTableReader(path='/var/lib/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/system-compactions_in_progress-ka-90587-Data.db'), SSTableReader(path='/var/lib/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/system-compactions_in_progress-ka-90589-Data.db')]",
+				"INFO  [CompactionExecutor:3211] 2017-01-16 13:33:06,380  CompactionTask.java:274 - Compacted 4 sstables to [/var/lib/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/system-compactions_in_progress-ka-90590,].  590 bytes to 196 (~33% of original) in 15ms = 0.012461MB/s.  3 total partitions merged to 2.  Partition merge counts were {1:1, 2:1, }",
+				"INFO  [CompactionExecutor:734] 2017-02-11 23:58:47,586  CompactionTask.java:141 - Compacting [SSTableReader(path='/data/cassandra/data/usprodsec/session_3-ca531e218ed211e6ab872748a53d9d02/usprodsec-session_3-ka-78735-Data.db'), SSTableReader(path='/data/cassandra/data/usprodsec/session_3-ca531e218ed211e6ab872748a53d9d02/usprodsec-session_3-ka-78732-Data.db'), SSTableReader(path='/data/cassandra/data/usprodsec/session_3-ca531e218ed211e6ab872748a53d9d02/usprodsec-session_3-ka-78734-Data.db'), SSTableReader(path='/data/cassandra/data/usprodsec/session_3-ca531e218ed211e6ab872748a53d9d02/usprodsec-session_3-ka-78733-Data.db')]",
+				"INFO  [CompactionExecutor:734] 2017-02-11 23:58:47,715  CompactionTask.java:274 - Compacted 4 sstables to[/ data / cassandra / data / usprodsec / session_3 - ca531e218ed211e6ab872748a53d9d02 / usprodsec - session_3 - ka - 78741,].  3,541 bytes to 1,079 (~30% of original) in 128ms = 0.008039MB/s.  35 total partitions merged to 12.  Partition merge counts were {1:1, 3:10, 4:1, }"
+			]
+		},
+		{
+			"TagId": 2.0,
+			"MatchVersion": null,
+			"LevelMatch":
+			{
+				"RegExStrings":
+				[
+					"INFO"
+				]
+			},
+			"ThreadIdMatch": null,
+			"FileNameMatch":
+			{
+				"RegExStrings":
+				[
+					"^ColumnFamilyStore.java$"
+				]
+			},
+			"FileLineMatch":
+			{
+				"RegExStrings":
+				[
+					"^1211$"
+				]
+			},
+			"MessageMatch":
+			{
+				"RegExStrings":
+				[
+					"^Flushing\\s+largest\\s+\\w+\\s*\\("
+				]
+			},
+			"ParseMessage":
+			{
+				"RegExStrings":
+				[
+					"^Flushing\\s+largest\\s+\\w+\\s*\\(\\s*Keyspace\\s*=\\s*'?(?<KEYSPACE>[a-z0-9\\\\-_$%+=!?<>^*&@]+)'?,\\s+\\w+\\s*=\\s*'?(?<DDLITEMNAME>[a-z0-9\\\\-_$%+=!?<>^*&@]+)'?\\)\\s+to\\s+(?<reason>[^.]+)\\.\\s+Used\\s+total:\\s+(?<totalthresholdonheap>[0-9,.]+)\\s*/\\s*(?<totalthresholdoffheap>[0-9.,]+)\\s*,\\s*live:\\s+(?<livethresholdonheap>[0-9,9,.]+)\\s*/\\s*(?<livethresholdoffheap>[0-9,.]+)\\s*,\\s+flushing:\\s+(?<flushthresholdonheap>[0-9,.]+)\\s*/\\s*(?<flushthresholdoffheap>[0-9.,]+)\\s*,\\s+this:\\s+(?<thisthresholdonheap>[0-9,.]+)\\s*/\\s*(?<thisthresholdoffheap>[0-9,.]+)$"
+				]
+			},
+			"ParseThreadId": null,
+			"EventType": "SessionBegin",
+			"EventClass": "MemtableFlush",
+			"SubClass": "ThreadId",
+			"Product": "Cassandra",
+			"SessionKey": "ThreadId + DDLITEMNAME",
+			"SessionKeyAction": "Add",
+			"SessionLookup": null,
+			"Examples":
+			[
+				"=> INFO  [SlabPoolCleaner] 2017-01-16 13:51:50,636  ColumnFamilyStore.java:1211 - Flushing largest CFS(Keyspace='OpsCenter', ColumnFamily='rollup_state') to free up room. Used total: 0.33/0.00, live: 0.33/0.00, flushing: 0.00/0.00, this: 0.14/0.14",
+				"INFO  [SlabPoolCleaner] 2017-01-16 13:51:50,636  ColumnFamilyStore.java:905 - Enqueuing flush of rollup_state: 221288084 (14%) on-heap, 0 (0%) off-heap",
+				"INFO  [MemtableFlushWriter:8021] 2017-01-16 13:51:50,637  Memtable.java:347 - Writing Memtable-rollup_state@1750499154(8.948MiB serialized bytes, 3237264 ops, 14%/0% of on/off-heap limit)",
+				"INFO  [MemtableFlushWriter:8021] 2017-01-16 13:51:51,353  Memtable.java:382 - Completed flushing /var/lib/cassandra/data/OpsCenter/rollup_state-9b934af0746111e68dd04f228b4be406/OpsCenter-rollup_state-tmp-ka-7811-Data.db (1.797MiB) for commitlog position ReplayPosition(segmentId=1483996065725, position=29889014)"
+			]
+		},
+		{
+			"TagId": 3.0,
+			"MatchVersion": null,
+			"LevelMatch":
+			{
+				"RegExStrings":
+				[
+					"INFO"
+				]
+			},
+			"ThreadIdMatch": null,
+			"FileNameMatch":
+			{
+				"RegExStrings":
+				[
+					"^ColumnFamilyStore.java$"
+				]
+			},
+			"FileLineMatch":
+			{
+				"RegExStrings":
+				[
+					"^905$"
+				]
+			},
+			"MessageMatch":
+			{
+				"RegExStrings":
+				[
+					"^Enqueuing\\s+flush\\s"
+				]
+			},
+			"ParseMessage":
+			{
+				"RegExStrings":
+				[
+					"^Enqueuing\\s+flush\\s+of\\s+Memtable\\-(?<KEYSPACE>[a-z0-9'\\-_$%+=!?<>^*&@]+)\\.(?<DDLITEMNAME>[a-z0-9'\\-_$%+=!?<>^*&@]+)\\@\\d+\\((?<onheapserialized_bytes>\\d+)\\/(?<onheap_bytes>[0-9.,]+)\\s+\\w+\\/\\w+\\s+\\w+,\\s+(?<operationspersec>[0-9,]+\\s+[a-z]+)\\s*\\)",
+					"^Enqueuing\\s+flush\\s+of\\s+(?<DDLITEMNAME>[a-z0-9'\\-_$%+=@!?<>^*&]+)\\s*\\:\\s+(?<onheap_bytes>[0-9,.]+)\\s+\\((?<onheappercent>[0-9,.]+\\%)\\)\\s+on-heap,\\s+(?<offheap_bytes>[0-9,.]+)\\s+\\((?<offheappercent>[0-9,.]+\\s*[a-z/%]+)\\)\\s"
+				]
+			},
+			"ParseThreadId": null,
+			"EventType": "SessionBeginOrItem",
+			"EventClass": "MemtableFlush",
+			"SubClass": "ThreadId",
+			"Product": "Cassandra",
+			"SessionKey": "ThreadId + DDLITEMNAME",
+			"SessionKeyAction": "Read",
+			"SessionLookupAction": "DefineLabel, Stack",
+			"SessionLookup": "EventClass + DDLITEMNAME",
+			"Examples":
+			[
+				"=> INFO  [ValidationExecutor:800] 2017-01-16 13:34:06,722  ColumnFamilyStore.java:905 - Enqueuing flush of push_device: 2202847 (0%) on-heap, 0 (0%) off-heap",
+				"INFO  [MemtableFlushWriter:8011] 2017-01-16 13:34:06,722  Memtable.java:347 - Writing Memtable-push_device@1288484782(622.872KiB serialized bytes, 10486 ops, 0%/0% of on/off-heap limit)",
+				"INFO  [MemtableFlushWriter:8011] 2017-01-16 13:34:06,762  Memtable.java:382 - Completed flushing /var/lib/cassandra/data/push/push_device-109860416f0511e6aeacd54e2d191f81/push-push_device-tmp-ka-278155-Data.db (147.118KiB) for commitlog position ReplayPosition(segmentId=1483996065722, position=19434795)",
+				"=> INFO  [AntiEntropyStage:1] 2017-01-16 13:34:17,620  ColumnFamilyStore.java:905 - Enqueuing flush of push_device: 264396 (0%) on-heap, 0 (0%) off-heap",
+				"INFO  [MemtableFlushWriter:8011] 2017-01-16 13:34:17,621  Memtable.java:347 - Writing Memtable-push_device@1330163944(63.895KiB serialized bytes, 1327 ops, 0%/0% of on/off-heap limit)",
+				"INFO  [MemtableFlushWriter:8011] 2017-01-16 13:34:17,628  Memtable.java:382 - Completed flushing /var/lib/cassandra/data/push/push_device-109860416f0511e6aeacd54e2d191f81/push-push_device-tmp-ka-278156-Data.db (16.152KiB) for commitlog position ReplayPosition(segmentId=1483996065722, position=19845421)",
+				"=> INFO  [STREAM-IN-/10.198.59.26] 2017-01-16 13:34:17,795  ColumnFamilyStore.java:905 - Enqueuing flush of push_device: 7762 (0%) on-heap, 0 (0%) off-heap",
+				"INFO  [MemtableFlushWriter:8012] 2017-01-16 13:34:17,796  Memtable.java:347 - Writing Memtable-push_device@1956470048(2.617KiB serialized bytes, 22 ops, 0%/0% of on/off-heap limit)",
+				"INFO  [MemtableFlushWriter:8012] 2017-01-16 13:34:17,797  Memtable.java:382 - Completed flushing /var/lib/cassandra/data/push/push_device-109860416f0511e6aeacd54e2d191f81/push-push_device-tmp-ka-278157-Data.db (0.000KiB) for commitlog position ReplayPosition(segmentId=1483996065722, position=19852124)",
+				"INFO  [CompactionExecutor:3211] 2017-01-16 13:33:04,872  CompactionTask.java:141 - Compacting [SSTableReader(path='/var/lib/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/system-compactions_in_progress-ka-90586-Data.db'), SSTableReader(path='/var/lib/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/system-compactions_in_progress-ka-90588-Data.db'), SSTableReader(path='/var/lib/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/system-compactions_in_progress-ka-90587-Data.db'), SSTableReader(path='/var/lib/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/system-compactions_in_progress-ka-90589-Data.db')]",
+				"=> INFO  [CompactionExecutor:3211] 2017-01-16 13:34:17,817  ColumnFamilyStore.java:905 - Enqueuing flush of compactions_in_progress: 1315 (0%) on-heap, 0 (0%) off-heap",
+				"INFO  [MemtableFlushWriter:8011] 2017-01-16 13:34:17,849  Memtable.java:347 - Writing Memtable-compactions_in_progress@1461142581(0.146KiB serialized bytes, 9 ops, 0%/0% of on/off-heap limit)",
+				"INFO  [MemtableFlushWriter:8011] 2017-01-16 13:34:17,850  Memtable.java:382 - Completed flushing /var/lib/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/system-compactions_in_progress-tmp-ka-90592-Data.db (0.000KiB) for commitlog position ReplayPosition(segmentId=1483996065722, position=19853243)",
+				"=> INFO  [BatchlogTasks:1] 2017-01-16 13:35:06,379  ColumnFamilyStore.java:905 - Enqueuing flush of batchlog: 213016 (0%) on-heap, 0 (0%) off-heap",
+				"INFO  [MemtableFlushWriter:8011] 2017-01-16 13:35:06,379  Memtable.java:347 - Writing Memtable-batchlog@1763876046(112.479KiB serialized bytes, 775 ops, 0%/0% of on/off-heap limit)",
+				"INFO  [MemtableFlushWriter:8011] 2017-01-16 13:35:06,380  Memtable.java:393 - Completed flushing /var/lib/cassandra/data/system/batchlog-0290003c977e397cac3efdfdc01d626b/system-batchlog-tmp-ka-10184-Data.db; nothing needed to be retained.  Commitlog position was ReplayPosition(segmentId=1483996065722, position=32855484)",
+				"=> Enqueuing flush of Memtable-user_ids.user_ids_gid@1844633142(189/1890 serialized/live bytes, 7 ops)",
+				"=> INFO  [AntiEntropyStage:1] 2017-02-11 01:41:57,862  ColumnFamilyStore.java:905 - Enqueuing flush of digitalasset_3_0_2: 38866 (0%) on-heap, 0 (0%) off-heap",
+				"INFO  [MemtableFlushWriter:913] 2017-02-11 01:41:57,863  Memtable.java:347 - Writing Memtable-digitalasset_3_0_2.digitalasset_3_0_2_id@153078410(3.746KiB serialized bytes, 123 ops, 0%/0% of on/off-heap limit)",
+				"INFO  [MemtableFlushWriter:913] 2017-02-11 01:41:57,864  Memtable.java:382 - Completed flushing /data/cassandra/data/usprodda/digitalasset_3_0_2-42613c599c943db2b2805c31c2d36acb/usprodda-digitalasset_3_0_2.digitalasset_3_0_2_id-tmp-ka-308-Data.db (0.000KiB) for commitlog position ReplayPosition(segmentId=1486705955848, position=25089636)",
+				"INFO  [SlabPoolCleaner] 2017-01-16 13:51:50,636  ColumnFamilyStore.java:1211 - Flushing largest CFS(Keyspace='OpsCenter', ColumnFamily='rollup_state') to free up room. Used total: 0.33/0.00, live: 0.33/0.00, flushing: 0.00/0.00, this: 0.14/0.14",
+				"=> INFO  [SlabPoolCleaner] 2017-01-16 13:51:50,636  ColumnFamilyStore.java:905 - Enqueuing flush of rollup_state: 221288084 (14%) on-heap, 0 (0%) off-heap",
+				"INFO  [MemtableFlushWriter:8021] 2017-01-16 13:51:50,637  Memtable.java:347 - Writing Memtable-rollup_state@1750499154(8.948MiB serialized bytes, 3237264 ops, 14%/0% of on/off-heap limit)",
+				"INFO  [MemtableFlushWriter:8021] 2017-01-16 13:51:51,353  Memtable.java:382 - Completed flushing /var/lib/cassandra/data/OpsCenter/rollup_state-9b934af0746111e68dd04f228b4be406/OpsCenter-rollup_state-tmp-ka-7811-Data.db (1.797MiB) for commitlog position ReplayPosition(segmentId=1483996065725, position=29889014)"
+			]
+		},
+		{
+			"TagId": 4.0,
+			"MatchVersion": null,
+			"LevelMatch":
+			{
+				"RegExStrings":
+				[
+					"INFO"
+				]
+			},
+			"ThreadIdMatch": null,
+			"FileNameMatch":
+			{
+				"RegExStrings":
+				[
+					"^Memtable.java$"
+				]
+			},
+			"FileLineMatch":
+			{
+				"RegExStrings":
+				[
+					"^347$"
+				]
+			},
+			"MessageMatch":
+			{
+				"RegExStrings":
+				[
+					"^Writing\\s+Memtable-"
+				]
+			},
+			"ParseMessage":
+			{
+				"RegExStrings":
+				[
+					"^Writing\\s+Memtable-\\s*(?:(?<TABLEVIEWNAME>[a-z0-9'\\-_$%+=!?<>^*&@]+)\\.(?<DDLITEMNAME>[a-z0-9'\\-_$%+=!?<>^*&@]+)|(?<DDLITEMNAME>[a-z0-9'\\-_$%+=!?<>^*&@]+))?@\\d+\\((?<serializedheap>[0-9.]+\\s*\\w+)\\s+serialized\\s+bytes,\\s+(?<operationspersec_ops>[0-9,]+)\\s+ops,\\s+(?<onheapthresholdpercent>[0-9.,]+\\s*[a-z/%]+)\\s*/\\s*(?<offheapthresholdpercent>[0-9.,]+\\s*[a-z/%]+)\\s"
+				]
+			},
+			"ParseThreadId": null,
+			"EventType": "SessionBegin",
+			"EventClass": "MemtableFlush",
+			"SubClass": null,
+			"Product": "Cassandra",
+			"SessionKey": "ThreadId + DDLITEMNAME",
+			"SessionLookupAction": "ReadRemoveLabel, Stack",
+			"SessionLookup": "EventClass + TABLEVIEWNAME",
+			"Examples":
+			[
+				"INFO  [ValidationExecutor:800] 2017-01-16 13:34:06,722  ColumnFamilyStore.java:905 - Enqueuing flush of push_device: 2202847 (0%) on-heap, 0 (0%) off-heap",
+				"=> INFO  [MemtableFlushWriter:8011] 2017-01-16 13:34:06,722  Memtable.java:347 - Writing Memtable-push_device@1288484782(622.872KiB serialized bytes, 10486 ops, 0%/0% of on/off-heap limit)",
+				"INFO  [MemtableFlushWriter:8011] 2017-01-16 13:34:06,762  Memtable.java:382 - Completed flushing /var/lib/cassandra/data/push/push_device-109860416f0511e6aeacd54e2d191f81/push-push_device-tmp-ka-278155-Data.db (147.118KiB) for commitlog position ReplayPosition(segmentId=1483996065722, position=19434795)",
+				"INFO  [SlabPoolCleaner] 2017-01-16 13:51:50,636  ColumnFamilyStore.java:1211 - Flushing largest CFS(Keyspace='OpsCenter', ColumnFamily='rollup_state') to free up room. Used total: 0.33/0.00, live: 0.33/0.00, flushing: 0.00/0.00, this: 0.14/0.14",
+				"INFO  [SlabPoolCleaner] 2017-01-16 13:51:50,636  ColumnFamilyStore.java:905 - Enqueuing flush of rollup_state: 221288084 (14%) on-heap, 0 (0%) off-heap",
+				"=> INFO  [MemtableFlushWriter:8021] 2017-01-16 13:51:50,637  Memtable.java:347 - Writing Memtable-rollup_state@1750499154(8.948MiB serialized bytes, 3237264 ops, 14%/0% of on/off-heap limit)",
+				"INFO  [MemtableFlushWriter:8021] 2017-01-16 13:51:51,353  Memtable.java:382 - Completed flushing /var/lib/cassandra/data/OpsCenter/rollup_state-9b934af0746111e68dd04f228b4be406/OpsCenter-rollup_state-tmp-ka-7811-Data.db (1.797MiB) for commitlog position ReplayPosition(segmentId=1483996065725, position=29889014)",
+				"INFO  [SlabPoolCleaner] 2017-02-13 03:08:36,836  ColumnFamilyStore.java:1211 - Flushing largest CFS(Keyspace='usprodda', ColumnFamily='digitalasset_3_0_2') to free up room. Used total: 0.20/0.00, live: 0.20/0.00, flushing: 0.00/0.00, this: 0.02/0.02",
+				"INFO  [SlabPoolCleaner] 2017-02-13 03:08:36,837  ColumnFamilyStore.java:905 - Enqueuing flush of digitalasset_3_0_2: 49836322 (2%) on-heap, 0 (0%) off-heap",
+				"=> INFO  [MemtableFlushWriter:3523] 2017-02-13 03:08:36,838  Memtable.java:347 - Writing Memtable-digitalasset_3_0_2@391065586(20.901MiB serialized bytes, 11725 ops, 2%/0% of on/off-heap limit)",
+				"INFO  [MemtableFlushWriter:3523] 2017-02-13 03:08:36,910  Memtable.java:382 - Completed flushing /data/cassandra/data/usprodda/digitalasset_3_0_2-42613c599c943db2b2805c31c2d36acb/usprodda-digitalasset_3_0_2-tmp-ka-362-Data.db (8.778MiB) for commitlog position ReplayPosition(segmentId=1486705957188, position=9102086)",
+				"=> INFO  [MemtableFlushWriter:3523] 2017-02-13 03:08:36,966  Memtable.java:347 - Writing Memtable-digitalasset_3_0_2.digitalasset_3_0_2_id@458035203(108.106KiB serialized bytes, 2786 ops, 0%/0% of on/off-heap limit)",
+				"INFO  [MemtableFlushWriter:3523] 2017-02-13 03:08:36,978  Memtable.java:382 - Completed flushing /data/cassandra/data/usprodda/digitalasset_3_0_2-42613c599c943db2b2805c31c2d36acb/usprodda-digitalasset_3_0_2.digitalasset_3_0_2_id-tmp-ka-319-Data.db (46.885KiB) for commitlog position ReplayPosition(segmentId=1486705957188, position=9102086)",
+				"INFO  [AntiEntropyStage:1] 2017-02-11 01:41:57,862  ColumnFamilyStore.java:905 - Enqueuing flush of digitalasset_3_0_2: 38866 (0%) on-heap, 0 (0%) off-heap",
+				"=> INFO  [MemtableFlushWriter:913] 2017-02-11 01:41:57,863  Memtable.java:347 - Writing Memtable-digitalasset_3_0_2.digitalasset_3_0_2_id@153078410(3.746KiB serialized bytes, 123 ops, 0%/0% of on/off-heap limit)",
+				"INFO  [MemtableFlushWriter:913] 2017-02-11 01:41:57,864  Memtable.java:382 - Completed flushing /data/cassandra/data/usprodda/digitalasset_3_0_2-42613c599c943db2b2805c31c2d36acb/usprodda-digitalasset_3_0_2.digitalasset_3_0_2_id-tmp-ka-308-Data.db (0.000KiB) for commitlog position ReplayPosition(segmentId=1486705955848, position=25089636)",
+				"INFO  [AntiEntropyStage:1] 2017-02-11 01:41:57,862  ColumnFamilyStore.java:905 - Enqueuing flush of digitalasset_3_0_2: 38866 (0%) on-heap, 0 (0%) off-heap",
+				"=> INFO  [MemtableFlushWriter:913] 2017-02-11 01:41:57,863  Memtable.java:347 - Writing Memtable-digitalasset_3_0_2.digitalasset_3_0_2_id@153078410(3.746KiB serialized bytes, 123 ops, 0%/0% of on/off-heap limit)",
+				"INFO  [MemtableFlushWriter:913] 2017-02-11 01:41:57,864  Memtable.java:382 - Completed flushing /data/cassandra/data/usprodda/digitalasset_3_0_2-42613c599c943db2b2805c31c2d36acb/usprodda-digitalasset_3_0_2.digitalasset_3_0_2_id-tmp-ka-308-Data.db (0.000KiB) for commitlog position ReplayPosition(segmentId=1486705955848, position=25089636)"
+			]
+		},
+		{
+			"TagId": 4.1,
+			"MatchVersion": null,
+			"LevelMatch":
+			{
+				"RegExStrings":
+				[
+					"INFO"
+				]
+			},
+			"ThreadIdMatch": null,
+			"FileNameMatch":
+			{
+				"RegExStrings":
+				[
+					"^Memtable.java$"
+				]
+			},
+			"FileLineMatch":
+			{
+				"RegExStrings":
+				[
+					"^382$"
+				]
+			},
+			"MessageMatch":
+			{
+				"RegExStrings":
+				[
+					"^Completed\\s+flushing\\s"
+				]
+			},
+			"ParseMessage":
+			{
+				"RegExStrings":
+				[
+					"^Completed\\s+flushing\\s+(?<SSTABLEPATH>[^ ]+)\\s+\\((?<flushedstorage>[0-9.,]+\\s*\\w+)\\)\\s+for\\s+.+\\(segmentId\\s*=\\s*(?<replaysegmentid>[0-9,]+)\\s*,\\s+position\\s*=\\s*(?<replayposition>[0-9,]+)\\)$"
+				]
+			},
+			"ParseThreadId": null,
+			"EventType": "SessionEnd",
+			"EventClass": "MemtableFlush",
+			"SubClass": null,
+			"Product": "Cassandra",
+			"SessionKey": "ThreadId + SSTABLEPATH=>DDLITEMNAME",
+			"Examples":
+			[
+				"INFO  [ValidationExecutor:800] 2017-01-16 13:34:06,722  ColumnFamilyStore.java:905 - Enqueuing flush of push_device: 2202847 (0%) on-heap, 0 (0%) off-heap",
+				"INFO  [MemtableFlushWriter:8011] 2017-01-16 13:34:06,722  Memtable.java:347 - Writing Memtable-push_device@1288484782(622.872KiB serialized bytes, 10486 ops, 0%/0% of on/off-heap limit)",
+				"=> INFO  [MemtableFlushWriter:8011] 2017-01-16 13:34:06,762  Memtable.java:382 - Completed flushing /var/lib/cassandra/data/push/push_device-109860416f0511e6aeacd54e2d191f81/push-push_device-tmp-ka-278155-Data.db (147.118KiB) for commitlog position ReplayPosition(segmentId=1483996065722, position=19434795)",
+				"INFO  [SlabPoolCleaner] 2017-01-16 13:51:50,636  ColumnFamilyStore.java:1211 - Flushing largest CFS(Keyspace='OpsCenter', ColumnFamily='rollup_state') to free up room. Used total: 0.33/0.00, live: 0.33/0.00, flushing: 0.00/0.00, this: 0.14/0.14",
+				"INFO  [SlabPoolCleaner] 2017-01-16 13:51:50,636  ColumnFamilyStore.java:905 - Enqueuing flush of rollup_state: 221288084 (14%) on-heap, 0 (0%) off-heap",
+				"INFO  [MemtableFlushWriter:8021] 2017-01-16 13:51:50,637  Memtable.java:347 - Writing Memtable-rollup_state@1750499154(8.948MiB serialized bytes, 3237264 ops, 14%/0% of on/off-heap limit)",
+				"=>INFO  [MemtableFlushWriter:8021] 2017-01-16 13:51:51,353  Memtable.java:382 - Completed flushing /var/lib/cassandra/data/OpsCenter/rollup_state-9b934af0746111e68dd04f228b4be406/OpsCenter-rollup_state-tmp-ka-7811-Data.db (1.797MiB) for commitlog position ReplayPosition(segmentId=1483996065725, position=29889014)"
+			]
+		},
+		{
+			"TagId": 5.0,
+			"MatchVersion": null,
+			"LevelMatch":
+			{
+				"RegExStrings":
+				[
+					"INFO"
+				]
+			},
+			"ThreadIdMatch": null,
+			"FileNameMatch":
+			{
+				"RegExStrings":
+				[
+					"^HintedHandOffManager.java$"
+				]
+			},
+			"FileLineMatch": null,
+			"MessageMatch":
+			{
+				"RegExStrings":
+				[
+					"^Started\\s+hinted\\s+handoff\\s"
+				]
+			},
+			"ParseMessage":
+			{
+				"RegExStrings":
+				[
+					"^started\\s+hinted\\s+handoff\\s+\\w+\\s+host:\\s+(?<hostid>[0-9a-f]{8}\\-[0-9a-f]{4}\\-[0-9a-f]{4}\\-[0-9a-f]{4}\\-[0-9a-f]{12})\\s+\\w+\\s+ip:\\s+/?\\s*(?<NODE>[^ ]+)$"
+				]
+			},
+			"ParseThreadId": null,
+			"EventType": "SessionBegin",
+			"EventClass": "HintHandOff",
+			"SubClass": null,
+			"Product": "Cassandra",
+			"SessionLookupAction": "ReadRemoveLabel",
+			"SessionLookup": "'CompactionExecutorhints'",
+			"SessionKey": "'HintHandoff' + NODE",
+			"SessionKeyAction": "Auto",
+			"Examples":
+			[
+				"INFO  [CompactionExecutor:1658] 2017-02-12 02:14:00,978  CompactionTask.java:141 - Compacting [SSTableReader(path='/data/cassandra/data/system/hints-2666e20573ef38b390fefecf96e8f0c7/system-hints-ka-429-Data.db')]",
+				"=> INFO  [HintedHandoff:2] 2017-02-12 02:14:00,979  HintedHandOffManager.java:367 - Started hinted handoff for host: 8e443e52-6421-440f-9e37-1b946cb9c690 with IP: /10.1.37.0",
+				"INFO  [HANDSHAKE-/10.1.37.0] 2017-02-12 02:14:00,980  OutboundTcpConnection.java:488 - Handshaking version with /10.1.37.0",
+				"INFO  [HintedHandoff:2] 2017-02-12 02:14:01,022  HintedHandOffManager.java:399 - Finished hinted handoff of 8 rows to endpoint /10.1.37.0",
+				"INFO  [HintedHandoff:2] 2017-02-12 02:14:01,022  ColumnFamilyStore.java:905 - Enqueuing flush of hints: 6569 (0%) on-heap, 0 (0%) off-heap",
+				"INFO  [MemtableFlushWriter:2276] 2017-02-12 02:14:01,022  Memtable.java:347 - Writing Memtable-hints@1107882196(0.258KiB serialized bytes, 16 ops, 0%/0% of on/off-heap limit)",
+				"INFO  [MemtableFlushWriter:2276] 2017-02-12 02:14:01,023  Memtable.java:382 - Completed flushing /data/cassandra/data/system/hints-2666e20573ef38b390fefecf96e8f0c7/system-hints-tmp-ka-430-Data.db (0.000KiB) for commitlog position ReplayPosition(segmentId=1486705956518, position=18941784)"
+			]
+		},
+		{
+			"TagId": 5.1,
+			"MatchVersion": null,
+			"LevelMatch":
+			{
+				"RegExStrings":
+				[
+					"INFO"
+				]
+			},
+			"ThreadIdMatch": null,
+			"FileNameMatch":
+			{
+				"RegExStrings":
+				[
+					"^OutboundTcpConnection.java$"
+				]
+			},
+			"FileLineMatch": null,
+			"MessageMatch":
+			{
+				"RegExStrings":
+				[
+					"^Handshaking\\s"
+				]
+			},
+			"ParseMessage":
+			{
+				"RegExStrings":
+				[
+					"^Handshaking\\s+\\w+\\s+\\w+\\s+/?\\s*(?<NODE>[^ ]+)$"
+				]
+			},
+			"ParseThreadId": null,
+			"EventType": "SessionItem, SessionIgnore",
+			"EventClass": "HintHandOff",
+			"SubClass": null,
+			"Product": "Cassandra",
+			"SessionKey": "'HintHandoff' + NODE",
+			"SessionKeyAction": "Read",
+			"Examples":
+			[
+				"INFO  [CompactionExecutor:1658] 2017-02-12 02:14:00,978  CompactionTask.java:141 - Compacting [SSTableReader(path='/data/cassandra/data/system/hints-2666e20573ef38b390fefecf96e8f0c7/system-hints-ka-429-Data.db')]",
+				"INFO  [HintedHandoff:2] 2017-02-12 02:14:00,979  HintedHandOffManager.java:367 - Started hinted handoff for host: 8e443e52-6421-440f-9e37-1b946cb9c690 with IP: /10.1.37.0",
+				"=> INFO  [HANDSHAKE-/10.1.37.0] 2017-02-12 02:14:00,980  OutboundTcpConnection.java:488 - Handshaking version with /10.1.37.0",
+				"INFO  [HintedHandoff:2] 2017-02-12 02:14:01,022  HintedHandOffManager.java:399 - Finished hinted handoff of 8 rows to endpoint /10.1.37.0",
+				"INFO  [HintedHandoff:2] 2017-02-12 02:14:01,022  ColumnFamilyStore.java:905 - Enqueuing flush of hints: 6569 (0%) on-heap, 0 (0%) off-heap",
+				"INFO  [MemtableFlushWriter:2276] 2017-02-12 02:14:01,022  Memtable.java:347 - Writing Memtable-hints@1107882196(0.258KiB serialized bytes, 16 ops, 0%/0% of on/off-heap limit)",
+				"INFO  [MemtableFlushWriter:2276] 2017-02-12 02:14:01,023  Memtable.java:382 - Completed flushing /data/cassandra/data/system/hints-2666e20573ef38b390fefecf96e8f0c7/system-hints-tmp-ka-430-Data.db (0.000KiB) for commitlog position ReplayPosition(segmentId=1486705956518, position=18941784)"
+			]
+		},
+		{
+			"TagId": 5.2,
+			"MatchVersion": null,
+			"LevelMatch":
+			{
+				"RegExStrings":
+				[
+					"INFO"
+				]
+			},
+			"ThreadIdMatch": null,
+			"FileNameMatch":
+			{
+				"RegExStrings":
+				[
+					"^HintedHandOffManager.java$"
+				]
+			},
+			"FileLineMatch": null,
+			"MessageMatch":
+			{
+				"RegExStrings":
+				[
+					"^Finished\\s+hinted\\s+handoff\\s"
+				]
+			},
+			"ParseMessage":
+			{
+				"RegExStrings":
+				[
+					"^Finished\\s+hinted\\s+handoff\\s+of\\s+(?<rowshandedoff>[0-9,]+)\\s+rows\\s+\\w+\\s+endpoint\\s+/?\\s*(?<NODE>[^ ]+)$"
+				]
+			},
+			"ParseThreadId": null,
+			"EventType": "SessionEnd",
+			"EventClass": "HintHandOff",
+			"SubClass": null,
+			"Product": "Cassandra",
+			"SessionLookup": "'HintHandoff' + NODE",
+			"SessionLookupAction": "ReadRemoveSession",
+			"SessionKey": "ThreadId + 'hints'",
+			"SessionKeyAction": "Add",
+			"Examples":
+			[
+				"INFO  [CompactionExecutor:1658] 2017-02-12 02:14:00,978  CompactionTask.java:141 - Compacting [SSTableReader(path='/data/cassandra/data/system/hints-2666e20573ef38b390fefecf96e8f0c7/system-hints-ka-429-Data.db')]",
+				"INFO  [HintedHandoff:2] 2017-02-12 02:14:00,979  HintedHandOffManager.java:367 - Started hinted handoff for host: 8e443e52-6421-440f-9e37-1b946cb9c690 with IP: /10.1.37.0",
+				"INFO  [HANDSHAKE-/10.1.37.0] 2017-02-12 02:14:00,980  OutboundTcpConnection.java:488 - Handshaking version with /10.1.37.0",
+				"=> INFO  [HintedHandoff:2] 2017-02-12 02:14:01,022  HintedHandOffManager.java:399 - Finished hinted handoff of 8 rows to endpoint /10.1.37.0",
+				"INFO  [HintedHandoff:2] 2017-02-12 02:14:01,022  ColumnFamilyStore.java:905 - Enqueuing flush of hints: 6569 (0%) on-heap, 0 (0%) off-heap",
+				"INFO  [MemtableFlushWriter:2276] 2017-02-12 02:14:01,022  Memtable.java:347 - Writing Memtable-hints@1107882196(0.258KiB serialized bytes, 16 ops, 0%/0% of on/off-heap limit)",
+				"INFO  [MemtableFlushWriter:2276] 2017-02-12 02:14:01,023  Memtable.java:382 - Completed flushing /data/cassandra/data/system/hints-2666e20573ef38b390fefecf96e8f0c7/system-hints-tmp-ka-430-Data.db (0.000KiB) for commitlog position ReplayPosition(segmentId=1486705956518, position=18941784)"
+			]
+		},
+		{
+			"TagId": 6.0,
+			"MatchVersion": null,
+			"LevelMatch":
+			{
+				"RegExStrings":
+				[
+					"INFO"
+				]
+			},
+			"ThreadIdMatch": null,
+			"FileNameMatch":
+			{
+				"RegExStrings":
+				[
+					"^Gossiper.java$"
+				]
+			},
+			"FileLineMatch":
+			{
+				"RegExStrings":
+				[
+					"^1008$"
+				]
+			},
+			"MessageMatch": null,
+			"ParseMessage":
+			{
+				"RegExStrings":
+				[
+					"^InetAddress\\s+/?\\s*(?<NODE>[^ ]+)\\s+\\w+\\s+\\w+\\s+(?<status>DOWN)$"
+				]
+			},
+			"ParseThreadId": null,
+			"EventType": "SessionBegin",
+			"EventClass": "NodeDetection",
+			"SubClass": null,
+			"Product": "Cassandra",
+			"SessionKey": "EventClass + NODE",
+			"SessionKeyAction": "Add",
+			"Examples":
+			[
+				"=> INFO  [GossipTasks:1] 2017-02-12 02:13:59,976  Gossiper.java:1008 - InetAddress /10.1.37.0 is now DOWN",
+				"INFO  [SharedPool-Worker-1] 2017-02-12 02:14:00,978  Gossiper.java:993 - InetAddress /10.1.37.0 is now UP"
+			]
+		},
+		{
+			"TagId": 6.1,
+			"MatchVersion": null,
+			"LevelMatch":
+			{
+				"RegExStrings":
+				[
+					"INFO"
+				]
+			},
+			"ThreadIdMatch": null,
+			"FileNameMatch":
+			{
+				"RegExStrings":
+				[
+					"^Gossiper.java$"
+				]
+			},
+			"FileLineMatch":
+			{
+				"RegExStrings":
+				[
+					"^993$"
+				]
+			},
+			"MessageMatch": null,
+			"ParseMessage":
+			{
+				"RegExStrings":
+				[
+					"^InetAddress\\s+/?\\s*(?<NODE>[^ ]+)\\s+\\w+\\s+\\w+\\s+(?<status>UP)$"
+				]
+			},
+			"ParseThreadId": null,
+			"EventType": "SessionEnd, SessionIgnore",
+			"EventClass": "NodeDetection",
+			"SubClass": null,
+			"Product": "Cassandra",
+			"SessionKey": "EventClass + NODE",
+			"Examples":
+			[
+				"INFO  [GossipTasks:1] 2017-02-12 02:13:59,976  Gossiper.java:1008 - InetAddress /10.1.37.0 is now DOWN",
+				"=> INFO  [SharedPool-Worker-1] 2017-02-12 02:14:00,978  Gossiper.java:993 - InetAddress /10.1.37.0 is now UP"
+			]
+		},
+		{
+			"TagId": 7.0,
+			"MatchVersion": null,
+			"LevelMatch":
+			{
+				"RegExStrings":
+				[
+					"INFO"
+				]
+			},
+			"ThreadIdMatch": null,
+			"FileNameMatch":
+			{
+				"RegExStrings":
+				[
+					"^DseDaemon.java$"
+				]
+			},
+			"FileLineMatch":
+			{
+				"RegExStrings":
+				[
+					"^542$"
+				]
+			},
+			"MessageMatch": null,
+			"ParseMessage":
+			{
+				"RegExStrings":
+				[
+					"^\\w+\\s+(?<SUBCLASS>shutdown\\s+\\w+)\\s*\\.$"
+				]
+			},
+			"ParseThreadId": null,
+			"EventType": "SessionBegin",
+			"EventClass": "NodeDetection",
+			"SubClass": null,
+			"Product": "Cassandra",
+			"SessionKey": "EventClass + 'Shutdown'",
+			"SessionKeyAction": "Add",
+			"Examples":
+			[
+				"=> INFO  [Daemon shutdown] 2017-05-01 15:20:06,377  DseDaemon.java:542 - DSE shutdown complete.",
+				"INFO  [main] 2017-05-16 13:39:58,892  DseDaemon.java:827 - DSE startup complete."
+			]
+		},
+		{
+			"TagId": 7.1,
+			"MatchVersion": null,
+			"LevelMatch":
+			{
+				"RegExStrings":
+				[
+					"INFO"
+				]
+			},
+			"ThreadIdMatch": null,
+			"FileNameMatch":
+			{
+				"RegExStrings":
+				[
+					"^DseDaemon.java$"
+				]
+			},
+			"FileLineMatch":
+			{
+				"RegExStrings":
+				[
+					"^827$"
+				]
+			},
+			"MessageMatch": null,
+			"ParseMessage":
+			{
+				"RegExStrings":
+				[
+					"^\\w+\\s+(?<SUBCLASS>startup\\s+\\w+)\\s*\\.$"
+				]
+			},
+			"ParseThreadId": null,
+			"EventType": "SessionEnd",
+			"EventClass": "NodeDetection",
+			"SubClass": null,
+			"Product": "Cassandra",
+			"SessionKey": "EventClass + 'Shutdown'",
+			"SessionKeyAction": "ReadRemove",
+			"Examples":
+			[
+				"INFO  [Daemon shutdown] 2017-05-01 15:20:06,377  DseDaemon.java:542 - DSE shutdown complete.",
+				"=> INFO  [main] 2017-05-16 13:39:58,892  DseDaemon.java:827 - DSE startup complete."
+			]
+		},
+		{
+			"TagId": 8.0,
+			"MatchVersion": null,
+			"LevelMatch":
+			{
+				"RegExStrings":
+				[
+					"INFO"
+				]
+			},
+			"ThreadIdMatch": null,
+			"FileNameMatch":
+			{
+				"RegExStrings":
+				[
+					"^Config.java$"
+				]
+			},
+			"FileLineMatch":
+			{
+				"RegExStrings":
+				[
+					"^440$"
+				]
+			},
+			"MessageMatch": null,
+			"ParseMessage":
+			{
+				"RegExStrings":
+				[
+					"^Node\\s+configuration\\:\\s*\\[\\s*(?:(?<KEY>[a-z0-9\\-_.]+)\\s*\\=\\s*(?<VALUE>(?:\\[Ljava.lang.String\\;\\@[a-f0-9]+)|[a-z0-9.,\\-_{}=<> //\\]\\[]+)\\s*(?:\\;|\\])\\s*)+"
+				]
+			},
+			"ParseThreadId": null,
+			"EventType": "SingleInstance",
+			"EventClass": "Config",
+			"SubClass": null,
+			"Product": "Cassandra",
+			"Examples":
+			[
+				"=> INFO  [main] 2017-05-16 13:39:43,277  Config.java:440 - Node configuration:[allocate_tokens_for_keyspace=null; authenticator=AllowAllAuthenticator; authorizer=AllowAllAuthorizer; auto_bootstrap=true; auto_snapshot=true; batch_size_fail_threshold_in_kb=640; batch_size_warn_threshold_in_kb=64; batchlog_replay_throttle_in_kb=1024; broadcast_address=null; broadcast_rpc_address=null; buffer_pool_use_heap_if_exhausted=true; cas_contention_timeout_in_ms=1000; client_encryption_options=<REDACTED>; cluster_name=Andersen 5.0 Test Cluster; column_index_size_in_kb=64; commit_failure_policy=stop; commitlog_compression=null; commitlog_directory=/mnt/cassandra/commitlog/commitlog; commitlog_max_compression_buffers_in_pool=3; commitlog_periodic_queue_size=-1; commitlog_segment_size_in_mb=32; commitlog_sync=periodic; commitlog_sync_batch_window_in_ms=null; commitlog_sync_period_in_ms=10000; commitlog_total_space_in_mb=null; compaction_large_partition_warning_threshold_mb=100; compaction_throughput_mb_per_sec=16; concurrent_compactors=null; concurrent_counter_writes=32; concurrent_materialized_view_writes=32; concurrent_reads=32; concurrent_replicates=null; concurrent_writes=32; counter_cache_keys_to_save=2147483647; counter_cache_save_period=7200; counter_cache_size_in_mb=null; counter_write_request_timeout_in_ms=5000; cross_node_timeout=false; data_file_directories=[Ljava.lang.String;@1a45193b; disk_access_mode=auto; disk_failure_policy=stop; disk_optimization_estimate_percentile=0.95; disk_optimization_page_cross_chance=0.1; disk_optimization_strategy=ssd; dynamic_snitch=true; dynamic_snitch_badness_threshold=0.1; dynamic_snitch_reset_interval_in_ms=600000; dynamic_snitch_update_interval_in_ms=100; enable_scripted_user_defined_functions=false; enable_user_defined_functions=false; enable_user_defined_functions_threads=true; encryption_options=null; endpoint_snitch=com.datastax.bdp.snitch.DseDelegateSnitch; file_cache_size_in_mb=512; gc_warn_threshold_in_ms=1000; hinted_handoff_disabled_datacenters=[]; hinted_handoff_enabled=true; hinted_handoff_throttle_in_kb=1024; hints_compression=null; hints_directory=/mnt/cassandra/savedcache/hints; hints_flush_period_in_ms=10000; incremental_backups=false; index_interval=null; index_summary_capacity_in_mb=null; index_summary_resize_interval_in_minutes=60; initial_token=null; inter_dc_stream_throughput_outbound_megabits_per_sec=200; inter_dc_tcp_nodelay=false; internode_authenticator=null; internode_compression=dc; internode_recv_buff_size_in_bytes=null; internode_send_buff_size_in_bytes=null; key_cache_keys_to_save=2147483647; key_cache_save_period=14400; key_cache_size_in_mb=null; listen_address=192.168.247.69; listen_interface=null; listen_interface_prefer_ipv6=false; listen_on_broadcast_address=false; max_hint_window_in_ms=10800000; max_hints_delivery_threads=2; max_hints_file_size_in_mb=128; max_mutation_size_in_kb=null; max_streaming_retries=3; max_value_size_in_mb=256; memtable_allocation_type=heap_buffers; memtable_cleanup_threshold=null; memtable_flush_writers=null; memtable_heap_space_in_mb=null; memtable_offheap_space_in_mb=null; native_transport_max_concurrent_connections=-1; native_transport_max_concurrent_connections_per_ip=-1; native_transport_max_frame_size_in_mb=256; native_transport_max_threads=128; native_transport_port=9042; native_transport_port_ssl=null; num_tokens=128; otc_coalescing_strategy=TIMEHORIZON; otc_coalescing_window_us=200; partitioner=org.apache.cassandra.dht.Murmur3Partitioner; permissions_cache_max_entries=1000; permissions_update_interval_in_ms=-1; permissions_validity_in_ms=2000; phi_convict_threshold=8.0; range_request_timeout_in_ms=10000; read_request_timeout_in_ms=5000; request_scheduler=org.apache.cassandra.scheduler.NoScheduler; request_scheduler_id=null; request_scheduler_options=null; request_timeout_in_ms=10000; role_manager=com.datastax.bdp.cassandra.auth.DseRoleManager; roles_cache_max_entries=1000; roles_update_interval_in_ms=-1; roles_validity_in_ms=2000; row_cache_class_name=org.apache.cassandra.cache.OHCProvider; row_cache_keys_to_save=2147483647; row_cache_save_period=0; row_cache_size_in_mb=0; rpc_address=192.168.247.69; rpc_interface=null; rpc_interface_prefer_ipv6=false; rpc_keepalive=true; rpc_listen_backlog=50; rpc_max_threads=2147483647; rpc_min_threads=16; rpc_port=9160; rpc_recv_buff_size_in_bytes=null; rpc_send_buff_size_in_bytes=null; rpc_server_type=sync; saved_caches_directory=/mnt/cassandra/savedcache/saved_caches; seed_provider=org.apache.cassandra.locator.SimpleSeedProvider{seeds=192.168.247.69}; server_encryption_options=<REDACTED>; snapshot_before_compaction=false; ssl_storage_port=7001; sstable_preemptive_open_interval_in_mb=50; start_native_transport=true; start_rpc=true; storage_port=7000; stream_throughput_outbound_megabits_per_sec=200; streaming_socket_timeout_in_ms=86400000; thrift_framed_transport_size_in_mb=15; thrift_max_message_length_in_mb=16; tombstone_failure_threshold=100000; tombstone_warn_threshold=1000; tracetype_query_ttl=86400; tracetype_repair_ttl=604800; trickle_fsync=true; trickle_fsync_interval_in_kb=10240; truncate_request_timeout_in_ms=60000; unlogged_batch_across_partitions_warn_threshold=10; user_defined_function_fail_timeout=1500; user_defined_function_warn_timeout=500; user_function_timeout_policy=die; windows_timer_interval=1; write_request_timeout_in_ms=2000]"
+			]
+		},
+		{
+			"TagId": 9.0,
+			"MatchVersion": null,
+			"LevelMatch":
+			{
+				"RegExStrings":
+				[
+					"INFO"
+				]
+			},
+			"ThreadIdMatch":
+			{
+				"RegExStrings":
+				[
+					"^MemtablePostFlush\\:"
+				]
+			},
+			"FileNameMatch":
+			{
+				"RegExStrings":
+				[
+					"^ColumnFamilyStore.java$"
+				]
+			},
+			"FileLineMatch":
+			{
+				"RegExStrings":
+				[
+					"^1006$"
+				]
+			},
+			"MessageMatch":
+			{
+				"RegExStrings":
+				[
+					"^Flushing\\s+SecondaryIndex\\s"
+				]
+			},
+			"ParseMessage":
+			{
+				"RegExStrings":
+				[
+					"^Flushing\\s+SecondaryIndex\\s+(?<IndexClass>[^ (,{]+)\\s*\\{\\s*(?<KEYITEM>columnDefs)\\s*=\\s*\\[\\s*(?:ColumnDefinition\\s*\\{\\s*(?:(?:(?<ITEM1>indexName)\\s*\\=\\s*(?<SOLRINDEXNAME>(?<ITEM2>[^},{]+))|(?<ITEM1>[^={]+)\\s*\\=\\s*(?<ITEM2>[^},{]+))(?:\\,|\\})\\s*)+\\s*\\,?\\s*)+"
+				]
+			},
+			"ParseThreadId": null,
+			"EventType": "SessionBegin",
+			"EventClass": "MemtableFlush",
+			"SubClass": "IndexClass",
+			"Product": "Search",
+			"SessionKey": "ThreadId",
+			"SessionKeyAction": "Add",
+			"SessionLookup": null,
+			"Examples":
+			[
+				"=>INFO  [MemtablePostFlush:18247] 2017-05-12 23:20:52,570  ColumnFamilyStore.java:1006 - Flushing SecondaryIndex Cql3SolrSecondaryIndex{columnDefs=[ColumnDefinition{name=appownrtxt, type=org.apache.cassandra.db.marshal.UTF8Type, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_appownrtxt_index, indexType=CUSTOM}, ColumnDefinition{name=maxaudtcretddt, type=org.apache.cassandra.db.marshal.TimestampType, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_maxaudtcretddt_index, indexType=CUSTOM}, ColumnDefinition{name=dlrshporgid, type=org.apache.cassandra.db.marshal.LongType, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_dlrshporgid_index, indexType=CUSTOM}, ColumnDefinition{name=maxappasgnmtaudtdt, type=org.apache.cassandra.db.marshal.TimestampType, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_maxappasgnmtaudtdt_index, indexType=CUSTOM}, ColumnDefinition{name=chnlid, type=org.apache.cassandra.db.marshal.Int32Type, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_chnlid_index, indexType=CUSTOM}, ColumnDefinition{name=dcsnstatlkupid, type=org.apache.cassandra.db.marshal.Int32Type, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_dcsnstatlkupid_index, indexType=CUSTOM}, ColumnDefinition{name=appcretddt, type=org.apache.cassandra.db.marshal.TimestampType, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_appcretddt_index, indexType=CUSTOM}, ColumnDefinition{name=cntrtcretddt, type=org.apache.cassandra.db.marshal.TimestampType, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_cntrtcretddt_index, indexType=CUSTOM}, ColumnDefinition{name=appstatdt, type=org.apache.cassandra.db.marshal.TimestampType, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_appstatdt_index, indexType=CUSTOM}, ColumnDefinition{name=apprecvddt, type=org.apache.cassandra.db.marshal.TimestampType, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_apprecvddt_index, indexType=CUSTOM}, ColumnDefinition{name=hrflag, type=org.apache.cassandra.db.marshal.BooleanType, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_hrflag_index, indexType=CUSTOM}, ColumnDefinition{name=lobid, type=org.apache.cassandra.db.marshal.Int32Type, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_lobid_index, indexType=CUSTOM}, ColumnDefinition{name=cmtmentcd, type=org.apache.cassandra.db.marshal.UTF8Type, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_cmtmentcd_index, indexType=CUSTOM}, ColumnDefinition{name=cntrtrecvddt, type=org.apache.cassandra.db.marshal.TimestampType, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_cntrtrecvddt_index, indexType=CUSTOM}, ColumnDefinition{name=apptaskaudtdtfltr, type=org.apache.cassandra.db.marshal.SetType(org.apache.cassandra.db.marshal.TimestampType), kind=REGULAR, componentIndex=0, indexName=coafstatim_application_apptaskaudtdtfltr_index, indexType=CUSTOM}, ColumnDefinition{name=fundddt, type=org.apache.cassandra.db.marshal.TimestampType, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_fundddt_index, indexType=CUSTOM}, ColumnDefinition{name=dcsndt, type=org.apache.cassandra.db.marshal.TimestampType, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_dcsndt_index, indexType=CUSTOM}, ColumnDefinition{name=appstatlkupid, type=org.apache.cassandra.db.marshal.Int32Type, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_appstatlkupid_index, indexType=CUSTOM}, ColumnDefinition{name=maxapptaskaudtcretddt, type=org.apache.cassandra.db.marshal.TimestampType, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_maxapptaskaudtcretddt_index, indexType=CUSTOM}, ColumnDefinition{name=solr_query, type=org.apache.cassandra.db.marshal.UTF8Type, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_solr_query_index, indexType=CUSTOM}, ColumnDefinition{name=notecretddtfltr, type=org.apache.cassandra.db.marshal.TimestampType, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_notecretddtfltr_index, indexType=CUSTOM}]}",
+				"INFO  [MemtablePostFlush:18247] 2017-05-12 23:20:52,571  AbstractSolrSecondaryIndex.java:1133 - Executing hard commit on index coafstatim.application",
+				"INFO  [MemtablePostFlush:18247] 2017-05-12 23:20:52,571  IndexWriter.java:3429 - commitInternalStart startTime=1494645652571",
+				"INFO  [MemtablePostFlush:18247] 2017-05-12 23:20:52,763  IndexWriter.java:3454 - commitInternalComplete duration=192 ms startTime=1494645652571"
+			]
+		},
+		{
+			"TagId": 9.1,
+			"MatchVersion": null,
+			"LevelMatch":
+			{
+				"RegExStrings":
+				[
+					"INFO"
+				]
+			},
+			"ThreadIdMatch":
+			{
+				"RegExStrings":
+				[
+					"^MemtablePostFlush\\:"
+				]
+			},
+			"FileNameMatch":
+			{
+				"RegExStrings":
+				[
+					"^AbstractSolrSecondaryIndex.java$"
+				]
+			},
+			"FileLineMatch":
+			{
+				"RegExStrings":
+				[
+					"^1133$"
+				]
+			},
+			"MessageMatch":
+			{
+				"RegExStrings":
+				[
+					"^Executing\\s+hard\\s+commit\\s"
+				]
+			},
+			"ParseMessage":
+			{
+				"RegExStrings":
+				[
+					"^Executing\\s+hard\\s+commit\\s+on\\s+index\\s+(?<DDLITEM>[^ ]+)$"
+				]
+			},
+			"ParseThreadId": null,
+			"EventType": "SessionItem",
+			"EventClass": "MemtableFlush",
+			"SubClass": null,
+			"Product": "Search",
+			"SessionKey": "ThreadId",
+			"SessionKeyAction": "Read",
+			"SessionLookup": null,
+			"Examples":
+			[
+				"INFO  [MemtablePostFlush:18247] 2017-05-12 23:20:52,570  ColumnFamilyStore.java:1006 - Flushing SecondaryIndex Cql3SolrSecondaryIndex{columnDefs=[ColumnDefinition{name=appownrtxt, type=org.apache.cassandra.db.marshal.UTF8Type, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_appownrtxt_index, indexType=CUSTOM}, ColumnDefinition{name=maxaudtcretddt, type=org.apache.cassandra.db.marshal.TimestampType, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_maxaudtcretddt_index, indexType=CUSTOM}, ColumnDefinition{name=dlrshporgid, type=org.apache.cassandra.db.marshal.LongType, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_dlrshporgid_index, indexType=CUSTOM}, ColumnDefinition{name=maxappasgnmtaudtdt, type=org.apache.cassandra.db.marshal.TimestampType, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_maxappasgnmtaudtdt_index, indexType=CUSTOM}, ColumnDefinition{name=chnlid, type=org.apache.cassandra.db.marshal.Int32Type, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_chnlid_index, indexType=CUSTOM}, ColumnDefinition{name=dcsnstatlkupid, type=org.apache.cassandra.db.marshal.Int32Type, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_dcsnstatlkupid_index, indexType=CUSTOM}, ColumnDefinition{name=appcretddt, type=org.apache.cassandra.db.marshal.TimestampType, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_appcretddt_index, indexType=CUSTOM}, ColumnDefinition{name=cntrtcretddt, type=org.apache.cassandra.db.marshal.TimestampType, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_cntrtcretddt_index, indexType=CUSTOM}, ColumnDefinition{name=appstatdt, type=org.apache.cassandra.db.marshal.TimestampType, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_appstatdt_index, indexType=CUSTOM}, ColumnDefinition{name=apprecvddt, type=org.apache.cassandra.db.marshal.TimestampType, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_apprecvddt_index, indexType=CUSTOM}, ColumnDefinition{name=hrflag, type=org.apache.cassandra.db.marshal.BooleanType, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_hrflag_index, indexType=CUSTOM}, ColumnDefinition{name=lobid, type=org.apache.cassandra.db.marshal.Int32Type, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_lobid_index, indexType=CUSTOM}, ColumnDefinition{name=cmtmentcd, type=org.apache.cassandra.db.marshal.UTF8Type, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_cmtmentcd_index, indexType=CUSTOM}, ColumnDefinition{name=cntrtrecvddt, type=org.apache.cassandra.db.marshal.TimestampType, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_cntrtrecvddt_index, indexType=CUSTOM}, ColumnDefinition{name=apptaskaudtdtfltr, type=org.apache.cassandra.db.marshal.SetType(org.apache.cassandra.db.marshal.TimestampType), kind=REGULAR, componentIndex=0, indexName=coafstatim_application_apptaskaudtdtfltr_index, indexType=CUSTOM}, ColumnDefinition{name=fundddt, type=org.apache.cassandra.db.marshal.TimestampType, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_fundddt_index, indexType=CUSTOM}, ColumnDefinition{name=dcsndt, type=org.apache.cassandra.db.marshal.TimestampType, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_dcsndt_index, indexType=CUSTOM}, ColumnDefinition{name=appstatlkupid, type=org.apache.cassandra.db.marshal.Int32Type, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_appstatlkupid_index, indexType=CUSTOM}, ColumnDefinition{name=maxapptaskaudtcretddt, type=org.apache.cassandra.db.marshal.TimestampType, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_maxapptaskaudtcretddt_index, indexType=CUSTOM}, ColumnDefinition{name=solr_query, type=org.apache.cassandra.db.marshal.UTF8Type, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_solr_query_index, indexType=CUSTOM}, ColumnDefinition{name=notecretddtfltr, type=org.apache.cassandra.db.marshal.TimestampType, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_notecretddtfltr_index, indexType=CUSTOM}]}",
+				"=>INFO  [MemtablePostFlush:18247] 2017-05-12 23:20:52,571  AbstractSolrSecondaryIndex.java:1133 - Executing hard commit on index coafstatim.application",
+				"INFO  [MemtablePostFlush:18247] 2017-05-12 23:20:52,571  IndexWriter.java:3429 - commitInternalStart startTime=1494645652571",
+				"INFO  [MemtablePostFlush:18247] 2017-05-12 23:20:52,763  IndexWriter.java:3454 - commitInternalComplete duration=192 ms startTime=1494645652571"
+			]
+		},
+		{
+			"TagId": 9.2,
+			"MatchVersion": null,
+			"LevelMatch":
+			{
+				"RegExStrings":
+				[
+					"INFO"
+				]
+			},
+			"ThreadIdMatch":
+			{
+				"RegExStrings":
+				[
+					"^MemtablePostFlush\\:"
+				]
+			},
+			"FileNameMatch":
+			{
+				"RegExStrings":
+				[
+					"^IndexWriter.java$"
+				]
+			},
+			"FileLineMatch":
+			{
+				"RegExStrings":
+				[
+					"^3429$"
+				]
+			},
+			"MessageMatch":
+			{
+				"RegExStrings":
+				[
+					"^commitInternalStart\\s"
+				]
+			},
+			"ParseMessage":
+			{
+				"RegExStrings":
+				[
+					"^commitInternalStart\\s+startTime\\s*=\\s*(?<CommitStart>[0-9,\\-]+)$"
+				]
+			},
+			"ParseThreadId": null,
+			"EventType": "SessionBegin",
+			"EventClass": "MemtableFlush",
+			"SubClass": null,
+			"Product": "Search",
+			"SessionKey": "ThreadId",
+			"SessionKeyAction": "Read",
+			"SessionLookup": "ThreadId + CommitStart",
+			"SessionLookupAction": "DefineLabel",
+			"Examples":
+			[
+				"INFO  [MemtablePostFlush:18247] 2017-05-12 23:20:52,570  ColumnFamilyStore.java:1006 - Flushing SecondaryIndex Cql3SolrSecondaryIndex{columnDefs=[ColumnDefinition{name=appownrtxt, type=org.apache.cassandra.db.marshal.UTF8Type, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_appownrtxt_index, indexType=CUSTOM}, ColumnDefinition{name=maxaudtcretddt, type=org.apache.cassandra.db.marshal.TimestampType, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_maxaudtcretddt_index, indexType=CUSTOM}, ColumnDefinition{name=dlrshporgid, type=org.apache.cassandra.db.marshal.LongType, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_dlrshporgid_index, indexType=CUSTOM}, ColumnDefinition{name=maxappasgnmtaudtdt, type=org.apache.cassandra.db.marshal.TimestampType, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_maxappasgnmtaudtdt_index, indexType=CUSTOM}, ColumnDefinition{name=chnlid, type=org.apache.cassandra.db.marshal.Int32Type, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_chnlid_index, indexType=CUSTOM}, ColumnDefinition{name=dcsnstatlkupid, type=org.apache.cassandra.db.marshal.Int32Type, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_dcsnstatlkupid_index, indexType=CUSTOM}, ColumnDefinition{name=appcretddt, type=org.apache.cassandra.db.marshal.TimestampType, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_appcretddt_index, indexType=CUSTOM}, ColumnDefinition{name=cntrtcretddt, type=org.apache.cassandra.db.marshal.TimestampType, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_cntrtcretddt_index, indexType=CUSTOM}, ColumnDefinition{name=appstatdt, type=org.apache.cassandra.db.marshal.TimestampType, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_appstatdt_index, indexType=CUSTOM}, ColumnDefinition{name=apprecvddt, type=org.apache.cassandra.db.marshal.TimestampType, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_apprecvddt_index, indexType=CUSTOM}, ColumnDefinition{name=hrflag, type=org.apache.cassandra.db.marshal.BooleanType, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_hrflag_index, indexType=CUSTOM}, ColumnDefinition{name=lobid, type=org.apache.cassandra.db.marshal.Int32Type, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_lobid_index, indexType=CUSTOM}, ColumnDefinition{name=cmtmentcd, type=org.apache.cassandra.db.marshal.UTF8Type, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_cmtmentcd_index, indexType=CUSTOM}, ColumnDefinition{name=cntrtrecvddt, type=org.apache.cassandra.db.marshal.TimestampType, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_cntrtrecvddt_index, indexType=CUSTOM}, ColumnDefinition{name=apptaskaudtdtfltr, type=org.apache.cassandra.db.marshal.SetType(org.apache.cassandra.db.marshal.TimestampType), kind=REGULAR, componentIndex=0, indexName=coafstatim_application_apptaskaudtdtfltr_index, indexType=CUSTOM}, ColumnDefinition{name=fundddt, type=org.apache.cassandra.db.marshal.TimestampType, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_fundddt_index, indexType=CUSTOM}, ColumnDefinition{name=dcsndt, type=org.apache.cassandra.db.marshal.TimestampType, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_dcsndt_index, indexType=CUSTOM}, ColumnDefinition{name=appstatlkupid, type=org.apache.cassandra.db.marshal.Int32Type, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_appstatlkupid_index, indexType=CUSTOM}, ColumnDefinition{name=maxapptaskaudtcretddt, type=org.apache.cassandra.db.marshal.TimestampType, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_maxapptaskaudtcretddt_index, indexType=CUSTOM}, ColumnDefinition{name=solr_query, type=org.apache.cassandra.db.marshal.UTF8Type, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_solr_query_index, indexType=CUSTOM}, ColumnDefinition{name=notecretddtfltr, type=org.apache.cassandra.db.marshal.TimestampType, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_notecretddtfltr_index, indexType=CUSTOM}]}",
+				"INFO  [MemtablePostFlush:18247] 2017-05-12 23:20:52,571  AbstractSolrSecondaryIndex.java:1133 - Executing hard commit on index coafstatim.application",
+				"=>INFO  [MemtablePostFlush:18247] 2017-05-12 23:20:52,571  IndexWriter.java:3429 - commitInternalStart startTime=1494645652571",
+				"INFO  [MemtablePostFlush:18247] 2017-05-12 23:20:52,763  IndexWriter.java:3454 - commitInternalComplete duration=192 ms startTime=1494645652571"
+			]
+		},
+		{
+			"TagId": 9.3,
+			"MatchVersion": null,
+			"LevelMatch":
+			{
+				"RegExStrings":
+				[
+					"INFO"
+				]
+			},
+			"ThreadIdMatch":
+			{
+				"RegExStrings":
+				[
+					"^MemtablePostFlush\\:"
+				]
+			},
+			"FileNameMatch":
+			{
+				"RegExStrings":
+				[
+					"^IndexWriter.java$"
+				]
+			},
+			"FileLineMatch":
+			{
+				"RegExStrings":
+				[
+					"^3454$"
+				]
+			},
+			"MessageMatch":
+			{
+				"RegExStrings":
+				[
+					"^commitInternalComplete\\s"
+				]
+			},
+			"ParseMessage":
+			{
+				"RegExStrings":
+				[
+					"^commitInternalComplete\\s+duration\\s*=\\s*(?<DURATION>[0-9,.]+\\s*\\w*)\\s+startTime\\s*=\\s*(?<CommitStart>[0-9,\\-]+)$"
+				]
+			},
+			"ParseThreadId": null,
+			"EventType": "SessionEnd",
+			"EventClass": "MemtableFlush",
+			"SubClass": null,
+			"Product": "Search",
+			"SessionLookup": "ThreadId + CommitStart",
+			"SessionLookupAction": "ReadRemoveLabel",
+			"Examples":
+			[
+				"INFO  [MemtablePostFlush:18247] 2017-05-12 23:20:52,570  ColumnFamilyStore.java:1006 - Flushing SecondaryIndex Cql3SolrSecondaryIndex{columnDefs=[ColumnDefinition{name=appownrtxt, type=org.apache.cassandra.db.marshal.UTF8Type, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_appownrtxt_index, indexType=CUSTOM}, ColumnDefinition{name=maxaudtcretddt, type=org.apache.cassandra.db.marshal.TimestampType, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_maxaudtcretddt_index, indexType=CUSTOM}, ColumnDefinition{name=dlrshporgid, type=org.apache.cassandra.db.marshal.LongType, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_dlrshporgid_index, indexType=CUSTOM}, ColumnDefinition{name=maxappasgnmtaudtdt, type=org.apache.cassandra.db.marshal.TimestampType, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_maxappasgnmtaudtdt_index, indexType=CUSTOM}, ColumnDefinition{name=chnlid, type=org.apache.cassandra.db.marshal.Int32Type, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_chnlid_index, indexType=CUSTOM}, ColumnDefinition{name=dcsnstatlkupid, type=org.apache.cassandra.db.marshal.Int32Type, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_dcsnstatlkupid_index, indexType=CUSTOM}, ColumnDefinition{name=appcretddt, type=org.apache.cassandra.db.marshal.TimestampType, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_appcretddt_index, indexType=CUSTOM}, ColumnDefinition{name=cntrtcretddt, type=org.apache.cassandra.db.marshal.TimestampType, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_cntrtcretddt_index, indexType=CUSTOM}, ColumnDefinition{name=appstatdt, type=org.apache.cassandra.db.marshal.TimestampType, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_appstatdt_index, indexType=CUSTOM}, ColumnDefinition{name=apprecvddt, type=org.apache.cassandra.db.marshal.TimestampType, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_apprecvddt_index, indexType=CUSTOM}, ColumnDefinition{name=hrflag, type=org.apache.cassandra.db.marshal.BooleanType, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_hrflag_index, indexType=CUSTOM}, ColumnDefinition{name=lobid, type=org.apache.cassandra.db.marshal.Int32Type, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_lobid_index, indexType=CUSTOM}, ColumnDefinition{name=cmtmentcd, type=org.apache.cassandra.db.marshal.UTF8Type, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_cmtmentcd_index, indexType=CUSTOM}, ColumnDefinition{name=cntrtrecvddt, type=org.apache.cassandra.db.marshal.TimestampType, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_cntrtrecvddt_index, indexType=CUSTOM}, ColumnDefinition{name=apptaskaudtdtfltr, type=org.apache.cassandra.db.marshal.SetType(org.apache.cassandra.db.marshal.TimestampType), kind=REGULAR, componentIndex=0, indexName=coafstatim_application_apptaskaudtdtfltr_index, indexType=CUSTOM}, ColumnDefinition{name=fundddt, type=org.apache.cassandra.db.marshal.TimestampType, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_fundddt_index, indexType=CUSTOM}, ColumnDefinition{name=dcsndt, type=org.apache.cassandra.db.marshal.TimestampType, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_dcsndt_index, indexType=CUSTOM}, ColumnDefinition{name=appstatlkupid, type=org.apache.cassandra.db.marshal.Int32Type, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_appstatlkupid_index, indexType=CUSTOM}, ColumnDefinition{name=maxapptaskaudtcretddt, type=org.apache.cassandra.db.marshal.TimestampType, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_maxapptaskaudtcretddt_index, indexType=CUSTOM}, ColumnDefinition{name=solr_query, type=org.apache.cassandra.db.marshal.UTF8Type, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_solr_query_index, indexType=CUSTOM}, ColumnDefinition{name=notecretddtfltr, type=org.apache.cassandra.db.marshal.TimestampType, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_notecretddtfltr_index, indexType=CUSTOM}]}",
+				"INFO  [MemtablePostFlush:18247] 2017-05-12 23:20:52,571  AbstractSolrSecondaryIndex.java:1133 - Executing hard commit on index coafstatim.application",
+				"INFO  [MemtablePostFlush:18247] 2017-05-12 23:20:52,571  IndexWriter.java:3429 - commitInternalStart startTime=1494645652571",
+				"=> INFO  [MemtablePostFlush:18247] 2017-05-12 23:20:52,763  IndexWriter.java:3454 - commitInternalComplete duration=192 ms startTime=1494645652571"
+			]
+		}
+	]
 }

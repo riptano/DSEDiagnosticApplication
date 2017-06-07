@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Common;
 using DSEDiagnosticLibrary;
+using DSEDiagnosticLogger;
 
 namespace DSEDiagnosticFileParser
 {
@@ -91,7 +92,7 @@ namespace DSEDiagnosticFileParser
 
                 if (regExSplit.Length == 3)
                 {
-                    currentDataCenter = Cluster.TryGetDataCenter(regExSplit[1], this.DefaultClusterName);                   
+                    currentDataCenter = Cluster.TryGetDataCenter(regExSplit[1], this.DefaultClusterName);
                     continue;
                 }
 
@@ -136,6 +137,11 @@ namespace DSEDiagnosticFileParser
                         }
                         catch (System.ArgumentException ex)
                         {
+                            InvokeExceptionEvent(this,
+                                                    ex,
+                                                    null,
+                                                    new object[] { line });
+
                             Logger.Instance.Error(string.Format("<NoNodeId>\t{0}\tInvalid Token Range found for \"{1}\" in nodetool Ring File.",
                                                                 this.File,
                                                                 line),

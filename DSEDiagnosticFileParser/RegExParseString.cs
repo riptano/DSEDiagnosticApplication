@@ -103,5 +103,11 @@ namespace DSEDiagnosticFileParser
         {
             return this._compiledRegEx[regexIndex];
         }
+
+        private string _toStringCache = null;
+        public override string ToString()
+        {
+            return this._toStringCache == null ? this._toStringCache = Newtonsoft.Json.JsonConvert.SerializeObject(this) : this._toStringCache;
+        }
     }
 }

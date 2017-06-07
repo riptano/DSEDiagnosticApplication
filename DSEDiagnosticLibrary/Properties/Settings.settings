@@ -139,5 +139,8 @@
     <Setting Name="SSTableColumnFamilyRegEx" Type="System.String" Scope="Application">
       <Value Profile="(Default)">^(?:([a-z0-9\-_$%+=@!?&lt;&gt;^*&amp;]+)\-([0-9a-f]{32})$|([a-z0-9\-_$%+=@!?&lt;&gt;^*&amp;]+)$)</Value>
     </Setting>
+    <Setting Name="LogMessageToStringMaxLength" Type="System.Int32" Scope="Application">
+      <Value Profile="(Default)">100</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

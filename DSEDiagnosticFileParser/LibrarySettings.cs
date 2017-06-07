@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Common;
 using Newtonsoft.Json;
+using DSEDiagnosticLogger;
 
 namespace DSEDiagnosticFileParser
 {
@@ -85,6 +86,11 @@ namespace DSEDiagnosticFileParser
             }
             catch (Exception e)
             {
+                DiagnosticFile.InvokeExceptionEvent("Invalid Json Value or File Path",
+                                                    e,
+                                                    null,
+                                                    new object[] { jsonStringOrFile });
+
                 Logger.Instance.Error(string.Format("Invalid Json Value or File Path. Value is: \"{0}\"", jsonStringOrFile), e);
                 throw;
             }

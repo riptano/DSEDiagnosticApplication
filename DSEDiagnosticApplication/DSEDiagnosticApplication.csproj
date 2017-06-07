@@ -122,6 +122,10 @@
       <Project>{b81ff061-57dc-469f-94e4-967a17bce4ad}</Project>
       <Name>DSEDiagnosticLog4NetParser</Name>
     </ProjectReference>
+    <ProjectReference Include="..\DSEDiagnosticLogger\DSEDiagnosticLogger.csproj">
+      <Project>{d374eb28-89c6-4ecf-b68e-7bedeac4212e}</Project>
+      <Name>DSEDiagnosticLogger</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Globalization;
 using Common;
 using DSEDiagnosticLibrary;
+using DSEDiagnosticLogger;
 
 namespace DSEDiagnosticLog4NetParser
 {

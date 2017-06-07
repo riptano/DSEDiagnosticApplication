@@ -68,7 +68,7 @@ namespace DSEDiagnosticLibrary
         HintHandOff = 0x8000,
         NodeDetection = 0x10000,
         Config = 0x20000,
-
+        
         StatusTypes = Information | Warning | Error | Exception | Fatal | Orphaned
     }
 

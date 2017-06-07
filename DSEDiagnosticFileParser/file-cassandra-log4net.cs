@@ -5,6 +5,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using DSEDiagnosticLibrary;
+using DSEDiagnosticLogger;
 using Common;
 using DSEDiagnosticLog4NetParser;
 using CTS = Common.Patterns.Collections.ThreadSafe;
@@ -272,6 +273,7 @@ namespace DSEDiagnosticFileParser
             var sstableFilePath = StringHelpers.RemoveQuotes((string) logProperties.TryGetValue("SSTABLEPATH"));
             var keyspaceNames = TurnPropertyIntoCollection(logProperties, "KEYSPACES");
             var ddlNames = TurnPropertyIntoCollection(logProperties, "DDLITEMNAMES");
+            var solrDDLNames = TurnPropertyIntoCollection(logProperties, "SOLRINDEXNAME");
             var sstableFilePaths = TurnPropertyIntoCollection(logProperties, "SSTABLEPATHS");
             EventClasses eventClass = matchItem.Item5.EventClass;
 
@@ -326,7 +328,7 @@ namespace DSEDiagnosticFileParser
                 {
                     sstableFilePaths = sstableFilePaths.Select(p => StringHelpers.RemoveQuotes(p)).DuplicatesRemoved(p => p).ToList();
 
-                    var ddlItems = sstableFilePaths.SelectMany(i => Cluster.TryGetTableIndexViewsbyString(i, this.Cluster, this.DataCenter))
+                    var ddlItems = sstableFilePaths.SelectMany(i => Cluster.TryGetTableIndexViewsbyString(i, this.Cluster, this.DataCenter))                                                    
                                                     .DuplicatesRemoved(d => d.FullName);
 
                     if (ddlItems.HasAtLeastOneElement())
@@ -356,9 +358,10 @@ namespace DSEDiagnosticFileParser
                     }
                 }
 
-                if (ddlNames != null && ddlNames.HasAtLeastOneElement())
+                if(solrDDLNames != null && solrDDLNames.HasAtLeastOneElement())
                 {
-                    var ddlItems = ddlNames.SelectMany(i => Cluster.TryGetTableIndexViewsbyString(i, this.Cluster, this.DataCenter))
+                    var ddlItems = solrDDLNames.Select(i => Cluster.TryGetSolrIndexbyString(i, this.Cluster, this.DataCenter))
+                                                    .Where(i => i != null)
                                                     .DuplicatesRemoved(d => d.FullName);
 
                     if (ddlItems.HasAtLeastOneElement())
@@ -370,6 +373,28 @@ namespace DSEDiagnosticFileParser
                         else
                         {
                             ddlInstances.AddRange(ddlItems);
+
+                            ddlInstances = ddlInstances.DuplicatesRemoved(d => d.FullName).ToList();
+                        }
+                    }
+                }
+
+                if (ddlNames != null && ddlNames.HasAtLeastOneElement())
+                {
+                    var ddlItems = ddlNames.SelectMany(i => Cluster.TryGetTableIndexViewsbyString(i, this.Cluster, this.DataCenter))                                                   
+                                                    .DuplicatesRemoved(d => d.FullName);
+
+                    if (ddlItems.HasAtLeastOneElement())
+                    {
+                        if (ddlInstances == null || ddlInstances.IsEmpty())
+                        {
+                            ddlInstances = ddlItems.ToList();
+                        }
+                        else
+                        {
+                            ddlInstances.AddRange(ddlItems);
+
+                            ddlInstances = ddlInstances.DuplicatesRemoved(d => d.FullName).ToList();
                         }
                     }
                 }
@@ -889,14 +914,17 @@ namespace DSEDiagnosticFileParser
         {
             string normalizedGroupName;
             string uomType;
+            var groupNames = matchRegEx.GetGroupNames();
             bool processedKeyValues = false;
+            bool processedKeyItemValues = false;
 
-            foreach (var groupName in matchRegEx.GetGroupNames())
+            foreach (var groupName in groupNames)
             {
                 if (groupName != "0")
                 {
                     if (groupName == "KEY" || groupName == "VALUE")
                     {
+                        #region KEY and VALUE groups
                         if (!processedKeyValues)
                         {
                             var groupKeyInstance = matchItem.Groups["KEY"];
@@ -923,9 +951,120 @@ namespace DSEDiagnosticFileParser
                                 }
                             }
                         }
+                        #endregion
+                    }
+                    else if (groupName.StartsWith("KEYITEM") || groupName.StartsWith("ITEM"))
+                    {
+                        #region KEYITEM and ITEM groups
+                        if (!processedKeyItemValues)
+                        {
+                            processedKeyItemValues = true;
+
+                            var keylistNames = groupNames.Where(g => g.StartsWith("KEYITEM"))
+                                                    .Select(g => new { GroupName = g, MatchName = g.Substring(3) });
+                            var itemlistNames = from gn in groupNames.Where(g => g.StartsWith("ITEM"))
+                                                let gnMatchNamePos = gn.IndexOf('-')
+                                                let gnItemKeyName = gnMatchNamePos < 0 ? gn : gn.Substring(0, gnMatchNamePos)
+                                                let keyGroupByName = keylistNames.FirstOrDefault(k => gnMatchNamePos >= 0
+                                                                                                        ? gnItemKeyName == k.MatchName
+                                                                                                        : gnItemKeyName.StartsWith(k.MatchName))
+                                                group gn by keyGroupByName into g
+                                                select new { Key = g.Key, Items = g.Select(n => n) };
+
+                            foreach (var groupItem in itemlistNames)
+                            {
+                                var captureItems = new List<CaptureCollection>();
+                                var groupKeyInstance = matchItem.Groups[groupItem.Key.GroupName];
+
+                                if (groupKeyInstance.Success)
+                                {
+                                    foreach (var itemName in groupItem.Items)
+                                    {
+                                        var groupValueInstance = matchItem.Groups[itemName];
+
+                                        if (groupValueInstance.Success)
+                                        {
+                                            captureItems.Add(groupValueInstance.Captures);
+                                        }
+                                    }
+                                }
+
+                                if(captureItems.Count == 1)
+                                {
+                                    var itemList = new List<object>();
+                                    var captureCollection = captureItems.First();
+
+                                    for (int nIdx = 0; nIdx < captureCollection.Count; ++nIdx)
+                                    {
+                                        itemList.Add(StringHelpers.DetermineProperObjectFormat(captureCollection[nIdx].Value,
+                                                                                                false,
+                                                                                                false,
+                                                                                                true,
+                                                                                                null,
+                                                                                                true));
+                                    }
+
+                                    normalizedGroupName = groupKeyInstance.Value;
+
+                                    logProperties.TryAddValue(normalizedGroupName, itemList);
+                                }
+                                else if(captureItems.Count > 1)
+                                {
+                                    var keyGroupsList = groupKeyInstance.Captures.Count > 1 ? null : new List<List<List<object>>>();
+                                    var groupMaxLength = captureItems.Min(c => c.Count);
+                                    var keyList = new List<List<object>>();
+                                    var breakItemValue = captureItems[0][0].Value;
+                                    var breakCnt = 0;
+
+                                    for (int nIdx = 0; nIdx < groupMaxLength; ++nIdx)
+                                    {
+                                        if (nIdx > 0 && breakItemValue == captureItems[0][nIdx].Value)
+                                        {
+                                            if (keyGroupsList == null)
+                                            {
+                                                if (!logProperties.TryAddValue(groupKeyInstance.Captures[breakCnt].Value, keyList))
+                                                {
+                                                    logProperties.Add(groupKeyInstance.Captures[breakCnt].Value + breakCnt.ToString(), keyList);
+                                                }
+                                            }
+                                            else
+                                            {
+                                                keyGroupsList.Add(keyList);
+                                            }
+                                            keyList = new List<List<object>>();
+                                            ++breakCnt;
+                                        }
+
+                                        var itemList = new List<object>();
+
+                                        foreach (var itemCollection in captureItems)
+                                        {
+                                            itemList.Add(itemCollection[nIdx].Value);
+                                        }
+
+
+                                        keyList.Add(itemList);
+                                    }
+
+                                    if (keyGroupsList == null)
+                                    {
+                                        if (!logProperties.TryAddValue(groupKeyInstance.Captures[breakCnt].Value, keyList))
+                                        {
+                                            logProperties.Add(groupKeyInstance.Captures[breakCnt].Value + breakCnt.ToString(), keyList);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        logProperties.Add(groupKeyInstance.Value, keyGroupsList);
+                                    }
+                                }
+                            }
+                        }
+                        #endregion
                     }
                     else
                     {
+                        #region Single Value or common Groups
                         normalizedGroupName = NormalizedGroupName(groupName, logProperties, out uomType);
 
                         var groupInstance = matchItem.Groups[groupName];
@@ -959,6 +1098,7 @@ namespace DSEDiagnosticFileParser
                                 logProperties.TryAddValue(normalizedGroupName, groupCaptures);
                             }
                         }
+                        #endregion
                     }
                 }
             }

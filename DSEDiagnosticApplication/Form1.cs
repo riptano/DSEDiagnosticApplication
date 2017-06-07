@@ -25,7 +25,9 @@ namespace DSEDiagnosticApplication
             this.button1.Enabled = false;
             this.button1.Text = "Running...";
 
+
             Logger.Instance.Info("test");
+            Logger.Instance.OnLoggingEvent += Instance_OnLoggingEventArgs;
             DSEDiagnosticFileParser.DiagnosticFile.DisableParallelProcessing = true;
             //var diagPath = PathUtils.BuildDirectoryPath(@"C:\Users\Richard\Desktop\Diag-Customer\TestUnZip");
             //var diagPath = PathUtils.BuildDirectoryPath(@"C:\Users\Richard\Desktop\Diag-Customer\Y31169_cluster-diagnostics-2017_01_06_08_02_04_UTC");
@@ -36,13 +38,46 @@ namespace DSEDiagnosticApplication
 
             var tasks = DSEDiagnosticFileParser.DiagnosticFile.ProcessFile(diagPath);
 
+            //tasks.ContinueWith(waitingTasks => this.EnableRunButton(buttonLabel));
             tasks.Wait();
 
-            var z = DSEDiagnosticLibrary.Cluster.Clusters;
+            // var z = DSEDiagnosticLibrary.Cluster.Clusters;
             //Task.WhenAll(tasks).Wait();
+
+            this.EnableRunButton(buttonLabel);
+        }
+
+        delegate void EnableRunButtondEL(string buttonLabel);
+
+
+        void EnableRunButton(string buttonLabel)
+        {
+            if(this.button1.InvokeRequired)
+            {
+                this.Invoke(new EnableRunButtondEL(this.EnableRunButton), buttonLabel);
+                return;
+            }
 
             this.button1.Text = buttonLabel;
             this.button1.Enabled = true;
+        }
+
+        delegate void SetLabelDelegate(string newvalue);
+
+        void SetLabel(string newValue)
+        {
+            if(this.label1.InvokeRequired)
+            {
+                this.Invoke(new SetLabelDelegate(this.SetLabel), newValue);
+                return;
+            }
+
+            this.label1.Text = newValue;
+        }
+
+        private void Instance_OnLoggingEventArgs(DSEDiagnosticLogger.Logger sender, DSEDiagnosticLogger.LoggingEventArgs eventArgs)
+        {
+                        
         }
     }
 }

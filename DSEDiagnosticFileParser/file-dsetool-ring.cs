@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using Common;
 using DSEDiagnosticLibrary;
+using DSEDiagnosticLogger;
 
 namespace DSEDiagnosticFileParser
 {

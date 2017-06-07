@@ -5,6 +5,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using DSEDiagnosticLibrary;
+using DSEDiagnosticLogger;
 using Common;
 using Common.Path;
 using System.IO;
@@ -26,6 +27,31 @@ namespace DSEDiagnosticFileParser
             CQLFile,
             ZipFile
 		}
+
+        #region Events
+
+        /// <summary>
+        ///     Called when an exception is caught and processed.
+        /// </summary>
+        public static event ExceptionEventArgs.EventHandler OnException;
+
+        public static bool InvokeExceptionEvent(DiagnosticFile sender,
+                                                    System.Exception exception,
+                                                    System.Threading.CancellationTokenSource cancellationTokenSource,
+                                                    object[] associatedObjects)
+        {
+            return ExceptionEventArgs.InvokeEvent(sender, exception, cancellationTokenSource, associatedObjects, OnException);
+        }
+
+        public static bool InvokeExceptionEvent(string sender,
+                                                    System.Exception exception,
+                                                    System.Threading.CancellationTokenSource cancellationTokenSource,
+                                                    object[] associatedObjects)
+        {
+            return ExceptionEventArgs.InvokeEvent(sender, exception, cancellationTokenSource, associatedObjects, OnException);
+        }
+
+        #endregion //end of Events
 
         public static Dictionary<string, RegExParseString> RegExAssocations = LibrarySettings.DiagnosticFileRegExAssocations;
         private static bool _DisableParallelProcessing = false;
@@ -140,6 +166,7 @@ namespace DSEDiagnosticFileParser
                                                                         Version dseVersion = null,
                                                                         CancellationTokenSource cancellationSource = null)
         {
+            FileMapper filemapperInError = null;
             var diagFilesList = new List<DiagnosticFile>();
             var mappers = DSEDiagnosticFileParser.LibrarySettings.ProcessFileMappings
                             .OrderByDescending(o => o.ProcessPriorityLevel)
@@ -174,6 +201,7 @@ namespace DSEDiagnosticFileParser
 
                         foreach (var fileMapper in fileMappings)
                         {
+                            filemapperInError = fileMapper;
                             parallelOptions.CancellationToken.ThrowIfCancellationRequested();
 
                             if (fileMapper.CancellationSource == null && cancellationSource != null) fileMapper.CancellationSource = cancellationSource;
@@ -192,12 +220,20 @@ namespace DSEDiagnosticFileParser
 
                         Parallel.ForEach(fileMappings, parallelOptions, fileMapper =>
                         {
-                            if (fileMapper.CancellationSource == null && cancellationSource != null) fileMapper.CancellationSource = cancellationSource;
+                            try
+                            {
+                                if (fileMapper.CancellationSource == null && cancellationSource != null) fileMapper.CancellationSource = cancellationSource;
 
-                            var diagnosticFiles = ProcessFile(diagnosticDirectory, fileMapper, dataCenterName, clusterName, dseVersion);
+                                var diagnosticFiles = ProcessFile(diagnosticDirectory, fileMapper, dataCenterName, clusterName, dseVersion);
 
-                            diagFilesList.AddRange(diagnosticFiles);
-                            parallelOptions.CancellationToken.ThrowIfCancellationRequested();
+                                diagFilesList.AddRange(diagnosticFiles);
+                                parallelOptions.CancellationToken.ThrowIfCancellationRequested();
+                            }
+                            catch
+                            {
+                                filemapperInError = fileMapper;
+                                throw;
+                            }
                         });
 
                         Logger.Instance.InfoFormat("FileMapper<{0}, ParallelProcessing, Completed>",
@@ -211,13 +247,21 @@ namespace DSEDiagnosticFileParser
                         var localDiagFilesList = new List<DiagnosticFile>();
                         Parallel.ForEach(fileMappings, parallelOptions, fileMapper =>
                         {
-                            if (fileMapper.CancellationSource == null && cancellationSource != null) fileMapper.CancellationSource = cancellationSource;
+                            try
+                            {
+                                if (fileMapper.CancellationSource == null && cancellationSource != null) fileMapper.CancellationSource = cancellationSource;
 
-                            var diagnosticFiles = ProcessFile(diagnosticDirectory, fileMapper, dataCenterName, clusterName, dseVersion);
+                                var diagnosticFiles = ProcessFile(diagnosticDirectory, fileMapper, dataCenterName, clusterName, dseVersion);
 
-                            diagFilesList.AddRange(diagnosticFiles);
-                            localDiagFilesList.AddRange(diagnosticFiles);
-                            parallelOptions.CancellationToken.ThrowIfCancellationRequested();
+                                diagFilesList.AddRange(diagnosticFiles);
+                                localDiagFilesList.AddRange(diagnosticFiles);
+                                parallelOptions.CancellationToken.ThrowIfCancellationRequested();
+                            }
+                            catch
+                            {
+                                filemapperInError = fileMapper;
+                                throw;
+                            }
                         });
 
                         Logger.Instance.InfoFormat("FileMapper<{0}, ParallelProcessingWithinPriorityLevel, Waiting>",
@@ -257,10 +301,31 @@ namespace DSEDiagnosticFileParser
                         }
                         Logger.Instance.Error("Exception during FileMapping Processing", e);
                     }
+
+                    if(!canceled)
+                    {
+                        ExceptionEventArgs.InvokeEvent(filemapperInError,
+                                                        ae,
+                                                        cancellationSource,
+                                                        new object[] {  diagnosticDirectory,
+                                                                        dataCenterName,
+                                                                        clusterName,
+                                                                        dseVersion },
+                                                        OnException);
+                    }
                 }
                 catch (System.Exception ex)
                 {
                     Logger.Instance.Error("Exception during FileMapping Processing", ex);
+
+                    ExceptionEventArgs.InvokeEvent(filemapperInError,
+                                                       ex,
+                                                       cancellationSource,
+                                                       new object[] {  diagnosticDirectory,
+                                                                        dataCenterName,
+                                                                        clusterName,
+                                                                        dseVersion },
+                                                       OnException);
                 }
             }
 
@@ -453,16 +518,16 @@ namespace DSEDiagnosticFileParser
 		}
 
 		public static DiagnosticFile ProcessFile(IDirectoryPath diagnosticDirectory,
-																IFilePath processFile,
-																System.Type instanceType,
-																CatagoryTypes catagory,
-																NodeIdentifier nodeId,
-                                                                INode useNode = null,
-																string dataCenterName = null,
-																string clusterName = null,
-                                                                CancellationToken? cancellationToken = null,
-                                                                Version targetDSEVersion = null,
-                                                                bool runAsTask = false)
+													IFilePath processFile,
+													System.Type instanceType,
+													CatagoryTypes catagory,
+													NodeIdentifier nodeId,
+                                                    INode useNode = null,
+													string dataCenterName = null,
+													string clusterName = null,
+                                                    CancellationToken? cancellationToken = null,
+                                                    Version targetDSEVersion = null,
+                                                    bool runAsTask = false)
 		{
 			var node = useNode == null ? Cluster.TryGetAddNode(nodeId, dataCenterName, clusterName) : useNode;
 			var processingFileInstance = (DiagnosticFile) Activator.CreateInstance(instanceType, catagory, diagnosticDirectory, processFile, node, clusterName, dataCenterName, targetDSEVersion);
@@ -471,7 +536,7 @@ namespace DSEDiagnosticFileParser
             {
                 processingFileInstance.CancellationToken = cancellationToken.Value;
             }
-        
+
             var action = (Action)(() =>
             {
                 try
@@ -528,6 +593,25 @@ namespace DSEDiagnosticFileParser
                         otherExceptions = true;
                     }
 
+                    if(!canceled)
+                    {
+                        ExceptionEventArgs.InvokeEvent(processingFileInstance,
+                                                           ae,
+                                                           null,
+                                                           new object[] { diagnosticDirectory,
+                                                                                processFile,
+                                                                                instanceType,
+                                                                                catagory,
+                                                                                nodeId,
+                                                                                useNode,
+                                                                                dataCenterName,
+                                                                                clusterName,
+                                                                                cancellationToken,
+                                                                                targetDSEVersion,
+                                                                                runAsTask },
+                                                           OnException);
+                    }
+
                     if(otherExceptions)
                     {
                         if (processingFileInstance == null)
@@ -540,6 +624,22 @@ namespace DSEDiagnosticFileParser
                 }
                 catch(System.Exception ex)
                 {
+                    ExceptionEventArgs.InvokeEvent(processingFileInstance,
+                                                       ex,
+                                                       null,
+                                                       new object[] { diagnosticDirectory,
+                                                                            processFile,
+                                                                            instanceType,
+                                                                            catagory,
+                                                                            nodeId,
+                                                                            useNode,
+                                                                            dataCenterName,
+                                                                            clusterName,
+                                                                            cancellationToken,
+                                                                            targetDSEVersion,
+                                                                            runAsTask },
+                                                       OnException);
+
                     if (processingFileInstance == null)
                     {
                         throw;

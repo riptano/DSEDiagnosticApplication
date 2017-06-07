@@ -72,10 +72,6 @@
       <HintPath>..\packages\ICSharpCode.SharpZipLib-dogfood.1.0.209\lib\Net45\ICSharpCode.SharpZipLib.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="log4net, Version=2.0.8.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
-      <HintPath>..\packages\log4net.2.0.8\lib\net45-full\log4net.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.10.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
@@ -93,6 +89,7 @@
     <Compile Include="CLogLineTypeParser.cs" />
     <Compile Include="cql-ddl.cs" />
     <Compile Include="DiagnosticFile.cs" />
+    <Compile Include="ExceptionEventArgs.cs" />
     <Compile Include="file-agent_version.cs" />
     <Compile Include="file-cassandra-log4net.cs" />
     <Compile Include="file-cassandra-rackdc-properties.cs" />
@@ -118,7 +115,6 @@
     <Compile Include="json-os-info.cs" />
     <Compile Include="json-repair_service.cs" />
     <Compile Include="LibrarySettings.cs" />
-    <Compile Include="Logger.cs" />
     <Compile Include="MiscHelpers.cs" />
     <Compile Include="ProcessJsonFile.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -154,6 +150,10 @@
     <ProjectReference Include="..\DSEDiagnosticLog4NetParser\DSEDiagnosticLog4NetParser.csproj">
       <Project>{b81ff061-57dc-469f-94e4-967a17bce4ad}</Project>
       <Name>DSEDiagnosticLog4NetParser</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DSEDiagnosticLogger\DSEDiagnosticLogger.csproj">
+      <Project>{d374eb28-89c6-4ecf-b68e-7bedeac4212e}</Project>
+      <Name>DSEDiagnosticLogger</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />

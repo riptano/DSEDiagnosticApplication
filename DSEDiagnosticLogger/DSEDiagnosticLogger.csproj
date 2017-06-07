@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{B81FF061-57DC-469F-94E4-967A17BCE4AD}</ProjectGuid>
+    <ProjectGuid>{D374EB28-89C6-4ECF-B68E-7BEDEAC4212E}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>DSEDiagnosticLog4NetParser</RootNamespace>
-    <AssemblyName>DSEDiagnosticLog4NetParser</AssemblyName>
+    <RootNamespace>DSEDiagnosticLogger</RootNamespace>
+    <AssemblyName>DSEDiagnosticLogger</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -30,18 +30,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Common.Functions">
-      <HintPath>..\Common Patterns\Assemblies\40\Release\Common.Functions.dll</HintPath>
+    <Reference Include="Common.Patterns.QueueProcessor">
+      <HintPath>..\..\..\..\Common Patterns\Assemblies\40\Release\Common.Patterns.QueueProcessor.dll</HintPath>
     </Reference>
-    <Reference Include="Common.Path">
-      <HintPath>..\Common Patterns\Assemblies\40\Release\Common.Path.dll</HintPath>
-    </Reference>
-    <Reference Include="Common.Patterns.TimeZoneInfo, Version=4.0.5.0, Culture=neutral, PublicKeyToken=75d1a63e21e859f1, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Common Patterns\Assemblies\40\Release\Common.Patterns.TimeZoneInfo.dll</HintPath>
-    </Reference>
-    <Reference Include="Common.TimeZones">
-      <HintPath>..\Common Patterns\Assemblies\40\Release\Common.TimeZones.dll</HintPath>
+    <Reference Include="log4net, Version=2.0.8.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>..\packages\log4net.2.0.8\lib\net45-full\log4net.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -53,21 +47,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Log4NetPatternImporter.cs" />
-    <Compile Include="LogMessage.cs" />
-    <Compile Include="LogMessages.cs" />
+    <Compile Include="AsyncBufferingForwardingAppender.cs" />
+    <Compile Include="Logger.cs" />
+    <Compile Include="LoggerEventArgs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ReadLogFile.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\DSEDiagnosticLibrary\DSEDiagnosticLibrary.csproj">
-      <Project>{aa88d5c0-9218-445c-885c-4b64fbfb9257}</Project>
-      <Name>DSEDiagnosticLibrary</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\DSEDiagnosticLogger\DSEDiagnosticLogger.csproj">
-      <Project>{d374eb28-89c6-4ecf-b68e-7bedeac4212e}</Project>
-      <Name>DSEDiagnosticLogger</Name>
-    </ProjectReference>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
