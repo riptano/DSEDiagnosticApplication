@@ -523,6 +523,9 @@ namespace DSEDiagnosticFileParser
                 case "partitioner":
                     this.Node.DSE.Partitioner = propvaluePair.Item2;
                     break;
+                case "server_id":
+                    this.Node.DSE.PhysicalServerId = propvaluePair.Item2;
+                    break;
                 default:
                     break;
             }
