@@ -89,11 +89,43 @@ namespace DSEDiagnosticFileParser
                     }
                     else if(extractType == "tar")
                     {
-                        using (var stream = filePath.OpenRead())
-                        using (var tarArchive = ICSharpCode.SharpZipLib.Tar.TarArchive.CreateInputTarArchive(stream))
+                        try
                         {
-                            tarArchive.SetKeepOldFiles(true);
-                            tarArchive.ExtractContents(newExtractedFolder.PathResolved);
+                            using (var stream = filePath.OpenRead())
+                            using (var tarArchive = ICSharpCode.SharpZipLib.Tar.TarArchive.CreateInputTarArchive(stream))
+                            {
+                                tarArchive.SetKeepOldFiles(true);
+                                tarArchive.ExtractContents(newExtractedFolder.PathResolved);
+                            }
+                        }
+                        catch (ICSharpCode.SharpZipLib.Tar.TarException ex)
+                        {
+                        	if(ex.Message == "Header checksum is invalid")
+                            {
+                                Logger.Instance.InfoFormat("Invalid Tar header checksum detected for File \"{0}\". Trying \"gz\" format...",
+                                                                filePath.PathResolved);
+                                try
+                                {
+                                    using (var stream = filePath.OpenRead())
+                                    using (var gzipStream = new ICSharpCode.SharpZipLib.GZip.GZipInputStream(stream))
+                                    using (var tarArchive = ICSharpCode.SharpZipLib.Tar.TarArchive.CreateInputTarArchive(gzipStream))
+                                    {
+                                        tarArchive.SetKeepOldFiles(true);
+                                        tarArchive.ExtractContents(newExtractedFolder.PathResolved);
+                                    }
+                                }
+                                catch(System.Exception secex)
+                                {
+                                    Logger.Instance.Error(string.Format("An invalid Tar checksum detected and tried \"gz\" but that failed for File \"{0}\". ReThrowing original TarException.",
+                                                                        filePath.PathResolved),
+                                                                        secex);
+                                    throw ex;
+                                }
+                            }
+                            else
+                            {
+                                throw;
+                            }
                         }
                     }
                     else
@@ -115,13 +147,13 @@ namespace DSEDiagnosticFileParser
                         {
                             Logger.Instance.WarnFormat("Renamed Extraction file from \"{0}\" to file \"{1}\"",
                                                             filePath.PathResolved,
-                                                            newExtractedFolder.PathResolved);
+                                                            newName.PathResolved);
                         }
                         else
                         {
                             Logger.Instance.ErrorFormat("Renamed Extraction file from \"{0}\" to file \"{1}\" Failed...",
                                                             filePath.PathResolved,
-                                                            newExtractedFolder.PathResolved);
+                                                            newName.PathResolved);
                         }
                     }
 
