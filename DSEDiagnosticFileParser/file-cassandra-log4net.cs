@@ -84,7 +84,7 @@ namespace DSEDiagnosticFileParser
             Logger.Instance.DebugFormat("Loaded class \"{0}\"{{File{{{1}}}, Parser{{{2}}} }}",
                                             this.GetType().Name,
                                             this.File,
-                                            this._parser);
+                                            this._parser == null ? string.Empty : string.Join(", ", this._parser.Select(l => l.ToString())));
         }
 
         public sealed class LogResults : IResult
