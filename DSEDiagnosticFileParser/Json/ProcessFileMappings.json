@@ -1,4 +1,4 @@
-﻿/*
+/*
   public sealed class FileMapper
 	{
         public enum CatagoryTypes
@@ -116,7 +116,7 @@
 [
   {
     "Catagory": "ZipFile",
-    "FilePatterns": [ ".\\*.tar", ".\\*.tar.gz", ".\\*.zip" ],
+    "FilePatterns": [ ".\\*\\*.tar", ".\\*\\*.tar.gz", ".\\*\\*.zip" ],
     "FileParsingClass": "DSEDiagnosticFileParser.file_unzip",
     "NodeIdPos": 0,
     "ProcessingTaskOption": "IgnoreNode",

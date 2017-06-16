@@ -10,6 +10,8 @@ namespace DSEDiagnosticLibrary
 {
     public static class LibrarySettings
     {
+        static LibrarySettings() { }
+
         public static char[] HostNamePathNameCharSeparators = Properties.Settings.Default.HostNamePathNameCharSeparators.ToEnumerable()
                                                                     .Where(s => !string.IsNullOrEmpty(s))
                                                                     .Select(s => s[0])

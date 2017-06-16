@@ -64,7 +64,7 @@ namespace DSEDiagnosticFileParser
                 ++this.NbrItemsParsed;
                 line = element.Trim();
 
-                if (string.IsNullOrEmpty(line))
+                if (string.Empty == line)
                 {
                     continue;
                 }

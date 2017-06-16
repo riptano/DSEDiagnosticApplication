@@ -75,7 +75,7 @@ namespace DSEDiagnosticFileParser
                 ++this.NbrItemsParsed;
                 line = element.Trim();
 
-                if (string.IsNullOrEmpty(line)
+                if (string.Empty == line
                     || line.StartsWith("Address")
                     || line.StartsWith("Warning:")
                     || line.StartsWith("Note:")
@@ -114,6 +114,12 @@ namespace DSEDiagnosticFileParser
                 }
                 else
                 {
+                    if (currentDataCenter == null)
+                    {
+                        Logger.Instance.ErrorFormat("{0} is missing a DataCenter for file \"{1}\"", this.GetType().Name, this.File.PathResolved);
+                        continue;
+                    }
+
                     var node = Cluster.TryGetAddNode(regExSplit[1], currentDataCenter);
 
                     if (node != null)

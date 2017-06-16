@@ -8,6 +8,7 @@ using DSEDiagnosticLibrary;
 using DSEDiagnosticLogger;
 using Common;
 using Common.Path;
+using Common.Patterns.Threading;
 using System.IO;
 using System.Threading;
 using Newtonsoft.Json;
@@ -84,6 +85,16 @@ namespace DSEDiagnosticFileParser
             this.TargetDSEVersion = targetDSEVersion;
 
             this.RegExParser = RegExAssocations.TryGetValue(this.GetType().Name);
+
+            Logger.Instance.DebugFormat("Loaded class \"{0}\"{{ Catagory{{{7}}}, File{{{1}}}, Node{{{2}}}, DefaultCluster{{{3}}}, DefaultDC{{{4}}}, TargetVersion{{{5}}}, RegExParser{{{6}}} }}",
+                                            this.GetType().Name,
+                                            this.File,
+                                            this.Node,
+                                            this.DefaultClusterName,
+                                            this.DefaultDataCenterName,
+                                            this.TargetDSEVersion,
+                                            this.RegExParser,
+                                            this.Catagory);
         }
 
         #region Public Members
@@ -160,6 +171,21 @@ namespace DSEDiagnosticFileParser
 			return nodeId;
 		}
 
+        public static async Task<IEnumerable<DiagnosticFile>> ProcessFileWaitable(IDirectoryPath diagnosticDirectory,
+                                                                                    string dataCenterName = null,
+                                                                                    string clusterName = null,
+                                                                                    Version dseVersion = null,
+                                                                                    CancellationTokenSource cancellationSource = null)
+        {
+            cancellationSource?.Token.ThrowIfCancellationRequested();
+
+            return await System.Threading.Tasks.Task.Factory.StartNew(() => DSEDiagnosticFileParser.DiagnosticFile.ProcessFile(diagnosticDirectory,
+                                                                                                                                dataCenterName,
+                                                                                                                                clusterName,
+                                                                                                                                dseVersion,
+                                                                                                                                cancellationSource)).Unwrap();
+        }
+
         public static Task<IEnumerable<DiagnosticFile>> ProcessFile(IDirectoryPath diagnosticDirectory,
                                                                         string dataCenterName = null,
                                                                         string clusterName = null,
@@ -212,6 +238,9 @@ namespace DSEDiagnosticFileParser
 
                             System.Threading.Tasks.Task.WaitAll(diagnosticFiles.Select(d => d.Task).ToArray());
                         }
+
+                        Logger.Instance.InfoFormat("FileMapper<{0}, SyncMode, Completed>",
+                                                    mapperId);
                     }
                     else if (mapperGroup.Key.ParallelProcessingWithinPriorityLevel.HasFlag(FileMapper.ProcessingTaskOptions.ParallelProcessing))
                     {
@@ -620,6 +649,9 @@ namespace DSEDiagnosticFileParser
                         }
 
                         processingFileInstance.Exception = ae;
+
+                        Logger.Instance.Error(string.Format("{0}\t{1}\tProcessing failed with exception.",
+                                                            node, processFile?.PathResolved), ae);
                     }
                 }
                 catch(System.Exception ex)
@@ -646,6 +678,8 @@ namespace DSEDiagnosticFileParser
                     }
 
                     processingFileInstance.Exception = ex;
+                    Logger.Instance.Error(string.Format("{0}\t{1}\tProcessing failed with exception.",
+                                                            node, processFile?.PathResolved), ex);
                 }
             });
 

@@ -32,7 +32,7 @@ namespace DSEDiagnosticFileParser
         {
             var fileLines = this.File.ReadAllLines();
             uint nbrGenerated = 0;
-
+           
             /*
              Address          DC                   Rack         Workload             Graph  Status  State    Load             Owns                 VNodes                                       Health [0,1]
             10.14.149.207    Ejby                 RAC1         Cassandra            no     Up      Normal   24.23 GB         ?                    256                                          0.90
@@ -71,7 +71,7 @@ namespace DSEDiagnosticFileParser
                 ++this.NbrItemsParsed;
                 line = element.Trim();
 
-                if(string.IsNullOrEmpty(line)
+                if( string.Empty == line
                     || line.StartsWith("Address")
                     || line.StartsWith("Note:"))
                 {
@@ -94,7 +94,7 @@ namespace DSEDiagnosticFileParser
                         regExSplit = null;
                     }
                 }
-                
+
                 if(regExSplit != null)
                 {
                     var node = Cluster.TryGetAddNode(regExSplit[1], regExSplit[2], this.DefaultClusterName);

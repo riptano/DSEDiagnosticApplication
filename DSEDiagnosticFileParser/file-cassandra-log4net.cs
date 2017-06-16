@@ -80,6 +80,11 @@ namespace DSEDiagnosticFileParser
             this._dcKeyspaces = this.Cluster.GetKeyspaces(this.DataCenter);
 
             this._result = new LogResults(this);
+
+            Logger.Instance.DebugFormat("Loaded class \"{0}\"{{File{{{1}}}, Parser{{{2}}} }}",
+                                            this.GetType().Name,
+                                            this.File,
+                                            this._parser);
         }
 
         public sealed class LogResults : IResult
@@ -328,7 +333,7 @@ namespace DSEDiagnosticFileParser
                 {
                     sstableFilePaths = sstableFilePaths.Select(p => StringHelpers.RemoveQuotes(p)).DuplicatesRemoved(p => p).ToList();
 
-                    var ddlItems = sstableFilePaths.SelectMany(i => Cluster.TryGetTableIndexViewsbyString(i, this.Cluster, this.DataCenter))                                                    
+                    var ddlItems = sstableFilePaths.SelectMany(i => Cluster.TryGetTableIndexViewsbyString(i, this.Cluster, this.DataCenter))
                                                     .DuplicatesRemoved(d => d.FullName);
 
                     if (ddlItems.HasAtLeastOneElement())
@@ -381,7 +386,7 @@ namespace DSEDiagnosticFileParser
 
                 if (ddlNames != null && ddlNames.HasAtLeastOneElement())
                 {
-                    var ddlItems = ddlNames.SelectMany(i => Cluster.TryGetTableIndexViewsbyString(i, this.Cluster, this.DataCenter))                                                   
+                    var ddlItems = ddlNames.SelectMany(i => Cluster.TryGetTableIndexViewsbyString(i, this.Cluster, this.DataCenter))
                                                     .DuplicatesRemoved(d => d.FullName);
 
                     if (ddlItems.HasAtLeastOneElement())

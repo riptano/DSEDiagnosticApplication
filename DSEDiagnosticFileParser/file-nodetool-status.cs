@@ -56,7 +56,7 @@ namespace DSEDiagnosticFileParser
                 ++this.NbrItemsParsed;
                 line = nodetoolLine.Trim();
 
-                if (string.IsNullOrEmpty(line)
+                if (string.Empty == line
                         || line[0] == '='
                         || line[0] == '|'
                         || line[0] == '-'
@@ -74,14 +74,20 @@ namespace DSEDiagnosticFileParser
                     ++nbrGenerated;
                     continue;
                 }
-
+                
                 //Node
                 regExMatch = this.RegExParser.Match(line, 1);
 
                 if(regExMatch.Success)
                 {
+                    if(currentDataCenter == null)
+                    {
+                        Logger.Instance.ErrorFormat("{0} is missing a DataCenter for file \"{1}\"", this.GetType().Name, this.File.PathResolved);
+                        continue;
+                    }
+
                     var node = Cluster.TryGetAddNode(regExMatch.Groups[2].Value, currentDataCenter);
-                    
+
                     node.DSE.HostId = new Guid(regExMatch.Groups[7].Value);
                     node.DSE.Rack = regExMatch.Groups[8].Value;
                     node.DSE.StorageUsed = UnitOfMeasure.Create(regExMatch.Groups[3].Value, regExMatch.Groups[4].Value, UnitOfMeasure.Types.Storage);
@@ -121,7 +127,7 @@ namespace DSEDiagnosticFileParser
 
                     Logger.Instance.InfoFormat("Added node \"{0}\" to DataCenter \"{1}\"", node.Id, node.DataCenter.Name);
                     continue;
-                }
+                }                
             }
 
             this.Processed = true;

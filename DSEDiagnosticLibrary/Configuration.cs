@@ -349,7 +349,7 @@ namespace DSEDiagnosticLibrary
                 type = ConfigTypeMapper.FindConfigType(configFile);
             }
 
-            var currentConfig = node.DataCenter.ConfigurationMatch(property, value, type, source);
+            var currentConfig = node?.DataCenter.ConfigurationMatch(property, value, type, source);
 
             if(currentConfig == null)
             {
