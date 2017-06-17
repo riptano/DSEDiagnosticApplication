@@ -20,13 +20,13 @@ namespace DSEDiagnosticFileParser
             /// <summary>
             /// The target string that is used to create the folder structure and copy the source file to.
             /// Named groups from the SourcsMatchRegEx can be used in the TargetReplaceRegEx following the RegEx replace syntax.
-            /// 
+            ///
             /// Special Replace Groups:
             /// ${node} -- The node&apos; IP Address detected by file_create_folder_structure class.
             /// ${filename} -- The target&apos;s file name with extension
             /// ${filenamewoextension} -- The target&apos;s file name without extension
             /// ${fileextension} -- The target&apos;s file extension with period.
-            /// 
+            ///
             /// </summary>
             public string TargetReplacePathString;
         }
@@ -41,7 +41,7 @@ namespace DSEDiagnosticFileParser
             public Mapping[] Maps { get; set; }
 
             /// <summary>
-            /// 
+            ///
             /// </summary>
             /// <param name="targetPath"></param>
             /// <param name="node"></param>
@@ -49,7 +49,7 @@ namespace DSEDiagnosticFileParser
             /// Returns null if targetPath has no matches otherwise the source path is returned.
             /// </returns>
             public IPath MatchAndReplace(IPath targetPath, IDirectoryPath targetDirectory, INode node)
-            {                
+            {
                 string targetPathString;
 
                 foreach(var targetMap in this.Maps)
@@ -67,16 +67,9 @@ namespace DSEDiagnosticFileParser
                             targetPathString = targetPathString.Replace("${fileextension}", ((IFilePath)targetPath).FileExtension);
                         }
 
-                        return PathUtils.BuildPath(targetPathString,
-                                                    targetDirectory?.Path,
-                                                    null,
-                                                    targetPath.IsFilePath,
-                                                    true,
-                                                    false,
-                                                    false,
-                                                    targetPath.IsFilePath
-                                                        ? ((IFilePath) targetPath).HasFileExtension
-                                                        : false);
+
+                        return PathUtils.Parse(targetPathString,
+                                                    targetDirectory?.Path);
                     }
                 }
 
@@ -130,7 +123,7 @@ namespace DSEDiagnosticFileParser
             if (this.TargetSourceMappings == null) return 0;
 
             var targetPath = this.TargetSourceMappings.MatchAndReplace(this.File, this.DiagnosticDirectory, this.Node);
-            
+
             if (targetPath == null) return 0;
 
             this._result = new FileResult(targetPath, this.Node);
@@ -141,7 +134,7 @@ namespace DSEDiagnosticFileParser
                 this.Processed = true;
                 this._result.FileCopiedSuccessfully = true;
             }
-                                   
+
             return (uint) 1;
         }
     }

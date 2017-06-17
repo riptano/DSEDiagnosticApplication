@@ -98,28 +98,35 @@ namespace DSEDiagnosticFileParser
                                 tarArchive.ExtractContents(newExtractedFolder.PathResolved);
                             }
                         }
-                        catch (ICSharpCode.SharpZipLib.Tar.TarException ex)
+                        catch (System.Exception ex)
                         {
-                        	if(ex.Message == "Header checksum is invalid")
+                            if (ex is ICSharpCode.SharpZipLib.Tar.TarException || ex is System.ArgumentOutOfRangeException)
                             {
-                                Logger.Instance.InfoFormat("Invalid Tar header checksum detected for File \"{0}\". Trying \"gz\" format...",
-                                                                filePath.PathResolved);
-                                try
+                                if (ex.Message == "Header checksum is invalid" || ex.Message.StartsWith("Cannot be less than zero"))
                                 {
-                                    using (var stream = filePath.OpenRead())
-                                    using (var gzipStream = new ICSharpCode.SharpZipLib.GZip.GZipInputStream(stream))
-                                    using (var tarArchive = ICSharpCode.SharpZipLib.Tar.TarArchive.CreateInputTarArchive(gzipStream))
+                                    Logger.Instance.InfoFormat("Invalid Tar header checksum detected for File \"{0}\". Trying \"gz\" format...",
+                                                                    filePath.PathResolved);
+                                    try
                                     {
-                                        tarArchive.SetKeepOldFiles(true);
-                                        tarArchive.ExtractContents(newExtractedFolder.PathResolved);
+                                        using (var stream = filePath.OpenRead())
+                                        using (var gzipStream = new ICSharpCode.SharpZipLib.GZip.GZipInputStream(stream))
+                                        using (var tarArchive = ICSharpCode.SharpZipLib.Tar.TarArchive.CreateInputTarArchive(gzipStream))
+                                        {
+                                            tarArchive.SetKeepOldFiles(true);
+                                            tarArchive.ExtractContents(newExtractedFolder.PathResolved);
+                                        }
+                                    }
+                                    catch (System.Exception secex)
+                                    {
+                                        Logger.Instance.Error(string.Format("An invalid Tar checksum detected and tried \"gz\" but that failed for File \"{0}\". ReThrowing original TarException.",
+                                                                            filePath.PathResolved),
+                                                                            secex);
+                                        throw ex;
                                     }
                                 }
-                                catch(System.Exception secex)
+                                else
                                 {
-                                    Logger.Instance.Error(string.Format("An invalid Tar checksum detected and tried \"gz\" but that failed for File \"{0}\". ReThrowing original TarException.",
-                                                                        filePath.PathResolved),
-                                                                        secex);
-                                    throw ex;
+                                    throw;
                                 }
                             }
                             else

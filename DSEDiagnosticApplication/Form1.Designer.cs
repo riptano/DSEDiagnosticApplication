@@ -29,6 +29,14 @@
 		private void InitializeComponent()
 		{
             Infragistics.Win.Appearance appearance1 = new Infragistics.Win.Appearance();
+            Infragistics.Win.UltraWinGrid.UltraGridBand ultraGridBand1 = new Infragistics.Win.UltraWinGrid.UltraGridBand("IResult", -1);
+            Infragistics.Win.UltraWinGrid.UltraGridColumn ultraGridColumn1 = new Infragistics.Win.UltraWinGrid.UltraGridColumn("Path");
+            Infragistics.Win.UltraWinGrid.UltraGridColumn ultraGridColumn2 = new Infragistics.Win.UltraWinGrid.UltraGridColumn("Cluster");
+            Infragistics.Win.UltraWinGrid.UltraGridColumn ultraGridColumn3 = new Infragistics.Win.UltraWinGrid.UltraGridColumn("DataCenter");
+            Infragistics.Win.UltraWinGrid.UltraGridColumn ultraGridColumn4 = new Infragistics.Win.UltraWinGrid.UltraGridColumn("Node");
+            Infragistics.Win.UltraWinGrid.UltraGridColumn ultraGridColumn5 = new Infragistics.Win.UltraWinGrid.UltraGridColumn("NbrItems");
+            Infragistics.Win.UltraWinGrid.UltraGridColumn ultraGridColumn6 = new Infragistics.Win.UltraWinGrid.UltraGridColumn("Results");
+            Infragistics.Win.UltraWinGrid.UltraGridBand ultraGridBand2 = new Infragistics.Win.UltraWinGrid.UltraGridBand("Results", -1);
             Infragistics.Win.Appearance appearance2 = new Infragistics.Win.Appearance();
             Infragistics.Win.Appearance appearance3 = new Infragistics.Win.Appearance();
             Infragistics.Win.Appearance appearance4 = new Infragistics.Win.Appearance();
@@ -40,14 +48,23 @@
             Infragistics.Win.Appearance appearance10 = new Infragistics.Win.Appearance();
             Infragistics.Win.Appearance appearance11 = new Infragistics.Win.Appearance();
             Infragistics.Win.Appearance appearance12 = new Infragistics.Win.Appearance();
+            Infragistics.Win.UltraWinEditors.EditorButton editorButton1 = new Infragistics.Win.UltraWinEditors.EditorButton("DirEditor");
+            Infragistics.Win.UltraWinEditors.EditorButton editorButton2 = new Infragistics.Win.UltraWinEditors.EditorButton("FileEditor");
+            Infragistics.Win.UltraWinEditors.EditorButton editorButton3 = new Infragistics.Win.UltraWinEditors.EditorButton("StringEditor");
+            Infragistics.Win.UltraWinStatusBar.UltraStatusPanel ultraStatusPanel1 = new Infragistics.Win.UltraWinStatusBar.UltraStatusPanel();
             this.button1 = new System.Windows.Forms.Button();
-            this.label1 = new System.Windows.Forms.Label();
             this.button2 = new System.Windows.Forms.Button();
             this.ultraGrid1 = new Infragistics.Win.UltraWinGrid.UltraGrid();
             this.ultraGroupBox1 = new Infragistics.Win.Misc.UltraGroupBox();
             this.ultraTextEditorCluster = new Infragistics.Win.UltraWinEditors.UltraTextEditor();
             this.ultraGroupBox2 = new Infragistics.Win.Misc.UltraGroupBox();
             this.ultraTextEditorDC = new Infragistics.Win.UltraWinEditors.UltraTextEditor();
+            this.ultraGroupBox3 = new Infragistics.Win.Misc.UltraGroupBox();
+            this.ultraTextEditorDiagnosticsFolder = new Infragistics.Win.UltraWinEditors.UltraTextEditor();
+            this.ultraTextEditorProcessMapperJSONFile = new Infragistics.Win.UltraWinEditors.UltraTextEditor();
+            this.ultraGroupBox4 = new Infragistics.Win.Misc.UltraGroupBox();
+            this.ultraCheckEditorDisableParallelProcessing = new Infragistics.Win.UltraWinEditors.UltraCheckEditor();
+            this.ultraStatusBar1 = new Infragistics.Win.UltraWinStatusBar.UltraStatusBar();
             ((System.ComponentModel.ISupportInitialize)(this.ultraGrid1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.ultraGroupBox1)).BeginInit();
             this.ultraGroupBox1.SuspendLayout();
@@ -55,6 +72,14 @@
             ((System.ComponentModel.ISupportInitialize)(this.ultraGroupBox2)).BeginInit();
             this.ultraGroupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.ultraTextEditorDC)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.ultraGroupBox3)).BeginInit();
+            this.ultraGroupBox3.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.ultraTextEditorDiagnosticsFolder)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.ultraTextEditorProcessMapperJSONFile)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.ultraGroupBox4)).BeginInit();
+            this.ultraGroupBox4.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.ultraCheckEditorDisableParallelProcessing)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.ultraStatusBar1)).BeginInit();
             this.SuspendLayout();
             // 
             // button1
@@ -66,15 +91,6 @@
             this.button1.Text = "Execute";
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(20, 66);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(36, 13);
-            this.label1.TabIndex = 1;
-            this.label1.Text = "Empty";
             // 
             // button2
             // 
@@ -95,6 +111,28 @@
             appearance1.BackColor = System.Drawing.SystemColors.Window;
             appearance1.BorderColor = System.Drawing.SystemColors.InactiveCaption;
             this.ultraGrid1.DisplayLayout.Appearance = appearance1;
+            this.ultraGrid1.DisplayLayout.AutoFitStyle = Infragistics.Win.UltraWinGrid.AutoFitStyle.ResizeAllColumns;
+            ultraGridColumn1.Header.VisiblePosition = 0;
+            ultraGridColumn1.Width = 219;
+            ultraGridColumn2.Header.VisiblePosition = 1;
+            ultraGridColumn2.Width = 202;
+            ultraGridColumn3.Header.VisiblePosition = 2;
+            ultraGridColumn3.Width = 221;
+            ultraGridColumn4.Header.VisiblePosition = 3;
+            ultraGridColumn4.Width = 213;
+            ultraGridColumn5.Header.VisiblePosition = 4;
+            ultraGridColumn5.Width = 215;
+            ultraGridColumn6.Header.VisiblePosition = 5;
+            ultraGridColumn6.Width = 196;
+            ultraGridBand1.Columns.AddRange(new object[] {
+            ultraGridColumn1,
+            ultraGridColumn2,
+            ultraGridColumn3,
+            ultraGridColumn4,
+            ultraGridColumn5,
+            ultraGridColumn6});
+            this.ultraGrid1.DisplayLayout.BandsSerializer.Add(ultraGridBand1);
+            this.ultraGrid1.DisplayLayout.BandsSerializer.Add(ultraGridBand2);
             this.ultraGrid1.DisplayLayout.BorderStyle = Infragistics.Win.UIElementBorderStyle.Solid;
             this.ultraGrid1.DisplayLayout.CaptionVisible = Infragistics.Win.DefaultableBoolean.False;
             appearance2.BackColor = System.Drawing.SystemColors.ActiveBorder;
@@ -149,11 +187,13 @@
             this.ultraGrid1.DisplayLayout.ScrollBounds = Infragistics.Win.UltraWinGrid.ScrollBounds.ScrollToFill;
             this.ultraGrid1.DisplayLayout.ScrollStyle = Infragistics.Win.UltraWinGrid.ScrollStyle.Immediate;
             this.ultraGrid1.DisplayLayout.ViewStyleBand = Infragistics.Win.UltraWinGrid.ViewStyleBand.OutlookGroupBy;
-            this.ultraGrid1.Location = new System.Drawing.Point(2, 102);
+            this.ultraGrid1.Location = new System.Drawing.Point(2, 112);
             this.ultraGrid1.Name = "ultraGrid1";
-            this.ultraGrid1.Size = new System.Drawing.Size(1301, 435);
+            this.ultraGrid1.Size = new System.Drawing.Size(1285, 423);
             this.ultraGrid1.TabIndex = 3;
-            this.ultraGrid1.Text = "ultraGrid1";
+            this.ultraGrid1.Text = "Result";
+            this.ultraGrid1.InitializeLayout += new Infragistics.Win.UltraWinGrid.InitializeLayoutEventHandler(this.ultraGrid1_InitializeLayout);
+            this.ultraGrid1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.ultraGrid1_MouseDown);
             // 
             // ultraGroupBox1
             // 
@@ -191,19 +231,97 @@
             this.ultraTextEditorDC.Size = new System.Drawing.Size(194, 21);
             this.ultraTextEditorDC.TabIndex = 0;
             // 
+            // ultraGroupBox3
+            // 
+            this.ultraGroupBox3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.ultraGroupBox3.Controls.Add(this.ultraTextEditorDiagnosticsFolder);
+            this.ultraGroupBox3.Location = new System.Drawing.Point(658, 12);
+            this.ultraGroupBox3.Name = "ultraGroupBox3";
+            this.ultraGroupBox3.Size = new System.Drawing.Size(623, 44);
+            this.ultraGroupBox3.TabIndex = 6;
+            this.ultraGroupBox3.Text = "Diagnostics Directory";
+            // 
+            // ultraTextEditorDiagnosticsFolder
+            // 
+            editorButton1.Key = "DirEditor";
+            editorButton1.Text = "...";
+            this.ultraTextEditorDiagnosticsFolder.ButtonsRight.Add(editorButton1);
+            this.ultraTextEditorDiagnosticsFolder.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.ultraTextEditorDiagnosticsFolder.Location = new System.Drawing.Point(3, 16);
+            this.ultraTextEditorDiagnosticsFolder.Name = "ultraTextEditorDiagnosticsFolder";
+            this.ultraTextEditorDiagnosticsFolder.ShowOverflowIndicator = true;
+            this.ultraTextEditorDiagnosticsFolder.Size = new System.Drawing.Size(617, 21);
+            this.ultraTextEditorDiagnosticsFolder.TabIndex = 0;
+            this.ultraTextEditorDiagnosticsFolder.EditorButtonClick += new Infragistics.Win.UltraWinEditors.EditorButtonEventHandler(this.ultraTextEditorDiagnosticsFolder_EditorButtonClick);
+            // 
+            // ultraTextEditorProcessMapperJSONFile
+            // 
+            editorButton2.Key = "FileEditor";
+            editorButton2.Text = "...";
+            editorButton3.Key = "StringEditor";
+            editorButton3.Text = "J";
+            this.ultraTextEditorProcessMapperJSONFile.ButtonsRight.Add(editorButton2);
+            this.ultraTextEditorProcessMapperJSONFile.ButtonsRight.Add(editorButton3);
+            this.ultraTextEditorProcessMapperJSONFile.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.ultraTextEditorProcessMapperJSONFile.Location = new System.Drawing.Point(3, 16);
+            this.ultraTextEditorProcessMapperJSONFile.Multiline = true;
+            this.ultraTextEditorProcessMapperJSONFile.Name = "ultraTextEditorProcessMapperJSONFile";
+            this.ultraTextEditorProcessMapperJSONFile.ShowOverflowIndicator = true;
+            this.ultraTextEditorProcessMapperJSONFile.Size = new System.Drawing.Size(619, 25);
+            this.ultraTextEditorProcessMapperJSONFile.TabIndex = 0;
+            this.ultraTextEditorProcessMapperJSONFile.EditorButtonClick += new Infragistics.Win.UltraWinEditors.EditorButtonEventHandler(this.ultraTextEditorProcessMapperJSONFile_EditorButtonClick);
+            // 
+            // ultraGroupBox4
+            // 
+            this.ultraGroupBox4.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.ultraGroupBox4.Controls.Add(this.ultraTextEditorProcessMapperJSONFile);
+            this.ultraGroupBox4.Location = new System.Drawing.Point(659, 62);
+            this.ultraGroupBox4.Name = "ultraGroupBox4";
+            this.ultraGroupBox4.Size = new System.Drawing.Size(625, 44);
+            this.ultraGroupBox4.TabIndex = 7;
+            this.ultraGroupBox4.Text = "Process Mapper JSON File or string";
+            // 
+            // ultraCheckEditorDisableParallelProcessing
+            // 
+            this.ultraCheckEditorDisableParallelProcessing.Location = new System.Drawing.Point(221, 78);
+            this.ultraCheckEditorDisableParallelProcessing.Name = "ultraCheckEditorDisableParallelProcessing";
+            this.ultraCheckEditorDisableParallelProcessing.Size = new System.Drawing.Size(194, 20);
+            this.ultraCheckEditorDisableParallelProcessing.TabIndex = 8;
+            this.ultraCheckEditorDisableParallelProcessing.Text = "Disable Parallel Processing";
+            // 
+            // ultraStatusBar1
+            // 
+            this.ultraStatusBar1.Location = new System.Drawing.Point(0, 541);
+            this.ultraStatusBar1.Name = "ultraStatusBar1";
+            ultraStatusPanel1.Key = "LoggingStatus";
+            ultraStatusPanel1.SizingMode = Infragistics.Win.UltraWinStatusBar.PanelSizingMode.Automatic;
+            ultraStatusPanel1.Style = Infragistics.Win.UltraWinStatusBar.PanelStyle.Marquee;
+            ultraStatusPanel1.ToolTipText = "Logging Status";
+            this.ultraStatusBar1.Panels.AddRange(new Infragistics.Win.UltraWinStatusBar.UltraStatusPanel[] {
+            ultraStatusPanel1});
+            this.ultraStatusBar1.Size = new System.Drawing.Size(1296, 25);
+            this.ultraStatusBar1.TabIndex = 9;
+            this.ultraStatusBar1.Text = "ultraStatusBar1";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1315, 550);
+            this.ClientSize = new System.Drawing.Size(1296, 566);
+            this.Controls.Add(this.ultraStatusBar1);
+            this.Controls.Add(this.ultraCheckEditorDisableParallelProcessing);
+            this.Controls.Add(this.ultraGroupBox4);
+            this.Controls.Add(this.ultraGroupBox3);
             this.Controls.Add(this.ultraGroupBox2);
             this.Controls.Add(this.ultraGroupBox1);
             this.Controls.Add(this.ultraGrid1);
             this.Controls.Add(this.button2);
-            this.Controls.Add(this.label1);
             this.Controls.Add(this.button1);
             this.Name = "Form1";
             this.Text = "Form1";
+            this.Load += new System.EventHandler(this.Form1_Load);
             ((System.ComponentModel.ISupportInitialize)(this.ultraGrid1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.ultraGroupBox1)).EndInit();
             this.ultraGroupBox1.ResumeLayout(false);
@@ -213,21 +331,35 @@
             this.ultraGroupBox2.ResumeLayout(false);
             this.ultraGroupBox2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.ultraTextEditorDC)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.ultraGroupBox3)).EndInit();
+            this.ultraGroupBox3.ResumeLayout(false);
+            this.ultraGroupBox3.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.ultraTextEditorDiagnosticsFolder)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.ultraTextEditorProcessMapperJSONFile)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.ultraGroupBox4)).EndInit();
+            this.ultraGroupBox4.ResumeLayout(false);
+            this.ultraGroupBox4.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.ultraCheckEditorDisableParallelProcessing)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.ultraStatusBar1)).EndInit();
             this.ResumeLayout(false);
-            this.PerformLayout();
 
 		}
 
         #endregion
 
         private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button button2;
         private Infragistics.Win.UltraWinGrid.UltraGrid ultraGrid1;
         private Infragistics.Win.Misc.UltraGroupBox ultraGroupBox1;
         private Infragistics.Win.UltraWinEditors.UltraTextEditor ultraTextEditorCluster;
         private Infragistics.Win.Misc.UltraGroupBox ultraGroupBox2;
         private Infragistics.Win.UltraWinEditors.UltraTextEditor ultraTextEditorDC;
+        private Infragistics.Win.Misc.UltraGroupBox ultraGroupBox3;
+        private Infragistics.Win.UltraWinEditors.UltraTextEditor ultraTextEditorDiagnosticsFolder;
+        private Infragistics.Win.UltraWinEditors.UltraTextEditor ultraTextEditorProcessMapperJSONFile;
+        private Infragistics.Win.Misc.UltraGroupBox ultraGroupBox4;
+        private Infragistics.Win.UltraWinEditors.UltraCheckEditor ultraCheckEditorDisableParallelProcessing;
+        private Infragistics.Win.UltraWinStatusBar.UltraStatusBar ultraStatusBar1;
     }
 }
 

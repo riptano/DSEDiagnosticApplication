@@ -370,6 +370,10 @@ namespace DSEDiagnosticFileParser
                                                                             string clusterName = null,
                                                                             Version targetDSEVersion = null)
 		{
+            CancellationToken? cancellationToken = fileMappings.CancellationSource?.Token;
+
+            if (cancellationToken.HasValue) cancellationToken.Value.ThrowIfCancellationRequested();
+
             var ignoreFilesRegEx = string.IsNullOrEmpty(fileMappings?.IgnoreFilesMatchingRegEx)
                                             ? null
                                             : new Regex(fileMappings.IgnoreFilesMatchingRegEx,
@@ -381,6 +385,7 @@ namespace DSEDiagnosticFileParser
                                     {
                                         try
                                         {
+                                            if (cancellationToken.HasValue) cancellationToken.Value.ThrowIfCancellationRequested();
                                             return f.HasWildCardPattern()
                                                     ? f.GetWildCardMatches()
                                                     : new List<IPath>() { f };
@@ -406,6 +411,8 @@ namespace DSEDiagnosticFileParser
                 return Enumerable.Empty<DiagnosticFile>();
             }
 
+            if (cancellationToken.HasValue) cancellationToken.Value.ThrowIfCancellationRequested();
+
             resultingFiles.Complement(targetFiles)
                             .ForEach(i => Logger.Instance.WarnFormat("<NoNodeId>\t{0}\tFile was skipped for processing because it either doesn't exist or is a file folder.",
                                                                         i.PathResolved));
@@ -418,6 +425,8 @@ namespace DSEDiagnosticFileParser
             {
                 dataCenterName = fileMappings.DefaultDataCenter;
             }
+
+            if (cancellationToken.HasValue) cancellationToken.Value.ThrowIfCancellationRequested();
 
             INode[] processTheseNodes = null;
 
@@ -441,7 +450,6 @@ namespace DSEDiagnosticFileParser
                 return Enumerable.Empty<DiagnosticFile>();
             }
 
-            CancellationToken? cancellationToken = fileMappings.CancellationSource?.Token;
             DiagnosticFile resultInstance = null;
             bool onlyOnceProcessing = fileMappings.ProcessingTaskOption.HasFlag(FileMapper.ProcessingTaskOptions.OnlyOnce);
 
@@ -449,12 +457,9 @@ namespace DSEDiagnosticFileParser
             foreach (var targetFile in targetFiles)
 			{
 
-                if (cancellationToken.HasValue && cancellationToken.Value.IsCancellationRequested)
-                {
-                    break;
-                }
+                if (cancellationToken.HasValue) cancellationToken.Value.ThrowIfCancellationRequested();
 
-                if(onlyOnceProcessing && resultInstance != null && resultInstance.Processed)
+                if (onlyOnceProcessing && resultInstance != null && resultInstance.Processed)
                 {
                     break;
                 }
@@ -536,10 +541,7 @@ namespace DSEDiagnosticFileParser
                             }
                         }
 
-                        if(cancellationToken.HasValue && cancellationToken.Value.IsCancellationRequested)
-                        {
-                            break;
-                        }
+                        if (cancellationToken.HasValue) cancellationToken.Value.ThrowIfCancellationRequested();
                     }
                 }
 			}
