@@ -1,0 +1,99 @@
+{
+  "Maps": [
+    {
+      "FolderStructureType": "Cassandra Log",
+      "SourceMatchRegEx": {
+        "RegExStrings": [
+          ".+\\\\[a-z0-9_\\-]+\\.log(?:\\.[0-9a-z_\\-]+)*"
+        ]
+      },
+      "TargetReplacePathString": ".\\OpsCenterStruct\\nodes\\${node}\\logs\\cassandra\\${filename}"
+    },
+    {
+      "FolderStructureType": "Cassandra yaml",
+      "SourceMatchRegEx": {
+        "RegExStrings": [
+          ".+\\\\cassandra.yaml",
+          ".+\\\\cassandra-env.sh"
+        ]
+      },
+      "TargetReplacePathString": ".\\OpsCenterStruct\\nodes\\${node}\\conf\\cassandra\\${filename}"
+    },
+    {
+      "FolderStructureType": "DSE yaml",
+      "SourceMatchRegEx": {
+        "RegExStrings": [
+          ".+\\\\dse.yaml"
+        ]
+      },
+      "TargetReplacePathString": ".\\OpsCenterStruct\\nodes\\${node}\\conf\\dse\\${filename}"
+    },
+    {
+      "FolderStructureType": "nodetool",
+      "SourceMatchRegEx": {
+        "RegExStrings": [
+          ".+\\\\cfstats",
+          ".+\\\\compactionstats",
+          ".+\\\\compactionhistory",
+          ".+\\\\getcompactionthroughput",
+          ".+\\\\getstreamthroughput",
+          ".+\\\\gossipinfo",
+          ".+\\\\info",
+          ".+\\\\netstat",
+          ".+\\\\status",
+          ".+\\\\proxyhistograms",
+          ".+\\\\tpstats",
+          ".+\\\\version",
+          ".+\\\\nodetool[a-z0-9_\\-]+ring"
+        ]
+      },
+      "TargetReplacePathString": ".\\OpsCenterStruct\\nodes\\${node}\\nodetool\\${filename}"
+    },
+    {
+      "FolderStructureType": "DSETool",
+      "SourceMatchRegEx": {
+        "RegExStrings": [
+          ".+\\\\ring",
+          ".+\\\\dsetool[a-z0-9_\\-]+ring",
+          ".+\\\\jobtracker",
+          ".+\\\\listrj",
+          ".+\\\\sparkmaster"
+        ]
+      },
+      "TargetReplacePathString": ".\\OpsCenterStruct\\nodes\\${node}\\dsetool\\${filename}"
+    },
+    {
+      "FolderStructureType": "CQL",
+      "SourceMatchRegEx": {
+        "RegExStrings": [
+          ".+\\\\describe_cluster",
+          ".+\\\\describe_schema"
+        ]
+      },
+      "TargetReplacePathString": ".\\OpsCenterStruct\\nodes\\${node}\\cqlsh\\${filename}"
+    },
+    {
+      "FolderStructureType": "NTP",
+      "SourceMatchRegEx": {
+        "RegExStrings": [
+          ".+\\\\ntpstat",
+          ".+\\\\ntptime"
+        ]
+      },
+      "TargetReplacePathString": ".\\OpsCenterStruct\\nodes\\${node}\\ntp\\${filename}"
+    },
+    {
+      "FolderStructureType": "OS Meter",
+      "SourceMatchRegEx": {
+        "RegExStrings": [
+          ".+\\\\cpu.json",
+          ".+\\\\disk.json",
+          ".+\\\\disk_space.json",
+          ".+\\\\load_avg.json",
+          ".+\\\\memory.json"
+        ]
+      },
+      "TargetReplacePathString": ".\\OpsCenterStruct\\nodes\\${node}\\os-metrics\\${filename}"
+    }
+  ]
+}

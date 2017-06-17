@@ -26,7 +26,8 @@ namespace DSEDiagnosticFileParser
             CommandOutputFile,
 			SystemOutputFile,
             CQLFile,
-            ZipFile
+            ZipFile,
+            TransformFile
 		}
 
         #region Events

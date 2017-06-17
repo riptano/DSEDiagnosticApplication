@@ -146,5 +146,14 @@ public static class {0}
                 return ((string)(this["CodeDomClassTemplate"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute(@"[cpld]\Json\file-create-folder-structure-Mappings.json,[cpld]\file-create-folder-structure-Mappings.json,[ApplicationRunTimeDirectory]\Json\file-create-folder-structure-Mappings.json,[ApplicationRunTimeDirectory]\file-create-folder-structure-Mappings.json,.\file-create-folder-structure-Mappings.json,.\Json\file-create-folder-structure-Mappings.json")]
+        public string FileCreateFolderTargetSourceMappings {
+            get {
+                return ((string)(this["FileCreateFolderTargetSourceMappings"]));
+            }
+        }
     }
 }

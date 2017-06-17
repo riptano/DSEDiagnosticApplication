@@ -67,5 +67,8 @@ public static class {0}
     }}
 }}</Value>
     </Setting>
+    <Setting Name="FileCreateFolderTargetSourceMappings" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">[cpld]\Json\file-create-folder-structure-Mappings.json,[cpld]\file-create-folder-structure-Mappings.json,[ApplicationRunTimeDirectory]\Json\file-create-folder-structure-Mappings.json,[ApplicationRunTimeDirectory]\file-create-folder-structure-Mappings.json,.\file-create-folder-structure-Mappings.json,.\Json\file-create-folder-structure-Mappings.json</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

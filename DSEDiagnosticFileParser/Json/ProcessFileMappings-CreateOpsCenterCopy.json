@@ -1,0 +1,18 @@
+[
+  {
+    "Catagory": "ZipFile",
+    "FilePatterns": [ ".\\*\\*.tar", ".\\*\\*.tar.gz", ".\\*\\*.zip" ],
+    "FileParsingClass": "DSEDiagnosticFileParser.file_unzip",
+    "NodeIdPos": 0,
+    "ProcessingTaskOption": "IgnoreNode",
+    "ProcessPriorityLevel": 1000
+  },
+  {
+    "Catagory": "TransformFile",
+    "FilePatterns": [ ".\\*\\*" ],
+    "FileParsingClass": "DSEDiagnosticFileParser.file_create_folder_structure",
+    "NodeIdPos": 0,
+    "ProcessingTaskOption": "ScanForNode,ParallelProcessFiles",
+    "ProcessPriorityLevel": 950
+  }
+]
