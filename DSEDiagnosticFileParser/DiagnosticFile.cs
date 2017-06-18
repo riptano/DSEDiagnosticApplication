@@ -257,6 +257,7 @@ namespace DSEDiagnosticFileParser
                                 var diagnosticFiles = ProcessFile(diagnosticDirectory, fileMapper, dataCenterName, clusterName, dseVersion);
 
                                 diagFilesList.AddRange(diagnosticFiles);
+
                                 parallelOptions.CancellationToken.ThrowIfCancellationRequested();
                             }
                             catch

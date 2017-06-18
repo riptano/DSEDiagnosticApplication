@@ -114,6 +114,11 @@ namespace DSEDiagnosticFileParser
 
         /// <summary>
         /// If input matches any of the RegEx items, the replace is created using the replacementString.
+        ///
+        /// Note that if the replacement string starts with &quot;^&quot;, the replaced string from the RegEx is scanned for ^ and all chars before that position are removed.
+        /// This is useful if the RegEx scans from the end of the string or does not consume the entire string. When the replace is executed the beginning chars might be appended on the replace string.
+        /// Note that if the replacement string ends with &quot;$&quot;, the replaced string from the RegEx is scanned for $ and all chars after that position are removed.
+        /// This is useful if the RegEx scans does not consume the entire string. When the replace is executed those ending chars might be appended on the end of replace string.
         /// </summary>
         /// <param name="input"></param>
         /// <param name="replacementString"></param>
@@ -121,12 +126,33 @@ namespace DSEDiagnosticFileParser
         /// A new string based on the replacementString and the RegEx. Null if no regEx items are matched.
         /// </returns>
         public string IsMatchAnyAndReplace(string input, string replacementString)
-        {            
+        {
             for (int nIdx = 0; nIdx < this._compiledRegEx.Length; ++nIdx)
-            {               
+            {
                 if (this._compiledRegEx[nIdx].IsMatch(input))
                 {
-                    return this._compiledRegEx[nIdx].Replace(input, replacementString);
+                    var replacedStr =  this._compiledRegEx[nIdx].Replace(input, replacementString);
+
+                    if(replacementString[0] == '^')
+                    {
+                        var ignoreBeforePos = replacedStr.IndexOf('^');
+
+                        if(ignoreBeforePos >= 0)
+                        {
+                            replacedStr = replacedStr.Substring(ignoreBeforePos + 1);
+                        }
+                    }
+                    if (replacementString.Last() == '$')
+                    {
+                        var ignoreAfterPos = replacedStr.LastIndexOf('$');
+
+                        if (ignoreAfterPos >= 0)
+                        {
+                            replacedStr = replacedStr.Substring(0,ignoreAfterPos);
+                        }
+                    }
+
+                    return replacedStr;
                 }
             }
 
