@@ -171,6 +171,7 @@ namespace DSEDiagnosticApplication
                     if(string.IsNullOrEmpty(Properties.Settings.Default.DefaultProcessMapperJSONFile))
                     {
                         dialog.InitialDirectory = this.ultraTextEditorDiagnosticsFolder.Text ?? @"C:\";
+                        dialog.DefaultExtension = "json";
                     }
                     else
                     {
@@ -187,7 +188,6 @@ namespace DSEDiagnosticApplication
                 }
 
                 dialog.IsFolderPicker = false;
-                dialog.DefaultExtension = "json";
                 dialog.Filters.Add(new CommonFileDialogFilter("JSON", "*.json"));
                 dialog.Title = "Choose Process Mapper JSON file";
                 dialog.EnsureFileExists = true;
