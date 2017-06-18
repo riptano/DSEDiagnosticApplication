@@ -1,7 +1,12 @@
 ﻿<?xml version='1.0' encoding='utf-8'?>
-<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)">
-  <Profiles>
-    <Profile Name="(Default)" />
-  </Profiles>
-  <Settings />
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="DSEDiagnosticApplication.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="DefaultDiagnosticsFolder" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">E:\Libraries\Projects\DataStax\Diag-Customer\20170214\usprod</Value>
+    </Setting>
+    <Setting Name="DefaultProcessMapperJSONFile" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">E:\Libraries\Projects\DataStax\Git\DSEDiagnosticApplication\DSEDiagnosticFileParser\Json\ProcessFileMappings-CreateOpsCenterCopy.json</Value>
+    </Setting>
+  </Settings>
 </SettingsFile>

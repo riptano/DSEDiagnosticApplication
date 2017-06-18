@@ -157,7 +157,7 @@ namespace DSEDiagnosticApplication
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            this.ultraTextEditorDiagnosticsFolder.Text = @"C:\Users\Richard\Desktop\Diag-Customer\20170214\usprod";
+            this.ultraTextEditorDiagnosticsFolder.Text = Properties.Settings.Default.DefaultDiagnosticsFolder;
             this.ultraTextEditorProcessMapperJSONFile.Text = null;
         }
 
@@ -166,7 +166,26 @@ namespace DSEDiagnosticApplication
             if (e.Button.Key == "FileEditor")
             {
                 CommonOpenFileDialog dialog = new CommonOpenFileDialog();
-                dialog.InitialDirectory = this.ultraTextEditorProcessMapperJSONFile.Text ?? (this.ultraTextEditorDiagnosticsFolder.Text ?? @"C:\");
+                if(string.IsNullOrEmpty(this.ultraTextEditorProcessMapperJSONFile.Text))
+                {
+                    if(string.IsNullOrEmpty(Properties.Settings.Default.DefaultProcessMapperJSONFile))
+                    {
+                        dialog.InitialDirectory = this.ultraTextEditorDiagnosticsFolder.Text ?? @"C:\";
+                    }
+                    else
+                    {
+                        dialog.InitialDirectory = System.IO.Path.GetDirectoryName(Properties.Settings.Default.DefaultProcessMapperJSONFile).ToString();
+                        dialog.DefaultFileName = System.IO.Path.GetFileName(Properties.Settings.Default.DefaultProcessMapperJSONFile);
+                        dialog.DefaultExtension = System.IO.Path.GetExtension(Properties.Settings.Default.DefaultProcessMapperJSONFile);
+                    }
+                }
+                else
+                {
+                    dialog.InitialDirectory = System.IO.Path.GetDirectoryName(this.ultraTextEditorProcessMapperJSONFile.Text).ToString();
+                    dialog.DefaultFileName = System.IO.Path.GetFileName(this.ultraTextEditorProcessMapperJSONFile.Text);
+                    dialog.DefaultExtension = System.IO.Path.GetExtension(this.ultraTextEditorProcessMapperJSONFile.Text);
+                }
+
                 dialog.IsFolderPicker = false;
                 dialog.DefaultExtension = "json";
                 dialog.Filters.Add(new CommonFileDialogFilter("JSON", "*.json"));
@@ -181,7 +200,18 @@ namespace DSEDiagnosticApplication
             {
                 var dialog = new FormJSONEditor();
 
-                dialog.Text = this.ultraTextEditorProcessMapperJSONFile.Text;
+                if (!string.IsNullOrEmpty(this.ultraTextEditorProcessMapperJSONFile.Text)
+                        && this.ultraTextEditorProcessMapperJSONFile.Text.Length > 2
+                        && (this.ultraTextEditorProcessMapperJSONFile.Text[1] == ':'
+                                || this.ultraTextEditorProcessMapperJSONFile.Text[0] == '.'
+                                || this.ultraTextEditorProcessMapperJSONFile.Text[0] == '\\'))
+                {
+                    dialog.Text = System.IO.File.ReadAllText(this.ultraTextEditorProcessMapperJSONFile.Text);
+                }
+                else
+                {
+                    dialog.Text = this.ultraTextEditorProcessMapperJSONFile.Text;
+                }
 
                 if(dialog.ShowDialog(this) == DialogResult.OK)
                 {
