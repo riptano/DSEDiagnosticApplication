@@ -22,6 +22,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSEDiagnosticLog4NetParserT
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSEDiagnosticLogger", "DSEDiagnosticLogger\DSEDiagnosticLogger.csproj", "{D374EB28-89C6-4ECF-B68E-7BEDEAC4212E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ICSharpCode.SharpZLib", "..\SharpZipLib\src\ICSharpCode.SharpZLib.csproj", "{0E7413FF-EB9E-4714-ACF2-BE3A6A7B2FFD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ICSharpCode.SharpZLibTests", "..\SharpZipLib\ICSharpCode.SharpZLibTests\ICSharpCode.SharpZLibTests.csproj", "{7D11731B-1232-4C10-917E-99DF88DA51DC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -56,6 +60,14 @@ Global
 		{D374EB28-89C6-4ECF-B68E-7BEDEAC4212E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D374EB28-89C6-4ECF-B68E-7BEDEAC4212E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D374EB28-89C6-4ECF-B68E-7BEDEAC4212E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0E7413FF-EB9E-4714-ACF2-BE3A6A7B2FFD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0E7413FF-EB9E-4714-ACF2-BE3A6A7B2FFD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0E7413FF-EB9E-4714-ACF2-BE3A6A7B2FFD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0E7413FF-EB9E-4714-ACF2-BE3A6A7B2FFD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7D11731B-1232-4C10-917E-99DF88DA51DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7D11731B-1232-4C10-917E-99DF88DA51DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7D11731B-1232-4C10-917E-99DF88DA51DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7D11731B-1232-4C10-917E-99DF88DA51DC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

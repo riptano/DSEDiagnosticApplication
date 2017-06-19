@@ -84,7 +84,9 @@ namespace DSEDiagnosticFileParser
                         using (var tarArchive = ICSharpCode.SharpZipLib.Tar.TarArchive.CreateInputTarArchive(gzipStream))
                         {
                             tarArchive.SetKeepOldFiles(true);
+                            tarArchive.RestoreDateTimeOnExtract = true;
                             tarArchive.ExtractContents(newExtractedFolder.PathResolved);
+
                         }
                     }
                     else if(extractType == "tar")
@@ -95,6 +97,7 @@ namespace DSEDiagnosticFileParser
                             using (var tarArchive = ICSharpCode.SharpZipLib.Tar.TarArchive.CreateInputTarArchive(stream))
                             {
                                 tarArchive.SetKeepOldFiles(true);
+                                tarArchive.RestoreDateTimeOnExtract = true;
                                 tarArchive.ExtractContents(newExtractedFolder.PathResolved);
                             }
                         }
@@ -113,6 +116,7 @@ namespace DSEDiagnosticFileParser
                                         using (var tarArchive = ICSharpCode.SharpZipLib.Tar.TarArchive.CreateInputTarArchive(gzipStream))
                                         {
                                             tarArchive.SetKeepOldFiles(true);
+                                            tarArchive.RestoreDateTimeOnExtract = true;
                                             tarArchive.ExtractContents(newExtractedFolder.PathResolved);
                                         }
                                     }

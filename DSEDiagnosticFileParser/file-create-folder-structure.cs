@@ -40,6 +40,8 @@ namespace DSEDiagnosticFileParser
 
             public Mapping[] Maps { get; set; }
 
+            public bool CopyOnlyIfNewer = true;
+
             /// <summary>
             ///
             /// </summary>
@@ -93,22 +95,26 @@ namespace DSEDiagnosticFileParser
 
         public sealed class FileResult : IResult
         {
-            internal FileResult(IPath copyFile, INode node)
+            internal FileResult(IPath copyFile, INode node, bool fileExists)
             {
                 this.Path = copyFile;
                 this.Node = node;
-                this.FileAlreadyExists = copyFile.Exist();
+                this.FileAlreadyExists = fileExists;
             }
 
-            public IPath Path { get; private set; }
+            public IPath Path { get; }
             public Cluster Cluster { get; }
             public IDataCenter DataCenter { get; }
-            public INode Node { get; private set; }
+            public INode Node { get; }
             public int NbrItems { get { return 1; } }
 
             public bool FileCopiedSuccessfully { get; internal set; }
-            public bool FileAlreadyExists { get; private set; }
+            public bool FileAlreadyExists { get; }
 
+            /// <summary>
+            /// The original (current) file is newer than the file being copied. Original file was not overwritten.
+            /// </summary>
+            public bool? OriginalVersionNewer { get; internal set; }
             public IEnumerable<IParsed> Results { get; }
         }
         private FileResult _result;
@@ -125,8 +131,30 @@ namespace DSEDiagnosticFileParser
             var targetPath = this.TargetSourceMappings.MatchAndReplace(this.File, this.DiagnosticDirectory, this.Node);
 
             if (targetPath == null) return 0;
+            if (targetPath.Equals(this.File)) return 0;
 
-            this._result = new FileResult(targetPath, this.Node);
+            var targetFileInfo = this.TargetSourceMappings.CopyOnlyIfNewer && targetPath is IFilePath ? ((IFilePath)targetPath).FileInfo() : null;
+
+            this._result = new FileResult(targetPath,
+                                            this.Node,
+                                            targetFileInfo == null ? targetPath.Exist() : targetFileInfo.Exists);
+
+            if(targetFileInfo != null
+                    && targetFileInfo.LastAccessTimeUtc != DateTime.MinValue
+                    && targetFileInfo.Exists)
+            {
+                var sourceFileInfo = this.File.FileInfo();
+
+                if(targetFileInfo.LastWriteTimeUtc >= sourceFileInfo.LastAccessTimeUtc)
+                {
+                    this._result.OriginalVersionNewer = true;
+                    return 0;
+                }
+                else
+                {
+                    this._result.OriginalVersionNewer = false;
+                }
+            }
 
             if (this.File.Copy(targetPath))
             {

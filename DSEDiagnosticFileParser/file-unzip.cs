@@ -23,17 +23,23 @@ namespace DSEDiagnosticFileParser
 
         public sealed class ExtractionResult : IResult
         {
-            internal ExtractionResult(IPath extractionDirectory, int nbrFilesExtracted)
+            internal ExtractionResult(IPath extractionDirectory, int nbrFilesExtracted, bool extractionFileReNamed)
             {
                 this.Path = extractionDirectory;
                 this.NbrItems = nbrFilesExtracted;
+                this.ExtractionFileReNamed = extractionFileReNamed;
             }
 
-            public IPath Path { get; private set; }
-            public Cluster Cluster { get; private set; }
-            public IDataCenter DataCenter { get; private set; }
-            public INode Node { get; private set; }
-            public int NbrItems { get; private set; }
+            public IPath Path { get; }
+            public Cluster Cluster { get; }
+            public IDataCenter DataCenter { get; }
+            public INode Node { get; }
+            public int NbrItems { get; }
+
+            /// <summary>
+            /// If true the extraction file was renamed such that &quot;extracted&quot; was appended to the end of the orginal file name.
+            /// </summary>
+            public bool ExtractionFileReNamed { get; }
 
             public IEnumerable<IParsed> Results { get; }
         }
@@ -50,10 +56,10 @@ namespace DSEDiagnosticFileParser
 
             var nbrFilesExtracted =  MiscHelpers.UnZipFileToFolder(this.File, out newDirectory, false, true, true, true, this.CancellationToken);
 
-            this._result = new ExtractionResult(newDirectory, nbrFilesExtracted);
+            this._result = new ExtractionResult(newDirectory, nbrFilesExtracted, nbrFilesExtracted > 0);
 
             this.NbrItemsParsed = 1;
-            this.Processed = true;
+            this.Processed = nbrFilesExtracted > 0;
             return (uint)nbrFilesExtracted;
         }
     }

@@ -113,17 +113,17 @@
             this.ultraGrid1.DisplayLayout.Appearance = appearance1;
             this.ultraGrid1.DisplayLayout.AutoFitStyle = Infragistics.Win.UltraWinGrid.AutoFitStyle.ResizeAllColumns;
             ultraGridColumn1.Header.VisiblePosition = 0;
-            ultraGridColumn1.Width = 219;
+            ultraGridColumn1.Width = 212;
             ultraGridColumn2.Header.VisiblePosition = 1;
-            ultraGridColumn2.Width = 202;
+            ultraGridColumn2.Width = 207;
             ultraGridColumn3.Header.VisiblePosition = 2;
-            ultraGridColumn3.Width = 221;
+            ultraGridColumn3.Width = 207;
             ultraGridColumn4.Header.VisiblePosition = 3;
-            ultraGridColumn4.Width = 213;
+            ultraGridColumn4.Width = 207;
             ultraGridColumn5.Header.VisiblePosition = 4;
-            ultraGridColumn5.Width = 215;
+            ultraGridColumn5.Width = 207;
             ultraGridColumn6.Header.VisiblePosition = 5;
-            ultraGridColumn6.Width = 196;
+            ultraGridColumn6.Width = 207;
             ultraGridBand1.Columns.AddRange(new object[] {
             ultraGridColumn1,
             ultraGridColumn2,
@@ -158,6 +158,7 @@
             this.ultraGrid1.DisplayLayout.Override.ActiveRowAppearance = appearance6;
             this.ultraGrid1.DisplayLayout.Override.AllowAddNew = Infragistics.Win.UltraWinGrid.AllowAddNew.No;
             this.ultraGrid1.DisplayLayout.Override.AllowDelete = Infragistics.Win.DefaultableBoolean.False;
+            this.ultraGrid1.DisplayLayout.Override.AllowRowFiltering = Infragistics.Win.DefaultableBoolean.True;
             this.ultraGrid1.DisplayLayout.Override.AllowUpdate = Infragistics.Win.DefaultableBoolean.False;
             this.ultraGrid1.DisplayLayout.Override.BorderStyleCell = Infragistics.Win.UIElementBorderStyle.Dotted;
             this.ultraGrid1.DisplayLayout.Override.BorderStyleRow = Infragistics.Win.UIElementBorderStyle.Dotted;
@@ -181,12 +182,15 @@
             appearance11.BackColor = System.Drawing.SystemColors.Window;
             appearance11.BorderColor = System.Drawing.Color.Silver;
             this.ultraGrid1.DisplayLayout.Override.RowAppearance = appearance11;
-            this.ultraGrid1.DisplayLayout.Override.RowSelectors = Infragistics.Win.DefaultableBoolean.False;
+            this.ultraGrid1.DisplayLayout.Override.RowSelectorHeaderStyle = Infragistics.Win.UltraWinGrid.RowSelectorHeaderStyle.ColumnChooserButton;
+            this.ultraGrid1.DisplayLayout.Override.RowSelectors = Infragistics.Win.DefaultableBoolean.True;
+            this.ultraGrid1.DisplayLayout.Override.SupportDataErrorInfo = Infragistics.Win.UltraWinGrid.SupportDataErrorInfo.CellsOnly;
             appearance12.BackColor = System.Drawing.SystemColors.ControlLight;
             this.ultraGrid1.DisplayLayout.Override.TemplateAddRowAppearance = appearance12;
             this.ultraGrid1.DisplayLayout.ScrollBounds = Infragistics.Win.UltraWinGrid.ScrollBounds.ScrollToFill;
             this.ultraGrid1.DisplayLayout.ScrollStyle = Infragistics.Win.UltraWinGrid.ScrollStyle.Immediate;
             this.ultraGrid1.DisplayLayout.ViewStyleBand = Infragistics.Win.UltraWinGrid.ViewStyleBand.OutlookGroupBy;
+            this.ultraGrid1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.ultraGrid1.Location = new System.Drawing.Point(2, 112);
             this.ultraGrid1.Name = "ultraGrid1";
             this.ultraGrid1.Size = new System.Drawing.Size(1285, 423);
