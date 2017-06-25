@@ -153,13 +153,13 @@ namespace DSEDiagnosticFileParser
                     {
                         multipleLineComment = false;
                     }
-                    
+
                     line = newLine.Trim();
 
                     if (line == string.Empty)
                     {
                         continue;
-                    }                    
+                    }
                 }
 
                 if (line.Length > 0)
@@ -193,7 +193,7 @@ namespace DSEDiagnosticFileParser
                             }
                         }
                     }
-                    
+
                     strCQL.Append(line + " ");
 
                     if (line.TrimEnd().Last() == ';')
@@ -716,17 +716,17 @@ namespace DSEDiagnosticFileParser
 
                     foreach (var pkCol in pkCols)
                     {
-                        columns.ForEach(c => { if (c.Name == pkCol) c.IsPrimaryKey = true; });
+                        columns.ForEach(c => { if (c.Name == StringHelpers.RemoveQuotes(pkCol, false)) c.IsPrimaryKey = true; });
                     }
                 }
                 else
                 {
-                    columns.ForEach(c => { if (c.Name == pkValues[0]) c.IsPrimaryKey = true; });
+                    columns.ForEach(c => { if (c.Name == StringHelpers.RemoveQuotes(pkValues[0],false)) c.IsPrimaryKey = true; });
                 }
 
                 foreach (var clusterCol in pkValues.Skip(1))
                 {
-                    columns.ForEach(c => { if (c.Name == clusterCol) c.IsClusteringKey = true; });
+                    columns.ForEach(c => { if (c.Name == StringHelpers.RemoveQuotes(clusterCol,false)) c.IsClusteringKey = true; });
                 }
             }
 
@@ -827,7 +827,7 @@ namespace DSEDiagnosticFileParser
 
                     properties.Add("clustering order by", strOrderByCols);
 
-                    var orderByClauses = strOrderByCols.Split(',');
+                    var orderByClauses = strOrderByCols.Split(',').Select(n => StringHelpers.RemoveQuotes(n,false));
 
                     foreach (var orderByClause in orderByClauses)
                     {

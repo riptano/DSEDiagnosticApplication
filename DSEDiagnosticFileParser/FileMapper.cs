@@ -75,11 +75,7 @@ namespace DSEDiagnosticFileParser
         }
 
         public FileMapper()
-        {
-            this.NodeIdPos = -1;
-            this.ProcessingTaskOption = ProcessingTaskOptions.Default;
-            this.MatchVersion = null;
-        }
+        {}
 
         public FileMapper(DiagnosticFile.CatagoryTypes catagory,
                             string fileParsingClass,
@@ -114,13 +110,13 @@ namespace DSEDiagnosticFileParser
         /// </summary>
         public string IgnoreFilesMatchingRegEx { get; set; }
 		public string FileParsingClass { get; set; }
-		/// <summary>
-		/// The directory level of the node&apos;s IP Address or host name as the directory name. The directory above the file is position 1. It can be embedded and can be either an IPAddress or host name (seperated by a space or plus sign).
-		/// If 0, the file name is searched where the node&apos;s Ip Address or host name. This can be embeded within the file name. If a host name is used it must be at the beginning of the file name and seperated by a space or plus sign.
-		/// If -1, the file name is first reviewed, than from the file each directory level is searched up to root. During the directory search only IPAddresses are being looked for. They can be embedded.
-		/// </summary>
-		public int NodeIdPos { get; set; }
-        public ProcessingTaskOptions ProcessingTaskOption { get; set; }
+        /// <summary>
+        /// The directory level of the node&apos;s IP Address or host name as the directory name. The directory above the file is position 1. It can be embedded and can be either an IPAddress or host name (seperated by a space or plus sign).
+        /// If 0, the file name is searched where the node&apos;s Ip Address or host name. This can be embeded within the file name. If a host name is used it must be at the beginning of the file name and seperated by a space or plus sign.
+        /// If -1, the file name is first reviewed, than from the file each directory level is searched up to root. During the directory search only IPAddresses are being looked for. They can be embedded.
+        /// </summary>
+        public int NodeIdPos { get; set; } = -1;
+        public ProcessingTaskOptions ProcessingTaskOption { get; set; } = ProcessingTaskOptions.Default;
 
         /// <summary>
         /// The processing task level. Higher numbers (levels) means this task will be processed sooner than lower numbers (levels).
@@ -146,6 +142,11 @@ namespace DSEDiagnosticFileParser
         ///             4.8.0  -&gt; 4.8.0
         /// </example>
         public Version MatchVersion { get; set; }
+
+        public CancellationTokenSource CancellationSource { get; set; }
+
+        public bool Enabled { get; set; } = true;
+
         public IFilePath[] FilePathMerge(IDirectoryPath diagnosticDirectory)
 		{
 			if(this.FilePatterns == null)
@@ -160,8 +161,5 @@ namespace DSEDiagnosticFileParser
 		{
 			return string.IsNullOrEmpty(this.FileParsingClass) ? null : TypeHelpers.GetDataType(this.FileParsingClass);
 		}
-
-        public CancellationTokenSource CancellationSource { get; set; }
-
     }
 }

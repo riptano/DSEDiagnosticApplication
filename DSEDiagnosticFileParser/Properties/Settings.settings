@@ -70,5 +70,11 @@ public static class {0}
     <Setting Name="FileCreateFolderTargetSourceMappings" Type="System.String" Scope="Application">
       <Value Profile="(Default)">[cpld]\Json\file-create-folder-structure-Mappings.json,[cpld]\file-create-folder-structure-Mappings.json,[ApplicationRunTimeDirectory]\Json\file-create-folder-structure-Mappings.json,[ApplicationRunTimeDirectory]\file-create-folder-structure-Mappings.json,.\file-create-folder-structure-Mappings.json,.\Json\file-create-folder-structure-Mappings.json</Value>
     </Setting>
+    <Setting Name="FileCreateFolderDefaultDirName" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">OpsCenterStruct</Value>
+    </Setting>
+    <Setting Name="FileCreateFolderDefaultDirFormatString" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">{0}-diagnostics-{1:yyyy_MM_dd_HH_mm_ss}_UTC</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

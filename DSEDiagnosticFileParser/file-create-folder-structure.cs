@@ -29,6 +29,13 @@ namespace DSEDiagnosticFileParser
             ///
             /// </summary>
             public string TargetReplacePathString;
+
+            /// <summary>
+            /// If true (default), the original file is only overwritten if the target file is newer.
+            /// </summary>
+            public bool CopyOnlyIfNewer = true;
+
+            public bool Enabled = true;
         }
 
         public sealed class Mappings
@@ -40,8 +47,6 @@ namespace DSEDiagnosticFileParser
 
             public Mapping[] Maps { get; set; }
 
-            public bool CopyOnlyIfNewer = true;
-
             /// <summary>
             ///
             /// </summary>
@@ -50,28 +55,39 @@ namespace DSEDiagnosticFileParser
             /// <returns>
             /// Returns null if targetPath has no matches otherwise the source path is returned.
             /// </returns>
-            public IPath MatchAndReplace(IPath targetPath, IDirectoryPath targetDirectory, INode node)
+            public Tuple<IPath, bool> MatchAndReplace(IPath targetPath, IDirectoryPath targetDirectory, INode node, string clusterName, DateTime timestampUTC)
             {
                 string targetPathString;
+                bool noClusterName = string.IsNullOrEmpty(clusterName);
 
                 foreach(var targetMap in this.Maps)
                 {
-                    if((targetPathString = targetMap.SourceMatchRegEx.IsMatchAnyAndReplace(targetPath.PathResolved, targetMap.TargetReplacePathString)) != null)
+                    if (targetMap.Enabled)
                     {
-                        if (node != null)
+                        if ((targetPathString = targetMap.SourceMatchRegEx.IsMatchAnyAndReplace(targetPath.PathResolved, targetMap.TargetReplacePathString)) != null)
                         {
-                            targetPathString = targetPathString.Replace("${node}", node.Id.Addresses.FirstOrDefault()?.ToString());
-                        }
-                        if (targetPath.IsFilePath)
-                        {
-                            targetPathString = targetPathString.Replace("${filenamewoextension}", ((IFilePath)targetPath).FileNameWithoutExtension);
-                            targetPathString = targetPathString.Replace("${filename}", ((IFilePath)targetPath).FileName);
-                            targetPathString = targetPathString.Replace("${fileextension}", ((IFilePath)targetPath).FileExtension);
-                        }
+                            if (node != null)
+                            {
+                                targetPathString = targetPathString.Replace("${node}", node.Id.Addresses.FirstOrDefault()?.ToString());
+                            }
+                            if (targetPath.IsFilePath)
+                            {
+                                targetPathString = targetPathString.Replace("${filenamewoextension}", ((IFilePath)targetPath).FileNameWithoutExtension);
+                                targetPathString = targetPathString.Replace("${filename}", ((IFilePath)targetPath).FileName);
+                                targetPathString = targetPathString.Replace("${fileextension}", ((IFilePath)targetPath).FileExtension);
+                            }
 
+                            targetPathString = targetPathString.Replace("${directoryname}",
+                                                                            string.Format(Properties.Settings.Default.FileCreateFolderDefaultDirFormatString,
+                                                                                            noClusterName
+                                                                                                ? Properties.Settings.Default.FileCreateFolderDefaultDirName
+                                                                                                : clusterName,
+                                                                                            timestampUTC));
 
-                        return PathUtils.Parse(targetPathString,
-                                                    targetDirectory?.Path);
+                            return new Tuple<IPath, bool>(PathUtils.Parse(targetPathString,
+                                                                            targetDirectory?.Path),
+                                                            targetMap.CopyOnlyIfNewer);
+                        }
                     }
                 }
 
@@ -89,7 +105,10 @@ namespace DSEDiagnosticFileParser
             : base(catagory, diagnosticDirectory, file, node, defaultClusterName, defaultDCName, targetDSEVersion)
         {
             this.TargetSourceMappings = LibrarySettings.FileCreateFolderTargetSourceMappings;
+            this.TimeStampUTC = DateTime.UtcNow;
         }
+
+        public DateTime TimeStampUTC { get; }
 
         public Mappings TargetSourceMappings { get; }
 
@@ -128,16 +147,20 @@ namespace DSEDiagnosticFileParser
         {
             if (this.TargetSourceMappings == null) return 0;
 
-            var targetPath = this.TargetSourceMappings.MatchAndReplace(this.File, this.DiagnosticDirectory, this.Node);
+            var targetPath = this.TargetSourceMappings.MatchAndReplace(this.File,
+                                                                        this.DiagnosticDirectory,
+                                                                        this.Node,
+                                                                        this.DefaultClusterName,
+                                                                        this.TimeStampUTC);
 
             if (targetPath == null) return 0;
-            if (targetPath.Equals(this.File)) return 0;
+            if (targetPath.Item1.Equals(this.File)) return 0;
 
-            var targetFileInfo = this.TargetSourceMappings.CopyOnlyIfNewer && targetPath is IFilePath ? ((IFilePath)targetPath).FileInfo() : null;
+            var targetFileInfo = targetPath.Item2 && targetPath.Item1 is IFilePath ? ((IFilePath)targetPath.Item1).FileInfo() : null;
 
-            this._result = new FileResult(targetPath,
+            this._result = new FileResult(targetPath.Item1,
                                             this.Node,
-                                            targetFileInfo == null ? targetPath.Exist() : targetFileInfo.Exists);
+                                            targetFileInfo == null ? targetPath.Item1.Exist() : targetFileInfo.Exists);
 
             if(targetFileInfo != null
                     && targetFileInfo.LastAccessTimeUtc != DateTime.MinValue
@@ -156,7 +179,7 @@ namespace DSEDiagnosticFileParser
                 }
             }
 
-            if (this.File.Copy(targetPath))
+            if (this.File.Copy(targetPath.Item1))
             {
                 this.NbrItemsParsed = 1;
                 this.Processed = true;

@@ -7,16 +7,17 @@ namespace DSEDiagnosticFileParser
 {
 
     [System.Diagnostics.DebuggerNonUserCode]
-    public class ExceptionEventArgs : System.EventArgs
+    public sealed class ExceptionEventArgs : System.EventArgs
     {
         #region Properties
 
-        public System.Exception Exception { get; protected set; }
+        public System.Exception Exception { get; }
 
-        public System.Threading.CancellationTokenSource CancellationTokenSource { get; protected set; }
+        public System.Threading.CancellationTokenSource CancellationTokenSource { get; }
 
-        public object[] AssociatedObjects { get; protected set; }
+        public object[] AssociatedObjects { get; }
 
+        public int ThreadId { get;  }
 
         #endregion //end of Properties
 
@@ -24,18 +25,20 @@ namespace DSEDiagnosticFileParser
 
         #region Constructors
 
-        protected ExceptionEventArgs()
+        private ExceptionEventArgs()
         {
         }
 
         public ExceptionEventArgs(System.Exception exception,
                                     System.Threading.CancellationTokenSource cancellationTokenSource,
-                                    object[] associatedObjects)
+                                    object[] associatedObjects,
+                                    int threadId)
 
         {
             this.Exception = exception;
             this.AssociatedObjects = associatedObjects;
             this.CancellationTokenSource = cancellationTokenSource;
+            this.ThreadId = threadId;
         }
 
 
@@ -53,7 +56,8 @@ namespace DSEDiagnosticFileParser
             {
                 invokeDelegate(sender, new ExceptionEventArgs(exception,
                                                                 cancellationTokenSource,
-                                                                associatedObjects));
+                                                                associatedObjects,
+                                                                System.Threading.Thread.CurrentThread.ManagedThreadId));
                 return true;
             }
 
@@ -70,7 +74,8 @@ namespace DSEDiagnosticFileParser
             {
                 invokeDelegate(sender, new ExceptionEventArgs(exception,
                                                                 cancellationTokenSource,
-                                                                associatedObjects));
+                                                                associatedObjects,
+                                                                System.Threading.Thread.CurrentThread.ManagedThreadId));
                 return true;
             }
 
@@ -87,7 +92,8 @@ namespace DSEDiagnosticFileParser
             {
                 invokeDelegate(sender, new ExceptionEventArgs(exception,
                                                                 cancellationTokenSource,
-                                                                associatedObjects));
+                                                                associatedObjects,
+                                                                System.Threading.Thread.CurrentThread.ManagedThreadId));
                 return true;
             }
 
@@ -101,5 +107,5 @@ namespace DSEDiagnosticFileParser
             return invokeDelegate != null;
         }
         #endregion //end of Invoke Event Static Methods
-    } //end of Event Argument Class ExceptionEventArgs    
+    } //end of Event Argument Class ExceptionEventArgs
 }

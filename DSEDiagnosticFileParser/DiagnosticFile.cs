@@ -53,6 +53,84 @@ namespace DSEDiagnosticFileParser
             return ExceptionEventArgs.InvokeEvent(sender, exception, cancellationTokenSource, associatedObjects, OnException);
         }
 
+        public static bool InvokeProgressionEvent(DiagnosticFile sender,
+                                                    ProgressionEventArgs.Categories category,
+                                                    string stepName,
+                                                    int? threadId = null,
+                                                    uint? step = null,
+                                                    uint? nbrSteps = null,
+                                                    DateTime? timeStamp = null,
+                                                    string messageString = null,
+                                                    params object[] messageArgs)
+        {
+            return ProgressionEventArgs.InvokeEvent(sender, category, stepName, threadId, step, nbrSteps, timeStamp, messageString, messageArgs);
+        }
+
+        public static bool InvokeProgressionEvent(IEnumerable<DiagnosticFile> sender,
+                                                    ProgressionEventArgs.Categories category,
+                                                    string stepName,
+                                                    int? threadId = null,
+                                                    uint? step = null,
+                                                    uint? nbrSteps = null,
+                                                    DateTime? timeStamp = null,
+                                                    string messageString = null,
+                                                    params object[] messageArgs)
+        {
+            return ProgressionEventArgs.InvokeEvent(sender, category, stepName, threadId, step, nbrSteps, timeStamp, messageString, messageArgs);
+        }
+
+        public static bool InvokeProgressionEvent(FileMapper sender,
+                                                    ProgressionEventArgs.Categories category,
+                                                    string stepName,
+                                                    int? threadId = null,
+                                                    uint? step = null,
+                                                    uint? nbrSteps = null,
+                                                    DateTime? timeStamp = null,
+                                                    string messageString = null,
+                                                    params object[] messageArgs)
+        {
+            return ProgressionEventArgs.InvokeEvent(sender, category, stepName, threadId, step, nbrSteps, timeStamp, messageString, messageArgs);
+        }
+
+        public static bool InvokeProgressionEvent(IEnumerable<FileMapper> sender,
+                                                    ProgressionEventArgs.Categories category,
+                                                    string stepName,
+                                                    int? threadId = null,
+                                                    uint? step = null,
+                                                    uint? nbrSteps = null,
+                                                    DateTime? timeStamp = null,
+                                                    string messageString = null,
+                                                    params object[] messageArgs)
+        {
+            return ProgressionEventArgs.InvokeEvent(sender, category, stepName, threadId, step, nbrSteps, timeStamp, messageString, messageArgs);
+        }
+
+        public static bool InvokeProgressionEvent(IFilePath sender,
+                                                    ProgressionEventArgs.Categories category,
+                                                    string stepName,
+                                                    int? threadId = null,
+                                                    uint? step = null,
+                                                    uint? nbrSteps = null,
+                                                    DateTime? timeStamp = null,
+                                                    string messageString = null,
+                                                    params object[] messageArgs)
+        {
+            return ProgressionEventArgs.InvokeEvent(sender, category, stepName, threadId, step, nbrSteps, timeStamp, messageString, messageArgs);
+        }
+
+        public static event ProgressionEventArgs.EventHandler OnProgression
+        {
+            // Explicit event definition with accessor methods
+            add
+            {
+                ProgressionEventArgs.OnProgression += value;
+            }
+            remove
+            {
+                ProgressionEventArgs.OnProgression -= value;
+            }
+        }
+
         #endregion //end of Events
 
         public static Dictionary<string, RegExParseString> RegExAssocations = LibrarySettings.DiagnosticFileRegExAssocations;
@@ -187,29 +265,151 @@ namespace DSEDiagnosticFileParser
                                                                                                                                 cancellationSource)).Unwrap();
         }
 
+        public static IEnumerable<DiagnosticFile> ProcessFile(IDirectoryPath diagnosticDirectory,
+                                                                string dataCenterName,
+                                                                string clusterName,
+                                                                Version dseVersion,
+                                                                CancellationToken cancellationToken,
+                                                                short processPriorityLevel,
+                                                                FileMapper.ProcessingTaskOptions parallelProcessingWithinPriorityLevel,
+                                                                FileMapper fileMapper,
+                                                                Common.Patterns.Collections.ThreadSafe.List<DiagnosticFile> diagFilesList,
+                                                                ParallelLoopState loopState)
+        {
+            var localDiagFiles = new List<DiagnosticFile>();
+
+            try
+            {
+                InvokeProgressionEvent(fileMapper,
+                                        ProgressionEventArgs.Categories.Start | ProgressionEventArgs.Categories.Process | ProgressionEventArgs.Categories.FileMapper,
+                                        "File Map",
+                                        null,
+                                        1,
+                                        2,
+                                        null,
+                                        diagnosticDirectory.PathResolved);
+
+                if(cancellationToken.IsCancellationRequested)
+                {
+                    loopState?.Stop();
+                    cancellationToken.ThrowIfCancellationRequested();
+                }
+
+                if (loopState != null && loopState.IsStopped)
+                {
+                    if (fileMapper.CancellationSource == null) return localDiagFiles;
+                    else fileMapper.CancellationSource.Cancel(true);
+                }
+
+                var diagnosticFiles = ProcessFile(diagnosticDirectory, fileMapper, dataCenterName, clusterName, dseVersion);
+
+                diagFilesList.AddRange(diagnosticFiles);
+                localDiagFiles.AddRange(diagnosticFiles);
+
+                InvokeProgressionEvent(diagnosticFiles,
+                                        ProgressionEventArgs.Categories.End | ProgressionEventArgs.Categories.Process | ProgressionEventArgs.Categories.DiagnosticFile,
+                                        "File Map",
+                                        null,
+                                        2,
+                                        2,
+                                        null,
+                                        diagnosticDirectory.PathResolved);
+
+                 cancellationToken.ThrowIfCancellationRequested();
+            }
+            catch (TaskCanceledException)
+            {
+                Logger.Instance.WarnFormat("{0}\t{1}\tProcessing was canceled for Mapping Level.",
+                                            processPriorityLevel, parallelProcessingWithinPriorityLevel);
+
+                InvokeProgressionEvent(fileMapper,
+                                        ProgressionEventArgs.Categories.Cancel | ProgressionEventArgs.Categories.Process | ProgressionEventArgs.Categories.FileMapper,
+                                        "File Map",
+                                        null,
+                                        2,
+                                        2,
+                                        null,
+                                        diagnosticDirectory.PathResolved);
+            }
+            catch (AggregateException ae)
+            {
+                bool canceled = false;
+
+                foreach (Exception e in ae.InnerExceptions)
+                {
+                    if (e is TaskCanceledException)
+                    {
+                        if (!canceled)
+                        {
+                            canceled = true;
+                            Logger.Instance.WarnFormat("{0}\t{1}\tProcessing was canceled for Mapping Level.",
+                                                        processPriorityLevel, parallelProcessingWithinPriorityLevel);
+                            InvokeProgressionEvent(fileMapper,
+                                        ProgressionEventArgs.Categories.Cancel | ProgressionEventArgs.Categories.Process | ProgressionEventArgs.Categories.FileMapper,
+                                        "File Map",
+                                        null,
+                                        2,
+                                        2,
+                                        null,
+                                        diagnosticDirectory.PathResolved);
+                        }
+                        continue;
+                    }
+                    Logger.Instance.Error("Exception during FileMapping Processing", e);
+                }
+
+                if (!canceled)
+                {
+                    ExceptionEventArgs.InvokeEvent(fileMapper,
+                                                    ae,
+                                                    fileMapper.CancellationSource,
+                                                    new object[] {  diagnosticDirectory,
+                                                                        dataCenterName,
+                                                                        clusterName,
+                                                                        dseVersion },
+                                                    OnException);
+                }
+            }
+            catch (System.Exception ex)
+            {
+                Logger.Instance.Error("Exception during FileMapping Processing", ex);
+
+                ExceptionEventArgs.InvokeEvent(fileMapper,
+                                                   ex,
+                                                   fileMapper.CancellationSource,
+                                                   new object[] {  diagnosticDirectory,
+                                                                        dataCenterName,
+                                                                        clusterName,
+                                                                        dseVersion },
+                                                   OnException);
+            }
+
+            return localDiagFiles;
+        }
+
         public static Task<IEnumerable<DiagnosticFile>> ProcessFile(IDirectoryPath diagnosticDirectory,
                                                                         string dataCenterName = null,
                                                                         string clusterName = null,
                                                                         Version dseVersion = null,
                                                                         CancellationTokenSource cancellationSource = null)
         {
-            FileMapper filemapperInError = null;
-            var diagFilesList = new List<DiagnosticFile>();
+            var diagFilesList = new Common.Patterns.Collections.ThreadSafe.List<DiagnosticFile>();
             var mappers = DSEDiagnosticFileParser.LibrarySettings.ProcessFileMappings
+                            .Where(f => f.Enabled)
                             .OrderByDescending(o => o.ProcessPriorityLevel)
                             .ThenBy(o => DSEDiagnosticFileParser.FileMapper.DetermineParallelOptions(o.ProcessingTaskOption))
                             .GroupBy(k => new { ProcessPriorityLevel = k.ProcessPriorityLevel, ParallelProcessingWithinPriorityLevel = DSEDiagnosticFileParser.FileMapper.DetermineParallelOptions(k.ProcessingTaskOption) });
             int mapperId = 0;
             var parallelOptions = new ParallelOptions();
 
-            if(cancellationSource != null) parallelOptions.CancellationToken = cancellationSource.Token;
+            //if(cancellationSource != null) parallelOptions.CancellationToken = cancellationSource.Token;
             parallelOptions.MaxDegreeOfParallelism = System.Environment.ProcessorCount;
 
             foreach (var mapperGroup in mappers)
             {
                 var fileMappings = mapperGroup.Where(m => m.MatchVersion == null).ToList();
 
-                if(dseVersion != null)
+                if (dseVersion != null)
                 {
                     var versionedMapper = mapperGroup.Where(m => m.MatchVersion != null && dseVersion >= m.MatchVersion).OrderByDescending(m => m.MatchVersion).FirstOrDefault();
                     fileMappings.Add(versionedMapper);
@@ -219,145 +419,109 @@ namespace DSEDiagnosticFileParser
                                                 mapperId = fileMappings.GetHashCode(),
                                                 JsonConvert.SerializeObject(fileMappings));
 
-                try
+                InvokeProgressionEvent(fileMappings,
+                                        ProgressionEventArgs.Categories.Start | ProgressionEventArgs.Categories.FileMapper | ProgressionEventArgs.Categories.Process | ProgressionEventArgs.Categories.Collection,
+                                        "File Mapping Collection",
+                                        null,
+                                        1,
+                                        2,
+                                        null,
+                                        diagnosticDirectory.PathResolved);
+
+                if (DisableParallelProcessing || mapperGroup.Key.ParallelProcessingWithinPriorityLevel == FileMapper.ProcessingTaskOptions.None)
                 {
-                    if (DisableParallelProcessing || mapperGroup.Key.ParallelProcessingWithinPriorityLevel == FileMapper.ProcessingTaskOptions.None)
+                    Logger.Instance.InfoFormat("FileMapper<{0}, SyncMode>",
+                                                mapperId);
+
+                    foreach (var fileMapper in fileMappings)
                     {
-                        Logger.Instance.InfoFormat("FileMapper<{0}, SyncMode>",
-                                                    mapperId);
+                        if (fileMapper.CancellationSource == null && cancellationSource != null) fileMapper.CancellationSource = cancellationSource;
 
-                        foreach (var fileMapper in fileMappings)
-                        {
-                            filemapperInError = fileMapper;
-                            parallelOptions.CancellationToken.ThrowIfCancellationRequested();
+                        var diagnosticFiles = ProcessFile(diagnosticDirectory,
+                                                            dataCenterName,
+                                                            clusterName,
+                                                            dseVersion,
+                                                            fileMapper.CancellationSource.Token,
+                                                            mapperGroup.Key.ProcessPriorityLevel,
+                                                            mapperGroup.Key.ParallelProcessingWithinPriorityLevel,
+                                                            fileMapper,
+                                                            diagFilesList,
+                                                            null);
 
-                            if (fileMapper.CancellationSource == null && cancellationSource != null) fileMapper.CancellationSource = cancellationSource;
-
-                            var diagnosticFiles = ProcessFile(diagnosticDirectory, fileMapper, dataCenterName, clusterName, dseVersion);
-
-                            diagFilesList.AddRange(diagnosticFiles);
-
-                            System.Threading.Tasks.Task.WaitAll(diagnosticFiles.Select(d => d.Task).ToArray());
-                        }
-
-                        Logger.Instance.InfoFormat("FileMapper<{0}, SyncMode, Completed>",
-                                                    mapperId);
+                        System.Threading.Tasks.Task.WaitAll(diagnosticFiles.Select(d => d.Task).ToArray());
                     }
-                    else if (mapperGroup.Key.ParallelProcessingWithinPriorityLevel.HasFlag(FileMapper.ProcessingTaskOptions.ParallelProcessing))
-                    {
-                        Logger.Instance.InfoFormat("FileMapper<{0}, ParallelProcessing>",
-                                                    mapperId);
 
-                        Parallel.ForEach(fileMappings, parallelOptions, fileMapper =>
-                        {
-                            try
-                            {
-                                if (fileMapper.CancellationSource == null && cancellationSource != null) fileMapper.CancellationSource = cancellationSource;
-
-                                var diagnosticFiles = ProcessFile(diagnosticDirectory, fileMapper, dataCenterName, clusterName, dseVersion);
-
-                                diagFilesList.AddRange(diagnosticFiles);
-
-                                parallelOptions.CancellationToken.ThrowIfCancellationRequested();
-                            }
-                            catch
-                            {
-                                filemapperInError = fileMapper;
-                                throw;
-                            }
-                        });
-
-                        Logger.Instance.InfoFormat("FileMapper<{0}, ParallelProcessing, Completed>",
-                                                    mapperId);
-                    }
-                    else if (mapperGroup.Key.ParallelProcessingWithinPriorityLevel.HasFlag(FileMapper.ProcessingTaskOptions.ParallelProcessingWithinPriorityLevel))
-                    {
-                        Logger.Instance.InfoFormat("FileMapper<{0}, ParallelProcessingWithinPriorityLevel>",
-                                                    mapperId);
-
-                        var localDiagFilesList = new List<DiagnosticFile>();
-                        Parallel.ForEach(fileMappings, parallelOptions, fileMapper =>
-                        {
-                            try
-                            {
-                                if (fileMapper.CancellationSource == null && cancellationSource != null) fileMapper.CancellationSource = cancellationSource;
-
-                                var diagnosticFiles = ProcessFile(diagnosticDirectory, fileMapper, dataCenterName, clusterName, dseVersion);
-
-                                diagFilesList.AddRange(diagnosticFiles);
-                                localDiagFilesList.AddRange(diagnosticFiles);
-                                parallelOptions.CancellationToken.ThrowIfCancellationRequested();
-                            }
-                            catch
-                            {
-                                filemapperInError = fileMapper;
-                                throw;
-                            }
-                        });
-
-                        Logger.Instance.InfoFormat("FileMapper<{0}, ParallelProcessingWithinPriorityLevel, Waiting>",
-                                                    mapperId);
-
-                        System.Threading.Tasks.Task.WaitAll(localDiagFilesList.Select(d => d.Task).ToArray());
-
-                        Logger.Instance.InfoFormat("FileMapper<{0}, ParallelProcessingWithinPriorityLevel, Completed>",
-                                                    mapperId);
-                    }
-                    else
-                    {
-                        Logger.Instance.ErrorFormat("{0}\t{1}\tError with Mapping's Parallel Processing Type. Unknown Value of \"{1}\".",
-                                                        mapperGroup.Key.ProcessPriorityLevel, mapperGroup.Key.ParallelProcessingWithinPriorityLevel);
-                    }
+                    Logger.Instance.InfoFormat("FileMapper<{0}, SyncMode, Completed>",
+                                                mapperId);
                 }
-                catch (TaskCanceledException)
+                else if (mapperGroup.Key.ParallelProcessingWithinPriorityLevel.HasFlag(FileMapper.ProcessingTaskOptions.ParallelProcessing))
                 {
-                    Logger.Instance.WarnFormat("{0}\t{1}\tProcessing was canceled for Mapping Level.",
-                                                mapperGroup.Key.ProcessPriorityLevel, mapperGroup.Key.ParallelProcessingWithinPriorityLevel);
-                }
-                catch (AggregateException ae)
-                {
-                    bool canceled = false;
+                    Logger.Instance.InfoFormat("FileMapper<{0}, ParallelProcessing>",
+                                                mapperId);
 
-                    foreach (Exception e in ae.InnerExceptions)
+                    Parallel.ForEach(fileMappings, parallelOptions, (fileMapper, loopState) =>
                     {
-                        if (e is TaskCanceledException)
-                        {
-                            if (!canceled)
-                            {
-                                canceled = true;
-                                Logger.Instance.WarnFormat("{0}\t{1}\tProcessing was canceled for Mapping Level.",
-                                                            mapperGroup.Key.ProcessPriorityLevel, mapperGroup.Key.ParallelProcessingWithinPriorityLevel);
-                            }
-                            continue;
-                        }
-                        Logger.Instance.Error("Exception during FileMapping Processing", e);
-                    }
+                       if (fileMapper.CancellationSource == null && cancellationSource != null) fileMapper.CancellationSource = cancellationSource;
 
-                    if(!canceled)
-                    {
-                        ExceptionEventArgs.InvokeEvent(filemapperInError,
-                                                        ae,
-                                                        cancellationSource,
-                                                        new object[] {  diagnosticDirectory,
-                                                                        dataCenterName,
-                                                                        clusterName,
-                                                                        dseVersion },
-                                                        OnException);
-                    }
+                        ProcessFile(diagnosticDirectory,
+                                    dataCenterName,
+                                    clusterName,
+                                    dseVersion,
+                                    fileMapper.CancellationSource.Token,
+                                    mapperGroup.Key.ProcessPriorityLevel,
+                                    mapperGroup.Key.ParallelProcessingWithinPriorityLevel,
+                                    fileMapper,
+                                    diagFilesList,
+                                    loopState);
+                    });
+
+                    Logger.Instance.InfoFormat("FileMapper<{0}, ParallelProcessing, Completed>",
+                                                mapperId);
                 }
-                catch (System.Exception ex)
+                else if (mapperGroup.Key.ParallelProcessingWithinPriorityLevel.HasFlag(FileMapper.ProcessingTaskOptions.ParallelProcessingWithinPriorityLevel))
                 {
-                    Logger.Instance.Error("Exception during FileMapping Processing", ex);
+                    Logger.Instance.InfoFormat("FileMapper<{0}, ParallelProcessingWithinPriorityLevel>",
+                                                mapperId);
 
-                    ExceptionEventArgs.InvokeEvent(filemapperInError,
-                                                       ex,
-                                                       cancellationSource,
-                                                       new object[] {  diagnosticDirectory,
-                                                                        dataCenterName,
-                                                                        clusterName,
-                                                                        dseVersion },
-                                                       OnException);
+                    var localDiagFilesList = new List<DiagnosticFile>();
+                    Parallel.ForEach(fileMappings, parallelOptions, (fileMapper, loopState) =>
+                    {
+                        if (fileMapper.CancellationSource == null && cancellationSource != null) fileMapper.CancellationSource = cancellationSource;
+
+                        localDiagFilesList.AddRange(ProcessFile(diagnosticDirectory,
+                                                                    dataCenterName,
+                                                                    clusterName,
+                                                                    dseVersion,
+                                                                    fileMapper.CancellationSource.Token,
+                                                                    mapperGroup.Key.ProcessPriorityLevel,
+                                                                    mapperGroup.Key.ParallelProcessingWithinPriorityLevel,
+                                                                    fileMapper,
+                                                                    diagFilesList,
+                                                                    loopState));
+                    });
+
+                    Logger.Instance.InfoFormat("FileMapper<{0}, ParallelProcessingWithinPriorityLevel, Waiting>",
+                                                mapperId);
+
+                    System.Threading.Tasks.Task.WaitAll(localDiagFilesList.Select(d => d.Task).ToArray());
+
+                    Logger.Instance.InfoFormat("FileMapper<{0}, ParallelProcessingWithinPriorityLevel, Completed>",
+                                                mapperId);
                 }
+                else
+                {
+                    Logger.Instance.ErrorFormat("{0}\t{1}\tError with Mapping's Parallel Processing Type. Unknown Value of \"{1}\".",
+                                                    mapperGroup.Key.ProcessPriorityLevel, mapperGroup.Key.ParallelProcessingWithinPriorityLevel);
+                }
+
+                InvokeProgressionEvent(fileMappings,
+                                        ProgressionEventArgs.Categories.End | ProgressionEventArgs.Categories.Process | ProgressionEventArgs.Categories.FileMapper | ProgressionEventArgs.Categories.Collection,
+                                        "File Mapping Collection",
+                                        null,
+                                        2,
+                                        2,
+                                        null,
+                                        diagnosticDirectory.PathResolved);
             }
 
             return diagFilesList.Count == 0
@@ -374,6 +538,15 @@ namespace DSEDiagnosticFileParser
             CancellationToken? cancellationToken = fileMappings.CancellationSource?.Token;
 
             if (cancellationToken.HasValue) cancellationToken.Value.ThrowIfCancellationRequested();
+
+            InvokeProgressionEvent(fileMappings,
+                                        ProgressionEventArgs.Categories.Start | ProgressionEventArgs.Categories.Process | ProgressionEventArgs.Categories.FileMapper | ProgressionEventArgs.Categories.Collection,
+                                        "Determining Files from Mapper",
+                                        null,
+                                        1,
+                                        2,
+                                        null,
+                                        diagnosticDirectory.PathResolved);
 
             var ignoreFilesRegEx = string.IsNullOrEmpty(fileMappings?.IgnoreFilesMatchingRegEx)
                                             ? null
@@ -404,7 +577,18 @@ namespace DSEDiagnosticFileParser
 			var diagnosticInstances = new List<DiagnosticFile>();
 			var instanceType = fileMappings.GetFileParsingType();
 
-            if(instanceType == null)
+            InvokeProgressionEvent(fileMappings,
+                                        ProgressionEventArgs.Categories.End | ProgressionEventArgs.Categories.Process | ProgressionEventArgs.Categories.FileMapper,
+                                        "Determining Files from Mapper",
+                                        null,
+                                        2,
+                                        2,
+                                        null,
+                                        "{0} collected {1} files",
+                                        diagnosticDirectory.PathResolved,
+                                        targetFiles.Count());
+
+            if (instanceType == null)
             {
                 Logger.Instance.ErrorFormat("<NoNodeId>\t<NoFile>\tFile Mapper File Parsing Class \"{0}\" was not found for Category {1}",
                                             fileMappings.FileParsingClass,
@@ -452,11 +636,13 @@ namespace DSEDiagnosticFileParser
             }
 
             DiagnosticFile resultInstance = null;
+            List<DiagnosticFile> localDFList = new List<DiagnosticFile>();
             bool onlyOnceProcessing = fileMappings.ProcessingTaskOption.HasFlag(FileMapper.ProcessingTaskOptions.OnlyOnce);
 
             //targetFiles
             foreach (var targetFile in targetFiles)
 			{
+                localDFList.Clear();
 
                 if (cancellationToken.HasValue) cancellationToken.Value.ThrowIfCancellationRequested();
 
@@ -464,6 +650,15 @@ namespace DSEDiagnosticFileParser
                 {
                     break;
                 }
+
+                InvokeProgressionEvent(fileMappings,
+                                        ProgressionEventArgs.Categories.Start | ProgressionEventArgs.Categories.Process | ProgressionEventArgs.Categories.FileMapper,
+                                        "Processing File",
+                                        null,
+                                        1,
+                                        2,
+                                        null,
+                                       targetFile.PathResolved);
 
                 resultInstance = null;
 
@@ -494,6 +689,7 @@ namespace DSEDiagnosticFileParser
                             if (resultInstance != null)
                             {
                                 diagnosticInstances.Add(resultInstance);
+                                localDFList.Add(resultInstance);
                             }
                         }
                     }
@@ -514,6 +710,7 @@ namespace DSEDiagnosticFileParser
                         if (resultInstance != null)
                         {
                             diagnosticInstances.Add(resultInstance);
+                            localDFList.Add(resultInstance);
                         }
                     }
                 }
@@ -536,8 +733,17 @@ namespace DSEDiagnosticFileParser
                         if (resultInstance != null)
                         {
                             diagnosticInstances.Add(resultInstance);
+                            localDFList.Add(resultInstance);
                             if (onlyOnceProcessing && resultInstance.Processed)
                             {
+                                InvokeProgressionEvent(localDFList,
+                                                       ProgressionEventArgs.Categories.End | ProgressionEventArgs.Categories.Process | ProgressionEventArgs.Categories.DiagnosticFile | ProgressionEventArgs.Categories.Collection,
+                                                       "Processing File",
+                                                       null,
+                                                       2,
+                                                       2,
+                                                       null,
+                                                      targetFile.PathResolved);
                                 break;
                             }
                         }
@@ -545,9 +751,27 @@ namespace DSEDiagnosticFileParser
                         if (cancellationToken.HasValue) cancellationToken.Value.ThrowIfCancellationRequested();
                     }
                 }
-			}
 
-			return diagnosticInstances;
+                InvokeProgressionEvent(localDFList,
+                                        ProgressionEventArgs.Categories.End | ProgressionEventArgs.Categories.Process | ProgressionEventArgs.Categories.DiagnosticFile | ProgressionEventArgs.Categories.Collection,
+                                        "Processing File",
+                                        null,
+                                        2,
+                                        2,
+                                        null,
+                                       targetFile.PathResolved);
+            }
+
+            InvokeProgressionEvent(diagnosticInstances,
+                                        ProgressionEventArgs.Categories.End | ProgressionEventArgs.Categories.Process | ProgressionEventArgs.Categories.Collection | ProgressionEventArgs.Categories.DiagnosticFile,
+                                        "Determining Files from Mapper",
+                                        null,
+                                        2,
+                                        2,
+                                        null,
+                                        diagnosticDirectory.PathResolved);
+
+            return diagnosticInstances;
 		}
 
 		public static DiagnosticFile ProcessFile(IDirectoryPath diagnosticDirectory,
@@ -578,8 +802,19 @@ namespace DSEDiagnosticFileParser
 
                     processingFileInstance.CancellationToken.ThrowIfCancellationRequested();
 
+                    InvokeProgressionEvent(processingFileInstance,
+                                                ProgressionEventArgs.Categories.Start | ProgressionEventArgs.Categories.DiagnosticFile,
+                                                "Process File",
+                                                null,
+                                                1,
+                                                2,
+                                                null,
+                                                "Catagory<{0}>, InstanceType<{1}>, Node<{2}>",
+                                                catagory, instanceType.Name, node);
+
                     var nbrItems = processingFileInstance.ProcessFile();
 
+                    processingFileInstance.ParsedTimeRange.SetMaximum(DateTime.Now);
                     processingFileInstance._nbrItemGenerated = unchecked((int)nbrItems);
 
                     if (!processingFileInstance.Processed && nbrItems > 0) processingFileInstance.Processed = true;
@@ -592,6 +827,16 @@ namespace DSEDiagnosticFileParser
                     {
                         Logger.Instance.WarnFormat("{0}\t{1}\tEnd of Processing of File that resulted in {2:###,##0} objects", node, processFile.PathResolved, nbrItems);
                     }
+
+                    InvokeProgressionEvent(processingFileInstance,
+                                                ProgressionEventArgs.Categories.End | ProgressionEventArgs.Categories.DiagnosticFile,
+                                                "Process File",
+                                                null,
+                                                2,
+                                                2,
+                                                null,
+                                                "Catagory<{0}>, InstanceType<{1}>, Node<{2}>, Result<{3}>",
+                                                catagory, instanceType.Name, node, nbrItems);
                 }
                 catch(TaskCanceledException)
                 {
@@ -600,6 +845,16 @@ namespace DSEDiagnosticFileParser
                     if(processingFileInstance != null)
                     {
                         processingFileInstance.Canceled = true;
+                        processingFileInstance.ParsedTimeRange.SetMaximum(DateTime.Now);
+                        InvokeProgressionEvent(processingFileInstance,
+                                                ProgressionEventArgs.Categories.Cancel | ProgressionEventArgs.Categories.DiagnosticFile,
+                                                "Process File",
+                                                null,
+                                                2,
+                                                2,
+                                                null,
+                                                "Catagory<{0}>, InstanceType<{1}>, Node<{2}>, Result<{3}>",
+                                                catagory, instanceType.Name, node, processingFileInstance.NbrItemsParsed);
                     }
                 }
                 catch (AggregateException ae)
@@ -617,7 +872,17 @@ namespace DSEDiagnosticFileParser
                                                             node, processFile.PathResolved);
                                 if (processingFileInstance != null)
                                 {
+                                    processingFileInstance.ParsedTimeRange.SetMaximum(DateTime.Now);
                                     processingFileInstance.Canceled = true;
+                                    InvokeProgressionEvent(processingFileInstance,
+                                                            ProgressionEventArgs.Categories.Cancel | ProgressionEventArgs.Categories.DiagnosticFile,
+                                                            "Process File",
+                                                            null,
+                                                            2,
+                                                            2,
+                                                            null,
+                                                            "Catagory<{0}>, InstanceType<{1}>, Node<{2}>, Result<{3}>",
+                                                            catagory, instanceType.Name, node, processingFileInstance.NbrItemsParsed);
                                 }
                                 canceled = true;
                             }
@@ -653,6 +918,7 @@ namespace DSEDiagnosticFileParser
                         }
 
                         processingFileInstance.Exception = ae;
+                        processingFileInstance.ParsedTimeRange.SetMaximum(DateTime.Now);
 
                         Logger.Instance.Error(string.Format("{0}\t{1}\tProcessing failed with exception.",
                                                             node, processFile?.PathResolved), ae);
@@ -681,6 +947,7 @@ namespace DSEDiagnosticFileParser
                         throw;
                     }
 
+                    processingFileInstance.ParsedTimeRange.SetMaximum(DateTime.Now);
                     processingFileInstance.Exception = ex;
                     Logger.Instance.Error(string.Format("{0}\t{1}\tProcessing failed with exception.",
                                                             node, processFile?.PathResolved), ex);
@@ -691,6 +958,25 @@ namespace DSEDiagnosticFileParser
             {
                 processingFileInstance.Task = Task<DiagnosticFile>.Factory.StartNew(() => { action(); return processingFileInstance; },
                                                                                         processingFileInstance.CancellationToken);
+                processingFileInstance.Task.ContinueWith(r =>
+                                                            {
+                                                                if(!r.Result.Canceled)
+                                                                {
+                                                                    r.Result.Canceled = r.IsCanceled;
+                                                                    InvokeProgressionEvent(r.Result,
+                                                                                            ProgressionEventArgs.Categories.Cancel | ProgressionEventArgs.Categories.DiagnosticFile,
+                                                                                            "Process File",
+                                                                                            null,
+                                                                                            2,
+                                                                                            2,
+                                                                                            null,
+                                                                                            "Catagory<{0}>, InstanceType<{1}>, Node<{2}>, Result<{3}>",
+                                                                                            r.Result.Catagory, r.Result.GetType().Name, r.Result.Node, r.Result.NbrItemsParsed);
+                                                                }
+                                                            },
+                                                            TaskContinuationOptions.AttachedToParent
+                                                            | TaskContinuationOptions.ExecuteSynchronously
+                                                            | TaskContinuationOptions.OnlyOnCanceled);
             }
             else
             {

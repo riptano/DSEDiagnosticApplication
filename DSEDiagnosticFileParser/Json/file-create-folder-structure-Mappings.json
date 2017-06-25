@@ -7,7 +7,7 @@
           "(?:\\\\(?:[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}(?:_|-)?)?(?<filename>(?:system|output)\\.log(?:\\.\\d{4}\\-\\d{2}\\-\\d{2}_\\d{0,6})?)(?:(?:_|-)[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3})?)$"
         ]
       },
-      "TargetReplacePathString": "^.\\OpsCenterStruct\\nodes\\${node}\\logs\\cassandra\\${filename}"
+      "TargetReplacePathString": "^.\\${directoryname}\\nodes\\${node}\\logs\\cassandra\\${filename}"
     },
     {
       "FolderStructureType": "Cassandra yaml",
@@ -17,7 +17,7 @@
           "(?:\\\\(?:[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}(?:_|-)?)?(?<filename>cassandra-env\\.sh)(?:(?:_|-)[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3})?)$"
         ]
       },
-      "TargetReplacePathString": "^.\\OpsCenterStruct\\nodes\\${node}\\conf\\cassandra\\${filename}"
+      "TargetReplacePathString": "^.\\${directoryname}\\nodes\\${node}\\conf\\cassandra\\${filename}"
     },
     {
       "FolderStructureType": "DSE yaml",
@@ -26,7 +26,7 @@
           "(?:\\\\(?:[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}(?:_|-)?)?(?<filename>dse\\.yaml)(?:(?:_|-)[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3})?)$"
         ]
       },
-      "TargetReplacePathString": "^.\\OpsCenterStruct\\nodes\\${node}\\conf\\dse\\${filename}"
+      "TargetReplacePathString": "^.\\${directoryname}\\nodes\\${node}\\conf\\dse\\${filename}"
     },
     {
       "FolderStructureType": "nodetool",
@@ -47,7 +47,7 @@
           "(?:\\\\(?:[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}(?:_|-)?)?(?<filename>nodetool(?:_|-|\\s)?ring)(?:(?:_|-)[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3})?)$"
         ]
       },
-      "TargetReplacePathString": "^.\\OpsCenterStruct\\nodes\\${node}\\nodetool\\${filename}"
+      "TargetReplacePathString": "^.\\${directoryname}\\nodes\\${node}\\nodetool\\${filename}"
     },
     {
       "FolderStructureType": "DSETool",
@@ -59,7 +59,7 @@
           "(?:\\\\(?:[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}(?:_|-)?)?(?<filename>(?:dsetool(?:_|-|\\s)?)?sparkmaster)(?:(?:_|-)[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3})?)$"
         ]
       },
-      "TargetReplacePathString": "^.\\OpsCenterStruct\\nodes\\${node}\\dsetool\\${filename}"
+      "TargetReplacePathString": "^.\\${directoryname}\\nodes\\${node}\\dsetool\\${filename}"
     },
     {
       "FolderStructureType": "CQL",
@@ -69,7 +69,7 @@
           "(?:\\\\(?:[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}(?:_|-)?)?(?<filename>describe_schema)(?:(?:_|-)[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3})?)$"
         ]
       },
-      "TargetReplacePathString": "^.\\OpsCenterStruct\\nodes\\${node}\\cqlsh\\${filename}"
+      "TargetReplacePathString": "^.\\${directoryname}\\nodes\\${node}\\cqlsh\\${filename}"
     },
     {
       "FolderStructureType": "CLI",
@@ -78,7 +78,7 @@
           "(?:\\\\(?:[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}(?:_|-)?)?(?<filename>show_keyspaces)(?:(?:_|-)[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3})?)$"
         ]
       },
-      "TargetReplacePathString": "^.\\OpsCenterStruct\\nodes\\${node}\\cassandra-cli\\${filename}"
+      "TargetReplacePathString": "^.\\${directoryname}\\nodes\\${node}\\cassandra-cli\\${filename}"
     },
     {
       "FolderStructureType": "NTP",
@@ -88,7 +88,7 @@
           "(?:\\\\(?:[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}(?:_|-)?)?(?<filename>ntptime)(?:(?:_|-)[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3})?)$"
         ]
       },
-      "TargetReplacePathString": "^.\\OpsCenterStruct\\nodes\\${node}\\ntp\\${filename}"
+      "TargetReplacePathString": "^.\\${directoryname}\\nodes\\${node}\\ntp\\${filename}"
     },
     {
       "FolderStructureType": "OS Meter",
@@ -101,7 +101,7 @@
           "(?:\\\\(?:[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}(?:_|-)?)?(?<filename>memory.json)(?:(?:_|-)[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3})?)$"
         ]
       },
-      "TargetReplacePathString": "^.\\OpsCenterStruct\\nodes\\${node}\\os-metrics\\${filename}"
+      "TargetReplacePathString": "^.\\${directoryname}\\nodes\\${node}\\os-metrics\\${filename}"
     }
   ]
 }

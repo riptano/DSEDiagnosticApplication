@@ -155,5 +155,23 @@ public static class {0}
                 return ((string)(this["FileCreateFolderTargetSourceMappings"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("OpsCenterStruct")]
+        public string FileCreateFolderDefaultDirName {
+            get {
+                return ((string)(this["FileCreateFolderDefaultDirName"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("{0}-diagnostics-{1:yyyy_MM_dd_HH_mm_ss}_UTC")]
+        public string FileCreateFolderDefaultDirFormatString {
+            get {
+                return ((string)(this["FileCreateFolderDefaultDirFormatString"]));
+            }
+        }
     }
 }

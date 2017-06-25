@@ -19,10 +19,10 @@ namespace DSEDiagnosticApplication
 
         public object DataSource
         {
-            get { return this.ultraGrid1?.DataSource; }
+            get { return this.propertyGrid1?.SelectedObject; }
             set
             {
-                if(value != this.ultraGrid1.DataSource)
+                if(value != this.propertyGrid1.SelectedObject)
                 {
                     if(value == null)
                     {
@@ -32,7 +32,14 @@ namespace DSEDiagnosticApplication
                     {
                         this.Text = value.GetType().Name + " Grid";
                     }
-                    this.ultraGrid1.DataSource = value;
+                    //if (value.GetType().IsArray)
+                    //{
+                    //    this.propertyGrid1.SelectedObjects = (object[]) value;
+                    //}
+                    //else
+                    {
+                        this.propertyGrid1.SelectedObject = value;
+                    }
                 }
             }
         }
@@ -41,5 +48,8 @@ namespace DSEDiagnosticApplication
         {
             this.Close();
         }
+
+        
+
     }
 }

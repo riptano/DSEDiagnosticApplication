@@ -18,6 +18,7 @@ namespace DSEDiagnosticApplication
 	public partial class Form1 : Form
 	{
         CancellationTokenSource _cancellationSource;
+        Common.WaitCursor _waitCusor = new Common.WaitCursor();
 
         public Form1()
 		{
@@ -84,49 +85,92 @@ namespace DSEDiagnosticApplication
             this.ultraStatusBar1.Panels["LoggingStatus"].Text = newValue;
         }
 
+        private string _lastLogMsg = string.Empty;
         private void Instance_OnLoggingEventArgs(DSEDiagnosticLogger.Logger sender, DSEDiagnosticLogger.LoggingEventArgs eventArgs)
         {
-            this.SetLoggingStatus(eventArgs.RenderedLogMessages().FirstOrDefault());
+            foreach (var logMsg in eventArgs.RenderedLogMessages())
+            {
+                this._lastLogMsg = logMsg;
+            }
         }
 
         private async Task<IEnumerable<DSEDiagnosticFileParser.DiagnosticFile>> RunProcessFile()
         {
-            Logger.Instance.Info("test");
-            Logger.Instance.OnLoggingEvent += Instance_OnLoggingEventArgs;
-            DSEDiagnosticFileParser.DiagnosticFile.DisableParallelProcessing = this.ultraCheckEditorDisableParallelProcessing.Checked;
+            using (var waitCusor = Common.WaitCursor.UsingCreate(this.ultraGrid1, Common.Patterns.WaitCursorModes.GUI))
+            {                
+                Logger.Instance.Info("test");
+                Logger.Instance.OnLoggingEvent += Instance_OnLoggingEventArgs;
+                DSEDiagnosticFileParser.DiagnosticFile.OnException += DiagnosticFile_OnException;
+                DSEDiagnosticFileParser.DiagnosticFile.OnProgression += DiagnosticFile_OnProgression;
+                DSEDiagnosticFileParser.DiagnosticFile.DisableParallelProcessing = this.ultraCheckEditorDisableParallelProcessing.Checked;
 
-            if(!string.IsNullOrEmpty(this.ultraTextEditorProcessMapperJSONFile.Text))
-            {
-                DSEDiagnosticFileParser.LibrarySettings.ProcessFileMappings = DSEDiagnosticFileParser.LibrarySettings.ReadJsonFileIntoObject<DSEDiagnosticFileParser.FileMapper[]>(this.ultraTextEditorProcessMapperJSONFile.Text);
+                if (!string.IsNullOrEmpty(this.ultraTextEditorProcessMapperJSONFile.Text))
+                {
+                    DSEDiagnosticFileParser.LibrarySettings.ProcessFileMappings = DSEDiagnosticFileParser.LibrarySettings.ReadJsonFileIntoObject<DSEDiagnosticFileParser.FileMapper[]>(this.ultraTextEditorProcessMapperJSONFile.Text);
+                }
+
+                //var diagPath = PathUtils.BuildDirectoryPath(@"C:\Users\Richard\Desktop\Diag-Customer\TestUnZip");
+                //var diagPath = PathUtils.BuildDirectoryPath(@"C:\Users\Richard\Desktop\Diag-Customer\Y31169_cluster-diagnostics-2017_01_06_08_02_04_UTC");
+                //var diagPath = PathUtils.BuildDirectoryPath(@"C:\Users\Richard\Desktop\Diag-Customer\prod_cassandra_4-diagnostics-2017_02_20_08_26_20_UTC");
+                //var diagPath = PathUtils.BuildDirectoryPath(@"C:\Users\Richard\Desktop\20170217\opsc-2017-02-08-09-06-14-CET\AdditionalLogs");
+                //var diagPath = PathUtils.BuildDirectoryPath(@"C:\Users\Richard\Desktop\Diag-Customer\20170214\usprod");
+                //var diagPath = PathUtils.BuildDirectoryPath(@"C:\Users\Richard\Desktop\Diag-Customer\Optimus-diagnostics-2017_02_06_00_05_33_UTC");
+                var diagPath = PathUtils.BuildDirectoryPath(this.ultraTextEditorDiagnosticsFolder.Text);
+
+                var task = await DSEDiagnosticFileParser.DiagnosticFile.ProcessFileWaitable(diagPath, this.ultraTextEditorDC.Text, this.ultraTextEditorCluster.Text, null, this._cancellationSource);
+
+                if (task.Any(t => t.Processed))
+                {
+                    this.SetLoggingStatus("all processed");
+                }
+                else
+                {
+                    this.SetLoggingStatus("NOT all processed");
+                }
+
+                //tasks.ContinueWith(waitingTasks => this.EnableRunButton(buttonLabel));
+                //tasks.Wait();
+
+                // var z = DSEDiagnosticLibrary.Cluster.Clusters;
+                //Task.WhenAll(tasks).Wait();
+                //
+                // 
+                return task;
             }
+        }
 
-            //var diagPath = PathUtils.BuildDirectoryPath(@"C:\Users\Richard\Desktop\Diag-Customer\TestUnZip");
-            //var diagPath = PathUtils.BuildDirectoryPath(@"C:\Users\Richard\Desktop\Diag-Customer\Y31169_cluster-diagnostics-2017_01_06_08_02_04_UTC");
-            //var diagPath = PathUtils.BuildDirectoryPath(@"C:\Users\Richard\Desktop\Diag-Customer\prod_cassandra_4-diagnostics-2017_02_20_08_26_20_UTC");
-            //var diagPath = PathUtils.BuildDirectoryPath(@"C:\Users\Richard\Desktop\20170217\opsc-2017-02-08-09-06-14-CET\AdditionalLogs");
-            //var diagPath = PathUtils.BuildDirectoryPath(@"C:\Users\Richard\Desktop\Diag-Customer\20170214\usprod");
-            //var diagPath = PathUtils.BuildDirectoryPath(@"C:\Users\Richard\Desktop\Diag-Customer\Optimus-diagnostics-2017_02_06_00_05_33_UTC");
-            var diagPath = PathUtils.BuildDirectoryPath(this.ultraTextEditorDiagnosticsFolder.Text);
+        private Common.Patterns.Collections.ThreadSafe.List<Tuple<int, string>> _progressionMsgs = new Common.Patterns.Collections.ThreadSafe.List<Tuple<int, string>>();
 
-            var task = await DSEDiagnosticFileParser.DiagnosticFile.ProcessFileWaitable(diagPath, this.ultraTextEditorDC.Text, this.ultraTextEditorCluster.Text, null, this._cancellationSource);
-
-            if(task.Any(t => t.Processed))
+        private void DiagnosticFile_OnProgression(object sender, DSEDiagnosticFileParser.ProgressionEventArgs eventArgs)
+        {
+            if ((eventArgs.Category & DSEDiagnosticFileParser.ProgressionEventArgs.Categories.Start) != 0)
             {
-                this.SetLoggingStatus("all processed");
+                var key = (eventArgs.StepName + eventArgs.ThreadId.ToString()).GetHashCode();
+
+                if (!this._progressionMsgs.Any(i => i.Item1 == key))
+                {
+                    var msg = string.Format("{0}: {1} {2}",
+                                                eventArgs.StepName,
+                                                sender is DSEDiagnosticFileParser.FileMapper
+                                                    ? ((DSEDiagnosticFileParser.FileMapper) sender).Catagory.ToString()
+                                                    : (sender is DSEDiagnosticFileParser.DiagnosticFile
+                                                            ? ((DSEDiagnosticFileParser.DiagnosticFile)sender).Catagory.ToString()
+                                                            : string.Empty),
+                                                eventArgs.Message());
+                    this._progressionMsgs.Add(new Tuple<int, string>(key, msg));
+                }
             }
-            else
+            else if ((eventArgs.Category & DSEDiagnosticFileParser.ProgressionEventArgs.Categories.End) != 0 || (eventArgs.Category & DSEDiagnosticFileParser.ProgressionEventArgs.Categories.Cancel) != 0)
             {
-                this.SetLoggingStatus("NOT all processed");
+                var key = (eventArgs.StepName + eventArgs.ThreadId.ToString()).GetHashCode();
+
+                this._progressionMsgs.RemoveAll(i => i.Item1 == key);
             }
+        }
 
-            //tasks.ContinueWith(waitingTasks => this.EnableRunButton(buttonLabel));
-            //tasks.Wait();
-
-            // var z = DSEDiagnosticLibrary.Cluster.Clusters;
-            //Task.WhenAll(tasks).Wait();
-            //
-
-            return task;
+        private void DiagnosticFile_OnException(object sender, DSEDiagnosticFileParser.ExceptionEventArgs eventArgs)
+        {
+            this._progressionMsgs.Add(new Tuple<int, string>(eventArgs.Exception.GetHashCode(), string.Format("Exception: {0}", eventArgs.Exception.Message)));
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -247,16 +291,68 @@ namespace DSEDiagnosticApplication
             if (objCell.Column.Key == "Result")
             {
                 var gridDialog = new FormObjectGrid();
-                var resultArray = Array.CreateInstance(objCell.Value.GetType(), 1);
+                var propertyTbl = new PropertyTable();
 
-                resultArray.SetValue(objCell.Value, 0);
+                //var resultArray = Array.CreateInstance(objCell.Value.GetType(), 2);
 
-                gridDialog.DataSource = resultArray;
+                //resultArray.SetValue(objCell.Value, 0);
+                //resultArray.SetValue(((DSEDiagnosticLibrary.IResult)objCell.Value).Cluster, 1);
+                //
+
+                propertyTbl.Properties.Add(new PropertySpec("Result", objCell.Value.GetType(), "Result"));
+                propertyTbl["Result"] = objCell.Value;
+
+                foreach (var prop in objCell.Value.GetType().GetFields())
+                {
+                    propertyTbl.Properties.Add(new PropertySpec(prop.Name, prop.FieldType, "Result"));
+                    propertyTbl[prop.Name] = prop.GetValue(objCell.Value);
+                }
+                foreach (var prop in objCell.Value.GetType().GetProperties())
+                {
+                    propertyTbl.Properties.Add(new PropertySpec(prop.Name, prop.PropertyType, "Result"));
+                    propertyTbl[prop.Name] = prop.GetValue(objCell.Value);
+                }
+
+                var cluster = ((DSEDiagnosticLibrary.IResult)objCell.Value).Cluster;
+                propertyTbl.Properties.Add(new PropertySpec("Cluster", typeof(DSEDiagnosticLibrary.Cluster), "Custer"));
+                propertyTbl["Cluster"] = cluster;
+
+                foreach (var prop in cluster.GetType().GetFields())
+                {
+                    propertyTbl.Properties.Add(new PropertySpec(prop.Name, prop.FieldType, "Custer"));
+                    propertyTbl[prop.Name] = prop.GetValue(cluster);
+                }
+                foreach (var prop in cluster.GetType().GetProperties())
+                {
+                    propertyTbl.Properties.Add(new PropertySpec(prop.Name, prop.PropertyType, "Custer"));
+                    propertyTbl[prop.Name] = prop.GetValue(cluster);
+                }
+
+                gridDialog.DataSource = propertyTbl;
 
                 gridDialog.Show(this);
             }
 
         }
 
+        int _currentTimerIdx = 0;
+        private void timerProgress_Tick(object sender, EventArgs e)
+        {
+            this._progressionMsgs.Lock();
+
+            if (this._currentTimerIdx < this._progressionMsgs.UnSafe.Count)
+            {
+                this.ultraStatusBar1.Panels["Progress"].Text = this._progressionMsgs.UnSafe[this._currentTimerIdx++].Item2;
+            }
+
+            if (this._currentTimerIdx >= this._progressionMsgs.UnSafe.Count)
+            {
+                this._currentTimerIdx = 0;
+            }
+
+            this._progressionMsgs.UnLock();
+
+            this.SetLoggingStatus(this._lastLogMsg);
+        }
     }
 }

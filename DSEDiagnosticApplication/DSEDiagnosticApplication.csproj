@@ -49,6 +49,12 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\Common Patterns\Assemblies\40\Release\Common.Patterns.Threading.dll</HintPath>
     </Reference>
+    <Reference Include="Common.Patterns.WaitCursor">
+      <HintPath>..\..\..\..\Common Patterns\Assemblies\40\Release\Common.Patterns.WaitCursor.dll</HintPath>
+    </Reference>
+    <Reference Include="Common.WinForm">
+      <HintPath>..\..\..\..\Common Patterns\Assemblies\40\Release\Common.WinForm.dll</HintPath>
+    </Reference>
     <Reference Include="Infragistics4.Shared.v14.2, Version=14.2.20142.2168, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb" />
     <Reference Include="Infragistics4.Win.Misc.v14.2, Version=14.2.20142.2168, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb" />
     <Reference Include="Infragistics4.Win.UltraWinEditors.v14.2, Version=14.2.20142.2168, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb, processorArchitecture=MSIL" />
@@ -117,6 +123,7 @@
     <Compile Include="Logger.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="PropertyItems.cs" />
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>

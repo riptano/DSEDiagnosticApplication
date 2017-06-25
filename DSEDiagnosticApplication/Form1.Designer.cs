@@ -28,6 +28,7 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
+            this.components = new System.ComponentModel.Container();
             Infragistics.Win.Appearance appearance1 = new Infragistics.Win.Appearance();
             Infragistics.Win.UltraWinGrid.UltraGridBand ultraGridBand1 = new Infragistics.Win.UltraWinGrid.UltraGridBand("IResult", -1);
             Infragistics.Win.UltraWinGrid.UltraGridColumn ultraGridColumn1 = new Infragistics.Win.UltraWinGrid.UltraGridColumn("Path");
@@ -51,7 +52,8 @@
             Infragistics.Win.UltraWinEditors.EditorButton editorButton1 = new Infragistics.Win.UltraWinEditors.EditorButton("DirEditor");
             Infragistics.Win.UltraWinEditors.EditorButton editorButton2 = new Infragistics.Win.UltraWinEditors.EditorButton("FileEditor");
             Infragistics.Win.UltraWinEditors.EditorButton editorButton3 = new Infragistics.Win.UltraWinEditors.EditorButton("StringEditor");
-            Infragistics.Win.UltraWinStatusBar.UltraStatusPanel ultraStatusPanel1 = new Infragistics.Win.UltraWinStatusBar.UltraStatusPanel();
+            Infragistics.Win.UltraWinStatusBar.UltraStatusPanel ultraStatusPanel3 = new Infragistics.Win.UltraWinStatusBar.UltraStatusPanel();
+            Infragistics.Win.UltraWinStatusBar.UltraStatusPanel ultraStatusPanel4 = new Infragistics.Win.UltraWinStatusBar.UltraStatusPanel();
             this.button1 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.ultraGrid1 = new Infragistics.Win.UltraWinGrid.UltraGrid();
@@ -65,6 +67,7 @@
             this.ultraGroupBox4 = new Infragistics.Win.Misc.UltraGroupBox();
             this.ultraCheckEditorDisableParallelProcessing = new Infragistics.Win.UltraWinEditors.UltraCheckEditor();
             this.ultraStatusBar1 = new Infragistics.Win.UltraWinStatusBar.UltraStatusBar();
+            this.timerProgress = new System.Windows.Forms.Timer(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.ultraGrid1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.ultraGroupBox1)).BeginInit();
             this.ultraGroupBox1.SuspendLayout();
@@ -299,15 +302,26 @@
             // 
             this.ultraStatusBar1.Location = new System.Drawing.Point(0, 541);
             this.ultraStatusBar1.Name = "ultraStatusBar1";
-            ultraStatusPanel1.Key = "LoggingStatus";
-            ultraStatusPanel1.SizingMode = Infragistics.Win.UltraWinStatusBar.PanelSizingMode.Automatic;
-            ultraStatusPanel1.Style = Infragistics.Win.UltraWinStatusBar.PanelStyle.Marquee;
-            ultraStatusPanel1.ToolTipText = "Logging Status";
+            ultraStatusPanel3.Key = "Progress";
+            ultraStatusPanel3.MinWidth = 100;
+            ultraStatusPanel3.SizingMode = Infragistics.Win.UltraWinStatusBar.PanelSizingMode.Spring;
+            ultraStatusPanel3.Style = Infragistics.Win.UltraWinStatusBar.PanelStyle.AutoStatusText;
+            ultraStatusPanel3.Width = 300;
+            ultraStatusPanel4.Key = "LoggingStatus";
+            ultraStatusPanel4.SizingMode = Infragistics.Win.UltraWinStatusBar.PanelSizingMode.Automatic;
+            ultraStatusPanel4.ToolTipText = "Logging Status";
             this.ultraStatusBar1.Panels.AddRange(new Infragistics.Win.UltraWinStatusBar.UltraStatusPanel[] {
-            ultraStatusPanel1});
+            ultraStatusPanel3,
+            ultraStatusPanel4});
             this.ultraStatusBar1.Size = new System.Drawing.Size(1296, 25);
             this.ultraStatusBar1.TabIndex = 9;
             this.ultraStatusBar1.Text = "ultraStatusBar1";
+            // 
+            // timerProgress
+            // 
+            this.timerProgress.Enabled = true;
+            this.timerProgress.Interval = 1500;
+            this.timerProgress.Tick += new System.EventHandler(this.timerProgress_Tick);
             // 
             // Form1
             // 
@@ -364,6 +378,7 @@
         private Infragistics.Win.Misc.UltraGroupBox ultraGroupBox4;
         private Infragistics.Win.UltraWinEditors.UltraCheckEditor ultraCheckEditorDisableParallelProcessing;
         private Infragistics.Win.UltraWinStatusBar.UltraStatusBar ultraStatusBar1;
+        private System.Windows.Forms.Timer timerProgress;
     }
 }
 

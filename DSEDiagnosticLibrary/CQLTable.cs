@@ -524,7 +524,7 @@ namespace DSEDiagnosticLibrary
             }
             #endregion
 
-            if (this.PrimaryKeys.IsEmpty()) throw new NullReferenceException(string.Format("{0} must have primaryKeys (count of zero)", this.GetType().Name));
+            if (this.PrimaryKeys.IsEmpty()) throw new NullReferenceException(string.Format("{0} ({1}) must have primaryKeys (count of zero)", this.GetType().Name, ddl));
 
             #region Properties
 
