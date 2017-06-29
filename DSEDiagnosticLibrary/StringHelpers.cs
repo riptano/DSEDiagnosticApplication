@@ -343,7 +343,8 @@ namespace DSEDiagnosticLibrary
                     {
                         secondTblName = sstableFilePathParts[sstableFilePathParts.Length - 2].Substring(1);
                     }
-                    else if (sstableFilePathParts.Last()[ksName.Length + columnFamily.Length + 1] == '.')
+                    else if (sstableFilePathParts.Last().Length > ksName.Length + columnFamily.Length + 1
+                                && sstableFilePathParts.Last()[ksName.Length + columnFamily.Length + 1] == '.')
                     {
                         var lastNode = sstableFilePathParts.Last();
                         int tmpPos = -1;
