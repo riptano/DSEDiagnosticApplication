@@ -303,7 +303,7 @@ namespace DSEDiagnosticLibrary
         ///     Item1 -- keyspace name
         ///     Item2 -- table/secondary index name
         ///     Item3 -- table&apos;s guid id
-        ///     Item4 -- if secondary index name, the table name otherwise null.
+        ///     Item4 -- if secondary index this will be the associated table name, otherwise null.
         /// </returns>
         static public Tuple<string,string,string,string> ParseSSTableFileIntoKSTableNames(string sstableFilePath)
         {
