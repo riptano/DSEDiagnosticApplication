@@ -65,7 +65,7 @@ namespace DSEDiagnosticLibrary
         {
             className = RemoveQuotes(className);
 
-            if (!className.Contains('/'))
+            if (className != null && !className.Contains('/'))
             {
                 var lastPeriod = className.LastIndexOf('.');
 

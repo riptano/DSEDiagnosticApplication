@@ -25,7 +25,7 @@ namespace DSEDiagnosticFileParser
 
         public override IResult GetResult()
         {
-            throw new NotImplementedException();
+            return new EmptyResult(this.File, null, null, this.Node);
         }
 
         public override uint ProcessFile()

@@ -30,6 +30,8 @@ namespace DSEDiagnosticApplication
             var buttonLabel = this.button1.Text;
             this.button1.Enabled = false;
             this.button1.Text = "Running...";
+            this.button3.Enabled = false;
+            this.button3.Visible = false;
             this._cancellationSource = new CancellationTokenSource();
 
             this.button2.Enabled = true;
@@ -62,8 +64,13 @@ namespace DSEDiagnosticApplication
             this.button1.Text = buttonLabel;
             this.button1.Enabled = true;
 
+            this.button3.Enabled = true;
+            this.button3.Visible = true;
+
             this.button2.Enabled = false;
-            this.button2.Text = this._cancellationSource.IsCancellationRequested ? "Canceled" : "Cancel";
+            this.button2.Text = this._cancellationSource == null 
+                                    ? "Cancel"
+                                    : (this._cancellationSource.IsCancellationRequested ? "Canceled" : "Cancel");
 
             this.ultraTextEditorProcessMapperJSONFile.Enabled = true;
             this.ultraTextEditorDiagnosticsFolder.Enabled = true;
@@ -109,12 +116,6 @@ namespace DSEDiagnosticApplication
                     DSEDiagnosticFileParser.LibrarySettings.ProcessFileMappings = DSEDiagnosticFileParser.LibrarySettings.ReadJsonFileIntoObject<DSEDiagnosticFileParser.FileMapper[]>(this.ultraTextEditorProcessMapperJSONFile.Text);
                 }
 
-                //var diagPath = PathUtils.BuildDirectoryPath(@"C:\Users\Richard\Desktop\Diag-Customer\TestUnZip");
-                //var diagPath = PathUtils.BuildDirectoryPath(@"C:\Users\Richard\Desktop\Diag-Customer\Y31169_cluster-diagnostics-2017_01_06_08_02_04_UTC");
-                //var diagPath = PathUtils.BuildDirectoryPath(@"C:\Users\Richard\Desktop\Diag-Customer\prod_cassandra_4-diagnostics-2017_02_20_08_26_20_UTC");
-                //var diagPath = PathUtils.BuildDirectoryPath(@"C:\Users\Richard\Desktop\20170217\opsc-2017-02-08-09-06-14-CET\AdditionalLogs");
-                //var diagPath = PathUtils.BuildDirectoryPath(@"C:\Users\Richard\Desktop\Diag-Customer\20170214\usprod");
-                //var diagPath = PathUtils.BuildDirectoryPath(@"C:\Users\Richard\Desktop\Diag-Customer\Optimus-diagnostics-2017_02_06_00_05_33_UTC");
                 var diagPath = PathUtils.BuildDirectoryPath(this.ultraTextEditorDiagnosticsFolder.Text);
 
                 var task = await DSEDiagnosticFileParser.DiagnosticFile.ProcessFileWaitable(diagPath, this.ultraTextEditorDC.Text, this.ultraTextEditorCluster.Text, null, this._cancellationSource);
@@ -138,6 +139,43 @@ namespace DSEDiagnosticApplication
                 return task;
             }
         }
+
+        private IEnumerable<DSEDiagnosticFileParser.DiagnosticFile> RunSyncProcessFile()
+        {
+            using (var waitCusor = Common.WaitCursor.UsingCreate(this.ultraGrid1, Common.Patterns.WaitCursorModes.GUI))
+            {
+                Logger.Instance.Info("sync-test");
+                Logger.Instance.OnLoggingEvent += Instance_OnLoggingEventArgs;
+                DSEDiagnosticFileParser.DiagnosticFile.OnException += DiagnosticFile_OnException;
+                DSEDiagnosticFileParser.DiagnosticFile.OnProgression += DiagnosticFile_OnProgression;
+                DSEDiagnosticFileParser.DiagnosticFile.DisableParallelProcessing = this.ultraCheckEditorDisableParallelProcessing.Checked;
+
+                if (!string.IsNullOrEmpty(this.ultraTextEditorProcessMapperJSONFile.Text))
+                {
+                    DSEDiagnosticFileParser.LibrarySettings.ProcessFileMappings = DSEDiagnosticFileParser.LibrarySettings.ReadJsonFileIntoObject<DSEDiagnosticFileParser.FileMapper[]>(this.ultraTextEditorProcessMapperJSONFile.Text);
+                }
+
+                var diagPath = PathUtils.BuildDirectoryPath(this.ultraTextEditorDiagnosticsFolder.Text);
+
+                var task = DSEDiagnosticFileParser.DiagnosticFile.ProcessFile(diagPath);
+
+                task.Wait();
+
+                //var task = await DSEDiagnosticFileParser.DiagnosticFile.ProcessFileWaitable(diagPath, this.ultraTextEditorDC.Text, this.ultraTextEditorCluster.Text, null, this._cancellationSource);
+
+                if (task.Result.Any(t => t.Processed))
+                {
+                    this.SetLoggingStatus("all processed");
+                }
+                else
+                {
+                    this.SetLoggingStatus("NOT all processed");
+                }
+
+                return task.Result;
+            }
+        }
+
 
         private Common.Patterns.Collections.ThreadSafe.List<Tuple<int, string>> _progressionMsgs = new Common.Patterns.Collections.ThreadSafe.List<Tuple<int, string>>();
 
@@ -353,6 +391,31 @@ namespace DSEDiagnosticApplication
             this._progressionMsgs.UnLock();
 
             this.SetLoggingStatus(this._lastLogMsg);
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            var buttonLabel = this.button1.Text;
+            this.button1.Enabled = false;
+            this.button1.Text = "Sync-Running...";
+            this.button3.Enabled = false;
+            this.button3.Visible = false;
+            //this._cancellationSource = new CancellationTokenSource();
+
+            //this.button2.Enabled = true;
+            //this.button2.Text = "Cancel";
+
+            this.ultraTextEditorProcessMapperJSONFile.Enabled = false;
+            this.ultraTextEditorDiagnosticsFolder.Enabled = false;
+            this.ultraCheckEditorDisableParallelProcessing.Enabled = false;
+            this.ultraTextEditorCluster.Enabled = false;
+            this.ultraTextEditorDC.Enabled = false;
+
+            var items = this.RunSyncProcessFile();
+
+            this.ultraGrid1.DataSource = items;
+
+            this.EnableRunButton(buttonLabel);
         }
     }
 }

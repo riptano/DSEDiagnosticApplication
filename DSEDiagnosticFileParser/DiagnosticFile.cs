@@ -269,7 +269,6 @@ namespace DSEDiagnosticFileParser
                                                                 string dataCenterName,
                                                                 string clusterName,
                                                                 Version dseVersion,
-                                                                CancellationToken cancellationToken,
                                                                 short processPriorityLevel,
                                                                 FileMapper.ProcessingTaskOptions parallelProcessingWithinPriorityLevel,
                                                                 FileMapper fileMapper,
@@ -289,10 +288,10 @@ namespace DSEDiagnosticFileParser
                                         null,
                                         diagnosticDirectory.PathResolved);
 
-                if(cancellationToken.IsCancellationRequested)
+                if(fileMapper.CancellationSource?.IsCancellationRequested ?? false)
                 {
                     loopState?.Stop();
-                    cancellationToken.ThrowIfCancellationRequested();
+                    fileMapper.CancellationSource.Token.ThrowIfCancellationRequested();
                 }
 
                 if (loopState != null && loopState.IsStopped)
@@ -315,7 +314,7 @@ namespace DSEDiagnosticFileParser
                                         null,
                                         diagnosticDirectory.PathResolved);
 
-                 cancellationToken.ThrowIfCancellationRequested();
+                fileMapper.CancellationSource?.Token.ThrowIfCancellationRequested();
             }
             catch (TaskCanceledException)
             {
@@ -440,8 +439,7 @@ namespace DSEDiagnosticFileParser
                         var diagnosticFiles = ProcessFile(diagnosticDirectory,
                                                             dataCenterName,
                                                             clusterName,
-                                                            dseVersion,
-                                                            fileMapper.CancellationSource.Token,
+                                                            dseVersion,                                                            
                                                             mapperGroup.Key.ProcessPriorityLevel,
                                                             mapperGroup.Key.ParallelProcessingWithinPriorityLevel,
                                                             fileMapper,
@@ -466,8 +464,7 @@ namespace DSEDiagnosticFileParser
                         ProcessFile(diagnosticDirectory,
                                     dataCenterName,
                                     clusterName,
-                                    dseVersion,
-                                    fileMapper.CancellationSource.Token,
+                                    dseVersion,                                    
                                     mapperGroup.Key.ProcessPriorityLevel,
                                     mapperGroup.Key.ParallelProcessingWithinPriorityLevel,
                                     fileMapper,
@@ -491,8 +488,7 @@ namespace DSEDiagnosticFileParser
                         localDiagFilesList.AddRange(ProcessFile(diagnosticDirectory,
                                                                     dataCenterName,
                                                                     clusterName,
-                                                                    dseVersion,
-                                                                    fileMapper.CancellationSource.Token,
+                                                                    dseVersion,                                                                    
                                                                     mapperGroup.Key.ProcessPriorityLevel,
                                                                     mapperGroup.Key.ParallelProcessingWithinPriorityLevel,
                                                                     fileMapper,
@@ -617,7 +613,9 @@ namespace DSEDiagnosticFileParser
 
             if(fileMappings.ProcessingTaskOption.HasFlag(FileMapper.ProcessingTaskOptions.AllNodesInCluster))
             {
-                processTheseNodes = Cluster.GetNodes(null, clusterName).ToArray();
+                processTheseNodes = string.IsNullOrEmpty(clusterName) && Cluster.Clusters.Count() == 1
+                                        ? Cluster.Clusters.First().Nodes.ToArray()                                            
+                                        : Cluster.GetNodes(null, clusterName).ToArray();
             }
             else if (fileMappings.ProcessingTaskOption.HasFlag(FileMapper.ProcessingTaskOptions.AllNodesInDataCenter))
             {

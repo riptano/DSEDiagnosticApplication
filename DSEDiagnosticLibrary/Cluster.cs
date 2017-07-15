@@ -103,6 +103,14 @@ namespace DSEDiagnosticLibrary
             }
         }
 
+        public IEnumerable<INode> Nodes
+        {
+            get
+            {
+                return this.DataCenters.SelectMany(dc => dc.Nodes);
+            }
+        }
+
         public OpsCenterInfo OpsCenter { get; private set; }
 
 		public IEvent AssociateItem(IEvent eventItem)
