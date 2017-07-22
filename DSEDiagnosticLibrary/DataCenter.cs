@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Text;
+using Newtonsoft.Json;
 using Common.Patterns;
 using System.Threading.Tasks;
 using Common.Patterns.Tasks;
@@ -34,6 +35,7 @@ namespace DSEDiagnosticLibrary
         object ToDump();
     }
 
+    [JsonObject(MemberSerialization.OptOut)]
     public class PlaceholderDataCenter : IDataCenter
     {
         protected PlaceholderDataCenter()
@@ -93,15 +95,25 @@ namespace DSEDiagnosticLibrary
             }
         }
 
+        [JsonProperty(PropertyName="Name")]
         private string _name = null;
+        [JsonProperty(PropertyName="ClassName")]
         private string _className = null;
+        [JsonIgnore]
         virtual public string Name
         {
             get { return string.Format("{0}<{1}>", this._name, this._nodes.Count()); }
             protected set { throw new NotImplementedException(); }
         }
 
+        [JsonProperty(PropertyName="Nodes")]
+        IEnumerable<INode> datamemberNodes
+        {
+            get { return this._nodes.UnSafe; }
+            set { this._nodes = new CTS.List<INode>(value); }
+        }
         protected CTS.List<INode> _nodes = new CTS.List<INode>();
+        [JsonIgnore]
         public IEnumerable<INode> Nodes
         {
             get { return this._nodes; }
@@ -129,10 +141,11 @@ namespace DSEDiagnosticLibrary
             throw new NotImplementedException();
         }
 
+        [JsonIgnore]
         virtual public IEnumerable<IEvent> Events { get { throw new NotImplementedException(); } }
-
+        [JsonIgnore]
         virtual public IEnumerable<IConfigurationLine> Configurations { get { throw new NotImplementedException(); } }
-
+        [JsonIgnore]
         virtual public IEnumerable<IDDL> DDLs { get { throw new NotImplementedException(); } }
 
         #endregion
@@ -147,7 +160,7 @@ namespace DSEDiagnosticLibrary
         {
             if (ReferenceEquals(this, other)) return true;
             if (ReferenceEquals(other,null)) return false;
-            
+
             if (this.Cluster.IsMaster || other.Cluster.IsMaster) return this._name == ((PlaceholderDataCenter)other)._name;
 
             return this.Cluster.Equals(other.Cluster) && this._name == ((PlaceholderDataCenter)other)._name;
@@ -168,6 +181,7 @@ namespace DSEDiagnosticLibrary
             return false;
         }
 
+        [JsonProperty(PropertyName="HashCode")]
         private int _hashcode = 0;
         public override int GetHashCode()
         {
@@ -188,6 +202,7 @@ namespace DSEDiagnosticLibrary
 
     }
 
+    [JsonObject(MemberSerialization.OptOut)]
     public sealed class DataCenter : PlaceholderDataCenter
 	{
 		public DataCenter()
@@ -353,12 +368,14 @@ namespace DSEDiagnosticLibrary
         }
 
         #region IDataCenter
+
         override public Cluster Cluster
         {
             get;
             protected set;
         }
 
+        [JsonIgnore]
         override public IEnumerable<IKeyspace> Keyspaces
 		{
 			get
@@ -367,18 +384,23 @@ namespace DSEDiagnosticLibrary
 			}
 		}
 
-		override public string Name
+        override public string Name
 		{
 			get;
 			protected set;
 		}
 
-		private List<IEvent> _events = new List<IEvent>();
-		override public IEnumerable<IEvent> Events { get { lock (this._events) { return this._events.ToArray(); } } }
+        [JsonProperty(PropertyName="Events")]
+        private List<IEvent> _events = new List<IEvent>();
+        [JsonIgnore]
+        override public IEnumerable<IEvent> Events { get { lock (this._events) { return this._events.ToArray(); } } }
 
-		private List<IConfigurationLine> _configurations = new List<IConfigurationLine>();
-		override public IEnumerable<IConfigurationLine> Configurations { get { lock (this._configurations) { return this._configurations.ToArray(); } } }
+        [JsonProperty(PropertyName="Configurations")]
+        private List<IConfigurationLine> _configurations = new List<IConfigurationLine>();
+        [JsonIgnore]
+        override public IEnumerable<IConfigurationLine> Configurations { get { lock (this._configurations) { return this._configurations.ToArray(); } } }
 
+        [JsonIgnore]
 		override public IEnumerable<IDDL> DDLs
         {
             get
@@ -399,7 +421,7 @@ namespace DSEDiagnosticLibrary
 		{
             if (ReferenceEquals(this, other)) return true;
             if (ReferenceEquals(other, null)) return false;
-            
+
             if (this.Cluster.IsMaster || other.Cluster.IsMaster) return this.Name == other.Name;
 
             return this.Cluster.Equals(other.Cluster) && this.Name == other.Name;

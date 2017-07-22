@@ -4,13 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using Common;
 using Common.Path;
 using CTS = Common.Patterns.Collections.ThreadSafe;
-using Newtonsoft.Json;
 
 namespace DSEDiagnosticLibrary
 {
+    [JsonObject(MemberSerialization.OptOut)]
     public sealed class CQLColumnType : IEquatable<string>, IEquatable<CQLColumnType>
     {
         readonly static Regex TupleRegEx = new Regex(LibrarySettings.TupleRegExStr, RegexOptions.Compiled | RegexOptions.IgnoreCase);
@@ -198,6 +199,7 @@ namespace DSEDiagnosticLibrary
                             bool resetAttribs = true);
     }
 
+    [JsonObject(MemberSerialization.OptOut)]
     public sealed class CQLColumn : ICQLColumn
     {
         static readonly Regex StaticRegEx = new Regex(LibrarySettings.StaticRegExStr, RegexOptions.Compiled | RegexOptions.IgnoreCase);
@@ -223,6 +225,7 @@ namespace DSEDiagnosticLibrary
                 this.CQLType.SetColumn(this);
             }
         }
+
         public ICQLTable Table { get; private set; }
         public ICQLUserDefinedType UDT { get; private set; }
         public string Name { get; private set; }
@@ -303,6 +306,7 @@ namespace DSEDiagnosticLibrary
         }
     }
 
+    [JsonObject(MemberSerialization.OptOut)]
     public sealed class CQLOrderByColumn : IEquatable<string>, IEquatable<ICQLColumn>, IEquatable<CQLOrderByColumn>
     {
         public ICQLColumn Column;
@@ -354,6 +358,7 @@ namespace DSEDiagnosticLibrary
         #endregion
     }
 
+    [JsonObject(MemberSerialization.OptOut)]
     public sealed class CQLFunctionColumn : IEquatable<string>, IEquatable<ICQLColumn>, IEquatable<CQLFunctionColumn>
     {
         public CQLFunctionColumn(string function,
@@ -406,9 +411,13 @@ namespace DSEDiagnosticLibrary
             return base.Equals(obj);
         }
 
+        [JsonProperty(PropertyName="HashCode")]
+        int _hashCode = 0;
         public override int GetHashCode()
         {
-            return (this.Function == null ? 0 : this.Function.GetHashCode()) + this.Columns.Sum(c => c.GetHashCode());
+            return this._hashCode == 0
+                    ? this._hashCode = (this.Function == null ? 0 : this.Function.GetHashCode()) + this.Columns.Sum(c => c.GetHashCode())
+                    : this._hashCode;
         }
         public override string ToString()
         {
@@ -420,6 +429,7 @@ namespace DSEDiagnosticLibrary
         #endregion
     }
 
+    [JsonObject(MemberSerialization.OptOut)]
     public sealed class CQLTableStats
     {
         public uint Collections;
@@ -471,6 +481,7 @@ namespace DSEDiagnosticLibrary
         void SetID(string uuid);
     }
 
+    [JsonObject(MemberSerialization.OptOut)]
     public class CQLTable : ICQLTable
     {
         public CQLTable(IFilePath cqlFile,
@@ -657,7 +668,14 @@ namespace DSEDiagnosticLibrary
             return this.IsActive;
         }
 
+        [JsonProperty(PropertyName="DDLs")]
+        private IEnumerable<IDDL> datamemberDDLs
+        {
+            get { return this._ddlList.UnSafe; }
+            set { this._ddlList = new CTS.List<IDDL>(value); }
+        }
         private CTS.List<IDDL> _ddlList = new CTS.List<IDDL>();
+        [JsonIgnore]
         public IEnumerable<IDDL> DDLs { get { return this._ddlList; } }
 
         public IDDL AssociateItem(IDDL ddl)
@@ -751,9 +769,13 @@ namespace DSEDiagnosticLibrary
         #endregion
 
         #region IParsed
+        [JsonIgnore]
         public SourceTypes Source { get { return SourceTypes.CQL; } }
+        [JsonConverter(typeof(IPathJsonConverter))]
         public IPath Path { get; private set; }
+        [JsonIgnore]
         public Cluster Cluster { get { return this.Keyspace.Cluster; } }
+        [JsonIgnore]
         public IDataCenter DataCenter { get { return this.Node?.DataCenter ?? this.Keyspace.DataCenter; } }
         public INode Node { get; private set; }
         public int Items { get; private set; }
@@ -764,6 +786,7 @@ namespace DSEDiagnosticLibrary
         #region IDDLStmt
         public IKeyspace Keyspace { get; private set; }
         public string Name { get; private set; }
+        [JsonIgnore]
         public string FullName { get { return this.Keyspace.Name + '.' + this.Name; } }
         public string DDL { get; private set; }
         public virtual object ToDump()
@@ -810,6 +833,7 @@ namespace DSEDiagnosticLibrary
             return base.Equals(obj);
         }
 
+        [JsonProperty(PropertyName="HashCode")]
         private int _hashcode = 0;
         public override int GetHashCode()
         {

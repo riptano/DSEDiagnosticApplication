@@ -9,6 +9,7 @@ namespace DSEDiagnosticLibrary
 {
     public enum SourceTypes
     {
+
         Unknown = 0,
         CassandraLog,
         CFStats,

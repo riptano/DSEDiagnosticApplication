@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using Common;
 using DSEDiagnosticLibrary;
 using DSEDiagnosticLogger;
 
 namespace DSEDiagnosticFileParser
 {
+    [JsonObject(MemberSerialization.OptOut)]
     public class file_yaml : DiagnosticFile
     {
         public file_yaml(CatagoryTypes catagory,
@@ -24,6 +26,7 @@ namespace DSEDiagnosticFileParser
             this.ConfigType = YamlConfigurationLine.ConfigTypeMapper.FindConfigType(file);
         }
 
+        [JsonObject(MemberSerialization.OptOut)]
         public sealed class YamlResult : IResult
         {
             private YamlResult() { }
@@ -33,20 +36,26 @@ namespace DSEDiagnosticFileParser
                 this.Node = yamlFileInstance.Node;
             }
 
+            [JsonProperty]
             internal List<IConfigurationLine> ConfigLines = new List<IConfigurationLine>();
 
             #region IResult
+            [JsonConverter(typeof(DSEDiagnosticLibrary.IPathJsonConverter))]
             public IPath Path { get; private set; }
+            [JsonIgnore]
             public Cluster Cluster { get { return this.DataCenter?.Cluster; } }
+            [JsonIgnore]
             public IDataCenter DataCenter { get { return this.Node?.DataCenter; } }
             public INode Node { get; private set; }
+            [JsonIgnore]
             public int NbrItems { get { return this.ConfigLines.Count; } }
-
+            [JsonIgnore]
             public IEnumerable<IParsed> Results { get { return this.ConfigLines; } }
 
             #endregion
         }
 
+        [JsonProperty(PropertyName="Results")]
         protected YamlResult _result;
 
         public override IResult GetResult()
@@ -473,7 +482,7 @@ namespace DSEDiagnosticFileParser
                     this.Node.DSE.Locations.HintsDir = propvaluePair.Item2;
                     break;
                 case "commitlog_directory":
-                    this.Node.DSE.Locations.CommentLogDir = propvaluePair.Item2;
+                    this.Node.DSE.Locations.CommitLogDir = propvaluePair.Item2;
                     break;
                 case "saved_caches_directory":
                     this.Node.DSE.Locations.SavedCacheDir = propvaluePair.Item2;

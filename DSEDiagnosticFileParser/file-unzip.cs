@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using Common;
 using DSEDiagnosticLibrary;
 
 namespace DSEDiagnosticFileParser
 {
+    [JsonObject(MemberSerialization.OptOut)]
     public sealed class file_unzip : DiagnosticFile
     {
         public file_unzip(CatagoryTypes catagory,
@@ -21,6 +23,7 @@ namespace DSEDiagnosticFileParser
         {
         }
 
+        [JsonObject(MemberSerialization.OptOut)]
         public sealed class ExtractionResult : IResult
         {
             internal ExtractionResult(IPath extractionDirectory, int nbrFilesExtracted, bool extractionFileReNamed)
@@ -30,6 +33,7 @@ namespace DSEDiagnosticFileParser
                 this.ExtractionFileReNamed = extractionFileReNamed;
             }
 
+            [JsonConverter(typeof(DSEDiagnosticLibrary.IPathJsonConverter))]
             public IPath Path { get; }
             public Cluster Cluster { get; }
             public IDataCenter DataCenter { get; }
@@ -43,6 +47,8 @@ namespace DSEDiagnosticFileParser
 
             public IEnumerable<IParsed> Results { get; }
         }
+
+        [JsonProperty(PropertyName="Results")]
         private ExtractionResult _result;
 
         public override IResult GetResult()

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using Common;
 
 namespace DSEDiagnosticLibrary
@@ -13,6 +14,7 @@ namespace DSEDiagnosticLibrary
         string JavaClass { get; }
     }
 
+    [JsonObject(MemberSerialization.OptOut)]
     public sealed class CQLTrigger : ICQLTrigger
     {
         public CQLTrigger(IFilePath cqlFile,
@@ -50,9 +52,13 @@ namespace DSEDiagnosticLibrary
         }
 
         #region IParsed
+        [JsonIgnore]
         public SourceTypes Source { get { return SourceTypes.CQL; } }
+        [JsonConverter(typeof(IPathJsonConverter))]
         public IPath Path { get; private set; }
+        [JsonIgnore]
         public Cluster Cluster { get { return this.Table.Cluster; } }
+        [JsonIgnore]
         public IDataCenter DataCenter { get { return this.Node?.DataCenter ?? this.Table.DataCenter; } }
         public INode Node { get; private set; }
         public int Items { get; private set; }
@@ -61,8 +67,10 @@ namespace DSEDiagnosticLibrary
         #endregion
 
         #region IDDLStmt
+        [JsonIgnore]
         public IKeyspace Keyspace { get { return this.Table.Keyspace; } }
         public string Name { get; private set; }
+        [JsonIgnore]
         public string FullName { get { return this.Keyspace.Name + '.' + this.Name; } }
         public string DDL { get; private set; }
         public object ToDump()
@@ -119,6 +127,7 @@ namespace DSEDiagnosticLibrary
             return base.Equals(obj);
         }
 
+        [JsonProperty(PropertyName="HashCode")]
         private int _hashcode = 0;
         public override int GetHashCode()
         {
@@ -128,7 +137,7 @@ namespace DSEDiagnosticLibrary
                 if (this.Keyspace.Cluster.IsMaster) return this.FullName.GetHashCode();
 
                 return this._hashcode = this.Keyspace.GetHashCode() * 31 + this.Name.GetHashCode();
-            }            
+            }
         }
 
         public override string ToString()

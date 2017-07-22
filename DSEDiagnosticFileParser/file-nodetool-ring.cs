@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using Common;
 using DSEDiagnosticLibrary;
 using DSEDiagnosticLogger;
 
 namespace DSEDiagnosticFileParser
 {
+    [JsonObject(MemberSerialization.OptOut)]
     public sealed class file_nodetool_ring : DiagnosticFile
     {
         public file_nodetool_ring(CatagoryTypes catagory,

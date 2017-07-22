@@ -4,9 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace DSEDiagnosticLibrary
 {
+    [JsonObjectAttribute(MemberSerialization.OptOut)]
     public sealed class UnitOfMeasure : IEquatable<UnitOfMeasure>
     {
         /// <summary>
@@ -29,9 +31,11 @@ namespace DSEDiagnosticLibrary
         /// f(femto) = /1000000000000000 = e-15
         /// a(atto) = /1000000000000000000 = e-18
         /// </summary>
+
         [Flags]
         public enum Types : ulong
         {
+
             Unknown = 0,
             Storage = 0x0001,
             Memory = 0x0002,
@@ -131,11 +135,13 @@ namespace DSEDiagnosticLibrary
         public Types UnitType { get; private set; }
         public decimal Value { get; private set; }
 
+        [JsonIgnore]
         public bool NaN { get { return (this.UnitType & Types.NaN) != 0; } }
 
         /// <summary>
         /// Returns a new UOM based on the default normalized types.
         /// </summary>
+        [JsonIgnore]
         public UnitOfMeasure NormalizedValue
         {
             get
@@ -1027,6 +1033,7 @@ namespace DSEDiagnosticLibrary
             return base.Equals(obj);
         }
 
+        [JsonProperty(PropertyName="HashCode")]
         private int _hashcode = 0;
         public override int GetHashCode()
         {

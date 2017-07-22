@@ -91,6 +91,7 @@
     <Compile Include="DDL.cs" />
     <Compile Include="Event.cs" />
     <Compile Include="IResult.cs" />
+    <Compile Include="JsonConverter.cs" />
     <Compile Include="Keyspace.cs" />
     <Compile Include="LibrarySettings.cs" />
     <Compile Include="LogCassandraEvent.cs" />

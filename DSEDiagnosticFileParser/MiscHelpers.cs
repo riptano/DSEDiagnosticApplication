@@ -474,6 +474,31 @@ namespace DSEDiagnosticFileParser
             return t.GetMethod(methodName, arguments?.Select(a => a.Item1).ToArray() ?? new Type[0]);
         }
 
+        public static IEnumerable<string> ToExceptionString(this Exception ex, string prefix = null)
+        {
+            if (ex == null) return Enumerable.Empty<string>();
+
+            IEnumerable<string> innerExceptions = Enumerable.Empty<string>();
+            IEnumerable<string> aggregateExceptions = Enumerable.Empty<string>();
+
+            if (ex.InnerException != null)
+            {
+                innerExceptions = ToExceptionString(ex, ex.GetType().Name +"(inner)");
+            }
+
+            if(ex is AggregateException)
+            {
+                aggregateExceptions = ((AggregateException)ex).InnerExceptions.SelectMany(ae => ToExceptionString(ae, "AggregateException"));
+            }
+
+            var stringList = new List<string>();
+
+            stringList.Add((string.IsNullOrEmpty(prefix) ? string.Empty : prefix + ':') + ex.GetType().Name + '{' + ex.Message + ',' + ex.Source + ',' + ex.StackTrace);
+            stringList.AddRange(innerExceptions);
+            stringList.AddRange(aggregateExceptions);
+            return stringList;
+        }
+
         #region JSON
 
         public static Dictionary<string, JObject> TryGetValues(this JObject jsonObj)

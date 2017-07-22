@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using Common;
 using DSEDiagnosticLibrary;
 using DSEDiagnosticLogger;
 
 namespace DSEDiagnosticFileParser
 {
+    [JsonObject(MemberSerialization.OptOut)]
     internal sealed class file_cassandra_topology : file_yaml
     {
         public file_cassandra_topology(CatagoryTypes catagory,

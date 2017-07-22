@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using Common;
 using DSEDiagnosticLibrary;
 
 namespace DSEDiagnosticFileParser
 {
+    [JsonObject(MemberSerialization.OptOut)]
     internal class file_DSE_env : file_yaml
     {
         public file_DSE_env(CatagoryTypes catagory,
@@ -21,7 +23,8 @@ namespace DSEDiagnosticFileParser
         {
             this.SplitLineDelimiter = '=';
         }
-
+        
+        [JsonIgnore]
         public override SourceTypes Source { get { return SourceTypes.EnvFile; } }
 
         private int ifCount = 0;

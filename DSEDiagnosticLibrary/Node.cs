@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Collections.Concurrent;
 using System.Net;
+using Newtonsoft.Json;
 using Common;
 using Common.Patterns;
 using Common.Patterns.TimeZoneInfo;
@@ -13,6 +14,7 @@ using CTS = Common.Patterns.Collections.ThreadSafe;
 
 namespace DSEDiagnosticLibrary
 {
+    [JsonObject(MemberSerialization.OptOut)]
 	public sealed class NodeIdentifier : IEquatable<NodeIdentifier>, IEquatable<IPAddress>, IEquatable<string>
 	{
 		private NodeIdentifier()
@@ -267,8 +269,20 @@ namespace DSEDiagnosticLibrary
         #endregion
 
         public string HostName { get; set; }
-		private System.Collections.Concurrent.ConcurrentBag<IPAddress> _addresses { get; set; }
-		public IEnumerable<IPAddress> Addresses { get { return this._addresses; } }
+        [JsonProperty(PropertyName= "Addresses")]
+        private IEnumerable<string> datamemberAddresses
+        {
+            get { return this._addresses?.Select(a => a.ToString()); }
+            set
+            {
+                this._addresses = value == null
+                     ? null
+                     : new System.Collections.Concurrent.ConcurrentBag<IPAddress>(value.Select(a => IPAddress.Parse(a)));
+            }
+        }
+        private System.Collections.Concurrent.ConcurrentBag<IPAddress> _addresses { get; set; }
+        [JsonIgnore]
+        public IEnumerable<IPAddress> Addresses { get { return this._addresses; } }
 
 		#region IEquatable
 		public bool Equals(NodeIdentifier other)
@@ -410,6 +424,7 @@ namespace DSEDiagnosticLibrary
             return base.ToString();
 		}
 
+        [JsonProperty(PropertyName="HashCode")]
         private int _hashCode = 0;
 		public override int GetHashCode()
 		{
@@ -432,54 +447,62 @@ namespace DSEDiagnosticLibrary
 
     }
 
+    [JsonObject(MemberSerialization.OptOut)]
 	public sealed class MachineInfo
 	{
-		public sealed class CPUInfo
+        [JsonObject(MemberSerialization.OptOut)]
+        public sealed class CPUInfo
 		{
 			public string Architecture;
-			public uint? Cores;
+            public uint? Cores;
 		}
 
-		public sealed class CPULoadInfo
+        [JsonObject(MemberSerialization.OptOut)]
+        public sealed class CPULoadInfo
 		{
-			public UnitOfMeasure Average;
-			public UnitOfMeasure Idle;
-			public UnitOfMeasure System;
-			public UnitOfMeasure User;
+            public UnitOfMeasure Average;
+            public UnitOfMeasure Idle;
+            public UnitOfMeasure System;
+            public UnitOfMeasure User;
 		}
 
-		public sealed class MemoryInfo
+        [JsonObject(MemberSerialization.OptOut)]
+        public sealed class MemoryInfo
 		{
-			public UnitOfMeasure PhysicalMemory;
-			public UnitOfMeasure Available;
-			public UnitOfMeasure Cache;
-			public UnitOfMeasure Buffers;
-			public UnitOfMeasure Shared;
-			public UnitOfMeasure Free;
-			public UnitOfMeasure Used;
+            public UnitOfMeasure PhysicalMemory;
+            public UnitOfMeasure Available;
+            public UnitOfMeasure Cache;
+            public UnitOfMeasure Buffers;
+            public UnitOfMeasure Shared;
+            public UnitOfMeasure Free;
+            public UnitOfMeasure Used;
 		}
 
-		public sealed class JavaInfo
+        [JsonObject(MemberSerialization.OptOut)]
+        public sealed class JavaInfo
 		{
-			public struct MemoryInfo
+            [JsonObject(MemberSerialization.OptOut)]
+            public struct MemoryInfo
 			{
-				public UnitOfMeasure Committed;
-				public UnitOfMeasure Initial;
-				public UnitOfMeasure Maximum;
-				public UnitOfMeasure Used;
+                public UnitOfMeasure Committed;
+                public UnitOfMeasure Initial;
+                public UnitOfMeasure Maximum;
+                public UnitOfMeasure Used;
 			}
 
-			public string Vendor;
-			public int? Model;
-			public string RuntimeName;
-			public string Version;
-			public string GCType;
-			public MemoryInfo NonHeapMemory;
-			public MemoryInfo HeapMemory;
+            public string Vendor;
+            public int? Model;
+            public string RuntimeName;
+            public string Version;
+            public string GCType;
+            public MemoryInfo NonHeapMemory;
+            public MemoryInfo HeapMemory;
 		}
 
-		public sealed class NTPInfo
+        [JsonObject(MemberSerialization.OptOut)]
+        public sealed class NTPInfo
 		{
+            [JsonConverter(typeof(IPAddressJsonConverter))]
             public IPAddress NTPServer;
             public int? Stratum;
             public UnitOfMeasure Correction;
@@ -501,54 +524,58 @@ namespace DSEDiagnosticLibrary
             this.NTP = new NTPInfo();
         }
 
-		public CPUInfo CPU;
-		public string OS;
-		public string OSVersion;
+        public CPUInfo CPU;
+        public string OS;
+        public string OSVersion;
         public string InstanceType;
         public string Placement;
-		public IZone TimeZone;
-		public CPULoadInfo CPULoad;
-		public MemoryInfo Memory;
-		public JavaInfo Java;
-		public NTPInfo NTP;
+        public IZone TimeZone;
+        public CPULoadInfo CPULoad;
+        public MemoryInfo Memory;
+        public JavaInfo Java;
+        public NTPInfo NTP;
 	}
 
-	public sealed class DSEInfo
+    [JsonObject(MemberSerialization.OptOut)]
+    public sealed class DSEInfo
 	{
 		[Flags]
 		public enum InstanceTypes
 		{
+
 			Unkown = 0,
-			Cassandra = 0x0001,
-			Search = 0x0002,
-			Analytics = 0x0004,
-			TT = 0x0008,
-			JT = 0x0010,
+            Cassandra = 0x0001,
+            Search = 0x0002,
+            Analytics = 0x0004,
+            TT = 0x0008,
+            JT = 0x0010,
             Graph = 0x0020,
             AdvancedReplication = 0x0040,
             Hadoop = 0x0080,
             CFS = 0x0100,
             Analytics_TT = Analytics | TT,
-			Analytics_JS = Analytics | JT
+            Analytics_JS = Analytics | JT
 		}
 
 		public enum DSEStatuses
 		{
-			Unknown = 0,
-			Up,
-			Down
+            Unknown = 0,
+            Up,
+            Down
 		}
 
-		public sealed class VersionInfo
+        [JsonObject(MemberSerialization.OptOut)]
+        public sealed class VersionInfo
 		{
 			public Version DSE;
-			public Version Cassandra;
-			public Version Search;
-			public Version Analytics;
-			public Version OpsCenterAgent;
+            public Version Cassandra;
+            public Version Search;
+            public Version Analytics;
+            public Version OpsCenterAgent;
 		}
 
-		public sealed class TokenRangeInfo : IEquatable<TokenRangeInfo>
+        [JsonObject(MemberSerialization.OptOut)]
+        public sealed class TokenRangeInfo : IEquatable<TokenRangeInfo>
 		{
             static readonly Regex RegExTokenRange = new Regex(Properties.Settings.Default.TokenRangeRegEx, RegexOptions.Compiled);
 
@@ -629,11 +656,10 @@ namespace DSEDiagnosticLibrary
             }
 
             public bool WrapsRange = false;
-
             public long StartRange; //Start Token (exclusive)
-			public long EndRange; //End Token (inclusive)
-			public ulong Slots;
-			public UnitOfMeasure Load;
+            public long EndRange; //End Token (inclusive)
+            public ulong Slots;
+            public UnitOfMeasure Load;
 
             /// <summary>
             /// Checks to determine if checkRange is within this range.
@@ -694,13 +720,14 @@ namespace DSEDiagnosticLibrary
             #endregion
         }
 
+        [JsonObject(MemberSerialization.OptOut)]
         public sealed class DirectoryLocations
         {
             public string CassandraYamlFile;
             public string DSEYamlFile;
             public string HintsDir; //hints_directory
             public IEnumerable<string> DataDirs; //data_file_directories
-            public string CommentLogDir; //commitlog_directory
+            public string CommitLogDir; //commitlog_directory
             public string SavedCacheDir; //saved_caches_directory
         }
 
@@ -710,40 +737,42 @@ namespace DSEDiagnosticLibrary
             this.Locations = new DirectoryLocations();
         }
 
-		public InstanceTypes InstanceType;
-		public VersionInfo Versions;
+        public InstanceTypes InstanceType;
+        public VersionInfo Versions;
         public Guid HostId;
         /// <summary>
         /// Can be set in the DSE.yaml file (server_id) for multi-instance nodes to allow a group of DSE nodes on one physical server to be identified on that one physical server.
         /// </summary>
         public string PhysicalServerId;
-		public string Rack;
+        public string Rack;
         public string DataCenterSuffix;
-		public DSEStatuses Statuses;
-		public UnitOfMeasure StorageUsed;
-		public UnitOfMeasure StorageUtilization;
-		public string HealthRating;
-		public UnitOfMeasure Uptime;
-		public UnitOfMeasure Heap;
-		public UnitOfMeasure OffHeap;
+        public DSEStatuses Statuses;
+        public UnitOfMeasure StorageUsed;
+        public UnitOfMeasure StorageUtilization;
+        public string HealthRating;
+        public UnitOfMeasure Uptime;
+        public UnitOfMeasure Heap;
+        public UnitOfMeasure OffHeap;
         public bool? IsSeedNode; //seed_provider.parameters.seeds: "10.14.148.34,10.14.148.51"
-		public bool? VNodesEnabled;
-		public uint? NbrTokens;
-		public uint? NbrExceptions;
-		public bool? GossipEnabled;
-		public bool? ThriftEnabled;
-		public bool? NativeTransportEnabled;
+        public bool? VNodesEnabled;
+        public uint? NbrTokens;
+        public uint? NbrExceptions;
+        public bool? GossipEnabled;
+        public bool? ThriftEnabled;
+        public bool? NativeTransportEnabled;
         public bool? RepairServiceHasRan;
         public DateTimeRange RepairServiceRanRange;
         public DirectoryLocations Locations;
         public string EndpointSnitch;
         public string Partitioner;
         public string KeyCacheInformation;
-		public string RowCacheInformation;
-		public string CounterCacheInformation;
+        public string RowCacheInformation;
+        public string CounterCacheInformation;
 
+        [JsonProperty(PropertyName="TokenRanges")]
         private List<TokenRangeInfo> _tokenRanges = new List<TokenRangeInfo>();
-		public IEnumerable<TokenRangeInfo> TokenRanges { get { return this._tokenRanges; } }
+        [JsonIgnore]
+        public IEnumerable<TokenRangeInfo> TokenRanges { get { return this._tokenRanges; } }
 
         public TokenRangeInfo AddTokenPair(string start, string end, string tokenLoad)
         {
@@ -775,7 +804,8 @@ namespace DSEDiagnosticLibrary
         object ToDump();
 	}
 
-	public sealed class Node : INode
+    [JsonObject(MemberSerialization.OptOut)]
+    public sealed class Node : INode
 	{
 		static Node()
 		{
@@ -873,14 +903,18 @@ namespace DSEDiagnosticLibrary
         }
 
         #region INode
+        [JsonProperty(PropertyName="DefaultCluster")]
         private Cluster _defaultCluster = null;
+        [JsonIgnore]
         public Cluster Cluster
 		{
 			get { return this.DataCenter?.Cluster ?? this._defaultCluster; }
 		}
 
+        [JsonProperty(PropertyName="DefaultDC")]
         private IDataCenter _defaultDC = null;
-		public IDataCenter DataCenter
+        [JsonIgnore]
+        public IDataCenter DataCenter
 		{
 			get
             {
@@ -902,25 +936,34 @@ namespace DSEDiagnosticLibrary
             }
 		}
 
-		public DSEInfo DSE
+        public DSEInfo DSE
 		{
 			get;
 		}
 
-		public NodeIdentifier Id
+        public NodeIdentifier Id
 		{
 			get;
 			private set;
 		}
 
-		public MachineInfo Machine
+        public MachineInfo Machine
 		{
 			get;
 		}
 
-		private CTS.List<IEvent> _events = new CTS.List<IEvent>();
-		public IEnumerable<IEvent> Events { get { lock (this._events) { return this._events.ToArray(); } } }
+        [JsonProperty(PropertyName="Events")]
+        private IEnumerable<IEvent> datamemberEvents
+        {
+            get { return this._events.UnSafe; }
+            set { this._events = new CTS.List<IEvent>(value); }
+        }
 
+        private CTS.List<IEvent> _events = new CTS.List<IEvent>();
+        [JsonIgnore]
+        public IEnumerable<IEvent> Events { get { lock (this._events) { return this._events.ToArray(); } } }
+
+        [JsonIgnore]
 		public IEnumerable<IConfigurationLine> Configurations
         {
             get
@@ -985,6 +1028,7 @@ namespace DSEDiagnosticLibrary
 			return false;
 		}
 
+        [JsonProperty(PropertyName="HashCode")]
         private int _hashcode = 0;
 		public override int GetHashCode()
 		{

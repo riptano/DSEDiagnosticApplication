@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using Common;
 
 namespace DSEDiagnosticLibrary
@@ -12,6 +13,7 @@ namespace DSEDiagnosticLibrary
         IEnumerable<ICQLColumn> Columns { get; }
     }
 
+    [JsonObject(MemberSerialization.OptOut)]
     public sealed class CQLUserDefinedType : ICQLUserDefinedType
     {
         public CQLUserDefinedType(IFilePath cqlFile,
@@ -55,9 +57,13 @@ namespace DSEDiagnosticLibrary
         public IEnumerable<ICQLColumn> Columns { get; private set; }
 
         #region IParsed
+        [JsonIgnore]
         public SourceTypes Source { get { return SourceTypes.CQL; } }
+        [JsonConverter(typeof(IPathJsonConverter))]
         public IPath Path { get; private set; }
+        [JsonIgnore]
         public Cluster Cluster { get { return this.Keyspace.Cluster; } }
+        [JsonIgnore]
         public IDataCenter DataCenter { get { return this.Node?.DataCenter ?? this.Keyspace.DataCenter; } }
         public INode Node { get; private set; }
         public int Items { get; private set; }
@@ -68,6 +74,7 @@ namespace DSEDiagnosticLibrary
         #region IDDLStmt
         public IKeyspace Keyspace { get; private set; }
         public string Name { get; private set; }
+        [JsonIgnore]
         public string FullName { get { return this.Keyspace.Name + '.' + this.Name; } }
         public string DDL { get; private set; }
         public object ToDump()
@@ -114,6 +121,7 @@ namespace DSEDiagnosticLibrary
             return base.Equals(obj);
         }
 
+        [JsonProperty(PropertyName="HashCode")]
         private int _hashcode = 0;
         public override int GetHashCode()
         {

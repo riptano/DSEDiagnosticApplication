@@ -3,14 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using Common;
 using Common.Path;
 using CTS = Common.Patterns.Collections.ThreadSafe;
 
 namespace DSEDiagnosticLibrary
 {
+    [JsonObject(MemberSerialization.OptOut)]
 	public sealed class KeyspaceStats
 	{
+
 		public uint Tables;
         public uint Columns;
         public uint SecondaryIndexes;
@@ -45,6 +48,7 @@ namespace DSEDiagnosticLibrary
         public uint OtherStrategies;
 	}
 
+    [JsonObject(MemberSerialization.OptOut)]
 	public sealed class KeyspaceReplicationInfo : IEquatable<IDataCenter>, IEquatable<string>, IEquatable<KeyspaceReplicationInfo>
     {
         public KeyspaceReplicationInfo(int replicationFactor, IDataCenter datacenter)
@@ -54,7 +58,7 @@ namespace DSEDiagnosticLibrary
         }
 
         public ushort RF { get; private set; }
-		public IDataCenter DataCenter { get; private set; }
+        public IDataCenter DataCenter { get; private set; }
 
         public bool Equals(IDataCenter other)
         {
@@ -130,6 +134,7 @@ namespace DSEDiagnosticLibrary
         bool IsPerformanceKeyspace { get; }
     }
 
+    [JsonObject(MemberSerialization.OptOut)]
     public sealed class KeySpace : IKeyspace
     {
         public KeySpace(IFilePath cqlFile,
@@ -183,18 +188,25 @@ namespace DSEDiagnosticLibrary
         }
 
         #region IParse
+        [JsonIgnore]
         public SourceTypes Source { get { return SourceTypes.CQL; } }
+        [JsonConverter(typeof(DSEDiagnosticLibrary.IPathJsonConverter))]
         public IPath Path { get; private set; }
+        [JsonProperty(PropertyName="Cluster")]
         private Cluster _cluster;
+        [JsonIgnore]
         public Cluster Cluster { get { return this.Node == null ? this._cluster : this.Node.Cluster; } }
+        [JsonIgnore]
         public IDataCenter DataCenter { get { return this.Node?.DataCenter; } }
         public INode Node { get; private set; }
+        [JsonIgnore]
         public int Items { get { return this._ddlList.Count; } }
         public uint LineNbr { get; private set; }
         #endregion
 
         #region IDDL
         public string Name { get; private set; }
+        [JsonIgnore]
         public string FullName { get { return this.Name; } }
         public string DDL { get; private set; }
         public object ToDump()
@@ -204,12 +216,20 @@ namespace DSEDiagnosticLibrary
         #endregion
 
         #region IKeyspace
+        [JsonProperty(PropertyName="DDLs")]
+        private IEnumerable<IDDL> datamemberDDLs
+        {
+            get { return this._ddlList.UnSafe; }
+            set { this._ddlList = new CTS.List<IDDL>(value); }
+        }
         private CTS.List<IDDL> _ddlList = new CTS.List<IDDL>();
+        [JsonIgnore]
         public IEnumerable<IDDL> DDLs { get { return this._ddlList; } }
         public string ReplicationStrategy { get; private set; }
         public bool EverywhereStrategy { get; private set; }
         public bool LocalStrategy { get; private set; }
         public KeyspaceStats Stats { get; private set; }
+        [JsonIgnore]
         public IEnumerable<IDataCenter> DataCenters { get { return this.EverywhereStrategy || this.LocalStrategy ? this.Cluster?.DataCenters : this.Replications.Select(r => r.DataCenter); } }
         public IEnumerable<KeyspaceReplicationInfo> Replications { get; private set; }
         public bool DurableWrites { get; private set; }
@@ -481,6 +501,7 @@ namespace DSEDiagnosticLibrary
             return base.Equals(obj);
         }
 
+        [JsonProperty(PropertyName="HashCode")]
         private int _hashcode = 0;
         public override int GetHashCode()
         {

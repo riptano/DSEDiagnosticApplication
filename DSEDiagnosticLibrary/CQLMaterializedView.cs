@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using Common;
 
 namespace DSEDiagnosticLibrary
@@ -13,6 +14,7 @@ namespace DSEDiagnosticLibrary
         string WhereClause { get; }
     }
 
+    [JsonObject(MemberSerialization.OptOut)]
     public sealed class CQLMaterializedView : CQLTable, ICQLMaterializedView
     {
         public CQLMaterializedView(IFilePath cqlFile,
@@ -27,7 +29,7 @@ namespace DSEDiagnosticLibrary
                                     IDictionary<string, object> properties,
                                     string whereClause,
                                     string ddl,
-                                    INode defindingNode = null,                                    
+                                    INode defindingNode = null,
                                     bool associateViewToColumn = true,
                                     bool associateViewToKeyspace = true,
                                     bool associateViewToTable = true)
@@ -61,6 +63,7 @@ namespace DSEDiagnosticLibrary
         }
 
         #region ICQLMaterializedView
+
         public ICQLTable Table { get; private set; }
         public string WhereClause { get; private set; }
 
@@ -85,7 +88,7 @@ namespace DSEDiagnosticLibrary
         #region overrides
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(this, obj)) return true;            
+            if (ReferenceEquals(this, obj)) return true;
             if (obj is ICQLMaterializedView) return this.Equals((ICQLMaterializedView)obj);
             if (obj is ICQLTable) return this.Equals((ICQLTable)obj);
 
@@ -107,7 +110,7 @@ namespace DSEDiagnosticLibrary
         public new static ICQLMaterializedView TryGet(IKeyspace ksInstance, string name)
         {
             return ksInstance.TryGetView(name);
-        }        
+        }
 
     }
 

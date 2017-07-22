@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using Common;
 using DSEDiagnosticLibrary;
 
 namespace DSEDiagnosticFileParser
 {
+    [JsonObject(MemberSerialization.OptOut)]
     public sealed class file_ntptime : DiagnosticFile
     {
         public file_ntptime(CatagoryTypes catagory,
@@ -29,7 +31,7 @@ namespace DSEDiagnosticFileParser
         public override uint ProcessFile()
         {
             var fileLine = this.File.ReadAllText();
-            
+
             if (!string.IsNullOrEmpty(fileLine))
             {
                 //ntp_gettime() returns code 0 (OK)  time dbf817f7.8ecde16c  Sun, Dec 11 2016 19:22:47.557, (.557829621),  maximum error 11481 us, estimated error 20 us, TAI offset 36 ntp_adjtime() returns code 0 (OK)  modes 0x0 (),  offset -13.848 us, frequency 5.088 ppm, interval 1 s,  maximum error 11481 us, estimated error 20 us,  status 0x2001 (PLL,NANO),  time constant 4, precision 0.001 us, tolerance 500 ppm,
@@ -45,7 +47,7 @@ namespace DSEDiagnosticFileParser
                     this.Node.Machine.NTP.EstimatedError = UnitOfMeasure.Create(splits[4], UnitOfMeasure.Types.Time);
                     //No NTP time constant field
                     this.Node.Machine.NTP.Precision = UnitOfMeasure.Create(splits[6], UnitOfMeasure.Types.Time);
-                    this.Node.Machine.NTP.Tolerance = UnitOfMeasure.Create(splits[7], UnitOfMeasure.Types.Time);                    
+                    this.Node.Machine.NTP.Tolerance = UnitOfMeasure.Create(splits[7], UnitOfMeasure.Types.Time);
                 }
                 else
                 {
@@ -54,7 +56,7 @@ namespace DSEDiagnosticFileParser
                     if (splits.Length > 2)
                     {
                         this.Node.Machine.NTP.MaximumError = UnitOfMeasure.Create(splits[1], UnitOfMeasure.Types.Time);
-                        this.Node.Machine.NTP.EstimatedError = UnitOfMeasure.Create(splits[2], UnitOfMeasure.Types.Time);                       
+                        this.Node.Machine.NTP.EstimatedError = UnitOfMeasure.Create(splits[2], UnitOfMeasure.Types.Time);
                     }
                 }
                 ++this.NbrItemsParsed;

@@ -15,16 +15,18 @@ using Newtonsoft.Json;
 
 namespace DSEDiagnosticFileParser
 {
+    [JsonObject(MemberSerialization.OptOut)]
     public abstract class DiagnosticFile
     {
 		public enum CatagoryTypes
 		{
+
 			Unknown = 0,
-			ConfigurationFile,
-			LogFile,
+            ConfigurationFile,
+            LogFile,
             AchievedLogFile,
             CommandOutputFile,
-			SystemOutputFile,
+            SystemOutputFile,
             CQLFile,
             ZipFile,
             TransformFile
@@ -178,25 +180,55 @@ namespace DSEDiagnosticFileParser
 
         #region Public Members
         public CatagoryTypes Catagory { get; private set; }
-		public IDirectoryPath DiagnosticDirectory { get; private set; }
-		public IFilePath File { get; private set; }
-		public INode Node { get; private set; }
+        [JsonConverter(typeof(DSEDiagnosticLibrary.IPathJsonConverter))]
+        public IDirectoryPath DiagnosticDirectory { get; private set; }
+        [JsonConverter(typeof(DSEDiagnosticLibrary.IPathJsonConverter))]
+        public IFilePath File { get; private set; }
+        public INode Node { get; private set; }
         public string DefaultClusterName { get; private set; }
         public string DefaultDataCenterName { get; private set; }
+        [JsonConverter(typeof(DSEDiagnosticLibrary.DateTimeRangeJsonConverter))]
         public DateTimeRange ParseOnlyInTimeRange { get; protected set; }
         public Version TargetDSEVersion { get; protected set; }
         public int NbrItemsParsed { get; protected set; }
-		public DateTimeRange ParsedTimeRange { get; protected set; }
+        [JsonConverter(typeof(DSEDiagnosticLibrary.DateTimeRangeJsonConverter))]
+        public DateTimeRange ParsedTimeRange { get; protected set; }
         /// <summary>
         /// True to indicate the process was sucessfully completed;
         /// </summary>
         public bool Processed { get; protected set; }
-        public System.Exception Exception { get; protected set; }
+
+        private Exception _exception = null;
+        [JsonIgnore]
+        public System.Exception Exception
+        {
+            get { return this._exception; }
+            protected set
+            {
+                this._exception = value;
+
+                if(this._exception == null)
+                {
+                    this.ExceptionStrings = null;
+                }
+                else
+                {
+                    this.ExceptionStrings = this._exception.ToExceptionString();
+                }
+            }
+        }
+        public IEnumerable<string> ExceptionStrings { get; private set; }
+
+        [JsonProperty(PropertyName= "NbrItemGenerated")]
         private int _nbrItemGenerated = 0;
+        [JsonIgnore]
         public int NbrItemGenerated { get { return this._nbrItemGenerated; } }
+        [JsonIgnore]
         public RegExParseString RegExParser { get; protected set; }
+        [JsonIgnore]
         public CancellationToken CancellationToken { get; set; }
         public bool Canceled { get; protected set; }
+        [JsonIgnore]
         public Task<DiagnosticFile> Task { get; protected set; }
 
         public IResult Result { get { return this.GetResult(); } }
@@ -439,7 +471,7 @@ namespace DSEDiagnosticFileParser
                         var diagnosticFiles = ProcessFile(diagnosticDirectory,
                                                             dataCenterName,
                                                             clusterName,
-                                                            dseVersion,                                                            
+                                                            dseVersion,
                                                             mapperGroup.Key.ProcessPriorityLevel,
                                                             mapperGroup.Key.ParallelProcessingWithinPriorityLevel,
                                                             fileMapper,
@@ -464,7 +496,7 @@ namespace DSEDiagnosticFileParser
                         ProcessFile(diagnosticDirectory,
                                     dataCenterName,
                                     clusterName,
-                                    dseVersion,                                    
+                                    dseVersion,
                                     mapperGroup.Key.ProcessPriorityLevel,
                                     mapperGroup.Key.ParallelProcessingWithinPriorityLevel,
                                     fileMapper,
@@ -488,7 +520,7 @@ namespace DSEDiagnosticFileParser
                         localDiagFilesList.AddRange(ProcessFile(diagnosticDirectory,
                                                                     dataCenterName,
                                                                     clusterName,
-                                                                    dseVersion,                                                                    
+                                                                    dseVersion,
                                                                     mapperGroup.Key.ProcessPriorityLevel,
                                                                     mapperGroup.Key.ParallelProcessingWithinPriorityLevel,
                                                                     fileMapper,
@@ -522,7 +554,7 @@ namespace DSEDiagnosticFileParser
 
             return diagFilesList.Count == 0
                         ? Common.Patterns.Tasks.CompletionExtensions.CompletedTask<IEnumerable<DiagnosticFile>>(Enumerable.Empty<DiagnosticFile>())
-                        : Task<IEnumerable<DiagnosticFile>>.Factory.ContinueWhenAll(diagFilesList.Select(f => f.Task).ToArray(), ignoreItem => diagFilesList);
+                        : Task<IEnumerable<DiagnosticFile>>.Factory.ContinueWhenAll(diagFilesList.Select(f => f.Task).ToArray(), ignoreItem => diagFilesList.UnSafe);
         }
 
         public static IEnumerable<DiagnosticFile> ProcessFile(IDirectoryPath diagnosticDirectory,
@@ -614,7 +646,7 @@ namespace DSEDiagnosticFileParser
             if(fileMappings.ProcessingTaskOption.HasFlag(FileMapper.ProcessingTaskOptions.AllNodesInCluster))
             {
                 processTheseNodes = string.IsNullOrEmpty(clusterName) && Cluster.Clusters.Count() == 1
-                                        ? Cluster.Clusters.First().Nodes.ToArray()                                            
+                                        ? Cluster.Clusters.First().Nodes.ToArray()
                                         : Cluster.GetNodes(null, clusterName).ToArray();
             }
             else if (fileMappings.ProcessingTaskOption.HasFlag(FileMapper.ProcessingTaskOptions.AllNodesInDataCenter))

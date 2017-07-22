@@ -6,10 +6,12 @@ using System.Text;
 using Common;
 using Common.Patterns;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using CTS = Common.Patterns.Collections.ThreadSafe;
 
 namespace DSEDiagnosticLibrary
 {
+    [JsonObject(MemberSerialization.OptOut)]
 	public class Cluster : IEquatable<Cluster>, IEquatable<string>
 	{
 		public static readonly Cluster MasterCluster = null;
@@ -21,6 +23,7 @@ namespace DSEDiagnosticLibrary
             MasterCluster = new Cluster("**LogicalMaster**") { IsMaster = true };
 		}
 
+        [JsonObject(MemberSerialization.OptOut)]
         public sealed class OpsCenterInfo
         {
             public Version Version;
@@ -40,16 +43,46 @@ namespace DSEDiagnosticLibrary
 		}
 
 		public string Name { get; private set; }
-
         public bool IsMaster { get; private set; }
 
-		private CTS.List<IDataCenter> _dataCenters = new CTS.List<IDataCenter>();
-		public IEnumerable<IDataCenter> DataCenters { get { return this._dataCenters; } }
+        [JsonProperty(PropertyName="DataCenters")]
+        private IEnumerable<IDataCenter> datamemberDataCenters
+        {
+            get { return this._dataCenters.UnSafe; }
+            set { this._dataCenters = new CTS.List<IDataCenter>(value); }
+        }
+        private CTS.List<IDataCenter> _dataCenters = new CTS.List<IDataCenter>();
+        [JsonIgnore]
+        public IEnumerable<IDataCenter> DataCenters { get { return this._dataCenters; } }
 
-		private CTS.List<IEvent> _events = new CTS.List<IEvent>();
-		public IEnumerable<IEvent> Events { get { lock (this._events) { return this._events.ToArray(); } } }
+        [JsonProperty(PropertyName = "Events")]
+        private IEnumerable<IEvent> datamemberEvents
+        {
+            get { return this._events.UnSafe; }
+            set { this._events = new CTS.List<IEvent>(value); }
+        }
+        private CTS.List<IEvent> _events = new CTS.List<IEvent>();
+        [JsonIgnore]
+        public IEnumerable<IEvent> Events
+        {
+            get
+            {
+                if (this.IsMaster)
+                {
+                    return this.UnderlyingCluster.SelectMany(c => c.Events);
+                }
+                return this._events;
+            }
+        }
 
+        [JsonProperty(PropertyName = "Keyspaces")]
+        private IEnumerable<IKeyspace> datamemberKeyspaces
+        {
+            get { return this._keySpaces.UnSafe; }
+            set { this._keySpaces = new CTS.List<IKeyspace>(value); }
+        }
         private CTS.List<IKeyspace> _keySpaces = new CTS.List<IKeyspace>();
+        [JsonIgnore]
         public IEnumerable<IKeyspace> Keyspaces
         {
             get
@@ -62,6 +95,7 @@ namespace DSEDiagnosticLibrary
             }
         }
 
+        [JsonIgnore]
         public IEnumerable<Cluster> UnderlyingCluster
         {
             get
@@ -103,6 +137,7 @@ namespace DSEDiagnosticLibrary
             }
         }
 
+        [JsonIgnore]
         public IEnumerable<INode> Nodes
         {
             get
@@ -732,6 +767,7 @@ namespace DSEDiagnosticLibrary
 			return false;
 		}
 
+        [JsonProperty(PropertyName="HashCode")]
         private int _hashcode = 0;
 		public override int GetHashCode()
 		{

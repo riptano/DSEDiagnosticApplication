@@ -4,12 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
+using Newtonsoft.Json;
 using Common;
 using Common.Path;
 using DSEDiagnosticLibrary;
 
 namespace DSEDiagnosticFileParser
 {
+    [JsonObject(MemberSerialization.OptOut)]
     public sealed class file_create_folder_structure : DiagnosticFile
     {
         public sealed class Mapping
@@ -110,8 +112,10 @@ namespace DSEDiagnosticFileParser
 
         public DateTime TimeStampUTC { get; }
 
+        [JsonIgnore]
         public Mappings TargetSourceMappings { get; }
 
+        [JsonObject(MemberSerialization.OptOut)]
         public sealed class FileResult : IResult
         {
             internal FileResult(IPath copyFile, INode node, bool fileExists)
@@ -121,6 +125,7 @@ namespace DSEDiagnosticFileParser
                 this.FileAlreadyExists = fileExists;
             }
 
+            [JsonConverter(typeof(DSEDiagnosticLibrary.IPathJsonConverter))]
             public IPath Path { get; }
             public Cluster Cluster { get; }
             public IDataCenter DataCenter { get; }
@@ -136,6 +141,8 @@ namespace DSEDiagnosticFileParser
             public bool? OriginalVersionNewer { get; internal set; }
             public IEnumerable<IParsed> Results { get; }
         }
+
+        [JsonProperty(PropertyName="Results")]
         private FileResult _result;
 
         public override IResult GetResult()

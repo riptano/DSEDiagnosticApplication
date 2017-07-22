@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using Common;
 using Common.Patterns.TimeZoneInfo;
 
 namespace DSEDiagnosticLibrary
 {
+    [JsonObject(MemberSerialization.OptOut)]
     public sealed class LogCassandraEvent : IEvent
     {
         static readonly IReadOnlyDictionary<string, object> EmptyLogProperties = new System.Collections.ObjectModel.ReadOnlyDictionary<string, object>(new Dictionary<string, object>(0));
@@ -188,9 +190,13 @@ namespace DSEDiagnosticLibrary
         }
 
         #region IParsed
+
         public SourceTypes Source { get; }
+        [JsonConverter(typeof(IPathJsonConverter))]
         public IPath Path { get; }
+        [JsonIgnore]
         public Cluster Cluster { get { return this.Node?.Cluster; } }
+        [JsonIgnore]
         public IDataCenter DataCenter { get { return this.Node?.DataCenter; } }
         public INode Node { get; }
         public int Items { get; private set; }
@@ -199,6 +205,7 @@ namespace DSEDiagnosticLibrary
         #endregion
 
         #region IEvent
+
         public EventTypes Type { get; }
         public EventClasses Class { get; private set; }
         /// <summary>
@@ -214,7 +221,14 @@ namespace DSEDiagnosticLibrary
         /// Events associated with this event so that nesting
         /// </summary>
         public IEnumerable<IEvent> ParentEvents { get; private set; }
-        public IZone TimeZone { get; }
+        [JsonProperty(PropertyName="TimeZone")]
+        private string datamemberTimeZone
+        {
+            get { return this.TimeZone?.Name; }
+            set { this.TimeZone = Common.TimeZones.Find(value); }
+        }
+        [JsonIgnore]
+        public IZone TimeZone { get; private set; }
         /// <summary>
         /// Time event Occurred with time zone offset (e.g., This would be the logged time)
         /// </summary>
@@ -223,13 +237,14 @@ namespace DSEDiagnosticLibrary
         public DateTimeOffset? EventTimeBegin { get; private set; }
         public DateTimeOffset? EventTimeEnd { get; private set; }
         public TimeSpan? Duration { get; private set; }
-
+        [JsonProperty(PropertyName="Keyspace")]
         private IKeyspace _keyspace = null;
+        [JsonIgnore]
         public IKeyspace Keyspace { get { return this._keyspace ?? this.TableViewIndex?.Keyspace; } }
         public IDDLStmt TableViewIndex { get; private set; }
-
         public DSEInfo.InstanceTypes Product { get; }
         #endregion
+
 
         public string SessionTieOutId { get; private set; }
         public IReadOnlyDictionary<string, object> LogProperties { get; }
@@ -446,6 +461,7 @@ namespace DSEDiagnosticLibrary
 
         #region Overrides
 
+        [JsonProperty(PropertyName="HashCode")]
         private int _hashcode = 0;
         public override int GetHashCode()
         {

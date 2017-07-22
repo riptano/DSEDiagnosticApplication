@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using Common.Patterns.TimeZoneInfo;
 
 namespace DSEDiagnosticLibrary
@@ -39,11 +40,11 @@ namespace DSEDiagnosticLibrary
         /// </summary>
         /// <seealso cref="SessionBegin"/>
         /// <seealso cref="SessionItem"/>
-        SessionBeginOrItem = SessionBegin | 0x0020,        
+        SessionBeginOrItem = SessionBegin | 0x0020,
         /// <summary>
         /// If not within a session the log entry will be ignored
         /// </summary>
-        SessionIgnore = SessionElement | 0x0100  
+        SessionIgnore = SessionElement | 0x0100
     }
 
     [Flags]
@@ -68,7 +69,6 @@ namespace DSEDiagnosticLibrary
         HintHandOff = 0x8000,
         NodeDetection = 0x10000,
         Config = 0x20000,
-        
         StatusTypes = Information | Warning | Error | Exception | Fatal | Orphaned
     }
 

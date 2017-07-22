@@ -4,12 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
+using Newtonsoft.Json;
 using Common;
 using DSEDiagnosticLibrary;
 using DSEDiagnosticLogger;
 
 namespace DSEDiagnosticFileParser
 {
+    [JsonObject(MemberSerialization.OptOut)]
     public sealed class file_dsetool_ring : DiagnosticFile
     {
         public file_dsetool_ring(CatagoryTypes catagory,

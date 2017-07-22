@@ -25,6 +25,8 @@ namespace DSEDiagnosticApplication
 			InitializeComponent();
         }
 
+        IEnumerable<DSEDiagnosticFileParser.DiagnosticFile> _currentDiagnosticFiles = null;
+
         private async void button1_Click(object sender, EventArgs e)
         {
             var buttonLabel = this.button1.Text;
@@ -45,7 +47,7 @@ namespace DSEDiagnosticApplication
 
             var items = await this.RunProcessFile().ConfigureAwait(false);
 
-            this.ultraGrid1.DataSource = items;
+            this.ultraGrid1.DataSource = this._currentDiagnosticFiles = items;
 
             this.EnableRunButton(buttonLabel);
         }
@@ -68,7 +70,7 @@ namespace DSEDiagnosticApplication
             this.button3.Visible = true;
 
             this.button2.Enabled = false;
-            this.button2.Text = this._cancellationSource == null 
+            this.button2.Text = this._cancellationSource == null
                                     ? "Cancel"
                                     : (this._cancellationSource.IsCancellationRequested ? "Canceled" : "Cancel");
 
@@ -104,7 +106,7 @@ namespace DSEDiagnosticApplication
         private async Task<IEnumerable<DSEDiagnosticFileParser.DiagnosticFile>> RunProcessFile()
         {
             using (var waitCusor = Common.WaitCursor.UsingCreate(this.ultraGrid1, Common.Patterns.WaitCursorModes.GUI))
-            {                
+            {
                 Logger.Instance.Info("test");
                 Logger.Instance.OnLoggingEvent += Instance_OnLoggingEventArgs;
                 DSEDiagnosticFileParser.DiagnosticFile.OnException += DiagnosticFile_OnException;
@@ -129,13 +131,6 @@ namespace DSEDiagnosticApplication
                     this.SetLoggingStatus("NOT all processed");
                 }
 
-                //tasks.ContinueWith(waitingTasks => this.EnableRunButton(buttonLabel));
-                //tasks.Wait();
-
-                // var z = DSEDiagnosticLibrary.Cluster.Clusters;
-                //Task.WhenAll(tasks).Wait();
-                //
-                // 
                 return task;
             }
         }
@@ -413,9 +408,10 @@ namespace DSEDiagnosticApplication
 
             var items = this.RunSyncProcessFile();
 
-            this.ultraGrid1.DataSource = items;
+            this.ultraGrid1.DataSource = this._currentDiagnosticFiles = items;
 
             this.EnableRunButton(buttonLabel);
         }
+
     }
 }

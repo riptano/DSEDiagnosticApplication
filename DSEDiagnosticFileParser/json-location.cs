@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 
 namespace DSEDiagnosticFileParser
 {
+    [JsonObject(MemberSerialization.OptOut)]
     internal class json_location : ProcessJsonFile
     {
         public json_location(CatagoryTypes catagory,

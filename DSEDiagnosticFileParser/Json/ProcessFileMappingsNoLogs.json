@@ -1,0 +1,302 @@
+/*
+  public sealed class FileMapper
+	{
+        public enum CatagoryTypes
+		    {
+			      Unknown = 0,
+			      ConfigurationFile,
+			      LogFile,
+            AchievedLogFile,
+            CommandOutputFile,
+			      SystemOutputFile,
+            CQLFile,
+            ZipFile
+		    }
+
+        [Flags]
+        public enum ProcessingTaskOptions
+        {
+            None = 0,
+            /// <summary>
+            /// Determine Node by scanning the File Path
+            /// </summary>
+            ScanForNode = 0x0001,
+            /// <summary>
+            /// Process this file using all nodes defined within a data center
+            /// Note that if the default data center name is not defined or not provided, this is the same as AllNodesInCluster.
+            /// </summary>
+            AllNodesInDataCenter = 0x0002,
+            /// <summary>
+            /// Process this file using all nodes defined within a cluster
+            /// Note that if the default cluster name is not defined or not provided, the Local Master cluster is used.
+            /// </summary>
+            AllNodesInCluster = 0x0004,
+            /// <summary>
+            /// If defined, the mapping class will be required to determine the proper node
+            /// </summary>
+            IgnoreNode = 0x0008,
+            /// <summary>
+            /// If defined, this file processing task will be ran in parallel with other files processing tasks within this ProcessPriority level. All parallel tasks within this level must complete before moving onto the next level.
+            /// If this is not defined, all non-parallel processing tasks will be executed sequentially within this level and than all parallel defined processing tasks will be executed in parallel.
+            /// </summary>
+            /// <remarks>
+            /// Lower process priorities will be block until all file processing within this level completes unless AllowLowerPriorityProcessingToStart is defined.
+            /// </remarks>
+            ParallelProcessingWithinPriorityLevel = 0x0100,
+            /// <summary>
+            /// If defined, this file processing task will be ran in parallel as soon as this task level&apos;s non-parallel tasks are executed.
+            /// If this is not defined, all non-parallel processing tasks will be executed sequentially within this level and than all parallel defined processing tasks will be executed in parallel.
+            /// </summary>
+            ParallelProcessing = 0x0010,
+            /// <summary>
+            /// If defined and this task is still executing and no other tasks at this level are running without this defined, lower tasks will be able to start.
+            /// If not defined, lower tasks will be blocked until this task completes.
+            /// </summary>
+            AllowLowerPriorityProcessingToStart = 0x0020,
+            /// <summary>
+            /// If defined all files found that match FilePatterns are processed in parallel.
+            /// Note this option is ignored if OnlyOnce is defined.
+            /// </summary>
+            ParallelProcessFiles = 0x0040,
+            /// <summary>
+            /// As soon as the first file is successfully processed, all reminding file to be process are canceled.
+            /// Warning: ParallelProcessFiles is ignored (all files are processed synchronous).
+            /// </summary>
+            OnlyOnce = 0x0080,
+
+            Default = ScanForNode | ParallelProcessingWithinPriorityLevel | ParallelProcessFiles
+        }
+
+        CatagoryTypes Catagory
+
+		    string[] FilePatterns
+
+        /// <summary>
+        /// Ignore any files (includes complete path) that match this RegEx.
+        /// </summary>
+        string IgnoreFilesMatchingRegEx
+
+        string FileParsingClass
+		    /// <summary>
+		    /// The directory level of the node&apos;s IP Address or host name as the directory name. The directory above the file is position 1. It can be embedded and can be either an IPAddress or host name (seperated by a space or plus sign).
+		    /// If 0, the file name is searched where the node&apos;s Ip Address or host name. This can be embeded within the file name. If a host name is used it must be at the beginning of the file name and seperated by a space or plus sign.
+		    /// If -1, the file name is first reviewed, than from the file each directory level is searched up to root. During the directory search only IPAddresses are being looked for. They can be embedded.
+		    /// </summary>
+		    public int NodeIdPos
+
+        public ProcessingTaskOptions ProcessingTaskOption
+
+        /// <summary>
+        /// The processing task level. Higher numbers (levels) means this task will be processed sooner than lower numbers (levels).
+        /// </summary>
+        public short ProcessPriorityLevel
+
+        public string DefaultDataCenter
+
+        public string DefaultCluster
+
+        /// <summary>
+        /// If null any DSE version will match this mappings.
+        /// If defined, any DSE version that is equal to or greater than this version will match this mapping.
+        /// </summary>
+        /// <example>
+        /// Match Versions:
+        ///     4.7.0
+        ///     4.7.5
+        ///     4.8.0
+        ///     4.8.5
+        ///     5.0.0
+        /// DSE Version 4.8.12 -&gt; 4.8.5
+        ///             4.8.4  -&gt; 4.8.0
+        ///             4.8.0  -&gt; 4.8.0
+        /// </example>
+        public Version MatchVersion
+*/
+
+[
+  {
+    "Catagory": "ZipFile",
+    "FilePatterns": [ ".\\*\\*.tar", ".\\*\\*.tar.gz", ".\\*\\*.zip" ],
+    "FileParsingClass": "DSEDiagnosticFileParser.file_unzip",
+    "NodeIdPos": 0,
+    "ProcessingTaskOption": "IgnoreNode",
+    "ProcessPriorityLevel": 1000
+  },
+  {
+    "Catagory": "CommandOutputFile",
+    "FilePatterns": [ ".\\nodes\\*\\nodetool\\status" ],
+    "FileParsingClass": "DSEDiagnosticFileParser.file_nodetool_status",
+    "NodeIdPos": 0,
+    "ProcessingTaskOption": "IgnoreNode,OnlyOnce",
+    "ProcessPriorityLevel": 950
+  },
+  {
+    "Catagory": "CommandOutputFile",
+    "FilePatterns": [ ".\\nodes\\*\\dsetool\\ring" ],
+    "FileParsingClass": "DSEDiagnosticFileParser.file_dsetool_ring",
+    "NodeIdPos": 0,
+    "ProcessingTaskOption": "IgnoreNode,OnlyOnce",
+    "ProcessPriorityLevel": 950
+  },
+  {
+    "Catagory": "CommandOutputFile",
+    "FilePatterns": [ ".\\nodes\\*\\nodetool\\ring" ],
+    "FileParsingClass": "DSEDiagnosticFileParser.file_nodetool_ring",
+    "NodeIdPos": 0,
+    "ProcessingTaskOption": "IgnoreNode,OnlyOnce",
+    "ProcessPriorityLevel": 950
+  },
+  {
+    "Catagory": "SystemOutputFile",
+    "FilePatterns": [ ".\\opscenterd\\node_info.json" ],
+    "FileParsingClass": "DSEDiagnosticFileParser.json_node_info",
+    "NodeIdPos": -1,
+    "ProcessingTaskOption": "AllNodesInCluster,OnlyOnce",
+    "ProcessPriorityLevel": 900
+  },
+  {
+    "Catagory": "SystemOutputFile",
+    "FilePatterns": [ ".\\opscenterd\\repair_service.json" ],
+    "FileParsingClass": "DSEDiagnosticFileParser.json_repair_service",
+    "NodeIdPos": -1,
+    "ProcessingTaskOption": "AllNodesInCluster,OnlyOnce",
+    "ProcessPriorityLevel": 900
+  },
+  {
+    "Catagory": "ConfigurationFile",
+    "FilePatterns": [ ".\\nodes\\*\\dse" ],
+    "FileParsingClass": "DSEDiagnosticFileParser.file_DSE_env",
+    "NodeIdPos": -1,
+    "ProcessingTaskOption": "ScanForNode,ParallelProcessingWithinPriorityLevel",
+    "ProcessPriorityLevel": 875
+  },
+  {
+    "Catagory": "ConfigurationFile",
+    "FilePatterns": [ ".\\nodes\\*\\*.yaml" ],
+    "FileParsingClass": "DSEDiagnosticFileParser.file_yaml",
+    "NodeIdPos": -1,
+    "ProcessingTaskOption": "ScanForNode,ParallelProcessingWithinPriorityLevel,ParallelProcessFiles",
+    "IgnoreFilesMatchingRegEx": "\\\\cassandra-topology\\.yaml",
+    "ProcessPriorityLevel": 850
+  },
+  {
+    "Catagory": "ConfigurationFile",
+    "FilePatterns": [ ".\\nodes\\*\\cassandra-topology.*" ],
+    "FileParsingClass": "DSEDiagnosticFileParser.file_cassandra_topology",
+    "NodeIdPos": -1,
+    "ProcessingTaskOption": "ScanForNode,ParallelProcessingWithinPriorityLevel,ParallelProcessFiles",
+    "ProcessPriorityLevel": 800
+  },
+  {
+    "Catagory": "ConfigurationFile",
+    "FilePatterns": [ ".\\nodes\\*\\cassandra-rackdc.properties" ],
+    "FileParsingClass": "DSEDiagnosticFileParser.file_cassandra_rackdc_properties",
+    "NodeIdPos": -1,
+    "ProcessingTaskOption": "ScanForNode,ParallelProcessingWithinPriorityLevel,ParallelProcessFiles",
+    "ProcessPriorityLevel": 800
+  },
+  {
+    "Catagory": "SystemOutputFile",
+    "FilePatterns": [ ".\\nodes\\*\\machine-info.json" ],
+    "FileParsingClass": "DSEDiagnosticFileParser.json_machine_info",
+    "NodeIdPos": -1,
+    "ProcessingTaskOption": "ScanForNode,ParallelProcessing,ParallelProcessFiles",
+    "ProcessPriorityLevel": 100
+  },
+  {
+    "Catagory": "SystemOutputFile",
+    "FilePatterns": [ ".\\nodes\\*\\os-info.json" ],
+    "FileParsingClass": "DSEDiagnosticFileParser.json_os_info",
+    "NodeIdPos": -1,
+    "ProcessingTaskOption": "ScanForNode,ParallelProcessing,ParallelProcessFiles",
+    "ProcessPriorityLevel": 100
+  },
+  {
+    "Catagory": "SystemOutputFile",
+    "FilePatterns": [ ".\\nodes\\*\\os-metrics\\cpu.json" ],
+    "FileParsingClass": "DSEDiagnosticFileParser.jason_cpu",
+    "NodeIdPos": -1,
+    "ProcessingTaskOption": "ScanForNode,ParallelProcessing,ParallelProcessFiles",
+    "ProcessPriorityLevel": 100
+  },
+  {
+    "Catagory": "SystemOutputFile",
+    "FilePatterns": [ ".\\nodes\\*\\os-metrics\\load_avg.json" ],
+    "FileParsingClass": "DSEDiagnosticFileParser.file_load_avg",
+    "NodeIdPos": -1,
+    "ProcessingTaskOption": "ScanForNode,ParallelProcessing,ParallelProcessFiles",
+    "ProcessPriorityLevel": 100
+  },
+  {
+    "Catagory": "CommandOutputFile",
+    "FilePatterns": [ ".\\nodes\\*\\agent_version.json" ],
+    "FileParsingClass": "DSEDiagnosticFileParser.file_agent_version",
+    "NodeIdPos": -1,
+    "ProcessingTaskOption": "ScanForNode,ParallelProcessing,ParallelProcessFiles",
+    "ProcessPriorityLevel": 100
+  },
+  {
+    "Catagory": "SystemOutputFile",
+    "FilePatterns": [ ".\\nodes\\*\\java_system_properties.json" ],
+    "FileParsingClass": "DSEDiagnosticFileParser.json_java_system_properties",
+    "NodeIdPos": -1,
+    "ProcessingTaskOption": "ScanForNode,ParallelProcessing,ParallelProcessFiles",
+    "ProcessPriorityLevel": 100
+  },
+  {
+    "Catagory": "SystemOutputFile",
+    "FilePatterns": [ ".\\nodes\\*\\ntp\\ntpstat" ],
+    "FileParsingClass": "DSEDiagnosticFileParser.file_ntpstat",
+    "NodeIdPos": -1,
+    "ProcessingTaskOption": "ScanForNode,ParallelProcessing,ParallelProcessFiles",
+    "ProcessPriorityLevel": 100
+  },
+  {
+    "Catagory": "SystemOutputFile",
+    "FilePatterns": [ ".\\nodes\\*\\ntp\\ntptime" ],
+    "FileParsingClass": "DSEDiagnosticFileParser.file_ntptime",
+    "NodeIdPos": -1,
+    "ProcessingTaskOption": "ScanForNode,ParallelProcessing,ParallelProcessFiles",
+    "ProcessPriorityLevel": 100
+  },
+  {
+    "Catagory": "SystemOutputFile",
+    "FilePatterns": [ ".\\nodes\\*\\java_heap.json" ],
+    "FileParsingClass": "DSEDiagnosticFileParser.json_java_heap",
+    "NodeIdPos": -1,
+    "ProcessingTaskOption": "ScanForNode,ParallelProcessing,ParallelProcessFiles",
+    "ProcessPriorityLevel": 100
+  },
+  {
+    "Catagory": "SystemOutputFile",
+    "FilePatterns": [ ".\\nodes\\*\\os-metrics\\memory.json" ],
+    "FileParsingClass": "DSEDiagnosticFileParser.json_memory",
+    "NodeIdPos": -1,
+    "ProcessingTaskOption": "ScanForNode,ParallelProcessing,ParallelProcessFiles",
+    "ProcessPriorityLevel": 100
+  },
+  {
+    "Catagory": "CommandOutputFile",
+    "FilePatterns": [ ".\\nodes\\*\\nodetool\\info" ],
+    "FileParsingClass": "DSEDiagnosticFileParser.file_nodetool_info",
+    "NodeIdPos": -1,
+    "ProcessingTaskOption": "ScanForNode,ParallelProcessing,ParallelProcessFiles",
+    "ProcessPriorityLevel": 100
+  },
+  {
+    "Catagory": "SystemOutputFile",
+    "FilePatterns": [ ".\\nodes\\*\\conf\\location.json" ],
+    "FileParsingClass": "DSEDiagnosticFileParser.json_location",
+    "NodeIdPos": -1,
+    "ProcessingTaskOption": "ScanForNode,ParallelProcessing,ParallelProcessFiles",
+    "ProcessPriorityLevel": 100
+  },
+  {
+    "Catagory": "CQLFile",
+    "FilePatterns": [ ".\\nodes\\*\\cqlsh\\describe_schema" ],
+    "FileParsingClass": "DSEDiagnosticFileParser.cql_ddl",
+    "NodeIdPos": -1,
+    "ProcessingTaskOption": "ScanForNode,ParallelProcessing",
+    "ProcessPriorityLevel": 100
+  }
+]

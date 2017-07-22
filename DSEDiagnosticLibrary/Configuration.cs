@@ -8,14 +8,16 @@ using Newtonsoft.Json;
 
 namespace DSEDiagnosticLibrary
 {
+
     public enum ConfigTypes
     {
-        Unkown = 0,
-        Cassandra,
-        DSE,
-        Hadoop,
-        Solr,
-        Spark,
+        
+        Unkown = 0,        
+        Cassandra,        
+        DSE,        
+        Hadoop,        
+        Solr,        
+        Spark,        
         Snitch
     }
 
@@ -39,6 +41,7 @@ namespace DSEDiagnosticLibrary
         object ToDump();
 	}
 
+    [JsonObject(MemberSerialization.OptOut)]
     public sealed class YamlConfigurationLine : IConfigurationLine
     {
 
@@ -209,15 +212,20 @@ namespace DSEDiagnosticLibrary
         }
 
         #region IParsed
+
         public SourceTypes Source { get; private set; }
+        [JsonConverter(typeof(IPathJsonConverter))]
         public IPath Path { get; private set; }
+        [JsonIgnore]
         public Cluster Cluster { get { return this.DataCenter?.Cluster; } }
+        [JsonIgnore]
         public IDataCenter DataCenter { get { return this.Node?.DataCenter; } }
         public INode Node
         {
             get;
             private set;
         }
+        [JsonIgnore]
         public int Items { get { return this.DataCenter is DataCenter ? 1 : this.DataCenter.Nodes.Count(); } }
         public uint LineNbr { get; private set; }
 
@@ -225,6 +233,7 @@ namespace DSEDiagnosticLibrary
 
         #region IConfigurationLine
 
+        [JsonIgnore]
         public bool IsCommonToDataCenter
         {
             get
@@ -234,7 +243,9 @@ namespace DSEDiagnosticLibrary
                             : this.DataCenter.Nodes.First().DataCenter.Nodes.All(n => this.Node.Equals(n));
             }
         }
+
         public ConfigTypes Type { get; private set; }
+
         public string Property { get; private set; }
 
         private string _normalizedProperty = null;
@@ -250,6 +261,7 @@ namespace DSEDiagnosticLibrary
                         ? this._normalizedProperty = NormalizeProperty(this.Property)
                         : this._normalizedProperty;
         }
+
         public string Value { get; private set; }
 
         private string _normalizedValue = null;

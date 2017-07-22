@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using DSEDiagnosticLibrary;
 using DSEDiagnosticLogger;
 using Common;
@@ -12,6 +13,7 @@ using CTS = Common.Patterns.Collections.ThreadSafe;
 
 namespace DSEDiagnosticFileParser
 {
+    [JsonObject(MemberSerialization.OptOut)]
     public sealed class file_cassandra_log4net : DiagnosticFile
     {
         struct CurrentSessionLineTick
@@ -87,6 +89,7 @@ namespace DSEDiagnosticFileParser
                                             this._parser == null ? string.Empty : string.Join(", ", this._parser.Select(l => l.ToString())));
         }
 
+        [JsonObject(MemberSerialization.OptOut)]
         public sealed class LogResults : IResult
         {
             private LogResults() { }
@@ -98,13 +101,16 @@ namespace DSEDiagnosticFileParser
                 this.OrphanedSessionEvents = fileInstance._orphanedSessionEvents;
             }
 
+            [JsonProperty(PropertyName="Events")]
             private readonly List<LogCassandraEvent> _eventList;
-
             public readonly IEnumerable<LogCassandraEvent> OrphanedSessionEvents;
 
             #region IResult
+            [JsonConverter(typeof(DSEDiagnosticLibrary.IPathJsonConverter))]
             public IPath Path { get; private set; }
+            [JsonIgnore]
             public Cluster Cluster { get { return this.DataCenter?.Cluster; } }
+            [JsonIgnore]
             public IDataCenter DataCenter { get { return this.Node?.DataCenter; } }
             public INode Node { get; private set; }
             public int NbrItems { get { return this._eventList.Count; } }
@@ -114,10 +120,12 @@ namespace DSEDiagnosticFileParser
             #endregion
         }
 
+        [JsonProperty(PropertyName="Results")]
         private readonly LogResults _result;
 
         public Cluster Cluster { get; private set; }
         public IDataCenter DataCenter { get; private set; }
+        [JsonProperty(PropertyName="Keyspaces")]
         private IEnumerable<IKeyspace> _dcKeyspaces;
 
         public override IResult GetResult()

@@ -12,6 +12,7 @@ using System.IO;
 
 namespace DSEDiagnosticFileParser
 {
+    [JsonObject(MemberSerialization.OptOut)]
 	public abstract class ProcessJsonFile : DiagnosticFile
 	{
 		public ProcessJsonFile(CatagoryTypes catagory,

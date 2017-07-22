@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 
 namespace DSEDiagnosticFileParser
 {
+    [JsonObject(MemberSerialization.OptOut)]
     class json_repair_service : DiagnosticFile
     {
         public json_repair_service(CatagoryTypes catagory,
@@ -24,13 +25,13 @@ namespace DSEDiagnosticFileParser
         }
 
         public override uint ProcessFile()
-        {            
+        {
             var jsonFile = this.File.ReadAllText();
             var infoObject = JsonConvert.DeserializeAnonymousType(jsonFile, new { time_to_completion = 0L, status = string.Empty, parallel_tasks = 0, all_tasks = new object[1][] } );
 
             if(infoObject.all_tasks != null)
             {
-                this.Node.DSE.RepairServiceHasRan = infoObject.all_tasks.Any(c => this.Node.Id.Addresses.Any(i => i.ToString() == (string)((object[])c)[0]));                
+                this.Node.DSE.RepairServiceHasRan = infoObject.all_tasks.Any(c => this.Node.Id.Addresses.Any(i => i.ToString() == (string)((object[])c)[0]));
             }
 
             this.NbrItemsParsed = 1;
