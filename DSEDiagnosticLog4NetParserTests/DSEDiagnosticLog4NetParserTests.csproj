@@ -37,10 +37,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Common.Functions">
-      <HintPath>..\Common Patterns\Assemblies\40\Release\Common.Functions.dll</HintPath>
+      <HintPath>..\packages\CommonPatterns\Release\Common.Functions.dll</HintPath>
     </Reference>
     <Reference Include="Common.Path">
-      <HintPath>..\Common Patterns\Assemblies\40\Release\Common.Path.dll</HintPath>
+      <HintPath>..\packages\CommonPatterns\Release\Common.Path.dll</HintPath>
     </Reference>
     <Reference Include="System" />
   </ItemGroup>
