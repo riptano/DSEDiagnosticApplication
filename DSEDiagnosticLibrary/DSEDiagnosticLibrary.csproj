@@ -32,39 +32,39 @@
   <ItemGroup>
     <Reference Include="Common.Functions, Version=4.0.7.0, Culture=neutral, PublicKeyToken=75d1a63e21e859f1, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Common Patterns\Assemblies\40\Release\Common.Functions.dll</HintPath>
+      <HintPath>..\packages\CommonPatterns\Assemblies\40\Release\Common.Functions.dll</HintPath>
     </Reference>
     <Reference Include="Common.Path, Version=4.0.5.0, Culture=neutral, PublicKeyToken=75d1a63e21e859f1, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Common Patterns\Assemblies\40\Release\Common.Path.dll</HintPath>
+      <HintPath>..\packages\CommonPatterns\Assemblies\40\Release\Common.Path.dll</HintPath>
     </Reference>
     <Reference Include="Common.Patterns.Collections, Version=4.0.5.0, Culture=neutral, PublicKeyToken=75d1a63e21e859f1, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Common Patterns\Assemblies\40\Release\Common.Patterns.Collections.dll</HintPath>
+      <HintPath>..\packages\CommonPatterns\Assemblies\40\Release\Common.Patterns.Collections.dll</HintPath>
     </Reference>
     <Reference Include="Common.Patterns.QueueProcessor, Version=4.0.5.0, Culture=neutral, PublicKeyToken=75d1a63e21e859f1, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Common Patterns\Assemblies\40\Release\Common.Patterns.QueueProcessor.dll</HintPath>
+      <HintPath>..\packages\CommonPatterns\Assemblies\40\Release\Common.Patterns.QueueProcessor.dll</HintPath>
     </Reference>
     <Reference Include="Common.Patterns.Shared, Version=4.0.5.0, Culture=neutral, PublicKeyToken=75d1a63e21e859f1, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Common Patterns\Assemblies\40\Release\Common.Patterns.Shared.dll</HintPath>
+      <HintPath>..\packages\CommonPatterns\Assemblies\40\Release\Common.Patterns.Shared.dll</HintPath>
     </Reference>
     <Reference Include="Common.Patterns.Singleton, Version=4.0.5.0, Culture=neutral, PublicKeyToken=75d1a63e21e859f1, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Common Patterns\Assemblies\40\Release\Common.Patterns.Singleton.dll</HintPath>
+      <HintPath>..\packages\CommonPatterns\Assemblies\40\Release\Common.Patterns.Singleton.dll</HintPath>
     </Reference>
     <Reference Include="Common.Patterns.Tasks, Version=4.0.5.0, Culture=neutral, PublicKeyToken=75d1a63e21e859f1, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Common Patterns\Assemblies\40\Release\Common.Patterns.Tasks.dll</HintPath>
+      <HintPath>..\packages\CommonPatterns\Assemblies\40\Release\Common.Patterns.Tasks.dll</HintPath>
     </Reference>
     <Reference Include="Common.Patterns.TimeZoneInfo, Version=4.0.5.0, Culture=neutral, PublicKeyToken=75d1a63e21e859f1, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Common Patterns\Assemblies\40\Release\Common.Patterns.TimeZoneInfo.dll</HintPath>
+      <HintPath>..\packages\CommonPatterns\Assemblies\40\Release\Common.Patterns.TimeZoneInfo.dll</HintPath>
     </Reference>
     <Reference Include="Common.TimeZones, Version=4.0.5.0, Culture=neutral, PublicKeyToken=75d1a63e21e859f1, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Common Patterns\Assemblies\40\Release\Common.TimeZones.dll</HintPath>
+      <HintPath>..\packages\CommonPatterns\Assemblies\40\Release\Common.TimeZones.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.10.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>

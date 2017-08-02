@@ -35,25 +35,25 @@
   <ItemGroup>
     <Reference Include="Common.Functions, Version=4.0.7.0, Culture=neutral, PublicKeyToken=75d1a63e21e859f1, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Common Patterns\Assemblies\40\Release\Common.Functions.dll</HintPath>
+      <HintPath>..\packages\CommonPatterns\Assemblies\40\Release\Common.Functions.dll</HintPath>
     </Reference>
     <Reference Include="Common.Path, Version=4.0.5.0, Culture=neutral, PublicKeyToken=75d1a63e21e859f1, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Common Patterns\Assemblies\40\Release\Common.Path.dll</HintPath>
+      <HintPath>..\packages\CommonPatterns\Assemblies\40\Release\Common.Path.dll</HintPath>
     </Reference>
     <Reference Include="Common.Patterns.Collections, Version=4.0.5.0, Culture=neutral, PublicKeyToken=75d1a63e21e859f1, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Common Patterns\Assemblies\40\Release\Common.Patterns.Collections.dll</HintPath>
+      <HintPath>..\packages\CommonPatterns\Assemblies\40\Release\Common.Patterns.Collections.dll</HintPath>
     </Reference>
     <Reference Include="Common.Patterns.Threading, Version=4.0.5.0, Culture=neutral, PublicKeyToken=75d1a63e21e859f1, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\Common Patterns\Assemblies\40\Release\Common.Patterns.Threading.dll</HintPath>
+      <HintPath>..\packages\CommonPatterns\Assemblies\40\Release\Common.Patterns.Threading.dll</HintPath>
     </Reference>
     <Reference Include="Common.Patterns.WaitCursor">
-      <HintPath>..\..\AndersenAssoc\Common Patterns\Assemblies\40\Release\Common.Patterns.WaitCursor.dll</HintPath>
+      <HintPath>...\packages\CommonPatterns\Assemblies\40\Release\Common.Patterns.WaitCursor.dll</HintPath>
     </Reference>
     <Reference Include="Common.WinForm">
-      <HintPath>..\..\AndersenAssoc\Common Patterns\Assemblies\40\Release\Common.WinForm.dll</HintPath>
+      <HintPath>...\packages\CommonPatterns\Assemblies\40\Release\Common.WinForm.dll</HintPath>
     </Reference>
     <Reference Include="Infragistics4.Shared.v14.2, Version=14.2.20142.2168, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb" />
     <Reference Include="Infragistics4.Win.Misc.v14.2, Version=14.2.20142.2168, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb" />
