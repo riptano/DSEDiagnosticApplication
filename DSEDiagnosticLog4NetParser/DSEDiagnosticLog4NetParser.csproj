@@ -31,17 +31,17 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Common.Functions">
-      <HintPath>...\packages\CommonPatterns\Assemblies\40\Release\Common.Functions.dll</HintPath>
+      <HintPath>..\packages\CommonPatterns\Release\Common.Functions.dll</HintPath>
     </Reference>
     <Reference Include="Common.Path">
-      <HintPath>..\packages\CommonPatterns\Assemblies\40\Release\Common.Path.dll</HintPath>
+      <HintPath>..\packages\CommonPatterns\Release\Common.Path.dll</HintPath>
     </Reference>
     <Reference Include="Common.Patterns.TimeZoneInfo, Version=4.0.5.0, Culture=neutral, PublicKeyToken=75d1a63e21e859f1, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\CommonPatterns\Assemblies\40\Release\Common.Patterns.TimeZoneInfo.dll</HintPath>
+      <HintPath>..\packages\CommonPatterns\Release\Common.Patterns.TimeZoneInfo.dll</HintPath>
     </Reference>
     <Reference Include="Common.TimeZones">
-      <HintPath>..\packages\CommonPatterns\Assemblies\40\Release\Common.TimeZones.dll</HintPath>
+      <HintPath>..\packages\CommonPatterns\Release\Common.TimeZones.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -70,7 +70,7 @@
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>

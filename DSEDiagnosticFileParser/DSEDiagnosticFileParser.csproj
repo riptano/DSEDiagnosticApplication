@@ -35,42 +35,42 @@
   <ItemGroup>
     <Reference Include="Common.Functions, Version=4.0.7.0, Culture=neutral, PublicKeyToken=75d1a63e21e859f1, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\CommonPatterns\Assemblies\40\Release\Common.Functions.dll</HintPath>
+      <HintPath>..\packages\CommonPatterns\Release\Common.Functions.dll</HintPath>
     </Reference>
     <Reference Include="Common.Path, Version=4.0.5.0, Culture=neutral, PublicKeyToken=75d1a63e21e859f1, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\CommonPatterns\Assemblies\40\Release\Common.Path.dll</HintPath>
+      <HintPath>..\packages\CommonPatterns\Release\Common.Path.dll</HintPath>
     </Reference>
     <Reference Include="Common.Patterns.Collections, Version=4.0.5.0, Culture=neutral, PublicKeyToken=75d1a63e21e859f1, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\CommonPatterns\Assemblies\40\Release\Common.Patterns.Collections.dll</HintPath>
+      <HintPath>..\packages\CommonPatterns\Release\Common.Patterns.Collections.dll</HintPath>
     </Reference>
     <Reference Include="Common.Patterns.QueueProcessor, Version=4.0.5.0, Culture=neutral, PublicKeyToken=75d1a63e21e859f1, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\CommonPatterns\Assemblies\40\Release\Common.Patterns.QueueProcessor.dll</HintPath>
+      <HintPath>..\packages\CommonPatterns\Release\Common.Patterns.QueueProcessor.dll</HintPath>
     </Reference>
     <Reference Include="Common.Patterns.Shared, Version=4.0.5.0, Culture=neutral, PublicKeyToken=75d1a63e21e859f1, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\CommonPatterns\Assemblies\40\Release\Common.Patterns.Shared.dll</HintPath>
+      <HintPath>..\packages\CommonPatterns\Release\Common.Patterns.Shared.dll</HintPath>
     </Reference>
     <Reference Include="Common.Patterns.Singleton, Version=4.0.5.0, Culture=neutral, PublicKeyToken=75d1a63e21e859f1, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\CommonPatterns\Assemblies\40\Release\Common.Patterns.Singleton.dll</HintPath>
+      <HintPath>..\packages\CommonPatterns\Release\Common.Patterns.Singleton.dll</HintPath>
     </Reference>
     <Reference Include="Common.Patterns.Tasks, Version=4.0.5.0, Culture=neutral, PublicKeyToken=75d1a63e21e859f1, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\CommonPatterns\Assemblies\40\Release\Common.Patterns.Tasks.dll</HintPath>
+      <HintPath>..\packages\CommonPatterns\Release\Common.Patterns.Tasks.dll</HintPath>
     </Reference>
     <Reference Include="Common.Patterns.Threading, Version=4.0.5.0, Culture=neutral, PublicKeyToken=75d1a63e21e859f1, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\CommonPatterns\Assemblies\40\Release\Common.Patterns.Threading.dll</HintPath>
+      <HintPath>..\packages\CommonPatterns\Release\Common.Patterns.Threading.dll</HintPath>
     </Reference>
     <Reference Include="Common.Patterns.TimeZoneInfo, Version=4.0.5.0, Culture=neutral, PublicKeyToken=75d1a63e21e859f1, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\CommonPatterns\Assemblies\40\Release\Common.Patterns.TimeZoneInfo.dll</HintPath>
+      <HintPath>..\packages\CommonPatterns\Release\Common.Patterns.TimeZoneInfo.dll</HintPath>
     </Reference>
     <Reference Include="Common.TimeZones">
-      <HintPath>..\Common Patterns\Assemblies\40\Release\Common.TimeZones.dll</HintPath>
+      <HintPath>..\packages\CommonPatterns\Release\Common.TimeZones.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -177,7 +177,7 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\Microsoft.Net.Compilers.2.2.0\build\Microsoft.Net.Compilers.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Net.Compilers.2.2.0\build\Microsoft.Net.Compilers.props'))" />
   </Target>
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>
