@@ -372,7 +372,7 @@ namespace DSEDiagnosticFileParser
                                     .Select(r => new KeyspaceReplicationInfo(int.Parse(r.Value),
                                                                                 r.Key.ToLower() == "replication_factor"
                                                                                     ? this.DataCenter //SimpleStrategy
-                                                                                    : this.Cluster.TryGetDataCenter(r.Key)));
+                                                                                    : this.Cluster.TryGetDataCenter(r.Key) ?? Cluster.TryGetAddDataCenter(r.Key, this.Cluster)));
 
             var keyspace = new KeySpace(this.File,
                                             lineNbr,
