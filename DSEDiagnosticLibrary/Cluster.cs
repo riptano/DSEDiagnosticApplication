@@ -726,6 +726,15 @@ namespace DSEDiagnosticLibrary
             return possibleKSInstance.TryGetIndex(solrIndexName);
         }
 
+        public static void Clear()
+        {
+            Clusters.Clear();
+            UnAssociatedNodes.Clear();
+            MasterCluster._keySpaces.Clear();
+            MasterCluster._dataCenters.Clear();
+            MasterCluster._events.Clear();
+        }
+
         #endregion
 
         #region IEquatable

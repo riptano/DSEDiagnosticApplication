@@ -178,6 +178,47 @@ namespace DSEDiagnosticFileParser
                                             this.Catagory);
         }
 
+        protected DiagnosticFile(CatagoryTypes catagory,
+                                    IFilePath file,
+                                    string defaultClusterName,
+                                    string defaultDCName,
+                                    Version targetDSEVersion = null)
+        {
+            Cluster defaultCluster = null;
+            IDataCenter defaultDC = null;
+
+            if(!string.IsNullOrEmpty(defaultClusterName))
+            {
+                defaultCluster = Cluster.TryGetAddCluster(defaultClusterName);
+            }
+            if(!string.IsNullOrEmpty(defaultDCName))
+            {
+                defaultDC = Cluster.TryGetAddDataCenter(defaultDCName, defaultCluster);
+            }
+
+            this.Catagory = catagory;
+            this.DiagnosticDirectory = file.ParentDirectoryPath;
+            this.File = file;
+            this.Node = Cluster.TryGetAddNode(DetermineNodeIdentifier(file, -1), defaultDCName, defaultClusterName);
+            this.ParsedTimeRange = new DateTimeRange();
+            this.ParsedTimeRange.SetMinimal(DateTime.Now);
+            this.DefaultClusterName = defaultClusterName;
+            this.DefaultDataCenterName = defaultDCName;
+            this.TargetDSEVersion = targetDSEVersion;
+
+            this.RegExParser = RegExAssocations.TryGetValue(this.GetType().Name);
+
+            Logger.Instance.DebugFormat("Loaded class \"{0}\"{{ Catagory{{{7}}}, File{{{1}}}, Node{{{2}}}, DefaultCluster{{{3}}}, DefaultDC{{{4}}}, TargetVersion{{{5}}}, RegExParser{{{6}}} }}",
+                                            this.GetType().Name,
+                                            this.File,
+                                            this.Node,
+                                            this.DefaultClusterName,
+                                            this.DefaultDataCenterName,
+                                            this.TargetDSEVersion,
+                                            this.RegExParser,
+                                            this.Catagory);
+        }
+
         #region Public Members
         public CatagoryTypes Catagory { get; private set; }
         [JsonConverter(typeof(DSEDiagnosticLibrary.IPathJsonConverter))]
@@ -247,7 +288,7 @@ namespace DSEDiagnosticFileParser
 		/// If -1, the file name is first reviewed, than from the file each directory level is searched up to root. During the directory search only IPAddresses are being looked for. They can be embedded.
 		/// </param>
 		/// <returns></returns>
-		protected static NodeIdentifier DetermineNodeIdentifier(IFilePath filePath, int nodeIdPos)
+		public static NodeIdentifier DetermineNodeIdentifier(IFilePath filePath, int nodeIdPos)
 		{
 			NodeIdentifier nodeId = null;
 

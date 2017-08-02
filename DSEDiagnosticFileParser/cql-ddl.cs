@@ -13,6 +13,36 @@ namespace DSEDiagnosticFileParser
 {
     public class cql_ddl : DiagnosticFile
     {
+        private void InitializeInstance()
+        {
+            if (this.Node != null)
+            {
+                this.Cluster = this.Node.Cluster;
+            }
+
+            if (this.Cluster == null)
+            {
+                if (!string.IsNullOrEmpty(this.DefaultClusterName))
+                {
+                    this.Cluster = Cluster.TryGetCluster(this.DefaultClusterName);
+                }
+
+                if (this.Cluster == null)
+                {
+                    this.Cluster = Cluster.GetCurrentOrMaster();
+                }
+            }
+
+            if (this.Node != null)
+            {
+                this.DataCenter = this.Node.DataCenter;
+            }
+
+            if (this.DataCenter == null && !string.IsNullOrEmpty(this.DefaultDataCenterName))
+            {
+                this.DataCenter = Cluster.TryGetDataCenter(this.DefaultDataCenterName, this.Cluster);
+            }
+        }
         public cql_ddl(CatagoryTypes catagory,
                             IDirectoryPath diagnosticDirectory,
                             IFilePath file,
@@ -22,34 +52,17 @@ namespace DSEDiagnosticFileParser
                             Version targetDSEVersion)
             : base(catagory, diagnosticDirectory, file, node, defaultClusterName, defaultDCName, targetDSEVersion)
         {
-            if (this.Node != null)
-            {
-                this.Cluster = this.Node.Cluster;
-            }
+            this.InitializeInstance();
+            this._result = new DDLResult(this);
+        }
 
-            if (this.Cluster == null)
-            {
-                if (!string.IsNullOrEmpty(defaultClusterName))
-                {
-                    this.Cluster = Cluster.TryGetCluster(defaultClusterName);
-                }
-
-                if(this.Cluster == null)
-                {
-                    this.Cluster = Cluster.GetCurrentOrMaster();
-                }
-            }
-
-            if(this.Node != null)
-            {
-                this.DataCenter = this.Node.DataCenter;
-            }
-
-            if (this.DataCenter == null && !string.IsNullOrEmpty(defaultDCName))
-            {
-                this.DataCenter = Cluster.TryGetDataCenter(defaultDCName, this.Cluster);
-            }
-
+        public cql_ddl(IFilePath file,
+                            string defaultClusterName,
+                            string defaultDCName,
+                            Version targetDSEVersion = null)
+            : base(CatagoryTypes.CQLFile, file, defaultClusterName, defaultDCName, targetDSEVersion)
+        {
+            this.InitializeInstance();
             this._result = new DDLResult(this);
         }
 
