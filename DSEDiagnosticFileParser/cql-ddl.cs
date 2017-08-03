@@ -182,7 +182,10 @@ namespace DSEDiagnosticFileParser
                         continue;
                     }
 
-                    if (line.StartsWith(@"--") || line.StartsWith(@"//"))
+                    if (line.StartsWith(@"--")
+                            || line.StartsWith(@"//")
+                            || line.StartsWith("warning: ", StringComparison.CurrentCultureIgnoreCase)
+                            || line.StartsWith("error: ", StringComparison.CurrentCultureIgnoreCase))
                     {
                         continue;
                     }
@@ -309,7 +312,7 @@ namespace DSEDiagnosticFileParser
                 }
 
                 Logger.Instance.ErrorFormat("{0}\t{1}\tCQL Statement Processing Error. Unknown CQL statement of \"{2}\".",
-                                                this.Node, this.File, cqlStatements);
+                                                this.Node, this.File, string.Join(", ", cqlStatements.Select(s => "'" + s + "'")));
 
             }
 
