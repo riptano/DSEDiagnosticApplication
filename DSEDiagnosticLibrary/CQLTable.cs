@@ -376,6 +376,13 @@ namespace DSEDiagnosticLibrary
         public string Function { get; private set; }
         public string DDL { get; private set; }
 
+        public string PrettyPrint()
+        {
+            return string.IsNullOrEmpty(this.Function)
+                        ? string.Join(",", this.Columns.Select(c => c.DDL))
+                        : string.Format("{0}({1})", this.Function, string.Join(",", this.Columns.Select(c => c.DDL)));
+        }
+
         #region IEquatable
 
         public bool Equals(ICQLColumn column)
