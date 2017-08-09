@@ -156,7 +156,7 @@ namespace DSEDiagnosticLibrary
             this._cluster = cluster;
             this.LineNbr = lineNbr;
             this.Name = StringHelpers.RemoveQuotes(name.Trim());
-            this.ReplicationStrategy = replicationStrategy;
+            this.ReplicationStrategy = StringHelpers.RemoveNamespace(replicationStrategy);
             this.DurableWrites = durableWrites;
             this.DDL = ddl;
             this.Replications = replications;
