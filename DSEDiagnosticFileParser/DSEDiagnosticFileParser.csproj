@@ -146,7 +146,9 @@
     <None Include="Json\ProcessFileMappingsNoLogs.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Json\Unzip-ProcessFileMappings.json" />
+    <None Include="Json\Unzip-ProcessFileMappings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

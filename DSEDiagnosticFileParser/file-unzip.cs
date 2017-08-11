@@ -61,16 +61,8 @@ namespace DSEDiagnosticFileParser
             IDirectoryPath newDirectory = null;
             int nbrFilesExtracted = 0;
 
-            try
-            {
-                nbrFilesExtracted = MiscHelpers.UnZipFileToFolder(this.File, out newDirectory, false, true, true, true, this.CancellationToken);
-            }
-            catch (System.Exception ex)
-            {
-                DSEDiagnosticLogger.Logger.Instance.Error("file_unzip", ex);
-                throw;
-            }
-
+            nbrFilesExtracted = MiscHelpers.UnZipFileToFolder(this.File, out newDirectory, false, true, true, true, this.CancellationToken);
+            
             this._result = new ExtractionResult(newDirectory, nbrFilesExtracted, nbrFilesExtracted > 0);
 
             this.NbrItemsParsed = 1;

@@ -65,86 +65,11 @@ namespace DSEDiagnosticFileParser
                         childrenInFolder = newExtractedFolder.Children();
                     }
 
-                    Logger.Instance.InfoFormat("Extracting File \"{0}\" to directory \"{1}\"...",
-                                                   filePath.PathResolved,
-                                                   newExtractedFolder.PathResolved);
-
-                    cancellationToken?.ThrowIfCancellationRequested();
-
-                    if (extractType == "zip")
+                   if(!UnZipFileToFolder(extractType,
+                                            filePath,
+                                            newExtractedFolder,
+                                            cancellationToken))
                     {
-                        var zip = new ICSharpCode.SharpZipLib.Zip.FastZip();
-                        zip.RestoreDateTimeOnExtract = true;
-                        zip.ExtractZip(filePath.PathResolved, newExtractedFolder.PathResolved, ICSharpCode.SharpZipLib.Zip.FastZip.Overwrite.Never, null, null, null, true);
-                    }
-                    else if (extractType == "gz")
-                    {
-                        using (var stream = filePath.OpenRead())
-                        using (var gzipStream = new ICSharpCode.SharpZipLib.GZip.GZipInputStream(stream))
-                        using (var tarArchive = ICSharpCode.SharpZipLib.Tar.TarArchive.CreateInputTarArchive(gzipStream))
-                        {
-                            tarArchive.SetKeepOldFiles(true);
-                            tarArchive.RestoreDateTimeOnExtract = true;
-                            tarArchive.ExtractContents(newExtractedFolder.PathResolved);
-
-                        }
-                    }
-                    else if(extractType == "tar")
-                    {
-                        try
-                        {
-                            using (var stream = filePath.OpenRead())
-                            using (var tarArchive = ICSharpCode.SharpZipLib.Tar.TarArchive.CreateInputTarArchive(stream))
-                            {
-                                tarArchive.SetKeepOldFiles(true);
-                                tarArchive.RestoreDateTimeOnExtract = true;
-                                tarArchive.ExtractContents(newExtractedFolder.PathResolved);
-                            }
-                        }
-                        catch (System.Exception ex)
-                        {
-                            if (ex is ICSharpCode.SharpZipLib.Tar.TarException || ex is System.ArgumentOutOfRangeException)
-                            {
-                                if (ex.Message == "Header checksum is invalid" || ex.Message.StartsWith("Cannot be less than zero"))
-                                {
-                                    Logger.Instance.InfoFormat("Invalid Tar header checksum detected for File \"{0}\". Trying \"gz\" format...",
-                                                                    filePath.PathResolved);
-                                    try
-                                    {
-                                        using (var stream = filePath.OpenRead())
-                                        using (var gzipStream = new ICSharpCode.SharpZipLib.GZip.GZipInputStream(stream))
-                                        using (var tarArchive = ICSharpCode.SharpZipLib.Tar.TarArchive.CreateInputTarArchive(gzipStream))
-                                        {
-                                            tarArchive.SetKeepOldFiles(true);
-                                            tarArchive.RestoreDateTimeOnExtract = true;
-                                            tarArchive.ExtractContents(newExtractedFolder.PathResolved);
-                                        }
-                                    }
-                                    catch (System.Exception secex)
-                                    {
-                                        Logger.Instance.Error(string.Format("An invalid Tar checksum detected and tried \"gz\" but that failed for File \"{0}\". ReThrowing original TarException.",
-                                                                            filePath.PathResolved),
-                                                                            secex);
-                                        throw ex;
-                                    }
-                                }
-                                else
-                                {
-                                    throw;
-                                }
-                            }
-                            else
-                            {
-                                throw;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        Logger.Instance.ErrorFormat("Unkown Extraction Type of \"{0}\" for Extracting File \"{1}\" to directory \"{2}\"",
-                                                        extractType,
-                                                        filePath.PathResolved,
-                                                        newExtractedFolder.PathResolved);
                         return 0;
                     }
 
@@ -217,6 +142,209 @@ namespace DSEDiagnosticFileParser
             return nbrExtractedFiles;
         }
 
+        public static bool UnZipFileToFolder(string extractType,
+                                                IFilePath filePath,
+                                                IDirectoryPath newExtractedFolder,
+                                                CancellationToken? cancellationToken = null)
+        {
+            bool bResult = true;
+            Logger.Instance.InfoFormat("Extracting File \"{0}\" to directory \"{1}\" as {2} type...",
+                                                   filePath.PathResolved,
+                                                   newExtractedFolder.PathResolved,
+                                                   extractType);
+
+            cancellationToken?.ThrowIfCancellationRequested();
+
+            if (extractType == "zip")
+            {
+                #region zip
+                try
+                {
+                    var zip = new ICSharpCode.SharpZipLib.Zip.FastZip();
+                    zip.RestoreDateTimeOnExtract = true;
+                    zip.ExtractZip(filePath.PathResolved, newExtractedFolder.PathResolved, ICSharpCode.SharpZipLib.Zip.FastZip.Overwrite.Never, null, null, null, true);
+                }
+                catch(System.Exception ex)
+                {
+                    Logger.Instance.Error(string.Format("Zip Exception for File \"{0}\".",
+                                                                filePath.PathResolved),
+                                                ex);
+                    bResult = false;
+                }
+                #endregion
+            }
+            else if (extractType == "gz" || extractType == "tar.gz" || extractType == "tgz")
+            {
+                #region gz
+                try
+                {
+                    using (var stream = filePath.OpenRead())
+                    using (var gzipStream = new ICSharpCode.SharpZipLib.GZip.GZipInputStream(stream))
+                    using (var tarArchive = ICSharpCode.SharpZipLib.Tar.TarArchive.CreateInputTarArchive(gzipStream))
+                    {
+                        tarArchive.SetKeepOldFiles(true);
+                        tarArchive.RestoreDateTimeOnExtract = true;
+                        tarArchive.ExtractContents(newExtractedFolder.PathResolved);
+
+                    }
+                }
+                catch (System.Exception ex)
+                {
+                    if ((ex is ICSharpCode.SharpZipLib.Tar.TarException || ex is System.ArgumentOutOfRangeException)
+                            && (ex.Message == "Header checksum is invalid" || ex.Message.StartsWith("Cannot be less than zero")))                    
+                    {
+                        Logger.Instance.InfoFormat("Invalid GZ header checksum detected for File \"{0}\". Trying \"msgz\" format...",
+                                                        filePath.PathResolved);
+                                                
+                        bResult = UnZipFileToFolder("msgz",
+                                                        filePath,
+                                                        newExtractedFolder,
+                                                        cancellationToken);
+                    }
+                    else
+                    {
+                        Logger.Instance.Error(string.Format("GZ Exception for File \"{0}\".",
+                                                                filePath.PathResolved),
+                                                ex);
+                        bResult = false;
+                    }
+                }
+                #endregion
+            }           
+            else if (extractType == "tar")
+            {
+                #region tar
+                try
+                {
+                    using (var stream = filePath.OpenRead())
+                    using (var tarArchive = ICSharpCode.SharpZipLib.Tar.TarArchive.CreateInputTarArchive(stream))
+                    {
+                        tarArchive.SetKeepOldFiles(true);
+                        tarArchive.RestoreDateTimeOnExtract = true;
+                        tarArchive.ExtractContents(newExtractedFolder.PathResolved);
+                    }
+                }
+                catch (System.Exception ex)
+                {
+                    if ((ex is ICSharpCode.SharpZipLib.Tar.TarException || ex is System.ArgumentOutOfRangeException)
+                            && (ex.Message == "Header checksum is invalid" || ex.Message.StartsWith("Cannot be less than zero")))
+                    {
+                        Logger.Instance.InfoFormat("Invalid Tar header checksum detected for File \"{0}\". Trying \"tar.gz\" format...",
+                                                            filePath.PathResolved);
+                        bResult = UnZipFileToFolder("tar.gz",
+                                                        filePath,
+                                                        newExtractedFolder,
+                                                        cancellationToken);                       
+                    }
+                    else
+                    {
+                        Logger.Instance.Error(string.Format("Tar Exception for File \"{0}\".",
+                                                                filePath.PathResolved),
+                                                ex);
+                        bResult = false;
+                    }
+                }
+                #endregion
+            }
+            else if(extractType == "bzip2")
+            {
+                #region bzip2
+                IFilePath newFile;
+                var fileName = filePath.FileNameWithoutExtension;
+
+                if(fileName.EndsWith("tar", StringComparison.OrdinalIgnoreCase))
+                {
+                    fileName = System.IO.Path.GetFileNameWithoutExtension(fileName);
+                }
+
+                if (newExtractedFolder.MakeFile(fileName, out newFile))
+                {
+                    var newFileExists = newFile.Exist();
+
+                    try
+                    {
+                        ICSharpCode.SharpZipLib.BZip2.BZip2.Decompress(filePath.OpenRead(),
+                                                                        newFile.Open(System.IO.FileMode.OpenOrCreate, System.IO.FileAccess.Write),
+                                                                        true);
+                    }
+                    catch(System.Exception ex)
+                    {
+                        if (!newFileExists
+                                && newFile.Exist())
+                        {
+                            try
+                            {
+                                newFile.Delete();
+                            }
+                            catch { }
+                        }
+
+                        Logger.Instance.Error(string.Format("bzip2 Exception for File \"{0}\".",
+                                                                filePath.PathResolved),
+                                                ex);
+                        bResult = false;
+                    }
+                    
+                }
+                #endregion
+            }
+            else if (extractType == "msgz")
+            {
+                #region .net framework gz version
+                IFilePath newFile;
+                var fileName = filePath.FileNameWithoutExtension;
+
+                if (fileName.EndsWith("tar", StringComparison.OrdinalIgnoreCase))
+                {
+                    fileName = System.IO.Path.GetFileNameWithoutExtension(fileName);
+                }
+
+                if (newExtractedFolder.MakeFile(fileName, out newFile))
+                {
+                    var newFileExists = newFile.Exist();
+
+                    try
+                    {
+                        using (var stream = filePath.OpenRead())
+                        using (var decompressedFileStream = newFile.OpenWrite())
+                        using (var decompressionStream = new System.IO.Compression.GZipStream(stream,
+                                                                                                System.IO.Compression.CompressionMode.Decompress))
+                        {                           
+                            decompressionStream.CopyTo(decompressedFileStream);
+                        }
+                    }
+                    catch (System.Exception ex)
+                    {
+                        if (!newFileExists
+                                && newFile.Exist())
+                        {
+                            try
+                            {
+                                newFile.Delete();
+                            }
+                            catch { }
+                        }
+
+                        Logger.Instance.Error(string.Format(".Net framework GZ Exception for File \"{0}\".",
+                                                                filePath.PathResolved),
+                                                ex);
+                        bResult = false;
+                    }
+                }
+                #endregion
+            }
+            else
+            {
+                Logger.Instance.ErrorFormat("Unkown Extraction Type of \"{0}\" for Extracting File \"{1}\" to directory \"{2}\"",
+                                                extractType,
+                                                filePath.PathResolved,
+                                                newExtractedFolder.PathResolved);
+                bResult = false;
+            }
+
+            return bResult;
+        }
+
         static IEnumerable<IFilePath> GetAllChildrenExtractFiles(IDirectoryPath directoryPath)
         {
             var childrenList = directoryPath.Children();
@@ -229,7 +357,7 @@ namespace DSEDiagnosticFileParser
                 extractedFiles.AddRange(GetAllChildrenExtractFiles(dirPath));
             }
 
-            return extractedFiles;
+            return extractedFiles.DuplicatesRemoved(f => f.PathResolved);
         }
 
         public static V TryGetValue<K, V>(this Dictionary<K, V> collection, K key)
