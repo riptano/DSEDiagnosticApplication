@@ -38,31 +38,31 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Common.Console">
-      <HintPath>..\..\..\..\Common Patterns\Assemblies\40\Release\Common.Console.dll</HintPath>
+      <HintPath>..\packages\CommonPatterns\Release\Common.Console.dll</HintPath>
     </Reference>
     <Reference Include="Common.Flags">
-      <HintPath>..\..\..\..\Common Patterns\Assemblies\40\Release\Common.Flags.dll</HintPath>
+      <HintPath>..\packages\CommonPatterns\Release\Common.Flags.dll</HintPath>
     </Reference>
     <Reference Include="Common.Functions">
-      <HintPath>..\..\..\..\Common Patterns\Assemblies\40\Release\Common.Functions.dll</HintPath>
+      <HintPath>..\packages\CommonPatterns\Release\Common.Functions.dll</HintPath>
     </Reference>
     <Reference Include="Common.Path">
-      <HintPath>..\..\..\..\Common Patterns\Assemblies\40\Release\Common.Path.dll</HintPath>
+      <HintPath>..\packages\CommonPatterns\Release\Common.Path.dll</HintPath>
     </Reference>
     <Reference Include="Common.Patterns.Collections">
-      <HintPath>..\..\..\..\Common Patterns\Assemblies\40\Release\Common.Patterns.Collections.dll</HintPath>
+      <HintPath>..\packages\CommonPatterns\Release\Common.Patterns.Collections.dll</HintPath>
     </Reference>
     <Reference Include="Common.Patterns.Shared">
-      <HintPath>..\..\..\..\Common Patterns\Assemblies\40\Release\Common.Patterns.Shared.dll</HintPath>
+      <HintPath>..\packages\CommonPatterns\Release\Common.Patterns.Shared.dll</HintPath>
     </Reference>
     <Reference Include="Common.Patterns.Singleton">
-      <HintPath>..\..\..\..\Common Patterns\Assemblies\40\Release\Common.Patterns.Singleton.dll</HintPath>
+      <HintPath>..\packages\CommonPatterns\Release\Common.Patterns.Singleton.dll</HintPath>
     </Reference>
     <Reference Include="Common.Patterns.Tasks">
-      <HintPath>..\..\..\..\Common Patterns\Assemblies\40\Release\Common.Patterns.Tasks.dll</HintPath>
+      <HintPath>..\packages\CommonPatterns\Release\Common.Patterns.Tasks.dll</HintPath>
     </Reference>
     <Reference Include="Common.Patterns.Threading">
-      <HintPath>..\..\..\..\Common Patterns\Assemblies\40\Release\Common.Patterns.Threading.dll</HintPath>
+      <HintPath>..\packages\CommonPatterns\Release\Common.Patterns.Threading.dll</HintPath>
     </Reference>
     <Reference Include="EPPlus, Version=4.1.0.0, Culture=neutral, PublicKeyToken=ea159fdaa78159a1, processorArchitecture=MSIL">
       <HintPath>..\packages\EPPlus.4.1.0\lib\net40\EPPlus.dll</HintPath>
