@@ -1,0 +1,12 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="DSEDiagnosticConsoleApplication.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="DiagnosticPath" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">[Personal]\DSEData\HL_Statim_Cluster-diagnostics-2016_09_12_14_39_32_UTC</Value>
+    </Setting>
+    <Setting Name="DiagFolderStruct" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">OpsCtrDiagStruct</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>

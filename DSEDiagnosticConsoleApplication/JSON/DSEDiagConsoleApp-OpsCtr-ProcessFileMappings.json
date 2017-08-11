@@ -201,7 +201,7 @@
     "FileParsingClass": "DSEDiagnosticFileParser.json_machine_info",
     "NodeIdPos": -1,
     "ProcessingTaskOption": "ScanForNode,ParallelProcessing,ParallelProcessFiles",
-    "ProcessPriorityLevel": 100
+    "ProcessPriorityLevel": 500
   },
   {
     "Catagory": "SystemOutputFile",
@@ -209,7 +209,7 @@
     "FileParsingClass": "DSEDiagnosticFileParser.json_os_info",
     "NodeIdPos": -1,
     "ProcessingTaskOption": "ScanForNode,ParallelProcessing,ParallelProcessFiles",
-    "ProcessPriorityLevel": 100
+    "ProcessPriorityLevel": 500
   },
   {
     "Catagory": "SystemOutputFile",
@@ -217,7 +217,7 @@
     "FileParsingClass": "DSEDiagnosticFileParser.jason_cpu",
     "NodeIdPos": -1,
     "ProcessingTaskOption": "ScanForNode,ParallelProcessing,ParallelProcessFiles",
-    "ProcessPriorityLevel": 100
+    "ProcessPriorityLevel": 500
   },
   {
     "Catagory": "SystemOutputFile",
@@ -225,7 +225,7 @@
     "FileParsingClass": "DSEDiagnosticFileParser.file_load_avg",
     "NodeIdPos": -1,
     "ProcessingTaskOption": "ScanForNode,ParallelProcessing,ParallelProcessFiles",
-    "ProcessPriorityLevel": 100
+    "ProcessPriorityLevel": 500
   },
   {
     "Catagory": "CommandOutputFile",
@@ -233,7 +233,7 @@
     "FileParsingClass": "DSEDiagnosticFileParser.file_agent_version",
     "NodeIdPos": -1,
     "ProcessingTaskOption": "ScanForNode,ParallelProcessing,ParallelProcessFiles",
-    "ProcessPriorityLevel": 100
+    "ProcessPriorityLevel": 500
   },
   {
     "Catagory": "SystemOutputFile",
@@ -241,7 +241,7 @@
     "FileParsingClass": "DSEDiagnosticFileParser.json_java_system_properties",
     "NodeIdPos": -1,
     "ProcessingTaskOption": "ScanForNode,ParallelProcessing,ParallelProcessFiles",
-    "ProcessPriorityLevel": 100
+    "ProcessPriorityLevel": 500
   },
   {
     "Catagory": "SystemOutputFile",
@@ -249,7 +249,7 @@
     "FileParsingClass": "DSEDiagnosticFileParser.file_ntpstat",
     "NodeIdPos": -1,
     "ProcessingTaskOption": "ScanForNode,ParallelProcessing,ParallelProcessFiles",
-    "ProcessPriorityLevel": 100
+    "ProcessPriorityLevel": 500
   },
   {
     "Catagory": "SystemOutputFile",
@@ -257,7 +257,7 @@
     "FileParsingClass": "DSEDiagnosticFileParser.file_ntptime",
     "NodeIdPos": -1,
     "ProcessingTaskOption": "ScanForNode,ParallelProcessing,ParallelProcessFiles",
-    "ProcessPriorityLevel": 100
+    "ProcessPriorityLevel": 500
   },
   {
     "Catagory": "SystemOutputFile",
@@ -265,7 +265,7 @@
     "FileParsingClass": "DSEDiagnosticFileParser.json_java_heap",
     "NodeIdPos": -1,
     "ProcessingTaskOption": "ScanForNode,ParallelProcessing,ParallelProcessFiles",
-    "ProcessPriorityLevel": 100
+    "ProcessPriorityLevel": 500
   },
   {
     "Catagory": "SystemOutputFile",
@@ -273,7 +273,7 @@
     "FileParsingClass": "DSEDiagnosticFileParser.json_memory",
     "NodeIdPos": -1,
     "ProcessingTaskOption": "ScanForNode,ParallelProcessing,ParallelProcessFiles",
-    "ProcessPriorityLevel": 100
+    "ProcessPriorityLevel": 500
   },
   {
     "Catagory": "CommandOutputFile",
@@ -281,7 +281,7 @@
     "FileParsingClass": "DSEDiagnosticFileParser.file_nodetool_info",
     "NodeIdPos": -1,
     "ProcessingTaskOption": "ScanForNode,ParallelProcessing,ParallelProcessFiles",
-    "ProcessPriorityLevel": 100
+    "ProcessPriorityLevel": 500
   },
   {
     "Catagory": "SystemOutputFile",
@@ -289,7 +289,7 @@
     "FileParsingClass": "DSEDiagnosticFileParser.json_location",
     "NodeIdPos": -1,
     "ProcessingTaskOption": "ScanForNode,ParallelProcessing,ParallelProcessFiles",
-    "ProcessPriorityLevel": 100
+    "ProcessPriorityLevel": 500
   },
   {
     "Catagory": "CQLFile",
@@ -297,12 +297,6 @@
     "FileParsingClass": "DSEDiagnosticFileParser.cql_ddl",
     "NodeIdPos": -1,
     "ProcessingTaskOption": "ScanForNode,ParallelProcessing",
-    "ProcessPriorityLevel": 100
-  },
-  {
-    "Catagory": "LogFile",
-    "FilePatterns": [ ".\\nodes\\10.1.36.100\\logs\\cassandra\\system.log" ],
-    "FileParsingClass": "DSEDiagnosticFileParser.file_cassandra_log4net",
-    "NodeIdPos": -1
+    "ProcessPriorityLevel": 500
   }
 ]

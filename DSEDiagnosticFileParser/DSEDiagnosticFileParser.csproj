@@ -102,6 +102,7 @@
     <Compile Include="file-nodetool-status.cs" />
     <Compile Include="file-ntpstat.cs" />
     <Compile Include="file-ntptime.cs" />
+    <Compile Include="file-return-collection.cs" />
     <Compile Include="file-unzip.cs" />
     <Compile Include="file-yaml.cs" />
     <Compile Include="FileMapper.cs" />
@@ -145,6 +146,7 @@
     <None Include="Json\ProcessFileMappingsNoLogs.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Json\Unzip-ProcessFileMappings.json" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

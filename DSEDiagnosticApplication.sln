@@ -26,6 +26,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ICSharpCode.SharpZLib", "..
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ICSharpCode.SharpZLibTests", "..\SharpZipLib\ICSharpCode.SharpZLibTests\ICSharpCode.SharpZLibTests.csproj", "{7D11731B-1232-4C10-917E-99DF88DA51DC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSEDiagnosticConsoleApplication", "DSEDiagnosticConsoleApplication\DSEDiagnosticConsoleApplication.csproj", "{288A5CE0-CE62-48EC-BA24-DE57D0660D3B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -68,6 +70,10 @@ Global
 		{7D11731B-1232-4C10-917E-99DF88DA51DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7D11731B-1232-4C10-917E-99DF88DA51DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7D11731B-1232-4C10-917E-99DF88DA51DC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{288A5CE0-CE62-48EC-BA24-DE57D0660D3B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{288A5CE0-CE62-48EC-BA24-DE57D0660D3B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{288A5CE0-CE62-48EC-BA24-DE57D0660D3B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{288A5CE0-CE62-48EC-BA24-DE57D0660D3B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
