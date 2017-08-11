@@ -58,9 +58,18 @@ namespace DSEDiagnosticFileParser
 
         public override uint ProcessFile()
         {
-            IDirectoryPath newDirectory;
+            IDirectoryPath newDirectory = null;
+            int nbrFilesExtracted = 0;
 
-            var nbrFilesExtracted =  MiscHelpers.UnZipFileToFolder(this.File, out newDirectory, false, true, true, true, this.CancellationToken);
+            try
+            {
+                nbrFilesExtracted = MiscHelpers.UnZipFileToFolder(this.File, out newDirectory, false, true, true, true, this.CancellationToken);
+            }
+            catch (System.Exception ex)
+            {
+                DSEDiagnosticLogger.Logger.Instance.Error("file_unzip", ex);
+                throw;
+            }
 
             this._result = new ExtractionResult(newDirectory, nbrFilesExtracted, nbrFilesExtracted > 0);
 
