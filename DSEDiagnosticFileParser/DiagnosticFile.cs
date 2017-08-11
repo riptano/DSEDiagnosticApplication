@@ -990,13 +990,11 @@ namespace DSEDiagnosticFileParser
 
                     if(otherExceptions)
                     {
-                        if (processingFileInstance == null)
+                        if (processingFileInstance != null)
                         {
-                            throw;
+                            processingFileInstance.Exception = ae;
+                            processingFileInstance.ParsedTimeRange.SetMaximum(DateTime.Now);
                         }
-
-                        processingFileInstance.Exception = ae;
-                        processingFileInstance.ParsedTimeRange.SetMaximum(DateTime.Now);
 
                         Logger.Instance.Error(string.Format("{0}\t{1}\tProcessing failed with exception.",
                                                             node, processFile?.PathResolved), ae);
@@ -1020,13 +1018,12 @@ namespace DSEDiagnosticFileParser
                                                                             runAsTask },
                                                        OnException);
 
-                    if (processingFileInstance == null)
+                    if (processingFileInstance != null)
                     {
-                        throw;
+                        processingFileInstance.ParsedTimeRange.SetMaximum(DateTime.Now);
+                        processingFileInstance.Exception = ex;
                     }
-
-                    processingFileInstance.ParsedTimeRange.SetMaximum(DateTime.Now);
-                    processingFileInstance.Exception = ex;
+                    
                     Logger.Instance.Error(string.Format("{0}\t{1}\tProcessing failed with exception.",
                                                             node, processFile?.PathResolved), ex);
                 }
