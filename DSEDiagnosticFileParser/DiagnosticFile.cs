@@ -646,6 +646,13 @@ namespace DSEDiagnosticFileParser
 			var diagnosticInstances = new List<DiagnosticFile>();
 			var instanceType = fileMappings.GetFileParsingType();
 
+            Logger.Instance.InfoFormat("<NoNodeId>\t{0}\tFile Mapper File Parsing Class \"{1}\" Category {2} Translated to Patterns {{{3}}} which resulted in {4} files",
+                                            diagnosticDirectory.PathResolved,
+                                            fileMappings.FileParsingClass,
+                                            fileMappings.Catagory,
+                                            mergesFiles == null ? "<Nothing Found>" : string.Join(", ", mergesFiles.Select(m => m.PathResolved)),
+                                            targetFiles.Count());
+
             InvokeProgressionEvent(fileMappings,
                                         ProgressionEventArgs.Categories.End | ProgressionEventArgs.Categories.Process | ProgressionEventArgs.Categories.FileMapper,
                                         "Determining Files from Mapper",

@@ -413,5 +413,13 @@ namespace DSEDiagnosticApplication
             this.EnableRunButton(buttonLabel);
         }
 
+        private void button4_Click(object sender, EventArgs e)
+        {
+            using (var waitCusor = Common.WaitCursor.UsingCreate(this.ultraGrid1, Common.Patterns.WaitCursorModes.GUI))
+            {
+                DSEDiagnosticLibrary.Cluster.Clear();
+                this.ultraGrid1.DataSource = this._currentDiagnosticFiles = null;
+            }
+        }
     }
 }
