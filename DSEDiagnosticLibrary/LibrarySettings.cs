@@ -13,8 +13,8 @@ namespace DSEDiagnosticLibrary
         static LibrarySettings() { }
 
         public static char[] HostNamePathNameCharSeparators = Properties.Settings.Default.HostNamePathNameCharSeparators.ToEnumerable()
-                                                                    .Where(s => !string.IsNullOrEmpty(s))
-                                                                    .Select(s => s[0])
+                                                                    .Select(s => string.IsNullOrEmpty(s) ? ' ' : s[0])
+                                                                    .DuplicatesRemoved(i => i)
                                                                     .ToArray();
         public static UnitOfMeasure.Types DefaultStorageSizeUnit = ParseEnum<UnitOfMeasure.Types>(Properties.Settings.Default.DefaultStorageSizeUnit);
         public static UnitOfMeasure.Types DefaultMemorySizeUnit = ParseEnum<UnitOfMeasure.Types>(Properties.Settings.Default.DefaultMemorySizeUnit);
