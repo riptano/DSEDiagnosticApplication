@@ -302,7 +302,7 @@ namespace DSEDiagnosticLibrary
         /// a tuple where
         ///     Item1 -- keyspace name
         ///     Item2 -- table/secondary index name
-        ///     Item3 -- table&apos;s guid id
+        ///     Item3 -- table&apos;s guid id or string.empty
         ///     Item4 -- if secondary index this will be the associated table name, otherwise null.
         /// </returns>
         static public Tuple<string,string,string,string> ParseSSTableFileIntoKSTableNames(string sstableFilePath)
@@ -313,6 +313,7 @@ namespace DSEDiagnosticLibrary
             // "/mnt/cassandra/data/data/keyspace1/digitalasset_3_0_2-980fca722ea611e78ff92901fcc7f505/.index2_tags/mb-1-big-Data.db"
             // "/var/lib/cassandra/data/Keyspace1/digitalasset_3_0_2/Keyspace1-digitalasset_3_0_2-jb-1-Data.db"
             // "/var/lib/cassandra/data/Keyspace1/digitalasset_3_0_2/Keyspace1-digitalasset_3_0_2.digitalasset_3_0_2_id-jb-1-Data.db"
+            // "/d3/data/system/batches-919a4bc57a333573b03e13fc3f68b465/mc-62-big-Data.db"
             //
             // C* 2.0 -- /mnt/dse/data1/<keyspace>/<column family>/<keyspace>-<column family>-<version>-<generation>-<component>.db
             // C* 2.0 -- /mnt/dse/data1/<keyspace>/<column family>/<keyspace>-<column family>.<SecondaryIndex>-<version>-<generation>-<component>.db
@@ -330,12 +331,14 @@ namespace DSEDiagnosticLibrary
             {
                 var idxOffset = sstableFilePathParts[sstableFilePathParts.Length - 2][0] == '.' ? 1 : 0; //used to offset C* 3.x secondary index format
 
-                var ksName = sstableFilePathParts[sstableFilePathParts.Length - 3 + idxOffset];
-                var tblNameMatch = SSTableCQLTableNameRegEx.Match(sstableFilePathParts[sstableFilePathParts.Length - 2 + idxOffset]);
+                var ksName = sstableFilePathParts[sstableFilePathParts.Length - (3 + idxOffset)];
+                var tblNameMatch = SSTableCQLTableNameRegEx.Match(sstableFilePathParts[sstableFilePathParts.Length - (2 + idxOffset)]);
 
                 if (tblNameMatch.Success)
                 {
-                    var columnFamily = tblNameMatch.Groups[1].Value ?? tblNameMatch.Groups[3].Value;
+                    var columnFamily = string.IsNullOrEmpty(tblNameMatch.Groups[1].Value)
+                                            ? tblNameMatch.Groups[3].Value
+                                            : tblNameMatch.Groups[1].Value;
                     var cfUUID = tblNameMatch.Groups[2].Value;
                     string secondTblName = null;
 
@@ -344,7 +347,8 @@ namespace DSEDiagnosticLibrary
                         secondTblName = sstableFilePathParts[sstableFilePathParts.Length - 2].Substring(1);
                     }
                     else if (sstableFilePathParts.Last().Length > ksName.Length + columnFamily.Length + 1
-                                && sstableFilePathParts.Last()[ksName.Length + columnFamily.Length + 1] == '.')
+                                && sstableFilePathParts.Last()[ksName.Length + columnFamily.Length + 1] == '.'
+                                && !sstableFilePathParts.Last().StartsWith("mc-"))
                     {
                         var lastNode = sstableFilePathParts.Last();
                         int tmpPos = -1;
