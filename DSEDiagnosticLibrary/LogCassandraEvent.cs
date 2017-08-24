@@ -199,7 +199,7 @@ namespace DSEDiagnosticLibrary
         [JsonIgnore]
         public IDataCenter DataCenter { get { return this.Node?.DataCenter; } }
         public INode Node { get; }
-        public int Items { get; private set; }
+        public int Items { get; }
         public uint LineNbr { get; }
 
         #endregion
@@ -211,7 +211,7 @@ namespace DSEDiagnosticLibrary
         /// <summary>
         /// e.g., Hint, Tombstone, etc.
         /// </summary>
-        public string SubClass { get; private set; }
+        public string SubClass { get; }
 
         /// <summary>
         /// If not defined one is generated. For session this should by the same guid for the complete session.

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Common;
 using System.Data;
 using log4net;
 
@@ -132,5 +133,27 @@ namespace DSEDiagnosticConsoleApplication
             return strItem;
         }
 
+        public static bool Flush()
+        {
+            bool bResult = true;
+
+            try
+            {
+                var rep = Instance.Log4NetInstance.Logger.Repository;
+
+                rep.GetAppenders().Cast<log4net.Appender.IFlushable>()
+                    .ForEach(appender =>
+                    {
+                        appender.Flush(2000);
+                    });
+                bResult = true;
+            }
+            catch
+            {
+                Logger.Instance.Error("Log4Net Appender Flush Failed!");
+            }
+
+            return bResult;
+        }
     }
 }

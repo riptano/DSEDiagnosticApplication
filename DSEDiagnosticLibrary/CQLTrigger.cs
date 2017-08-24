@@ -55,24 +55,24 @@ namespace DSEDiagnosticLibrary
         [JsonIgnore]
         public SourceTypes Source { get { return SourceTypes.CQL; } }
         [JsonConverter(typeof(IPathJsonConverter))]
-        public IPath Path { get; private set; }
+        public IPath Path { get;}
         [JsonIgnore]
         public Cluster Cluster { get { return this.Table.Cluster; } }
         [JsonIgnore]
         public IDataCenter DataCenter { get { return this.Node?.DataCenter ?? this.Table.DataCenter; } }
-        public INode Node { get; private set; }
-        public int Items { get; private set; }
-        public uint LineNbr { get; private set; }
+        public INode Node { get; }
+        public int Items { get;  }
+        public uint LineNbr { get; }
 
         #endregion
 
         #region IDDLStmt
         [JsonIgnore]
         public IKeyspace Keyspace { get { return this.Table.Keyspace; } }
-        public string Name { get; private set; }
+        public string Name { get;  }
         [JsonIgnore]
         public string FullName { get { return this.Keyspace.Name + '.' + this.Name; } }
-        public string DDL { get; private set; }
+        public string DDL { get; }
         public object ToDump()
         {
             return new { Trigger = this.FullName, Cluster = this.Cluster.Name, DataCenter = this.DataCenter.Name, Me = this };
@@ -95,8 +95,8 @@ namespace DSEDiagnosticLibrary
         #endregion
 
         #region ICQLTrigger
-        public ICQLTable Table { get; private set; }
-        public string JavaClass { get; private set; }
+        public ICQLTable Table { get; }
+        public string JavaClass { get; }
         #endregion
 
         #region IEquatable

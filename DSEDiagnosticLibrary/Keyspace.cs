@@ -57,8 +57,8 @@ namespace DSEDiagnosticLibrary
             this.DataCenter = datacenter;
         }
 
-        public ushort RF { get; private set; }
-        public IDataCenter DataCenter { get; private set; }
+        public ushort RF { get; }
+        public IDataCenter DataCenter { get; }
 
         public bool Equals(IDataCenter other)
         {
@@ -191,24 +191,24 @@ namespace DSEDiagnosticLibrary
         [JsonIgnore]
         public SourceTypes Source { get { return SourceTypes.CQL; } }
         [JsonConverter(typeof(DSEDiagnosticLibrary.IPathJsonConverter))]
-        public IPath Path { get; private set; }
+        public IPath Path { get; }
         [JsonProperty(PropertyName="Cluster")]
         private Cluster _cluster;
         [JsonIgnore]
         public Cluster Cluster { get { return this.Node == null ? this._cluster : this.Node.Cluster; } }
         [JsonIgnore]
         public IDataCenter DataCenter { get { return this.Node?.DataCenter; } }
-        public INode Node { get; private set; }
+        public INode Node { get; }
         [JsonIgnore]
         public int Items { get { return this._ddlList.Count; } }
         public uint LineNbr { get; private set; }
         #endregion
 
         #region IDDL
-        public string Name { get; private set; }
+        public string Name { get; }
         [JsonIgnore]
         public string FullName { get { return this.Name; } }
-        public string DDL { get; private set; }
+        public string DDL { get; }
         public object ToDump()
         {
             return new { KeySpace = this.Name, Cluster = this.Cluster.Name, DataCenter = this.DataCenter.Name, Me = this };
@@ -225,14 +225,14 @@ namespace DSEDiagnosticLibrary
         private CTS.List<IDDL> _ddlList = new CTS.List<IDDL>();
         [JsonIgnore]
         public IEnumerable<IDDL> DDLs { get { return this._ddlList; } }
-        public string ReplicationStrategy { get; private set; }
-        public bool EverywhereStrategy { get; private set; }
-        public bool LocalStrategy { get; private set; }
-        public KeyspaceStats Stats { get; private set; }
+        public string ReplicationStrategy { get; }
+        public bool EverywhereStrategy { get; }
+        public bool LocalStrategy { get; }
+        public KeyspaceStats Stats { get; }
         [JsonIgnore]
         public IEnumerable<IDataCenter> DataCenters { get { return this.EverywhereStrategy || this.LocalStrategy ? this.Cluster?.DataCenters : this.Replications.Select(r => r.DataCenter); } }
-        public IEnumerable<KeyspaceReplicationInfo> Replications { get; private set; }
-        public bool DurableWrites { get; private set; }
+        public IEnumerable<KeyspaceReplicationInfo> Replications { get; }
+        public bool DurableWrites { get; }
         public IDDL AssociateItem(IDDL ddl)
         {
             this._ddlList.Lock();

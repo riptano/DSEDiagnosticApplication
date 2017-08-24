@@ -101,6 +101,7 @@ namespace DSEDiagnosticConsoleApplication
         public static IDirectoryPath DiagnosticPath = MakeDirectoryPath(Properties.Settings.Default.DiagnosticPath);
         public static DiagFolderStructOptions DiagFolderStruct = (DiagFolderStructOptions)Enum.Parse(typeof(DiagFolderStructOptions), Properties.Settings.Default.DiagFolderStruct);
 
+        public static List<string> IgnoreKeySpaces = Properties.Settings.Default.IgnoreKeySpaces.ToList(false);
 
         public static string ExcelWorkBookFileExtension = null;
         public static bool DivideWorksheetIfExceedMaxRows = true;

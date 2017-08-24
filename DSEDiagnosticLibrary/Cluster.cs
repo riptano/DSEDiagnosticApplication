@@ -42,7 +42,7 @@ namespace DSEDiagnosticLibrary
 			this.Name = StringHelpers.RemoveQuotes(clusterName);
 		}
 
-		public string Name { get; private set; }
+		public string Name { get; }
         public bool IsMaster { get; private set; }
 
         [JsonProperty(PropertyName="DataCenters")]
@@ -146,7 +146,7 @@ namespace DSEDiagnosticLibrary
             }
         }
 
-        public OpsCenterInfo OpsCenter { get; private set; }
+        public OpsCenterInfo OpsCenter { get; }
 
 		public IEvent AssociateItem(IEvent eventItem)
 		{

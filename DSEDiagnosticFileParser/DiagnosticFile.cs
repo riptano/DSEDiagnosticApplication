@@ -220,14 +220,14 @@ namespace DSEDiagnosticFileParser
         }
 
         #region Public Members
-        public CatagoryTypes Catagory { get; private set; }
+        public CatagoryTypes Catagory { get; }
         [JsonConverter(typeof(DSEDiagnosticLibrary.IPathJsonConverter))]
-        public IDirectoryPath DiagnosticDirectory { get; private set; }
+        public IDirectoryPath DiagnosticDirectory { get; }
         [JsonConverter(typeof(DSEDiagnosticLibrary.IPathJsonConverter))]
-        public IFilePath File { get; private set; }
-        public INode Node { get; private set; }
-        public string DefaultClusterName { get; private set; }
-        public string DefaultDataCenterName { get; private set; }
+        public IFilePath File { get; }
+        public INode Node { get; }
+        public string DefaultClusterName { get; }
+        public string DefaultDataCenterName { get; }
         [JsonConverter(typeof(DSEDiagnosticLibrary.DateTimeRangeJsonConverter))]
         public DateTimeRange ParseOnlyInTimeRange { get; protected set; }
         public Version TargetDSEVersion { get; protected set; }

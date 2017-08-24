@@ -4,12 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Common;
+using Common.Patterns.Tasks;
 
 namespace DSEDiagnosticConsoleApplication
 {
     class Program
     {
-
         public static readonly DateTime RunDateTime = DateTime.Now;
         public static string CommandLineArgsString = null;
         public static bool DebugMode = false;
@@ -33,23 +33,41 @@ namespace DSEDiagnosticConsoleApplication
 
         #region Exception/Progression Handlers
 
+        private static void Console_CancelKeyPress(object sender, ConsoleCancelEventArgs e)
+        {
+            Logger.Instance.Warn("Application Aborted");
+            Program.ConsoleErrors.Increment("Aborted");
+
+            Logger.Flush();
+        }
+
         static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
-            ConsoleDisplay.Console.WriteLine(" ");
+            ConsoleDisplay.End();
 
-            Logger.Instance.FatalFormat("Unhandled Exception Occurred! Exception Is \"{0}\" ({1}) Terminating Processing: {2}",
-                                            e.ExceptionObject.GetType(),
-                                            e.ExceptionObject is System.Exception ? ((System.Exception)e.ExceptionObject).Message : "<Not an Exception Object>",
-                                            e.IsTerminating);
+            GCMonitor.GetInstance().StopGCMonitoring();
+
+            ConsoleDisplay.Console.SetReWriteToWriterPosition();
+            ConsoleDisplay.Console.WriteLine();
+
+            Logger.Instance.FatalFormat("Unhandled Exception Occurred! Exception Is \"{0}\" ({1}) Terminating Processing...",
+                                            e.ExceptionObject?.GetType(),
+                                            e.ExceptionObject is System.Exception ? ((System.Exception)e.ExceptionObject).Message : "<Not an Exception Object>");
 
             if (e.ExceptionObject is System.Exception)
             {
                 Logger.Instance.Error("Unhandled Exception", ((System.Exception)e.ExceptionObject));
-                Program.ConsoleErrors.Increment("Unhandled Exception");
+                ConsoleDisplay.Console.WriteLine("Unhandled Exception of \"{0}\" occurred", ((System.Exception)e.ExceptionObject).GetType().Name);
             }
 
-            //ExceptionOccurred = true;
+            Logger.Instance.Info("DSEDiagnosticConsoleApplication Main Ended due to unhandled exception");
+            Logger.Flush();
+
+            ConsoleDisplay.Console.WriteLine();
+            Common.ConsoleHelper.Prompt("Press Return to Exit (Unhandled Exception)", ConsoleColor.Gray, ConsoleColor.DarkRed);
+            Environment.Exit(-1);
         }
+
         private static void DiagnosticFile_OnException(object sender, DSEDiagnosticFileParser.ExceptionEventArgs eventArgs)
         {
             Logger.Instance.Error("Exception within DSEDiagnosticFileParser", eventArgs.Exception);
@@ -76,13 +94,14 @@ namespace DSEDiagnosticConsoleApplication
 
         #endregion
 
-        static void Main(string[] args)
+        static int Main(string[] args)
         {
             #region Setup Exception handling, Argument Parsering
 
-            CommandLineArgsString = string.Join(" ", args);
-
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+            System.Console.CancelKeyPress += Console_CancelKeyPress;
+
+            CommandLineArgsString = string.Join(" ", args);
 
             Logger.Instance.Info("DSEDiagnosticConsoleApplication Main Start");
             DSEDiagnosticFileParser.DiagnosticFile.OnException += DiagnosticFile_OnException;
@@ -101,7 +120,7 @@ namespace DSEDiagnosticConsoleApplication
                     if (!argParser.ParsingSucceeded)
                     {
                         argParser.ShowUsage();
-                        return;
+                        return 1;
                     }
 
 
@@ -119,7 +138,7 @@ namespace DSEDiagnosticConsoleApplication
 
                     argParser.ShowUsage();
                     Common.ConsoleHelper.Prompt("Press Return to Exit", ConsoleColor.Gray, ConsoleColor.DarkRed);
-                    return;
+                    return 1;
                 }
             }
             #endregion
@@ -149,6 +168,7 @@ namespace DSEDiagnosticConsoleApplication
             ConsoleWarnings = new ConsoleDisplay("Warnings: {0} Last: {2}", 2, false);
             ConsoleErrors = new ConsoleDisplay("Errors: {0} Last: {2}", 2, false);
 
+            ConsoleDisplay.Console.ReserveRwWriteConsoleSpace(ConsoleDisplay.ConsoleRunningTimerTag, 2, -1);
             ConsoleDisplay.Console.ReserveRwWriteConsoleSpace("Prompt", 2, -1);
             ConsoleDisplay.Console.AdjustScreenToFitBasedOnStartBlock();
 
@@ -161,28 +181,64 @@ namespace DSEDiagnosticConsoleApplication
             #endregion
 
             #region DSEDiagnosticFileParser
-            var diagParserTask = DSEDiagnosticFileParser.DiagnosticFile.ProcessFile(ParserSettings.DiagnosticPath);
+            var cancellationSource = new System.Threading.CancellationTokenSource();
+            var diagParserTask = DSEDiagnosticFileParser.DiagnosticFile.ProcessFile(ParserSettings.DiagnosticPath,
+                                                                                     null,
+                                                                                     null,
+                                                                                     null,
+                                                                                     cancellationSource);
 
-            diagParserTask.Wait();
-            ConsoleNonLogReadFiles.Terminate();
+            diagParserTask.Then(ignore => ConsoleNonLogReadFiles.Terminate());
+            diagParserTask.ContinueWith(task => CanceledFaultProcessing(task.Exception),
+                                            TaskContinuationOptions.OnlyOnFaulted);
+            diagParserTask.ContinueWith(task => CanceledFaultProcessing(null),
+                                            TaskContinuationOptions.OnlyOnCanceled);
 
-            if (diagParserTask.IsFaulted || diagParserTask.IsCanceled)
+            #endregion
+
+            #region Load DataTables
+            var datatableTasks = new List<Task<System.Data.DataTable>>();
+            var loadAllDataTableTask = Common.Patterns.Tasks.CompletionExtensions.CompletedTask(new System.Data.DataTable[0]);
             {
-                ConsoleDisplay.End();
+                var cluster = DSEDiagnosticLibrary.Cluster.Clusters.FirstOrDefault(c => !c.IsMaster) ?? DSEDiagnosticLibrary.Cluster.Clusters.First();
+                var loadDataTables = new DSEDiagnosticToDataTable.IDataTable[]
+                {
+                    new DSEDiagnosticToDataTable.ConfigDataTable(cluster, cancellationSource),
+                    new DSEDiagnosticToDataTable.TokenRangesDataTable(cluster, cancellationSource),
+                    new DSEDiagnosticToDataTable.CQLDDLDataTable(cluster, cancellationSource, ParserSettings.IgnoreKeySpaces.ToArray()),
+                    new DSEDiagnosticToDataTable.KeyspaceDataTable(cluster, cancellationSource, ParserSettings.IgnoreKeySpaces.ToArray()),
+                    new DSEDiagnosticToDataTable.MachineDataTable(cluster, cancellationSource),
+                    new DSEDiagnosticToDataTable.NodeDataTable(cluster, cancellationSource),
+                    new DSEDiagnosticToDataTable.TokenRangesDataTable(cluster, cancellationSource)
+                };
 
-                GCMonitor.GetInstance().StopGCMonitoring();
+                loadDataTables.ForEach(ldtInstance =>
+                {
+                    ConsoleParsingNonLog.Increment(ldtInstance.Table.TableName);
 
-                Logger.Instance.Info("DSEDiagnosticConsoleApplication Main End");
+                    var taskDataTable = diagParserTask.ContinueWith((task, instance) => ((DSEDiagnosticToDataTable.IDataTable)instance).LoadTable(),
+                                                                                ldtInstance,
+                                                                                cancellationSource.Token,
+                                                                                TaskContinuationOptions.OnlyOnRanToCompletion,
+                                                                                TaskScheduler.Default);
+                    datatableTasks.Add(taskDataTable);
+                    taskDataTable.Then(result => ConsoleParsingNonLog.TaskEnd(result.TableName));
+                });
 
-                ConsoleDisplay.Console.SetReWriteToWriterPosition();
-                ConsoleDisplay.Console.WriteLine();
-                Common.ConsoleHelper.Prompt("Press Return to Exit", ConsoleColor.Gray, ConsoleColor.DarkRed);
-                return;
+                loadAllDataTableTask = Task.Factory.ContinueWhenAll(datatableTasks.ToArray(),
+                                                                    dtTasks => dtTasks.Select(t => t.Result).ToArray(),
+                                                                    cancellationSource.Token);
+                loadAllDataTableTask.Then(result => ConsoleParsingNonLog.Terminate());
+                loadAllDataTableTask.ContinueWith(task => CanceledFaultProcessing(task.Exception),
+                                                            TaskContinuationOptions.OnlyOnFaulted);
+                loadAllDataTableTask.ContinueWith(task => CanceledFaultProcessing(null),
+                                                            TaskContinuationOptions.OnlyOnCanceled);
+
             }
             #endregion
 
 
-
+            loadAllDataTableTask.Wait();
 
             #region Termiate
 
@@ -197,6 +253,34 @@ namespace DSEDiagnosticConsoleApplication
             Common.ConsoleHelper.Prompt("Press Return to Exit", ConsoleColor.Gray, ConsoleColor.DarkRed);
 
             #endregion
+
+            return 0;
+        }
+
+        static public volatile bool AlreadyCanceled = false;
+        static bool _AlreadyCanceled = false;
+
+        static void CanceledFaultProcessing(System.Exception ex)
+        {
+            if (!AlreadyCanceled && !Common.Patterns.Threading.LockFree.Exchange(ref _AlreadyCanceled, true))
+            {
+                AlreadyCanceled = true;
+                ConsoleDisplay.End();
+
+                GCMonitor.GetInstance().StopGCMonitoring();
+
+                if(ex != null)
+                {
+                    Logger.Instance.Error("Fault Detected", ex);
+                }
+
+                Logger.Instance.Info("DSEDiagnosticConsoleApplication Main Ended from Fault or Canceled");
+
+                ConsoleDisplay.Console.SetReWriteToWriterPosition();
+                ConsoleDisplay.Console.WriteLine();
+                Common.ConsoleHelper.Prompt(@"Press Return to Exit (Fault/Canceled)", ConsoleColor.Gray, ConsoleColor.DarkRed);
+                Environment.Exit(-1);
+            }
         }
     }
 }

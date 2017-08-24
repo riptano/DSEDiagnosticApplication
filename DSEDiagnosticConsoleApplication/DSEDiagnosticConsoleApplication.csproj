@@ -126,8 +126,13 @@
     <None Include="..\DSEDiagnosticFileParser\Json\ProcessFileMappings.json">
       <Link>JSON\ProcessFileMappings.json</Link>
     </None>
-    <None Include="..\DSEDiagnosticFileParser\Json\Unzip-ProcessFileMappings.json" />
+    <None Include="..\DSEDiagnosticFileParser\Json\Unzip-ProcessFileMappings.json">
+      <Link>JSON\Unzip-ProcessFileMappings.json</Link>
+    </None>
     <None Include="App.config" />
+    <None Include="JSON\DSEDiagConsoleApp-OpsCtr-ProcessFileMappings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -150,6 +155,10 @@
     <ProjectReference Include="..\DSEDiagnosticLogger\DSEDiagnosticLogger.csproj">
       <Project>{d374eb28-89c6-4ecf-b68e-7bedeac4212e}</Project>
       <Name>DSEDiagnosticLogger</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DSEDiagnosticToDataTable\DSEDiagnosticToDataTable.csproj">
+      <Project>{f4e842e1-39b7-4ea9-8820-d81d11d1522c}</Project>
+      <Name>DSEDiagnosticToDataTable</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

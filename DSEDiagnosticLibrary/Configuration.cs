@@ -11,13 +11,13 @@ namespace DSEDiagnosticLibrary
 
     public enum ConfigTypes
     {
-        
-        Unkown = 0,        
-        Cassandra,        
-        DSE,        
-        Hadoop,        
-        Solr,        
-        Spark,        
+
+        Unkown = 0,
+        Cassandra,
+        DSE,
+        Hadoop,
+        Solr,
+        Spark,
         Snitch
     }
 
@@ -238,9 +238,13 @@ namespace DSEDiagnosticLibrary
         {
             get
             {
-                return this.DataCenter is DataCenter
-                            ? this.DataCenter.Nodes.Count() == 1
-                            : this.DataCenter.Nodes.First().DataCenter.Nodes.All(n => this.Node.Equals(n));
+                var nbrNodes = this.DataCenter?.Nodes.Count() ?? 0;
+
+                if (nbrNodes <= 1) return true;
+
+                var nbrMatches = this.DataCenter.Nodes.Count(n => n.Configurations.Any(c => c.NormalizeProperty() == this.NormalizeProperty() && c.NormalizeValue() == this.NormalizeValue()));
+
+                return nbrMatches == nbrNodes;
             }
         }
 

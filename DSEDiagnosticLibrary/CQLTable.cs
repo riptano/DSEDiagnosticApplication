@@ -456,15 +456,14 @@ namespace DSEDiagnosticLibrary
         public uint NbrTriggers;
     }
 
-    public interface ICQLTable : IDDLStmt, IEquatable<string>, IEquatable<ICQLTable>
+    public interface ICQLTable : IDDLStmt, IProperties, IEquatable<string>, IEquatable<ICQLTable>
     {
         Guid Id { get; }
         IEnumerable<ICQLColumn> Columns { get; }
         IEnumerable<ICQLColumn> PrimaryKeys { get; }
         IEnumerable<ICQLColumn> ClusteringKeys { get; }
         IEnumerable<CQLOrderByColumn> OrderByCols { get; }
-        IDictionary<string,object> Properties { get; }
-
+        
         string Compaction { get; }
         string Compression { get; }
         bool WithCompactStorage { get; }
@@ -647,16 +646,16 @@ namespace DSEDiagnosticLibrary
         #region ICQLTable
 
         public Guid Id { get; private set; }
-        public IEnumerable<ICQLColumn> Columns { get; private set; }
-        public IEnumerable<ICQLColumn> PrimaryKeys { get; private set; }
-        public IEnumerable<ICQLColumn> ClusteringKeys { get; private set; }
-        public IEnumerable<CQLOrderByColumn> OrderByCols { get; private set; }
-        public IDictionary<string, object> Properties { get; private set; }
+        public IEnumerable<ICQLColumn> Columns { get; }
+        public IEnumerable<ICQLColumn> PrimaryKeys { get;}
+        public IEnumerable<ICQLColumn> ClusteringKeys { get; }
+        public IEnumerable<CQLOrderByColumn> OrderByCols { get; }
+        public IDictionary<string, object> Properties { get; }
 
         public string Compaction { get; }
         public string Compression { get; }
         public bool WithCompactStorage { get; }
-        public CQLTableStats Stats { get; private set;}
+        public CQLTableStats Stats { get; }
         public bool IsActive { get; private set; }
         public bool SetAsActive(bool isActive = true)
         {
@@ -784,18 +783,18 @@ namespace DSEDiagnosticLibrary
         public Cluster Cluster { get { return this.Keyspace.Cluster; } }
         [JsonIgnore]
         public IDataCenter DataCenter { get { return this.Node?.DataCenter ?? this.Keyspace.DataCenter; } }
-        public INode Node { get; private set; }
-        public int Items { get; private set; }
-        public uint LineNbr { get; private set; }
+        public INode Node { get;  }
+        public int Items { get;  }
+        public uint LineNbr { get; }
 
         #endregion
 
         #region IDDLStmt
-        public IKeyspace Keyspace { get; private set; }
-        public string Name { get; private set; }
+        public IKeyspace Keyspace { get;  }
+        public string Name { get;  }
         [JsonIgnore]
         public string FullName { get { return this.Keyspace.Name + '.' + this.Name; } }
-        public string DDL { get; private set; }
+        public string DDL { get;  }
         public virtual object ToDump()
         {
             return new { Table = this.FullName, Cluster = this.Cluster.Name, DataCenter = this.DataCenter.Name, Me = this };

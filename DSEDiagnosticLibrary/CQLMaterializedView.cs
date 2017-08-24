@@ -64,8 +64,8 @@ namespace DSEDiagnosticLibrary
 
         #region ICQLMaterializedView
 
-        public ICQLTable Table { get; private set; }
-        public string WhereClause { get; private set; }
+        public ICQLTable Table { get;  }
+        public string WhereClause { get;  }
 
         public new object ToDump()
         {

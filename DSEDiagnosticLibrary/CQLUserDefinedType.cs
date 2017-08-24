@@ -60,23 +60,23 @@ namespace DSEDiagnosticLibrary
         [JsonIgnore]
         public SourceTypes Source { get { return SourceTypes.CQL; } }
         [JsonConverter(typeof(IPathJsonConverter))]
-        public IPath Path { get; private set; }
+        public IPath Path { get; }
         [JsonIgnore]
         public Cluster Cluster { get { return this.Keyspace.Cluster; } }
         [JsonIgnore]
         public IDataCenter DataCenter { get { return this.Node?.DataCenter ?? this.Keyspace.DataCenter; } }
-        public INode Node { get; private set; }
-        public int Items { get; private set; }
-        public uint LineNbr { get; private set; }
+        public INode Node { get;  }
+        public int Items { get;  }
+        public uint LineNbr { get; }
 
         #endregion
 
         #region IDDLStmt
-        public IKeyspace Keyspace { get; private set; }
-        public string Name { get; private set; }
+        public IKeyspace Keyspace { get; }
+        public string Name { get; }
         [JsonIgnore]
         public string FullName { get { return this.Keyspace.Name + '.' + this.Name; } }
-        public string DDL { get; private set; }
+        public string DDL { get; }
         public object ToDump()
         {
             return new { UserDefnedType = this.FullName, Cluster = this.Cluster.Name, DataCenter = this.DataCenter.Name, Me = this };

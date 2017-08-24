@@ -17,6 +17,7 @@ namespace DSEDiagnosticLibrary
         ICQLTable Table { get; }
         IEnumerable<CQLFunctionColumn> Columns { get; }
         string UsingClass { get; }
+        string UsingClassNormalized { get; }
         Dictionary<string,object> WithOptions { get; }
     }
 
@@ -49,6 +50,7 @@ namespace DSEDiagnosticLibrary
             this.DDL = ddl;
             this.Columns = columns;
             this.UsingClass = string.IsNullOrEmpty(usingClass) ? null : StringHelpers.RemoveQuotes(usingClass.Trim());
+            this.UsingClassNormalized = string.IsNullOrEmpty(this.UsingClass) ? null : StringHelpers.RemoveNamespace(this.UsingClass);
             this.WithOptions = withOptions;
             this.Items = this.Columns.Count();
 
@@ -77,27 +79,27 @@ namespace DSEDiagnosticLibrary
         [JsonIgnore]
         public SourceTypes Source { get { return SourceTypes.CQL; } }
         [JsonConverter(typeof(IPathJsonConverter))]
-        public IPath Path { get; private set; }
+        public IPath Path { get; }
         [JsonIgnore]
         public Cluster Cluster { get { return this.Table.Cluster; } }
         [JsonIgnore]
         public IDataCenter DataCenter { get { return this.Node?.DataCenter ?? this.Table.DataCenter; } }
 
-        public INode Node { get; private set; }
+        public INode Node { get;}
 
-        public int Items { get; private set; }
+        public int Items { get; }
 
-        public uint LineNbr { get; private set; }
+        public uint LineNbr { get; }
 
         #endregion
 
         #region IDDLStmt
         [JsonIgnore]
         public IKeyspace Keyspace { get { return this.Table.Keyspace; } }
-        public string Name { get; private set; }
+        public string Name { get; }
         [JsonIgnore]
         public string FullName { get { return this.Keyspace.Name + '.' + this.Name; } }
-        public string DDL { get; private set; }
+        public string DDL { get; }
         public object ToDump()
         {
             return new { Index = this.FullName, Cluster = this.Cluster.Name, DataCenter = this.DataCenter.Name, Me = this };
@@ -121,13 +123,15 @@ namespace DSEDiagnosticLibrary
 
         #region ICQLIndex
 
-        public bool IsCustom { get; private set; }
-        public bool IsSolr { get; private set; }
-        public bool IsSasII { get; private set; }
-        public ICQLTable Table { get; private set; }
-        public IEnumerable<CQLFunctionColumn> Columns { get; private set; }
-        public string UsingClass { get; private set; }
-        public Dictionary<string, object> WithOptions { get; private set; }
+        public bool IsCustom { get; }
+        public bool IsSolr { get; }
+        public bool IsSasII { get; }
+        public ICQLTable Table { get; }
+        public IEnumerable<CQLFunctionColumn> Columns { get; }
+        public string UsingClass { get; }
+
+        public string UsingClassNormalized { get; }
+        public Dictionary<string, object> WithOptions { get; }
         #endregion
 
         #region IEquatable

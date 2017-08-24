@@ -134,6 +134,47 @@ namespace DSEDiagnosticLibrary
             return this.HostName?.ToLower() != "localhost";
         }
 
+        /// <summary>
+        /// Returns Nodes IP4 address first, Host Name second, and IP6 address only if other two not defined.
+        /// </summary>
+        /// <returns></returns>
+        public string NodeName()
+        {
+            IPAddress nodeAddress = null;
+
+            if (this._addresses != null)
+            {
+                if (this._addresses.Count == 1)
+                {
+                    nodeAddress = this._addresses.First();
+                }
+                else
+                {
+                    nodeAddress = this._addresses.FirstOrDefault(a => a.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork);
+
+                    if(nodeAddress == null)
+                    {
+                        nodeAddress = this._addresses.First();
+                    }
+                }
+            }
+
+            if(nodeAddress == null)
+            {
+                return this.HostName;
+            }
+            else if (nodeAddress.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+            {
+                return nodeAddress.ToString();
+            }
+            else if(!string.IsNullOrEmpty(this.HostName))
+            {
+                return this.HostName;
+            }
+
+            return nodeAddress.ToString();
+        }
+
         #endregion
 
         #region Static Methods

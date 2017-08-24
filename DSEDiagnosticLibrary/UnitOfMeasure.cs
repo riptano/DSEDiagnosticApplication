@@ -227,6 +227,16 @@ namespace DSEDiagnosticLibrary
             return Decimal.Round(this.Value, LibrarySettings.UnitOfMeasureRoundDecimals);
         }
 
+        public int ConvertToInt(Types newUOM)
+        {
+            return (int)this.ConvertTo(newUOM);
+        }
+
+        public long ConvertToLong(Types newUOM)
+        {
+            return (long)this.ConvertTo(newUOM);
+        }
+
         public decimal ConvertSizeUOM(Types newUOM)
         {
             if ((this.UnitType & Types.NaN) != 0) throw new ArgumentException(string.Format("Cannot convert a NaN from {0} to {1}", this.UnitType, newUOM));
@@ -681,6 +691,11 @@ namespace DSEDiagnosticLibrary
             return Decimal.Round(newValue, LibrarySettings.UnitOfMeasureRoundDecimals);
         }
 
+        public TimeSpan ConvertToTimeSpan()
+        {
+            return (TimeSpan)this;
+        }
+
         #endregion
 
         #region public statics
@@ -961,6 +976,8 @@ namespace DSEDiagnosticLibrary
                 case "period":
                 case "periods":
                 case "ttl":
+                case "time_to_live":
+                case "time to live":
                     return Types.SEC | Types.Time | uofType;
                 case "ops":
                     return Types.SEC | Types.Operations | Types.Rate | uofType;
