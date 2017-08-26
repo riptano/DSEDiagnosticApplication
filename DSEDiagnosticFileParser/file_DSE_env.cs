@@ -23,7 +23,7 @@ namespace DSEDiagnosticFileParser
         {
             this.SplitLineDelimiter = '=';
         }
-        
+
         [JsonIgnore]
         public override SourceTypes Source { get { return SourceTypes.EnvFile; } }
 

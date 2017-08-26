@@ -25,7 +25,7 @@ namespace DSEDiagnosticToDataTable
             dtConfig.Columns.Add("Yaml Type", typeof(string));
             dtConfig.Columns.Add("Property", typeof(string));
             dtConfig.Columns.Add("Value", typeof(string));
-            
+
             dtConfig.PrimaryKey = new System.Data.DataColumn[] { dtConfig.Columns[ColumnNames.DataCenter], dtConfig.Columns[ColumnNames.NodeIPAddress], dtConfig.Columns["Yaml Type"], dtConfig.Columns["Property"] };
 
             dtConfig.DefaultView.ApplyDefaultSort = false;
@@ -33,7 +33,7 @@ namespace DSEDiagnosticToDataTable
             dtConfig.DefaultView.AllowEdit = false;
             dtConfig.DefaultView.AllowNew = false;
             dtConfig.DefaultView.Sort = string.Format("[Yaml Type] ASC, [Property] ASC, [{0}] ASC, [{1}] ASC", ColumnNames.DataCenter, ColumnNames.NodeIPAddress);
-                       
+
             return dtConfig;
         }
 
@@ -49,6 +49,7 @@ namespace DSEDiagnosticToDataTable
             {
                 DataRow dataRow = null;
                 int nbrItems = 0;
+                string fileType = null;
 
                 foreach (var dataCenter in this.Cluster.DataCenters)
                 {
@@ -61,7 +62,9 @@ namespace DSEDiagnosticToDataTable
                     {
                         this.CancellationToken.ThrowIfCancellationRequested();
 
-                        if(this.Table.Rows.Contains(new object[] { dataCenter.Name, "<Common>", configItem.Type.ToString(), configItem.NormalizeProperty() }))
+                        fileType = configItem.Type.ToString() + '.' + configItem.Source.ToString();
+
+                        if (this.Table.Rows.Contains(new object[] { dataCenter.Name, "<Common>", fileType, configItem.NormalizeProperty() }))
                         {
                             continue;
                         }
@@ -78,7 +81,7 @@ namespace DSEDiagnosticToDataTable
                         {
                             dataRow.SetField(ColumnNames.NodeIPAddress, configItem.Node.Id.NodeName());
                         }
-                        dataRow.SetField("Yaml Type", configItem.Type.ToString());
+                        dataRow.SetField("Yaml Type", fileType);
                         dataRow.SetField("Property", configItem.NormalizeProperty());
                         dataRow.SetField("Value", configItem.NormalizeValue());
 

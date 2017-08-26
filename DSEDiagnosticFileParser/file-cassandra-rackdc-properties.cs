@@ -20,7 +20,8 @@ namespace DSEDiagnosticFileParser
                                                 string defaultDCName,
                                                 Version targetDSEVersion)
             : base(catagory, diagnosticDirectory, file, node, defaultClusterName, defaultDCName, targetDSEVersion)
-        { }
+        {            
+        }
 
         protected override void SetNodeAttribuesFromConfig(Tuple<string, string> propvaluePair)
         {

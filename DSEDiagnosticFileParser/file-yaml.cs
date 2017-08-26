@@ -23,7 +23,7 @@ namespace DSEDiagnosticFileParser
             : base(catagory, diagnosticDirectory, file, node, defaultClusterName, defaultDCName, targetDSEVersion)
         {
             this._result = new YamlResult(this);
-            this.ConfigType = YamlConfigurationLine.ConfigTypeMapper.FindConfigType(file);
+            this.ConfigType = YamlConfigurationLine.ConfigTypeMapper.FindConfigType(file);            
         }
 
         [JsonObject(MemberSerialization.OptOut)]
