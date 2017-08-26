@@ -84,7 +84,7 @@ namespace DSEDiagnosticFileParser
                 {
                     if(currentDataCenter == null)
                     {
-                        Logger.Instance.ErrorFormat("{0} is missing a DataCenter for file \"{1}\"", this.GetType().Name, this.File.PathResolved);
+                        Logger.Instance.ErrorFormat("FileMapper<{2}>\t<NoNodeId>\t{1}\tmissing a DataCenter for\"{0}\"", this.GetType().Name, this.File, this.MapperId);
                         continue;
                     }
 
@@ -120,7 +120,7 @@ namespace DSEDiagnosticFileParser
 
                     ++nbrGenerated;
 
-                    Logger.Instance.InfoFormat("Added node \"{0}\" to DataCenter \"{1}\"", node.Id, node.DataCenter.Name);
+                    Logger.Instance.InfoFormat("FileMapper<{2}>\t{0}\t{3}\tAdded node to DataCenter \"{1}\"", node.Id, node.DataCenter.Name, this.MapperId, this.File);
                     continue;
                 }
             }

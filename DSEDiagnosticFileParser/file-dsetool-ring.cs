@@ -90,9 +90,10 @@ namespace DSEDiagnosticFileParser
 
                     if (regExSplit.Length != 11)
                     {
-                        Logger.Instance.ErrorFormat("<NoNodeId>\t{0}\tInvalid Line \"{1}\" found in DSETool Ring File.",
+                        Logger.Instance.ErrorFormat("FileMapper<{2}>\t<NoNodeId>\t{0}\tInvalid Line \"{1}\" found in DSETool Ring File.",
                                                     this.File,
-                                                    line);
+                                                    line,
+                                                    this.MapperId);
                         regExSplit = null;
                     }
                 }
@@ -117,9 +118,10 @@ namespace DSEDiagnosticFileParser
                         }
                         else
                         {
-                            Logger.Instance.WarnFormat("<NoNodeId>\t{0}\tInvalid DSE Instance Type of \"{1}\" found in DSETool Ring File. Type Ignored",
+                            Logger.Instance.WarnFormat("FileMapper<{2}>\t<NoNodeId>\t{0}\tInvalid DSE Instance Type of \"{1}\" found in DSETool Ring File. Type Ignored",
                                                             this.File,
-                                                            regExSplit[4]);
+                                                            regExSplit[4],
+                                                            this.MapperId);
                         }
 
                         var offset = graphStatusCol ? 0 : -1;

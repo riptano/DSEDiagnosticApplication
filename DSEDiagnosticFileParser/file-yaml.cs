@@ -23,7 +23,7 @@ namespace DSEDiagnosticFileParser
             : base(catagory, diagnosticDirectory, file, node, defaultClusterName, defaultDCName, targetDSEVersion)
         {
             this._result = new YamlResult(this);
-            this.ConfigType = YamlConfigurationLine.ConfigTypeMapper.FindConfigType(file);            
+            this.ConfigType = YamlConfigurationLine.ConfigTypeMapper.FindConfigType(file);
         }
 
         [JsonObject(MemberSerialization.OptOut)]
@@ -185,27 +185,38 @@ namespace DSEDiagnosticFileParser
                     return 0;
                 }
             }
-            else if (this.ConfigType == ConfigTypes.Snitch && this.Node.DSE.EndpointSnitch != null)
+            else if (this.ConfigType == ConfigTypes.Snitch)
             {
-                var snitchFiles = LibrarySettings.SnitchFileMappings.TryGetValue(this.Node.DSE.EndpointSnitch);
-                var snitchFileSplit = snitchFiles?.Split(',');
-                var processThisFilePos = snitchFileSplit == null
-                                            ? -1
-                                            : snitchFileSplit.IndexOf(f => f.Trim().ToLower() == this.File.FileName.ToLower());
-                var processThisFile = processThisFilePos >= 0;
+                var processThisFile = false;
 
-                if (processThisFile
-                        && snitchFileSplit.Length > 1
-                        && processThisFilePos + 1 < snitchFileSplit.Length)
+                if (this.Node.DSE.EndpointSnitch != null)
                 {
-                    IFilePath checkSnitchFile;
-                    foreach (var snitchFile in snitchFileSplit.GetRange(processThisFilePos + 1))
+                    var snitchFiles = LibrarySettings.SnitchFileMappings.TryGetValue(this.Node.DSE.EndpointSnitch);
+                    var snitchFileSplit = snitchFiles?.Split(',');
+                    var processThisFilePos = snitchFileSplit == null
+                                                ? -1
+                                                : snitchFileSplit.IndexOf(f => f.Trim().ToLower() == this.File.FileName.ToLower());
+                    processThisFile = processThisFilePos >= 0;
+
+                    if (processThisFile
+                            && snitchFileSplit.Length > 1
+                            && processThisFilePos + 1 < snitchFileSplit.Length)
                     {
-                        if(this.File.ParentDirectoryPath.MakeFile(snitchFile, out checkSnitchFile)
-                                && checkSnitchFile.Exist())
+                        IFilePath checkSnitchFile;
+                        foreach (var snitchFile in snitchFileSplit.GetRange(processThisFilePos + 1))
                         {
-                            processThisFile = false;
-                            break;
+                            if (this.File.ParentDirectoryPath.MakeFile(snitchFile, out checkSnitchFile)
+                                    && checkSnitchFile.Exist())
+                            {
+                                Logger.Instance.WarnFormat("FileMapper<{4}>\t{0}\t{1}\tIgnoring Snitch File ({3}) since a preferred file \"{2}\" was found.",
+                                                               this.Node.Id,
+                                                               this.File,
+                                                               checkSnitchFile.FileName,
+                                                               this.Node.DSE.EndpointSnitch,
+                                                               this.MapperId);
+                                processThisFile = false;
+                                break;
+                            }
                         }
                     }
                 }
@@ -219,9 +230,10 @@ namespace DSEDiagnosticFileParser
             }
             else if(this.ConfigType == ConfigTypes.Unkown)
             {
-                Logger.Instance.WarnFormat("{0}\t{1}\tUnknown configuration type for this file. File will be ignored.",
+                Logger.Instance.WarnFormat("FileMapper<{2}>\t{0}\t{1}\tUnknown configuration type for this file. File will be ignored.",
                                                 this.Node.Id,
-                                                this.File);
+                                                this.File,
+                                                this.MapperId);
                 this.Processed = false;
                 this.NbrItemsParsed = 0;
                 return 0;
@@ -342,7 +354,7 @@ namespace DSEDiagnosticFileParser
                     }
                     else
                     {
-                        Logger.Instance.ErrorFormat("{0}\t{1}\tInvalid configuration line \"{2}\" at line position {3}.", this.Node.Id, this.File, multipleLine, this.NbrItemsParsed);
+                        Logger.Instance.ErrorFormat("FileMapper<{4}>\t{0}\t{1}\tInvalid configuration line \"{2}\" at line position {3}.", this.Node.Id, this.File, multipleLine, this.NbrItemsParsed, this.MapperId);
                         multipleLine = null;
                     }
                 }
@@ -434,7 +446,7 @@ namespace DSEDiagnosticFileParser
                 //lineSplit is more than two elements... assume command/value pair....
                 if(lineSplit.Length > 2)
                 {
-                    Logger.Instance.ErrorFormat("{0}\t{1}\tInvalid configuration line \"{2}\" at line position {3}.", this.Node.Id, this.File, line, this.NbrItemsParsed);
+                    Logger.Instance.ErrorFormat("FileMapper<{4}>\t{0}\t{1}\tInvalid configuration line \"{2}\" at line position {3}.", this.Node.Id, this.File, line, this.NbrItemsParsed, this.MapperId);
                     continue;
                 }
 

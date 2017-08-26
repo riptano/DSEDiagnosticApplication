@@ -220,6 +220,7 @@ namespace DSEDiagnosticFileParser
         }
 
         #region Public Members
+        public int MapperId { get; internal set; }
         public CatagoryTypes Catagory { get; }
         [JsonConverter(typeof(DSEDiagnosticLibrary.IPathJsonConverter))]
         public IDirectoryPath DiagnosticDirectory { get; }
@@ -650,7 +651,7 @@ namespace DSEDiagnosticFileParser
                                             .Where(f => ignoreFilesRegEx == null ? true : !ignoreFilesRegEx.IsMatch(f.PathResolved));
 			var diagnosticInstances = new List<DiagnosticFile>();
 			var instanceType = fileMappings.GetFileParsingType();
-            
+
             Logger.Instance.InfoFormat("FileMapper<{5}>\t<NoNodeId>\t{0}\tFile Mapper File Parsing Class \"{1}\" Category {2} Translated to Patterns {{{3}}} which resulted in {4} files",
                                             diagnosticDirectory.PathResolved,
                                             fileMappings.FileParsingClass,
@@ -886,6 +887,8 @@ namespace DSEDiagnosticFileParser
                 processingFileInstance.CancellationToken = cancellationToken.Value;
             }
 
+            processingFileInstance.MapperId = fileMapperId;
+
             var action = (Action)(() =>
             {
                 try
@@ -915,22 +918,11 @@ namespace DSEDiagnosticFileParser
 
                     if (!processingFileInstance.Processed && nbrItems > 0) processingFileInstance.Processed = true;
 
-                    if (nbrItems > 0)
-                    {
-                        Logger.Instance.InfoFormat("FileMapper<{3}>\t{0}\t{1}\tEnd of Processing of File that resulted in {2:###,##0} objects",
+                    Logger.Instance.InfoFormat("FileMapper<{3}>\t{0}\t{1}\tEnd of Processing of File that resulted in {2:###,##0} objects",
                                                         node,
                                                         processFile.PathResolved,
                                                         nbrItems,
                                                         fileMapperId);
-                    }
-                    else
-                    {
-                        Logger.Instance.WarnFormat("FileMapper<{3}>\t{0}\t{1}\tEnd of Processing of File that resulted in {2:###,##0} objects",
-                                                        node,
-                                                        processFile.PathResolved,
-                                                        nbrItems,
-                                                        fileMapperId);
-                    }
 
                     InvokeProgressionEvent(processingFileInstance,
                                                 ProgressionEventArgs.Categories.End | ProgressionEventArgs.Categories.DiagnosticFile,

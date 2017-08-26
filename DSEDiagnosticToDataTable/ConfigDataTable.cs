@@ -64,7 +64,7 @@ namespace DSEDiagnosticToDataTable
 
                         fileType = configItem.Type.ToString() + '.' + configItem.Source.ToString();
 
-                        if (this.Table.Rows.Contains(new object[] { dataCenter.Name, "<Common>", fileType, configItem.NormalizeProperty() }))
+                        if (this.Table.Rows.Contains(new object[] { dataCenter.Name, "<Common>", fileType, configItem.Property }))
                         {
                             continue;
                         }
@@ -82,7 +82,7 @@ namespace DSEDiagnosticToDataTable
                             dataRow.SetField(ColumnNames.NodeIPAddress, configItem.Node.Id.NodeName());
                         }
                         dataRow.SetField("Yaml Type", fileType);
-                        dataRow.SetField("Property", configItem.NormalizeProperty());
+                        dataRow.SetField("Property", configItem.Property);
                         dataRow.SetField("Value", configItem.NormalizeValue());
 
                         this.Table.Rows.Add(dataRow);

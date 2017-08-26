@@ -110,15 +110,16 @@ namespace DSEDiagnosticFileParser
                 //null,10.14.150.223,RAC1,Up,Normal,19.55 GB,?,9212160192835661072
                 if (regExSplit.Length <= 7)
                 {
-                    Logger.Instance.ErrorFormat("<NoNodeId>\t{0}\tInvalid Line \"{1}\" found in nodetool Ring File.",
+                    Logger.Instance.ErrorFormat("FileMapper<{2}>\t<NoNodeId>\t{0}\tInvalid Line \"{1}\" found in nodetool Ring File.",
                                                 this.File,
-                                                line);
+                                                line,
+                                                this.MapperId);
                 }
                 else
                 {
                     if (currentDataCenter == null)
                     {
-                        Logger.Instance.ErrorFormat("{0} is missing a DataCenter for file \"{1}\"", this.GetType().Name, this.File.PathResolved);
+                        Logger.Instance.ErrorFormat("FileMapper<{2}>\t<NoNodeId>\t{1}\tmissing a DataCenter for \"{0}\"", this.GetType().Name, this.File, this.MapperId);
                         continue;
                     }
 
@@ -150,9 +151,10 @@ namespace DSEDiagnosticFileParser
                                                     null,
                                                     new object[] { line });
 
-                            Logger.Instance.Error(string.Format("<NoNodeId>\t{0}\tInvalid Token Range found for \"{1}\" in nodetool Ring File.",
+                            Logger.Instance.Error(string.Format("FileMapper<{2}>\t<NoNodeId>\t{0}\tInvalid Token Range found for \"{1}\" in nodetool Ring File.",
                                                                 this.File,
-                                                                line),
+                                                                line,
+                                                                this.MapperId),
                                                     ex);
                         }
                     }

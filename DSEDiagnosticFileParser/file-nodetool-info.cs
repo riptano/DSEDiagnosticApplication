@@ -148,10 +148,11 @@ namespace DSEDiagnosticFileParser
                         this.Node.DSE.CounterCacheInformation = lineValue;
                         break;
                     default:
-                        Logger.Instance.ErrorFormat("{0}\t{1}\tInvalid Line \"{2}\" found in NodeTool Info File.",
+                        Logger.Instance.ErrorFormat("FileMapper<{3}>\t{0}\t{1}\tInvalid Line \"{2}\" found in NodeTool Info File.",
                                                         this.Node.Id,
                                                         this.File,
-                                                        line);
+                                                        line,
+                                                        this.MapperId);
                         break;
                 }
             }
