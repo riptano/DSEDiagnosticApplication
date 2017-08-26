@@ -109,6 +109,23 @@ namespace DSEDiagnosticLibrary.Tests
 
             Assert.AreEqual(1m, result.Value);
             Assert.AreEqual(UnitOfMeasure.Types.SEC | UnitOfMeasure.Types.MiB, result.UnitType);
+
+            result = new UnitOfMeasure("1.234", UnitOfMeasure.Types.Percent | UnitOfMeasure.Types.Utilization);
+
+            Assert.AreEqual(1.234m, result.Value);
+            Assert.AreEqual(UnitOfMeasure.Types.Percent | UnitOfMeasure.Types.Utilization, result.UnitType);
+
+            result = new UnitOfMeasure("nan", UnitOfMeasure.Types.Percent | UnitOfMeasure.Types.Utilization);
+
+            Assert.AreEqual(0m, result.Value);
+            Assert.AreEqual(UnitOfMeasure.Types.Percent | UnitOfMeasure.Types.Utilization | UnitOfMeasure.Types.NaN, result.UnitType);
+            Assert.IsTrue(result.NaN);
+
+            result = new UnitOfMeasure(string.Empty, UnitOfMeasure.Types.Percent | UnitOfMeasure.Types.Utilization);
+
+            Assert.AreEqual(0m, result.Value);
+            Assert.AreEqual(UnitOfMeasure.Types.Percent | UnitOfMeasure.Types.Utilization | UnitOfMeasure.Types.NaN, result.UnitType);
+            Assert.IsTrue(result.NaN);           
         }
 
         [TestMethod()]
@@ -148,7 +165,7 @@ namespace DSEDiagnosticLibrary.Tests
             Assert.IsFalse(resultA.Equals(result));
             Assert.IsFalse(resultA == result);
             Assert.IsTrue(resultA != result);
-            Assert.AreNotEqual(result.GetHashCode(), resultA.GetHashCode());
+            Assert.AreNotEqual(result.GetHashCode(), resultA.GetHashCode());            
         }
 
         [TestMethod()]

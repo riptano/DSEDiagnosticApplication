@@ -11,11 +11,18 @@ namespace DSEDiagnosticToDataTable
     public static class MiscHelpers
     {
 
-        public static DataRow SetFieldToDecimal(this DataRow dataRow, string columnName, UnitOfMeasure uom, UnitOfMeasure.Types uomType = UnitOfMeasure.Types.Unknown)
+        public static DataRow SetFieldToDecimal(this DataRow dataRow, string columnName, UnitOfMeasure uom, UnitOfMeasure.Types uomType = UnitOfMeasure.Types.Unknown, bool convertFromPercent = false)
         {
             if(uom != null && !uom.NaN)
             {
-                dataRow.SetField(columnName, uomType == UnitOfMeasure.Types.Unknown ? uom.Value : uom.ConvertTo(uomType));
+                if (convertFromPercent && (uom.UnitType & UnitOfMeasure.Types.Percent) != 0)
+                {
+                    dataRow.SetField(columnName, (uomType == UnitOfMeasure.Types.Unknown ? uom.Value : uom.ConvertTo(uomType)) / 100m);
+                }
+                else
+                {
+                    dataRow.SetField(columnName, uomType == UnitOfMeasure.Types.Unknown ? uom.Value : uom.ConvertTo(uomType));
+                }
             }
 
             return dataRow;

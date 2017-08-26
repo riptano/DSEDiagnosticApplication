@@ -18,7 +18,7 @@ namespace DSEDiagnosticToDataTable
 
         public override DataTable CreateInitializationTable()
         {
-            var dtTokenRange = new DataTable("TokenRanges", "DSEDiagnostic");
+            var dtTokenRange = new DataTable(TableNames.TokenRanges, TableNames.Namespace);
 
             dtTokenRange.Columns.Add(ColumnNames.DataCenter, typeof(string));
             dtTokenRange.Columns.Add(ColumnNames.NodeIPAddress, typeof(string));
@@ -27,6 +27,12 @@ namespace DSEDiagnosticToDataTable
             dtTokenRange.Columns.Add("Slots", typeof(string));
             dtTokenRange.Columns.Add("Load(MB)", typeof(decimal)).AllowDBNull = true;
             dtTokenRange.Columns.Add("Wraps Range", typeof(bool)).AllowDBNull = true;
+
+            dtTokenRange.DefaultView.ApplyDefaultSort = false;
+            dtTokenRange.DefaultView.AllowDelete = false;
+            dtTokenRange.DefaultView.AllowEdit = false;
+            dtTokenRange.DefaultView.AllowNew = false;
+            dtTokenRange.DefaultView.Sort = string.Format("[{0}] ASC, [{1}] ASC, [Start Token (exclusive)] ASC", ColumnNames.DataCenter, ColumnNames.NodeIPAddress);
 
             return dtTokenRange;
         }

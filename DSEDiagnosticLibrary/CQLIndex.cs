@@ -49,12 +49,22 @@ namespace DSEDiagnosticLibrary
             this.Name = StringHelpers.RemoveQuotes(name.Trim());
             this.DDL = ddl;
             this.Columns = columns;
+            this.IsCustom = isCustom;
             this.UsingClass = string.IsNullOrEmpty(usingClass) ? null : StringHelpers.RemoveQuotes(usingClass.Trim());
             this.UsingClassNormalized = string.IsNullOrEmpty(this.UsingClass) ? null : StringHelpers.RemoveNamespace(this.UsingClass);
             this.WithOptions = withOptions;
             this.Items = this.Columns.Count();
 
             if (this.IsCustom && this.UsingClass == null) throw new NullReferenceException(string.Format("CQLIndex \"{0}\" must have a usingClass string for custom index's for CQL \"{1}\"", name, ddl));
+
+            if (this.IsCustom)
+            {
+                this.IsSolr = LibrarySettings.IsSolrIndexClass.Contains(this.UsingClassNormalized);
+                if (!this.IsSolr)
+                {
+                    this.IsSasII = LibrarySettings.IsSasIIIndexClasses.Contains(this.UsingClassNormalized);
+                }
+            }
 
             if (associateIndexToKeyspace)
             {
@@ -63,15 +73,6 @@ namespace DSEDiagnosticLibrary
             if(associateIndexToTable)
             {
                 this.Table.AssociateItem(this);
-            }
-
-            if(this.IsCustom)
-            {
-                this.IsSolr = LibrarySettings.IsSolrIndexClass.Contains(this.UsingClass);
-                if (!this.IsSolr)
-                {
-                    this.IsSasII = LibrarySettings.IsSasIIIndexClasses.Contains(this.UsingClass);
-                }
             }
         }
 

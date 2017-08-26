@@ -76,7 +76,7 @@ namespace DSEDiagnosticFileParser
                     ++nbrGenerated;
                     continue;
                 }
-                
+
                 //Node
                 regExMatch = this.RegExParser.Match(line, 1);
 
@@ -114,22 +114,15 @@ namespace DSEDiagnosticFileParser
                     int nbrVNodes;
                     if(int.TryParse(regExMatch.Groups[5].Value, out nbrVNodes))
                     {
-                        if(nbrVNodes == 1)
-                        {
-                            node.DSE.VNodesEnabled = false;
-                        }
-                        else
-                        {
-                            node.DSE.VNodesEnabled = true;
-                            node.DSE.NbrTokens = (uint) nbrVNodes;
-                        }
+                        node.DSE.VNodesEnabled = nbrVNodes > 1;
+                        node.DSE.NbrTokens = (uint) nbrVNodes;
                     }
 
                     ++nbrGenerated;
 
                     Logger.Instance.InfoFormat("Added node \"{0}\" to DataCenter \"{1}\"", node.Id, node.DataCenter.Name);
                     continue;
-                }                
+                }
             }
 
             this.Processed = true;

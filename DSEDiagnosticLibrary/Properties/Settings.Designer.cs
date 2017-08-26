@@ -66,6 +66,7 @@ namespace DSEDiagnosticLibrary.Properties {
         [global::System.Configuration.DefaultSettingValueAttribute(@"[
 {""ConfigType"":""DSE"",""ContainsString"":""dse.yaml"",""MatchAction"":""FileNamewExtension,Equals""},
 {""ConfigType"":""DSE"",""ContainsString"":""dse-env.sh"",""MatchAction"":""FileNamewExtension,Equals""},
+{""ConfigType"":""DSE"",""ContainsString"":""dse"",""MatchAction"":""FileNamewExtension,Equals""},
 {""ConfigType"":""Solr"",""ContainsString"":""solr"",""MatchAction"":""FileNameOnly,StartsWith""},
 {""ConfigType"":""Spark"",""ContainsString"":""spark"",""MatchAction"":""FileNameOnly,StartsWith""},
 {""ConfigType"":""Spark"",""ContainsString"":""spark"",""MatchAction"":""FileNameOnly,EndsWith""},
@@ -250,7 +251,7 @@ namespace DSEDiagnosticLibrary.Properties {
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("<?xml version=\"1.0\" encoding=\"utf-16\"?>\r\n<ArrayOfString xmlns:xsi=\"http://www.w3." +
             "org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\r\n  <s" +
-            "tring>org.apache.cassandra.index.sasi.SASIIndex</string>\r\n</ArrayOfString>")]
+            "tring>SASIIndex</string>\r\n</ArrayOfString>")]
         public global::System.Collections.Specialized.StringCollection IsSasIIIndexClasses {
             get {
                 return ((global::System.Collections.Specialized.StringCollection)(this["IsSasIIIndexClasses"]));
@@ -261,8 +262,8 @@ namespace DSEDiagnosticLibrary.Properties {
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute(@"<?xml version=""1.0"" encoding=""utf-16""?>
 <ArrayOfString xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"">
-  <string>com.datastax.bdp.search.solr.Cql3SolrSecondaryIndex</string>
-  <string>com.datastax.bdp.search.solr.ThriftSolrSecondaryIndex</string>
+  <string>Cql3SolrSecondaryIndex</string>
+  <string>ThriftSolrSecondaryIndex</string>
 </ArrayOfString>")]
         public global::System.Collections.Specialized.StringCollection IsSolrIndexClass {
             get {

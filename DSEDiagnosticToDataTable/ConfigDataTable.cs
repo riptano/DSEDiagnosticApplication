@@ -15,19 +15,25 @@ namespace DSEDiagnosticToDataTable
         public ConfigDataTable(DSEDiagnosticLibrary.Cluster cluster, CancellationTokenSource cancellationSource = null)
             : base(cluster, cancellationSource)
         {}
-       
+
         public override DataTable CreateInitializationTable()
         {
-            var dtConfig = new DataTable("DSEConfiguration", "DSEDiagnostic");
+            var dtConfig = new DataTable(TableNames.Config, TableNames.Namespace);
 
             dtConfig.Columns.Add(ColumnNames.DataCenter, typeof(string));
             dtConfig.Columns.Add(ColumnNames.NodeIPAddress, typeof(string));
             dtConfig.Columns.Add("Yaml Type", typeof(string));
             dtConfig.Columns.Add("Property", typeof(string));
             dtConfig.Columns.Add("Value", typeof(string));
-
+            
             dtConfig.PrimaryKey = new System.Data.DataColumn[] { dtConfig.Columns[ColumnNames.DataCenter], dtConfig.Columns[ColumnNames.NodeIPAddress], dtConfig.Columns["Yaml Type"], dtConfig.Columns["Property"] };
 
+            dtConfig.DefaultView.ApplyDefaultSort = false;
+            dtConfig.DefaultView.AllowDelete = false;
+            dtConfig.DefaultView.AllowEdit = false;
+            dtConfig.DefaultView.AllowNew = false;
+            dtConfig.DefaultView.Sort = string.Format("[Yaml Type] ASC, [Property] ASC, [{0}] ASC, [{1}] ASC", ColumnNames.DataCenter, ColumnNames.NodeIPAddress);
+                       
             return dtConfig;
         }
 
@@ -94,6 +100,6 @@ namespace DSEDiagnosticToDataTable
             }
 
             return this.Table;
-        }        
+        }
     }
 }

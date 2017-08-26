@@ -128,12 +128,36 @@ namespace DSEDiagnosticFileParser
                         {
                             node.DSE.InstanceType |= DSEInfo.InstanceTypes.Graph;
                         }
+                        if (node.DSE.InstanceType == DSEInfo.InstanceTypes.Unkown
+                                || (node.DSE.InstanceType == DSEInfo.InstanceTypes.Cassandra && regExSplit[4] != "Cassandra"))
+                        {
+                            switch(regExSplit[4].ToLower())
+                            {
+                                case "cassandra":
+                                    node.DSE.InstanceType = DSEInfo.InstanceTypes.Cassandra;
+                                    break;
+                                case "search":
+                                    node.DSE.InstanceType = DSEInfo.InstanceTypes.Search;
+                                    break;
+                                case "analytics(jt)":
+                                    node.DSE.InstanceType = DSEInfo.InstanceTypes.Analytics_JT;
+                                    break;
+                                case "analytics(tt)":
+                                    node.DSE.InstanceType = DSEInfo.InstanceTypes.Analytics_TT;
+                                    break;
+                            }
+                        }
                         if (regExSplit[6 + offset].ToLower() == "up")
                         {
                             node.DSE.Statuses = DSEInfo.DSEStatuses.Up;
                         }
 
                         node.DSE.StorageUsed = new UnitOfMeasure(regExSplit[8 + offset]);
+
+                        if (regExSplit[9 + offset][0] != '?')
+                        {
+                            node.DSE.StorageUtilization = new UnitOfMeasure(regExSplit[9 + offset], UnitOfMeasure.Types.Utilization | UnitOfMeasure.Types.Storage | UnitOfMeasure.Types.Percent);
+                        }
 
                         if (uint.TryParse(regExSplit[10 + offset], out vNodes))
                         {
@@ -143,6 +167,11 @@ namespace DSEDiagnosticFileParser
                         else if(!string.IsNullOrEmpty(regExSplit[10 + offset]))
                         {
                             node.DSE.VNodesEnabled = false;
+                        }
+
+                        if(graphStatusCol && regExSplit[11][0] != '?' && regExSplit[11][0] != ' ')
+                        {
+                            node.DSE.HealthRating = regExSplit[11];
                         }
 
                         ++nbrGenerated;

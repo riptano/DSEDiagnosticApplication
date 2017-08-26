@@ -17,7 +17,7 @@ namespace DSEDiagnosticToDataTable
 
         public override DataTable CreateInitializationTable()
         {
-            var dtNodeInfo = new DataTable("Node", "DSEDiagnostic");
+            var dtNodeInfo = new DataTable(TableNames.Node, TableNames.Namespace);
 
             dtNodeInfo.Columns.Add(ColumnNames.NodeIPAddress, typeof(string));
             dtNodeInfo.Columns[ColumnNames.NodeIPAddress].Unique = true; //A
@@ -59,6 +59,12 @@ namespace DSEDiagnosticToDataTable
             dtNodeInfo.Columns.Add("Row Cache Information", typeof(string)).AllowDBNull = true;//ad
             dtNodeInfo.Columns.Add("Counter Cache Information", typeof(string)).AllowDBNull = true;//ae
 
+            dtNodeInfo.DefaultView.ApplyDefaultSort = false;
+            dtNodeInfo.DefaultView.AllowDelete = false;
+            dtNodeInfo.DefaultView.AllowEdit = false;
+            dtNodeInfo.DefaultView.AllowNew = false;
+            dtNodeInfo.DefaultView.Sort = string.Format("[{0}] ASC, [{1}] ASC", ColumnNames.NodeIPAddress, ColumnNames.DataCenter);
+
             return dtNodeInfo;
         }
 
@@ -94,8 +100,8 @@ namespace DSEDiagnosticToDataTable
                         dataRow.SetField("Status", node.DSE.Statuses.ToString());
                         dataRow.SetField("Instance Type", node.DSE.InstanceType.ToString());
                         dataRow.SetField("Cluster Name", node.Cluster.Name);
-                        dataRow.SetFieldToDecimal("Storage Used (MB)", node.DSE.StorageUsed, DSEDiagnosticLibrary.UnitOfMeasure.Types.MiB);
-                        dataRow.SetFieldToDecimal("Storage Utilization", node.DSE.StorageUtilization);
+                        dataRow.SetFieldToDecimal("Storage Used (MB)", node.DSE.StorageUsed, DSEDiagnosticLibrary.UnitOfMeasure.Types.MiB)
+                                .SetFieldToDecimal("Storage Utilization", node.DSE.StorageUtilization, DSEDiagnosticLibrary.UnitOfMeasure.Types.Unknown, true);
                         dataRow.SetField("Health Rating", node.DSE.HealthRating);
 
                         dataRow.SetFieldToTimeSpan("Uptime (Days)", node.DSE.Uptime)
@@ -113,8 +119,13 @@ namespace DSEDiagnosticToDataTable
                         dataRow.SetField("Debug Log Timespan Difference", typeof(TimeSpan))
                         */
 
-                        dataRow.SetFieldToDecimal("Heap Memory (MB)", node.DSE.Heap, DSEDiagnosticLibrary.UnitOfMeasure.Types.MiB)
-                                .SetFieldToDecimal("Off Heap Memory (MB)", node.DSE.OffHeap, DSEDiagnosticLibrary.UnitOfMeasure.Types.MiB);
+                        if(node.DSE.HeapUsed != null || node.DSE.Heap != null)
+                        {
+                            var used = node.DSE.HeapUsed == null || node.DSE.HeapUsed.NaN ? "?" : node.DSE.HeapUsed.ConvertTo(DSEDiagnosticLibrary.UnitOfMeasure.Types.MiB).ToString();
+                            var size = node.DSE.Heap == null || node.DSE.Heap.NaN ? "?" : node.DSE.Heap.ConvertTo(DSEDiagnosticLibrary.UnitOfMeasure.Types.MiB).ToString();
+                            dataRow.SetField("Heap Memory (MB)", used + '/' + size);
+                        }
+                        dataRow.SetFieldToDecimal("Off Heap Memory (MB)", node.DSE.OffHeap, DSEDiagnosticLibrary.UnitOfMeasure.Types.MiB);
                         if(node.DSE.NbrTokens.HasValue) dataRow.SetField("Nbr VNodes", (int) node.DSE.NbrTokens.Value);
                         if(node.DSE.NbrExceptions.HasValue) dataRow.SetField("Nbr of Exceptions", (int) node.DSE.NbrExceptions.Value);
                         //dataRow.SetField("Percent Repaired", typeof(decimal));

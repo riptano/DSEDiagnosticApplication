@@ -95,9 +95,14 @@ namespace DSEDiagnosticLibrary
             return new IPEndPoint(IPAddress.Parse(match.Groups["ip"].Value), int.Parse(match.Groups["port"].Value));
         }
 
-        static public string DetermineProperFormat(string strValue, bool ignoreBraces = false, bool removeNamespace = true)
+        static public string DetermineProperFormat(string strValue,
+                                                    bool ignoreBraces = false,
+                                                    bool removeNamespace = true,
+                                                    bool tryParseIPAddress = true,
+                                                    string convertToUOMBasedOnContext = null,
+                                                    bool checkforDate = false)
         {
-            var result = DetermineProperObjectFormat(strValue, ignoreBraces, removeNamespace, false, null);
+            var result = DetermineProperObjectFormat(strValue, ignoreBraces, removeNamespace, tryParseIPAddress, convertToUOMBasedOnContext, checkforDate);
 
             return result == null ? null : (result is string ? (string)result : result.ToString());
         }
@@ -235,7 +240,7 @@ namespace DSEDiagnosticLibrary
 
                     if (splitItems.Length > 1)
                     {
-                        var fmtItems = splitItems.Select(i => DetermineProperFormat(i, ignoreBraces, removeNamespace)).Sort();
+                        var fmtItems = splitItems.Select(i => DetermineProperFormat(i, ignoreBraces, removeNamespace, tryParseIPAddress, convertToUOMBasedOnContext, checkforDate)).Sort();
                         return "[" + string.Join(", ", fmtItems) + "]";
                     }
                 }
@@ -247,7 +252,7 @@ namespace DSEDiagnosticLibrary
 
                 if (splitItems.Length > 1)
                 {
-                    var fmtItems = splitItems.Select(i => DetermineProperFormat(i, ignoreBraces, removeNamespace)).Sort();
+                    var fmtItems = splitItems.Select(i => DetermineProperFormat(i, ignoreBraces, removeNamespace, tryParseIPAddress, convertToUOMBasedOnContext, checkforDate)).Sort();
                     return string.Join(", ", fmtItems);
                 }
             }

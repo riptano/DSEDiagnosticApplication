@@ -23,10 +23,10 @@ namespace DSEDiagnosticToDataTable
 
         public override DataTable CreateInitializationTable()
         {
-            var dtDDL = new DataTable("CQLDDL", "DSEDiagnostic");
+            var dtDDL = new DataTable(TableNames.CQLDLL, TableNames.Namespace);
 
             dtDDL.Columns.Add("Active", typeof(bool));//a
-            dtDDL.Columns.Add("Keyspace Name", typeof(string));//b
+            dtDDL.Columns.Add(ColumnNames.KeySpace, typeof(string));//b
             dtDDL.Columns.Add("Name", typeof(string));
             dtDDL.Columns.Add("Type", typeof(string)).AllowDBNull = false; //d
             dtDDL.Columns.Add("Partition Key", typeof(string)).AllowDBNull = true;
@@ -51,7 +51,13 @@ namespace DSEDiagnosticToDataTable
             dtDDL.Columns.Add("Index", typeof(bool)).AllowDBNull = true; //x
             dtDDL.Columns.Add("DDL", typeof(string));//z
 
-            dtDDL.PrimaryKey = new System.Data.DataColumn[] { dtDDL.Columns["Keyspace Name"], dtDDL.Columns["Name"] };
+            dtDDL.PrimaryKey = new System.Data.DataColumn[] { dtDDL.Columns[ColumnNames.KeySpace], dtDDL.Columns["Name"] };
+
+            dtDDL.DefaultView.ApplyDefaultSort = false;
+            dtDDL.DefaultView.AllowDelete = false;
+            dtDDL.DefaultView.AllowEdit = false;
+            dtDDL.DefaultView.AllowNew = false;
+            dtDDL.DefaultView.Sort = string.Format("[{0}] ASC, [Name] ASC", ColumnNames.KeySpace);
 
             return dtDDL;
         }

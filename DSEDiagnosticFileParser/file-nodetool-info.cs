@@ -101,9 +101,15 @@ namespace DSEDiagnosticFileParser
                     case "uptime (seconds)":
                         this.Node.DSE.Uptime = UnitOfMeasure.Create(lineValue, UnitOfMeasure.Types.Time | UnitOfMeasure.Types.SEC);
                         break;
-                    case "heap memory (mb)":                        
+                    case "heap memory (mb)":
+                        {
+                            var splitHeap = lineValue.Split('/');
+                            this.Node.DSE.Heap = UnitOfMeasure.Create(splitHeap[1].Trim(), UnitOfMeasure.Types.MiB | UnitOfMeasure.Types.Memory);
+                            this.Node.DSE.HeapUsed = UnitOfMeasure.Create(splitHeap[0].Trim(), UnitOfMeasure.Types.MiB | UnitOfMeasure.Types.Memory);
+                        }
                         break;
-                    case "off heap memory (mb)":                        
+                    case "off heap memory (mb)":
+                        this.Node.DSE.OffHeap = UnitOfMeasure.Create(lineValue, UnitOfMeasure.Types.MiB | UnitOfMeasure.Types.Memory);
                         break;
                     case "id":
                         if(this.Node.DSE.HostId == null)
@@ -116,11 +122,11 @@ namespace DSEDiagnosticFileParser
                     case "datacenter":
                     case "data center":
                         if (this.Node.DataCenter == null)
-                        {      
-                            if(Cluster.AssociateDataCenterToNode(lineValue, this.Node) != null) 
-                            {                               
+                        {
+                            if(Cluster.AssociateDataCenterToNode(lineValue, this.Node) != null)
+                            {
                                 ++nbrGenerated;
-                            }                           
+                            }
                         }
                         break;
                     case "rack":
@@ -147,7 +153,7 @@ namespace DSEDiagnosticFileParser
                                                         this.File,
                                                         line);
                         break;
-                }                
+                }
             }
 
             this.Processed = true;

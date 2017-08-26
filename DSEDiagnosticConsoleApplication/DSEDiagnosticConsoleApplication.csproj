@@ -84,9 +84,6 @@
   <ItemGroup>
     <Compile Include="ConsoleArguments.cs" />
     <Compile Include="ConsoleDisplay.cs" />
-    <Compile Include="DataTableHelpers.cs" />
-    <Compile Include="DTLoadIntoDifferentExcelWorkBook.cs" />
-    <Compile Include="DTLoadIntoExcelWorkBook.cs" />
     <Compile Include="GCMonitor.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="ParserSettings.cs" />
@@ -99,10 +96,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\DSEDiagnosticAnalyticParser\dseTemplate.xlsm">
-      <Link>dseTemplate.xlsm</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="..\DSEDiagnosticFileParser\Json\CLogLineTypeParser Schema.json">
       <Link>JSON\CLogLineTypeParser Schema.json</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -159,6 +152,10 @@
     <ProjectReference Include="..\DSEDiagnosticToDataTable\DSEDiagnosticToDataTable.csproj">
       <Project>{f4e842e1-39b7-4ea9-8820-d81d11d1522c}</Project>
       <Name>DSEDiagnosticToDataTable</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DSEDiagtnosticToExcel\DSEDiagtnosticToExcel.csproj">
+      <Project>{3db58190-b1fe-4134-a494-e3294bfaa903}</Project>
+      <Name>DSEDiagtnosticToExcel</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

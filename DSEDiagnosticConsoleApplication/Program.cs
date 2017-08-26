@@ -163,7 +163,6 @@ namespace DSEDiagnosticConsoleApplication
             ConsoleExcelNonLog = new ConsoleDisplay("Excel Non-Log: {0}  Working: {1} Task: {2}");
             ConsoleExcelLog = new ConsoleDisplay("Excel Log: {0}  Working: {1} Task: {2}");
             ConsoleExcelLogStatus = new ConsoleDisplay("Excel Status/Summary Log: {0}  Working: {1} Task: {2}");
-            ConsoleExcel = new ConsoleDisplay("Excel: {0}  Working: {1} WorkSheet: {2}");
             ConsoleExcelWorkbook = new ConsoleDisplay("Excel Workbooks: {0} File: {2}");
             ConsoleWarnings = new ConsoleDisplay("Warnings: {0} Last: {2}", 2, false);
             ConsoleErrors = new ConsoleDisplay("Errors: {0} Last: {2}", 2, false);
@@ -198,13 +197,12 @@ namespace DSEDiagnosticConsoleApplication
 
             #region Load DataTables
             var datatableTasks = new List<Task<System.Data.DataTable>>();
-            var loadAllDataTableTask = Common.Patterns.Tasks.CompletionExtensions.CompletedTask(new System.Data.DataTable[0]);
+            var loadAllDataTableTask = Common.Patterns.Tasks.CompletionExtensions.CompletedTask<System.Data.DataSet>();
             {
                 var cluster = DSEDiagnosticLibrary.Cluster.Clusters.FirstOrDefault(c => !c.IsMaster) ?? DSEDiagnosticLibrary.Cluster.Clusters.First();
                 var loadDataTables = new DSEDiagnosticToDataTable.IDataTable[]
                 {
                     new DSEDiagnosticToDataTable.ConfigDataTable(cluster, cancellationSource),
-                    new DSEDiagnosticToDataTable.TokenRangesDataTable(cluster, cancellationSource),
                     new DSEDiagnosticToDataTable.CQLDDLDataTable(cluster, cancellationSource, ParserSettings.IgnoreKeySpaces.ToArray()),
                     new DSEDiagnosticToDataTable.KeyspaceDataTable(cluster, cancellationSource, ParserSettings.IgnoreKeySpaces.ToArray()),
                     new DSEDiagnosticToDataTable.MachineDataTable(cluster, cancellationSource),
@@ -226,7 +224,28 @@ namespace DSEDiagnosticConsoleApplication
                 });
 
                 loadAllDataTableTask = Task.Factory.ContinueWhenAll(datatableTasks.ToArray(),
-                                                                    dtTasks => dtTasks.Select(t => t.Result).ToArray(),
+                                                                    dtTasks =>
+                                                                    {
+                                                                        var dataSet = new System.Data.DataSet(string.Format("DSEDiagnostic Cluster {0}", cluster.Name));
+                                                                        var dataTables = dtTasks.Select(t => t.Result).ToArray();
+                                                                        //Work around where the default view is reset upon being added to the dataset....
+                                                                        var dataViewProps = dataTables.Select(t => new Tuple<string,string,System.Data.DataViewRowState>(t.DefaultView.Sort, t.DefaultView.RowFilter, t.DefaultView.RowStateFilter)).ToArray();
+
+                                                                        dataSet.Tables.AddRange(dataTables);
+
+                                                                        for(int nIdx = 0; nIdx < dataTables.Count(); ++nIdx)
+                                                                        {
+                                                                            dataTables[nIdx].DefaultView.ApplyDefaultSort = false;
+                                                                            dataTables[nIdx].DefaultView.AllowDelete = false;
+                                                                            dataTables[nIdx].DefaultView.AllowEdit = false;
+                                                                            dataTables[nIdx].DefaultView.AllowNew = false;
+                                                                            dataTables[nIdx].DefaultView.Sort = dataViewProps[nIdx].Item1;
+                                                                            dataTables[nIdx].DefaultView.RowFilter = dataViewProps[nIdx].Item2;
+                                                                            dataTables[nIdx].DefaultView.RowStateFilter = dataViewProps[nIdx].Item3;
+                                                                        }
+
+                                                                        return dataSet;
+                                                                    },
                                                                     cancellationSource.Token);
                 loadAllDataTableTask.Then(result => ConsoleParsingNonLog.Terminate());
                 loadAllDataTableTask.ContinueWith(task => CanceledFaultProcessing(task.Exception),
@@ -237,8 +256,45 @@ namespace DSEDiagnosticConsoleApplication
             }
             #endregion
 
+            #region Load Excel
+            {
+                var loadExcel = new DSEDiagtnosticToExcel.LoadDataSet(loadAllDataTableTask,
+                                                                            new Common.File.FilePathAbsolute(@"[DeskTop]\testa.xlsx"),
+                                                                            cancellationSource);
 
-            loadAllDataTableTask.Wait();
+                loadExcel.OnAction += (DSEDiagtnosticToExcel.IExcel sender, string action) =>
+                                        {
+                                            if(action == "Begin Loading")
+                                            {
+                                                if (sender.LoadTo == DSEDiagtnosticToExcel.LoadToTypes.WorkBook)
+                                                {
+                                                    ConsoleExcelLog.Increment(sender.WorkBookName);
+                                                }
+                                                else
+                                                {
+                                                    ConsoleExcelNonLog.Increment(sender.WorkSheetName);
+                                                }
+                                            }
+                                            else if(action == "Loaded")
+                                            {
+                                                if (sender.LoadTo == DSEDiagtnosticToExcel.LoadToTypes.WorkBook)
+                                                {
+                                                    ConsoleExcelLog.TaskEnd(sender.WorkBookName);
+                                                }
+                                                else
+                                                {
+                                                    ConsoleExcelNonLog.TaskEnd(sender.WorkSheetName);
+                                                }
+                                            }
+                                            else if(action == "Workbook Saved")
+                                            {
+                                                ConsoleExcelWorkbook.Increment(sender.ExcelTargetWorkbook);
+                                            }
+                                        };
+
+                loadExcel.Load().Wait();
+            }
+            #endregion
 
             #region Termiate
 
@@ -255,6 +311,11 @@ namespace DSEDiagnosticConsoleApplication
             #endregion
 
             return 0;
+        }
+
+        private static void LoadExcel_OnAction(DSEDiagtnosticToExcel.IExcel sender, string action)
+        {
+            throw new NotImplementedException();
         }
 
         static public volatile bool AlreadyCanceled = false;

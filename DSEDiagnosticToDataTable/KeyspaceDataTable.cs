@@ -22,7 +22,7 @@ namespace DSEDiagnosticToDataTable
 
         public override DataTable CreateInitializationTable()
         {
-            var dtKeySpace = new DataTable("Keyspaces", "DSEDiagnostic");
+            var dtKeySpace = new DataTable(TableNames.Keyspaces, TableNames.Namespace);
 
             dtKeySpace.Columns.Add("Name", typeof(string));//a
             dtKeySpace.Columns.Add("Replication Strategy", typeof(string));
@@ -47,6 +47,12 @@ namespace DSEDiagnosticToDataTable
             dtKeySpace.Columns.Add("DDL", typeof(string));//u
 
             dtKeySpace.PrimaryKey = new System.Data.DataColumn[] { dtKeySpace.Columns["Name"], dtKeySpace.Columns[ColumnNames.DataCenter] };
+
+            dtKeySpace.DefaultView.ApplyDefaultSort = false;
+            dtKeySpace.DefaultView.AllowDelete = false;
+            dtKeySpace.DefaultView.AllowEdit = false;
+            dtKeySpace.DefaultView.AllowNew = false;
+            dtKeySpace.DefaultView.Sort = string.Format("[Name] ASC, [{0}] ASC", ColumnNames.DataCenter);
 
             return dtKeySpace;
         }

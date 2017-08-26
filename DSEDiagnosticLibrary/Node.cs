@@ -595,7 +595,7 @@ namespace DSEDiagnosticLibrary
             Hadoop = 0x0080,
             CFS = 0x0100,
             Analytics_TT = Analytics | TT,
-            Analytics_JS = Analytics | JT
+            Analytics_JT = Analytics | JT
 		}
 
 		public enum DSEStatuses
@@ -793,6 +793,7 @@ namespace DSEDiagnosticLibrary
         public string HealthRating;
         public UnitOfMeasure Uptime;
         public UnitOfMeasure Heap;
+        public UnitOfMeasure HeapUsed;
         public UnitOfMeasure OffHeap;
         public bool? IsSeedNode; //seed_provider.parameters.seeds: "10.14.148.34,10.14.148.51"
         public bool? VNodesEnabled;

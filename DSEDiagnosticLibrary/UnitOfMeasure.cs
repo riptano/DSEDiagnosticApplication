@@ -99,19 +99,40 @@ namespace DSEDiagnosticLibrary
 
         public UnitOfMeasure(string uofString, Types uofType = Types.Unknown)
         {
-            var uofValues = RegExValueUOF.Match(uofString);
-
-            if (uofValues.Success)
+            if (string.IsNullOrEmpty(uofString))
             {
-                this.Value = ConvertToDecimal(uofValues.Groups[1].Value);
-                this.UnitType = ConvertToType(uofValues.Groups[2].Value, uofType);
+                this.UnitType = Types.NaN | uofType;
+            }
+            else
+            {
+                var uofValues = RegExValueUOF.Match(uofString);
+
+                if (uofValues.Success)
+                {
+                    if (uofValues.Groups[1].Value == string.Empty)
+                    {
+                        this.UnitType = ConvertToType(uofValues.Groups[2].Value, uofType | Types.NaN);
+                    }
+                    else
+                    {
+                        this.Value = ConvertToDecimal(uofValues.Groups[1].Value);
+                        this.UnitType = ConvertToType(uofValues.Groups[2].Value, uofType);
+                    }
+                }
             }
         }
 
         public UnitOfMeasure(string value, string uof, Types uofType = Types.Unknown)
         {
-            this.Value = ConvertToDecimal(value);
-            this.UnitType = ConvertToType(uof, uofType);
+            if (string.IsNullOrEmpty(value))
+            {
+                this.UnitType = ConvertToType(uof, uofType | Types.NaN);
+            }
+            else
+            {
+                this.Value = ConvertToDecimal(value);
+                this.UnitType = ConvertToType(uof, uofType);
+            }
         }
 
         public UnitOfMeasure(decimal value, Types uofType)
@@ -828,7 +849,7 @@ namespace DSEDiagnosticLibrary
         {
             if (string.IsNullOrEmpty(uof))
             {
-                return Types.NaN | uofType;
+                return uofType;
             }
 
             string[] splitUOFs = null;
@@ -963,7 +984,7 @@ namespace DSEDiagnosticLibrary
                 case "not number":
                 case "not nbr":
                 case "null":
-                    return Types.NaN;
+                    return Types.NaN | uofType;
                 case "mbps":
                     return Types.MiB | Types.SEC | Types.Rate | uofType;
                 case "operations":

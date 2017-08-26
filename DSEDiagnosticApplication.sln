@@ -30,6 +30,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSEDiagnosticConsoleApplica
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSEDiagnosticToDataTable", "DSEDiagnosticToDataTable\DSEDiagnosticToDataTable.csproj", "{F4E842E1-39B7-4EA9-8820-D81D11D1522C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataTableToExcel", "DSEDiagDataTableToExcel\DataTableToExcel.csproj", "{C4BE43F8-B1C2-4A51-A130-E2EED35A739C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSEDiagtnosticToExcel", "DSEDiagtnosticToExcel\DSEDiagtnosticToExcel.csproj", "{3DB58190-B1FE-4134-A494-E3294BFAA903}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -80,6 +84,14 @@ Global
 		{F4E842E1-39B7-4EA9-8820-D81D11D1522C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F4E842E1-39B7-4EA9-8820-D81D11D1522C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F4E842E1-39B7-4EA9-8820-D81D11D1522C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C4BE43F8-B1C2-4A51-A130-E2EED35A739C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C4BE43F8-B1C2-4A51-A130-E2EED35A739C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C4BE43F8-B1C2-4A51-A130-E2EED35A739C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C4BE43F8-B1C2-4A51-A130-E2EED35A739C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3DB58190-B1FE-4134-A494-E3294BFAA903}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3DB58190-B1FE-4134-A494-E3294BFAA903}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3DB58190-B1FE-4134-A494-E3294BFAA903}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3DB58190-B1FE-4134-A494-E3294BFAA903}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

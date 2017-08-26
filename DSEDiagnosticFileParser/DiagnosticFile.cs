@@ -345,6 +345,7 @@ namespace DSEDiagnosticFileParser
                                                                 short processPriorityLevel,
                                                                 FileMapper.ProcessingTaskOptions parallelProcessingWithinPriorityLevel,
                                                                 FileMapper fileMapper,
+                                                                int fileMapperId,
                                                                 Common.Patterns.Collections.ThreadSafe.List<DiagnosticFile> diagFilesList,
                                                                 ParallelLoopState loopState)
         {
@@ -373,7 +374,7 @@ namespace DSEDiagnosticFileParser
                     else fileMapper.CancellationSource.Cancel(true);
                 }
 
-                var diagnosticFiles = ProcessFile(diagnosticDirectory, fileMapper, dataCenterName, clusterName, dseVersion);
+                var diagnosticFiles = ProcessFile(diagnosticDirectory, fileMapper, fileMapperId, dataCenterName, clusterName, dseVersion);
 
                 diagFilesList.AddRange(diagnosticFiles);
                 localDiagFiles.AddRange(diagnosticFiles);
@@ -516,6 +517,7 @@ namespace DSEDiagnosticFileParser
                                                             mapperGroup.Key.ProcessPriorityLevel,
                                                             mapperGroup.Key.ParallelProcessingWithinPriorityLevel,
                                                             fileMapper,
+                                                            mapperId,
                                                             diagFilesList,
                                                             null);
 
@@ -541,6 +543,7 @@ namespace DSEDiagnosticFileParser
                                     mapperGroup.Key.ProcessPriorityLevel,
                                     mapperGroup.Key.ParallelProcessingWithinPriorityLevel,
                                     fileMapper,
+                                    mapperId,
                                     diagFilesList,
                                     loopState);
                     });
@@ -565,6 +568,7 @@ namespace DSEDiagnosticFileParser
                                                                     mapperGroup.Key.ProcessPriorityLevel,
                                                                     mapperGroup.Key.ParallelProcessingWithinPriorityLevel,
                                                                     fileMapper,
+                                                                    mapperId,
                                                                     diagFilesList,
                                                                     loopState));
                     });
@@ -599,10 +603,11 @@ namespace DSEDiagnosticFileParser
         }
 
         public static IEnumerable<DiagnosticFile> ProcessFile(IDirectoryPath diagnosticDirectory,
-                                                                            FileMapper fileMappings,
-                                                                            string dataCenterName = null,
-                                                                            string clusterName = null,
-                                                                            Version targetDSEVersion = null)
+                                                                    FileMapper fileMappings,
+                                                                    int fileMapperId,
+                                                                    string dataCenterName = null,
+                                                                    string clusterName = null,
+                                                                    Version targetDSEVersion = null)
 		{
             CancellationToken? cancellationToken = fileMappings.CancellationSource?.Token;
 
@@ -645,13 +650,14 @@ namespace DSEDiagnosticFileParser
                                             .Where(f => ignoreFilesRegEx == null ? true : !ignoreFilesRegEx.IsMatch(f.PathResolved));
 			var diagnosticInstances = new List<DiagnosticFile>();
 			var instanceType = fileMappings.GetFileParsingType();
-
-            Logger.Instance.InfoFormat("<NoNodeId>\t{0}\tFile Mapper File Parsing Class \"{1}\" Category {2} Translated to Patterns {{{3}}} which resulted in {4} files",
+            
+            Logger.Instance.InfoFormat("FileMapper<{5}>\t<NoNodeId>\t{0}\tFile Mapper File Parsing Class \"{1}\" Category {2} Translated to Patterns {{{3}}} which resulted in {4} files",
                                             diagnosticDirectory.PathResolved,
                                             fileMappings.FileParsingClass,
                                             fileMappings.Catagory,
                                             mergesFiles == null ? "<Nothing Found>" : string.Join(", ", mergesFiles.Select(m => m.PathResolved)),
-                                            targetFiles.Count());
+                                            targetFiles.Count(),
+                                            fileMapperId);
 
             InvokeProgressionEvent(fileMappings,
                                         ProgressionEventArgs.Categories.End | ProgressionEventArgs.Categories.Process | ProgressionEventArgs.Categories.FileMapper,
@@ -666,9 +672,10 @@ namespace DSEDiagnosticFileParser
 
             if (instanceType == null)
             {
-                Logger.Instance.ErrorFormat("<NoNodeId>\t<NoFile>\tFile Mapper File Parsing Class \"{0}\" was not found for Category {1}",
+                Logger.Instance.ErrorFormat("FileMapper<{2}>\t<NoNodeId>\t<NoFile>\tFile Mapper File Parsing Class \"{0}\" was not found for Category {1}",
                                             fileMappings.FileParsingClass,
-                                            fileMappings.Catagory);
+                                            fileMappings.Catagory,
+                                            fileMapperId);
                 return Enumerable.Empty<DiagnosticFile>();
             }
 
@@ -704,12 +711,13 @@ namespace DSEDiagnosticFileParser
 
             if (processTheseNodes != null && processTheseNodes.Length == 0)
             {
-                Logger.Instance.ErrorFormat("<NoNodeId>\t<NoFile>\tNode Processing Option {0} failed to retreive any node for Cluster \"{1}\", Data Center \"{2}\". File Mapper File Parsing Class \"{3}\" for Category {4} will NOT be processed!",
+                Logger.Instance.ErrorFormat("FileMapper<{5}>\t<NoNodeId>\t<NoFile>\tNode Processing Option {0} failed to retreive any node for Cluster \"{1}\", Data Center \"{2}\". File Mapper File Parsing Class \"{3}\" for Category {4} will NOT be processed!",
                                                 fileMappings.ProcessingTaskOption,
                                                 clusterName,
                                                 dataCenterName,
                                                 fileMappings.FileParsingClass,
-                                                fileMappings.Catagory);
+                                                fileMappings.Catagory,
+                                                fileMapperId);
                 return Enumerable.Empty<DiagnosticFile>();
             }
 
@@ -748,11 +756,14 @@ namespace DSEDiagnosticFileParser
 
                         if (nodeId == null)
                         {
-                            Logger.Instance.ErrorFormat("<NoNodeId>\t{0}\tCouldn't detect node identity (IPAdress or host name) for this file path. This file will be skipped.", targetFile.PathResolved);
+                            Logger.Instance.ErrorFormat("FileMapper<{1}>\t<NoNodeId>\t{0}\tCouldn't detect node identity (IPAdress or host name) for this file path. This file will be skipped.",
+                                                            targetFile.PathResolved,
+                                                            fileMapperId);
                         }
                         else
                         {
-                            resultInstance = ProcessFile(diagnosticDirectory,
+                            resultInstance = ProcessFile(fileMapperId,
+                                                            diagnosticDirectory,
                                                             targetFile,
                                                             instanceType,
                                                             fileMappings.Catagory,
@@ -773,7 +784,8 @@ namespace DSEDiagnosticFileParser
                     }
                     else
                     {
-                        resultInstance = ProcessFile(diagnosticDirectory,
+                        resultInstance = ProcessFile(fileMapperId,
+                                                        diagnosticDirectory,
                                                         targetFile,
                                                         instanceType,
                                                         fileMappings.Catagory,
@@ -796,7 +808,8 @@ namespace DSEDiagnosticFileParser
                 {
                     foreach (var node in processTheseNodes)
                     {
-                        resultInstance = ProcessFile(diagnosticDirectory,
+                        resultInstance = ProcessFile(fileMapperId,
+                                                        diagnosticDirectory,
                                                         targetFile,
                                                         instanceType,
                                                         fileMappings.Catagory,
@@ -852,7 +865,8 @@ namespace DSEDiagnosticFileParser
             return diagnosticInstances;
 		}
 
-		public static DiagnosticFile ProcessFile(IDirectoryPath diagnosticDirectory,
+		public static DiagnosticFile ProcessFile(int fileMapperId,
+                                                    IDirectoryPath diagnosticDirectory,
 													IFilePath processFile,
 													System.Type instanceType,
 													CatagoryTypes catagory,
@@ -876,7 +890,11 @@ namespace DSEDiagnosticFileParser
             {
                 try
                 {
-                    Logger.Instance.InfoFormat("{0}\t{1}\tBegin{2}Processing of File", node, processFile.PathResolved, runAsTask ? " (Async) " : " ");
+                    Logger.Instance.InfoFormat("FileMapper<{3}>\t{0}\t{1}\tBegin{2}Processing of File",
+                                                    node,
+                                                    processFile.PathResolved,
+                                                    runAsTask ? " (Async) " : " ",
+                                                    fileMapperId);
 
                     processingFileInstance.CancellationToken.ThrowIfCancellationRequested();
 
@@ -899,11 +917,19 @@ namespace DSEDiagnosticFileParser
 
                     if (nbrItems > 0)
                     {
-                        Logger.Instance.InfoFormat("{0}\t{1}\tEnd of Processing of File that resulted in {2:###,##0} objects", node, processFile.PathResolved, nbrItems);
+                        Logger.Instance.InfoFormat("FileMapper<{3}>\t{0}\t{1}\tEnd of Processing of File that resulted in {2:###,##0} objects",
+                                                        node,
+                                                        processFile.PathResolved,
+                                                        nbrItems,
+                                                        fileMapperId);
                     }
                     else
                     {
-                        Logger.Instance.WarnFormat("{0}\t{1}\tEnd of Processing of File that resulted in {2:###,##0} objects", node, processFile.PathResolved, nbrItems);
+                        Logger.Instance.WarnFormat("FileMapper<{3}>\t{0}\t{1}\tEnd of Processing of File that resulted in {2:###,##0} objects",
+                                                        node,
+                                                        processFile.PathResolved,
+                                                        nbrItems,
+                                                        fileMapperId);
                     }
 
                     InvokeProgressionEvent(processingFileInstance,
@@ -918,8 +944,8 @@ namespace DSEDiagnosticFileParser
                 }
                 catch(TaskCanceledException)
                 {
-                    Logger.Instance.WarnFormat("{0}\t{1}\tProcessing was canceled.",
-                                                node, processFile.PathResolved);
+                    Logger.Instance.WarnFormat("FileMapper<{2}>\t{0}\t{1}\tProcessing was canceled.",
+                                                node, processFile.PathResolved, fileMapperId);
                     if(processingFileInstance != null)
                     {
                         processingFileInstance.Canceled = true;
@@ -946,8 +972,8 @@ namespace DSEDiagnosticFileParser
                         {
                             if (!canceled)
                             {
-                                Logger.Instance.WarnFormat("{0}\t{1}\tProcessing was canceled.",
-                                                            node, processFile.PathResolved);
+                                Logger.Instance.WarnFormat("FileMapper<{2}>\t{0}\t{1}\tProcessing was canceled.",
+                                                            node, processFile.PathResolved, fileMapperId);
                                 if (processingFileInstance != null)
                                 {
                                     processingFileInstance.ParsedTimeRange.SetMaximum(DateTime.Now);
@@ -996,8 +1022,8 @@ namespace DSEDiagnosticFileParser
                             processingFileInstance.ParsedTimeRange.SetMaximum(DateTime.Now);
                         }
 
-                        Logger.Instance.Error(string.Format("{0}\t{1}\tProcessing failed with exception.",
-                                                            node, processFile?.PathResolved), ae);
+                        Logger.Instance.Error(string.Format("FileMapper<{2}>\t{0}\t{1}\tProcessing failed with exception.",
+                                                            node, processFile?.PathResolved, fileMapperId), ae);
                     }
                 }
                 catch(System.Exception ex)
@@ -1023,9 +1049,9 @@ namespace DSEDiagnosticFileParser
                         processingFileInstance.ParsedTimeRange.SetMaximum(DateTime.Now);
                         processingFileInstance.Exception = ex;
                     }
-                    
-                    Logger.Instance.Error(string.Format("{0}\t{1}\tProcessing failed with exception.",
-                                                            node, processFile?.PathResolved), ex);
+
+                    Logger.Instance.Error(string.Format("FileMapper<{2}>\t{0}\t{1}\tProcessing failed with exception.",
+                                                            node, processFile?.PathResolved, fileMapperId), ex);
                 }
             });
 

@@ -17,7 +17,7 @@ namespace DSEDiagnosticToDataTable
        
         public override DataTable CreateInitializationTable()
         {
-            var dtOSMachineInfo = new DataTable("Server", "DSEDiagnostic");
+            var dtOSMachineInfo = new DataTable(TableNames.Machine, TableNames.Namespace);
 
             dtOSMachineInfo.Columns.Add(ColumnNames.NodeIPAddress, typeof(string)).Unique = true;
             dtOSMachineInfo.Columns.Add(ColumnNames.DataCenter, typeof(string));
@@ -76,6 +76,12 @@ namespace DSEDiagnosticToDataTable
             dtOSMachineInfo.Columns.Add("Precision (us)", typeof(decimal)); //ar
             dtOSMachineInfo.Columns.Add("Frequency (ppm)", typeof(decimal));
             dtOSMachineInfo.Columns.Add("Tolerance (ppm)", typeof(decimal)); //at
+
+            dtOSMachineInfo.DefaultView.ApplyDefaultSort = false;
+            dtOSMachineInfo.DefaultView.AllowDelete = false;
+            dtOSMachineInfo.DefaultView.AllowEdit = false;
+            dtOSMachineInfo.DefaultView.AllowNew = false;
+            dtOSMachineInfo.DefaultView.Sort = string.Format("[{0}] ASC, [{1}] ASC", ColumnNames.NodeIPAddress, ColumnNames.DataCenter);
 
             return dtOSMachineInfo;
         }
@@ -151,7 +157,7 @@ namespace DSEDiagnosticToDataTable
                         dataRow.SetField("Search", node.DSE.Versions.Search?.ToString());
                         dataRow.SetField("Spark", node.DSE.Versions.Analytics?.ToString());
                         dataRow.SetField("Agent", node.DSE.Versions.OpsCenterAgent?.ToString());
-                        if(node.DSE.NbrTokens.HasValue) dataRow.SetField("VNodes", node.DSE.NbrTokens.Value);
+                        if(node.DSE.VNodesEnabled.HasValue) dataRow.SetField("VNodes", node.DSE.VNodesEnabled.Value);
 
                         //NTP
                         dataRow.SetFieldToInt("Correction (ms)", node.Machine.NTP.Correction, DSEDiagnosticLibrary.UnitOfMeasure.Types.MS)
