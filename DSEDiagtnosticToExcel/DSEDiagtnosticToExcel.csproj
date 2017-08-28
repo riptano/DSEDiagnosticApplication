@@ -31,13 +31,13 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Common.Functions">
-      <HintPath>..\..\..\..\Common Patterns\Assemblies\40\Release\Common.Functions.dll</HintPath>
+      <HintPath>..\packages\CommonPatterns\Release\\Common.Functions.dll</HintPath>
     </Reference>
     <Reference Include="Common.Path">
-      <HintPath>..\..\..\..\Common Patterns\Assemblies\40\Release\Common.Path.dll</HintPath>
+      <HintPath>..\packages\CommonPatterns\Release\\Common.Path.dll</HintPath>
     </Reference>
     <Reference Include="Common.Patterns.Tasks">
-      <HintPath>..\..\..\..\Common Patterns\Assemblies\40\Release\Common.Patterns.Tasks.dll</HintPath>
+      <HintPath>..\packages\CommonPatterns\Release\\Common.Patterns.Tasks.dll</HintPath>
     </Reference>
     <Reference Include="EPPlus, Version=4.1.0.0, Culture=neutral, PublicKeyToken=ea159fdaa78159a1, processorArchitecture=MSIL">
       <HintPath>..\packages\EPPlus.4.1.0\lib\net40\EPPlus.dll</HintPath>
