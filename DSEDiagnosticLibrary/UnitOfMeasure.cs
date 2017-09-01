@@ -141,6 +141,13 @@ namespace DSEDiagnosticLibrary
             this.UnitType = uofType;
         }
 
+        public UnitOfMeasure(decimal value, string uof, Types uofType)
+        {
+            this.Value = value;
+            this.UnitType = ConvertToType(uof, uofType);
+        }
+
+
         public UnitOfMeasure(UnitOfMeasure copy)
         {
             this.Value = copy.Value;
@@ -864,7 +871,7 @@ namespace DSEDiagnosticLibrary
                 Types newUOF = uofType;
                 Types returnedUOF;
 
-                if(splitUOFs.ElementAtOrDefault(0) == "min") //assume minimal if first word
+                if(splitUOFs.FirstOrDefault() == "min") //assume minimal if first word
                 {
                     splitUOFs = splitUOFs.Skip(1).ToArray();
                 }
@@ -890,6 +897,11 @@ namespace DSEDiagnosticLibrary
                 }
 
                 return uofType;
+            }
+
+            if(uof.Last() == '.')
+            {
+                uof = uof.Substring(0, uof.Length - 1);
             }
 
             switch (uof.Trim().ToLower())
@@ -1002,6 +1014,10 @@ namespace DSEDiagnosticLibrary
                     return Types.SEC | Types.Time | uofType;
                 case "ops":
                     return Types.SEC | Types.Operations | Types.Rate | uofType;
+                case "memory":
+                    return Types.Memory;
+                case "storage":
+                    return Types.Storage;
             }
 
             Types parsedType;

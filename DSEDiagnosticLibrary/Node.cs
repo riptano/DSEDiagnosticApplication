@@ -831,6 +831,53 @@ namespace DSEDiagnosticLibrary
         }
 	}
 
+    [JsonObject(MemberSerialization.OptOut)]
+    public sealed class LogFileInfo
+    {
+        public LogFileInfo(IFilePath logFile,
+                            DateTimeRange logfileDateRange,
+                            int logItems,
+                            IEnumerable<LogCassandraEvent> orphanedEvents = null,
+                            DateTimeRange logDateRange = null)
+        {
+            this.LogFile = logFile;
+            this.LogFileDateRange = logfileDateRange;
+            this.LogItems = logItems;
+            this.LogDateRange = logDateRange ?? logfileDateRange;
+
+            if(orphanedEvents != null)
+            {
+                this._orphanedEvents.AddRange(orphanedEvents);
+            }
+        }
+
+        public IFilePath LogFile { get; }
+        public DateTimeRange LogFileDateRange { get; }
+        public DateTimeRange LogDateRange { get; }
+        public int LogItems { get; }
+
+        [JsonProperty(PropertyName = "OrphanedEvents")]
+        private IEnumerable<LogCassandraEvent> datamemberOrphanedEvents
+        {
+            get { return this._orphanedEvents.UnSafe; }
+            set { this._orphanedEvents = new CTS.List<LogCassandraEvent>(value); }
+        }
+
+        private CTS.List<LogCassandraEvent> _orphanedEvents = new CTS.List<LogCassandraEvent>();
+        [JsonIgnore]
+        public IList<LogCassandraEvent> OrphanedEvents { get { return this._orphanedEvents; } }
+
+        public override string ToString()
+        {
+            return string.Format("LogFileInfo{{{0}, LogFileRange={1}, LogRange={2}, Items={3}, Orphans={4}}}",
+                                    this.LogFile.Name,
+                                    this.LogFileDateRange,
+                                    this.LogDateRange,
+                                    this.LogItems,
+                                    this.OrphanedEvents.Count);
+        }
+    }
+
 	public interface INode : IEquatable<INode>, IEquatable<NodeIdentifier>, IEquatable<IPAddress>, IEquatable<string>
 	{
 		Cluster Cluster { get; }
@@ -839,9 +886,15 @@ namespace DSEDiagnosticLibrary
 		MachineInfo Machine { get; }
 		DSEInfo DSE { get; }
 
-		IEnumerable<IEvent> Events { get; }
-		INode AssociateItem(IEnumerable<IEvent> eventItems);
-		IEnumerable<IConfigurationLine> Configurations { get; }
+		IEnumerable<LogCassandraEvent> LogEvents { get; }
+        INode AssociateItem(LogCassandraEvent eventItems);
+        IEnumerable<IAggregatedStats> AggregatedStats { get; }
+        INode AssociateItem(IAggregatedStats aggregatedStat);
+
+        IEnumerable<LogFileInfo> LogFiles { get; }
+        INode AssociateItem(LogFileInfo logFileInfo);
+
+        IEnumerable<IConfigurationLine> Configurations { get; }
 
         object ToDump();
 	}
@@ -994,16 +1047,54 @@ namespace DSEDiagnosticLibrary
 			get;
 		}
 
-        [JsonProperty(PropertyName="Events")]
-        private IEnumerable<IEvent> datamemberEvents
+        [JsonProperty(PropertyName="LogEvents")]
+        private IEnumerable<LogCassandraEvent> datamemberEvents
         {
             get { return this._events.UnSafe; }
-            set { this._events = new CTS.List<IEvent>(value); }
+            set { this._events = new CTS.List<LogCassandraEvent>(value); }
         }
 
-        private CTS.List<IEvent> _events = new CTS.List<IEvent>();
+        private CTS.List<LogCassandraEvent> _events = new CTS.List<LogCassandraEvent>();
         [JsonIgnore]
-        public IEnumerable<IEvent> Events { get { lock (this._events) { return this._events.ToArray(); } } }
+        public IEnumerable<LogCassandraEvent> LogEvents { get { return this._events; } }
+
+        public INode AssociateItem(LogCassandraEvent eventItems)
+        {
+            this._events.Add(eventItems);
+            return this;
+        }
+
+        [JsonProperty(PropertyName = "AggregatedStats")]
+        private IEnumerable<IAggregatedStats> datamemberAggregatedStats
+        {
+            get { return this._aggregatedStats.UnSafe; }
+            set { this._aggregatedStats = new CTS.List<IAggregatedStats>(value); }
+        }
+
+        private CTS.List<IAggregatedStats> _aggregatedStats = new CTS.List<IAggregatedStats>();
+        [JsonIgnore]
+        public IEnumerable<IAggregatedStats> AggregatedStats { get { return this._aggregatedStats; } }
+        public INode AssociateItem(IAggregatedStats aggregatedStat)
+        {
+            this._aggregatedStats.Add(aggregatedStat);
+            return this;
+        }
+
+        [JsonProperty(PropertyName = "LogFiles")]
+        private IEnumerable<LogFileInfo> datamemberLogFiles
+        {
+            get { return this._logFiles.UnSafe; }
+            set { this._logFiles = new CTS.List<LogFileInfo>(value); }
+        }
+
+        private CTS.List<LogFileInfo> _logFiles = new CTS.List<LogFileInfo>();
+        [JsonIgnore]
+        public IEnumerable<LogFileInfo> LogFiles { get { return this._logFiles; } }
+        public INode AssociateItem(LogFileInfo logFileInfo)
+        {
+            this._logFiles.Add(logFileInfo);
+            return this;
+        }
 
         [JsonIgnore]
 		public IEnumerable<IConfigurationLine> Configurations
@@ -1014,19 +1105,13 @@ namespace DSEDiagnosticLibrary
             }
         }
 
-		public INode AssociateItem(IEnumerable<IEvent> eventItems)
-		{
-            this._events.AddRange(eventItems);
-			return this;
-		}
-
         public object ToDump()
         {
             return new { Id = this.Id,
                             DataCenter = this.DataCenter,
                             DSEInfo = this.DSE,
                             MachineInfo = this.Machine,
-                            Events = this.Events,
+                            LogEvents = this.LogEvents,
                             Configurations = this.Configurations };
         }
 		#endregion

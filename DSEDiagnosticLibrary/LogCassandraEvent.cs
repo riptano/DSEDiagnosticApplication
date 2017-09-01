@@ -40,7 +40,8 @@ namespace DSEDiagnosticLibrary
                                     IEnumerable<INode> assocatedNodes = null,
                                     IEnumerable<DSEInfo.TokenRangeInfo> tokenRanges = null,
                                     string sessionTieOutId = null,
-                                    DSEInfo.InstanceTypes product = DSEInfo.InstanceTypes.Cassandra)
+                                    DSEInfo.InstanceTypes product = DSEInfo.InstanceTypes.Cassandra,
+                                    bool assocateToNode = true)
         {
             if (logFile == null) throw new ArgumentNullException("logFile cannot be null");
             if (node == null) throw new ArgumentNullException("node cannot be null");
@@ -85,6 +86,11 @@ namespace DSEDiagnosticLibrary
             {
                 this.EventTimeBegin = this.EventTime;
             }
+
+            if(assocateToNode)
+            {
+                this.Node.AssociateItem(this);
+            }
         }
 
         public LogCassandraEvent(IFilePath logFile,
@@ -108,7 +114,8 @@ namespace DSEDiagnosticLibrary
                                    IEnumerable<INode> assocatedNodes = null,
                                    IEnumerable<DSEInfo.TokenRangeInfo> tokenRanges = null,
                                    string sessionTieOutId = null,
-                                   DSEInfo.InstanceTypes product = DSEInfo.InstanceTypes.Cassandra)
+                                   DSEInfo.InstanceTypes product = DSEInfo.InstanceTypes.Cassandra,
+                                   bool assocateToNode = true)
             :  this(logFile,
                         node,
                         lineNbr,
@@ -130,7 +137,8 @@ namespace DSEDiagnosticLibrary
                         assocatedNodes,
                         tokenRanges,
                         sessionTieOutId,
-                        product)
+                        product,
+                        assocateToNode)
         {
             if (uomDuration == null) throw new ArgumentNullException("uomDuration cannot be null");
 
@@ -160,7 +168,8 @@ namespace DSEDiagnosticLibrary
                                    IEnumerable<INode> assocatedNodes = null,
                                    IEnumerable<DSEInfo.TokenRangeInfo> tokenRanges = null,
                                    string sessionTieOutId = null,
-                                   DSEInfo.InstanceTypes product = DSEInfo.InstanceTypes.Cassandra)
+                                   DSEInfo.InstanceTypes product = DSEInfo.InstanceTypes.Cassandra,
+                                   bool assocateToNode = true)
             : this(logFile,
                         node,
                         lineNbr,
@@ -182,7 +191,8 @@ namespace DSEDiagnosticLibrary
                         assocatedNodes,
                         tokenRanges,
                         sessionTieOutId,
-                        product)
+                        product,
+                        assocateToNode)
         {
             this.EventTimeBegin = logLocalBeginTime;
             this.EventTimeEnd = this.EventTime;

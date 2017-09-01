@@ -55,24 +55,29 @@ namespace DSEDiagnosticLibrary
         [JsonIgnore]
         public IEnumerable<IDataCenter> DataCenters { get { return this._dataCenters; } }
 
-        [JsonProperty(PropertyName = "Events")]
-        private IEnumerable<IEvent> datamemberEvents
-        {
-            get { return this._events.UnSafe; }
-            set { this._events = new CTS.List<IEvent>(value); }
-        }
-        private CTS.List<IEvent> _events = new CTS.List<IEvent>();
         [JsonIgnore]
-        public IEnumerable<IEvent> Events
+        public IEnumerable<LogCassandraEvent> LogEvents
         {
             get
             {
-                if (this.IsMaster)
-                {
-                    return this.UnderlyingCluster.SelectMany(c => c.Events);
-                }
-                return this._events;
+                return this.DataCenters.SelectMany(d => d.LogEvents);
             }
+        }
+
+        [JsonProperty(PropertyName = "AggregatedStats")]
+        private IEnumerable<IAggregatedStats> datamemberAggregatedStats
+        {
+            get { return this._aggregatedStats.UnSafe; }
+            set { this._aggregatedStats = new CTS.List<IAggregatedStats>(value); }
+        }
+
+        private CTS.List<IAggregatedStats> _aggregatedStats = new CTS.List<IAggregatedStats>();
+        [JsonIgnore]
+        public IEnumerable<IAggregatedStats> AggregatedStats { get { return this._aggregatedStats; } }
+        public Cluster AssociateItem(IAggregatedStats aggregatedStat)
+        {
+            this._aggregatedStats.Add(aggregatedStat);
+            return this;
         }
 
         [JsonProperty(PropertyName = "Keyspaces")]
@@ -122,6 +127,11 @@ namespace DSEDiagnosticLibrary
             }
         }
 
+        public bool RemoveKeyspace(IKeyspace keySpace)
+        {
+            return this._keySpaces.Remove(keySpace);
+        }
+
         public IEnumerable<IKeyspace> GetKeyspaces(string keyspaceName)
         {
             keyspaceName = keyspaceName == null ? null : StringHelpers.RemoveQuotes(keyspaceName.Trim());
@@ -167,7 +177,15 @@ namespace DSEDiagnosticLibrary
                 }
                 else
                 {
-                    ksItem = existingKS;
+                    if (existingKS.IsPreLoaded && !ksItem.IsPreLoaded)
+                    {
+                        this.RemoveKeyspace(existingKS);
+                        this._keySpaces.UnSafe.Add(ksItem);
+                    }
+                    else
+                    {
+                        ksItem = existingKS;
+                    }
                 }
             }
             finally
@@ -732,7 +750,6 @@ namespace DSEDiagnosticLibrary
             UnAssociatedNodes.Clear();
             MasterCluster._keySpaces.Clear();
             MasterCluster._dataCenters.Clear();
-            MasterCluster._events.Clear();
         }
 
         #endregion

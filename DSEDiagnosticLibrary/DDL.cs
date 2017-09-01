@@ -11,6 +11,10 @@ namespace DSEDiagnosticLibrary
 		string Name { get; }
         string FullName { get; }
 		string DDL { get; }
+
+        IEnumerable<IAggregatedStats> AggregatedStats { get; }
+        IDDL AssociateItem(IAggregatedStats aggregatedStat);
+
         object ToDump();
     }
 

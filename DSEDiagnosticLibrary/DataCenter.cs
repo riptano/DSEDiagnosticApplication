@@ -26,9 +26,17 @@ namespace DSEDiagnosticLibrary
 		INode TryGetNode(string nodeId);
         INode TryGetAddNode(INode node);
 
-        IEnumerable<IEvent> Events { get; }
+        IEnumerable<LogCassandraEvent> LogEvents { get; }
 		IEnumerable<IConfigurationLine> Configurations { get; }
         IEnumerable<IConfigurationLine> GetConfigurations(INode node);
+
+        IEnumerable<IAggregatedStats> AggregatedStats { get; }
+        IDataCenter AssociateItem(IAggregatedStats aggregatedStat);
+
+        /// <summary>
+        /// Returns a time zone only if all nodes in the DC have the same time zone. Otherwise null is returned.
+        /// </summary>
+        Common.Patterns.TimeZoneInfo.IZone TimeZone { get; } 
 
         IEnumerable<IDDL> DDLs { get; }
 
@@ -76,7 +84,7 @@ namespace DSEDiagnosticLibrary
                             Nodes = this.Nodes,
                             Keyspaces = this.Keyspaces,
                             Configurations = this.Configurations,
-                            Events = this.Events,
+                            LogEvents = this.LogEvents,
                             PlaceHolder=true};
         }
 
@@ -142,11 +150,28 @@ namespace DSEDiagnosticLibrary
         }
 
         [JsonIgnore]
-        virtual public IEnumerable<IEvent> Events { get { throw new NotImplementedException(); } }
+        virtual public IEnumerable<LogCassandraEvent> LogEvents { get { throw new NotImplementedException(); } }
         [JsonIgnore]
         virtual public IEnumerable<IConfigurationLine> Configurations { get { throw new NotImplementedException(); } }
         [JsonIgnore]
         virtual public IEnumerable<IDDL> DDLs { get { throw new NotImplementedException(); } }
+
+        [JsonIgnore]
+        virtual public IEnumerable<IAggregatedStats> AggregatedStats { get { throw new NotImplementedException(); } }
+        virtual public IDataCenter AssociateItem(IAggregatedStats aggregatedStat) { throw new NotImplementedException(); }
+
+        /// <summary>
+        /// Returns a time zone only if all nodes in the DC have the same time zone. Otherwise null is returned.
+        /// </summary>
+        [JsonIgnore]
+        public Common.Patterns.TimeZoneInfo.IZone TimeZone
+        {
+            get
+            {
+                var tz = this._nodes.FirstOrDefault()?.Machine.TimeZone;
+                return this._nodes.All(n => n.Machine.TimeZone == tz) ? tz : null;
+            }
+        }
 
         #endregion
 
@@ -364,7 +389,7 @@ namespace DSEDiagnosticLibrary
                             Keyspaces = this.Keyspaces,
                             DDL = this.DDLs,
                             Configurations = this.Configurations,
-                            Events = this.Events };
+                            LogEvents = this.LogEvents };
         }
 
         #region IDataCenter
@@ -390,15 +415,29 @@ namespace DSEDiagnosticLibrary
 			protected set;
 		}
 
-        [JsonProperty(PropertyName="Events")]
-        private List<IEvent> _events = new List<IEvent>();
         [JsonIgnore]
-        override public IEnumerable<IEvent> Events { get { lock (this._events) { return this._events.ToArray(); } } }
+        override public IEnumerable<LogCassandraEvent> LogEvents { get { return this.Nodes.SelectMany(n => n.LogEvents); } }
 
         [JsonProperty(PropertyName="Configurations")]
         private List<IConfigurationLine> _configurations = new List<IConfigurationLine>();
         [JsonIgnore]
         override public IEnumerable<IConfigurationLine> Configurations { get { lock (this._configurations) { return this._configurations.ToArray(); } } }
+
+        [JsonProperty(PropertyName = "AggregatedStats")]
+        private IEnumerable<IAggregatedStats> datamemberAggregatedStats
+        {
+            get { return this._aggregatedStats.UnSafe; }
+            set { this._aggregatedStats = new CTS.List<IAggregatedStats>(value); }
+        }
+
+        private CTS.List<IAggregatedStats> _aggregatedStats = new CTS.List<IAggregatedStats>();
+        [JsonIgnore]
+        public override IEnumerable<IAggregatedStats> AggregatedStats { get { return this._aggregatedStats; } }
+        public override IDataCenter AssociateItem(IAggregatedStats aggregatedStat)
+        {
+            this._aggregatedStats.Add(aggregatedStat);
+            return this;
+        }
 
         [JsonIgnore]
 		override public IEnumerable<IDDL> DDLs

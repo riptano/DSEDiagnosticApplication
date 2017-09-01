@@ -340,7 +340,7 @@
 			{
 				"RegExStrings":
 				[
-					"^Completed\\s+flushing\\s+(?<SSTABLEPATH>[^ ]+)\\s+\\((?<flushedstorage>[0-9.,]+\\s*\\w+)\\)\\s+for\\s+.+\\(segmentId\\s*=\\s*(?<replaysegmentid>[0-9,]+)\\s*,\\s+position\\s*=\\s*(?<replayposition>[0-9,]+)\\)$"
+					"^Completed\\s+flushing\\s+(?<SSTABLEPATH>[^ ]+)\\s+\\((?<flushedstorage>[0-9.,]+\\s*\\w+)\\)\\s+for\\s+[a-z ]+\\(segmentId\\s*=\\s*(?<replaysegmentid>[0-9,]+)\\s*,\\s+position\\s*=\\s*(?<replayposition>[0-9,]+)\\)$"
 				]
 			},
 			"ParseThreadId": null,
@@ -730,7 +730,7 @@
 			{
 				"RegExStrings":
 				[
-					"^Node\\s+configuration\\:\\s*\\[\\s*(?:(?<KEY>[a-z0-9\\-_.]+)\\s*\\=\\s*(?<VALUE>(?:\\[Ljava.lang.String\\;\\@[a-f0-9]+)|[a-z0-9.,\\-_{}=<> //\\]\\[]+)\\s*(?:\\;|\\])\\s*)+"
+					"^Node\\s+configuration\\:\\s*\\[\\s*(?:(?<KEY>[a-z0-9\\-_.]+)\\s*\\=\\s*(?<VALUE>(?:\\[Ljava\\.lang\\.String\\;\\@[a-f0-9]+)|[a-z0-9.,\\-_{}=<> //\\]\\[]+)\\s*(?:\\;|\\])\\s*)+"
 				]
 			},
 			"ParseThreadId": null,

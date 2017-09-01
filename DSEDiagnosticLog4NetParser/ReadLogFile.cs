@@ -51,12 +51,34 @@ namespace DSEDiagnosticLog4NetParser
         public bool Completed { get; private set; }
         public event Action<IReadLogFile, ILogMessages, ILogMessage> ProcessedLogLineAction;
 
-        public async Task<ILogMessages> ProcessLogFile(IFilePath logFile)
+        public async Task<ILogMessages> BeginProcessLogFile(IFilePath logFile)
         {
             this.LogFile = logFile;
-            return await this.ProcessLogFile();
+            return await this.BeginProcessLogFile();
         }
-        public async Task<ILogMessages> ProcessLogFile()
+
+        public ILogMessages ProcessLogFile(IFilePath logFile)
+        {
+            this.LogFile = logFile;
+            var logMsgsTask = this.BeginProcessLogFile();
+
+            logMsgsTask.Wait();
+
+            if(logMsgsTask.IsCanceled)
+            {
+                this.CancellationToken.ThrowIfCancellationRequested();
+
+                throw new OperationCanceledException("Log4Parser Canceled", this.CancellationToken);
+            }
+            else if(logMsgsTask.IsFaulted)
+            {
+                throw logMsgsTask.Exception;
+            }
+
+            return logMsgsTask.Result;
+        }
+
+        public async Task<ILogMessages> BeginProcessLogFile()
         {
             if (this.LogFile == null) throw new ArgumentNullException("LogFile");
 
@@ -83,14 +105,38 @@ namespace DSEDiagnosticLog4NetParser
                     this.CancellationToken.ThrowIfCancellationRequested();
 
                     nextLogLine = readStream.ReadLineAsync();
+
                     logMessage = logMessages.AddMessage(logLine, ++this.LinesRead);
 
-                    eventAction?.Invoke(this, logMessages, logMessage);
+                    if (logMessage != null)
+                    {
+                        eventAction?.Invoke(this, logMessages, logMessage);
+                    }
                 }
             }
 
             this.Completed = true;
             return this.Log;
+        }
+
+        public ILogMessages ProcessLogFile()
+        {
+            var logMsgsTask = this.BeginProcessLogFile();
+
+            logMsgsTask.Wait();
+
+            if (logMsgsTask.IsCanceled)
+            {
+                this.CancellationToken.ThrowIfCancellationRequested();
+
+                throw new OperationCanceledException("Log4Parser Canceled", this.CancellationToken);
+            }
+            else if (logMsgsTask.IsFaulted)
+            {
+                throw logMsgsTask.Exception;
+            }
+
+            return logMsgsTask.Result;
         }
 
         #endregion
@@ -129,7 +175,7 @@ namespace DSEDiagnosticLog4NetParser
 	        // Check to see if Dispose has already been called.
 	        if(!this.Disposed)
 	        {
-		
+
 		        if(disposing)
 		        {
                     // Dispose all managed resources.
@@ -145,6 +191,6 @@ namespace DSEDiagnosticLog4NetParser
 	        }
         }
         #endregion //end of Dispose Methods
-        
+
     }
 }

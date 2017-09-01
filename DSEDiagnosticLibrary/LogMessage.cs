@@ -76,8 +76,10 @@ namespace DSEDiagnosticLibrary
         /// </remarks>
         event Action<IReadLogFile, ILogMessages, ILogMessage> ProcessedLogLineAction;
 
-        Task<ILogMessages> ProcessLogFile(IFilePath logFile);
-        Task<ILogMessages> ProcessLogFile();
+        Task<ILogMessages> BeginProcessLogFile(IFilePath logFile);
+        ILogMessages ProcessLogFile(IFilePath logFile);
+        Task<ILogMessages> BeginProcessLogFile();
+        ILogMessages ProcessLogFile();
 
         bool Disposed { get; }
     }

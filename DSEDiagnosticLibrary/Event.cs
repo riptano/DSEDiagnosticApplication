@@ -44,7 +44,19 @@ namespace DSEDiagnosticLibrary
         /// <summary>
         /// If not within a session the log entry will be ignored
         /// </summary>
-        SessionIgnore = SessionElement | 0x0100
+        SessionIgnore = SessionElement | 0x0100,
+        /// <summary>
+        ///  Statistical data that is typically aggregated over some time period (e.g., node uptime, Log Period, etc.)
+        /// </summary>
+        AggregateData = 0x1000,
+        /// <summary>
+        ///  Statistical data that is typically derived by this application or another module (not from nodetool or dsetool)
+        /// </summary>
+        AggregateDataDerived = AggregateData | 0x2000,
+        /// <summary>
+        ///  Statistical data that is typically derived by a DSE/C* tool like nodetool or dsetool
+        /// </summary>
+        AggregateDataTool = AggregateData | 0x4000
     }
 
     [Flags]
@@ -64,11 +76,13 @@ namespace DSEDiagnosticLibrary
         Repair = 0x0400,
         Drops = 0x0800,
         Performance = 0x1000,
-        GCStats = 0x2000,
+        Stats = 0x2000,
         Orphaned = 0x4000,
         HintHandOff = 0x8000,
         NodeDetection = 0x10000,
         Config = 0x20000,
+        GCStats = GC | Stats,
+        PerformanceStats = Performance | Stats,
         StatusTypes = Information | Warning | Error | Exception | Fatal | Orphaned
     }
 
@@ -83,6 +97,7 @@ namespace DSEDiagnosticLibrary
 
         /// <summary>
         /// If not defined one is generated. For repair session this should by the guid from the log
+        /// For Aggregate Data this is for the complete set/collection (e.g., CFStats for a node)
         /// </summary>
         Guid Id { get; }
         /// <summary>

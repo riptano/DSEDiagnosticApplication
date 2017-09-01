@@ -29,8 +29,6 @@ namespace DSEDiagnosticFileParser
             public IEnumerable<string> DDLNames;
         }
 
-        public static readonly CTS.List<LogCassandraEvent> OrphanedSessionEvents = new CTS.List<LogCassandraEvent>();
-
         private CurrentSessionLineTick _priorSessionLineTick;
         private List<LogCassandraEvent> _sessionEvents = new List<LogCassandraEvent>();
         private Dictionary<string,LogCassandraEvent> _openSessions = new Dictionary<string, LogCassandraEvent>();
@@ -136,78 +134,89 @@ namespace DSEDiagnosticFileParser
         public override uint ProcessFile()
         {
             this.CancellationToken.ThrowIfCancellationRequested();
+            DateTimeRange logFileDateRange = null;
 
-            using (var logFileInstance = new ReadLogFile(this.File, LibrarySettings.Log4NetConversionPattern, this.Node))
+            using (var logFileInstance = new ReadLogFile(this.File, LibrarySettings.Log4NetConversionPattern, this.CancellationToken, this.Node))
             {
-               System.Threading.Tasks.Task.Factory.StartNew(() =>
-                                                                logFileInstance.ProcessLogFile().Wait(),
-                                                            this.CancellationToken).Wait();
-
-                var logMessages = logFileInstance.Log;
-                this.NbrItemsParsed = unchecked((int)logFileInstance.LinesRead);
-
                 Tuple<Regex, Match, Regex, Match, CLogLineTypeParser> matchItem;
                 LogCassandraEvent logEvent;
+                bool firstLine = false;
 
+                logFileInstance.ProcessedLogLineAction += (IReadLogFile readLogFileInstance, ILogMessages alreadyParsedLines, ILogMessage logMessage) =>
                 {
-                    var firstMsgTime = logMessages.Messages.FirstOrDefault()?.LogDateTime;
-
-                    if(firstMsgTime.HasValue)
+                    if (firstLine)
                     {
-                        var possibleOpenSessions = OrphanedSessionEvents.Where(o => (o.Type & EventTypes.SessionBegin) == EventTypes.SessionBegin
-                                                                                    && o.EventTimeLocal <= firstMsgTime.Value)
-                                                                        .OrderBy(o => o.EventTimeLocal);
+                        firstLine = false;
+
+                        //Need to load any orphaned events from prior log files
+                        var firstMsgTime = logMessage.LogDateTime;
+                        var possibleOpenSessions = this.Node.LogFiles.Where(f => firstMsgTime < f.LogDateRange.Max)
+                                                                            .SelectMany(f => f.OrphanedEvents)
+                                                                            .OrderBy(o => o.EventTimeLocal);
 
                         possibleOpenSessions.ForEach(o => this._openSessions[o.SessionTieOutId] = o);
                     }
-                }
 
-                foreach (var logMessage in logMessages.Messages)
-                {
-                    this.CancellationToken.ThrowIfCancellationRequested();
+                    readLogFileInstance.CancellationToken.ThrowIfCancellationRequested();
 
                     matchItem = CLogTypeParser.FindMatch(this._parser, logMessage);
 
-                    if(matchItem == null)
+                    if (matchItem == null)
                     {
-                        if(logMessage.Level == LogLevels.Error)
+                        if (logMessage.Level == LogLevels.Error)
                         {
                             logEvent = this.PorcessUnhandledError();
 
-                            if(logEvent != null)
+                            if (logEvent != null)
                                 this._logEvents.Add(logEvent);
                         }
-                        else if(logMessage.Level == LogLevels.Warn)
+                        else if (logMessage.Level == LogLevels.Warn)
                         {
                             logEvent = this.PorcessUnhandledWarning();
 
-                            if(logEvent != null)
+                            if (logEvent != null)
                                 this._logEvents.Add(logEvent);
                         }
                     }
-                    else if(matchItem.Item5.IgnoreEvent)
+                    else if (matchItem.Item5.IgnoreEvent)
                     {
-                        continue;
+                        return;
                     }
                     else
                     {
                         logEvent = this.PorcessMatch(logMessage, matchItem);
 
-                        if(logEvent != null)
+                        if (logEvent != null)
                             this._logEvents.Add(logEvent);
                     }
 
-                    if(logMessage.ExtraMessages.HasAtLeastOneElement())
+                    if (logMessage.ExtraMessages.HasAtLeastOneElement())
                     {
                         this.PorcessException();
                     }
+                };
+
+                using (var logMessages = logFileInstance.ProcessLogFile())
+                {
+                    this.NbrItemsParsed = unchecked((int)logFileInstance.LinesRead);
+                    logFileDateRange = new DateTimeRange(logMessages.Messages.First().LogDateTime, logMessages.Messages.Last().LogDateTime);
                 }
             }
 
             this._orphanedSessionEvents.AddRange(this._unsedOpenSessionEvents.Where(s => !s.EventTimeEnd.HasValue).Select(s => { s.MarkAsOrphaned(); return s; }));
             this._orphanedSessionEvents.AddRange(this._openSessions.Where(s => !s.Value.EventTimeEnd.HasValue).Select(s => { s.Value.MarkAsOrphaned(); return s.Value; }));
 
-            OrphanedSessionEvents.AddRange(this._orphanedSessionEvents);
+            this.Node.LogFiles.ForEach(f =>
+            {
+                var removeItems = f.OrphanedEvents.Where(o => (o.Class & EventClasses.Orphaned) == 0);
+                removeItems.ForEach(r => f.OrphanedEvents.Remove(r));
+            });
+
+            this.Node.AssociateItem(new LogFileInfo(this.File,
+                                                    logFileDateRange,
+                                                    this._logEvents.Count,
+                                                    this._orphanedSessionEvents,
+                                                    new DateTimeRange(this._logEvents.First().EventTimeLocal, this._logEvents.Last().EventTimeLocal)));
 
             this._lookupSessionLabels.Clear();
             this._openSessions.Clear();
@@ -446,17 +455,28 @@ namespace DSEDiagnosticFileParser
 
                 var ddlInstancesCnt = ddlInstances == null ? 0 : ddlInstances.Count();
                 var ddlNamesCnt = (ddlNames == null ? 0 : ddlNames.Count())
+                                    + (solrDDLNames == null ? 0 : solrDDLNames.Count)
                                     + (sstableDDLInstance == null ? 0 : sstableDDLInstance.Count());
 
                 if (ddlInstancesCnt != ddlNamesCnt)
                 {
                     if(primaryKS == null && ddlInstancesCnt > ddlNamesCnt)
                     {
+                        var names = new List<string>();
+                        if (ddlNames != null)
+                        {
+                            names.AddRange(ddlNames);
+                        }
+                        if (solrDDLNames != null)
+                        {
+                            names.AddRange(solrDDLNames);
+                        }
+
                         lateDDLresolution = new LateDDLResolution()
                         {
                             KSName = keyspaceName,
                             DDLSSTableName = sstableFilePath ?? ddlName,
-                            DDLNames = ddlNames
+                            DDLNames = names
                         };
                         ddlInstances = null;
                     }
@@ -468,6 +488,10 @@ namespace DSEDiagnosticFileParser
                         if(ddlNames != null)
                         {
                             names.AddRange(primaryKS == null ? ddlNames : ddlNames.Select(s => s.Contains('.') ? s : primaryKS.Name + '.' + s));
+                        }
+                        if (solrDDLNames != null)
+                        {
+                            names.AddRange(primaryKS == null ? solrDDLNames : solrDDLNames.Select(s => s.Contains('.') ? s : primaryKS.Name + '.' + s));
                         }
                         if (sstableFilePaths != null)
                         {
@@ -483,12 +507,13 @@ namespace DSEDiagnosticFileParser
                             diffNames = names;
                         }
 
-                        Logger.Instance.ErrorFormat("{0}\t{1}\tCasandra Log Event at {2:yyyy-MM-dd HH:mm:ss,fff} has {3} DDL statements for {{{4}}} in regards to line \"{5}\". DDLItems property may contain invalid instances.",
+                        Logger.Instance.ErrorFormat("MapperId<{0}>\t{1}\t{2}\tCasandra Log Event at {3:yyyy-MM-dd HH:mm:ss,fff} has mismatch between parsed C* objects from the log vs. DDL C* object instances. There are {4}. They are {{{5}}}. Log line is \"{6}\". DDLItems property for the log instance may contain invalid DDL instances.",
+                                                    this.MapperId,                        
                                                     this.Node,
                                                     this.File.PathResolved,
                                                     logMessage.LogDateTime,
-                                                    ddlInstancesCnt > ddlNamesCnt ? "multiple resolutions" : "unresolved",
-                                                    string.Join(",", diffNames),
+                                                    ddlInstancesCnt > ddlNamesCnt ? "multiple resolved C* object (DDL) instances" : "unresolved C* object names",
+                                                    string.Join(", ", diffNames),
                                                     logMessage.Message);
                     }
                 }

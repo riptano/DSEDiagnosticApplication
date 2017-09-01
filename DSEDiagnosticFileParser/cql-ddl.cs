@@ -13,6 +13,10 @@ namespace DSEDiagnosticFileParser
 {
     public class cql_ddl : DiagnosticFile
     {
+
+        volatile static bool SystemDDLInitialized = false;
+        static object syncLock = new object();
+
         private void InitializeInstance()
         {
             if (this.Node != null)
@@ -41,6 +45,26 @@ namespace DSEDiagnosticFileParser
             if (this.DataCenter == null && !string.IsNullOrEmpty(this.DefaultDataCenterName))
             {
                 this.DataCenter = Cluster.TryGetDataCenter(this.DefaultDataCenterName, this.Cluster);
+            }
+
+            if(!SystemDDLInitialized)
+            {
+                lock (syncLock)
+                {
+                    if (!SystemDDLInitialized)
+                    {
+                        SystemDDLInitialized = true;
+                        this._isPreLoaded = true;
+
+                        var ddlLines = Properties.Settings.Default.DSESystemDDL.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
+
+                        this.ProcessFile(ddlLines);
+                        this._isPreLoaded = false;
+                        this._localKS.Clear();
+                        this._ddlList.Clear();
+                        this._usingKeySpace = null;
+                    }
+                }
             }
         }
         public cql_ddl(CatagoryTypes catagory,
@@ -136,10 +160,16 @@ namespace DSEDiagnosticFileParser
 
         private List<IDDL> _ddlList = new List<IDDL>();
         private List<IKeyspace> _localKS = new List<IKeyspace>();
+        private bool _isPreLoaded = false;
 
         private IKeyspace _usingKeySpace = null;
 
         public override uint ProcessFile()
+        {
+            return this.ProcessFile(this.File.ReadAllLines());
+        }
+
+        public uint ProcessFile(string[] lines)
         {
             List<string> cqlStatements = new List<string>();
             StringBuilder strCQL = new StringBuilder();
@@ -147,7 +177,7 @@ namespace DSEDiagnosticFileParser
             bool multipleLineComment = false;
             string line;
 
-            foreach (var fileLine in this.File.ReadAllLines())
+            foreach (var fileLine in lines)
             {
                 this.CancellationToken.ThrowIfCancellationRequested();
 
@@ -370,6 +400,9 @@ namespace DSEDiagnosticFileParser
             var durableWrites = keyspaceMatch.Groups[4].Success && keyspaceMatch.Groups[4].Value.ToUpper() == "DURABLE_WRITES"
                                         ? bool.Parse(keyspaceMatch.Groups[5].Value)
                                         : true;
+            var isPreLoaded = keyspaceMatch.Groups[6].Success && keyspaceMatch.Groups[6].Value.ToUpper() == "PRELOADED"
+                                        ? bool.Parse(keyspaceMatch.Groups[7].Value)
+                                        : this._isPreLoaded;
             var strategy = replicationMap.FirstOrDefault().Value;
             var replications = replicationMap.Skip(1)
                                     .Select(r => new KeyspaceReplicationInfo(int.Parse(r.Value),
@@ -385,7 +418,8 @@ namespace DSEDiagnosticFileParser
                                             durableWrites,
                                             keyspaceMatch.Groups[0].Value,
                                             this.Node,
-                                            this.Cluster);
+                                            this.Cluster,
+                                            isPreLoaded);
 
             return this.AddKeySpace(keyspace);
         }

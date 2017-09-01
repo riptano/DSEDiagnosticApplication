@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Common;
+using CTS = Common.Patterns.Collections.ThreadSafe;
 
 namespace DSEDiagnosticLibrary
 {
@@ -101,6 +102,22 @@ namespace DSEDiagnosticLibrary
         [JsonIgnore]
         public string FullName { get { return this.Keyspace.Name + '.' + this.Name; } }
         public string DDL { get; }
+
+        [JsonProperty(PropertyName = "AggregatedStats")]
+        private IEnumerable<IAggregatedStats> datamemberAggregatedStats
+        {
+            get { return this._aggregatedStats.UnSafe; }
+            set { this._aggregatedStats = new CTS.List<IAggregatedStats>(value); }
+        }
+
+        private CTS.List<IAggregatedStats> _aggregatedStats = new CTS.List<IAggregatedStats>();
+        [JsonIgnore]
+        public IEnumerable<IAggregatedStats> AggregatedStats { get { return this._aggregatedStats; } }
+        public IDDL AssociateItem(IAggregatedStats aggregatedStat)
+        {
+            this._aggregatedStats.Add(aggregatedStat);
+            return this;
+        }
         public object ToDump()
         {
             return new { Index = this.FullName, Cluster = this.Cluster.Name, DataCenter = this.DataCenter.Name, Me = this };

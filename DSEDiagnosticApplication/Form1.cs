@@ -421,5 +421,13 @@ namespace DSEDiagnosticApplication
                 this.ultraGrid1.DataSource = this._currentDiagnosticFiles = null;
             }
         }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            var textPad = new System.Diagnostics.Process();
+            textPad.StartInfo.FileName = "textpad.exe";
+            textPad.StartInfo.Arguments = @".\DSEDiagnosticApplication.log";
+            textPad.Start();
+        }
     }
 }

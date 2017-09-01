@@ -80,6 +80,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AggregatedStats.cs" />
     <Compile Include="Cluster.cs" />
     <Compile Include="Configuration.cs" />
     <Compile Include="CQLIndex.cs" />
