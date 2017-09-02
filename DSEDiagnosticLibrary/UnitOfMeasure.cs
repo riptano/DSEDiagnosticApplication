@@ -79,7 +79,7 @@ namespace DSEDiagnosticLibrary
             Attrs = NaN | Memory | Rate | Load | Percent | Time | Frequency | Utilization | Operations
         }
 
-        readonly static Regex RegExValueUOF = new Regex(@"^(\-?[0-9,]*(?:\.[0-9]+)?)\s*([a-z%,_/\ ]*)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        readonly static Regex RegExValueUOF = new Regex(@"^(\-?[0-9,]*(?:\.[0-9]+)?)\s*([a-z%,_/\ .\-]*)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         public UnitOfMeasure()
         {

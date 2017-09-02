@@ -113,6 +113,7 @@ namespace DSEDiagnosticFileParser
             public INode Node { get; private set; }
             public int NbrItems { get { return this._eventList.Count; } }
 
+            [JsonIgnore]
             public IEnumerable<IParsed> Results { get { return this._eventList; } }
 
             #endregion

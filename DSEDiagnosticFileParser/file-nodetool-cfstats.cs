@@ -23,6 +23,7 @@ namespace DSEDiagnosticFileParser
                                         Version targetDSEVersion)
             : base(catagory, diagnosticDirectory, file, node, defaultClusterName, defaultDCName, targetDSEVersion)
         {
+            this._result = new LogResults(this);
         }
 
         [JsonObject(MemberSerialization.OptOut)]
@@ -33,11 +34,14 @@ namespace DSEDiagnosticFileParser
             {
                 this.Path = fileInstance.File;
                 this.Node = fileInstance.Node;
-                this._eventList = fileInstance._statsList;
+                this._statsList = fileInstance._statsList;
+                this.UnDefinedCQLObjects = fileInstance._unknownDDLs;
             }
 
-            [JsonProperty(PropertyName = "Events")]
-            private readonly List<AggregatedStats> _eventList;
+            [JsonProperty(PropertyName = "Stats")]
+            private readonly List<AggregatedStats> _statsList;
+
+            public IEnumerable<string> UnDefinedCQLObjects { get; }
 
             #region IResult
             [JsonConverter(typeof(DSEDiagnosticLibrary.IPathJsonConverter))]
@@ -47,9 +51,10 @@ namespace DSEDiagnosticFileParser
             [JsonIgnore]
             public IDataCenter DataCenter { get { return this.Node?.DataCenter; } }
             public INode Node { get; private set; }
-            public int NbrItems { get { return this._eventList.Count; } }
+            public int NbrItems { get { return this._statsList.Count; } }
 
-            public IEnumerable<IParsed> Results { get { return this._eventList; } }
+            [JsonIgnore]
+            public IEnumerable<IParsed> Results { get { return this._statsList; } }
 
             #endregion
         }
@@ -207,7 +212,7 @@ namespace DSEDiagnosticFileParser
                 {
                     continue;
                 }
-                else if (splitValue[0] == "Table")
+                else if (splitValue[0] == "Table" || splitValue[0] == "Table (index)")
                 {
                     skipSection = false;
                     currentDDL = currentKeyspace.TryGetDDL(splitValue[1].Trim());
@@ -242,7 +247,7 @@ namespace DSEDiagnosticFileParser
                 }
 
                 UOM = UOMKeywords.FirstOrDefault(u => splitValue[0].IndexOf(u.Item1, StringComparison.CurrentCultureIgnoreCase) >= 0);
-                propValueSplit = splitValue[1].Split(' ');
+                propValueSplit = splitValue[1].Trim().Split(' ');
 
                 if (Common.StringFunctions.ParseIntoNumeric(propValueSplit[0], out propValue, true))
                 {
@@ -251,7 +256,7 @@ namespace DSEDiagnosticFileParser
                     if (UOM != null || propValueSplit.Length > 1)
                     {
                         propValue = new UnitOfMeasure((decimal)((dynamic)propValue),
-                                                        propValueSplit.Length > 1 ? propValueSplit[1] : null,
+                                                        propValueSplit.Length > 1 ? propValueSplit[1].Trim() : null,
                                                         UOM?.Item2 ?? UnitOfMeasure.Types.Unknown);
                     }
                 }
@@ -259,7 +264,7 @@ namespace DSEDiagnosticFileParser
                 {
                     try
                     {
-                        propValue = new UnitOfMeasure(splitValue[1],
+                        propValue = new UnitOfMeasure(splitValue[1].Trim(),
                                                         UOM?.Item2 ?? UnitOfMeasure.Types.Unknown);
                     }
                     catch (System.Exception ex)

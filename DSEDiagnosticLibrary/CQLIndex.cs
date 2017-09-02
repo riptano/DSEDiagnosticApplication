@@ -100,7 +100,9 @@ namespace DSEDiagnosticLibrary
         public IKeyspace Keyspace { get { return this.Table.Keyspace; } }
         public string Name { get; }
         [JsonIgnore]
-        public string FullName { get { return this.Keyspace.Name + '.' + this.Name; } }
+        public string ReferenceName { get { return this.Table.Name + '.' + this.Name; } }
+        [JsonIgnore]
+        public string FullName { get { return this.Table.FullName + '.' + this.Name; } }
         public string DDL { get; }
 
         [JsonProperty(PropertyName = "AggregatedStats")]
@@ -134,7 +136,7 @@ namespace DSEDiagnosticLibrary
                 }
             }
 
-            return this.Name == kstblpair.Item2;
+            return this.Name == kstblpair.Item2 || this.ReferenceName == kstblpair.Item2;
         }
 
         #endregion

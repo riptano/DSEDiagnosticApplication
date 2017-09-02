@@ -9,6 +9,10 @@ namespace DSEDiagnosticLibrary
 	public interface IDDL : IParsed
 	{
 		string Name { get; }
+        /// <summary>
+        /// Usually this is just the name, but sometimes it is the name plus a reference to an associated object like in the case of an index. In this case RefferenceName is the tale name plus the index name.
+        /// </summary>
+        string ReferenceName { get; }
         string FullName { get; }
 		string DDL { get; }
 

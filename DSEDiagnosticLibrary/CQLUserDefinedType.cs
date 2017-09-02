@@ -76,6 +76,8 @@ namespace DSEDiagnosticLibrary
         public IKeyspace Keyspace { get; }
         public string Name { get; }
         [JsonIgnore]
+        public string ReferenceName { get { return this.Name; } }
+        [JsonIgnore]
         public string FullName { get { return this.Keyspace.Name + '.' + this.Name; } }
         public string DDL { get; }
 

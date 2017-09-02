@@ -300,6 +300,14 @@
     "ProcessPriorityLevel": 100
   },
   {
+    "Catagory": "CommandOutputFile",
+    "FilePatterns": [ ".\\nodes\\*\\nodetool\\cfstats" ],
+    "FileParsingClass": "DSEDiagnosticFileParser.file_nodetool_cfstats",
+    "NodeIdPos": -1,
+    "ProcessingTaskOption": "ScanForNode,ParallelProcessing,ParallelProcessFiles",
+    "ProcessPriorityLevel": 80
+  },
+  {
     "Catagory": "LogFile",
     "FilePatterns": [ ".\\nodes\\10.1.36.100\\logs\\cassandra\\system.log" ],
     "FileParsingClass": "DSEDiagnosticFileParser.file_cassandra_log4net",

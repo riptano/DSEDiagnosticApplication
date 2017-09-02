@@ -463,7 +463,7 @@ namespace DSEDiagnosticLibrary
         IEnumerable<ICQLColumn> PrimaryKeys { get; }
         IEnumerable<ICQLColumn> ClusteringKeys { get; }
         IEnumerable<CQLOrderByColumn> OrderByCols { get; }
-        
+
         string Compaction { get; }
         string Compression { get; }
         bool WithCompactStorage { get; }
@@ -792,6 +792,8 @@ namespace DSEDiagnosticLibrary
         #region IDDLStmt
         public IKeyspace Keyspace { get;  }
         public string Name { get;  }
+        [JsonIgnore]
+        public string ReferenceName { get { return this.Name; } }
         [JsonIgnore]
         public string FullName { get { return this.Keyspace.Name + '.' + this.Name; } }
         public string DDL { get;  }

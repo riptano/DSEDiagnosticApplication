@@ -190,7 +190,7 @@ namespace DSEDiagnosticLibrary
             else
             {
                 this.Replications = this.Replications.OrderBy(r => r.DataCenter?.Name).ThenBy(r => r.RF);
-            }            
+            }
         }
 
         #region IParse
@@ -212,6 +212,8 @@ namespace DSEDiagnosticLibrary
 
         #region IDDL
         public string Name { get; }
+        [JsonIgnore]
+        public string ReferenceName { get { return this.Name; } }
         [JsonIgnore]
         public string FullName { get { return this.Name; } }
         public string DDL { get; }
@@ -386,7 +388,7 @@ namespace DSEDiagnosticLibrary
             this._ddlList.Lock();
             try
             {
-                return (ICQLIndex)this._ddlList.UnSafe.FirstOrDefault(d => d is ICQLIndex && d.Name == indexName);
+                return (ICQLIndex)this._ddlList.UnSafe.FirstOrDefault(d => d is ICQLIndex && (d.Name == indexName || d.ReferenceName == indexName) );
             }
             finally
             {
@@ -453,10 +455,12 @@ namespace DSEDiagnosticLibrary
             {
                 return (IDDLStmt)this._ddlList
                                         .UnSafe
-                                        .FirstOrDefault(d => (d is ICQLTable
-                                                                || d is ICQLMaterializedView
-                                                                || d is ICQLIndex
-                                                                || d is ICQLTrigger) && d.Name == ddlName);
+                                        .FirstOrDefault(d => ((d is ICQLTable
+                                                                    || d is ICQLMaterializedView
+                                                                    || d is ICQLTrigger)
+                                                                && d.Name == ddlName)
+                                                              || (d is ICQLIndex
+                                                                    && (d.Name == ddlName || d.ReferenceName == ddlName)));
             }
             finally
             {
