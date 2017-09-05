@@ -107,6 +107,11 @@ namespace DSEDiagnosticToDataTable
                         dataRow["DDL"] = ddlItem.DDL;
                         dataRow["Total"] = ddlItem.Items;
 
+                        if (ddlItem is IDDLStmt && ((IDDLStmt)ddlItem).IsActive.HasValue)
+                        {
+                            dataRow["Active"] = ((IDDLStmt)ddlItem).IsActive.Value;
+                        }
+
                         if (ddlItem is DSEDiagnosticLibrary.ICQLTrigger)
                         {
                             dataRow["Associated Table"] = ((DSEDiagnosticLibrary.ICQLTrigger)ddlItem).Table.FullName;

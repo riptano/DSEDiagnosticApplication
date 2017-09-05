@@ -13,11 +13,16 @@ namespace DSEDiagnosticLibrary
     public interface IAggregatedStats : IEvent
     {
         /// <summary>
+        /// A collection of reference ids used to make up this aggregation set.
+        /// </summary>
+        IEnumerable<int> ReconciliationRefs { get;}
+        /// <summary>
         /// Returns a dictionary where the key is the property name and the value is the aggregated data value.
         /// </summary>
         IDictionary<string, object> Data { get; }
 
         IAggregatedStats AssociateItem(string key, object value);
+        IAggregatedStats AssociateItem(int reference);
     }
 
     [JsonObject(MemberSerialization.OptOut)]
@@ -74,7 +79,7 @@ namespace DSEDiagnosticLibrary
                                 string subClass = null,
                                 DateTimeRange aggregatedTimePeriod = null,
                                 bool assocateToNode = true,
-                                bool assocateToDDLItem = true)
+                                bool assocateToDDLItem = false)
             : this(filePath,
                     source,
                     eventType,
@@ -332,5 +337,46 @@ namespace DSEDiagnosticLibrary
             this._data.Add(key, value);
             return this;
         }
+
+        [JsonProperty(PropertyName = "ReconciliationRefs")]
+        private List<int> datamemberReconciliationRefs
+        {
+            get { return this._reconciliationRefs.UnSafe; }
+            set { this._reconciliationRefs = new CTS.List<int>(value); }
+        }
+
+        private CTS.List<int> _reconciliationRefs = new CTS.List<int>();
+
+        [JsonIgnore]
+        public IEnumerable<int> ReconciliationRefs { get { return this._reconciliationRefs; } }
+
+        public IAggregatedStats AssociateItem(int reference)
+        {
+            if(!this._reconciliationRefs.Contains(reference))
+            {
+                this._reconciliationRefs.Add(reference);
+            }
+            return this;
+        }
+
+        #region Override
+
+        public override string ToString()
+        {
+            return string.Format("AggregatedStats<{0}{1}{2}{3}{4} {5}, {6}, {7}, {8}, {9}{10:###,###,##0}>",
+                                    this.DataCenter == null ? string.Empty : string.Format("{0}, ", this.DataCenter.Name),
+                                    this.Node == null ? string.Empty : string.Format("{0}, ", this.Node),
+                                    this.Keyspace == null ? string.Empty : string.Format("{0}, ", this.Keyspace.Name),
+                                    this.TableViewIndex == null ? string.Empty : string.Format("{0}, ", this.TableViewIndex.Name),
+                                    this.Node != null || this.DataCenter != null ? string.Empty : string.Format("{0}, ", this.Path.Name),
+                                    this.EventTimeLocal,
+                                    this.Source,
+                                    this.Type,
+                                    this.Class,
+                                    this.SubClass == null ? string.Empty : string.Format("{0}, ", this.SubClass),
+                                    this._data.Count);
+        }
+
+        #endregion
     }
 }

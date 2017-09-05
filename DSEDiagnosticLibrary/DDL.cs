@@ -25,5 +25,8 @@ namespace DSEDiagnosticLibrary
     public interface IDDLStmt : IDDL
     {
         IKeyspace Keyspace { get; }
+
+        bool? IsActive { get; }
+        bool? SetAsActive(bool isActive = true);
     }
 }

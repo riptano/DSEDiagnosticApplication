@@ -500,6 +500,17 @@ namespace DataTableToExcel
 
         }
 
+        static public bool WorkSheetLoadColumnDefaults(this ExcelWorksheet workSheet, WorkSheetColAttrDefaults defaultAttrs)
+        {
+            if (string.IsNullOrEmpty(defaultAttrs.Column) || defaultAttrs.Attrs == null || defaultAttrs.Attrs.Length == 0)
+            {
+                return false;
+            }
+
+            WorkSheetLoadColumnDefaults(workSheet, defaultAttrs.Column, defaultAttrs.Attrs);
+            return true;
+        }
+
         static public ExcelRange TranslaateToExcelRange(this ExcelWorksheet excelWorksheet, DataTable dataTable, string dtColumnName, int excelEndRow = -1, int excelStartRow = 1)
         {
             var dtCol = dataTable.Columns[dtColumnName];
@@ -511,6 +522,6 @@ namespace DataTableToExcel
 
             return excelWorksheet.Cells[excelStartRow, dtCol.Ordinal, excelEndRow, dtCol.Ordinal];
         }
-
+        
     }
 }

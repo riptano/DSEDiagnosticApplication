@@ -102,6 +102,7 @@ namespace DSEDiagnosticLibrary
             if (string.IsNullOrEmpty(uofString))
             {
                 this.UnitType = Types.NaN | uofType;
+                this.Value = decimal.MinValue;
             }
             else
             {
@@ -112,6 +113,7 @@ namespace DSEDiagnosticLibrary
                     if (uofValues.Groups[1].Value == string.Empty)
                     {
                         this.UnitType = ConvertToType(uofValues.Groups[2].Value, uofType | Types.NaN);
+                        this.Value = decimal.MinValue;
                     }
                     else
                     {
@@ -127,6 +129,7 @@ namespace DSEDiagnosticLibrary
             if (string.IsNullOrEmpty(value))
             {
                 this.UnitType = ConvertToType(uof, uofType | Types.NaN);
+                this.Value = decimal.MinValue;
             }
             else
             {
@@ -160,8 +163,8 @@ namespace DSEDiagnosticLibrary
             this.UnitType = newUOM;
         }
 
-        public Types UnitType { get; private set; }
-        public decimal Value { get; private set; }
+        public Types UnitType { get; }
+        public decimal Value { get; }
 
         [JsonIgnore]
         public bool NaN { get { return (this.UnitType & Types.NaN) != 0; } }
@@ -788,7 +791,7 @@ namespace DSEDiagnosticLibrary
             return null;
         }
 
-        public static UnitOfMeasure Create(string uofString, Types uofType = Types.Unknown, bool emptyNullIsNan = true)
+        public static UnitOfMeasure Create(string uofString, Types uofType = Types.Unknown, bool emptyNullIsNan = true, bool convertOverflowOnSize = false, bool throwException = false)
         {
             if (IsNaN(uofString, emptyNullIsNan))
             {
@@ -801,25 +804,88 @@ namespace DSEDiagnosticLibrary
 
                 if (uofValues.Success)
                 {
-                    return new UnitOfMeasure(ConvertToDecimal(uofValues.Groups[1].Value),
-                                                ConvertToType(uofValues.Groups[2].Value,
-                                                uofType));
+                    return Create(ConvertToDecimal(uofValues.Groups[1].Value),
+                                    ConvertToType(uofValues.Groups[2].Value, uofType),
+                                    null,
+                                    convertOverflowOnSize);
                 }
             }
             catch
-            {}
+            {
+                if (throwException) throw;
+            }
 
             return null;
         }
 
-        public static UnitOfMeasure Create(int uof, Types uofType)
+        public static UnitOfMeasure Create(int uof, Types uofType, string strUOF = null, bool convertOverflowOnSize = false)
         {
-            return new UnitOfMeasure((decimal) uof, uofType);
+            if(convertOverflowOnSize)
+            {
+                uofType = ConvertToType(strUOF, uofType);
+
+                if ((uofType & Types.NaN) != 0) return new UnitOfMeasure();
+
+                if((uofType & Types.SizeUnits) != 0
+                        && uof < 0)
+                {
+                    ulong posValue;
+                    unchecked { posValue = (ulong)uof; }
+
+                    return new UnitOfMeasure((decimal)posValue, uofType);
+                }
+
+                return new UnitOfMeasure((decimal)uof, uofType);
+            }
+
+            return new UnitOfMeasure((decimal) uof, strUOF, uofType);
         }
 
-        public static UnitOfMeasure Create(long uof, Types uofType)
+        public static UnitOfMeasure Create(long uof, Types uofType, string strUOF = null, bool convertOverflowOnSize = false)
         {
-            return new UnitOfMeasure((decimal)uof, uofType);
+            if (convertOverflowOnSize)
+            {
+                uofType = ConvertToType(strUOF, uofType);
+
+                if ((uofType & Types.NaN) != 0) return new UnitOfMeasure();
+
+                if ((uofType & Types.SizeUnits) != 0
+                        && uof < 0)
+                {
+                    ulong posValue;
+                    unchecked { posValue = (ulong)uof; }
+
+                    return new UnitOfMeasure((decimal)posValue, uofType);
+                }
+
+                return new UnitOfMeasure((decimal)uof, uofType);
+            }
+
+            return new UnitOfMeasure((decimal)uof, strUOF, uofType);
+        }
+
+        public static UnitOfMeasure Create(decimal uof, Types uofType, string strUOF = null, bool convertOverflowOnSize = false)
+        {
+            if (convertOverflowOnSize)
+            {
+                uofType = ConvertToType(strUOF, uofType);
+
+                if ((uofType & Types.NaN) != 0) return new UnitOfMeasure();
+
+                if ((uofType & Types.SizeUnits) != 0
+                        && uof < 0
+                        && uof % 1 == 0)
+                {
+                    ulong posValue;
+                    unchecked { posValue = (ulong) ((long)uof); }
+
+                    return new UnitOfMeasure((decimal)posValue, uofType);
+                }
+
+                return new UnitOfMeasure(uof, uofType);
+            }
+
+            return new UnitOfMeasure(uof, strUOF, uofType);
         }
 
         public static UnitOfMeasure Create(int? uof, Types uofType)
@@ -842,61 +908,54 @@ namespace DSEDiagnosticLibrary
             return uof.HasValue ? new UnitOfMeasure((decimal)uof.Value.TotalMilliseconds, Types.Time | Types.MS) : null;
         }
 
-        public static UnitOfMeasure Create(decimal uof, Types uofType)
-        {
-            return new UnitOfMeasure(uof, uofType);
-        }
-
         public static UnitOfMeasure Create(decimal? uof, Types uofType)
         {
             return uof.HasValue ? new UnitOfMeasure(uof.Value, uofType) : null;
         }
 
-        public static Types ConvertToType(string uof, Types uofType = Types.Unknown)
+        public static Types ConvertToType(string uof, Types uofType = Types.Unknown, bool checkForWords = true)
         {
             if (string.IsNullOrEmpty(uof))
             {
                 return uofType;
             }
 
-            string[] splitUOFs = null;
-
-            if (uof.IndexOfAny(new char[] { '/', '_', ',', ' ' }) >= 0)
+            if (checkForWords && uof.IndexOfAny(new char[] { '/', '_', ',', ' ' }) >= 0)
             {
-                splitUOFs = uof.Split(new char[] { '/', '_', ',', ' ' });
-            }
+                var splitUOFs = uof.Split(new char[] { '/', '_', ',', ' ' });
 
-            if (splitUOFs != null)
-            {
-                Types newUOF = uofType;
-                Types returnedUOF;
-
-                if(splitUOFs.FirstOrDefault() == "min") //assume minimal if first word
+                if (splitUOFs != null)
                 {
-                    splitUOFs = splitUOFs.Skip(1).ToArray();
-                }
+                    Types newUOF = uofType;
+                    Types returnedUOF;
 
-                foreach (var item in splitUOFs)
-                {
-                    returnedUOF = ConvertToType(item, Types.Unknown);
-
-                    if((returnedUOF & Types.TimeUnits) != 0
-                        && (newUOF & Types.SEC) != 0)
+                    if (splitUOFs.FirstOrDefault() == "min") //assume minimal if first word
                     {
-                        newUOF &= ~Types.SEC;
+                        splitUOFs = splitUOFs.Skip(1).ToArray();
                     }
 
-                    newUOF |= returnedUOF;
-                }
+                    foreach (var item in splitUOFs)
+                    {
+                        returnedUOF = ConvertToType(item, Types.Unknown, false);
 
-                if((newUOF & Types.TimeUnits) != 0
-                    || (newUOF & Types.SizeUnits) != 0
-                    || (newUOF & Types.NaN) != 0)
-                {
-                    return newUOF;
-                }
+                        if ((returnedUOF & Types.TimeUnits) != 0
+                            && (newUOF & Types.SEC) != 0)
+                        {
+                            newUOF &= ~Types.SEC;
+                        }
 
-                return uofType;
+                        newUOF |= returnedUOF;
+                    }
+
+                    if ((newUOF & Types.TimeUnits) != 0
+                        || (newUOF & Types.SizeUnits) != 0
+                        || (newUOF & Types.NaN) != 0)
+                    {
+                        return newUOF;
+                    }
+
+                    return uofType;
+                }
             }
 
             if(uof.Last() == '.')
@@ -1032,13 +1091,32 @@ namespace DSEDiagnosticLibrary
         {
             return decimal.Parse(value, System.Globalization.NumberStyles.Number);
         }
-        public static bool IsNaN(string value, bool emptynullIsNaN = true)
+        public static bool IsNaN(string value, bool emptynullIsNaN = true, bool checkForWords = true)
         {
             value = value?.Trim();
 
-            if (emptynullIsNaN && string.IsNullOrEmpty(value))
+            if (string.IsNullOrEmpty(value))
             {
-                return true;
+                return emptynullIsNaN;
+            }
+
+            if (checkForWords && value.IndexOf(' ') >= 0)
+            {
+                var splitUOFs = value.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+
+                if (splitUOFs != null)
+                {
+                    foreach (var item in splitUOFs)
+                    {
+                        if (IsNaN(item, false, false)) return true;
+                    }
+                    return false;
+                }
+            }
+
+            if (value.Last() == '.')
+            {
+                value = value.Substring(0, value.Length - 1);
             }
 
             switch (value.ToLower())

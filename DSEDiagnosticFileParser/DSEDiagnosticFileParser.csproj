@@ -97,6 +97,7 @@
     <Compile Include="file-create-folder-structure.cs" />
     <Compile Include="file-dsetool-ring.cs" />
     <Compile Include="file-load_avg.cs" />
+    <Compile Include="file-nodetool-tpstats.cs" />
     <Compile Include="file-nodetool-cfstats.cs" />
     <Compile Include="file-nodetool-info.cs" />
     <Compile Include="file-nodetool-ring.cs" />

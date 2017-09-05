@@ -709,5 +709,23 @@ public static class {0}
                 return ((string)(this["DSESystemDDL"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Local write count")]
+        public string CFStatsDetectWriteActivityAttr {
+            get {
+                return ((string)(this["CFStatsDetectWriteActivityAttr"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Local read count")]
+        public string CFStatsDetectReadActivityAttr {
+            get {
+                return ((string)(this["CFStatsDetectReadActivityAttr"]));
+            }
+        }
     }
 }

@@ -466,11 +466,8 @@ namespace DSEDiagnosticLibrary
 
         string Compaction { get; }
         string Compression { get; }
-        bool WithCompactStorage { get; }
-        bool IsActive { get; }
+        bool WithCompactStorage { get; }        
         CQLTableStats Stats { get; }
-
-        bool SetAsActive(bool isActive = true);
 
         IEnumerable<ICQLColumn> TryGetColumns(IEnumerable<string> columns);
         ICQLColumn TryGetColumn(string columnName);
@@ -656,23 +653,6 @@ namespace DSEDiagnosticLibrary
         public string Compression { get; }
         public bool WithCompactStorage { get; }
         public CQLTableStats Stats { get; }
-        public bool IsActive { get; private set; }
-        public bool SetAsActive(bool isActive = true)
-        {
-            if(isActive != this.IsActive)
-            {
-                if(isActive)
-                {
-                    ++this.Keyspace.Stats.NbrActive;
-                }
-                else
-                {
-                    --this.Keyspace.Stats.NbrActive;
-                }
-                this.IsActive = isActive;
-            }
-            return this.IsActive;
-        }
 
         [JsonProperty(PropertyName="DDLs")]
         private IEnumerable<IDDL> datamemberDDLs
@@ -812,6 +792,24 @@ namespace DSEDiagnosticLibrary
         {
             this._aggregatedStats.Add(aggregatedStat);
             return this;
+        }
+
+        public bool? IsActive { get; private set; }
+        public bool? SetAsActive(bool isActive = true)
+        {
+            if (!this.IsActive.HasValue || isActive != this.IsActive.Value)
+            {
+                if (isActive)
+                {
+                    ++this.Keyspace.Stats.NbrActive;
+                }
+                else if(this.IsActive.HasValue)
+                {
+                    --this.Keyspace.Stats.NbrActive;
+                }
+                this.IsActive = isActive;
+            }
+            return this.IsActive;
         }
 
         public virtual object ToDump()

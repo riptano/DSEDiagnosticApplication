@@ -23,14 +23,14 @@ namespace DSEDiagnosticFileParser
                                         Version targetDSEVersion)
             : base(catagory, diagnosticDirectory, file, node, defaultClusterName, defaultDCName, targetDSEVersion)
         {
-            this._result = new LogResults(this);
+            this._result = new StatResults(this);
         }
 
         [JsonObject(MemberSerialization.OptOut)]
-        public sealed class LogResults : IResult
+        public sealed class StatResults : IResult
         {
-            private LogResults() { }
-            internal LogResults(file_nodetool_cfstats fileInstance)
+            private StatResults() { }
+            internal StatResults(file_nodetool_cfstats fileInstance)
             {
                 this.Path = fileInstance.File;
                 this.Node = fileInstance.Node;
@@ -60,7 +60,7 @@ namespace DSEDiagnosticFileParser
         }
 
         [JsonProperty(PropertyName = "Results")]
-        private readonly LogResults _result;
+        private readonly StatResults _result;
 
         public override IResult GetResult()
         {
@@ -165,6 +165,8 @@ namespace DSEDiagnosticFileParser
             Tuple<string, UnitOfMeasure.Types> UOM = null;
             string[] propValueSplit = null;
             object propValue = null;
+            object numValue = null;
+            string attribute = null;
 
             foreach (var element in fileLines)
             {
@@ -179,8 +181,9 @@ namespace DSEDiagnosticFileParser
                 }
 
                 splitValue = line.Split(':');
+                attribute = splitValue[0].Trim();
 
-                if (splitValue[0] == "Keyspace")
+                if (attribute == "Keyspace")
                 {
                     skipSection = false;
                     currentKeyspace = this.Node.DataCenter.TryGetKeyspace(splitValue[1].Trim());
@@ -212,7 +215,7 @@ namespace DSEDiagnosticFileParser
                 {
                     continue;
                 }
-                else if (splitValue[0] == "Table" || splitValue[0] == "Table (index)")
+                else if (attribute == "Table" || attribute == "Table (index)")
                 {
                     skipSection = false;
                     currentDDL = currentKeyspace.TryGetDDL(splitValue[1].Trim());
@@ -246,50 +249,77 @@ namespace DSEDiagnosticFileParser
                     continue;
                 }
 
-                UOM = UOMKeywords.FirstOrDefault(u => splitValue[0].IndexOf(u.Item1, StringComparison.CurrentCultureIgnoreCase) >= 0);
+                UOM = UOMKeywords.FirstOrDefault(u => attribute.IndexOf(u.Item1, StringComparison.CurrentCultureIgnoreCase) >= 0);
                 propValueSplit = splitValue[1].Trim().Split(' ');
 
-                if (Common.StringFunctions.ParseIntoNumeric(propValueSplit[0], out propValue, true))
+                if (Common.StringFunctions.ParseIntoNumeric(propValueSplit[0], out numValue, true))
                 {
-                    if((dynamic) propValue < 0) unchecked { propValue = (ulong) ((dynamic) propValue); }
-
                     if (UOM != null || propValueSplit.Length > 1)
                     {
-                        propValue = new UnitOfMeasure((decimal)((dynamic)propValue),
-                                                        propValueSplit.Length > 1 ? propValueSplit[1].Trim() : null,
-                                                        UOM?.Item2 ?? UnitOfMeasure.Types.Unknown);
+                        propValue = UnitOfMeasure.Create(((dynamic)numValue),
+                                                            UOM?.Item2 ?? UnitOfMeasure.Types.Unknown,
+                                                            propValueSplit.Length > 1 ? propValueSplit[1].Trim() : null,
+                                                            true);
+
+                        if (((UnitOfMeasure)propValue).Value < 0)
+                        {
+                            numValue = propValue = null;
+                        }
+                    }
+                    else
+                    {
+                        if ((dynamic)numValue == -1)
+                        {
+                            numValue = propValue = null;
+                        }
+                        else
+                        {
+                            propValue = numValue;
+                        }
                     }
                 }
                 else
                 {
-                    try
+                    propValue = UnitOfMeasure.Create(splitValue[1].Trim(),
+                                                            UOM?.Item2 ?? UnitOfMeasure.Types.Unknown,
+                                                            true,
+                                                            true);
+
+                    if(propValue == null)
                     {
-                        propValue = new UnitOfMeasure(splitValue[1].Trim(),
-                                                        UOM?.Item2 ?? UnitOfMeasure.Types.Unknown);
+                        propValue = splitValue[1].Trim();
+                        numValue = null;
                     }
-                    catch (System.Exception ex)
+                    else if(!((UnitOfMeasure)propValue).NaN && ((UnitOfMeasure) propValue).Value == -1)
                     {
-                        var name = statItem.Keyspace.Name;
-
-                        if(statItem.TableViewIndex != null)
-                        {
-                            name += '.' + statItem.TableViewIndex.Name;
-                        }
-
-                        Logger.Instance.WarnFormat("MapperId<{0}>\t{1}\t{2}\tNodetool CFStats Table/Index/View \"{3}\" had an invalid value of \"{4}\"{6} for property \"{5}\"",
-                                                    this.MapperId,
-                                                    this.Node,
-                                                    this.File.PathResolved,
-                                                    name,
-                                                    splitValue[1],
-                                                    splitValue[0],
-                                                    UOM == null ? string.Empty : string.Format(" ({0})", UOM));
-                        Logger.Instance.Error(ex);
-                        continue;
+                        numValue = propValue = null;
+                    }
+                    else
+                    {
+                        numValue = ((UnitOfMeasure)propValue).Value;
                     }
                 }
 
-                statItem.AssociateItem(splitValue[0], propValue);
+                if(statItem.TableViewIndex != null)
+                {
+                    if (attribute == Properties.Settings.Default.CFStatsDetectReadActivityAttr
+                            || (attribute == Properties.Settings.Default.CFStatsDetectWriteActivityAttr && !(statItem.TableViewIndex is ICQLIndex)))
+                    {
+                        if(statItem.TableViewIndex.IsActive.HasValue)
+                        {
+                            if(!statItem.TableViewIndex.IsActive.Value && numValue != null && ((dynamic) numValue) > 0)
+                            {
+                                statItem.TableViewIndex.SetAsActive(true);
+                            }
+                        }
+                        else
+                        {
+                            statItem.TableViewIndex.SetAsActive(numValue == null ? false : ((dynamic)numValue) > 0);
+                        }
+                    }
+                }
+
+                statItem.AssociateItem(attribute, propValue);
             }
 
             this.Processed = true;

@@ -298,5 +298,13 @@
     "NodeIdPos": -1,
     "ProcessingTaskOption": "ScanForNode,ParallelProcessing",
     "ProcessPriorityLevel": 500
+  },
+  {
+    "Catagory": "CommandOutputFile",
+    "FilePatterns": [ ".\\nodes\\*\\nodetool\\cfstats" ],
+    "FileParsingClass": "DSEDiagnosticFileParser.file_nodetool_cfstats",
+    "NodeIdPos": -1,
+    "ProcessingTaskOption": "ScanForNode,ParallelProcessing,ParallelProcessFiles",
+    "ProcessPriorityLevel": 400
   }
 ]

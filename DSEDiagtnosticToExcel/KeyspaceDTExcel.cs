@@ -68,8 +68,8 @@ namespace DSEDiagtnosticToExcel
                                                                 workSheet.Cells["J:J"].Style.Numberformat.Format = "#,###";
                                                                 workSheet.Cells["K:K"].Style.Numberformat.Format = "#,###";
                                                                 workSheet.Cells["L:L"].Style.Numberformat.Format = "#,###";
-                                                                workSheet.Cells["M:M"].Style.Numberformat.Format = "#,###";
-                                                                workSheet.Cells["N:N"].Style.Numberformat.Format = "#,###";
+                                                                workSheet.Cells["M:M"].Style.Numberformat.Format = "#,##0";
+                                                                workSheet.Cells["N:N"].Style.Numberformat.Format = "#,##0";
                                                                 workSheet.Cells["O:O"].Style.Numberformat.Format = "#,###";
                                                                 workSheet.Cells["P:P"].Style.Numberformat.Format = "#,###";
                                                                 workSheet.Cells["Q:Q"].Style.Numberformat.Format = "#,###";

@@ -53,7 +53,7 @@ namespace DSEDiagtnosticToExcel
         public IDirectoryPath ExcelTargetFolder { get; }
         public string WorkSheetName { get; }
         public string WorkBookName { get; }
-
+        
         /// <summary>
         ///
         /// </summary>
@@ -64,6 +64,23 @@ namespace DSEDiagtnosticToExcel
         public abstract Tuple<IFilePath, string, int> Load();
 
         public event OnActionEventHandler OnAction;
+
+        internal bool LoadDefaultAttributes(OfficeOpenXml.ExcelWorksheet excelWorkSheet)
+        {
+            bool bResult = false;
+
+            if(!string.IsNullOrEmpty(this.WorkSheetName))
+            {
+                DataTableToExcel.WorkSheetColAttrDefaults defaultAttrs;
+
+                if(LibrarySettings.WorkSheetDefaultAttrs.TryGetValue(this.WorkSheetName, out defaultAttrs))
+                {
+                    bResult = DataTableToExcel.Helpers.WorkSheetLoadColumnDefaults(excelWorkSheet, defaultAttrs);
+                }
+            }
+
+            return bResult;
+        }
 
         internal void CallActionEvent(string actionItem)
         {

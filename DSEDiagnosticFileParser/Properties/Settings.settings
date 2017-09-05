@@ -1058,5 +1058,11 @@ CREATE TABLE dse_system.leases (
     AND read_repair_chance = 0.0
     AND speculative_retry = '99PERCENTILE';</Value>
     </Setting>
+    <Setting Name="CFStatsDetectWriteActivityAttr" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Local write count</Value>
+    </Setting>
+    <Setting Name="CFStatsDetectReadActivityAttr" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Local read count</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

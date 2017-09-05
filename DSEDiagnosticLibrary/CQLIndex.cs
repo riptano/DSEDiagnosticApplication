@@ -120,6 +120,25 @@ namespace DSEDiagnosticLibrary
             this._aggregatedStats.Add(aggregatedStat);
             return this;
         }
+
+        public bool? IsActive { get; private set; }
+        public bool? SetAsActive(bool isActive = true)
+        {
+            if (!this.IsActive.HasValue || isActive != this.IsActive.Value)
+            {
+                if (isActive)
+                {
+                    ++this.Keyspace.Stats.NbrActive;
+                }
+                else if (this.IsActive.HasValue)
+                {
+                    --this.Keyspace.Stats.NbrActive;
+                }
+                this.IsActive = isActive;
+            }
+            return this.IsActive;
+        }
+
         public object ToDump()
         {
             return new { Index = this.FullName, Cluster = this.Cluster.Name, DataCenter = this.DataCenter.Name, Me = this };

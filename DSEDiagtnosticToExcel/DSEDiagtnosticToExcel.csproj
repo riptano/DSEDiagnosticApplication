@@ -57,7 +57,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CFStatsExcel.cs" />
     <Compile Include="ConfigExcel.cs" />
+    <Compile Include="LibrarySettings.cs" />
     <Compile Include="LoadDataSet.cs" />
     <Compile Include="TokenRangeExcel.cs" />
     <Compile Include="NodeExcel.cs" />
@@ -79,6 +81,10 @@
     <ProjectReference Include="..\DSEDiagDataTableToExcel\DataTableToExcel.csproj">
       <Project>{c4be43f8-b1c2-4a51-a130-e2eed35a739c}</Project>
       <Name>DataTableToExcel</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DSEDiagnosticFileParser\DSEDiagnosticFileParser.csproj">
+      <Project>{50db5780-7118-44e2-8d1f-e7288304eac5}</Project>
+      <Name>DSEDiagnosticFileParser</Name>
     </ProjectReference>
     <ProjectReference Include="..\DSEDiagnosticToDataTable\DSEDiagnosticToDataTable.csproj">
       <Project>{f4e842e1-39b7-4ea9-8820-d81d11d1522c}</Project>

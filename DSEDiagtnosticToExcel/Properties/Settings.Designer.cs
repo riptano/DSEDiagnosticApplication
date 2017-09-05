@@ -31,5 +31,54 @@ namespace DSEDiagtnosticToExcel.Properties {
                 return ((string)(this["ExcelFileExtension"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("{\r\n\"CFStats\":{\"Column\":\"F\",\"Attrs\":[\r\n\t\"Average live cells per slice (last five m" +
+            "inutes)\",\r\n\t\"Average tombstones per slice (last five minutes)\",\r\n\t\"Batch size ma" +
+            "ximum\",\r\n\t\"Batch size mean\",\r\n\t\"Batch size minimum\",\r\n\t\"Batch size occurrences\"," +
+            "\r\n\t\"Bloom filter false positives\",\r\n\t\"Bloom filter false ratio\",\r\n\t\"Bloom filter" +
+            " off heap memory used\",\r\n\t\"Bloom filter space used\",\r\n\t\"Compacted partition maxi" +
+            "mum bytes\",\r\n\t\"Compacted partition mean bytes\",\r\n\t\"Compacted partition minimum b" +
+            "ytes\",\r\n\t\"Compaction maximum latency\",\r\n\t\"Compaction maximum rate\",\r\n\t\"Compactio" +
+            "n mean latency\",\r\n\t\"Compaction mean rate\",\r\n\t\"Compaction mean rate\",\r\n\t\"Compacti" +
+            "on minimum latency\",\r\n\t\"Compaction minimum rate\",\r\n\t\"Compaction occurrences\",\r\n\t" +
+            "\"Compression metadata off heap memory used\",\r\n\t\"Index summary off heap memory us" +
+            "ed\",\r\n\t\"Local read count\",\r\n\t\"Local read latency\",\r\n\t\"Local write count\",\r\n\t\"Loc" +
+            "al write latency\",\r\n\t\"Maximum live cells per slice (last five minutes)\",\r\n\t\"Maxi" +
+            "mum tombstones per slice (last five minutes)\",\r\n\t\"MemTable OPS maximum\",\r\n\t\"MemT" +
+            "able OPS mean\",\r\n\t\"MemTable OPS minimum\",\r\n\t\"MemTable Size maximum\",\r\n\t\"MemTable" +
+            " Size mean\",\r\n\t\"MemTable Size minimum\",\r\n\t\"MemTable occurrences\",\r\n\t\"Memtable ce" +
+            "ll count\",\r\n\t\"Memtable data size\",\r\n\t\"Memtable off heap memory used\",\r\n\t\"Memtabl" +
+            "e switch count\",\r\n\t\"Number of keys (estimate)\",\r\n\t\"Off heap memory used (total)\"" +
+            ",\r\n\t\"Partition large maximum\",\r\n\t\"Partition large mean\",\r\n\t\"Partition large mini" +
+            "mum\",\r\n\t\"Partition large occurrences\",\r\n\t\"Pending flushes\",\r\n\t\"Read Count\",\r\n\t\"R" +
+            "ead latency\",\r\n\t\"Read latency maximum\",\r\n\t\"SSTable Compression Ratio\",\r\n\t\"SSTabl" +
+            "e count\",\r\n\t\"SSTable read maximum \",\r\n\t\"Space used (live)\",\r\n\t\"Space used (total" +
+            ")\",\r\n\t\"Space used by snapshots (total)\",\r\n\t\"Tombstones warning Total\",\r\n\t\"Tombst" +
+            "ones warning maximum\",\r\n\t\"Tombstones warning mean\",\r\n\t\"Tombstones warning minimu" +
+            "m\",\r\n\t\"Tombstones warning occurrences\",\r\n\t\"Write Count\",\r\n\t\"Write latency\",\r\n\t\"W" +
+            "rite latency maximum\",\r\n\t\"Unlogged Batch Partitions Count Total\",\r\n\t\"Unlogged Ba" +
+            "tch Partitions Count maximum\",\r\n\t\"Unlogged Batch Partitions Count mean\",\r\n\t\"Unlo" +
+            "gged Batch Partitions Count minimum\",\r\n\t\"Unlogged Batch Partitions Count occurre" +
+            "nces\",\r\n\t\"Tombstones query aborted Total\",\r\n\t\"Tombstones query aborted maximum\"," +
+            "\r\n\t\"Tombstones query aborted mean\",\r\n\t\"Tombstones query aborted minimum\",\r\n\t\"Tom" +
+            "bstones query aborted occurences\",\r\n\t\"Read Repair maximum latency\",\r\n\t\"Read Repa" +
+            "ir minimum latency\",\r\n\t\"Read Repair mean latency\",\r\n\t\"Read Repair occurrences\",\r" +
+            "\n\t\"Read Repair Aborted occurrences\",\r\n\t\"Solr reindex duration maximum\",\r\n\t\"Solr " +
+            "reindex duration minimum\",\r\n\t\"Solr reindex duration mean\",\r\n\t\"Solr reindex durat" +
+            "ion stdev\",\r\n\t\"Solr reindex occurrences\",\r\n\t\"AntiCompaction maximum latency\",\r\n\t" +
+            "\"AntiCompaction mean latency\",\r\n\t\"AntiCompaction minimum latency\",\r\n\t\"AntiCompac" +
+            "tion occurrences\",\r\n\t\"AntiCompaction SSTable count\",\r\n\t\"Memtable Flush maximum l" +
+            "atency\",\r\n\t\"Memtable Flush mean latency\",\r\n\t\"Memtable Flush minimum latency\",\r\n\t" +
+            "\"Memtable Flush occurrences\",\r\n\t\"Memtable Flush maximum IORate\",\r\n\t\"Memtable Flu" +
+            "sh mean IORate\",\r\n\t\"Memtable Flush minimum IORate\",\r\n\t\"Memtable Flush maximum St" +
+            "orage\",\r\n\t\"Memtable Flush mean Storage\",\r\n\t\"Memtable Flush minimum Storage\",\r\n\t\"" +
+            "Memtable Flush total Storage\"\r\n]}\r\n\r\n}")]
+        public string WorkSheetDefaultAttrs {
+            get {
+                return ((string)(this["WorkSheetDefaultAttrs"]));
+            }
+        }
     }
 }

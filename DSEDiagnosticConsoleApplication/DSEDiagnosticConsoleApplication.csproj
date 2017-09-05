@@ -118,6 +118,7 @@
     </None>
     <None Include="..\DSEDiagnosticFileParser\Json\ProcessFileMappings.json">
       <Link>JSON\ProcessFileMappings.json</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="..\DSEDiagnosticFileParser\Json\Unzip-ProcessFileMappings.json">
       <Link>JSON\Unzip-ProcessFileMappings.json</Link>

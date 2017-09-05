@@ -91,6 +91,7 @@ namespace DSEDiagnosticToDataTable
                             dataRow[ColumnNames.DataCenter] = keySpace.DataCenter.Name;
                             dataRow["Replication Factor"] = 0;
                             dataRow["DDL"] = keySpace.DDL;
+                            this.SetKeyspaceStats(keySpace, dataRow);
                             this.Table.Rows.Add(dataRow);
                             ++nbrItems;
                         }
@@ -116,28 +117,7 @@ namespace DSEDiagnosticToDataTable
                             if (firstRepl)
                             {
                                 firstRepl = false;
-
-                                dataRow["Tables"] = (int)keySpace.Stats.Tables;
-                                dataRow["Views"] = (int)keySpace.Stats.MaterialViews;
-                                dataRow["Columns"] = (int)keySpace.Stats.Columns;
-                                dataRow["Secondary Indexes"] = (int)keySpace.Stats.SecondaryIndexes;
-                                dataRow["solr Indexes"] = (int)keySpace.Stats.SolrIndexes;
-                                dataRow["SAS Indexes"] = (int)keySpace.Stats.SasIIIndexes;
-                                dataRow["Custom Indexes"] = (int)keySpace.Stats.CustomIndexes;
-                                dataRow["Triggers"] = (int)keySpace.Stats.Triggers;
-                                dataRow["Total"] = (int)(keySpace.Stats.Tables
-                                                            + keySpace.Stats.MaterialViews
-                                                            + keySpace.Stats.SecondaryIndexes
-                                                            + keySpace.Stats.SolrIndexes
-                                                            + keySpace.Stats.SasIIIndexes
-                                                            + keySpace.Stats.CustomIndexes);
-                                dataRow["STCS"] = (int)keySpace.Stats.STCS;
-                                dataRow["LCS"] = (int)keySpace.Stats.LCS;
-                                dataRow["DTCS"] = (int)keySpace.Stats.DTCS;
-                                dataRow["TCS"] = (int)keySpace.Stats.TCS;
-                                dataRow["TWCS"] = (int)keySpace.Stats.TWCS;
-                                dataRow["Other Strategies"] = (int)keySpace.Stats.OtherStrategies;
-                                dataRow["Active"] = 0;
+                                this.SetKeyspaceStats(keySpace, dataRow);
                             }
 
                             this.Table.Rows.Add(dataRow);
@@ -159,6 +139,31 @@ namespace DSEDiagnosticToDataTable
             }
 
             return this.Table;
+        }
+
+        private void SetKeyspaceStats(DSEDiagnosticLibrary.IKeyspace keySpace, DataRow dataRow)
+        {
+            dataRow["Tables"] = (int)keySpace.Stats.Tables;
+            dataRow["Views"] = (int)keySpace.Stats.MaterialViews;
+            dataRow["Columns"] = (int)keySpace.Stats.Columns;
+            dataRow["Secondary Indexes"] = (int)keySpace.Stats.SecondaryIndexes;
+            dataRow["solr Indexes"] = (int)keySpace.Stats.SolrIndexes;
+            dataRow["SAS Indexes"] = (int)keySpace.Stats.SasIIIndexes;
+            dataRow["Custom Indexes"] = (int)keySpace.Stats.CustomIndexes;
+            dataRow["Triggers"] = (int)keySpace.Stats.Triggers;
+            dataRow["Total"] = (int)(keySpace.Stats.Tables
+                                        + keySpace.Stats.MaterialViews
+                                        + keySpace.Stats.SecondaryIndexes
+                                        + keySpace.Stats.SolrIndexes
+                                        + keySpace.Stats.SasIIIndexes
+                                        + keySpace.Stats.CustomIndexes);
+            dataRow["STCS"] = (int)keySpace.Stats.STCS;
+            dataRow["LCS"] = (int)keySpace.Stats.LCS;
+            dataRow["DTCS"] = (int)keySpace.Stats.DTCS;
+            dataRow["TCS"] = (int)keySpace.Stats.TCS;
+            dataRow["TWCS"] = (int)keySpace.Stats.TWCS;
+            dataRow["Other Strategies"] = (int)keySpace.Stats.OtherStrategies;
+            dataRow["Active"] = (int)keySpace.Stats.NbrActive;
         }
 
     }

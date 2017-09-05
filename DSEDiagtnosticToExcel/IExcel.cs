@@ -26,7 +26,7 @@ namespace DSEDiagtnosticToExcel
         string WorkBookName { get; }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <returns>
         /// Item1 is the Excel Workbook

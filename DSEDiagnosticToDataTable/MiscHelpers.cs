@@ -42,7 +42,14 @@ namespace DSEDiagnosticToDataTable
         {
             if (uom != null && !uom.NaN)
             {
-                dataRow.SetField(columnName, (long)(uomType == UnitOfMeasure.Types.Unknown ? uom.Value : uom.ConvertTo(uomType)));
+                if (uom.Value > long.MaxValue)
+                {
+                    dataRow.SetField(columnName, (ulong)(uomType == UnitOfMeasure.Types.Unknown ? uom.Value : uom.ConvertTo(uomType)));
+                }
+                else
+                {
+                    dataRow.SetField(columnName, (long)(uomType == UnitOfMeasure.Types.Unknown ? uom.Value : uom.ConvertTo(uomType)));
+                }
             }
 
             return dataRow;
@@ -66,7 +73,7 @@ namespace DSEDiagnosticToDataTable
             }
 
             return dataRow;
-        }        
+        }
 
     }
 }

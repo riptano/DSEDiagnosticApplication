@@ -11,6 +11,9 @@ namespace DSEDiagnosticToDataTable
         public const string DataCenter = "Data Center";
         public const string NodeIPAddress = "Node IPAddress";
         public const string KeySpace = "Keyspace Name";
+        public const string Table = "Table Name";
+        public const string ReconciliationRef = "Reconciliation Reference";
+        public const string Source = "Source";
     }
 
     public static class TableNames
@@ -21,6 +24,8 @@ namespace DSEDiagnosticToDataTable
         public const string Keyspaces = "Keyspaces";
         public const string Machine = "Server";
         public const string Node = "Node";
-        public const string TokenRanges = "TokenRanges";        
+        public const string TokenRanges = "TokenRanges";
+        public const string CFStats = "CFStats";
+        public const string NodeStats = "TPStats";
     }
 }

@@ -301,6 +301,14 @@
   },
   {
     "Catagory": "CommandOutputFile",
+    "FilePatterns": [ ".\\nodes\\*\\nodetool\\tpstats" ],
+    "FileParsingClass": "DSEDiagnosticFileParser.file_nodetool_tpstats",
+    "NodeIdPos": -1,
+    "ProcessingTaskOption": "ScanForNode,ParallelProcessing,ParallelProcessFiles",
+    "ProcessPriorityLevel": 100
+  },
+  {
+    "Catagory": "CommandOutputFile",
     "FilePatterns": [ ".\\nodes\\*\\nodetool\\cfstats" ],
     "FileParsingClass": "DSEDiagnosticFileParser.file_nodetool_cfstats",
     "NodeIdPos": -1,
