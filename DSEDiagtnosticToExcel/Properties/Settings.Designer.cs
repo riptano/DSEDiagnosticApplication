@@ -74,7 +74,75 @@ namespace DSEDiagtnosticToExcel.Properties {
             "\"Memtable Flush occurrences\",\r\n\t\"Memtable Flush maximum IORate\",\r\n\t\"Memtable Flu" +
             "sh mean IORate\",\r\n\t\"Memtable Flush minimum IORate\",\r\n\t\"Memtable Flush maximum St" +
             "orage\",\r\n\t\"Memtable Flush mean Storage\",\r\n\t\"Memtable Flush minimum Storage\",\r\n\t\"" +
-            "Memtable Flush total Storage\"\r\n]}\r\n\r\n}")]
+            "Memtable Flush total Storage\"\r\n]},\r\n\"NodeStats\":{\"Column\":\"D\",\"Attrs\":[\r\n\t\"AntiE" +
+            "ntropySessions\",\r\n\t\"AntiEntropyStage\",\r\n\t\"AntiEntropyStage Total\",\r\n\t\"AntiEntrop" +
+            "yStage maximum\",\r\n\t\"AntiEntropyStage mean\",\r\n\t\"AntiEntropyStage minimum\",\r\n\t\"Ant" +
+            "iEntropyStage occurrences\",\r\n\t\"BINARY\",\r\n\t\"COUNTER_MUTATION\",\r\n\t\"CacheCleanupExe" +
+            "cutor\",\r\n\t\"CommitLogArchiver\",\r\n\t\"CompactionExecutor\",\r\n\t\"CompactionExecutor Tot" +
+            "al\",\r\n\t\"CompactionExecutor maximum\",\r\n\t\"CompactionExecutor mean\",\r\n\t\"CompactionE" +
+            "xecutor minimum\",\r\n\t\"CompactionExecutor occurrences\",\r\n\t\"CounterMutationStage\",\r" +
+            "\n\t\"CounterMutationStage Total\",\r\n\t\"CounterMutationStage maximum\",\r\n\t\"CounterMuta" +
+            "tionStage mean\",\r\n\t\"CounterMutationStage minimum\",\r\n\t\"CounterMutationStage occur" +
+            "rences\",\r\n\t\"GC maximum latency\",\r\n\t\"GC mean latency\",\r\n\t\"GC minimum latency\",\r\n\t" +
+            "\"GC occurrences\",\r\n\t\"GossipStage\",\r\n\t\"GossipStage Total\",\r\n\t\"GossipStage maximum" +
+            "\",\r\n\t\"GossipStage mean\",\r\n\t\"GossipStage minimum\",\r\n\t\"GossipStage occurrences\",\r\n" +
+            "\t\"HintedHandoff\",\r\n\t\"HintedHandoff Total\",\r\n\t\"HintedHandoff maximum\",\r\n\t\"HintedH" +
+            "andoff mean\",\r\n\t\"HintedHandoff minimum\",\r\n\t\"HintedHandoff occurrences\",\r\n\t\"Inter" +
+            "nalResponseStage\",\r\n\t\"InternalResponseStage Total\",\r\n\t\"InternalResponseStage max" +
+            "imum\",\r\n\t\"InternalResponseStage mean\",\r\n\t\"InternalResponseStage minimum\",\r\n\t\"Int" +
+            "ernalResponseStage occurrences\",\r\n\t\"MUTATION\",\r\n\t\"MemtableFlushWriter\",\r\n\t\"Memta" +
+            "bleFlushWriter Total\",\r\n\t\"MemtableFlushWriter maximum\",\r\n\t\"MemtableFlushWriter m" +
+            "ean\",\r\n\t\"MemtableFlushWriter minimum\",\r\n\t\"MemtableFlushWriter occurrences\",\r\n\t\"M" +
+            "emtablePostFlush\",\r\n\t\"MemtablePostFlush Total\",\r\n\t\"MemtablePostFlush maximum\",\r\n" +
+            "\t\"MemtablePostFlush mean\",\r\n\t\"MemtablePostFlush minimum\",\r\n\t\"MemtablePostFlush o" +
+            "ccurrences\",\r\n\t\"MemtableReclaimMemory\",\r\n\t\"MemtableReclaimMemory Total\",\r\n\t\"Memt" +
+            "ableReclaimMemory maximum\",\r\n\t\"MemtableReclaimMemory mean\",\r\n\t\"MemtableReclaimMe" +
+            "mory minimum\",\r\n\t\"MemtableReclaimMemory occurrences\",\r\n\t\"MigrationStage\",\r\n\t\"Mig" +
+            "rationStage Total\",\r\n\t\"MigrationStage maximum\",\r\n\t\"MigrationStage mean\",\r\n\t\"Migr" +
+            "ationStage minimum\",\r\n\t\"MigrationStage occurrences\",\r\n\t\"MiscStage\",\r\n\t\"MutationS" +
+            "tage\",\r\n\t\"MutationStage Total\",\r\n\t\"MutationStage maximum\",\r\n\t\"MutationStage mean" +
+            "\",\r\n\t\"MutationStage minimum\",\r\n\t\"MutationStage occurrences\",\r\n\t\"PAGED_RANGE\",\r\n\t" +
+            "\"Pause maximum latency\",\r\n\t\"Pause mean latency\",\r\n\t\"Pause minimum latency\",\r\n\t\"P" +
+            "ause occurrences\",\r\n\t\"PendingRangeCalculator\",\r\n\t\"PendingRangeCalculator Total\"," +
+            "\r\n\t\"PendingRangeCalculator maximum\",\r\n\t\"PendingRangeCalculator mean\",\r\n\t\"Pending" +
+            "RangeCalculator minimum\",\r\n\t\"PendingRangeCalculator occurrences\",\r\n\t\"RANGE_SLICE" +
+            "\",\r\n\t\"READ\",\r\n\t\"READ_REPAIR\",\r\n\t\"REQUEST_RESPONSE\",\r\n\t\"ReadRepairStage\",\r\n\t\"Read" +
+            "RepairStage Total\",\r\n\t\"ReadRepairStage maximum\",\r\n\t\"ReadRepairStage mean\",\r\n\t\"Re" +
+            "adRepairStage minimum\",\r\n\t\"ReadRepairStage occurrences\",\r\n\t\"ReadStage\",\r\n\t\"ReadS" +
+            "tage Total\",\r\n\t\"ReadStage maximum\",\r\n\t\"ReadStage mean\",\r\n\t\"ReadStage minimum\",\r\n" +
+            "\t\"ReadStage occurrences\",\r\n\t\"RequestResponseStage\",\r\n\t\"RequestResponseStage Tota" +
+            "l\",\r\n\t\"RequestResponseStage maximum\",\r\n\t\"RequestResponseStage mean\",\r\n\t\"RequestR" +
+            "esponseStage minimum\",\r\n\t\"RequestResponseStage occurrences\",\r\n\t\"Sampler\",\r\n\t\"Slo" +
+            "w Query maximum latency\",\r\n\t\"Slow Query mean latency\",\r\n\t\"Slow Query minimum lat" +
+            "ency\",\r\n\t\"Slow Query occurrences\",\r\n\t\"ValidationExecutor\",\r\n\t\"_TRACE\",\r\n\t\"OutOfM" +
+            "emoryError occurrences\",\r\n\t\"CommitLogFlushFailure occurrences\",\r\n\t\"Dropped Hints" +
+            " Total\",\r\n\t\"Dropped Hints maximum\",\r\n\t\"Dropped Hints mean\",\r\n\t\"Dropped Hints min" +
+            "imum\",\r\n\t\"Dropped Hints occurrences\",\r\n\t\"Allocation Failed Maximum Memory Reache" +
+            "d Total\",\r\n\t\"Allocation Failed Maximum Memory Reached maximum\",\r\n\t\"Allocation Fa" +
+            "iled Maximum Memory Reached minimum\",\r\n\t\"Allocation Failed Maximum Memory Reache" +
+            "d mean\",\r\n\t\"Allocation Failed Maximum Memory Reached occurrences\",\r\n\t\"Dropped Mu" +
+            "tation Total\",\r\n\t\"Dropped Mutation maximum\",\r\n\t\"Dropped Mutation mean\",\r\n\t\"Dropp" +
+            "ed Mutation minimum\",\r\n\t\"Dropped Mutation occurrences\",\r\n\t\"GC Continuous maximum" +
+            " latency\",\r\n\t\"GC Continuous minimum latency\",\r\n\t\"GC Continuous mean latency\",\r\n\t" +
+            "\"GC Continuous occurrences\",\r\n\t\"GC Continuous latency\",\r\n\t\"GC Continuous standar" +
+            "d deviation latency\",\r\n\t\"GC TimeFrame maximum latency\",\r\n\t\"GC TimeFrame minimum " +
+            "latency\",\r\n\t\"GC TimeFrame mean latency\",\r\n\t\"GC TimeFrame occurrences\",\r\n\t\"GC Tim" +
+            "eFrame latency\",\r\n\t\"GC TimeFrame standard deviation latency\",\r\n\t\"GC TimeFrame pe" +
+            "rcent\",\r\n\t\"Timedout Hints Total\",\r\n\t\"Timedout Hints maximum\",\r\n\t\"Timedout Hints " +
+            "mean\",\r\n\t\"Timedout Hints minimum\",\r\n\t\"Timedout Hints occurrences\",\r\n\t\"Concurrent" +
+            " Compaction maximum\",\r\n\t\"Concurrent Compaction minimum\",\r\n\t\"Concurrent Compactio" +
+            "n mean\",\r\n\t\"Concurrent Compaction standard deviation\",\r\n\t\"Concurrent Compaction " +
+            "Total\",\r\n\t\"Concurrent Compaction occurrences\",\r\n\t\"Concurrent MemtableFlush maxim" +
+            "um\",\r\n\t\"Concurrent MemtableFlush minimum\",\r\n\t\"Concurrent MemtableFlush mean\",\r\n\t" +
+            "\"Concurrent MemtableFlush standard deviation\",\r\n\t\"Concurrent MemtableFlush Total" +
+            "\",\r\n\t\"Concurrent MemtableFlush occurrences\",\r\n\t\"Concurrent Compaction/Flush Perf" +
+            "ormance Warnings maximum\",\r\n\t\"Concurrent Compaction/Flush Performance Warnings m" +
+            "inimum\",\r\n\t\"Concurrent Compaction/Flush Performance Warnings mean\",\r\n\t\"Concurren" +
+            "t Compaction/Flush Performance Warnings standard deviation\",\r\n\t\"Concurrent Compa" +
+            "ction/Flush GC maximum\",\r\n\t\"Concurrent Compaction/Flush GC minimum\",\r\n\t\"Concurre" +
+            "nt Compaction/Flush GC mean\",\r\n\t\"Concurrent Compaction/Flush GC standard deviati" +
+            "on\",\r\n\t\"Shard State Change Schema\",\r\n\t\"Shard State Change Dead Node\",\r\n\t\"Node Ma" +
+            "rked Down (Dropped Hints)\",\r\n\t\"Node Not Responding (Timed Out Hints)\"\r\n]}\r\n\r\n}")]
         public string WorkSheetDefaultAttrs {
             get {
                 return ((string)(this["WorkSheetDefaultAttrs"]));

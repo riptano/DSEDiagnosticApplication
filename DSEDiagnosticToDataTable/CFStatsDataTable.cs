@@ -25,9 +25,9 @@ namespace DSEDiagnosticToDataTable
             var dtCFStats = new DataTable(TableNames.CFStats, TableNames.Namespace);
 
             dtCFStats.Columns.Add(ColumnNames.Source, typeof(string)); //A
-            dtCFStats.Columns.Add(ColumnNames.DataCenter, typeof(string)).AllowDBNull = true;
-            dtCFStats.Columns.Add(ColumnNames.NodeIPAddress, typeof(string)).AllowDBNull = true;
-            dtCFStats.Columns.Add(ColumnNames.KeySpace, typeof(string)).AllowDBNull = true;
+            dtCFStats.Columns.Add(ColumnNames.DataCenter, typeof(string));
+            dtCFStats.Columns.Add(ColumnNames.NodeIPAddress, typeof(string));
+            dtCFStats.Columns.Add(ColumnNames.KeySpace, typeof(string));
             dtCFStats.Columns.Add(ColumnNames.Table, typeof(string)).AllowDBNull = true;
             dtCFStats.Columns.Add("Attribute", typeof(string)); //F
             dtCFStats.Columns.Add("Value", typeof(object));
@@ -60,15 +60,10 @@ namespace DSEDiagnosticToDataTable
             {
                 DataRow dataRow = null;
                 int nbrItems = 0;
-                var statCollection = this.Cluster.AggregatedStats
-                                        .Where(i => i.Source == DSEDiagnosticLibrary.SourceTypes.CFStats && i.DataCenter == null)
-                                        .Concat(this.Cluster.DataCenters.SelectMany(d => d.AggregatedStats.Where(i => i.Source == DSEDiagnosticLibrary.SourceTypes.CFStats && i.Node == null)))
-                                        .Concat(this.Cluster.Nodes.SelectMany(d => d.AggregatedStats.Where(i => i.Source == DSEDiagnosticLibrary.SourceTypes.CFStats)))
-                                        .Concat(this.Cluster.Keyspaces.SelectMany(d => d.AggregatedStats.Where(i => i.Source == DSEDiagnosticLibrary.SourceTypes.CFStats && i.Node == null)))
-                                        .Concat(this.Cluster.Keyspaces.SelectMany(k => k.DDLs.SelectMany(d => d.AggregatedStats.Where(i => i.Source == DSEDiagnosticLibrary.SourceTypes.CFStats && i.Node == null))));
+                var statCollection = this.Cluster.Nodes.SelectMany(d => d.AggregatedStats.Where(i => i.Source == DSEDiagnosticLibrary.SourceTypes.CFStats));
                 DSEDiagnosticLibrary.UnitOfMeasure uom = null;
 
-                Logger.Instance.InfoFormat("Loading {0} Column Stats", statCollection.Count());
+                Logger.Instance.InfoFormat("Loading {0} CFStats", statCollection.Count());
 
                 foreach (var stat in statCollection)
                 {
@@ -86,9 +81,9 @@ namespace DSEDiagnosticToDataTable
                         dataRow = this.Table.NewRow();
 
                         dataRow.SetField(ColumnNames.Source, stat.Source.ToString());
-                        dataRow.SetField(ColumnNames.DataCenter, stat.DataCenter?.Name);
-                        dataRow.SetField(ColumnNames.NodeIPAddress, stat.Node?.Id.NodeName());
-                        dataRow.SetField(ColumnNames.KeySpace, stat.Keyspace?.Name);
+                        dataRow.SetField(ColumnNames.DataCenter, stat.DataCenter.Name);
+                        dataRow.SetField(ColumnNames.NodeIPAddress, stat.Node.Id.NodeName());
+                        dataRow.SetField(ColumnNames.KeySpace, stat.Keyspace.Name);
 
                         if (stat.TableViewIndex != null)
                         {

@@ -87,18 +87,15 @@ namespace DSEDiagtnosticToExcel
                                                                 workSheet.Cells[dtKeySpace.Rows.Count + 2, 12].FormulaR1C1 = string.Format("sum(L2:L{0})", dtKeySpace.Rows.Count + 1);
                                                                 workSheet.Cells[dtKeySpace.Rows.Count + 2, 13].FormulaR1C1 = string.Format("sum(M2:M{0})", dtKeySpace.Rows.Count + 1);
                                                                 workSheet.Cells[dtKeySpace.Rows.Count + 2, 14].FormulaR1C1 = string.Format("sum(N2:N{0})", dtKeySpace.Rows.Count + 1);
+                                                                workSheet.Cells[dtKeySpace.Rows.Count + 2, 15].FormulaR1C1 = string.Format("sum(O2:O{0})", dtKeySpace.Rows.Count + 1);
+                                                                workSheet.Cells[dtKeySpace.Rows.Count + 2, 16].FormulaR1C1 = string.Format("sum(P2:P{0})", dtKeySpace.Rows.Count + 1);
+                                                                workSheet.Cells[dtKeySpace.Rows.Count + 2, 17].FormulaR1C1 = string.Format("sum(Q2:Q{0})", dtKeySpace.Rows.Count + 1);
+                                                                workSheet.Cells[dtKeySpace.Rows.Count + 2, 18].FormulaR1C1 = string.Format("sum(R2:R{0})", dtKeySpace.Rows.Count + 1);
+                                                                workSheet.Cells[dtKeySpace.Rows.Count + 2, 19].FormulaR1C1 = string.Format("sum(S2:S{0})", dtKeySpace.Rows.Count + 1);
+                                                                workSheet.Cells[dtKeySpace.Rows.Count + 2, 20].FormulaR1C1 = string.Format("sum(T2:T{0})", dtKeySpace.Rows.Count + 1);
 
-                                                                workSheet.Cells[dtKeySpace.Rows.Count + 2, 5].Style.Border.Top.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thick;
-                                                                workSheet.Cells[dtKeySpace.Rows.Count + 2, 6].Style.Border.Top.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thick;
-                                                                workSheet.Cells[dtKeySpace.Rows.Count + 2, 7].Style.Border.Top.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thick;
-                                                                workSheet.Cells[dtKeySpace.Rows.Count + 2, 8].Style.Border.Top.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thick;
-                                                                workSheet.Cells[dtKeySpace.Rows.Count + 2, 9].Style.Border.Top.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thick;
-                                                                workSheet.Cells[dtKeySpace.Rows.Count + 2, 10].Style.Border.Top.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thick;
-                                                                workSheet.Cells[dtKeySpace.Rows.Count + 2, 11].Style.Border.Top.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thick;
-                                                                workSheet.Cells[dtKeySpace.Rows.Count + 2, 12].Style.Border.Top.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thick;
-                                                                workSheet.Cells[dtKeySpace.Rows.Count + 2, 13].Style.Border.Top.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thick;
-                                                                workSheet.Cells[dtKeySpace.Rows.Count + 2, 14].Style.Border.Top.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thick;
-
+                                                                workSheet.Cells[dtKeySpace.Rows.Count + 2, 5, dtKeySpace.Rows.Count + 2, 20].Style.Border.Top.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thick;
+                                                               
                                                                 workSheet.View.FreezePanes(2, 1);
                                                                 workSheet.Cells["A1:T1"].AutoFilter = true;
                                                                 workSheet.AutoFitColumn(workSheet.Cells["A:T"]);

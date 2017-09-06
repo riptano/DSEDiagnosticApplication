@@ -208,7 +208,8 @@ namespace DSEDiagnosticConsoleApplication
                     new DSEDiagnosticToDataTable.MachineDataTable(cluster, cancellationSource),
                     new DSEDiagnosticToDataTable.NodeDataTable(cluster, cancellationSource),
                     new DSEDiagnosticToDataTable.TokenRangesDataTable(cluster, cancellationSource),
-                    new DSEDiagnosticToDataTable.CFStatsDataTable(cluster, cancellationSource, ParserSettings.IgnoreKeySpaces.ToArray())
+                    new DSEDiagnosticToDataTable.CFStatsDataTable(cluster, cancellationSource, ParserSettings.IgnoreKeySpaces.ToArray()),
+                    new DSEDiagnosticToDataTable.TPStatsDataTable(cluster, cancellationSource)
                 };
 
                 loadDataTables.ForEach(ldtInstance =>

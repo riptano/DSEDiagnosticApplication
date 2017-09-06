@@ -292,19 +292,19 @@
     "ProcessPriorityLevel": 100
   },
   {
-    "Catagory": "CQLFile",
-    "FilePatterns": [ ".\\nodes\\*\\cqlsh\\describe_schema", ".\\nodes\\*\\driver\\schema" ],
-    "FileParsingClass": "DSEDiagnosticFileParser.cql_ddl",
-    "NodeIdPos": -1,
-    "ProcessingTaskOption": "ScanForNode,ParallelProcessing",
-    "ProcessPriorityLevel": 100
-  },
-  {
     "Catagory": "CommandOutputFile",
     "FilePatterns": [ ".\\nodes\\*\\nodetool\\tpstats" ],
     "FileParsingClass": "DSEDiagnosticFileParser.file_nodetool_tpstats",
     "NodeIdPos": -1,
     "ProcessingTaskOption": "ScanForNode,ParallelProcessing,ParallelProcessFiles",
+    "ProcessPriorityLevel": 100
+  },
+  {
+    "Catagory": "CQLFile",
+    "FilePatterns": [ ".\\nodes\\*\\cqlsh\\describe_schema", ".\\nodes\\*\\driver\\schema" ],
+    "FileParsingClass": "DSEDiagnosticFileParser.cql_ddl",
+    "NodeIdPos": -1,
+    "ProcessingTaskOption": "ScanForNode,ParallelProcessing",
     "ProcessPriorityLevel": 100
   },
   {

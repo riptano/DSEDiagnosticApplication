@@ -26,6 +26,6 @@ namespace DSEDiagnosticToDataTable
         public const string Node = "Node";
         public const string TokenRanges = "TokenRanges";
         public const string CFStats = "CFStats";
-        public const string NodeStats = "TPStats";
+        public const string NodeStats = "NodeStats";
     }
 }

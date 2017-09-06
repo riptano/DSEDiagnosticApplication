@@ -157,6 +157,7 @@ namespace DSEDiagnosticFileParser
                             {
                                 for (int nIdx = 0; nIdx < 5; ++nIdx)
                                 {
+                                    //Attribute Key: "Pool Name.MutationStage.Active"
                                     statItem.AssociateItem(propType + '.' + name.Value.Trim() + '.' + poolProperties[nIdx], long.Parse(props.Captures[nIdx].Value.Trim()));
                                 }
                                 continue;
@@ -166,7 +167,8 @@ namespace DSEDiagnosticFileParser
                         {
                             if(droppedPropties)
                             {
-                                statItem.AssociateItem(propType + '.' + name.Value.Trim(), long.Parse(props.Captures[0].Value.Trim()));
+                                //Attribute Key: "READ.Dropped"
+                                statItem.AssociateItem(name.Value.Trim() + '.' + propType, long.Parse(props.Captures[0].Value.Trim()));
                             }
                             else
                             {
