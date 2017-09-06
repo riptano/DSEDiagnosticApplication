@@ -119,7 +119,7 @@ namespace DSEDiagnosticFileParser
                                                 this.Node,
                                                 SourceTypes.TPStats,
                                                 EventTypes.AggregateDataTool,
-                                                EventClasses.PerformanceStats);
+                                                EventClasses.NodeStats);
             this._statsList.Add(statItem);
 
             foreach (var element in fileLines)

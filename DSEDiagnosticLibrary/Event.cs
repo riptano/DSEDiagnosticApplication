@@ -79,10 +79,19 @@ namespace DSEDiagnosticLibrary
         Stats = 0x2000,
         Orphaned = 0x4000,
         HintHandOff = 0x8000,
-        NodeDetection = 0x10000,
-        Config = 0x20000,
+        DataCenter = 0x10000,
+        Node = 0x20000,
+        Keyspace = 0x40000,
+        TableViewIndex = 0x80000,
+        Config = 0x100000,
+        Detection = 0x200000,
         GCStats = GC | Stats,
+        NodeStats = Node | Stats,
+        KeyspaceStats = Keyspace | Stats,
+        TableViewIndexStats = TableViewIndex | Stats,
+        KeyspaceTableViewIndexStats = Keyspace | TableViewIndexStats,
         PerformanceStats = Performance | Stats,
+        NodeDetection = Node | Detection,
         StatusTypes = Information | Warning | Error | Exception | Fatal | Orphaned
     }
 

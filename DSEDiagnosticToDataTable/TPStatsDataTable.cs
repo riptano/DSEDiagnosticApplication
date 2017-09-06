@@ -74,9 +74,10 @@ namespace DSEDiagnosticToDataTable
             {
                 DataRow dataRow = null;
                 int nbrItems = 0;
-                var statCollection = this.Cluster.Nodes.SelectMany(d => d.AggregatedStats.Where(i => i.Source == DSEDiagnosticLibrary.SourceTypes.TPStats));
-                DSEDiagnosticLibrary.UnitOfMeasure uom = null;
-                
+                var statCollection = this.Cluster.Nodes.SelectMany(d => d.AggregatedStats.Where(i => (i.Class & DSEDiagnosticLibrary.EventClasses.NodeStats) != 0
+                                                                                                      && (i.Class & DSEDiagnosticLibrary.EventClasses.Keyspace) == 0
+                                                                                                      && (i.Class & DSEDiagnosticLibrary.EventClasses.TableViewIndex) == 0));
+
                 Logger.Instance.InfoFormat("Loading {0} NodeStats", statCollection.Count());
 
                 foreach (var stat in statCollection)

@@ -60,7 +60,7 @@ namespace DSEDiagnosticToDataTable
             {
                 DataRow dataRow = null;
                 int nbrItems = 0;
-                var statCollection = this.Cluster.Nodes.SelectMany(d => d.AggregatedStats.Where(i => i.Source == DSEDiagnosticLibrary.SourceTypes.CFStats));
+                var statCollection = this.Cluster.Nodes.SelectMany(d => d.AggregatedStats.Where(i => i.Class.HasFlag(DSEDiagnosticLibrary.EventClasses.KeyspaceTableViewIndexStats | DSEDiagnosticLibrary.EventClasses.Node)));
                 DSEDiagnosticLibrary.UnitOfMeasure uom = null;
 
                 Logger.Instance.InfoFormat("Loading {0} CFStats", statCollection.Count());

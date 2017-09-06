@@ -205,7 +205,7 @@ namespace DSEDiagnosticFileParser
                                                         this.Node,
                                                         SourceTypes.CFStats,
                                                         EventTypes.AggregateDataTool,
-                                                        EventClasses.PerformanceStats,
+                                                        EventClasses.PerformanceStats | EventClasses.Node | EventClasses.KeyspaceTableViewIndexStats,
                                                         currentKeyspace);
                         this._statsList.Add(statItem);
                     }
@@ -238,7 +238,7 @@ namespace DSEDiagnosticFileParser
                                                         this.Node,
                                                         SourceTypes.CFStats,
                                                         EventTypes.AggregateDataTool,
-                                                        EventClasses.PerformanceStats,
+                                                        EventClasses.PerformanceStats | EventClasses.Node | EventClasses.KeyspaceTableViewIndexStats,
                                                         currentDDL);
                         this._statsList.Add(statItem);
                     }
