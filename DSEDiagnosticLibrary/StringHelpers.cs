@@ -115,8 +115,12 @@ namespace DSEDiagnosticLibrary
         //scores-name-1
         // null, null, null, scores-name-1
         readonly static Regex SSTableCQLTableNameRegEx = new Regex(Properties.Settings.Default.SSTableColumnFamilyRegEx, RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        readonly static string[] DateTimeFormats = new string[] { "yyyy-MM-dd HH:mm:ss,fff",
-                                                                   "yyyy-MM-dd HH:mm:ss.fff"};
+        readonly static string[] DateTimeFormats = new string[] {  "yyyy-MM-dd HH:mm:ss,fff",
+                                                                    "yyyy-MM-dd HH:mm:ss.fff",
+                                                                    "yyyy-MM-dd HH:mm:ss,ff",
+                                                                    "yyyy-MM-dd HH:mm:ss.ff",
+                                                                    "yyyy-MM-dd HH:mm:ss,f",
+                                                                    "yyyy-MM-dd HH:mm:ss.f",};
 
         static public object DetermineProperObjectFormat(string strValue,
                                                             bool ignoreBraces = false,

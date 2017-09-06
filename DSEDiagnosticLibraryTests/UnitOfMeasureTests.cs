@@ -117,13 +117,13 @@ namespace DSEDiagnosticLibrary.Tests
 
             result = new UnitOfMeasure("nan", UnitOfMeasure.Types.Percent | UnitOfMeasure.Types.Utilization);
 
-            Assert.AreEqual(0m, result.Value);
+            Assert.AreEqual(decimal.MinValue, result.Value);
             Assert.AreEqual(UnitOfMeasure.Types.Percent | UnitOfMeasure.Types.Utilization | UnitOfMeasure.Types.NaN, result.UnitType);
             Assert.IsTrue(result.NaN);
 
             result = new UnitOfMeasure(string.Empty, UnitOfMeasure.Types.Percent | UnitOfMeasure.Types.Utilization);
 
-            Assert.AreEqual(0m, result.Value);
+            Assert.AreEqual(decimal.MinValue, result.Value);
             Assert.AreEqual(UnitOfMeasure.Types.Percent | UnitOfMeasure.Types.Utilization | UnitOfMeasure.Types.NaN, result.UnitType);
             Assert.IsTrue(result.NaN);           
         }

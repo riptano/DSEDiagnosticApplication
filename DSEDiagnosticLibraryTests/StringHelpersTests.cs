@@ -33,18 +33,28 @@ namespace DSEDiagnosticLibrary.Tests
 
             Assert.AreEqual(expected, actual);
 
-            expected = System.DateTime.Parse(@"2017-02-11 00:00:30,042");
+            expected = System.DateTime.Parse(@"2017-02-11 00:00:30.042");
             actual = StringHelpers.DetermineProperObjectFormat(@"2017-02-11 00:00:30,042", false, true, true, null, true);
 
             Assert.AreEqual(expected, actual);
 
-            expected = 123.45;
+            expected = 123.45m;
             actual = StringHelpers.DetermineProperObjectFormat(@"123.45", false, true, true, null, true);
 
             Assert.AreEqual(expected, actual);
 
-            expected = -123.45;
+            expected = -123.45m;
             actual = StringHelpers.DetermineProperObjectFormat(@"-123.45", false, true, true, null, true);
+
+            Assert.AreEqual(expected, actual);
+
+            expected = new DSEDiagnosticLibrary.UnitOfMeasure("23 ms");
+            actual = StringHelpers.DetermineProperObjectFormat(@"23 ms", false, true, true, null, true);
+
+            Assert.AreEqual(expected, actual);
+
+            expected = new DSEDiagnosticLibrary.UnitOfMeasure(23, UnitOfMeasure.Types.MS | UnitOfMeasure.Types.Time);
+            actual = StringHelpers.DetermineProperObjectFormat(@"23 ms", false, true, true, null, true);
 
             Assert.AreEqual(expected, actual);
 

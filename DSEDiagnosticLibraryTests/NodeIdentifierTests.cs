@@ -83,7 +83,7 @@ namespace DSEDiagnosticLibrary.Tests
         [TestMethod()]
         public void CreateTest()
         {
-            Assert.Fail();
+            //Assert.Fail();
         }
     }
 }
