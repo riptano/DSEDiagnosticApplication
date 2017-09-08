@@ -14,7 +14,7 @@ namespace DSEDiagnosticToDataTable
         public MachineDataTable(DSEDiagnosticLibrary.Cluster cluster, CancellationTokenSource cancellationSource = null)
             : base(cluster, cancellationSource)
         {}
-       
+
         public override DataTable CreateInitializationTable()
         {
             var dtOSMachineInfo = new DataTable(TableNames.Machine, TableNames.Namespace);
@@ -53,7 +53,7 @@ namespace DSEDiagnosticToDataTable
             dtOSMachineInfo.Columns.Add("Non-Heap Init", typeof(decimal));
             dtOSMachineInfo.Columns.Add("Non-Heap Max", typeof(decimal));//aa
             dtOSMachineInfo.Columns.Add("Non-Heap Used", typeof(decimal));//ab
-                                                                          //Javaa HeapMemoryUsage
+            //Javaa HeapMemoryUsage
             dtOSMachineInfo.Columns.Add("Heap Committed", typeof(decimal)); //ac
             dtOSMachineInfo.Columns.Add("Heap Init", typeof(decimal)); //ad
             dtOSMachineInfo.Columns.Add("Heap Max", typeof(decimal)); //ae
@@ -168,7 +168,7 @@ namespace DSEDiagnosticToDataTable
                                 .SetFieldToDecimal("Frequency (ppm)", node.Machine.NTP.Frequency)
                                 .SetFieldToDecimal("Tolerance (ppm)", node.Machine.NTP.Tolerance);
                         if (node.Machine.NTP.TimeConstant.HasValue) dataRow.SetField("Time Constant", node.Machine.NTP.TimeConstant.Value);
-                        
+
                         this.Table.Rows.Add(dataRow);
                         ++nbrItems;
                     }
@@ -187,6 +187,6 @@ namespace DSEDiagnosticToDataTable
             }
 
             return this.Table;
-        }       
+        }
     }
 }

@@ -50,6 +50,18 @@ namespace DSEDiagnosticLog4NetParser
             }
         }
 
+        public LogMessages(LogMessages logMessages)
+        {
+            this.LogFile = logMessages.LogFile;
+            this.Log4NetConversionPattern = logMessages.Log4NetConversionPattern;
+            this.Log4NetConversionPatternRegExLine = logMessages.Log4NetConversionPatternRegExLine;
+            this._logTimestampValue = logMessages._logTimestampValue;
+            this._datetimeFormat = logMessages._datetimeFormat;
+            this.Node = logMessages.Node;
+            this._timeZoneInstance = logMessages._timeZoneInstance;
+            this.IANATimeZoneName = logMessages.IANATimeZoneName;
+        }
+
         public INode Node { get; private set; }
         public string IANATimeZoneName { get; private set; }
         public string Log4NetConversionPattern { get; private set; }
@@ -70,11 +82,12 @@ namespace DSEDiagnosticLog4NetParser
                             : new DateTimeRange(this._startingLogDateTime, this._endingLogDateTime);
             }
         }
+        public LogCompletionStatus CompletionStatus { get; internal set; }
 
         private List<string> _errors = new List<string>();
         public IEnumerable<string> Errors { get { return this._errors; } }
 
-        public LogMessage AddMessage(string logLine, uint logLinePos)
+        public LogMessage AddMessage(string logLine, uint logLinePos, bool ignoreErros = false)
         {
             logLine = logLine?.Trim();
 
@@ -94,13 +107,16 @@ namespace DSEDiagnosticLog4NetParser
             {
                 if (LogLevels.Any(l => logLine.StartsWith(l, StringComparison.InvariantCultureIgnoreCase)))
                 {
-                    var error = string.Format("{0}\t{1}\tInvalid line detected ({2}) in Log4Net Log file at line number {3}. Line ignored.",
+                    if (ignoreErros)
+                    {
+                        var error = string.Format("{0}\t{1}\tInvalid line detected ({2}) in Log4Net Log file at line number {3}. Line ignored.",
                                                 this.Node,
                                                 this.LogFile.PathResolved,
                                                 logLine,
                                                 logLinePos);
-                    Logger.Instance.Warn(error);
-                    this._errors.Add(error);
+                        Logger.Instance.Warn(error);
+                        this._errors.Add(error);
+                    }
                     return null;
                 }
 
@@ -241,6 +257,43 @@ namespace DSEDiagnosticLog4NetParser
 
             this._logMessages.Add(logMessage);
             return logMessage;
+        }
+        
+        internal void SetEndingTimeRange(DateTime possibleEndDateTime)
+        {
+            if (this._endingLogDateTime < possibleEndDateTime)
+            {
+                this._endingLogDateTime = possibleEndDateTime;
+            }
+        }
+
+        internal void SetStartingTimeRange(DateTime possibleStartDateTime)
+        {
+            if (this._startingLogDateTime == DateTime.MinValue)
+            {
+                this._startingLogDateTime = possibleStartDateTime;
+            }
+        }
+
+        internal bool RemoveMessage(LogMessage removeMsg = null)
+        {
+            bool bResult = false;
+
+            if(this._logMessages.Count > 0)
+            {
+                if(removeMsg == null)
+                {
+                    this._logMessages.RemoveAt(this._logMessages.Count - 1);
+                    bResult = true;
+                }
+                else
+                {
+                    this._logMessages.Remove(removeMsg);
+                    bResult = true;
+                }
+            }
+
+            return bResult;
         }
 
         #region Dispose Methods

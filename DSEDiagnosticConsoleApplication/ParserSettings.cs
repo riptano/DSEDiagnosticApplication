@@ -69,8 +69,106 @@ namespace DSEDiagnosticConsoleApplication
             return ParserSettings.ParseEnumString<T>(enumString);
         }
 
-        public static IDirectoryPath MakeDirectoryPath(string dirPath) { return PathUtils.BuildDirectoryPath(dirPath); }
+        public static List<string> CreateMergeList(string strList, IEnumerable<string> defaultCollection = null)
+        {
+            var splitItems = Common.StringFunctions.Split(strList, ',');
+            var merge = splitItems.Any(i => !string.IsNullOrEmpty(i) && (i[0] == '+' || i[0] == '-'));
 
+            if(merge)
+            {
+                bool defaultActionAdd = splitItems[0][0] != '-';
+
+                if(defaultCollection == null)
+                {
+                    return splitItems.Where(i => !string.IsNullOrEmpty(i) && (i[0] == '+' || defaultActionAdd)).Select(i => i[0] != '+' ? i : i.Substring(1)).ToList();
+                }
+
+                var mergeList = defaultCollection.ToList();
+
+                foreach(var item in splitItems)
+                {
+                    if(!string.IsNullOrEmpty(item))
+                    {
+                        if(item[0] == '+')
+                        {
+                            mergeList.Add(item.Substring(1));
+                        }
+                        else if (item[0] == '-')
+                        {
+                            mergeList.Remove(item.Substring(1));
+                        }
+                        else if(defaultActionAdd)
+                        {
+                            mergeList.Add(item);
+                        }
+                        else
+                        {
+                            mergeList.Remove(item);
+                        }
+                    }
+                }
+
+                return mergeList;
+            }
+
+            return splitItems.ToList();
+        }
+
+        public static IDirectoryPath MakeDirectoryPath(string dirPath, IDirectoryPath defaultPath = null)
+        {
+            var newPath = PathUtils.BuildDirectoryPath(dirPath);
+
+            if(defaultPath != null && newPath.IsRelativePath && defaultPath.IsAbsolutePath)
+            {
+                IAbsolutePath absPath;
+
+                if(newPath.MakePathFrom((IAbsolutePath) defaultPath, out absPath))
+                {
+                    newPath = (IDirectoryPath) absPath;
+                }
+            }
+
+            return newPath;
+        }
+        public static IFilePath MakeFilePath(string filePath, IDirectoryPath defaultDirPath = null, IFilePath defaultFile = null)
+        {
+            var newFile = PathUtils.BuildPath(filePath,
+                                                defaultDirPath?.Path,
+                                                defaultFile?.FileExtension,
+                                                true,
+                                                true,
+                                                true,
+                                                false) as IFilePath;
+
+            if(newFile == null)
+            {
+                newFile = PathUtils.BuildFilePath(filePath);
+            }
+
+            return newFile;
+        }
+
+        public static string SettingValues()
+        {
+            StringBuilder settingsValues = new StringBuilder();
+            var fields = typeof(ParserSettings).GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
+
+            foreach (var fld in fields)
+            {
+                var value = fld.GetValue(null);
+                var item = fld.GetValue(null);
+                var strItem = item is Enum ? item.ToString() : Common.JSONExtensions.ToJSON(item, true);
+                var strType = fld.FieldType.IsGenericType
+                                    ? string.Format("{0}<{1}>",
+                                                        fld.FieldType.Name,
+                                                        string.Join(", ", fld.FieldType.GenericTypeArguments.Select(t => t.Name)))
+                                    : fld.FieldType.Name;
+
+                settingsValues.AppendLine(string.Format("\t{0} ({1}): {2}", fld.Name, strType, strItem));
+            }
+
+            return settingsValues.ToString();
+        }
         #endregion
 
         #region Enums
@@ -99,12 +197,10 @@ namespace DSEDiagnosticConsoleApplication
         #region Settings
 
         public static IDirectoryPath DiagnosticPath = MakeDirectoryPath(Properties.Settings.Default.DiagnosticPath);
+        public static IFilePath ExcelFilePath = MakeFilePath(Properties.Settings.Default.ExcelFilePath, DiagnosticPath);
         public static DiagFolderStructOptions DiagFolderStruct = (DiagFolderStructOptions)Enum.Parse(typeof(DiagFolderStructOptions), Properties.Settings.Default.DiagFolderStruct);
-
         public static List<string> IgnoreKeySpaces = Properties.Settings.Default.IgnoreKeySpaces.ToList(false);
 
-        public static string ExcelWorkBookFileExtension = null;
-        public static bool DivideWorksheetIfExceedMaxRows = true;
         #endregion
     }
 }

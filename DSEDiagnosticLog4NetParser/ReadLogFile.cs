@@ -13,29 +13,81 @@ namespace DSEDiagnosticLog4NetParser
     public sealed class ReadLogFile : IReadLogFile
     {
         public ReadLogFile() { }
-        public ReadLogFile(IFilePath logFilePath, string log4netConversionPattern, INode node = null)
+        public ReadLogFile(IFilePath logFilePath, string log4netConversionPattern, INode node = null, DateTimeRange logTimeFrameUTC = null)
         {
             this.LogFile = logFilePath;
             this.Log4NetConversionPattern = log4netConversionPattern;
             this.Node = node;
+
+            if (logTimeFrameUTC != null)
+            {
+                if (this.Node == null || this.Node.Machine.TimeZone == null)
+                {
+                    DSEDiagnosticLogger.Logger.Instance.WarnFormat("Using UTC Log Time Range of {0} for Node {1} with File \"{2}\" because Node's TimeZone information is missing!", logTimeFrameUTC, this.Node, logFilePath);
+                    this.LogTimeFrame = logTimeFrameUTC;
+                }
+                else
+                {
+                    this.LogTimeFrame = new DateTimeRange(logTimeFrameUTC.Min == DateTime.MinValue
+                                                            ? DateTime.MinValue
+                                                            : Common.TimeZones.ConvertFromUTC(logTimeFrameUTC.Min, this.Node.Machine.TimeZone).DateTime,
+                                                          logTimeFrameUTC.Max == DateTime.MaxValue
+                                                            ? DateTime.MaxValue
+                                                            : Common.TimeZones.ConvertFromUTC(logTimeFrameUTC.Max, this.Node.Machine.TimeZone).DateTime);
+                }
+            }
         }
 
-        public ReadLogFile(IFilePath logFilePath, string log4netConversionPattern, CancellationToken cancellationToken, INode node = null)
-            : this(logFilePath, log4netConversionPattern, node)
+        public ReadLogFile(IFilePath logFilePath, string log4netConversionPattern, CancellationToken cancellationToken, INode node = null, DateTimeRange logTimeFrameUTC = null)
+            : this(logFilePath, log4netConversionPattern, node, logTimeFrameUTC)
         {
             this.CancellationToken = cancellationToken;
         }
 
-        public ReadLogFile(IFilePath logFilePath, string log4netConversionPattern, string ianaTimezone)
+        public ReadLogFile(IFilePath logFilePath, string log4netConversionPattern, string ianaTimezone, DateTimeRange logTimeFrameUTC = null)
             : this(logFilePath, log4netConversionPattern)
         {
             this._ianaTimeZone = ianaTimezone;
+
+            if (logTimeFrameUTC != null)
+            {
+                if (string.IsNullOrEmpty(this._ianaTimeZone))
+                {
+                    DSEDiagnosticLogger.Logger.Instance.WarnFormat("Disabled Log Time Range of {0} with File \"{1}\" because TimeZone information is missing", logTimeFrameUTC, logFilePath);
+                }
+                else
+                {
+                    this.LogTimeFrame = new DateTimeRange(logTimeFrameUTC.Min == DateTime.MinValue
+                                                            ? DateTime.MinValue
+                                                            : Common.TimeZones.ConvertFromUTC(logTimeFrameUTC.Min, this._ianaTimeZone, Common.Patterns.TimeZoneInfo.ZoneNameTypes.IANATZName).DateTime,
+                                                          logTimeFrameUTC.Max == DateTime.MaxValue
+                                                            ? DateTime.MaxValue
+                                                            : Common.TimeZones.ConvertFromUTC(logTimeFrameUTC.Max, this._ianaTimeZone, Common.Patterns.TimeZoneInfo.ZoneNameTypes.IANATZName).DateTime);
+                }
+            }
         }
 
-        public ReadLogFile(IFilePath logFilePath, string log4netConversionPattern, CancellationToken cancellationToken, string ianaTimezone)
+        public ReadLogFile(IFilePath logFilePath, string log4netConversionPattern, CancellationToken cancellationToken, string ianaTimezone, DateTimeRange logTimeFrameUTC = null)
             : this(logFilePath, log4netConversionPattern, cancellationToken)
         {
             this._ianaTimeZone = ianaTimezone;
+
+            if (logTimeFrameUTC != null)
+            {
+                if (string.IsNullOrEmpty(this._ianaTimeZone))
+                {
+                    DSEDiagnosticLogger.Logger.Instance.WarnFormat("Disabled Log Time Range of {0} with File \"{1}\" because TimeZone information is missing", logTimeFrameUTC, logFilePath);
+                }
+                else
+                {
+                    this.LogTimeFrame = new DateTimeRange(logTimeFrameUTC.Min == DateTime.MinValue
+                                                            ? DateTime.MinValue
+                                                            : Common.TimeZones.ConvertFromUTC(logTimeFrameUTC.Min, this._ianaTimeZone, Common.Patterns.TimeZoneInfo.ZoneNameTypes.IANATZName).DateTime,
+                                                          logTimeFrameUTC.Max == DateTime.MaxValue
+                                                            ? DateTime.MaxValue
+                                                            : Common.TimeZones.ConvertFromUTC(logTimeFrameUTC.Max, this._ianaTimeZone, Common.Patterns.TimeZoneInfo.ZoneNameTypes.IANATZName).DateTime);
+                }
+            }
         }
 
         public string Log4NetConversionPattern { get; set; }
@@ -49,6 +101,12 @@ namespace DSEDiagnosticLog4NetParser
         public CancellationToken CancellationToken { get; set; }
 
         public bool Completed { get; private set; }
+
+        /// <summary>
+        /// If defined the time frame log entries will be parsed. The Time Frame will be in the Node&apos;s timezone.
+        /// </summary>
+        public DateTimeRange LogTimeFrame { get; }
+
         public event Action<IReadLogFile, ILogMessages, ILogMessage> ProcessedLogLineAction;
 
         public async Task<ILogMessages> BeginProcessLogFile(IFilePath logFile)
@@ -60,26 +118,13 @@ namespace DSEDiagnosticLog4NetParser
         public ILogMessages ProcessLogFile(IFilePath logFile)
         {
             this.LogFile = logFile;
-            var logMsgsTask = this.BeginProcessLogFile();
-
-            logMsgsTask.Wait();
-
-            if(logMsgsTask.IsCanceled)
-            {
-                this.CancellationToken.ThrowIfCancellationRequested();
-
-                throw new OperationCanceledException("Log4Parser Canceled", this.CancellationToken);
-            }
-            else if(logMsgsTask.IsFaulted)
-            {
-                throw logMsgsTask.Exception;
-            }
-
-            return logMsgsTask.Result;
+            return this.BeginProcessLogFile().Result;
         }
 
         public async Task<ILogMessages> BeginProcessLogFile()
         {
+            bool skippedLines = false;
+
             if (this.LogFile == null) throw new ArgumentNullException("LogFile");
 
             var logMessages = string.IsNullOrEmpty(this._ianaTimeZone) || this.Node != null
@@ -95,6 +140,9 @@ namespace DSEDiagnosticLog4NetParser
                 string logLine;
                 Task<string> nextLogLine = readStream.ReadLineAsync();
                 var eventAction = this.ProcessedLogLineAction;
+                short logRangeCheck;
+
+                logMessages.CompletionStatus = LogCompletionStatus.InProcess;
 
                 for (;;)
                 {
@@ -110,9 +158,44 @@ namespace DSEDiagnosticLog4NetParser
 
                     if (logMessage != null)
                     {
-                        eventAction?.Invoke(this, logMessages, logMessage);
+                        logRangeCheck = this.LogFileWithinTimeRange(logMessage, logMessages, readStream, nextLogLine);
+
+                        if(logRangeCheck > 0)
+                        {
+                            eventAction?.Invoke(this, logMessages, logMessage);
+                        }
+                        else if (logRangeCheck == 0)
+                        {
+                            logMessages.RemoveMessage();
+                            skippedLines = true;
+                        }
+                        else if (logRangeCheck == -1)
+                        {
+                            if(this.LinesRead > 1)
+                            {
+                                logMessages.CompletionStatus = LogCompletionStatus.PartiallyCompleted;
+                            }
+                            else
+                            {
+                                logMessages.CompletionStatus = LogCompletionStatus.Skipped;
+                            }
+
+                            logMessages.RemoveMessage();
+                            break;
+                        }
+                        else if (logRangeCheck == -2)
+                        {
+                            logMessages.CompletionStatus = LogCompletionStatus.Skipped;
+                            logMessages.RemoveMessage();
+                            break;
+                        }
                     }
                 }
+            }
+
+            if (logMessages.CompletionStatus == LogCompletionStatus.InProcess)
+            {
+                logMessages.CompletionStatus = skippedLines ? LogCompletionStatus.PartiallyCompleted : LogCompletionStatus.Completed;
             }
 
             this.Completed = true;
@@ -121,28 +204,128 @@ namespace DSEDiagnosticLog4NetParser
 
         public ILogMessages ProcessLogFile()
         {
-            var logMsgsTask = this.BeginProcessLogFile();
-
-            logMsgsTask.Wait();
-
-            if (logMsgsTask.IsCanceled)
-            {
-                this.CancellationToken.ThrowIfCancellationRequested();
-
-                throw new OperationCanceledException("Log4Parser Canceled", this.CancellationToken);
-            }
-            else if (logMsgsTask.IsFaulted)
-            {
-                throw logMsgsTask.Exception;
-            }
-
-            return logMsgsTask.Result;
+            return this.BeginProcessLogFile().Result;
         }
 
         #endregion
 
         #region private members
         string _ianaTimeZone = null;
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="logMessage"></param>
+        /// <returns>
+        /// 1 -- Process Msg
+        /// 0 -- Don't Process Msg
+        /// -1 -- Don't process remaining file
+        /// -2 -- Skip File
+        /// </returns>
+        private short LogFileWithinTimeRange(LogMessage logMessage, LogMessages logMessages, StreamReader streamReader, Task<string> nextLineTask)
+        {
+            if (this.LogTimeFrame == null || this.LogTimeFrame.IsBetween(logMessage.LogDateTime))
+            {
+                return 1;
+            }
+
+            if (logMessage.LogDateTime > this.LogTimeFrame.Max)
+            {
+                DSEDiagnosticLogger.Logger.Instance.DebugFormat("Reminding Log File skipped because Log Entries ({0}) exceed Log Time Range of {1} for File \"{2}\"",
+                                                                    logMessage.LogDateTime,
+                                                                    this.LogTimeFrame,
+                                                                    this.LogFile);
+
+                this.LastLogLineWithinTimeRange(logMessage, logMessages, streamReader, nextLineTask, true);
+                return -1;
+            }
+
+            if (logMessage.LogLinePosition > 1)
+            {
+                return 0;
+            }
+
+            return LastLogLineWithinTimeRange(logMessage, logMessages, streamReader, nextLineTask);
+        }
+
+        private short LastLogLineWithinTimeRange(LogMessage logMessage, LogMessages logMessages, StreamReader streamReader, Task<string> nextLineTask, bool justReadLastEntries = false, long readBackLength = 1024)
+        {
+            bool wentBackward = false;
+            DateTime lastDateTime = DateTime.MaxValue;
+            string nextLine = null;
+            LogMessage testLogMsg = null;
+            string readLine;
+
+            this.CancellationToken.ThrowIfCancellationRequested();
+
+            if (streamReader.BaseStream.Length > readBackLength)
+            {
+                if (nextLineTask != null) nextLine = nextLineTask.Result;
+
+                streamReader.DiscardBufferedData();
+                streamReader.BaseStream.Seek(readBackLength * -1, System.IO.SeekOrigin.End);
+                wentBackward = true;
+            }
+
+            using (var tmpLogMsgs = new LogMessages(logMessages))
+            {
+                while ((readLine = streamReader.ReadLine()) != null)
+                {
+                    this.CancellationToken.ThrowIfCancellationRequested();
+
+                    testLogMsg = tmpLogMsgs.AddMessage(readLine, 0, true);
+                    if (testLogMsg != null)
+                    {
+                        lastDateTime = testLogMsg.LogDateTime;
+                    }
+                }
+            }
+
+            //Need to go further back...
+            if(lastDateTime == DateTime.MaxValue && wentBackward)
+            {
+                return this.LastLogLineWithinTimeRange(logMessage, logMessages, streamReader, nextLineTask, justReadLastEntries, readBackLength * 2);
+            }
+
+            //Some Log entry within the file is within time frame (current log entry is not)
+            if (!justReadLastEntries && lastDateTime >= this.LogTimeFrame.Min)
+            {
+                streamReader.DiscardBufferedData();
+                streamReader.BaseStream.Seek(0, System.IO.SeekOrigin.Begin);
+
+                while ((readLine = streamReader.ReadLine()) != null)
+                {
+                    this.CancellationToken.ThrowIfCancellationRequested();
+
+                    if (nextLine == null || nextLine == readLine)
+                    {
+                        break;
+                    }
+                }
+
+                DSEDiagnosticLogger.Logger.Instance.DebugFormat("Forwarding Log File where first Log Entries ({0}) is before log Time Range of {1} but last entry ({3}) is within range for File \"{2}\"",
+                                                                logMessage.LogDateTime,
+                                                                this.LogTimeFrame,
+                                                                this.LogFile,
+                                                                lastDateTime);
+                return 0;
+            }
+
+            logMessages.SetEndingTimeRange(lastDateTime);
+
+            if (!justReadLastEntries)
+            {
+                DSEDiagnosticLogger.Logger.Instance.DebugFormat("Log File \"{0}\" will be skipped since it does not meet log range of {1}. Log Entries Range is from {2} to {3}",
+                                                                   this.LogFile,
+                                                                   this.LogTimeFrame,
+                                                                   logMessage.LogDateTime,
+                                                                   lastDateTime);
+            }
+
+            return -2;
+        }
+
+
         #endregion
 
         #region Dispose Methods

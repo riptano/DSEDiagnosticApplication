@@ -444,7 +444,7 @@ namespace DSEDiagnosticLibrary
                 }
                 else
                 {
-                    nodeAddress = string.Join(",", this._addresses);
+                    nodeAddress = string.Join(", ", this._addresses);
                 }
 			}
 
@@ -459,7 +459,7 @@ namespace DSEDiagnosticLibrary
             {
                 return string.IsNullOrEmpty(nodeAddress)
                         ? string.Format("{0}{{{1}}}", className, this.HostName)
-                        : string.Format("{0}{{{1}:{2}}}", className, this.HostName, nodeAddress);
+                        : string.Format("{0}{{{1}, {2}}}", className, this.HostName, nodeAddress);
             }
 
             return base.ToString();
@@ -580,7 +580,9 @@ namespace DSEDiagnosticLibrary
     [JsonObject(MemberSerialization.OptOut)]
     public sealed class DSEInfo
 	{
-		[Flags]
+        public static DateTime? NodeToolCaptureUTCTimestamp = null;
+
+        [Flags]
 		public enum InstanceTypes
 		{
 
@@ -791,6 +793,7 @@ namespace DSEDiagnosticLibrary
         public UnitOfMeasure StorageUsed;
         public UnitOfMeasure StorageUtilization;
         public string HealthRating;
+        public DateTimeRange NodeToolDateRange;
         public UnitOfMeasure Uptime;
         public UnitOfMeasure Heap;
         public UnitOfMeasure HeapUsed;
@@ -852,7 +855,13 @@ namespace DSEDiagnosticLibrary
         }
 
         public IFilePath LogFile { get; }
+        /// <summary>
+        /// The date range of the actual file
+        /// </summary>
         public DateTimeRange LogFileDateRange { get; }
+        /// <summary>
+        /// The date range of the log entries
+        /// </summary>
         public DateTimeRange LogDateRange { get; }
         public int LogItems { get; }
 
@@ -877,7 +886,6 @@ namespace DSEDiagnosticLibrary
                                     this.OrphanedEvents.Count);
         }
     }
-
 	public interface INode : IEquatable<INode>, IEquatable<NodeIdentifier>, IEquatable<IPAddress>, IEquatable<string>
 	{
 		Cluster Cluster { get; }
@@ -897,6 +905,8 @@ namespace DSEDiagnosticLibrary
         IEnumerable<IConfigurationLine> Configurations { get; }
 
         object ToDump();
+
+        bool UpdateDSENodeToolDateRange();
 	}
 
     [JsonObject(MemberSerialization.OptOut)]
@@ -1103,6 +1113,24 @@ namespace DSEDiagnosticLibrary
             {
                 return this.DataCenter.GetConfigurations(this);
             }
+        }
+
+        public bool UpdateDSENodeToolDateRange()
+        {
+            bool bResult = false;
+
+            if(this.DSE.Uptime != null
+                && this.DSE.NodeToolDateRange == null
+                && this.Machine.TimeZone != null
+                && DSEInfo.NodeToolCaptureUTCTimestamp.HasValue)
+            {
+                var refDTO = Common.TimeZones.ConvertFromUTC(DSEInfo.NodeToolCaptureUTCTimestamp.Value, this.Machine.TimeZone);
+
+                this.DSE.NodeToolDateRange = new DateTimeRange(refDTO.DateTime - (TimeSpan)this.DSE.Uptime, refDTO.DateTime);
+                bResult = true;
+            }
+
+            return bResult;
         }
 
         public object ToDump()

@@ -103,7 +103,7 @@ namespace DSEDiagnosticConsoleApplication
 
             CommandLineArgsString = string.Join(" ", args);
 
-            Logger.Instance.Info("DSEDiagnosticConsoleApplication Main Start");
+            Logger.Instance.InfoFormat("DSEDiagnosticConsoleApplication Main Start with Args: {0}", CommandLineArgsString);
             DSEDiagnosticFileParser.DiagnosticFile.OnException += DiagnosticFile_OnException;
             DSEDiagnosticFileParser.DiagnosticFile.OnProgression += DiagnosticFile_OnProgression;
 
@@ -140,6 +140,21 @@ namespace DSEDiagnosticConsoleApplication
                     Common.ConsoleHelper.Prompt("Press Return to Exit", ConsoleColor.Gray, ConsoleColor.DarkRed);
                     return 1;
                 }
+
+                if(ParserSettings.ExcelFilePath != null
+                    && ParserSettings.ExcelFilePath.IsRelativePath
+                    && ParserSettings.DiagnosticPath != null
+                    && ParserSettings.DiagnosticPath.IsAbsolutePath)
+                {
+                    IAbsolutePath absPath;
+
+                    if(ParserSettings.ExcelFilePath.MakePathFrom((Common.IAbsolutePath) ParserSettings.DiagnosticPath, out absPath))
+                    {
+                        ParserSettings.ExcelFilePath = (Common.IFilePath)absPath;
+                    }
+                }
+
+                Logger.Instance.InfoFormat("Settings:\r\n\t{0}", ParserSettings.SettingValues());
             }
             #endregion
 
@@ -151,7 +166,7 @@ namespace DSEDiagnosticConsoleApplication
             ConsoleDisplay.Console.WriteLine(" ");
             ConsoleDisplay.Console.WriteLine("Diagnostic Folder Structure: \"{0}\"", ParserSettings.DiagFolderStruct);
             ConsoleDisplay.Console.WriteLine("Diagnostic Source Folder: \"{0}\"", ParserSettings.DiagnosticPath);
-            //ConsoleDisplay.Console.WriteLine("Excel Target File: \"{0}\"", Common.Path.PathUtils.BuildDirectoryPath(argResult.Value.ExcelFilePath)?.PathResolved);
+            ConsoleDisplay.Console.WriteLine("Excel Target File: \"{0}\"", ParserSettings.ExcelFilePath);
 
             ConsoleDisplay.Console.WriteLine(" ");
 
@@ -180,10 +195,47 @@ namespace DSEDiagnosticConsoleApplication
             #endregion
 
             #region DSEDiagnosticFileParser
+            string defaultCluster = null;
+
+            if(ParserSettings.DiagFolderStruct == ParserSettings.DiagFolderStructOptions.OpsCtrDiagStruct
+                    && !DSEDiagnosticLibrary.DSEInfo.NodeToolCaptureUTCTimestamp.HasValue)
+            {
+                var regEx = new System.Text.RegularExpressions.Regex(Properties.Settings.Default.OpsCenterDiagFolderRegEx,
+                                                                        System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                var regexMatch = regEx.Match(ParserSettings.DiagnosticPath.Name);
+
+                if(regexMatch.Success)
+                {
+                    var clusterName = regexMatch.Groups["CLUSTERNAME"].Value;
+                    var diagTS = regexMatch.Groups["TS"].Value;
+                    var diagTZ = regexMatch.Groups["TZ"].Value;
+                    DateTime diagDateTime;
+
+                    defaultCluster = clusterName.Trim();
+                    if(DateTime.TryParseExact(diagTS,
+                                                Properties.Settings.Default.OpsCenterDiagFolderDateTimeFmt,
+                                                System.Globalization.CultureInfo.InvariantCulture,
+                                                System.Globalization.DateTimeStyles.None,
+                                                out diagDateTime))
+                    {
+                        DSEDiagnosticLibrary.DSEInfo.NodeToolCaptureUTCTimestamp = diagDateTime;
+                    }
+
+                    Logger.Instance.InfoFormat("Using Default Cluster Name \"{0}\" with OpsCenter Capture Date of {1} (Local Date {2})",
+                                                    defaultCluster,
+                                                    DSEDiagnosticLibrary.DSEInfo.NodeToolCaptureUTCTimestamp.HasValue
+                                                        ? DSEDiagnosticLibrary.DSEInfo.NodeToolCaptureUTCTimestamp.Value.ToString(@"yyyy-MM-dd HH:mm:ss")
+                                                        : "<Unkown>",
+                                                    DSEDiagnosticLibrary.DSEInfo.NodeToolCaptureUTCTimestamp.HasValue
+                                                        ? Common.TimeZones.ConvertFromUTC(DSEDiagnosticLibrary.DSEInfo.NodeToolCaptureUTCTimestamp.Value).ToString(@"yyyy-MM-dd HH:mm:ss zzz")
+                                                        : "<Unkown>");
+                }
+            }
+
             var cancellationSource = new System.Threading.CancellationTokenSource();
             var diagParserTask = DSEDiagnosticFileParser.DiagnosticFile.ProcessFile(ParserSettings.DiagnosticPath,
                                                                                      null,
-                                                                                     null,
+                                                                                     defaultCluster,
                                                                                      null,
                                                                                      cancellationSource);
 
@@ -261,7 +313,7 @@ namespace DSEDiagnosticConsoleApplication
             #region Load Excel
             {
                 var loadExcel = new DSEDiagtnosticToExcel.LoadDataSet(loadAllDataTableTask,
-                                                                            new Common.File.FilePathAbsolute(@"[DeskTop]\testa.xlsx"),
+                                                                            ParserSettings.ExcelFilePath,
                                                                             cancellationSource);
 
                 loadExcel.OnAction += (DSEDiagtnosticToExcel.IExcel sender, string action) =>

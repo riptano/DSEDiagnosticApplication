@@ -54,6 +54,8 @@
             Infragistics.Win.UltraWinEditors.EditorButton editorButton3 = new Infragistics.Win.UltraWinEditors.EditorButton("StringEditor");
             Infragistics.Win.UltraWinStatusBar.UltraStatusPanel ultraStatusPanel1 = new Infragistics.Win.UltraWinStatusBar.UltraStatusPanel();
             Infragistics.Win.UltraWinStatusBar.UltraStatusPanel ultraStatusPanel2 = new Infragistics.Win.UltraWinStatusBar.UltraStatusPanel();
+            Infragistics.Win.UltraWinEditors.StateEditorButton stateEditorButton1 = new Infragistics.Win.UltraWinEditors.StateEditorButton("UTCStart");
+            Infragistics.Win.UltraWinEditors.StateEditorButton stateEditorButton2 = new Infragistics.Win.UltraWinEditors.StateEditorButton("UTCEnd");
             this.button1 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.ultraGrid1 = new Infragistics.Win.UltraWinGrid.UltraGrid();
@@ -71,6 +73,10 @@
             this.button3 = new System.Windows.Forms.Button();
             this.button4 = new System.Windows.Forms.Button();
             this.button5 = new System.Windows.Forms.Button();
+            this.ultraGroupBox5 = new Infragistics.Win.Misc.UltraGroupBox();
+            this.ultraGroupBox6 = new Infragistics.Win.Misc.UltraGroupBox();
+            this.ultraDateTimeEditorStartLog = new Infragistics.Win.UltraWinEditors.UltraDateTimeEditor();
+            this.ultraDateTimeEditorEndLog = new Infragistics.Win.UltraWinEditors.UltraDateTimeEditor();
             ((System.ComponentModel.ISupportInitialize)(this.ultraGrid1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.ultraGroupBox1)).BeginInit();
             this.ultraGroupBox1.SuspendLayout();
@@ -86,6 +92,12 @@
             this.ultraGroupBox4.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.ultraCheckEditorDisableParallelProcessing)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.ultraStatusBar1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.ultraGroupBox5)).BeginInit();
+            this.ultraGroupBox5.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.ultraGroupBox6)).BeginInit();
+            this.ultraGroupBox6.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.ultraDateTimeEditorStartLog)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.ultraDateTimeEditorEndLog)).BeginInit();
             this.SuspendLayout();
             // 
             // button1
@@ -197,9 +209,9 @@
             this.ultraGrid1.DisplayLayout.ScrollStyle = Infragistics.Win.UltraWinGrid.ScrollStyle.Immediate;
             this.ultraGrid1.DisplayLayout.ViewStyleBand = Infragistics.Win.UltraWinGrid.ViewStyleBand.OutlookGroupBy;
             this.ultraGrid1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.ultraGrid1.Location = new System.Drawing.Point(2, 112);
+            this.ultraGrid1.Location = new System.Drawing.Point(2, 135);
             this.ultraGrid1.Name = "ultraGrid1";
-            this.ultraGrid1.Size = new System.Drawing.Size(1285, 423);
+            this.ultraGrid1.Size = new System.Drawing.Size(1285, 400);
             this.ultraGrid1.TabIndex = 3;
             this.ultraGrid1.Text = "Result";
             this.ultraGrid1.InitializeLayout += new Infragistics.Win.UltraWinGrid.InitializeLayoutEventHandler(this.ultraGrid1_InitializeLayout);
@@ -295,9 +307,9 @@
             // 
             // ultraCheckEditorDisableParallelProcessing
             // 
-            this.ultraCheckEditorDisableParallelProcessing.Location = new System.Drawing.Point(221, 78);
+            this.ultraCheckEditorDisableParallelProcessing.Location = new System.Drawing.Point(118, 81);
             this.ultraCheckEditorDisableParallelProcessing.Name = "ultraCheckEditorDisableParallelProcessing";
-            this.ultraCheckEditorDisableParallelProcessing.Size = new System.Drawing.Size(194, 20);
+            this.ultraCheckEditorDisableParallelProcessing.Size = new System.Drawing.Size(95, 48);
             this.ultraCheckEditorDisableParallelProcessing.TabIndex = 8;
             this.ultraCheckEditorDisableParallelProcessing.Text = "Disable Parallel Processing";
             // 
@@ -348,7 +360,7 @@
             // 
             // button5
             // 
-            this.button5.Location = new System.Drawing.Point(23, 83);
+            this.button5.Location = new System.Drawing.Point(23, 93);
             this.button5.Name = "button5";
             this.button5.Size = new System.Drawing.Size(75, 23);
             this.button5.TabIndex = 12;
@@ -356,11 +368,55 @@
             this.button5.UseVisualStyleBackColor = true;
             this.button5.Click += new System.EventHandler(this.button5_Click);
             // 
+            // ultraGroupBox5
+            // 
+            this.ultraGroupBox5.Controls.Add(this.ultraDateTimeEditorStartLog);
+            this.ultraGroupBox5.Location = new System.Drawing.Point(215, 81);
+            this.ultraGroupBox5.Name = "ultraGroupBox5";
+            this.ultraGroupBox5.Size = new System.Drawing.Size(200, 44);
+            this.ultraGroupBox5.TabIndex = 5;
+            this.ultraGroupBox5.Text = "Log Beginning Timeframe";
+            // 
+            // ultraGroupBox6
+            // 
+            this.ultraGroupBox6.Controls.Add(this.ultraDateTimeEditorEndLog);
+            this.ultraGroupBox6.Location = new System.Drawing.Point(439, 81);
+            this.ultraGroupBox6.Name = "ultraGroupBox6";
+            this.ultraGroupBox6.Size = new System.Drawing.Size(200, 44);
+            this.ultraGroupBox6.TabIndex = 6;
+            this.ultraGroupBox6.Text = "Log Ending Timeframe";
+            // 
+            // ultraDateTimeEditorStartLog
+            // 
+            stateEditorButton1.Key = "UTCStart";
+            stateEditorButton1.Text = "UTC";
+            this.ultraDateTimeEditorStartLog.ButtonsRight.Add(stateEditorButton1);
+            this.ultraDateTimeEditorStartLog.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.ultraDateTimeEditorStartLog.Location = new System.Drawing.Point(3, 16);
+            this.ultraDateTimeEditorStartLog.Name = "ultraDateTimeEditorStartLog";
+            this.ultraDateTimeEditorStartLog.Size = new System.Drawing.Size(194, 21);
+            this.ultraDateTimeEditorStartLog.SpinButtonDisplayStyle = Infragistics.Win.ButtonDisplayStyle.Always;
+            this.ultraDateTimeEditorStartLog.TabIndex = 0;
+            // 
+            // ultraDateTimeEditorEndLog
+            // 
+            stateEditorButton2.Key = "UTCEnd";
+            stateEditorButton2.Text = "UTC";
+            this.ultraDateTimeEditorEndLog.ButtonsRight.Add(stateEditorButton2);
+            this.ultraDateTimeEditorEndLog.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.ultraDateTimeEditorEndLog.Location = new System.Drawing.Point(3, 16);
+            this.ultraDateTimeEditorEndLog.Name = "ultraDateTimeEditorEndLog";
+            this.ultraDateTimeEditorEndLog.Size = new System.Drawing.Size(194, 21);
+            this.ultraDateTimeEditorEndLog.SpinButtonDisplayStyle = Infragistics.Win.ButtonDisplayStyle.Always;
+            this.ultraDateTimeEditorEndLog.TabIndex = 1;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1296, 566);
+            this.Controls.Add(this.ultraGroupBox6);
+            this.Controls.Add(this.ultraGroupBox5);
             this.Controls.Add(this.button5);
             this.Controls.Add(this.button4);
             this.Controls.Add(this.button3);
@@ -395,6 +451,14 @@
             this.ultraGroupBox4.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.ultraCheckEditorDisableParallelProcessing)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.ultraStatusBar1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.ultraGroupBox5)).EndInit();
+            this.ultraGroupBox5.ResumeLayout(false);
+            this.ultraGroupBox5.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.ultraGroupBox6)).EndInit();
+            this.ultraGroupBox6.ResumeLayout(false);
+            this.ultraGroupBox6.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.ultraDateTimeEditorStartLog)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.ultraDateTimeEditorEndLog)).EndInit();
             this.ResumeLayout(false);
 
 		}
@@ -418,6 +482,10 @@
         private System.Windows.Forms.Button button3;
         private System.Windows.Forms.Button button4;
         private System.Windows.Forms.Button button5;
+        private Infragistics.Win.Misc.UltraGroupBox ultraGroupBox5;
+        private Infragistics.Win.UltraWinEditors.UltraDateTimeEditor ultraDateTimeEditorStartLog;
+        private Infragistics.Win.Misc.UltraGroupBox ultraGroupBox6;
+        private Infragistics.Win.UltraWinEditors.UltraDateTimeEditor ultraDateTimeEditorEndLog;
     }
 }
 

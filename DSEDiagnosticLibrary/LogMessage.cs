@@ -43,6 +43,15 @@ namespace DSEDiagnosticLibrary
         uint LogLinePosition { get; }
     }
 
+    public enum LogCompletionStatus
+    {
+        NotProcessed = 0,
+        InProcess,
+        Skipped,
+        PartiallyCompleted,
+        Completed
+    }
+
     public interface ILogMessages : IDisposable
     {
         INode Node { get; }
@@ -52,9 +61,11 @@ namespace DSEDiagnosticLibrary
         DateTimeRange LogTimeRange { get; }
         IEnumerable<string> Errors { get; }
 
+        LogCompletionStatus CompletionStatus { get; }
+
         bool Disposed { get; }
     }
-
+        
     /// <summary>
     /// Disposing will release all parsed messages.
     /// </summary>
@@ -67,7 +78,12 @@ namespace DSEDiagnosticLibrary
         int Errors { get; }
         CancellationToken CancellationToken { get; set; }
         bool Completed { get; }
-
+        
+        /// <summary>
+        /// If defined the time frame log entries will be parsed. The Time Frame will be in the Node&apos;s timezone.
+        /// </summary>
+        DateTimeRange LogTimeFrame { get; }
+        
         /// <summary>
         /// Invoked after a Log Line is processed.
         /// </summary>

@@ -14,6 +14,11 @@ namespace DSEDiagnosticFileParser
     public class cql_ddl : DiagnosticFile
     {
 
+        public static void DisabledSystemDSEDefaultKeyspacesInitialLoading()
+        {
+            SystemDDLInitialized = true;
+        }
+
         volatile static bool SystemDDLInitialized = false;
         static object syncLock = new object();
 

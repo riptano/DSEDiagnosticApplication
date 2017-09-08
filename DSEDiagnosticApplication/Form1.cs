@@ -74,6 +74,9 @@ namespace DSEDiagnosticApplication
                                     ? "Cancel"
                                     : (this._cancellationSource.IsCancellationRequested ? "Canceled" : "Cancel");
 
+            this.button5.Enabled = true;
+            this.button5.Visible = true;
+
             this.ultraTextEditorProcessMapperJSONFile.Enabled = true;
             this.ultraTextEditorDiagnosticsFolder.Enabled = true;
             this.ultraCheckEditorDisableParallelProcessing.Enabled = true;
@@ -113,6 +116,22 @@ namespace DSEDiagnosticApplication
                 DSEDiagnosticFileParser.DiagnosticFile.OnProgression += DiagnosticFile_OnProgression;
                 DSEDiagnosticFileParser.DiagnosticFile.DisableParallelProcessing = this.ultraCheckEditorDisableParallelProcessing.Checked;
 
+                if (this.ultraDateTimeEditorStartLog.Value == null
+                        || this.ultraDateTimeEditorEndLog.Value == null
+                        || (DateTime) this.ultraDateTimeEditorStartLog.Value >= (DateTime) this.ultraDateTimeEditorEndLog.Value)
+                {
+                    DSEDiagnosticFileParser.file_cassandra_log4net.LogTimeRangeUTC = null;
+                }
+                else
+                {
+                    var logStart = (DateTime)this.ultraDateTimeEditorStartLog.Value;
+                    var logEnd = (DateTime)this.ultraDateTimeEditorEndLog.Value;
+                    var utcStart = ((Infragistics.Win.UltraWinEditors.StateEditorButton)this.ultraDateTimeEditorStartLog.ButtonsRight[0]).Checked;
+                    var utcEnd = ((Infragistics.Win.UltraWinEditors.StateEditorButton)this.ultraDateTimeEditorEndLog.ButtonsRight[0]).Checked;
+
+                    DSEDiagnosticFileParser.file_cassandra_log4net.LogTimeRangeUTC = new DateTimeRange(utcStart ? logStart : logStart.Convert("UTC"), utcEnd ? logEnd : logEnd.Convert("UTC"));
+                }
+
                 if (!string.IsNullOrEmpty(this.ultraTextEditorProcessMapperJSONFile.Text))
                 {
                     DSEDiagnosticFileParser.LibrarySettings.ProcessFileMappings = DSEDiagnosticFileParser.LibrarySettings.ReadJsonFileIntoObject<DSEDiagnosticFileParser.FileMapper[]>(this.ultraTextEditorProcessMapperJSONFile.Text);
@@ -145,6 +164,22 @@ namespace DSEDiagnosticApplication
                 DSEDiagnosticFileParser.DiagnosticFile.OnProgression += DiagnosticFile_OnProgression;
                 DSEDiagnosticFileParser.DiagnosticFile.DisableParallelProcessing = this.ultraCheckEditorDisableParallelProcessing.Checked;
 
+                if(this.ultraDateTimeEditorStartLog.Value == null
+                        || this.ultraDateTimeEditorEndLog.Value == null
+                        || (DateTime)this.ultraDateTimeEditorStartLog.Value >= (DateTime)this.ultraDateTimeEditorEndLog.Value)
+                {
+                    DSEDiagnosticFileParser.file_cassandra_log4net.LogTimeRangeUTC = null;
+                }
+                else
+                {
+                    var logStart = (DateTime) this.ultraDateTimeEditorStartLog.Value;
+                    var logEnd = (DateTime)this.ultraDateTimeEditorEndLog.Value;
+                    var utcStart = ((Infragistics.Win.UltraWinEditors.StateEditorButton)this.ultraDateTimeEditorStartLog.ButtonsRight[0]).Checked;
+                    var utcEnd = ((Infragistics.Win.UltraWinEditors.StateEditorButton)this.ultraDateTimeEditorEndLog.ButtonsRight[0]).Checked;
+
+                    DSEDiagnosticFileParser.file_cassandra_log4net.LogTimeRangeUTC = new DateTimeRange(utcStart ? logStart : logStart.Convert("UTC"), utcEnd ? logEnd : logEnd.Convert("UTC"));
+                }
+
                 if (!string.IsNullOrEmpty(this.ultraTextEditorProcessMapperJSONFile.Text))
                 {
                     DSEDiagnosticFileParser.LibrarySettings.ProcessFileMappings = DSEDiagnosticFileParser.LibrarySettings.ReadJsonFileIntoObject<DSEDiagnosticFileParser.FileMapper[]>(this.ultraTextEditorProcessMapperJSONFile.Text);
@@ -152,13 +187,13 @@ namespace DSEDiagnosticApplication
 
                 var diagPath = PathUtils.BuildDirectoryPath(this.ultraTextEditorDiagnosticsFolder.Text);
 
-                var task = DSEDiagnosticFileParser.DiagnosticFile.ProcessFile(diagPath);
+                var task = DSEDiagnosticFileParser.DiagnosticFile.ProcessFile(diagPath).Result;
 
-                task.Wait();
+                //task.Wait();
 
                 //var task = await DSEDiagnosticFileParser.DiagnosticFile.ProcessFileWaitable(diagPath, this.ultraTextEditorDC.Text, this.ultraTextEditorCluster.Text, null, this._cancellationSource);
 
-                if (task.Result.Any(t => t.Processed))
+                if (task.Any(t => t.Processed))
                 {
                     this.SetLoggingStatus("all processed");
                 }
@@ -167,7 +202,7 @@ namespace DSEDiagnosticApplication
                     this.SetLoggingStatus("NOT all processed");
                 }
 
-                return task.Result;
+                return task;
             }
         }
 
@@ -395,6 +430,8 @@ namespace DSEDiagnosticApplication
             this.button1.Text = "Sync-Running...";
             this.button3.Enabled = false;
             this.button3.Visible = false;
+            this.button5.Enabled = false;
+            this.button5.Visible = false;
             //this._cancellationSource = new CancellationTokenSource();
 
             //this.button2.Enabled = true;
@@ -405,6 +442,7 @@ namespace DSEDiagnosticApplication
             this.ultraCheckEditorDisableParallelProcessing.Enabled = false;
             this.ultraTextEditorCluster.Enabled = false;
             this.ultraTextEditorDC.Enabled = false;
+
 
             var items = this.RunSyncProcessFile();
 

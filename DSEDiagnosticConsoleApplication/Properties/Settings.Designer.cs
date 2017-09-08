@@ -62,5 +62,33 @@ namespace DSEDiagnosticConsoleApplication.Properties {
                 return ((global::System.Collections.Specialized.StringCollection)(this["IgnoreKeySpaces"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("[DeskTop]\\testa.xlsx")]
+        public string ExcelFilePath {
+            get {
+                return ((string)(this["ExcelFilePath"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("^(?<CLUSTERNAME>.+)-diagnostics-(?<TS>\\d{4}_\\d{2}_\\d{2}_\\d{2}_\\d{2}_\\d{2})_(?<TZ>" +
+            "\\w{3})$")]
+        public string OpsCenterDiagFolderRegEx {
+            get {
+                return ((string)(this["OpsCenterDiagFolderRegEx"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("yyyy_MM_dd_HH_mm_ss")]
+        public string OpsCenterDiagFolderDateTimeFmt {
+            get {
+                return ((string)(this["OpsCenterDiagFolderDateTimeFmt"]));
+            }
+        }
     }
 }

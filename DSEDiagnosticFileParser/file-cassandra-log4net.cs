@@ -16,6 +16,8 @@ namespace DSEDiagnosticFileParser
     [JsonObject(MemberSerialization.OptOut)]
     public sealed class file_cassandra_log4net : DiagnosticFile
     {
+        public static DateTimeRange LogTimeRangeUTC = null;
+
         struct CurrentSessionLineTick
         {
             public DateTime LogTick;
@@ -137,7 +139,7 @@ namespace DSEDiagnosticFileParser
             this.CancellationToken.ThrowIfCancellationRequested();
             DateTimeRange logFileDateRange = null;
 
-            using (var logFileInstance = new ReadLogFile(this.File, LibrarySettings.Log4NetConversionPattern, this.CancellationToken, this.Node))
+            using (var logFileInstance = new ReadLogFile(this.File, LibrarySettings.Log4NetConversionPattern, this.CancellationToken, this.Node, LogTimeRangeUTC))
             {
                 Tuple<Regex, Match, Regex, Match, CLogLineTypeParser> matchItem;
                 LogCassandraEvent logEvent;
@@ -200,7 +202,8 @@ namespace DSEDiagnosticFileParser
                 using (var logMessages = logFileInstance.ProcessLogFile())
                 {
                     this.NbrItemsParsed = unchecked((int)logFileInstance.LinesRead);
-                    logFileDateRange = new DateTimeRange(logMessages.Messages.First().LogDateTime, logMessages.Messages.Last().LogDateTime);
+
+                    logFileDateRange = logMessages.LogTimeRange;
                 }
             }
 
@@ -216,8 +219,8 @@ namespace DSEDiagnosticFileParser
             this.Node.AssociateItem(new LogFileInfo(this.File,
                                                     logFileDateRange,
                                                     this._logEvents.Count,
-                                                    this._orphanedSessionEvents,
-                                                    new DateTimeRange(this._logEvents.First().EventTimeLocal, this._logEvents.Last().EventTimeLocal)));
+                                                    this._orphanedSessionEvents.Count == 0 ? null : this._orphanedSessionEvents,
+                                                    this._logEvents.Count == 0 ? null : new DateTimeRange(this._logEvents.First().EventTimeLocal, this._logEvents.Last().EventTimeLocal)));
 
             this._lookupSessionLabels.Clear();
             this._openSessions.Clear();
@@ -509,7 +512,7 @@ namespace DSEDiagnosticFileParser
                         }
 
                         Logger.Instance.ErrorFormat("MapperId<{0}>\t{1}\t{2}\tCasandra Log Event at {3:yyyy-MM-dd HH:mm:ss,fff} has mismatch between parsed C* objects from the log vs. DDL C* object instances. There are {4}. They are {{{5}}}. Log line is \"{6}\". DDLItems property for the log instance may contain invalid DDL instances.",
-                                                    this.MapperId,                        
+                                                    this.MapperId,
                                                     this.Node,
                                                     this.File.PathResolved,
                                                     logMessage.LogDateTime,

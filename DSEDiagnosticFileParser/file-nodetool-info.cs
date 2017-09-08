@@ -157,6 +157,8 @@ namespace DSEDiagnosticFileParser
                 }
             }
 
+            this.Node.UpdateDSENodeToolDateRange();
+
             this.Processed = true;
             return nbrGenerated;
         }

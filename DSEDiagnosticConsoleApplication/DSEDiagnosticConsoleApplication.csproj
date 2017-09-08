@@ -33,8 +33,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="CommandLineArgumentsParser, Version=3.0.13.0, Culture=neutral, PublicKeyToken=16ad7bf6f4a1666c, processorArchitecture=MSIL">
-      <HintPath>..\packages\CommandLineArgumentsParser.3.0.13\lib\net45\CommandLineArgumentsParser.dll</HintPath>
+    <Reference Include="CommandLineArgumentsParser, Version=3.0.16.0, Culture=neutral, PublicKeyToken=16ad7bf6f4a1666c, processorArchitecture=MSIL">
+      <HintPath>..\packages\CommandLineArgumentsParser.3.0.16\lib\net45\CommandLineArgumentsParser.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Common.Console">
@@ -45,6 +45,9 @@
     </Reference>
     <Reference Include="Common.Functions">
       <HintPath>..\packages\CommonPatterns\Release\Common.Functions.dll</HintPath>
+    </Reference>
+    <Reference Include="Common.JSON">
+      <HintPath>..\packages\CommonPatterns\Release\Common.JSON.dll</HintPath>
     </Reference>
     <Reference Include="Common.Path">
       <HintPath>..\packages\CommonPatterns\Release\Common.Path.dll</HintPath>
@@ -64,6 +67,10 @@
     <Reference Include="Common.Patterns.Threading">
       <HintPath>..\packages\CommonPatterns\Release\Common.Patterns.Threading.dll</HintPath>
     </Reference>
+    <Reference Include="Common.TimeZones, Version=4.0.5.0, Culture=neutral, PublicKeyToken=75d1a63e21e859f1, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\CommonPatterns\Release\Common.TimeZones.dll</HintPath>
+    </Reference>
     <Reference Include="EPPlus, Version=4.1.0.0, Culture=neutral, PublicKeyToken=ea159fdaa78159a1, processorArchitecture=MSIL">
       <HintPath>..\packages\EPPlus.4.1.0\lib\net40\EPPlus.dll</HintPath>
       <Private>True</Private>
@@ -72,8 +79,16 @@
       <HintPath>..\packages\log4net.2.0.8\lib\net45-full\log4net.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.IO.Compression.FileSystem" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -160,7 +175,7 @@
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>
