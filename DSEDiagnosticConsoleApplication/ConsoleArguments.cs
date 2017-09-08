@@ -77,7 +77,7 @@ namespace DSEDiagnosticConsoleApplication
                            'T', "DiagCaptureTime",
                            DefaultValue = null,
                            Optional = true,
-                           Description = "The local Date/Time when either the OpsCenter Diagnostic TarBall was created or when the \"nodetool\" statical (e.g., cfstats) capture occurred. Null will use the Date embedded in the OpsCenter tar ball directory.")]
+                           Description = "This machine's local Date/Time when either the OpsCenter Diagnostic TarBall was created or when the \"nodetool\" statical (e.g., cfstats) capture occurred. Null will use the Date embedded in the OpsCenter tar ball directory.")]
         public DateTime? DiagCaptureTime
         {
             get
@@ -89,6 +89,74 @@ namespace DSEDiagnosticConsoleApplication
             set
             {
                 DSEDiagnosticLibrary.DSEInfo.NodeToolCaptureUTCTimestamp = value.HasValue ? (DateTime?) Common.TimeZones.ConvertToOffset(value.Value).UtcDateTime : null;
+            }
+        }
+
+        [ValueArgument(typeof(int),
+                           "LogRangeBasedOnPrevHrs",
+                           Optional = true,
+                           Description = "Only import log entries based on the previous <X> hours from DiagCaptureTime. only valid if DiagCaptureTime is defined or is a OpsCtrDiagStruct. -1 disables this option")]
+        public int LogRangeBasedOnPrevHrs
+        {
+            get { return ParserSettings.OnlyIncludeXHrsofLogsFromDiagCaptureTime; }
+            set { ParserSettings.OnlyIncludeXHrsofLogsFromDiagCaptureTime = value; }
+        }
+
+        [ValueArgument(typeof(string),
+                           "LogTimeRange",
+                           Optional = true,
+                           Description = "Only import log entries from/to this date/time range. Empty string will parse all entries. Syntax: \"<FromDateTimeOnly> [IANA TimeZone Name]\", \", <ToDateTimeOnly> [IANA TimeZone Name]\", or \"<FromDateTime> [IANA TimeZone Name],<ToDateTime> [IANA TimeZone Name]\". If [IANA TimeZone Name] is not given the local machine's TZ is used. Ignored if LogRangeBasedOnPrevHrs is defined.")]
+
+        public string LogTimeRange
+        {
+            get
+            {
+                return DSEDiagnosticFileParser.file_cassandra_log4net.LogTimeRangeUTC == null
+                          ? null
+                          : string.Format("{0} UTC, {1} UTC", DSEDiagnosticFileParser.file_cassandra_log4net.LogTimeRangeUTC.Min, DSEDiagnosticFileParser.file_cassandra_log4net.LogTimeRangeUTC.Max);
+            }
+            set
+            {
+                if (string.IsNullOrEmpty(value))
+                {
+                    DSEDiagnosticFileParser.file_cassandra_log4net.LogTimeRangeUTC = null;
+                }
+                else
+                {
+                    var matchRegEx = new System.Text.RegularExpressions.Regex(Properties.Settings.Default.CLParserLogTimeRangeRegEx, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                    var match = matchRegEx.Match(value);
+
+                    if (match.Success)
+                    {
+                        try
+                        {
+                            var startTR = match.Groups["STARTTS"].Value;
+                            var startTZ = match.Groups["STARTTZ"].Value;
+                            var endTR = match.Groups["ENDTS"].Value;
+                            var endTZ = match.Groups["ENDTZ"].Value;
+                            DateTime startDT = DateTime.Parse(startTZ);
+                            DateTime endDT = DateTime.Parse(endTZ);
+
+                            DSEDiagnosticFileParser.file_cassandra_log4net.LogTimeRangeUTC = new DateTimeRange(string.IsNullOrEmpty(startTZ)
+                                                                                                                    ? startDT.Convert("UTC")
+                                                                                                                    : startDT.Convert(startTZ, "UTC"),
+                                                                                                                string.IsNullOrEmpty(endTZ)
+                                                                                                                    ? endDT.Convert("UTC")
+                                                                                                                    : endDT.Convert(endTZ, "UTC"));
+                        }
+                        catch (System.Exception ex)
+                        {
+                            throw new CommandLineParser.Exceptions.CommandLineFormatException(string.Format("LogTimeRange's value received an exception of {0} with message of \"{1}\". Value given is \"{2}\"",
+                                                                                                                ex.GetType().Name,
+                                                                                                                ex.Message,
+                                                                                                                value));
+                        }
+                    }
+                    else
+                    {
+                        throw new CommandLineParser.Exceptions.CommandLineFormatException(string.Format("LogTimeRange's value was not of the correct format. Value given is \"{0}\"", value));
+                    }
+                }
             }
         }
 

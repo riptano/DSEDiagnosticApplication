@@ -200,6 +200,7 @@ namespace DSEDiagnosticConsoleApplication
         public static IFilePath ExcelFilePath = MakeFilePath(Properties.Settings.Default.ExcelFilePath, DiagnosticPath);
         public static DiagFolderStructOptions DiagFolderStruct = (DiagFolderStructOptions)Enum.Parse(typeof(DiagFolderStructOptions), Properties.Settings.Default.DiagFolderStruct);
         public static List<string> IgnoreKeySpaces = Properties.Settings.Default.IgnoreKeySpaces.ToList(false);
+        public static int OnlyIncludeXHrsofLogsFromDiagCaptureTime = Properties.Settings.Default.OnlyIncludeXHrsofLogsFromDiagCaptureTime;
 
         #endregion
     }

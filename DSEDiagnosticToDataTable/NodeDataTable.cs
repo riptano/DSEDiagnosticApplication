@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Data;
 using DSEDiagnosticLogger;
+using Common;
 
 namespace DSEDiagnosticToDataTable
 {
@@ -43,24 +44,26 @@ namespace DSEDiagnosticToDataTable
             dtNodeInfo.Columns.Add("Log Max Timestamp", typeof(DateTime)).AllowDBNull = true;
             dtNodeInfo.Columns.Add("Log Duration", typeof(TimeSpan)).AllowDBNull = true;
             dtNodeInfo.Columns.Add("Log Timespan Difference", typeof(TimeSpan)).AllowDBNull = true;//Q
+            dtNodeInfo.Columns.Add("Log Nbr Files", typeof(int)).AllowDBNull = true;//R
 
-            dtNodeInfo.Columns.Add("Debug Log Min Timestamp", typeof(DateTime)).AllowDBNull = true;//r
+            dtNodeInfo.Columns.Add("Debug Log Min Timestamp", typeof(DateTime)).AllowDBNull = true;//s
             dtNodeInfo.Columns.Add("Debug Log Max Timestamp", typeof(DateTime)).AllowDBNull = true;
             dtNodeInfo.Columns.Add("Debug Log Duration", typeof(TimeSpan)).AllowDBNull = true;
-            dtNodeInfo.Columns.Add("Debug Log Timespan Difference", typeof(TimeSpan)).AllowDBNull = true;//u
+            dtNodeInfo.Columns.Add("Debug Log Timespan Difference", typeof(TimeSpan)).AllowDBNull = true;//v
+            dtNodeInfo.Columns.Add("Debug Log Nbr Files", typeof(int)).AllowDBNull = true;//w
 
-            dtNodeInfo.Columns.Add("Heap Memory (MB)", typeof(string)).AllowDBNull = true; //v
-            dtNodeInfo.Columns.Add("Off Heap Memory (MB)", typeof(decimal)).AllowDBNull = true;//w
-            dtNodeInfo.Columns.Add("Nbr VNodes", typeof(int)).AllowDBNull = true;//x
-            dtNodeInfo.Columns.Add("Nbr of Exceptions", typeof(int)).AllowDBNull = true;//y
-            dtNodeInfo.Columns.Add("Percent Repaired", typeof(decimal)).AllowDBNull = true;//z
-            dtNodeInfo.Columns.Add("Repair Service Enabled", typeof(bool)).AllowDBNull = true;//aa
-            dtNodeInfo.Columns.Add("Gossip Enabled", typeof(bool)).AllowDBNull = true;//ab
-            dtNodeInfo.Columns.Add("Thrift Enabled", typeof(bool)).AllowDBNull = true;//ac
-            dtNodeInfo.Columns.Add("Native Transport Enabled", typeof(bool)).AllowDBNull = true;//ad
-            dtNodeInfo.Columns.Add("Key Cache Information", typeof(string)).AllowDBNull = true;//ae
-            dtNodeInfo.Columns.Add("Row Cache Information", typeof(string)).AllowDBNull = true;//af
-            dtNodeInfo.Columns.Add("Counter Cache Information", typeof(string)).AllowDBNull = true;//ag
+            dtNodeInfo.Columns.Add("Heap Memory (MB)", typeof(string)).AllowDBNull = true; //x
+            dtNodeInfo.Columns.Add("Off Heap Memory (MB)", typeof(decimal)).AllowDBNull = true;//y
+            dtNodeInfo.Columns.Add("Nbr VNodes", typeof(int)).AllowDBNull = true;//z
+            dtNodeInfo.Columns.Add("Nbr of Exceptions", typeof(int)).AllowDBNull = true;//aa
+            dtNodeInfo.Columns.Add("Percent Repaired", typeof(decimal)).AllowDBNull = true;//ab
+            dtNodeInfo.Columns.Add("Repair Service Enabled", typeof(bool)).AllowDBNull = true;//ac
+            dtNodeInfo.Columns.Add("Gossip Enabled", typeof(bool)).AllowDBNull = true;//ad
+            dtNodeInfo.Columns.Add("Thrift Enabled", typeof(bool)).AllowDBNull = true;//ae
+            dtNodeInfo.Columns.Add("Native Transport Enabled", typeof(bool)).AllowDBNull = true;//af
+            dtNodeInfo.Columns.Add("Key Cache Information", typeof(string)).AllowDBNull = true;//ag
+            dtNodeInfo.Columns.Add("Row Cache Information", typeof(string)).AllowDBNull = true;//ah
+            dtNodeInfo.Columns.Add("Counter Cache Information", typeof(string)).AllowDBNull = true;//ai
 
             dtNodeInfo.DefaultView.ApplyDefaultSort = false;
             dtNodeInfo.DefaultView.AllowDelete = false;
@@ -116,19 +119,44 @@ namespace DSEDiagnosticToDataTable
                         dataRow.SetFieldToTimeSpan("Uptime (Days)", node.DSE.Uptime)
                                 .SetFieldToTimeSpan("Uptime", node.DSE.Uptime, @"d\ hh\:mm");
 
-                        /*
-                        dataRow.SetField("Log Min Timestamp", typeof(DateTime));
-                        dataRow.SetField("Log Max Timestamp", typeof(DateTime));
-                        dataRow.SetField("Log Duration", typeof(TimeSpan));
-                        dataRow.SetField("Log Timespan Difference", typeof(TimeSpan));
+                        {
+                            var systemLogFiles = node.LogFiles
+                                                       .Where(l => l.LogFile.Name.IndexOf("debug", StringComparison.OrdinalIgnoreCase) < 0);
+                            var debugLogFiles = node.LogFiles
+                                                        .Where(l => l.LogFile.Name.IndexOf("debug", StringComparison.OrdinalIgnoreCase) >= 0);
 
-                        dataRow.SetField("Debug Log Min Timestamp", typeof(DateTime));
-                        dataRow.SetField("Debug Log Max Timestamp", typeof(DateTime));
-                        dataRow.SetField("Debug Log Duration", typeof(TimeSpan));
-                        dataRow.SetField("Debug Log Timespan Difference", typeof(TimeSpan))
-                        */
+                            var systemLogEntries = systemLogFiles;
+                            
+                            if (systemLogEntries.HasAtLeastOneElement())
+                            {
+                                var systemMaxLogTS = systemLogEntries.Max(l => l.LogDateRange.Max);
+                                var systemMinLogTS = systemLogEntries.Min(l => l.LogDateRange.Min);
+                                var systemDuration = TimeSpan.FromSeconds(systemLogEntries.Sum(l => l.LogDateRange.TimeSpan().TotalSeconds));
 
-                        if(node.DSE.HeapUsed != null || node.DSE.Heap != null)
+                                dataRow.SetField("Log Min Timestamp", systemMinLogTS);
+                                dataRow.SetField("Log Max Timestamp", systemMaxLogTS);
+                                dataRow.SetField("Log Duration", systemDuration);
+                                dataRow.SetField("Log Timespan Difference", TimeSpan.FromSeconds(Math.Abs((systemMaxLogTS - systemMinLogTS).TotalSeconds - systemDuration.TotalSeconds)));
+                            }
+                            dataRow.SetField("Log Nbr Files", systemLogEntries.Count());
+
+                            var debugLogEntries = debugLogFiles;
+
+                            if (debugLogEntries.HasAtLeastOneElement())
+                            {
+                                var debugMaxLogTS = debugLogEntries.Max(l => l.LogDateRange.Max);
+                                var debugMinLogTS = debugLogEntries.Min(l => l.LogDateRange.Min);
+                                var debugDuration = TimeSpan.FromSeconds(debugLogEntries.Sum(l => l.LogDateRange.TimeSpan().TotalSeconds));
+
+                                dataRow.SetField("Debug Log Min Timestamp", debugMinLogTS);
+                                dataRow.SetField("Debug Log Max Timestamp", debugMaxLogTS);
+                                dataRow.SetField("Debug Log Duration", debugDuration);
+                                dataRow.SetField("Debug Log Timespan Difference", TimeSpan.FromSeconds(Math.Abs((debugMaxLogTS - debugMinLogTS).TotalSeconds - debugDuration.TotalSeconds)));
+                            }
+                            dataRow.SetField("Debug Log Nbr Files", debugLogEntries.Count());
+                        }
+
+                        if (node.DSE.HeapUsed != null || node.DSE.Heap != null)
                         {
                             var used = node.DSE.HeapUsed == null || node.DSE.HeapUsed.NaN ? "?" : node.DSE.HeapUsed.ConvertTo(DSEDiagnosticLibrary.UnitOfMeasure.Types.MiB).ToString();
                             var size = node.DSE.Heap == null || node.DSE.Heap.NaN ? "?" : node.DSE.Heap.ConvertTo(DSEDiagnosticLibrary.UnitOfMeasure.Types.MiB).ToString();

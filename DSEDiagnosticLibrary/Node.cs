@@ -1102,6 +1102,20 @@ namespace DSEDiagnosticLibrary
         public IEnumerable<LogFileInfo> LogFiles { get { return this._logFiles; } }
         public INode AssociateItem(LogFileInfo logFileInfo)
         {
+            var fndItem = this._logFiles.FirstOrDefault(i => i.LogFile == logFileInfo.LogFile);
+
+            if(fndItem != null)
+            {
+                if (fndItem.LogItems == 0 && (logFileInfo.LogItems != 0 || logFileInfo.LogDateRange != null))
+                {
+                    this._logFiles.Remove(fndItem);
+                }
+                else
+                {
+                    return this;
+                }
+            }
+
             this._logFiles.Add(logFileInfo);
             return this;
         }

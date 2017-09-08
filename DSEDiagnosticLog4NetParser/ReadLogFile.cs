@@ -207,6 +207,50 @@ namespace DSEDiagnosticLog4NetParser
             return this.BeginProcessLogFile().Result;
         }
 
+        public ILogMessages ReadLogFileTimeRange(IFilePath logFile)
+        {
+            this.LogFile = logFile;
+            return this.ReadLogFileTimeRange();
+        }
+
+        public ILogMessages ReadLogFileTimeRange()
+        {
+            if (this.LogFile == null) throw new ArgumentNullException("LogFile");
+
+            var logMessages = string.IsNullOrEmpty(this._ianaTimeZone) || this.Node != null
+                                ? new LogMessages(this.LogFile, this.Log4NetConversionPattern, this.Node)
+                                : new LogMessages(this.LogFile, this.Log4NetConversionPattern, this._ianaTimeZone);
+            this.Log = logMessages;
+            this.CancellationToken.ThrowIfCancellationRequested();
+            logMessages.CompletionStatus = LogCompletionStatus.InProcess;
+
+            using (var logStream = this.LogFile.Open(FileMode.Open, FileAccess.Read, FileShare.Read))
+            using (var readStream = new StreamReader(logStream))
+            {
+                LogMessage logMessage = null;
+                string logLine = readStream.ReadLine();
+
+                while(logLine != null && (logMessage = logMessages.AddMessage(logLine, 0)) == null)
+                {
+                    logLine = readStream.ReadLine();
+                }
+
+                if (logMessage == null)
+                {
+                    logMessages.CompletionStatus = LogCompletionStatus.NotProcessed;
+                }
+                else
+                {
+                    logMessages.RemoveMessage();
+                    this.LastLogLineWithinTimeRange(logMessage, logMessages, readStream, null, true);
+                    logMessages.CompletionStatus = LogCompletionStatus.ReadLogTimeRange;
+                }
+            }
+
+            this.Completed = true;
+            return this.Log;
+        }
+
         #endregion
 
         #region private members

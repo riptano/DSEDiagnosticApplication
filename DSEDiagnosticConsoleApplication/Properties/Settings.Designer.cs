@@ -90,5 +90,24 @@ namespace DSEDiagnosticConsoleApplication.Properties {
                 return ((string)(this["OpsCenterDiagFolderDateTimeFmt"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("^(?<STARTTS>[0-9 \\-:./]+)?\\s*(?<STARTTZ>[A-Z0-9_//]+)?\\s*,?\\s*(?<ENDTS>[0-9 \\-:./" +
+            "]+)?\\s*(?<ENDTZ>[A-Z0-9_+\\-:]+)?$")]
+        public string CLParserLogTimeRangeRegEx {
+            get {
+                return ((string)(this["CLParserLogTimeRangeRegEx"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("-1")]
+        public int OnlyIncludeXHrsofLogsFromDiagCaptureTime {
+            get {
+                return ((int)(this["OnlyIncludeXHrsofLogsFromDiagCaptureTime"]));
+            }
+        }
     }
 }

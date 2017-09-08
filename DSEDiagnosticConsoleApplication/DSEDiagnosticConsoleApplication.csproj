@@ -67,6 +67,10 @@
     <Reference Include="Common.Patterns.Threading">
       <HintPath>..\packages\CommonPatterns\Release\Common.Patterns.Threading.dll</HintPath>
     </Reference>
+    <Reference Include="Common.Patterns.TimeZoneInfo, Version=4.0.5.0, Culture=neutral, PublicKeyToken=75d1a63e21e859f1, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Common Patterns\Assemblies\40\Release\Common.Patterns.TimeZoneInfo.dll</HintPath>
+    </Reference>
     <Reference Include="Common.TimeZones, Version=4.0.5.0, Culture=neutral, PublicKeyToken=75d1a63e21e859f1, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\CommonPatterns\Release\Common.TimeZones.dll</HintPath>

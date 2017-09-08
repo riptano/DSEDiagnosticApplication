@@ -91,6 +91,7 @@
     <Compile Include="DiagnosticFile.cs" />
     <Compile Include="ExceptionEventArgs.cs" />
     <Compile Include="file-agent_version.cs" />
+    <Compile Include="file-cassandra-log4net-ReadTimeRange.cs" />
     <Compile Include="file-cassandra-log4net.cs" />
     <Compile Include="file-cassandra-rackdc-properties.cs" />
     <Compile Include="file-cassandra-topology.cs" />

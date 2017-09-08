@@ -232,6 +232,21 @@ namespace DSEDiagnosticConsoleApplication
                 }
             }
 
+            if(ParserSettings.OnlyIncludeXHrsofLogsFromDiagCaptureTime > 0
+                && DSEDiagnosticLibrary.DSEInfo.NodeToolCaptureUTCTimestamp.HasValue)
+            {
+                DSEDiagnosticFileParser.file_cassandra_log4net.LogTimeRangeUTC = new DateTimeRange(DSEDiagnosticLibrary.DSEInfo.NodeToolCaptureUTCTimestamp.Value - TimeSpan.FromHours(ParserSettings.OnlyIncludeXHrsofLogsFromDiagCaptureTime), DSEDiagnosticLibrary.DSEInfo.NodeToolCaptureUTCTimestamp.Value);
+            }
+
+            if(DSEDiagnosticFileParser.file_cassandra_log4net.LogTimeRangeUTC != null)
+            {
+                Logger.Instance.WarnFormat("Using UTC Log Range of {0} to {1} (Local Begin Time {2}, End Time {3})",
+                                                DSEDiagnosticFileParser.file_cassandra_log4net.LogTimeRangeUTC.Min.ToString(@"yyyy-MM-dd HH:mm:ss"),
+                                                 DSEDiagnosticFileParser.file_cassandra_log4net.LogTimeRangeUTC.Max.ToString(@"yyyy-MM-dd HH:mm:ss"),
+                                                 DSEDiagnosticFileParser.file_cassandra_log4net.LogTimeRangeUTC.Min.ConvertFromUTC().ToString(@"yyyy-MM-dd HH:mm:ss zzz"),
+                                                 DSEDiagnosticFileParser.file_cassandra_log4net.LogTimeRangeUTC.Max.ConvertFromUTC().ToString(@"yyyy-MM-dd HH:mm:ss zzz"));
+            }
+
             var cancellationSource = new System.Threading.CancellationTokenSource();
             var diagParserTask = DSEDiagnosticFileParser.DiagnosticFile.ProcessFile(ParserSettings.DiagnosticPath,
                                                                                      null,

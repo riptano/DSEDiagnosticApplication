@@ -49,7 +49,8 @@ namespace DSEDiagnosticLibrary
         InProcess,
         Skipped,
         PartiallyCompleted,
-        Completed
+        Completed,
+        ReadLogTimeRange
     }
 
     public interface ILogMessages : IDisposable
@@ -65,7 +66,7 @@ namespace DSEDiagnosticLibrary
 
         bool Disposed { get; }
     }
-        
+
     /// <summary>
     /// Disposing will release all parsed messages.
     /// </summary>
@@ -78,12 +79,12 @@ namespace DSEDiagnosticLibrary
         int Errors { get; }
         CancellationToken CancellationToken { get; set; }
         bool Completed { get; }
-        
+
         /// <summary>
         /// If defined the time frame log entries will be parsed. The Time Frame will be in the Node&apos;s timezone.
         /// </summary>
         DateTimeRange LogTimeFrame { get; }
-        
+
         /// <summary>
         /// Invoked after a Log Line is processed.
         /// </summary>
@@ -96,6 +97,9 @@ namespace DSEDiagnosticLibrary
         ILogMessages ProcessLogFile(IFilePath logFile);
         Task<ILogMessages> BeginProcessLogFile();
         ILogMessages ProcessLogFile();
+
+        ILogMessages ReadLogFileTimeRange();
+        ILogMessages ReadLogFileTimeRange(IFilePath logFile);
 
         bool Disposed { get; }
     }

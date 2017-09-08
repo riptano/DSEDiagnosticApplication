@@ -314,5 +314,13 @@
     "NodeIdPos": -1,
     "ProcessingTaskOption": "ScanForNode,ParallelProcessing,ParallelProcessFiles",
     "ProcessPriorityLevel": 400
+  },
+  {
+    "Catagory": "LogFile",
+    "FilePatterns": [ ".\\nodes\\*\\logs\\cassandra\\*.log", ".\\nodes\\*\\logs\\cassandra\\*.log.*", ".\\nodes\\*\\logs\\cassandra\\*\\*.log", ".\\nodes\\*\\logs\\cassandra\\*\\*.log.*" ],
+    "FileParsingClass": "DSEDiagnosticFileParser.file_cassandra_log4net_ReadTimeRange",
+    "NodeIdPos": -1,
+    "ProcessingTaskOption": "ScanForNode,ParallelProcessing,ParallelProcessFiles",
+    "ProcessPriorityLevel": 400
   }
 ]

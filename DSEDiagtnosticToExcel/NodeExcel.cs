@@ -70,15 +70,17 @@ namespace DSEDiagtnosticToExcel
                                                                 workSheet.Cells["O:O"].Style.Numberformat.Format = "mm/dd/yyyy hh:mm:ss.000";
                                                                 workSheet.Cells["P:P"].Style.Numberformat.Format = "d hh:mm";
                                                                 workSheet.Cells["Q:Q"].Style.Numberformat.Format = "d hh:mm";
-                                                                workSheet.Cells["R:R"].Style.Numberformat.Format = "mm/dd/yyyy hh:mm:ss.000";
+                                                                workSheet.Cells["R:R"].Style.Numberformat.Format = "#,###,###,##0";
                                                                 workSheet.Cells["S:S"].Style.Numberformat.Format = "mm/dd/yyyy hh:mm:ss.000";
-                                                                workSheet.Cells["T:T"].Style.Numberformat.Format = "d hh:mm";
+                                                                workSheet.Cells["T:T"].Style.Numberformat.Format = "mm/dd/yyyy hh:mm:ss.000";
                                                                 workSheet.Cells["U:U"].Style.Numberformat.Format = "d hh:mm";
+                                                                workSheet.Cells["V:V"].Style.Numberformat.Format = "d hh:mm";
+                                                                workSheet.Cells["W:W"].Style.Numberformat.Format = "#,###,###,##0";
 
-                                                                workSheet.Cells["W:W"].Style.Numberformat.Format = "#,###,###,##0.00";
-                                                                workSheet.Cells["X:X"].Style.Numberformat.Format = "#,###,###,##0";
+                                                                workSheet.Cells["X:X"].Style.Numberformat.Format = "#,###,###,##0.00";
                                                                 workSheet.Cells["Y:Y"].Style.Numberformat.Format = "#,###,###,##0";
-                                                                workSheet.Cells["Z:Z"].Style.Numberformat.Format = "#,###,###,##0.00";
+                                                                workSheet.Cells["Z:Z"].Style.Numberformat.Format = "#,###,###,##0";
+                                                                workSheet.Cells["AA:AA"].Style.Numberformat.Format = "#,###,###,##0.00";
 
                                                                 //workSheet.InsertColumn(11, 1);
                                                                 //workSheet.Column(10).Hidden = true;
