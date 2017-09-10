@@ -135,7 +135,7 @@ namespace DSEDiagnosticToDataTable
 
                                 dataRow.SetField("Log Min Timestamp", systemMinLogTS);
                                 dataRow.SetField("Log Max Timestamp", systemMaxLogTS);
-                                dataRow.SetField("Log Duration", systemDuration);
+                                dataRow.SetField("Log Duration", systemMaxLogTS - systemMinLogTS);
                                 dataRow.SetField("Log Timespan Difference", TimeSpan.FromSeconds(Math.Abs((systemMaxLogTS - systemMinLogTS).TotalSeconds - systemDuration.TotalSeconds)));
                             }
                             dataRow.SetField("Log Nbr Files", systemLogEntries.Count());
@@ -150,7 +150,7 @@ namespace DSEDiagnosticToDataTable
 
                                 dataRow.SetField("Debug Log Min Timestamp", debugMinLogTS);
                                 dataRow.SetField("Debug Log Max Timestamp", debugMaxLogTS);
-                                dataRow.SetField("Debug Log Duration", debugDuration);
+                                dataRow.SetField("Debug Log Duration", debugMaxLogTS - debugMinLogTS);
                                 dataRow.SetField("Debug Log Timespan Difference", TimeSpan.FromSeconds(Math.Abs((debugMaxLogTS - debugMinLogTS).TotalSeconds - debugDuration.TotalSeconds)));
                             }
                             dataRow.SetField("Debug Log Nbr Files", debugLogEntries.Count());

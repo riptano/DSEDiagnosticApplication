@@ -329,7 +329,8 @@ namespace DSEDiagnosticConsoleApplication
                                                                                      null,
                                                                                      defaultCluster,
                                                                                      null,
-                                                                                     cancellationSource);
+                                                                                     cancellationSource,
+                                                                                     ParserSettings.AdditionalFilesForParsingClass);
 
             diagParserTask.Then(ignore => { ConsoleNonLogReadFiles.Terminate(); ConsoleLogReadFiles.Terminate(); ConsoleDeCompressFiles.Terminate(); });
             diagParserTask.ContinueWith(task => CanceledFaultProcessing(task.Exception),
