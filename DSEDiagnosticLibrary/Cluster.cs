@@ -18,7 +18,9 @@ namespace DSEDiagnosticLibrary
         public static CTS.List<Cluster> Clusters = new CTS.List<Cluster>();
 		private static CTS.List<INode> UnAssociatedNodes = new CTS.List<INode>();
 
-		static Cluster()
+        #region constructors
+
+        static Cluster()
 		{
             MasterCluster = new Cluster("**LogicalMaster**") { IsMaster = true };
 		}
@@ -42,7 +44,11 @@ namespace DSEDiagnosticLibrary
 			this.Name = StringHelpers.RemoveQuotes(clusterName);
 		}
 
-		public string Name { get; }
+        #endregion
+
+        #region Members
+
+        public string Name { get; }
         public bool IsMaster { get; private set; }
 
         [JsonProperty(PropertyName="DataCenters")]
@@ -240,6 +246,8 @@ namespace DSEDiagnosticLibrary
             return new { Name = this.Name, DataCenters = this.DataCenters, Keyspaces = this.Keyspaces };
         }
 
+        #endregion
+
         #region Static Methods
 
         public static Cluster GetCurrentOrMaster()
@@ -353,7 +361,7 @@ namespace DSEDiagnosticLibrary
                     {
                         var cluster = string.IsNullOrEmpty(clusterName) ? MasterCluster : TryGetAddCluster(clusterName);
 
-                        node = cluster.TryGetNode(nodeId);
+                        node = MasterCluster.TryGetNode(nodeId);
 
                         if (node == null)
                         {
@@ -750,6 +758,15 @@ namespace DSEDiagnosticLibrary
             UnAssociatedNodes.Clear();
             MasterCluster._keySpaces.Clear();
             MasterCluster._dataCenters.Clear();
+        }
+
+        internal static INode FindNodeInUnAssocaitedNodes(string nodeId)
+        {
+            return UnAssociatedNodes.FirstOrDefault(n => n.Id.Equals(nodeId));
+        }
+        internal static INode FindNodeInUnAssocaitedNodes(NodeIdentifier nodeId)
+        {
+            return UnAssociatedNodes.FirstOrDefault(n => n.Id.Equals(nodeId));
         }
 
         #endregion

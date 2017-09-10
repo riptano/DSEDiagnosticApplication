@@ -1064,5 +1064,12 @@ CREATE TABLE dse_system.leases (
     <Setting Name="CFStatsDetectReadActivityAttr" Type="System.String" Scope="Application">
       <Value Profile="(Default)">Local read count</Value>
     </Setting>
+    <Setting Name="IgnoreFileWExtensions" Type="System.Collections.Specialized.StringCollection" Scope="Application">
+      <Value Profile="(Default)">&lt;?xml version="1.0" encoding="utf-16"?&gt;
+&lt;ArrayOfString xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"&gt;
+  &lt;string&gt;.extracted&lt;/string&gt;
+  &lt;string&gt;.ignore&lt;/string&gt;
+&lt;/ArrayOfString&gt;</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

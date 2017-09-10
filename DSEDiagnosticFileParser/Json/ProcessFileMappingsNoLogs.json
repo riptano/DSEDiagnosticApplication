@@ -317,7 +317,7 @@
   },
   {
     "Catagory": "LogFile",
-    "FilePatterns": [ ".\\nodes\\*\\logs\\cassandra\\*.log", ".\\nodes\\*\\logs\\cassandra\\*.log.*", ".\\nodes\\*\\logs\\cassandra\\*\\*.log", ".\\nodes\\*\\logs\\cassandra\\*\\*.log.*" ],
+    "FilePatterns": [ ".\\nodes\\*\\logs\\cassandra\\system.log", ".\\nodes\\*\\logs\\cassandra\\system.log.*", ".\\nodes\\*\\logs\\cassandra\\*\\system.log", ".\\nodes\\*\\logs\\cassandra\\*\\system.log.*, .\\nodes\\*\\logs\\cassandra\\debug.log", ".\\nodes\\*\\logs\\cassandra\\debug.log.*", ".\\nodes\\*\\logs\\cassandra\\*\\debug.log", ".\\nodes\\*\\logs\\cassandra\\*\\debug.log.*" ],
     "FileParsingClass": "DSEDiagnosticFileParser.file_cassandra_log4net_ReadTimeRange",
     "NodeIdPos": -1,
     "ProcessingTaskOption": "ScanForNode,ParallelProcessing,ParallelProcessFiles",

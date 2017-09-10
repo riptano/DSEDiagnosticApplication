@@ -34,7 +34,7 @@ namespace DSEDiagnosticFileParser
         {
             var fileLines = this.File.ReadAllLines();
             uint nbrGenerated = 0;
-           
+
             /*
              Address          DC                   Rack         Workload             Graph  Status  State    Load             Owns                 VNodes                                       Health [0,1]
             10.14.149.207    Ejby                 RAC1         Cassandra            no     Up      Normal   24.23 GB         ?                    256                                          0.90
@@ -118,10 +118,25 @@ namespace DSEDiagnosticFileParser
                         }
                         else
                         {
-                            Logger.Instance.WarnFormat("FileMapper<{2}>\t<NoNodeId>\t{0}\tInvalid DSE Instance Type of \"{1}\" found in DSETool Ring File. Type Ignored",
+                            bool updated = false;
+
+                            if (regExSplit[4][regExSplit[4].Length - 1] == ')')
+                            {
+                                var newName = regExSplit[4].Replace('(', '_').Substring(0, regExSplit[4].Length - 1);
+
+                                if (updated = Enum.TryParse<DSEInfo.InstanceTypes>(newName, out type))
+                                {
+                                    node.DSE.InstanceType |= type;
+                                }
+                            }
+
+                            if(!updated)
+                            {
+                                Logger.Instance.WarnFormat("FileMapper<{2}>\t<NoNodeId>\t{0}\tInvalid DSE Instance Type of \"{1}\" found in DSETool Ring File. Type Ignored",
                                                             this.File,
                                                             regExSplit[4],
                                                             this.MapperId);
+                            }
                         }
 
                         var offset = graphStatusCol ? 0 : -1;

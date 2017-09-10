@@ -22,6 +22,7 @@ namespace DSEDiagnosticFileParser
         public static CLogTypeParser Log4NetParser = ReadJsonFileIntoObject<CLogTypeParser>(Properties.Settings.Default.Log4NetParser);
         public static string[] CodeDomAssemblies = Properties.Settings.Default.CodeDomAssemblies.ToArray();
         public static file_create_folder_structure.Mappings FileCreateFolderTargetSourceMappings = ReadJsonFileIntoObject<file_create_folder_structure.Mappings>(Properties.Settings.Default.FileCreateFolderTargetSourceMappings);
+        public static string[] IgnoreFileWExtensions = Properties.Settings.Default.IgnoreFileWExtensions.ToArray().Select(i => i.Trim().ToLower()).ToArray();
 
         private static IFilePath MakeFilePath(string filePath)
         {

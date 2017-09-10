@@ -190,11 +190,12 @@ namespace DSEDiagnosticFileParser
 
                     if (currentKeyspace == null)
                     {
-                        Logger.Instance.WarnFormat("MapperId<{0}>\t{1}\t{2}\tNodetool CFStats Keyspace \"{3}\" was not found and this complete section will be skipped.",
+                        Logger.Instance.WarnFormat("MapperId<{0}>\t{1}\t{2}\tNodetool CFStats Keyspace \"{3}\" was not found in DC \"{4}\" and this complete section will be skipped.",
                                                     this.MapperId,
                                                     this.Node,
                                                     this.File.PathResolved,
-                                                    splitValue[1].Trim());
+                                                    splitValue[1].Trim(),
+                                                    this.Node.DataCenter.Name);
                         this._unknownDDLs.Add(splitValue[1].Trim());
                         skipSection = true;
                         statItem = null;
@@ -223,11 +224,12 @@ namespace DSEDiagnosticFileParser
                     if (currentDDL == null)
                     {
                         var tableName = currentKeyspace.Name + '.' + splitValue[1].Trim();
-                        Logger.Instance.WarnFormat("MapperId<{0}>\t{1}\t{2}\tNodetool CFStats Table/Index/View \"{3}\" was not found and this complete section will be skipped.",
+                        Logger.Instance.WarnFormat("MapperId<{0}>\t{1}\t{2}\tNodetool CFStats Table/Index/View \"{3}\" was not found in DC \"{4}\" and this complete section will be skipped.",
                                                     this.MapperId,
                                                     this.Node,
                                                     this.File.PathResolved,
-                                                    tableName);
+                                                    tableName,
+                                                    currentKeyspace.DataCenter.Name);
                         this._unknownDDLs.Add(tableName);
                         skipSection = true;
                         statItem = null;

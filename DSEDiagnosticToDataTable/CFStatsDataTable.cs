@@ -12,13 +12,15 @@ namespace DSEDiagnosticToDataTable
 {
     public sealed class CFStatsDataTable : DataTableLoad
     {
-        public CFStatsDataTable(DSEDiagnosticLibrary.Cluster cluster, CancellationTokenSource cancellationSource = null, string[] ignoreKeySpaces = null)
+        public CFStatsDataTable(DSEDiagnosticLibrary.Cluster cluster, CancellationTokenSource cancellationSource = null, string[] ignoreKeySpaces = null, string[] warnWhenKSTblIsDetected = null)
             : base(cluster, cancellationSource)
         {
             this.IgnoreKeySpaces = ignoreKeySpaces ?? new string[0];
+            this.WarnWhenKSTblIsDetected = warnWhenKSTblIsDetected ?? new string[0];
         }
 
         public string[] IgnoreKeySpaces { get; }
+        public string[] WarnWhenKSTblIsDetected { get; }
 
         public override DataTable CreateInitializationTable()
         {
@@ -62,14 +64,22 @@ namespace DSEDiagnosticToDataTable
                 int nbrItems = 0;
                 var statCollection = this.Cluster.Nodes.SelectMany(d => d.AggregatedStats.Where(i => i.Class.HasFlag(DSEDiagnosticLibrary.EventClasses.KeyspaceTableViewIndexStats | DSEDiagnosticLibrary.EventClasses.Node)));
                 DSEDiagnosticLibrary.UnitOfMeasure uom = null;
+                bool warn = false;
 
                 Logger.Instance.InfoFormat("Loading {0} CFStats", statCollection.Count());
 
                 foreach (var stat in statCollection)
                 {
                     this.CancellationToken.ThrowIfCancellationRequested();
+                    warn = false;
 
-                    if (stat.Keyspace != null && this.IgnoreKeySpaces.Any(n => n == stat.Keyspace.Name))
+                    if (stat.Keyspace != null && this.WarnWhenKSTblIsDetected.Any(n => n == stat.Keyspace.Name || (stat.TableViewIndex != null && stat.TableViewIndex.FullName == n)))
+                    {
+                        warn = stat.Data.Any(s => ((stat.TableViewIndex == null && (s.Key == "Read Count" || s.Key == "Write Count"))
+                                                    || (stat.TableViewIndex != null && (s.Key == "Local read count" || s.Key == "Local write count"))) && (dynamic)s.Value > 0);
+                    }
+
+                    if (!warn && stat.Keyspace != null && this.IgnoreKeySpaces.Any(n => n == stat.Keyspace.Name))
                     {
                         continue;
                     }
@@ -83,11 +93,11 @@ namespace DSEDiagnosticToDataTable
                         dataRow.SetField(ColumnNames.Source, stat.Source.ToString());
                         dataRow.SetField(ColumnNames.DataCenter, stat.DataCenter.Name);
                         dataRow.SetField(ColumnNames.NodeIPAddress, stat.Node.Id.NodeName());
-                        dataRow.SetField(ColumnNames.KeySpace, stat.Keyspace.Name);
+                        dataRow.SetField(ColumnNames.KeySpace, warn ? stat.Keyspace.Name + " (warn)" : stat.Keyspace.Name);
 
                         if (stat.TableViewIndex != null)
                         {
-                            dataRow.SetField(ColumnNames.Table, stat.TableViewIndex.Name);
+                            dataRow.SetField(ColumnNames.Table, warn ? stat.TableViewIndex.Name + " (warn)" : stat.TableViewIndex.Name);
                             dataRow.SetField("Active", stat.TableViewIndex.IsActive);
                         }
 

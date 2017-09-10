@@ -109,5 +109,23 @@ namespace DSEDiagnosticConsoleApplication.Properties {
                 return ((int)(this["OnlyIncludeXHrsofLogsFromDiagCaptureTime"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute(@"<?xml version=""1.0"" encoding=""utf-16""?>
+<ArrayOfString xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"">
+  <string>system.paxos</string>
+  <string>system_traces</string>
+  <string>dse_perf</string>
+  <string>system_auth</string>
+  <string>dse_security</string>
+  <string>system.batches</string>
+  <string>system.hints</string>
+</ArrayOfString>")]
+        public global::System.Collections.Specialized.StringCollection WarnWhenKSTblIsDetected {
+            get {
+                return ((global::System.Collections.Specialized.StringCollection)(this["WarnWhenKSTblIsDetected"]));
+            }
+        }
     }
 }

@@ -107,9 +107,9 @@ namespace DSEDiagnosticLog4NetParser
             {
                 if (LogLevels.Any(l => logLine.StartsWith(l, StringComparison.InvariantCultureIgnoreCase)))
                 {
-                    if (ignoreErros)
+                    if (!ignoreErros)
                     {
-                        var error = string.Format("{0}\t{1}\tInvalid line detected ({2}) in Log4Net Log file at line number {3}. Line ignored.",
+                        var error = string.Format("{0}\t{1}\tInvalid line detected in Log4Net Log file at line number {3}. Line ignored. Line is: {2}",
                                                 this.Node,
                                                 this.LogFile.PathResolved,
                                                 logLine,
@@ -125,14 +125,16 @@ namespace DSEDiagnosticLog4NetParser
             }
             else
             {
-                var error = string.Format("{0}\t{1}\tInvalid line detected ({2}) in Log4Net Log file at line number {3}. Line ignored.",
+                if (!ignoreErros)
+                {
+                    var error = string.Format("{0}\t{1}\tInvalid line detected in Log4Net Log file at line number {3}. Line ignored. Line is: {2}",
                                             this.Node,
                                             this.LogFile.PathResolved,
                                             logLine,
                                             logLinePos);
-
-                Logger.Instance.Warn(error);
-                this._errors.Add(error);
+                    Logger.Instance.Warn(error);
+                    this._errors.Add(error);
+                }
                 return null;
             }
 
@@ -149,14 +151,17 @@ namespace DSEDiagnosticLog4NetParser
                 }
                 else
                 {
-                    var error = string.Format("{0}\t{1}\tInvalid Timestamp detected ({2}) in line \"{3}\" within Log4Net Log file at line number {4}. Line ignored.",
+                    if (!ignoreErros)
+                    {
+                        var error = string.Format("{0}\t{1}\tInvalid Timestamp detected ({2}) in line \"{3}\" within Log4Net Log file at line number {4}. Line ignored.",
                                                 this.Node,
                                                 this.LogFile.PathResolved,
                                                 lineMatch.Groups["Timestamp"].Value,
                                                 logLine,
                                                 logLinePos);
-                    Logger.Instance.Warn(error);
-                    this._errors.Add(error);
+                        Logger.Instance.Warn(error);
+                        this._errors.Add(error);
+                    }
                     return null;
                 }
             }
@@ -192,15 +197,18 @@ namespace DSEDiagnosticLog4NetParser
                 }
                 else
                 {
-                    var error = string.Format("{0}\t{1}\tInvalid DateTime detected ({2}) in line \"{3}\" within Log4Net Log file at line number {4}{5}. Line ignored.",
+                    if (!ignoreErros)
+                    {
+                        var error = string.Format("{0}\t{1}\tInvalid DateTime detected ({2}) in line \"{3}\" within Log4Net Log file at line number {4}{5}. Line ignored.",
                                                 this.Node,
                                                 this.LogFile.PathResolved,
                                                 lineMatch.Groups["Time"].Value,
                                                 logLine,
                                                 logLinePos,
                                                 string.IsNullOrEmpty(this._datetimeFormat) ? string.Empty : this._datetimeFormat);
-                    Logger.Instance.Warn(error);
-                    this._errors.Add(error);
+                        Logger.Instance.Warn(error);
+                        this._errors.Add(error);
+                    }
                     return null;
                 }
             }
@@ -215,14 +223,17 @@ namespace DSEDiagnosticLog4NetParser
                 }
                 else
                 {
-                    var error = string.Format("{0}\t{1}\tInvalid Log Level detected ({2}) in line \"{3}\" within Log4Net Log file at line number {4}. Line ignored.",
+                    if (!ignoreErros)
+                    {
+                        var error = string.Format("{0}\t{1}\tInvalid Log Level detected ({2}) in line \"{3}\" within Log4Net Log file at line number {4}. Line ignored.",
                                                 this.Node,
                                                 this.LogFile.PathResolved,
                                                 lineMatch.Groups["Level"].Value,
                                                 logLine,
                                                 logLinePos);
-                    Logger.Instance.Warn(error);
-                    this._errors.Add(error);
+                        Logger.Instance.Warn(error);
+                        this._errors.Add(error);
+                    }
                     return null;
                 }
             }
@@ -237,14 +248,17 @@ namespace DSEDiagnosticLog4NetParser
                 }
                 else
                 {
-                    var error = string.Format("{0}\t{1}\tInvalid Log File Line detected ({2}) in line \"{3}\" within Log4Net Log file at line number {4}. Line ignored.",
+                    if (!ignoreErros)
+                    {
+                        var error = string.Format("{0}\t{1}\tInvalid Log File Line detected ({2}) in line \"{3}\" within Log4Net Log file at line number {4}. Line ignored.",
                                                 this.Node,
                                                 this.LogFile.PathResolved,
                                                 lineMatch.Groups["Line"].Value,
                                                 logLine,
                                                 logLinePos);
-                    Logger.Instance.Warn(error);
-                    this._errors.Add(error);
+                        Logger.Instance.Warn(error);
+                        this._errors.Add(error);
+                    }
                     return null;
                 }
             }

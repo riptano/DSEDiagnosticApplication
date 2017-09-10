@@ -216,11 +216,26 @@ namespace DSEDiagnosticFileParser
                 removeItems.ForEach(r => f.OrphanedEvents.Remove(r));
             });
 
-            this.Node.AssociateItem(new LogFileInfo(this.File,
+            {
+                var logFileInfo = new LogFileInfo(this.File,
                                                     logFileDateRange,
                                                     this._logEvents.Count,
                                                     this._orphanedSessionEvents.Count == 0 ? null : this._orphanedSessionEvents,
-                                                    this._logEvents.Count == 0 ? null : new DateTimeRange(this._logEvents.First().EventTimeLocal, this._logEvents.Last().EventTimeLocal)));
+                                                    this._logEvents.Count == 0 ? null : new DateTimeRange(this._logEvents.First().EventTimeLocal, this._logEvents.Last().EventTimeLocal));
+
+                var fndOverlapppingLogs = this.Node.LogFiles.Where(l => l.LogDateRange.IsBetween(logFileInfo.LogDateRange));
+
+                if (fndOverlapppingLogs.HasAtLeastOneElement())
+                {
+                    Logger.Instance.ErrorFormat("MapperId<{0}>\t{1}\t{2}\tDetected overlapping of logs for Event Date Range {3} with logs {{{4}}} ",
+                                                    this.MapperId,
+                                                    this.Node,
+                                                    this.File.PathResolved,
+                                                    logFileInfo.LogDateRange,
+                                                    string.Join(", ", fndOverlapppingLogs));
+                }
+                this.Node.AssociateItem(logFileInfo);
+            }
 
             this._lookupSessionLabels.Clear();
             this._openSessions.Clear();

@@ -16,15 +16,11 @@ namespace DSEDiagnosticConsoleApplication
 
         #region Console
 
+        static public ConsoleDisplay ConsoleDeCompressFiles = null;
         static public ConsoleDisplay ConsoleNonLogReadFiles = null;
         static public ConsoleDisplay ConsoleLogReadFiles = null;
-        static public ConsoleDisplay ConsoleParsingNonLog = null;
-        static public ConsoleDisplay ConsoleParsingLog = null;
-        static public ConsoleDisplay ConsoleLogCount = null; //
-        static public ConsoleDisplay ConsoleExcelNonLog = null;
-        static public ConsoleDisplay ConsoleExcelLog = null;
-        static public ConsoleDisplay ConsoleExcelLogStatus = null;
-        static public ConsoleDisplay ConsoleExcel = null;
+        static public ConsoleDisplay ConsoleParsingDataTable = null;
+        static public ConsoleDisplay ConsoleExcelWorkSheet = null;
         static public ConsoleDisplay ConsoleExcelWorkbook = null;
         static public ConsoleDisplay ConsoleWarnings = null;
         static public ConsoleDisplay ConsoleErrors = null;
@@ -76,19 +72,91 @@ namespace DSEDiagnosticConsoleApplication
 
         private static void DiagnosticFile_OnProgression(object sender, DSEDiagnosticFileParser.ProgressionEventArgs eventArgs)
         {
-            if(ConsoleNonLogReadFiles != null
-                    && (eventArgs.Category.HasFlag(DSEDiagnosticFileParser.ProgressionEventArgs.Categories.Process)
-                            || eventArgs.Category.HasFlag(DSEDiagnosticFileParser.ProgressionEventArgs.Categories.Collection)))
+            if(ConsoleDeCompressFiles != null)
             {
-                if (eventArgs.Category.HasFlag(DSEDiagnosticFileParser.ProgressionEventArgs.Categories.Start))
+                if(sender is DSEDiagnosticFileParser.DiagnosticFile)
                 {
-                    ConsoleNonLogReadFiles.Increment(eventArgs.Message());
+                    var diagFile = (DSEDiagnosticFileParser.DiagnosticFile)sender;
+
+                    if(diagFile.Catagory == DSEDiagnosticFileParser.DiagnosticFile.CatagoryTypes.LogFile)
+                    {
+                        if(eventArgs.Category.HasFlag(DSEDiagnosticFileParser.ProgressionEventArgs.Categories.Start))
+                        {
+                            ConsoleLogReadFiles.Increment(diagFile.File);
+                        }
+                        else if(eventArgs.Category.HasFlag(DSEDiagnosticFileParser.ProgressionEventArgs.Categories.End)
+                                    || eventArgs.Category.HasFlag(DSEDiagnosticFileParser.ProgressionEventArgs.Categories.Cancel))
+                        {
+                            ConsoleLogReadFiles.TaskEnd(diagFile.File);
+                        }
+                    }
+                    else if (diagFile.Catagory == DSEDiagnosticFileParser.DiagnosticFile.CatagoryTypes.ZipFile)
+                    {
+                        if (eventArgs.Category.HasFlag(DSEDiagnosticFileParser.ProgressionEventArgs.Categories.Start))
+                        {
+                            ConsoleDeCompressFiles.Increment(diagFile.File);
+                        }
+                        else if (eventArgs.Category.HasFlag(DSEDiagnosticFileParser.ProgressionEventArgs.Categories.End)
+                                    || eventArgs.Category.HasFlag(DSEDiagnosticFileParser.ProgressionEventArgs.Categories.Cancel))
+                        {
+                            ConsoleDeCompressFiles.TaskEnd(diagFile.File);
+                        }
+                    }
+                    else
+                    {
+                        if (eventArgs.Category.HasFlag(DSEDiagnosticFileParser.ProgressionEventArgs.Categories.Start))
+                        {
+                            ConsoleNonLogReadFiles.Increment(diagFile.File);
+                        }
+                        else if (eventArgs.Category.HasFlag(DSEDiagnosticFileParser.ProgressionEventArgs.Categories.End)
+                                    || eventArgs.Category.HasFlag(DSEDiagnosticFileParser.ProgressionEventArgs.Categories.Cancel))
+                        {
+                            ConsoleNonLogReadFiles.TaskEnd(diagFile.File);
+                        }
+                    }
+
+                    if(eventArgs.Category.HasFlag(DSEDiagnosticFileParser.ProgressionEventArgs.Categories.Cancel))
+                    {
+                        ConsoleWarnings.Increment(string.Format("Canceled processing for {0}", diagFile.File.FileName));
+                    }
+
+                    return;
                 }
-                else if(eventArgs.Category.HasFlag(DSEDiagnosticFileParser.ProgressionEventArgs.Categories.Cancel)
-                            || eventArgs.Category.HasFlag(DSEDiagnosticFileParser.ProgressionEventArgs.Categories.End))
+
+                if (eventArgs.Category.HasFlag(DSEDiagnosticFileParser.ProgressionEventArgs.Categories.Process)
+                      || eventArgs.Category.HasFlag(DSEDiagnosticFileParser.ProgressionEventArgs.Categories.Collection))
                 {
-                    ConsoleNonLogReadFiles.TaskEnd(eventArgs.Message());
+                    if (eventArgs.Category.HasFlag(DSEDiagnosticFileParser.ProgressionEventArgs.Categories.Start))
+                    {
+                        ConsoleNonLogReadFiles.Increment(eventArgs.Message());
+                    }
+                    else if (eventArgs.Category.HasFlag(DSEDiagnosticFileParser.ProgressionEventArgs.Categories.Cancel)
+                                || eventArgs.Category.HasFlag(DSEDiagnosticFileParser.ProgressionEventArgs.Categories.End))
+                    {
+                        ConsoleNonLogReadFiles.TaskEnd(eventArgs.Message());
+                    }
+
+                    if (eventArgs.Category.HasFlag(DSEDiagnosticFileParser.ProgressionEventArgs.Categories.Cancel))
+                    {
+                        ConsoleWarnings.Increment(eventArgs.Message());
+                    }
                 }
+            }
+        }
+
+        private static void Instance_OnLoggingEvent(DSEDiagnosticLogger.Logger sender, DSEDiagnosticLogger.LoggingEventArgs eventArgs)
+        {
+            foreach (var item in eventArgs.LogInfo.LoggingEvents)
+            {
+                if(item.Level == log4net.Core.Level.Error || item.Level == log4net.Core.Level.Fatal)
+                {
+                    ConsoleErrors.Increment(string.Format(@"Log: {0:yyyy-MM-dd\ HH\:mm\:ss.fff}", item.TimeStamp));
+                }
+                else if(item.Level == log4net.Core.Level.Warn)
+                {
+                    ConsoleWarnings.Increment(string.Format(@"Log: {0:yyyy-MM-dd\ HH\:mm\:ss.fff}", item.TimeStamp));
+                }
+
             }
         }
 
@@ -98,6 +166,13 @@ namespace DSEDiagnosticConsoleApplication
         {
             #region Setup Exception handling, Argument Parsering
 
+            Logger.Instance.InfoFormat("Starting {0} ({1}) Vetsion: {2} RunAs: {3} RunTime Dir: {4}",
+                                            Common.Functions.Instance.ApplicationName,
+                                            Common.Functions.Instance.AssemblyFullName,
+                                            Common.Functions.Instance.ApplicationVersion,
+                                            Common.Functions.Instance.CurrentUserName,
+                                            Common.Functions.Instance.ApplicationRunTimeDir);
+
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
             System.Console.CancelKeyPress += Console_CancelKeyPress;
 
@@ -106,23 +181,19 @@ namespace DSEDiagnosticConsoleApplication
             Logger.Instance.InfoFormat("DSEDiagnosticConsoleApplication Main Start with Args: {0}", CommandLineArgsString);
             DSEDiagnosticFileParser.DiagnosticFile.OnException += DiagnosticFile_OnException;
             DSEDiagnosticFileParser.DiagnosticFile.OnProgression += DiagnosticFile_OnProgression;
+            Logger.Instance.OnLoggingEvent += Instance_OnLoggingEvent;
 
             #region Arguments
             {
                 var consoleArgs = new ConsoleArguments();
-                var argParser = new CommandLineParser.CommandLineParser();
 
                 try
                 {
-                    argParser.ExtractArgumentAttributes(consoleArgs);
-                    argParser.ParseCommandLine(args);
-
-                    if (!argParser.ParsingSucceeded)
+                    if(!consoleArgs.ParseSetArguments(args))
                     {
-                        argParser.ShowUsage();
+                        Common.ConsoleHelper.Prompt("Press Return to Exit", ConsoleColor.Gray, ConsoleColor.DarkRed);
                         return 1;
                     }
-
 
                     if (consoleArgs.Debug)
                     {
@@ -132,16 +203,25 @@ namespace DSEDiagnosticConsoleApplication
                     }
                 }
                 catch (CommandLineParser.Exceptions.CommandLineException e)
+                {                    
+                    ConsoleDisplay.Console.WriteLine(e.Message);
+                    ConsoleDisplay.Console.WriteLine("CommandLine: '{0}'", CommandLineArgsString);
+
+                    consoleArgs.ShowUsage();
+                    Common.ConsoleHelper.Prompt("Press Return to Exit", ConsoleColor.Gray, ConsoleColor.DarkRed);
+                    return 1;
+                }
+                catch (System.Exception e)
                 {
                     ConsoleDisplay.Console.WriteLine(e.Message);
                     ConsoleDisplay.Console.WriteLine("CommandLine: '{0}'", CommandLineArgsString);
 
-                    argParser.ShowUsage();
+                    consoleArgs.ShowUsage();
                     Common.ConsoleHelper.Prompt("Press Return to Exit", ConsoleColor.Gray, ConsoleColor.DarkRed);
                     return 1;
                 }
 
-                if(ParserSettings.ExcelFilePath != null
+                if (ParserSettings.ExcelFilePath != null
                     && ParserSettings.ExcelFilePath.IsRelativePath
                     && ParserSettings.DiagnosticPath != null
                     && ParserSettings.DiagnosticPath.IsAbsolutePath)
@@ -170,15 +250,12 @@ namespace DSEDiagnosticConsoleApplication
 
             ConsoleDisplay.Console.WriteLine(" ");
 
+            ConsoleDeCompressFiles = new ConsoleDisplay("Decompressing Files: {0} Working: {1} Task: {2}");
             ConsoleNonLogReadFiles = new ConsoleDisplay("Non-Log Files: {0} Working: {1} Task: {2}");
             ConsoleLogReadFiles = new ConsoleDisplay("Log Files: {0}  Working: {1} Task: {2}");
-            ConsoleParsingNonLog = new ConsoleDisplay("Non-Log Processing: {0}  Working: {1} Task: {2}");
-            ConsoleParsingLog = new ConsoleDisplay("Log Processing: {0}  Working: {1} Task: {2}");
-            ConsoleLogCount = new ConsoleDisplay("Log Item Count: {0:###,###,##0}", 2, false); //
-            ConsoleExcelNonLog = new ConsoleDisplay("Excel Non-Log: {0}  Working: {1} Task: {2}");
-            ConsoleExcelLog = new ConsoleDisplay("Excel Log: {0}  Working: {1} Task: {2}");
-            ConsoleExcelLogStatus = new ConsoleDisplay("Excel Status/Summary Log: {0}  Working: {1} Task: {2}");
-            ConsoleExcelWorkbook = new ConsoleDisplay("Excel Workbooks: {0} File: {2}");
+            ConsoleParsingDataTable = new ConsoleDisplay("DataTable Processing: {0}  Working: {1} Task: {2}");
+            ConsoleExcelWorkSheet = new ConsoleDisplay("Excel WorkSheet: {0}  Working: {1} Task: {2}");
+            ConsoleExcelWorkbook = new ConsoleDisplay("Excel WorkBook: {0}  Working: {1} Task: {2}");
             ConsoleWarnings = new ConsoleDisplay("Warnings: {0} Last: {2}", 2, false);
             ConsoleErrors = new ConsoleDisplay("Errors: {0} Last: {2}", 2, false);
 
@@ -211,7 +288,7 @@ namespace DSEDiagnosticConsoleApplication
                     var diagTZ = regexMatch.Groups["TZ"].Value;
                     DateTime diagDateTime;
 
-                    defaultCluster = clusterName.Trim();
+                    //defaultCluster = clusterName.Trim(); //Turns out OpsCenter translate "-" into "_" for cluster name in the folder name and there is no way of knowing if it has been translated
                     if(DateTime.TryParseExact(diagTS,
                                                 Properties.Settings.Default.OpsCenterDiagFolderDateTimeFmt,
                                                 System.Globalization.CultureInfo.InvariantCulture,
@@ -221,8 +298,8 @@ namespace DSEDiagnosticConsoleApplication
                         DSEDiagnosticLibrary.DSEInfo.NodeToolCaptureUTCTimestamp = diagDateTime;
                     }
 
-                    Logger.Instance.InfoFormat("Using Default Cluster Name \"{0}\" with OpsCenter Capture Date of {1} (Local Date {2})",
-                                                    defaultCluster,
+                    Logger.Instance.InfoFormat("Using Diagnostic Tar-Ball \"{0}\" with OpsCenter Capture Date of {1} (Local Date {2})",
+                                                    clusterName,
                                                     DSEDiagnosticLibrary.DSEInfo.NodeToolCaptureUTCTimestamp.HasValue
                                                         ? DSEDiagnosticLibrary.DSEInfo.NodeToolCaptureUTCTimestamp.Value.ToString(@"yyyy-MM-dd HH:mm:ss")
                                                         : "<Unkown>",
@@ -254,7 +331,7 @@ namespace DSEDiagnosticConsoleApplication
                                                                                      null,
                                                                                      cancellationSource);
 
-            diagParserTask.Then(ignore => ConsoleNonLogReadFiles.Terminate());
+            diagParserTask.Then(ignore => { ConsoleNonLogReadFiles.Terminate(); ConsoleLogReadFiles.Terminate(); ConsoleDeCompressFiles.Terminate(); });
             diagParserTask.ContinueWith(task => CanceledFaultProcessing(task.Exception),
                                             TaskContinuationOptions.OnlyOnFaulted);
             diagParserTask.ContinueWith(task => CanceledFaultProcessing(null),
@@ -275,13 +352,13 @@ namespace DSEDiagnosticConsoleApplication
                     new DSEDiagnosticToDataTable.MachineDataTable(cluster, cancellationSource),
                     new DSEDiagnosticToDataTable.NodeDataTable(cluster, cancellationSource),
                     new DSEDiagnosticToDataTable.TokenRangesDataTable(cluster, cancellationSource),
-                    new DSEDiagnosticToDataTable.CFStatsDataTable(cluster, cancellationSource, ParserSettings.IgnoreKeySpaces.ToArray()),
+                    new DSEDiagnosticToDataTable.CFStatsDataTable(cluster, cancellationSource, ParserSettings.IgnoreKeySpaces.ToArray(), ParserSettings.WarnWhenKSTblIsDetected.ToArray()),
                     new DSEDiagnosticToDataTable.TPStatsDataTable(cluster, cancellationSource)
                 };
 
                 loadDataTables.ForEach(ldtInstance =>
                 {
-                    ConsoleParsingNonLog.Increment(ldtInstance.Table.TableName);
+                    ConsoleParsingDataTable.Increment(ldtInstance.Table.TableName);
 
                     var taskDataTable = diagParserTask.ContinueWith((task, instance) => ((DSEDiagnosticToDataTable.IDataTable)instance).LoadTable(),
                                                                                 ldtInstance,
@@ -289,7 +366,7 @@ namespace DSEDiagnosticConsoleApplication
                                                                                 TaskContinuationOptions.OnlyOnRanToCompletion,
                                                                                 TaskScheduler.Default);
                     datatableTasks.Add(taskDataTable);
-                    taskDataTable.Then(result => ConsoleParsingNonLog.TaskEnd(result.TableName));
+                    taskDataTable.Then(result => ConsoleParsingDataTable.TaskEnd(result.TableName));
                 });
 
                 loadAllDataTableTask = Task.Factory.ContinueWhenAll(datatableTasks.ToArray(),
@@ -316,7 +393,7 @@ namespace DSEDiagnosticConsoleApplication
                                                                         return dataSet;
                                                                     },
                                                                     cancellationSource.Token);
-                loadAllDataTableTask.Then(result => ConsoleParsingNonLog.Terminate());
+                loadAllDataTableTask.Then(result => ConsoleParsingDataTable.Terminate());
                 loadAllDataTableTask.ContinueWith(task => CanceledFaultProcessing(task.Exception),
                                                             TaskContinuationOptions.OnlyOnFaulted);
                 loadAllDataTableTask.ContinueWith(task => CanceledFaultProcessing(null),
@@ -337,22 +414,22 @@ namespace DSEDiagnosticConsoleApplication
                                             {
                                                 if (sender.LoadTo == DSEDiagtnosticToExcel.LoadToTypes.WorkBook)
                                                 {
-                                                    ConsoleExcelLog.Increment(sender.WorkBookName);
+                                                    ConsoleExcelWorkbook.Increment(sender.ExcelTargetWorkbook);
                                                 }
                                                 else
                                                 {
-                                                    ConsoleExcelNonLog.Increment(sender.WorkSheetName);
+                                                    ConsoleExcelWorkSheet.Increment(sender.WorkSheetName);
                                                 }
                                             }
                                             else if(action == "Loaded")
                                             {
                                                 if (sender.LoadTo == DSEDiagtnosticToExcel.LoadToTypes.WorkBook)
                                                 {
-                                                    ConsoleExcelLog.TaskEnd(sender.WorkBookName);
+                                                    ConsoleExcelWorkbook.TaskEnd(sender.ExcelTargetWorkbook);
                                                 }
                                                 else
                                                 {
-                                                    ConsoleExcelNonLog.TaskEnd(sender.WorkSheetName);
+                                                    ConsoleExcelWorkSheet.TaskEnd(sender.WorkSheetName);
                                                 }
                                             }
                                             else if(action == "Workbook Saved")
@@ -360,8 +437,11 @@ namespace DSEDiagnosticConsoleApplication
                                                 ConsoleExcelWorkbook.Increment(sender.ExcelTargetWorkbook);
                                             }
                                         };
+                var excelTask = loadExcel.Load();
 
-                loadExcel.Load().Wait();
+                excelTask.Then(() => { ConsoleExcelWorkbook.Terminate(); ConsoleExcelWorkSheet.Terminate(); });
+
+                excelTask.Wait();                
             }
             #endregion
 
@@ -382,11 +462,7 @@ namespace DSEDiagnosticConsoleApplication
             return 0;
         }
 
-        private static void LoadExcel_OnAction(DSEDiagtnosticToExcel.IExcel sender, string action)
-        {
-            throw new NotImplementedException();
-        }
-
+        #region Canceled Processing
         static public volatile bool AlreadyCanceled = false;
         static bool _AlreadyCanceled = false;
 
@@ -412,5 +488,6 @@ namespace DSEDiagnosticConsoleApplication
                 Environment.Exit(-1);
             }
         }
+        #endregion
     }
 }

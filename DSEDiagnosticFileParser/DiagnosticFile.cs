@@ -24,7 +24,6 @@ namespace DSEDiagnosticFileParser
 			Unknown = 0,
             ConfigurationFile,
             LogFile,
-            AchievedLogFile,
             CommandOutputFile,
             SystemOutputFile,
             CQLFile,
@@ -328,7 +327,8 @@ namespace DSEDiagnosticFileParser
                                                                                     string dataCenterName = null,
                                                                                     string clusterName = null,
                                                                                     Version dseVersion = null,
-                                                                                    CancellationTokenSource cancellationSource = null)
+                                                                                    CancellationTokenSource cancellationSource = null,
+                                                                                    IEnumerable<KeyValuePair<string,IFilePath>> additionalFilesForClass = null)
         {
             cancellationSource?.Token.ThrowIfCancellationRequested();
 
@@ -336,7 +336,8 @@ namespace DSEDiagnosticFileParser
                                                                                                                                 dataCenterName,
                                                                                                                                 clusterName,
                                                                                                                                 dseVersion,
-                                                                                                                                cancellationSource)).Unwrap();
+                                                                                                                                cancellationSource,
+                                                                                                                                additionalFilesForClass)).Unwrap();
         }
 
         public static IEnumerable<DiagnosticFile> ProcessFile(IDirectoryPath diagnosticDirectory,
@@ -348,7 +349,8 @@ namespace DSEDiagnosticFileParser
                                                                 FileMapper fileMapper,
                                                                 int fileMapperId,
                                                                 Common.Patterns.Collections.ThreadSafe.List<DiagnosticFile> diagFilesList,
-                                                                ParallelLoopState loopState)
+                                                                ParallelLoopState loopState,
+                                                                IEnumerable<KeyValuePair<string, IFilePath>> additionalFilesForClass = null)
         {
             var localDiagFiles = new List<DiagnosticFile>();
 
@@ -375,7 +377,7 @@ namespace DSEDiagnosticFileParser
                     else fileMapper.CancellationSource.Cancel(true);
                 }
 
-                var diagnosticFiles = ProcessFile(diagnosticDirectory, fileMapper, fileMapperId, dataCenterName, clusterName, dseVersion);
+                var diagnosticFiles = ProcessFile(diagnosticDirectory, fileMapper, fileMapperId, dataCenterName, clusterName, dseVersion, additionalFilesForClass);
 
                 diagFilesList.AddRange(diagnosticFiles);
                 localDiagFiles.AddRange(diagnosticFiles);
@@ -465,7 +467,8 @@ namespace DSEDiagnosticFileParser
                                                                         string dataCenterName = null,
                                                                         string clusterName = null,
                                                                         Version dseVersion = null,
-                                                                        CancellationTokenSource cancellationSource = null)
+                                                                        CancellationTokenSource cancellationSource = null,
+                                                                        IEnumerable<KeyValuePair<string, IFilePath>> additionalFilesForClass = null)
         {
             var diagFilesList = new Common.Patterns.Collections.ThreadSafe.List<DiagnosticFile>();
             var mappers = DSEDiagnosticFileParser.LibrarySettings.ProcessFileMappings
@@ -520,7 +523,8 @@ namespace DSEDiagnosticFileParser
                                                             fileMapper,
                                                             mapperId,
                                                             diagFilesList,
-                                                            null);
+                                                            null,
+                                                            additionalFilesForClass);
 
                         System.Threading.Tasks.Task.WaitAll(diagnosticFiles.Select(d => d.Task).ToArray());
                     }
@@ -546,7 +550,8 @@ namespace DSEDiagnosticFileParser
                                     fileMapper,
                                     mapperId,
                                     diagFilesList,
-                                    loopState);
+                                    loopState,
+                                    additionalFilesForClass);
                     });
 
                     Logger.Instance.InfoFormat("FileMapper<{0}, ParallelProcessing, Completed>",
@@ -571,7 +576,8 @@ namespace DSEDiagnosticFileParser
                                                                     fileMapper,
                                                                     mapperId,
                                                                     diagFilesList,
-                                                                    loopState));
+                                                                    loopState,
+                                                                    additionalFilesForClass));
                     });
 
                     Logger.Instance.InfoFormat("FileMapper<{0}, ParallelProcessingWithinPriorityLevel, Waiting>",
@@ -608,7 +614,8 @@ namespace DSEDiagnosticFileParser
                                                                     int fileMapperId,
                                                                     string dataCenterName = null,
                                                                     string clusterName = null,
-                                                                    Version targetDSEVersion = null)
+                                                                    Version targetDSEVersion = null,
+                                                                    IEnumerable<KeyValuePair<string, IFilePath>> additionalFilesForClass = null)
 		{
             CancellationToken? cancellationToken = fileMappings.CancellationSource?.Token;
 
@@ -626,8 +633,33 @@ namespace DSEDiagnosticFileParser
             var ignoreFilesRegEx = string.IsNullOrEmpty(fileMappings?.IgnoreFilesMatchingRegEx)
                                             ? null
                                             : new Regex(fileMappings.IgnoreFilesMatchingRegEx,
-                                                            RegexOptions.Compiled | RegexOptions.IgnoreCase);
+                                                            RegexOptions.IgnoreCase | RegexOptions.Compiled);
 			var mergesFiles = fileMappings?.FilePathMerge(diagnosticDirectory);
+
+            if (additionalFilesForClass != null && additionalFilesForClass.HasAtLeastOneElement())
+            {
+                var additionalFiles = additionalFilesForClass.Where(m => m.Key == fileMappings.FileParsingClass || m.Key == fileMappings.Catagory.ToString()).Select(i => i.Value);
+
+                if (additionalFiles.HasAtLeastOneElement())
+                {
+                    Logger.Instance.InfoFormat("FileMapper<{4}>\t<NoNodeId>\t{0}\tFile Mapper File Parsing Class \"{1}\" Category {2} using Additional Files of {{{3}}}",
+                                                diagnosticDirectory.PathResolved,
+                                                fileMappings.FileParsingClass,
+                                                fileMappings.Catagory,
+                                                string.Join(", ", additionalFiles),
+                                                fileMapperId);
+
+                    if (mergesFiles == null || mergesFiles.Length == 0)
+                    {
+                        mergesFiles = additionalFiles.ToArray();
+                    }
+                    else
+                    {
+                        mergesFiles = mergesFiles.Concat(additionalFiles).ToArray();
+                    }
+                }
+            }
+
             var resultingFiles = mergesFiles == null
                                 ? Enumerable.Empty<IPath>()
                                 : mergesFiles.SelectMany(f =>
@@ -643,12 +675,13 @@ namespace DSEDiagnosticFileParser
                                         catch (System.IO.FileNotFoundException) { }
                                         return Enumerable.Empty<IPath>();
                                     });
-            var targetFiles = resultingFiles.Where(f => f is IFilePath
+            var targetFiles = resultingFiles.Where(f => (ignoreFilesRegEx == null ? true : !ignoreFilesRegEx.IsMatch(f.PathResolved))
+                                                            && f is IFilePath
                                                             && f.Exist())
                                             .Cast<IFilePath>()
+                                            .Where(f => LibrarySettings.IgnoreFileWExtensions.All(i => f.FileExtension.ToLower() != i))
                                             .OrderByDescending(f => f.GetLastWriteTimeUtc())
-                                            .DuplicatesRemoved(f => f) //If there are duplicates, keep the most current...
-                                            .Where(f => ignoreFilesRegEx == null ? true : !ignoreFilesRegEx.IsMatch(f.PathResolved));
+                                            .DuplicatesRemoved(f => f); //If there are duplicates, keep the most current...
 			var diagnosticInstances = new List<DiagnosticFile>();
 			var instanceType = fileMappings.GetFileParsingType();
 
@@ -682,9 +715,12 @@ namespace DSEDiagnosticFileParser
 
             if (cancellationToken.HasValue) cancellationToken.Value.ThrowIfCancellationRequested();
 
-            resultingFiles.Complement(targetFiles)
-                            .ForEach(i => Logger.Instance.WarnFormat("<NoNodeId>\t{0}\tFile was skipped for processing because it either doesn't exist or is a file folder.",
+            if (Logger.Instance.IsDebugEnabled)
+            {
+                resultingFiles.Complement(targetFiles)
+                            .ForEach(i => Logger.Instance.DebugFormat("<NoNodeId>\t{0}\tFile was skipped for processing because it either doesn't exist, is a file folder, or was an explicit ignore/skipped file.",
                                                                         i.PathResolved));
+            }
 
             if(!string.IsNullOrEmpty(fileMappings.DefaultCluster))
             {

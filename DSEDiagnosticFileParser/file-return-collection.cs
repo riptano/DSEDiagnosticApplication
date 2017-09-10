@@ -40,10 +40,7 @@ namespace DSEDiagnosticFileParser
                     break;
                 case CatagoryTypes.LogFile:
                     this._sourceType = SourceTypes.CassandraLog;
-                    break;
-                case CatagoryTypes.AchievedLogFile:
-                    this._sourceType = SourceTypes.CassandraLog;
-                    break;
+                    break;                
                 case CatagoryTypes.CommandOutputFile:
                     break;
                 case CatagoryTypes.SystemOutputFile:

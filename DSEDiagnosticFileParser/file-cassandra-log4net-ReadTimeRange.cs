@@ -156,6 +156,18 @@ namespace DSEDiagnosticFileParser
 
             if (logFileInfo != null)
             {
+                var fndOverlapppingLogs = this.Node.LogFiles.Where(l => l.LogDateRange.IsBetween(logFileInfo.LogDateRange));
+
+                if(fndOverlapppingLogs.HasAtLeastOneElement())
+                {
+                    Logger.Instance.ErrorFormat("MapperId<{0}>\t{1}\t{2}\tDetected overlapping of logs for Date Range {3} with logs {{{4}}} ",
+                                                    this.MapperId,
+                                                    this.Node,
+                                                    this.File.PathResolved,
+                                                    logFileInfo.LogDateRange,
+                                                    string.Join(", ", fndOverlapppingLogs));
+                }
+
                 this.Node.AssociateItem(logFileInfo);
                 this._result.AddLogFileInfo(new LogFileInfoParsed(this, logFileInfo));
             }

@@ -36,7 +36,7 @@ namespace DSEDiagnosticLibrary
         /// <summary>
         /// Returns a time zone only if all nodes in the DC have the same time zone. Otherwise null is returned.
         /// </summary>
-        Common.Patterns.TimeZoneInfo.IZone TimeZone { get; } 
+        Common.Patterns.TimeZoneInfo.IZone TimeZone { get; }
 
         IEnumerable<IDDL> DDLs { get; }
 
@@ -258,7 +258,16 @@ namespace DSEDiagnosticLibrary
 
                 if (node == null)
                 {
-                    node = new Node(this, nodeId);
+                    node = Cluster.FindNodeInUnAssocaitedNodes(nodeId);
+
+                    if (node == null)
+                    {
+                        node = new Node(this, nodeId);
+                    }
+                    else
+                    {
+                        ((Node)node).SetNodeToDataCenter(this);
+                    }
                     this._nodes.UnSafe.Add(node);
                 }
 
@@ -283,7 +292,16 @@ namespace DSEDiagnosticLibrary
 
                 if (node == null)
                 {
-                    node = new Node(this, nodeId);
+                    node = Cluster.FindNodeInUnAssocaitedNodes(nodeId);
+
+                    if (node == null)
+                    {
+                        node = new Node(this, nodeId);
+                    }
+                    else
+                    {
+                        ((Node)node).SetNodeToDataCenter(this);
+                    }
                     this._nodes.UnSafe.Add(node);
                 }
 
@@ -303,19 +321,12 @@ namespace DSEDiagnosticLibrary
             this._nodes.Lock();
             try
             {
-                if (this._nodes.UnSafe.Contains(node))
-                {
-                    node = this._nodes.UnSafe.First(n => n.Equals(node));
-                }
-                else
+                if (!this._nodes.UnSafe.Contains(node))
                 {
                     this._nodes.UnSafe.Add(node);
                 }
 
-                if (node.DataCenter == null)
-                {
-                    ((Node)node).SetNodeToDataCenter(this);
-                }
+                ((Node)node).SetNodeToDataCenter(this);
 
                 return node;
             }

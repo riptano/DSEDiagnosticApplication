@@ -201,6 +201,8 @@ namespace DSEDiagnosticConsoleApplication
         public static DiagFolderStructOptions DiagFolderStruct = (DiagFolderStructOptions)Enum.Parse(typeof(DiagFolderStructOptions), Properties.Settings.Default.DiagFolderStruct);
         public static List<string> IgnoreKeySpaces = Properties.Settings.Default.IgnoreKeySpaces.ToList(false);
         public static int OnlyIncludeXHrsofLogsFromDiagCaptureTime = Properties.Settings.Default.OnlyIncludeXHrsofLogsFromDiagCaptureTime;
+        public static List<KeyValuePair<string, IFilePath>> AdditionalFilesForParsingClass = new List<KeyValuePair<string, IFilePath>>();
+        public static List<string> WarnWhenKSTblIsDetected = Properties.Settings.Default.WarnWhenKSTblIsDetected.ToList(false);
 
         #endregion
     }

@@ -597,7 +597,7 @@ namespace DSEDiagnosticLibrary
             Hadoop = 0x0080,
             CFS = 0x0100,
             Analytics_TT = Analytics | TT,
-            Analytics_JT = Analytics | JT
+            Analytics_JT = Analytics | JT            
 		}
 
 		public enum DSEStatuses
@@ -1135,12 +1135,20 @@ namespace DSEDiagnosticLibrary
 
             if(this.DSE.Uptime != null
                 && this.DSE.NodeToolDateRange == null
-                && this.Machine.TimeZone != null
                 && DSEInfo.NodeToolCaptureUTCTimestamp.HasValue)
             {
-                var refDTO = Common.TimeZones.ConvertFromUTC(DSEInfo.NodeToolCaptureUTCTimestamp.Value, this.Machine.TimeZone);
+                DateTime refDTO;
 
-                this.DSE.NodeToolDateRange = new DateTimeRange(refDTO.DateTime - (TimeSpan)this.DSE.Uptime, refDTO.DateTime);
+                if (this.Machine.TimeZone == null)
+                {
+                    refDTO = DSEInfo.NodeToolCaptureUTCTimestamp.Value;
+                }
+                else
+                {
+                    refDTO = Common.TimeZones.ConvertFromUTC(DSEInfo.NodeToolCaptureUTCTimestamp.Value, this.Machine.TimeZone).DateTime;
+                }
+
+                this.DSE.NodeToolDateRange = new DateTimeRange(refDTO - (TimeSpan)this.DSE.Uptime, refDTO);
                 bResult = true;
             }
 

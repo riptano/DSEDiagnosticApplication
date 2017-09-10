@@ -297,7 +297,7 @@
     "FileParsingClass": "DSEDiagnosticFileParser.file_nodetool_tpstats",
     "NodeIdPos": -1,
     "ProcessingTaskOption": "ScanForNode,ParallelProcessing,ParallelProcessFiles",
-    "ProcessPriorityLevel": 100
+    "ProcessPriorityLevel": 500
   },
   {
     "Catagory": "CQLFile",
@@ -305,7 +305,7 @@
     "FileParsingClass": "DSEDiagnosticFileParser.cql_ddl",
     "NodeIdPos": -1,
     "ProcessingTaskOption": "ScanForNode,ParallelProcessing",
-    "ProcessPriorityLevel": 500
+    "ProcessPriorityLevel": 300
   },
   {
     "Catagory": "CommandOutputFile",
@@ -313,14 +313,14 @@
     "FileParsingClass": "DSEDiagnosticFileParser.file_nodetool_cfstats",
     "NodeIdPos": -1,
     "ProcessingTaskOption": "ScanForNode,ParallelProcessing,ParallelProcessFiles",
-    "ProcessPriorityLevel": 400
+    "ProcessPriorityLevel": 200
   },
   {
     "Catagory": "LogFile",
-    "FilePatterns": [ ".\\nodes\\*\\logs\\cassandra\\*.log", ".\\nodes\\*\\logs\\cassandra\\*.log.*", ".\\nodes\\*\\logs\\cassandra\\*\\*.log", ".\\nodes\\*\\logs\\cassandra\\*\\*.log.*" ],
+    "FilePatterns": [ ".\\nodes\\*\\logs\\cassandra\\system.log", ".\\nodes\\*\\logs\\cassandra\\system.log.*", ".\\nodes\\*\\logs\\cassandra\\*\\system.log", ".\\nodes\\*\\logs\\cassandra\\*\\system.log.*", ".\\nodes\\*\\logs\\cassandra\\debug.log", ".\\nodes\\*\\logs\\cassandra\\debug.log.*", ".\\nodes\\*\\logs\\cassandra\\*\\debug.log", ".\\nodes\\*\\logs\\cassandra\\*\\debug.log.*" ],
     "FileParsingClass": "DSEDiagnosticFileParser.file_cassandra_log4net_ReadTimeRange",
     "NodeIdPos": -1,
     "ProcessingTaskOption": "ScanForNode,ParallelProcessing,ParallelProcessFiles",
-    "ProcessPriorityLevel": 400
+    "ProcessPriorityLevel": 100
   }
 ]
