@@ -162,7 +162,7 @@ namespace DSEDiagnosticFileParser
                 {
                     var zip = new ICSharpCode.SharpZipLib.Zip.FastZip();
                     zip.RestoreDateTimeOnExtract = true;
-                    zip.ExtractZip(filePath.PathResolved, newExtractedFolder.PathResolved, ICSharpCode.SharpZipLib.Zip.FastZip.Overwrite.Never, null, null, null, true);
+                    zip.ExtractZip(filePath.PathResolved, newExtractedFolder.PathResolved, ICSharpCode.SharpZipLib.Zip.FastZip.Overwrite.RenameOnlyIfDifferent, null, null, null, true);
                 }
                 catch(System.Exception ex)
                 {
@@ -182,7 +182,7 @@ namespace DSEDiagnosticFileParser
                     using (var gzipStream = new ICSharpCode.SharpZipLib.GZip.GZipInputStream(stream))
                     using (var tarArchive = ICSharpCode.SharpZipLib.Tar.TarArchive.CreateInputTarArchive(gzipStream))
                     {
-                        tarArchive.SetKeepOldFiles(true);
+                        tarArchive.FileOverwriteOption = ICSharpCode.SharpZipLib.Tar.TarArchive.FileOverWriteOptions.RenameOnlyIfDifferent;
                         tarArchive.RestoreDateTimeOnExtract = true;
                         tarArchive.ExtractContents(newExtractedFolder.PathResolved);
 
@@ -191,11 +191,11 @@ namespace DSEDiagnosticFileParser
                 catch (System.Exception ex)
                 {
                     if ((ex is ICSharpCode.SharpZipLib.Tar.TarException || ex is System.ArgumentOutOfRangeException)
-                            && (ex.Message == "Header checksum is invalid" || ex.Message.StartsWith("Cannot be less than zero")))                    
+                            && (ex.Message == "Header checksum is invalid" || ex.Message.StartsWith("Cannot be less than zero")))
                     {
                         Logger.Instance.InfoFormat("Invalid GZ header checksum detected for File \"{0}\". Trying \"msgz\" format...",
                                                         filePath.PathResolved);
-                                                
+
                         bResult = UnZipFileToFolder("msgz",
                                                         filePath,
                                                         newExtractedFolder,
@@ -210,7 +210,7 @@ namespace DSEDiagnosticFileParser
                     }
                 }
                 #endregion
-            }           
+            }
             else if (extractType == "tar")
             {
                 #region tar
@@ -219,7 +219,7 @@ namespace DSEDiagnosticFileParser
                     using (var stream = filePath.OpenRead())
                     using (var tarArchive = ICSharpCode.SharpZipLib.Tar.TarArchive.CreateInputTarArchive(stream))
                     {
-                        tarArchive.SetKeepOldFiles(true);
+                        tarArchive.FileOverwriteOption = ICSharpCode.SharpZipLib.Tar.TarArchive.FileOverWriteOptions.RenameOnlyIfDifferent;
                         tarArchive.RestoreDateTimeOnExtract = true;
                         tarArchive.ExtractContents(newExtractedFolder.PathResolved);
                     }
@@ -234,7 +234,7 @@ namespace DSEDiagnosticFileParser
                         bResult = UnZipFileToFolder("tar.gz",
                                                         filePath,
                                                         newExtractedFolder,
-                                                        cancellationToken);                       
+                                                        cancellationToken);
                     }
                     else
                     {
@@ -284,7 +284,7 @@ namespace DSEDiagnosticFileParser
                                                 ex);
                         bResult = false;
                     }
-                    
+
                 }
                 #endregion
             }
@@ -309,7 +309,7 @@ namespace DSEDiagnosticFileParser
                         using (var decompressedFileStream = newFile.OpenWrite())
                         using (var decompressionStream = new System.IO.Compression.GZipStream(stream,
                                                                                                 System.IO.Compression.CompressionMode.Decompress))
-                        {                           
+                        {
                             decompressionStream.CopyTo(decompressedFileStream);
                         }
                     }
