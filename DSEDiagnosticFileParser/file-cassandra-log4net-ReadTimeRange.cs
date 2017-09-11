@@ -139,7 +139,7 @@ namespace DSEDiagnosticFileParser
             this.CancellationToken.ThrowIfCancellationRequested();
             LogFileInfo logFileInfo = null;
 
-            using (var logFileInstance = new ReadLogFile(this.File, LibrarySettings.Log4NetConversionPattern, this.CancellationToken, this.Node))
+            using (var logFileInstance = new ReadLogFile(this.File, LibrarySettings.Log4NetConversionPattern, this.CancellationToken, this.Node, file_cassandra_log4net.LogTimeRangeUTC))
             {
                 using (var logMessages = logFileInstance.ReadLogFileTimeRange())
                 {

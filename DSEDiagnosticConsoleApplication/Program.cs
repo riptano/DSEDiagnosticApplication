@@ -320,8 +320,12 @@ namespace DSEDiagnosticConsoleApplication
                 Logger.Instance.WarnFormat("Using UTC Log Range of {0} to {1} (Local Begin Time {2}, End Time {3})",
                                                 DSEDiagnosticFileParser.file_cassandra_log4net.LogTimeRangeUTC.Min.ToString(@"yyyy-MM-dd HH:mm:ss"),
                                                  DSEDiagnosticFileParser.file_cassandra_log4net.LogTimeRangeUTC.Max.ToString(@"yyyy-MM-dd HH:mm:ss"),
-                                                 DSEDiagnosticFileParser.file_cassandra_log4net.LogTimeRangeUTC.Min.ConvertFromUTC().ToString(@"yyyy-MM-dd HH:mm:ss zzz"),
-                                                 DSEDiagnosticFileParser.file_cassandra_log4net.LogTimeRangeUTC.Max.ConvertFromUTC().ToString(@"yyyy-MM-dd HH:mm:ss zzz"));
+                                                 DSEDiagnosticFileParser.file_cassandra_log4net.LogTimeRangeUTC.Min == DateTime.MinValue
+                                                            ? "MinValue"
+                                                            : DSEDiagnosticFileParser.file_cassandra_log4net.LogTimeRangeUTC.Min.ConvertFromUTC().ToString(@"yyyy-MM-dd HH:mm:ss zzz"),
+                                                 DSEDiagnosticFileParser.file_cassandra_log4net.LogTimeRangeUTC.Max == DateTime.MaxValue 
+                                                            ? "MaxValue"
+                                                            : DSEDiagnosticFileParser.file_cassandra_log4net.LogTimeRangeUTC.Max.ConvertFromUTC().ToString(@"yyyy-MM-dd HH:mm:ss zzz"));
             }
 
             var cancellationSource = new System.Threading.CancellationTokenSource();

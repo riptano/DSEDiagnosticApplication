@@ -171,7 +171,7 @@ namespace DSEDiagnosticConsoleApplication
                                         var endTR = match.Groups["ENDTS"].Value;
                                         var endTZ = match.Groups["ENDTZ"].Value;
                                         DateTime startDT = string.IsNullOrEmpty(startTR) ? DateTime.MinValue : DateTime.Parse(startTR);
-                                        DateTime endDT = string.IsNullOrEmpty(endTR) ? DateTime.MinValue : DateTime.Parse(endTR);
+                                        DateTime endDT = string.IsNullOrEmpty(endTR) ? DateTime.MaxValue : DateTime.Parse(endTR);
 
                                         DSEDiagnosticFileParser.file_cassandra_log4net.LogTimeRangeUTC = new DateTimeRange(string.IsNullOrEmpty(startTZ)
                                                                                                                                 ? startDT == DateTime.MinValue ? startDT : startDT.Convert("UTC")

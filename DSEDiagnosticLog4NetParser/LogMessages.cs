@@ -289,6 +289,16 @@ namespace DSEDiagnosticLog4NetParser
             }
         }
 
+        internal void SetStartingTime(DateTime startDateTime)
+        {
+            this._startingLogDateTime = startDateTime;
+        }
+
+        internal void SetEndingTime(DateTime endDateTime)
+        {
+            this._endingLogDateTime = endDateTime;
+        }
+
         internal bool RemoveMessage(LogMessage removeMsg = null)
         {
             bool bResult = false;

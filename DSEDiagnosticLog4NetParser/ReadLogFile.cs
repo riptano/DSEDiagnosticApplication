@@ -247,6 +247,24 @@ namespace DSEDiagnosticLog4NetParser
                 }
             }
 
+            if(this.Log.LogTimeRange != null && this.LogTimeFrame != null)
+            {
+                if(!this.LogTimeFrame.IsBetween(this.Log.LogTimeRange))
+                {
+                    var interRange = this.LogTimeFrame.Intersect(this.Log.LogTimeRange);
+
+                    if (interRange == null)
+                    {
+                        logMessages.CompletionStatus = LogCompletionStatus.Skipped;
+                    }
+                    else
+                    {
+                        ((LogMessages)this.Log).SetStartingTime(interRange.Min);
+                        ((LogMessages)this.Log).SetEndingTime(interRange.Max);
+                    }
+                }
+            }
+
             this.Completed = true;
             return this.Log;
         }
