@@ -462,7 +462,7 @@ namespace DSEDiagnosticLibrary
 
         static public Common.Patterns.TimeZoneInfo.IZone FindTimeZone(string ianaName)
         {
-            return Common.TimeZones.Find(ianaName == "UTC" ? "Etc/UTC" : ianaName) ?? Common.TimeZones.Find("America/" + ianaName);
+            return Common.TimeZones.Find(ianaName, Common.Patterns.TimeZoneInfo.ZoneNameTypes.IANATZName) ?? Common.TimeZones.Find(ianaName, Common.Patterns.TimeZoneInfo.ZoneNameTypes.FormattedName);
         }
     }
 }
