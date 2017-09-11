@@ -85,7 +85,7 @@ namespace DSEDiagnosticConsoleApplication
                 Description = "Only import log entries based on the previous <X> hours from DiagCaptureTime. only valid if DiagCaptureTime is defined or is a OpsCtrDiagStruct. -1 disables this option"
             });
 
-            this._cmdLineParser.Arguments.Add(new ValueArgument<string>("LogTimeRange")
+            this._cmdLineParser.Arguments.Add(new ValueArgument<string>('R', "LogTimeRange")
             {
                 Optional = true,
                 DefaultValue = null,
@@ -170,14 +170,14 @@ namespace DSEDiagnosticConsoleApplication
                                         var startTZ = match.Groups["STARTTZ"].Value;
                                         var endTR = match.Groups["ENDTS"].Value;
                                         var endTZ = match.Groups["ENDTZ"].Value;
-                                        DateTime startDT = DateTime.Parse(startTZ);
-                                        DateTime endDT = DateTime.Parse(endTZ);
+                                        DateTime startDT = string.IsNullOrEmpty(startTR) ? DateTime.MinValue : DateTime.Parse(startTR);
+                                        DateTime endDT = string.IsNullOrEmpty(endTR) ? DateTime.MinValue : DateTime.Parse(endTR);
 
                                         DSEDiagnosticFileParser.file_cassandra_log4net.LogTimeRangeUTC = new DateTimeRange(string.IsNullOrEmpty(startTZ)
-                                                                                                                                ? startDT.Convert("UTC")
+                                                                                                                                ? startDT == DateTime.MinValue ? startDT : startDT.Convert("UTC")
                                                                                                                                 : startDT.Convert(startTZ, "UTC"),
                                                                                                                             string.IsNullOrEmpty(endTZ)
-                                                                                                                                ? endDT.Convert("UTC")
+                                                                                                                                ? endDT == DateTime.MaxValue ? endDT : endDT.Convert("UTC")
                                                                                                                                 : endDT.Convert(endTZ, "UTC"));
                                     }
                                     catch (System.Exception ex)
