@@ -235,7 +235,7 @@ namespace DSEDiagnosticLibrary
         private string datamemberTimeZone
         {
             get { return this.TimeZone?.Name; }
-            set { this.TimeZone = Common.TimeZones.Find(value); }
+            set { this.TimeZone = StringHelpers.FindTimeZone(value); }
         }
         [JsonIgnore]
         public IZone TimeZone { get; private set; }

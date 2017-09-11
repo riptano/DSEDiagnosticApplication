@@ -571,6 +571,7 @@ namespace DSEDiagnosticLibrary
         public string InstanceType;
         public string Placement;
         public IZone TimeZone;
+        public string TimeZoneName;
         public CPULoadInfo CPULoad;
         public MemoryInfo Memory;
         public JavaInfo Java;
@@ -597,7 +598,7 @@ namespace DSEDiagnosticLibrary
             Hadoop = 0x0080,
             CFS = 0x0100,
             Analytics_TT = Analytics | TT,
-            Analytics_JT = Analytics | JT            
+            Analytics_JT = Analytics | JT
 		}
 
 		public enum DSEStatuses

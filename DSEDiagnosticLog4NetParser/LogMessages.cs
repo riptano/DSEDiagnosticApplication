@@ -35,7 +35,7 @@ namespace DSEDiagnosticLog4NetParser
         public LogMessages(IFilePath logFile, string log4netConversionPattern, string ianaTimeZoneName)
             :this(logFile, log4netConversionPattern)
         {
-            this._timeZoneInstance = Common.TimeZones.Find(ianaTimeZoneName, Common.Patterns.TimeZoneInfo.ZoneNameTypes.IANATZName);
+            this._timeZoneInstance = StringHelpers.FindTimeZone(ianaTimeZoneName);
 
             if(this._timeZoneInstance == null)
             {
@@ -272,7 +272,7 @@ namespace DSEDiagnosticLog4NetParser
             this._logMessages.Add(logMessage);
             return logMessage;
         }
-        
+
         internal void SetEndingTimeRange(DateTime possibleEndDateTime)
         {
             if (this._endingLogDateTime < possibleEndDateTime)

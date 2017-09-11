@@ -459,5 +459,10 @@ namespace DSEDiagnosticLibrary
 
             return nResult;
         }
+
+        static public Common.Patterns.TimeZoneInfo.IZone FindTimeZone(string ianaName)
+        {
+            return Common.TimeZones.Find(ianaName == "UTC" ? "Etc/UTC" : ianaName) ?? Common.TimeZones.Find("America/" + ianaName);
+        }
     }
 }

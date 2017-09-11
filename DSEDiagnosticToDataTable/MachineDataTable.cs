@@ -121,7 +121,15 @@ namespace DSEDiagnosticToDataTable
                         dataRow.SetFieldToInt("Physical Memory (MB)", node.Machine.Memory.PhysicalMemory, DSEDiagnosticLibrary.UnitOfMeasure.Types.MiB);
                         dataRow.SetField("OS", node.Machine.OS);
                         dataRow.SetField("OS Version", node.Machine.OSVersion);
-                        dataRow.SetField("TimeZone", node.Machine.TimeZone?.Name);
+
+                        if (node.Machine.TimeZone == null)
+                        {
+                            dataRow.SetField("TimeZone", (node.Machine.TimeZoneName ?? string.Empty) + " (?)");
+                        }
+                        else
+                        {
+                            dataRow.SetField("TimeZone", node.Machine.TimeZone.Name);
+                        }
                         //CPU Load
                         dataRow.SetFieldToDecimal("Average", node.Machine.CPULoad.Average)
                                 .SetFieldToDecimal("Idle", node.Machine.CPULoad.Idle)
