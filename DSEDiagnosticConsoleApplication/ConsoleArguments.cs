@@ -34,7 +34,7 @@ namespace DSEDiagnosticConsoleApplication
             this._cmdLineParser.Arguments.Add(new ValueArgument<string>('L', "AlternativeLogFilePath")
             {
                 Optional = true,
-                DefaultValue = string.Join(", ", ParserSettings.AdditionalFilesForParsingClass.Where(a => a.Key == "LogFile" || a.Key == "file_cassandra_log4net_ReadTimeRange" || a.Key == "file_cassandra_log4net")),
+                DefaultValue = string.Join(", ", ParserSettings.AdditionalFilesForParsingClass.Where(a => a.Key == "LogFile" || a.Key == "file_cassandra_log4net_ReadTimeRange" || a.Key == "file_cassandra_log4net").Select(s => s.Value)),
                 Description = "A list of file paths separated by comma that will be included in log parsing, if enabled. This can include wild card patterns.",
                 Example = @"c:\additionallogs\system*.log, c:\additional logs\debug*.log"
             });
@@ -42,7 +42,7 @@ namespace DSEDiagnosticConsoleApplication
             this._cmdLineParser.Arguments.Add(new ValueArgument<string>('C', "AlternativeDDLFilePath")
             {
                 Optional = true,
-                DefaultValue = string.Join(", ", ParserSettings.AdditionalFilesForParsingClass.Where(a => a.Key == "CQLFile" || a.Key == "cql_ddl")),
+                DefaultValue = string.Join(", ", ParserSettings.AdditionalFilesForParsingClass.Where(a => a.Key == "CQLFile" || a.Key == "cql_ddl").Select(s => s.Value)),
                 Description = "A list of file paths separated by comma that will be included in DLL (CQL) parsing, if enabled. This can include wild card patterns.",
                 Example = @"c:\additionalDDL\describe_schema, c:\additional DDL\describe.cql"
             });
@@ -50,7 +50,7 @@ namespace DSEDiagnosticConsoleApplication
             this._cmdLineParser.Arguments.Add(new ValueArgument<string>('Z', "AlternativeCompressionFilePath")
             {
                 Optional = true,
-                DefaultValue = string.Join(", ", ParserSettings.AdditionalFilesForParsingClass.Where(a => a.Key == "ZipFile" || a.Key == "file_unzip")),
+                DefaultValue = string.Join(", ", ParserSettings.AdditionalFilesForParsingClass.Where(a => a.Key == "ZipFile" || a.Key == "file_unzip").Select(s => s.Value)),
                 Description = "A list of file paths separated by comma that will be included in the decompress process, if enabled. This can include wild card patterns.",
                 Example = @"c:\additionalDDL\describe_schema, c:\additional DDL\describe.cql"
             });
@@ -59,7 +59,7 @@ namespace DSEDiagnosticConsoleApplication
             {
                 Optional = true,
                 AllowMultiple = true,
-                DefaultValue = null,
+                DefaultValue = string.Join(", ", ParserSettings.AdditionalFilesForParsingClass.Where(a => !(a.Key == "LogFile" || a.Key == "file_cassandra_log4net_ReadTimeRange" || a.Key == "file_cassandra_log4net" || a.Key == "CQLFile" || a.Key == "cql_ddl" || a.Key == "ZipFile" || a.Key == "file_unzip")).Select(s => s.Key + ", " + s.Value)),
                 Description = "Key-Value pair where the key is a File Parsing Class (e.g., file_cassandra_log4net_ReadTimeRange, cql_ddl, file_unzip)  or Category Type (e.g., LogFile, CQLFile, ZipFile) and the value is a file path. The file path can contain wild cards. The Key and Value are separated by a comma.",
                 Example = @"ZipFile, c:\additionalfiles\*.tar.gz"
             });
@@ -73,7 +73,7 @@ namespace DSEDiagnosticConsoleApplication
 
             this._cmdLineParser.Arguments.Add(new ValueArgument<DateTime?>('T', "DiagCaptureTime")
             {
-                DefaultValue = null,
+                DefaultValue = ParserSettings.NodeToolCaptureUTCTimestamp,
                 Optional = true,
                 Description = "This machine's local Date/Time when either the OpsCenter Diagnostic TarBall was created or when the \"nodetool\" statical (e.g., cfstats) capture occurred. Null will use the Date embedded in the OpsCenter tar ball directory."
             });
@@ -88,7 +88,7 @@ namespace DSEDiagnosticConsoleApplication
             this._cmdLineParser.Arguments.Add(new ValueArgument<string>('R', "LogTimeRange")
             {
                 Optional = true,
-                DefaultValue = null,
+                DefaultValue = ParserSettings.LogTimeRangeUTC == null ? null : string.Format("{0}, {1}", ParserSettings.LogTimeRangeUTC.Min, ParserSettings.LogTimeRangeUTC.Max),
                 Description = "Only import log entries from/to this date/time range. Empty string will parse all entries. Syntax: \"<FromDateTimeOnly> [IANA TimeZone Name]\", \", <ToDateTimeOnly> [IANA TimeZone Name]\", or \"<FromDateTime> [IANA TimeZone Name],<ToDateTime> [IANA TimeZone Name]\". If [IANA TimeZone Name] is not given the local machine's TZ is used. Ignored if LogRangeBasedOnPrevHrs is defined."
             });
 
@@ -106,6 +106,14 @@ namespace DSEDiagnosticConsoleApplication
                 Description = "A list of keyspaces or tables/views that will be marked as \"Warn\" and will be excluded from the Ignore keyspace list. Each item is separated by a comma. If the item begins with a \"+\" or \"-\" it will be either added or removed from the current default list. The defaults are defined in the WarnWhenKSTblIsDetected app-config file."
             });
 
+            this._cmdLineParser.Arguments.Add(new FileArgument("ProcessFileMappingPath")
+            {
+                Optional = true,
+                FileMustExist = true,
+                DefaultValue = string.IsNullOrEmpty(ParserSettings.ProcessFileMappingValue) ? null : new System.IO.FileInfo(ParserSettings.ProcessFileMappingValue),
+                Description = "File Mapper Json file used to define which and how files are processed."
+            });
+
             this._cmdLineParser.Arguments.Add(new SwitchArgument("DisableSysDSEKSLoading", false)
             {
                 Optional = true,
@@ -115,6 +123,11 @@ namespace DSEDiagnosticConsoleApplication
             this._cmdLineParser.Arguments.Add(new SwitchArgument("Debug", false)
             {
                 Description = "Debug Mode"
+            });
+
+            this._cmdLineParser.Arguments.Add(new SwitchArgument("DisableParallelProcessing", false)
+            {
+                Description = "Disable Parallel Processing"
             });
         }
 
@@ -144,7 +157,7 @@ namespace DSEDiagnosticConsoleApplication
                         ParserSettings.DiagFolderStruct = ((ValueArgument<ParserSettings.DiagFolderStructOptions>) item).Value;
                         break;
                     case "DiagCaptureTime":
-                        DSEDiagnosticLibrary.DSEInfo.NodeToolCaptureUTCTimestamp = ((ValueArgument<DateTime?>)item).Value.HasValue ? (DateTime?)Common.TimeZones.ConvertToOffset(((ValueArgument<DateTime?>)item).Value.Value).UtcDateTime : null;
+                        ParserSettings.NodeToolCaptureUTCTimestamp = ((ValueArgument<DateTime?>)item).Value.HasValue ? (DateTime?)Common.TimeZones.ConvertToOffset(((ValueArgument<DateTime?>)item).Value.Value).UtcDateTime : null;
                         break;
                     case "LogRangeBasedOnPrevHrs":
                         ParserSettings.OnlyIncludeXHrsofLogsFromDiagCaptureTime = ((ValueArgument<int>)item).Value;
@@ -155,7 +168,7 @@ namespace DSEDiagnosticConsoleApplication
 
                             if (string.IsNullOrEmpty(value))
                             {
-                                DSEDiagnosticFileParser.file_cassandra_log4net.LogTimeRangeUTC = null;
+                                ParserSettings.LogTimeRangeUTC = null;
                             }
                             else
                             {
@@ -173,12 +186,12 @@ namespace DSEDiagnosticConsoleApplication
                                         DateTime startDT = string.IsNullOrEmpty(startTR) ? DateTime.MinValue : DateTime.Parse(startTR);
                                         DateTime endDT = string.IsNullOrEmpty(endTR) ? DateTime.MaxValue : DateTime.Parse(endTR);
 
-                                        DSEDiagnosticFileParser.file_cassandra_log4net.LogTimeRangeUTC = new DateTimeRange(string.IsNullOrEmpty(startTZ)
-                                                                                                                                ? startDT == DateTime.MinValue ? startDT : startDT.Convert("UTC")
-                                                                                                                                : startDT.Convert(startTZ, "UTC"),
-                                                                                                                            string.IsNullOrEmpty(endTZ)
-                                                                                                                                ? endDT == DateTime.MaxValue ? endDT : endDT.Convert("UTC")
-                                                                                                                                : endDT.Convert(endTZ, "UTC"));
+                                        ParserSettings.LogTimeRangeUTC = new DateTimeRange(string.IsNullOrEmpty(startTZ)
+                                                                                                    ? startDT == DateTime.MinValue ? startDT : startDT.Convert("UTC")
+                                                                                                    : startDT.Convert(startTZ, "UTC"),
+                                                                                                string.IsNullOrEmpty(endTZ)
+                                                                                                    ? endDT == DateTime.MaxValue ? endDT : endDT.Convert("UTC")
+                                                                                                    : endDT.Convert(endTZ, "UTC"));
                                     }
                                     catch (System.Exception ex)
                                     {
@@ -241,8 +254,14 @@ namespace DSEDiagnosticConsoleApplication
                             }
                         }
                         break;
+                    case "ProcessFileMappingPath":
+                        ParserSettings.ProcessFileMappingValue = ((FileArgument)item).Value.ToString();
+                        break;
                     case "Debug":
                         this.Debug = ((SwitchArgument)item).Value;
+                        break;
+                    case "DisableParallelProcessing":
+                        ParserSettings.DisableParallelProcessing = ((SwitchArgument)item).Value;
                         break;
                     default:
 

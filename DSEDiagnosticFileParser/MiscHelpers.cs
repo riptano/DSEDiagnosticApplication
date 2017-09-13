@@ -188,6 +188,12 @@ namespace DSEDiagnosticFileParser
 
                     }
                 }
+                catch(ICSharpCode.SharpZipLib.Tar.InvalidHeaderException ex)
+                {
+                    Logger.Instance.Error(string.Format("GZ Invalid Header Exception for File \"{0}\". This indicates that some files were not decompressed or may be incomplete...",
+                                                                filePath.PathResolved),
+                                                ex);
+                }
                 catch (System.Exception ex)
                 {
                     if ((ex is ICSharpCode.SharpZipLib.Tar.TarException || ex is System.ArgumentOutOfRangeException)
@@ -223,6 +229,12 @@ namespace DSEDiagnosticFileParser
                         tarArchive.RestoreDateTimeOnExtract = true;
                         tarArchive.ExtractContents(newExtractedFolder.PathResolved);
                     }
+                }
+                catch (ICSharpCode.SharpZipLib.Tar.InvalidHeaderException ex)
+                {
+                    Logger.Instance.Error(string.Format("Tar Invalid Header Exception for File \"{0}\". This indicates that some files were not decompressed or may be incomplete...",
+                                                                filePath.PathResolved),
+                                                ex);
                 }
                 catch (System.Exception ex)
                 {

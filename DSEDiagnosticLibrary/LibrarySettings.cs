@@ -21,7 +21,7 @@ namespace DSEDiagnosticLibrary
         public static UnitOfMeasure.Types DefaultMemoryRate = ParseEnum<UnitOfMeasure.Types>(Properties.Settings.Default.DefaultMemoryRate);
         public static UnitOfMeasure.Types DefaultStorageRate = ParseEnum<UnitOfMeasure.Types>(Properties.Settings.Default.DefaultStorageRate);
         public static UnitOfMeasure.Types DefaultTimeUnit = ParseEnum<UnitOfMeasure.Types>(Properties.Settings.Default.DefaultTimeUnit);
-        public static string IPAdressRegEx = Properties.Settings.Default.IPAdressRegEx;        
+        public static string IPAdressRegEx = Properties.Settings.Default.IPAdressRegEx;
         public static List<YamlConfigurationLine.ConfigTypeMapper> ConfigTypeMappers = JsonConvert.DeserializeObject<List<YamlConfigurationLine.ConfigTypeMapper>>(Properties.Settings.Default.ConfigTypeMappers);
         public static int UnitOfMeasureRoundDecimals = Properties.Settings.Default.UnitOfMeasureRoundDecimals;
         public static string[] CQLCollectionTypes = Properties.Settings.Default.CQLCollectionTypes.ToArray();
@@ -39,6 +39,11 @@ namespace DSEDiagnosticLibrary
         public static string[] IsSolrIndexClass = Properties.Settings.Default.IsSolrIndexClass.ToArray();
         public static string[] SSTableVersionMarkers = Properties.Settings.Default.SSTableVersionMarkers.ToArray();
         public static int LogMessageToStringMaxLength = Properties.Settings.Default.LogMessageToStringMaxLength;
+        public static DateTime? NodeToolCaptureUTCTimestamp
+        {
+            get { return DSEDiagnosticLibrary.DSEInfo.NodeToolCaptureUTCTimestamp; }
+            set { DSEDiagnosticLibrary.DSEInfo.NodeToolCaptureUTCTimestamp = value; }
+        }
 
         public static T ParseEnum<T>(string enumValue)
             where T : struct

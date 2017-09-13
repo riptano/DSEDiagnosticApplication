@@ -155,7 +155,6 @@ namespace DSEDiagnosticConsoleApplication
 
             foreach (var fld in fields)
             {
-                var value = fld.GetValue(null);
                 var item = fld.GetValue(null);
                 var strItem = item is Enum ? item.ToString() : Common.JSONExtensions.ToJSON(item, true);
                 var strType = fld.FieldType.IsGenericType
@@ -165,6 +164,21 @@ namespace DSEDiagnosticConsoleApplication
                                     : fld.FieldType.Name;
 
                 settingsValues.AppendLine(string.Format("\t{0} ({1}): {2}", fld.Name, strType, strItem));
+            }
+
+            var props = typeof(ParserSettings).GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
+
+            foreach (var prop in props)
+            {
+                var item = prop.GetValue(null);
+                var strItem = item is Enum ? item.ToString() : Common.JSONExtensions.ToJSON(item, true);
+                var strType = prop.PropertyType.IsGenericType
+                                    ? string.Format("{0}<{1}>",
+                                                        prop.PropertyType.Name,
+                                                        string.Join(", ", prop.PropertyType.GenericTypeArguments.Select(t => t.Name)))
+                                    : prop.PropertyType.Name;
+
+                settingsValues.AppendLine(string.Format("\t{0} ({1}): {2}", prop.Name, strType, strItem));
             }
 
             return settingsValues.ToString();
@@ -203,6 +217,26 @@ namespace DSEDiagnosticConsoleApplication
         public static int OnlyIncludeXHrsofLogsFromDiagCaptureTime = Properties.Settings.Default.OnlyIncludeXHrsofLogsFromDiagCaptureTime;
         public static List<KeyValuePair<string, IFilePath>> AdditionalFilesForParsingClass = new List<KeyValuePair<string, IFilePath>>();
         public static List<string> WarnWhenKSTblIsDetected = Properties.Settings.Default.WarnWhenKSTblIsDetected.ToList(false);
+        public static DateTimeRange LogTimeRangeUTC
+        {
+            get { return DSEDiagnosticFileParser.LibrarySettings.LogTimeRangeUTC; }
+            set { DSEDiagnosticFileParser.LibrarySettings.LogTimeRangeUTC = value; }
+        }
+        public static DateTime? NodeToolCaptureUTCTimestamp
+        {
+            get { return DSEDiagnosticLibrary.LibrarySettings.NodeToolCaptureUTCTimestamp; }
+            set { DSEDiagnosticLibrary.LibrarySettings.NodeToolCaptureUTCTimestamp = value; }
+        }
+        public static string ProcessFileMappingValue
+        {
+            get { return DSEDiagnosticFileParser.LibrarySettings.ProcessFileMappingValue; }
+            set { DSEDiagnosticFileParser.LibrarySettings.ProcessFileMappingValue = value; }
+        }
+        public static bool DisableParallelProcessing
+        {
+            get { return DSEDiagnosticFileParser.DiagnosticFile.DisableParallelProcessing; }
+            set { DSEDiagnosticFileParser.DiagnosticFile.DisableParallelProcessing = value; }
+        }
 
         #endregion
     }
