@@ -57,6 +57,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="LogInformationExcel.cs" />
     <Compile Include="TPStatsExcel.cs" />
     <Compile Include="CFStatsExcel.cs" />
     <Compile Include="ConfigExcel.cs" />

@@ -110,7 +110,7 @@ namespace DSEDiagnosticConsoleApplication
             {
                 Optional = true,
                 FileMustExist = true,
-                DefaultValue = string.IsNullOrEmpty(ParserSettings.ProcessFileMappingValue) ? null : new System.IO.FileInfo(ParserSettings.ProcessFileMappingValue),
+                DefaultValue = null,
                 Description = "File Mapper Json file used to define which and how files are processed."
             });
 

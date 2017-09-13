@@ -203,7 +203,7 @@ namespace DSEDiagnosticConsoleApplication
                     }
                 }
                 catch (CommandLineParser.Exceptions.CommandLineException e)
-                {                    
+                {
                     ConsoleDisplay.Console.WriteLine(e.Message);
                     ConsoleDisplay.Console.WriteLine("CommandLine: '{0}'", CommandLineArgsString);
 
@@ -250,9 +250,9 @@ namespace DSEDiagnosticConsoleApplication
 
             ConsoleDisplay.Console.WriteLine(" ");
 
-            ConsoleDeCompressFiles = new ConsoleDisplay("Decompressing Files: {0} Working: {1} Task: {2}");
-            ConsoleNonLogReadFiles = new ConsoleDisplay("Non-Log Files: {0} Working: {1} Task: {2}");
-            ConsoleLogReadFiles = new ConsoleDisplay("Log Files: {0}  Working: {1} Task: {2}");
+            ConsoleDeCompressFiles = new ConsoleDisplay("Decompression Completed: {0} Working: {1} Task: {2}");
+            ConsoleNonLogReadFiles = new ConsoleDisplay("Non-Log Completed: {0} Working: {1} Task: {2}");
+            ConsoleLogReadFiles = new ConsoleDisplay("Log Completed: {0}  Working: {1} Task: {2}");
             ConsoleParsingDataTable = new ConsoleDisplay("DataTable Processing: {0}  Working: {1} Task: {2}");
             ConsoleExcelWorkSheet = new ConsoleDisplay("Excel WorkSheet: {0}  Working: {1} Task: {2}");
             ConsoleExcelWorkbook = new ConsoleDisplay("Excel WorkBook: {0}  Working: {1} Task: {2}");
@@ -323,7 +323,7 @@ namespace DSEDiagnosticConsoleApplication
                                                  DSEDiagnosticFileParser.file_cassandra_log4net.LogTimeRangeUTC.Min == DateTime.MinValue
                                                             ? "MinValue"
                                                             : DSEDiagnosticFileParser.file_cassandra_log4net.LogTimeRangeUTC.Min.ConvertFromUTC().ToString(@"yyyy-MM-dd HH:mm:ss zzz"),
-                                                 DSEDiagnosticFileParser.file_cassandra_log4net.LogTimeRangeUTC.Max == DateTime.MaxValue 
+                                                 DSEDiagnosticFileParser.file_cassandra_log4net.LogTimeRangeUTC.Max == DateTime.MaxValue
                                                             ? "MaxValue"
                                                             : DSEDiagnosticFileParser.file_cassandra_log4net.LogTimeRangeUTC.Max.ConvertFromUTC().ToString(@"yyyy-MM-dd HH:mm:ss zzz"));
             }
@@ -337,6 +337,17 @@ namespace DSEDiagnosticConsoleApplication
                                                                                      ParserSettings.AdditionalFilesForParsingClass);
 
             diagParserTask.Then(ignore => { ConsoleNonLogReadFiles.Terminate(); ConsoleLogReadFiles.Terminate(); ConsoleDeCompressFiles.Terminate(); });
+            diagParserTask.Then(ignore =>
+            {
+                foreach (var uaNode in DSEDiagnosticLibrary.Cluster.GetUnAssocaitedNodes())
+                {
+                    if(uaNode.DataCenter == null || uaNode.DataCenter is DSEDiagnosticLibrary.PlaceholderDataCenter)
+                    {
+                        Logger.Instance.WarnFormat("Node \"{0}\" in DC \"{1}\" was detected as being Orphaned. This may indicated a processing error!", uaNode, uaNode.DataCenter);
+                    }
+                }
+            });
+
             diagParserTask.ContinueWith(task => CanceledFaultProcessing(task.Exception),
                                             TaskContinuationOptions.OnlyOnFaulted);
             diagParserTask.ContinueWith(task => CanceledFaultProcessing(null),
@@ -358,7 +369,8 @@ namespace DSEDiagnosticConsoleApplication
                     new DSEDiagnosticToDataTable.NodeDataTable(cluster, cancellationSource),
                     new DSEDiagnosticToDataTable.TokenRangesDataTable(cluster, cancellationSource),
                     new DSEDiagnosticToDataTable.CFStatsDataTable(cluster, cancellationSource, ParserSettings.IgnoreKeySpaces.ToArray(), ParserSettings.WarnWhenKSTblIsDetected.ToArray()),
-                    new DSEDiagnosticToDataTable.TPStatsDataTable(cluster, cancellationSource)
+                    new DSEDiagnosticToDataTable.TPStatsDataTable(cluster, cancellationSource),
+                    new DSEDiagnosticToDataTable.LogInfoDataTable(cluster, cancellationSource)
                 };
 
                 loadDataTables.ForEach(ldtInstance =>
@@ -446,7 +458,7 @@ namespace DSEDiagnosticConsoleApplication
 
                 excelTask.Then(() => { ConsoleExcelWorkbook.Terminate(); ConsoleExcelWorkSheet.Terminate(); });
 
-                excelTask.Wait();                
+                excelTask.Wait();
             }
             #endregion
 

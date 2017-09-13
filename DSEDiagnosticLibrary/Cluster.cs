@@ -769,6 +769,17 @@ namespace DSEDiagnosticLibrary
             return UnAssociatedNodes.FirstOrDefault(n => n.Id.Equals(nodeId));
         }
 
+        /// <summary>
+        /// Nodes that are not associated to a data center.
+        ///
+        /// Note that this is will changed based on processing since a node can become assocated anytime during the process.
+        /// </summary>
+        /// <returns></returns>
+        static public IEnumerable<INode> GetUnAssocaitedNodes()
+        {
+            return UnAssociatedNodes;
+        }
+
         #endregion
 
         #region IEquatable

@@ -848,7 +848,7 @@ namespace DSEDiagnosticLibrary
             this.LogFileDateRange = logfileDateRange;
             this.LogItems = logItems;
             this.LogDateRange = logDateRange ?? logfileDateRange;
-
+            this.LogFileSize = new UnitOfMeasure(logFile.FileInfo().Length, UnitOfMeasure.Types.Byte | UnitOfMeasure.Types.Storage);
             if(orphanedEvents != null)
             {
                 this._orphanedEvents.AddRange(orphanedEvents);
@@ -865,6 +865,7 @@ namespace DSEDiagnosticLibrary
         /// </summary>
         public DateTimeRange LogDateRange { get; }
         public int LogItems { get; }
+        public UnitOfMeasure LogFileSize { get; }
 
         [JsonProperty(PropertyName = "OrphanedEvents")]
         private IEnumerable<LogCassandraEvent> datamemberOrphanedEvents

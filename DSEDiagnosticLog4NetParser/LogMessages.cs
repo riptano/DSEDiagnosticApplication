@@ -186,7 +186,15 @@ namespace DSEDiagnosticLog4NetParser
                     }
                     else
                     {
-                        logMessage.LogDateTimewTZOffset = Common.TimeZones.ConvertToOffset(logMessage.LogDateTime, this._timeZoneInstance);
+                        //This is an work-around to fix an timing issue in the TZ lib...
+                        try
+                        {
+                            logMessage.LogDateTimewTZOffset = Common.TimeZones.ConvertToOffset(logMessage.LogDateTime, this._timeZoneInstance);
+                        }
+                        catch (ArgumentOutOfRangeException)
+                        {
+                            logMessage.LogDateTimewTZOffset = Common.TimeZones.ConvertToOffset(logMessage.LogDateTime, this._timeZoneInstance);
+                        }
                     }
 
                     this._endingLogDateTime = timeStamp;
