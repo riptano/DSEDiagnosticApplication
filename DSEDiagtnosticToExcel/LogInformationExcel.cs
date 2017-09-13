@@ -54,26 +54,43 @@ namespace DSEDiagtnosticToExcel
                                                             },
                                                              workSheet =>
                                                              {
-                                                                 workSheet.Cells["K:K"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
+                                                                 workSheet.Cells["L:L"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
                                                                  workSheet.Cells["1:1"].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.LightGray;
                                                                  workSheet.Cells["1:1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
                                                                  //workBook.Cells["1:1"].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
                                                                  workSheet.View.FreezePanes(2, 1);
 
-                                                                 workSheet.Cells["E:E"].Style.Numberformat.Format = "mm/dd/yyyy hh:mm:ss";
                                                                  workSheet.Cells["F:F"].Style.Numberformat.Format = "mm/dd/yyyy hh:mm:ss";
-                                                                 workSheet.Cells["G:G"].Style.Numberformat.Format = "d hh:mm";
-                                                                 workSheet.Cells["G:G"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-                                                                 workSheet.Cells["H:H"].Style.Numberformat.Format = "mm/dd/yyyy hh:mm:ss";
+                                                                 workSheet.Cells["G:G"].Style.Numberformat.Format = "mm/dd/yyyy hh:mm:ss";
+                                                                 workSheet.Cells["H:H"].Style.Numberformat.Format = "d hh:mm";
+                                                                 workSheet.Cells["H:H"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
                                                                  workSheet.Cells["I:I"].Style.Numberformat.Format = "mm/dd/yyyy hh:mm:ss";
-                                                                 workSheet.Cells["J:J"].Style.Numberformat.Format = "d hh:mm";
-                                                                 workSheet.Cells["J:J"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-                                                                 workSheet.Cells["L:L"].Style.Numberformat.Format = "#,###,###,##0";
-                                                                 workSheet.Cells["M:M"].Style.Numberformat.Format = "#,###,###,##0.00";
+                                                                 workSheet.Cells["J:J"].Style.Numberformat.Format = "mm/dd/yyyy hh:mm:ss";
+                                                                 workSheet.Cells["K:K"].Style.Numberformat.Format = "d hh:mm";
+                                                                 workSheet.Cells["K:K"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                                                                 workSheet.Cells["M:M"].Style.Numberformat.Format = "#,###,###,##0";
+                                                                 workSheet.Cells["N:N"].Style.Numberformat.Format = "#,###,###,##0.00";
+                                                                 workSheet.Cells["O:O"].Style.Numberformat.Format = "d hh:mm";
 
-                                                                 workSheet.Cells["A1:N1"].AutoFilter = true;
-                                                                 workSheet.AutoFitColumn(workSheet.Cells["A:J"], workSheet.Cells["L:N"]);
-                                                                 workSheet.Column(11).Width = 27; //k
+                                                                 //Column Group B, C, D
+                                                                 workSheet.Column(2).OutlineLevel = 1;
+                                                                 workSheet.Column(2).Collapsed = true;
+                                                                 workSheet.Column(3).OutlineLevel = 1;
+                                                                 workSheet.Column(3).Collapsed = true;
+                                                                 workSheet.Column(4).OutlineLevel = 1;
+                                                                 workSheet.Column(4).Collapsed = true;
+
+                                                                 //Column Group J, K, L
+                                                                 workSheet.Column(9).OutlineLevel = 1;
+                                                                 workSheet.Column(9).Collapsed = true;
+                                                                 workSheet.Column(10).OutlineLevel = 1;
+                                                                 workSheet.Column(10).Collapsed = true;
+                                                                 workSheet.Column(11).OutlineLevel = 1;
+                                                                 workSheet.Column(11).Collapsed = true;
+
+                                                                 workSheet.Cells["A1:O1"].AutoFilter = true;
+                                                                 workSheet.AutoFitColumn(workSheet.Cells["A:K"], workSheet.Cells["M:O"]);
+                                                                 workSheet.Column(12).Width = 27; //L
                                                              },
                                                              -1,
                                                             -1,
