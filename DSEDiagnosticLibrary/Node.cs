@@ -207,7 +207,7 @@ namespace DSEDiagnosticLibrary
         /// <summary>
 		/// Evaluates possibleNodeName to determine a Node&apos;s IPAdress (V4 or V6) or HostName.
 		/// If a nodes&apos;s name is an IPAdress it can be embeded anywhere in the name.
-		/// If it is a host name it must be at the beginning of the name separated by either a space (e.g., &quot;hostname filename.ext&quot;) or plus sign (e.g., hostname+filename.ext)
+		/// If it is a host name it must be at the beginning of the name separated by either a &quot;@&quot; (e.g., &quot;hostname@filename.ext&quot;) or plus sign (e.g., hostname+filename.ext)
 		/// If it is not an IPAdress or embedded host name, it is assumed possibleNodeName is a host name.
 		/// </summary>
 		/// <param name="possibleNodeName">string that is evaluted to determine if it is either an IPAdress or host name.</param>
