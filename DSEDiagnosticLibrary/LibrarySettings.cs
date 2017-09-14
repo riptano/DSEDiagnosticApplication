@@ -39,10 +39,10 @@ namespace DSEDiagnosticLibrary
         public static string[] IsSolrIndexClass = Properties.Settings.Default.IsSolrIndexClass.ToArray();
         public static string[] SSTableVersionMarkers = Properties.Settings.Default.SSTableVersionMarkers.ToArray();
         public static int LogMessageToStringMaxLength = Properties.Settings.Default.LogMessageToStringMaxLength;
-        public static DateTime? NodeToolCaptureUTCTimestamp
+        public static DateTimeOffset? NodeToolCaptureTimestamp
         {
-            get { return DSEDiagnosticLibrary.DSEInfo.NodeToolCaptureUTCTimestamp; }
-            set { DSEDiagnosticLibrary.DSEInfo.NodeToolCaptureUTCTimestamp = value; }
+            get { return DSEDiagnosticLibrary.DSEInfo.NodeToolCaptureTimestamp; }
+            set { DSEDiagnosticLibrary.DSEInfo.NodeToolCaptureTimestamp = value; }
         }
 
         public static T ParseEnum<T>(string enumValue)

@@ -120,7 +120,7 @@ namespace DSEDiagnosticApplication
                         || this.ultraDateTimeEditorEndLog.Value == null
                         || (DateTime) this.ultraDateTimeEditorStartLog.Value >= (DateTime) this.ultraDateTimeEditorEndLog.Value)
                 {
-                    DSEDiagnosticFileParser.file_cassandra_log4net.LogTimeRangeUTC = null;
+                    DSEDiagnosticFileParser.file_cassandra_log4net.LogTimeRange = null;
                 }
                 else
                 {
@@ -129,7 +129,12 @@ namespace DSEDiagnosticApplication
                     var utcStart = ((Infragistics.Win.UltraWinEditors.StateEditorButton)this.ultraDateTimeEditorStartLog.ButtonsRight[0]).Checked;
                     var utcEnd = ((Infragistics.Win.UltraWinEditors.StateEditorButton)this.ultraDateTimeEditorEndLog.ButtonsRight[0]).Checked;
 
-                    DSEDiagnosticFileParser.file_cassandra_log4net.LogTimeRangeUTC = new DateTimeRange(utcStart ? logStart : logStart.Convert("UTC"), utcEnd ? logEnd : logEnd.Convert("UTC"));
+                    DSEDiagnosticFileParser.file_cassandra_log4net.LogTimeRange = new DateTimeOffsetRange(utcStart
+                                                                                                                ? new DateTimeOffset(logStart, TimeSpan.Zero)
+                                                                                                                : logStart,
+                                                                                                            utcEnd
+                                                                                                                ? new DateTimeOffset(logEnd, TimeSpan.Zero)
+                                                                                                                : logEnd);
                 }
 
                 if (!string.IsNullOrEmpty(this.ultraTextEditorProcessMapperJSONFile.Text))
@@ -168,7 +173,7 @@ namespace DSEDiagnosticApplication
                         || this.ultraDateTimeEditorEndLog.Value == null
                         || (DateTime)this.ultraDateTimeEditorStartLog.Value >= (DateTime)this.ultraDateTimeEditorEndLog.Value)
                 {
-                    DSEDiagnosticFileParser.file_cassandra_log4net.LogTimeRangeUTC = null;
+                    DSEDiagnosticFileParser.file_cassandra_log4net.LogTimeRange = null;
                 }
                 else
                 {
@@ -177,7 +182,12 @@ namespace DSEDiagnosticApplication
                     var utcStart = ((Infragistics.Win.UltraWinEditors.StateEditorButton)this.ultraDateTimeEditorStartLog.ButtonsRight[0]).Checked;
                     var utcEnd = ((Infragistics.Win.UltraWinEditors.StateEditorButton)this.ultraDateTimeEditorEndLog.ButtonsRight[0]).Checked;
 
-                    DSEDiagnosticFileParser.file_cassandra_log4net.LogTimeRangeUTC = new DateTimeRange(utcStart ? logStart : logStart.Convert("UTC"), utcEnd ? logEnd : logEnd.Convert("UTC"));
+                    DSEDiagnosticFileParser.file_cassandra_log4net.LogTimeRange = new DateTimeOffsetRange(utcStart
+                                                                                                                ? new DateTimeOffset(logStart, TimeSpan.Zero)
+                                                                                                                : logStart,
+                                                                                                            utcEnd
+                                                                                                                ? new DateTimeOffset(logEnd, TimeSpan.Zero)
+                                                                                                                : logEnd);
                 }
 
                 if (!string.IsNullOrEmpty(this.ultraTextEditorProcessMapperJSONFile.Text))

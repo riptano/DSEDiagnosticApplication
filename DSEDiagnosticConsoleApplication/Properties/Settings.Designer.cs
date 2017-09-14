@@ -65,7 +65,7 @@ namespace DSEDiagnosticConsoleApplication.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("[DeskTop]\\testa.xlsx")]
+        [global::System.Configuration.DefaultSettingValueAttribute("[DeskTop]\\dseFastTemplate.xlsm")]
         public string ExcelFilePath {
             get {
                 return ((string)(this["ExcelFilePath"]));

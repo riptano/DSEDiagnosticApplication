@@ -25,7 +25,7 @@
 &lt;/ArrayOfString&gt;</Value>
     </Setting>
     <Setting Name="ExcelFilePath" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">[DeskTop]\testa.xlsx</Value>
+      <Value Profile="(Default)">[DeskTop]\dseFastTemplate.xlsm</Value>
     </Setting>
     <Setting Name="OpsCenterDiagFolderRegEx" Type="System.String" Scope="Application">
       <Value Profile="(Default)">^(?&lt;CLUSTERNAME&gt;.+)-diagnostics-(?&lt;TS&gt;\d{4}_\d{2}_\d{2}_\d{2}_\d{2}_\d{2})_(?&lt;TZ&gt;\w{3})$</Value>

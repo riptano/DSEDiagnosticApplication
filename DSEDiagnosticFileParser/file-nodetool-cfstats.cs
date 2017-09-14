@@ -157,7 +157,7 @@ namespace DSEDiagnosticFileParser
             */
 
             string line;
-            bool skipSection = false;
+            bool skipSection = true;
             IKeyspace currentKeyspace = null;
             IDDLStmt currentDDL = null;
             AggregatedStats statItem = null;

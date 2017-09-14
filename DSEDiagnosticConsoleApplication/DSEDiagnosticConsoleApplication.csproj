@@ -142,6 +142,10 @@
     <None Include="..\DSEDiagnosticFileParser\Json\Unzip-ProcessFileMappings.json">
       <Link>JSON\Unzip-ProcessFileMappings.json</Link>
     </None>
+    <None Include="..\dseFastTemplate.xlsm">
+      <Link>dseFastTemplate.xlsm</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="App.config" />
     <None Include="JSON\DSEDiagConsoleApp-OpsCtr-ProcessFileMappings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

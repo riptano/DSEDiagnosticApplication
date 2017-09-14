@@ -59,7 +59,7 @@ namespace DSEDiagnosticLibrary
         string IANATimeZoneName { get; }
         IFilePath LogFile { get; }
         IEnumerable<ILogMessage> Messages { get; }
-        DateTimeRange LogTimeRange { get; }
+        DateTimeOffsetRange LogTimeRange { get; }
         IEnumerable<string> Errors { get; }
 
         LogCompletionStatus CompletionStatus { get; }
@@ -83,7 +83,7 @@ namespace DSEDiagnosticLibrary
         /// <summary>
         /// If defined the time frame log entries will be parsed. The Time Frame will be in the Node&apos;s timezone.
         /// </summary>
-        DateTimeRange LogTimeFrame { get; }
+        DateTimeOffsetRange LogTimeFrame { get; }
 
         /// <summary>
         /// Invoked after a Log Line is processed.

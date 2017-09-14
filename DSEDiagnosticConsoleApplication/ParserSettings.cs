@@ -217,15 +217,15 @@ namespace DSEDiagnosticConsoleApplication
         public static int OnlyIncludeXHrsofLogsFromDiagCaptureTime = Properties.Settings.Default.OnlyIncludeXHrsofLogsFromDiagCaptureTime;
         public static List<KeyValuePair<string, IFilePath>> AdditionalFilesForParsingClass = new List<KeyValuePair<string, IFilePath>>();
         public static List<string> WarnWhenKSTblIsDetected = Properties.Settings.Default.WarnWhenKSTblIsDetected.ToList(false);
-        public static DateTimeRange LogTimeRangeUTC
+        public static DateTimeOffsetRange LogTimeRange
         {
-            get { return DSEDiagnosticFileParser.LibrarySettings.LogTimeRangeUTC; }
-            set { DSEDiagnosticFileParser.LibrarySettings.LogTimeRangeUTC = value; }
+            get { return DSEDiagnosticFileParser.LibrarySettings.LogTimeRange; }
+            set { DSEDiagnosticFileParser.LibrarySettings.LogTimeRange = value; }
         }
-        public static DateTime? NodeToolCaptureUTCTimestamp
+        public static DateTimeOffset? NodeToolCaptureTimestamp
         {
-            get { return DSEDiagnosticLibrary.LibrarySettings.NodeToolCaptureUTCTimestamp; }
-            set { DSEDiagnosticLibrary.LibrarySettings.NodeToolCaptureUTCTimestamp = value; }
+            get { return DSEDiagnosticLibrary.LibrarySettings.NodeToolCaptureTimestamp; }
+            set { DSEDiagnosticLibrary.LibrarySettings.NodeToolCaptureTimestamp = value; }
         }
         public static string ProcessFileMappingValue
         {

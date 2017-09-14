@@ -16,7 +16,7 @@ namespace DSEDiagnosticFileParser
     [JsonObject(MemberSerialization.OptOut)]
     public sealed class file_cassandra_log4net : DiagnosticFile
     {
-        public static DateTimeRange LogTimeRangeUTC = null;
+        public static DateTimeOffsetRange LogTimeRange = null;
 
         struct CurrentSessionLineTick
         {
@@ -137,9 +137,9 @@ namespace DSEDiagnosticFileParser
         public override uint ProcessFile()
         {
             this.CancellationToken.ThrowIfCancellationRequested();
-            DateTimeRange logFileDateRange = null;
+            DateTimeOffsetRange logFileDateRange = null;
 
-            using (var logFileInstance = new ReadLogFile(this.File, LibrarySettings.Log4NetConversionPattern, this.CancellationToken, this.Node, LogTimeRangeUTC))
+            using (var logFileInstance = new ReadLogFile(this.File, LibrarySettings.Log4NetConversionPattern, this.CancellationToken, this.Node, LogTimeRange))
             {
                 Tuple<Regex, Match, Regex, Match, CLogLineTypeParser> matchItem;
                 LogCassandraEvent logEvent;
@@ -221,7 +221,7 @@ namespace DSEDiagnosticFileParser
                                                     logFileDateRange,
                                                     this._logEvents.Count,
                                                     this._orphanedSessionEvents.Count == 0 ? null : this._orphanedSessionEvents,
-                                                    this._logEvents.Count == 0 ? null : new DateTimeRange(this._logEvents.First().EventTimeLocal, this._logEvents.Last().EventTimeLocal));
+                                                    this._logEvents.Count == 0 ? null : new DateTimeOffsetRange(this._logEvents.First().EventTime, this._logEvents.Last().EventTime));
 
                 var fndOverlapppingLogs = this.Node.LogFiles.Where(l => l.LogDateRange.IsBetween(logFileInfo.LogDateRange));
 

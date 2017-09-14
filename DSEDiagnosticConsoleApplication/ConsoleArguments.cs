@@ -71,9 +71,9 @@ namespace DSEDiagnosticConsoleApplication
                 Description = "Structure of the folders and file names used to determine the context of each file."
             });
 
-            this._cmdLineParser.Arguments.Add(new ValueArgument<DateTime?>('T', "DiagCaptureTime")
+            this._cmdLineParser.Arguments.Add(new ValueArgument<DateTimeOffset?>('T', "DiagCaptureTime")
             {
-                DefaultValue = ParserSettings.NodeToolCaptureUTCTimestamp,
+                DefaultValue = ParserSettings.NodeToolCaptureTimestamp,
                 Optional = true,
                 Description = "This machine's local Date/Time when either the OpsCenter Diagnostic TarBall was created or when the \"nodetool\" statical (e.g., cfstats) capture occurred. Null will use the Date embedded in the OpsCenter tar ball directory."
             });
@@ -88,7 +88,7 @@ namespace DSEDiagnosticConsoleApplication
             this._cmdLineParser.Arguments.Add(new ValueArgument<string>('R', "LogTimeRange")
             {
                 Optional = true,
-                DefaultValue = ParserSettings.LogTimeRangeUTC == null ? null : string.Format("{0}, {1}", ParserSettings.LogTimeRangeUTC.Min, ParserSettings.LogTimeRangeUTC.Max),
+                DefaultValue = ParserSettings.LogTimeRange == null ? null : string.Format("{0}, {1}", ParserSettings.LogTimeRange.Min, ParserSettings.LogTimeRange.Max),
                 Description = "Only import log entries from/to this date/time range. Empty string will parse all entries. Syntax: \"<FromDateTimeOnly> [IANA TimeZone Name]\", \", <ToDateTimeOnly> [IANA TimeZone Name]\", or \"<FromDateTime> [IANA TimeZone Name],<ToDateTime> [IANA TimeZone Name]\". If [IANA TimeZone Name] is not given the local machine's TZ is used. Ignored if LogRangeBasedOnPrevHrs is defined."
             });
 
@@ -157,7 +157,7 @@ namespace DSEDiagnosticConsoleApplication
                         ParserSettings.DiagFolderStruct = ((ValueArgument<ParserSettings.DiagFolderStructOptions>) item).Value;
                         break;
                     case "DiagCaptureTime":
-                        ParserSettings.NodeToolCaptureUTCTimestamp = ((ValueArgument<DateTime?>)item).Value.HasValue ? (DateTime?)Common.TimeZones.ConvertToOffset(((ValueArgument<DateTime?>)item).Value.Value).UtcDateTime : null;
+                        ParserSettings.NodeToolCaptureTimestamp = ((ValueArgument<DateTimeOffset?>)item).Value;
                         break;
                     case "LogRangeBasedOnPrevHrs":
                         ParserSettings.OnlyIncludeXHrsofLogsFromDiagCaptureTime = ((ValueArgument<int>)item).Value;
@@ -168,7 +168,7 @@ namespace DSEDiagnosticConsoleApplication
 
                             if (string.IsNullOrEmpty(value))
                             {
-                                ParserSettings.LogTimeRangeUTC = null;
+                                ParserSettings.LogTimeRange = null;
                             }
                             else
                             {
@@ -186,12 +186,12 @@ namespace DSEDiagnosticConsoleApplication
                                         DateTime startDT = string.IsNullOrEmpty(startTR) ? DateTime.MinValue : DateTime.Parse(startTR);
                                         DateTime endDT = string.IsNullOrEmpty(endTR) ? DateTime.MaxValue : DateTime.Parse(endTR);
 
-                                        ParserSettings.LogTimeRangeUTC = new DateTimeRange(string.IsNullOrEmpty(startTZ)
-                                                                                                    ? startDT == DateTime.MinValue ? startDT : startDT.Convert("UTC")
-                                                                                                    : startDT.Convert(startTZ, "UTC"),
+                                        ParserSettings.LogTimeRange = new DateTimeOffsetRange(string.IsNullOrEmpty(startTZ)
+                                                                                                    ? startDT == DateTime.MinValue ? DateTimeOffset.MinValue : startDT.ConvertToOffSet()
+                                                                                                    : startDT.ConvertToOffSet(startTZ),
                                                                                                 string.IsNullOrEmpty(endTZ)
-                                                                                                    ? endDT == DateTime.MaxValue ? endDT : endDT.Convert("UTC")
-                                                                                                    : endDT.Convert(endTZ, "UTC"));
+                                                                                                    ? endDT == DateTime.MaxValue ? DateTimeOffset.MaxValue : endDT.ConvertToOffSet()
+                                                                                                    : endDT.ConvertToOffSet(endTZ));
                                     }
                                     catch (System.Exception ex)
                                     {

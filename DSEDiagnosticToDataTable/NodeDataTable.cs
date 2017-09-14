@@ -34,20 +34,20 @@ namespace DSEDiagnosticToDataTable
             dtNodeInfo.Columns.Add("Storage Utilization", typeof(decimal)).AllowDBNull = true;
             dtNodeInfo.Columns.Add("Health Rating", typeof(string)).AllowDBNull = true;
 
-            dtNodeInfo.Columns.Add("Start NodeTool Range", typeof(DateTime)).AllowDBNull = true; //J
-            dtNodeInfo.Columns.Add("End NodeTool Range", typeof(DateTime)).AllowDBNull = true; //k
+            dtNodeInfo.Columns.Add("Start NodeTool Range", typeof(DateTimeOffset)).AllowDBNull = true; //J
+            dtNodeInfo.Columns.Add("End NodeTool Range", typeof(DateTimeOffset)).AllowDBNull = true; //k
 
             dtNodeInfo.Columns.Add("Uptime (Days)", typeof(TimeSpan)).AllowDBNull = true; //L
             dtNodeInfo.Columns.Add("Uptime", typeof(string)).AllowDBNull = true; //M
 
-            dtNodeInfo.Columns.Add("Log Min Timestamp", typeof(DateTime)).AllowDBNull = true;//N
-            dtNodeInfo.Columns.Add("Log Max Timestamp", typeof(DateTime)).AllowDBNull = true;
+            dtNodeInfo.Columns.Add("Log Min Timestamp", typeof(DateTimeOffset)).AllowDBNull = true;//N
+            dtNodeInfo.Columns.Add("Log Max Timestamp", typeof(DateTimeOffset)).AllowDBNull = true;
             dtNodeInfo.Columns.Add("Log Duration", typeof(TimeSpan)).AllowDBNull = true;
             dtNodeInfo.Columns.Add("Log Timespan Difference", typeof(TimeSpan)).AllowDBNull = true;//Q
             dtNodeInfo.Columns.Add("Log Nbr Files", typeof(int)).AllowDBNull = true;//R
 
-            dtNodeInfo.Columns.Add("Debug Log Min Timestamp", typeof(DateTime)).AllowDBNull = true;//s
-            dtNodeInfo.Columns.Add("Debug Log Max Timestamp", typeof(DateTime)).AllowDBNull = true;
+            dtNodeInfo.Columns.Add("Debug Log Min Timestamp", typeof(DateTimeOffset)).AllowDBNull = true;//s
+            dtNodeInfo.Columns.Add("Debug Log Max Timestamp", typeof(DateTimeOffset)).AllowDBNull = true;
             dtNodeInfo.Columns.Add("Debug Log Duration", typeof(TimeSpan)).AllowDBNull = true;
             dtNodeInfo.Columns.Add("Debug Log Timespan Difference", typeof(TimeSpan)).AllowDBNull = true;//v
             dtNodeInfo.Columns.Add("Debug Log Nbr Files", typeof(int)).AllowDBNull = true;//w

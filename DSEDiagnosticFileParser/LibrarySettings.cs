@@ -23,10 +23,10 @@ namespace DSEDiagnosticFileParser
         public static string[] CodeDomAssemblies = Properties.Settings.Default.CodeDomAssemblies.ToArray();
         public static file_create_folder_structure.Mappings FileCreateFolderTargetSourceMappings = ReadJsonFileIntoObject<file_create_folder_structure.Mappings>(Properties.Settings.Default.FileCreateFolderTargetSourceMappings);
         public static string[] IgnoreFileWExtensions = Properties.Settings.Default.IgnoreFileWExtensions.ToArray().Select(i => i.Trim().ToLower()).ToArray();
-        public static DateTimeRange LogTimeRangeUTC
+        public static DateTimeOffsetRange LogTimeRange
         {
-            get { return DSEDiagnosticFileParser.file_cassandra_log4net.LogTimeRangeUTC; }
-            set { DSEDiagnosticFileParser.file_cassandra_log4net.LogTimeRangeUTC = value; }
+            get { return DSEDiagnosticFileParser.file_cassandra_log4net.LogTimeRange; }
+            set { DSEDiagnosticFileParser.file_cassandra_log4net.LogTimeRange = value; }
         }
 
         private static string defaultProcessFileMappingValue = Properties.Settings.Default.ProcessFileMappings;

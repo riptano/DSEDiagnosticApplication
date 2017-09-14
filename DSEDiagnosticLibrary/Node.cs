@@ -581,7 +581,7 @@ namespace DSEDiagnosticLibrary
     [JsonObject(MemberSerialization.OptOut)]
     public sealed class DSEInfo
 	{
-        public static DateTime? NodeToolCaptureUTCTimestamp = null;
+        public static DateTimeOffset? NodeToolCaptureTimestamp = null;
 
         [Flags]
 		public enum InstanceTypes
@@ -794,7 +794,7 @@ namespace DSEDiagnosticLibrary
         public UnitOfMeasure StorageUsed;
         public UnitOfMeasure StorageUtilization;
         public string HealthRating;
-        public DateTimeRange NodeToolDateRange;
+        public DateTimeOffsetRange NodeToolDateRange;
         public UnitOfMeasure Uptime;
         public UnitOfMeasure Heap;
         public UnitOfMeasure HeapUsed;
@@ -839,10 +839,10 @@ namespace DSEDiagnosticLibrary
     public sealed class LogFileInfo
     {
         public LogFileInfo(IFilePath logFile,
-                            DateTimeRange logfileDateRange,
+                            DateTimeOffsetRange logfileDateRange,
                             int logItems,
                             IEnumerable<LogCassandraEvent> orphanedEvents = null,
-                            DateTimeRange logDateRange = null)
+                            DateTimeOffsetRange logDateRange = null)
         {
             this.LogFile = logFile;
             this.LogFileDateRange = logfileDateRange;
@@ -859,11 +859,11 @@ namespace DSEDiagnosticLibrary
         /// <summary>
         /// The date range of the actual file
         /// </summary>
-        public DateTimeRange LogFileDateRange { get; }
+        public DateTimeOffsetRange LogFileDateRange { get; }
         /// <summary>
         /// The date range of the log entries
         /// </summary>
-        public DateTimeRange LogDateRange { get; }
+        public DateTimeOffsetRange LogDateRange { get; }
         public int LogItems { get; }
         public UnitOfMeasure LogFileSize { get; }
 
@@ -1136,21 +1136,21 @@ namespace DSEDiagnosticLibrary
             bool bResult = false;
 
             if(this.DSE.Uptime != null
-                && this.DSE.NodeToolDateRange == null
-                && DSEInfo.NodeToolCaptureUTCTimestamp.HasValue)
+                && DSEInfo.NodeToolCaptureTimestamp.HasValue
+                && (this.DSE.NodeToolDateRange == null || (this.Machine.TimeZone != null && this.DSE.NodeToolDateRange.Max == DSEInfo.NodeToolCaptureTimestamp.Value)))
             {
-                DateTime refDTO;
+                DateTimeOffset refDTO;
 
                 if (this.Machine.TimeZone == null)
                 {
-                    refDTO = DSEInfo.NodeToolCaptureUTCTimestamp.Value;
+                    refDTO = DSEInfo.NodeToolCaptureTimestamp.Value;
                 }
                 else
                 {
-                    refDTO = Common.TimeZones.ConvertFromUTC(DSEInfo.NodeToolCaptureUTCTimestamp.Value, this.Machine.TimeZone).DateTime;
+                    refDTO = Common.TimeZones.Convert(DSEInfo.NodeToolCaptureTimestamp.Value, this.Machine.TimeZone);                    
                 }
 
-                this.DSE.NodeToolDateRange = new DateTimeRange(refDTO - (TimeSpan)this.DSE.Uptime, refDTO);
+                this.DSE.NodeToolDateRange = new DateTimeOffsetRange(refDTO - (TimeSpan)this.DSE.Uptime, refDTO);
                 bResult = true;
             }
 

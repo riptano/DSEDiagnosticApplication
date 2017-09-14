@@ -13,79 +13,79 @@ namespace DSEDiagnosticLog4NetParser
     public sealed class ReadLogFile : IReadLogFile
     {
         public ReadLogFile() { }
-        public ReadLogFile(IFilePath logFilePath, string log4netConversionPattern, INode node = null, DateTimeRange logTimeFrameUTC = null)
+        public ReadLogFile(IFilePath logFilePath, string log4netConversionPattern, INode node = null, DateTimeOffsetRange logTimeFrame = null)
         {
             this.LogFile = logFilePath;
             this.Log4NetConversionPattern = log4netConversionPattern;
             this.Node = node;
 
-            if (logTimeFrameUTC != null)
+            if (logTimeFrame != null)
             {
                 if (this.Node == null || this.Node.Machine.TimeZone == null)
                 {
-                    DSEDiagnosticLogger.Logger.Instance.WarnFormat("Using UTC Log Time Range of {0} for Node {1} with File \"{2}\" because Node's TimeZone information is missing!", logTimeFrameUTC, this.Node, logFilePath);
-                    this.LogTimeFrame = logTimeFrameUTC;
+                    DSEDiagnosticLogger.Logger.Instance.WarnFormat("Using Log Time Range of {0} for Node {1} with File \"{2}\" because Node's TimeZone information is missing!", logTimeFrame, this.Node, logFilePath);
+                    this.LogTimeFrame = new DateTimeOffsetRange(logTimeFrame);
                 }
                 else
                 {
-                    this.LogTimeFrame = new DateTimeRange(logTimeFrameUTC.Min == DateTime.MinValue
-                                                            ? DateTime.MinValue
-                                                            : Common.TimeZones.ConvertFromUTC(logTimeFrameUTC.Min, this.Node.Machine.TimeZone).DateTime,
-                                                          logTimeFrameUTC.Max == DateTime.MaxValue
-                                                            ? DateTime.MaxValue
-                                                            : Common.TimeZones.ConvertFromUTC(logTimeFrameUTC.Max, this.Node.Machine.TimeZone).DateTime);
+                    this.LogTimeFrame = new DateTimeOffsetRange(logTimeFrame.Min == DateTimeOffset.MinValue
+                                                                    ? DateTimeOffset.MinValue
+                                                                    : Common.TimeZones.Convert(logTimeFrame.Min, this.Node.Machine.TimeZone),
+                                                                  logTimeFrame.Max == DateTimeOffset.MaxValue
+                                                                    ? DateTimeOffset.MaxValue
+                                                                    : Common.TimeZones.Convert(logTimeFrame.Max, this.Node.Machine.TimeZone));
                 }
             }
         }
 
-        public ReadLogFile(IFilePath logFilePath, string log4netConversionPattern, CancellationToken cancellationToken, INode node = null, DateTimeRange logTimeFrameUTC = null)
-            : this(logFilePath, log4netConversionPattern, node, logTimeFrameUTC)
+        public ReadLogFile(IFilePath logFilePath, string log4netConversionPattern, CancellationToken cancellationToken, INode node = null, DateTimeOffsetRange logTimeFrame = null)
+            : this(logFilePath, log4netConversionPattern, node, logTimeFrame)
         {
             this.CancellationToken = cancellationToken;
         }
 
-        public ReadLogFile(IFilePath logFilePath, string log4netConversionPattern, string ianaTimezone, DateTimeRange logTimeFrameUTC = null)
+        public ReadLogFile(IFilePath logFilePath, string log4netConversionPattern, string ianaTimezone, DateTimeOffsetRange logTimeFrame = null)
             : this(logFilePath, log4netConversionPattern)
         {
             this._ianaTimeZone = ianaTimezone;
 
-            if (logTimeFrameUTC != null)
+            if (logTimeFrame != null)
             {
                 if (string.IsNullOrEmpty(this._ianaTimeZone))
                 {
-                    DSEDiagnosticLogger.Logger.Instance.WarnFormat("Disabled Log Time Range of {0} with File \"{1}\" because TimeZone information is missing", logTimeFrameUTC, logFilePath);
+                    DSEDiagnosticLogger.Logger.Instance.WarnFormat("Disabled Log Time Range of {0} with File \"{1}\" because TimeZone information is missing", logTimeFrame, logFilePath);
                 }
                 else
                 {
-                    this.LogTimeFrame = new DateTimeRange(logTimeFrameUTC.Min == DateTime.MinValue
-                                                            ? DateTime.MinValue
-                                                            : Common.TimeZones.ConvertFromUTC(logTimeFrameUTC.Min, this._ianaTimeZone, Common.Patterns.TimeZoneInfo.ZoneNameTypes.IANATZName).DateTime,
-                                                          logTimeFrameUTC.Max == DateTime.MaxValue
-                                                            ? DateTime.MaxValue
-                                                            : Common.TimeZones.ConvertFromUTC(logTimeFrameUTC.Max, this._ianaTimeZone, Common.Patterns.TimeZoneInfo.ZoneNameTypes.IANATZName).DateTime);
+                    this.LogTimeFrame = new DateTimeOffsetRange(logTimeFrame.Min == DateTimeOffset.MinValue
+                                                                    ? DateTimeOffset.MinValue
+                                                                    : Common.TimeZones.Convert(logTimeFrame.Min, this._ianaTimeZone, Common.Patterns.TimeZoneInfo.ZoneNameTypes.IANATZName).DateTime,
+                                                                logTimeFrame.Max == DateTimeOffset.MaxValue
+                                                                    ? DateTimeOffset.MaxValue
+                                                                    : Common.TimeZones.Convert(logTimeFrame.Max, this._ianaTimeZone, Common.Patterns.TimeZoneInfo.ZoneNameTypes.IANATZName).DateTime);
                 }
             }
         }
 
-        public ReadLogFile(IFilePath logFilePath, string log4netConversionPattern, CancellationToken cancellationToken, string ianaTimezone, DateTimeRange logTimeFrameUTC = null)
+        public ReadLogFile(IFilePath logFilePath, string log4netConversionPattern, CancellationToken cancellationToken, string ianaTimezone, DateTimeOffsetRange logTimeFrame = null)
             : this(logFilePath, log4netConversionPattern, cancellationToken)
         {
             this._ianaTimeZone = ianaTimezone;
 
-            if (logTimeFrameUTC != null)
+            if (logTimeFrame != null)
             {
                 if (string.IsNullOrEmpty(this._ianaTimeZone))
                 {
-                    DSEDiagnosticLogger.Logger.Instance.WarnFormat("Disabled Log Time Range of {0} with File \"{1}\" because TimeZone information is missing", logTimeFrameUTC, logFilePath);
+                    DSEDiagnosticLogger.Logger.Instance.WarnFormat("Disabled Log Time Range of {0} with File \"{1}\" because TimeZone information is missing", logTimeFrame, logFilePath);
                 }
                 else
                 {
-                    this.LogTimeFrame = new DateTimeRange(logTimeFrameUTC.Min == DateTime.MinValue
-                                                            ? DateTime.MinValue
-                                                            : Common.TimeZones.ConvertFromUTC(logTimeFrameUTC.Min, this._ianaTimeZone, Common.Patterns.TimeZoneInfo.ZoneNameTypes.IANATZName).DateTime,
-                                                          logTimeFrameUTC.Max == DateTime.MaxValue
-                                                            ? DateTime.MaxValue
-                                                            : Common.TimeZones.ConvertFromUTC(logTimeFrameUTC.Max, this._ianaTimeZone, Common.Patterns.TimeZoneInfo.ZoneNameTypes.IANATZName).DateTime);
+                    this.LogTimeFrame = new DateTimeOffsetRange(logTimeFrame.Min == DateTimeOffset.MinValue
+                                                                    ? DateTimeOffset.MinValue
+                                                                    : Common.TimeZones.Convert(logTimeFrame.Min, this._ianaTimeZone, Common.Patterns.TimeZoneInfo.ZoneNameTypes.IANATZName).DateTime,
+                                                                logTimeFrame.Max == DateTimeOffset.MaxValue
+                                                                    ? DateTimeOffset.MaxValue
+                                                                    : Common.TimeZones.Convert(logTimeFrame.Max, this._ianaTimeZone, Common.Patterns.TimeZoneInfo.ZoneNameTypes.IANATZName).DateTime);
                 }
             }
         }
@@ -105,7 +105,7 @@ namespace DSEDiagnosticLog4NetParser
         /// <summary>
         /// If defined the time frame log entries will be parsed. The Time Frame will be in the Node&apos;s timezone.
         /// </summary>
-        public DateTimeRange LogTimeFrame { get; }
+        public DateTimeOffsetRange LogTimeFrame { get; }
 
         public event Action<IReadLogFile, ILogMessages, ILogMessage> ProcessedLogLineAction;
 
@@ -313,7 +313,7 @@ namespace DSEDiagnosticLog4NetParser
         private short LastLogLineWithinTimeRange(LogMessage logMessage, LogMessages logMessages, StreamReader streamReader, Task<string> nextLineTask, bool justReadLastEntries = false, long readBackLength = 1024)
         {
             bool wentBackward = false;
-            DateTime lastDateTime = DateTime.MaxValue;
+            DateTimeOffset lastDateTime = DateTimeOffset.MaxValue;
             string nextLine = null;
             LogMessage testLogMsg = null;
             string readLine;
@@ -338,13 +338,13 @@ namespace DSEDiagnosticLog4NetParser
                     testLogMsg = tmpLogMsgs.AddMessage(readLine, 0, true);
                     if (testLogMsg != null)
                     {
-                        lastDateTime = testLogMsg.LogDateTime;
+                        lastDateTime = testLogMsg.LogDateTimewTZOffset;
                     }
                 }
             }
 
             //Need to go further back...
-            if(lastDateTime == DateTime.MaxValue && wentBackward)
+            if(lastDateTime == DateTimeOffset.MaxValue && wentBackward)
             {
                 return this.LastLogLineWithinTimeRange(logMessage, logMessages, streamReader, nextLineTask, justReadLastEntries, readBackLength * 2);
             }

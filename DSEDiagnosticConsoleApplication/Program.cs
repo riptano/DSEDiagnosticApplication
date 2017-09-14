@@ -166,6 +166,8 @@ namespace DSEDiagnosticConsoleApplication
         {
             #region Setup Exception handling, Argument Parsering
 
+            Common.TimeZones.Convert(DateTime.Now, "UTC");
+
             Logger.Instance.InfoFormat("Starting {0} ({1}) Vetsion: {2} RunAs: {3} RunTime Dir: {4}",
                                             Common.Functions.Instance.ApplicationName,
                                             Common.Functions.Instance.AssemblyFullName,
@@ -275,7 +277,7 @@ namespace DSEDiagnosticConsoleApplication
             string defaultCluster = null;
 
             if(ParserSettings.DiagFolderStruct == ParserSettings.DiagFolderStructOptions.OpsCtrDiagStruct
-                    && !DSEDiagnosticLibrary.DSEInfo.NodeToolCaptureUTCTimestamp.HasValue)
+                    && !DSEDiagnosticLibrary.DSEInfo.NodeToolCaptureTimestamp.HasValue)
             {
                 var regEx = new System.Text.RegularExpressions.Regex(Properties.Settings.Default.OpsCenterDiagFolderRegEx,
                                                                         System.Text.RegularExpressions.RegexOptions.IgnoreCase);
@@ -295,37 +297,32 @@ namespace DSEDiagnosticConsoleApplication
                                                 System.Globalization.DateTimeStyles.None,
                                                 out diagDateTime))
                     {
-                        DSEDiagnosticLibrary.DSEInfo.NodeToolCaptureUTCTimestamp = diagDateTime;
+                        DSEDiagnosticLibrary.DSEInfo.NodeToolCaptureTimestamp = diagDateTime.ConvertToOffSet(diagTZ);
                     }
 
-                    Logger.Instance.InfoFormat("Using Diagnostic Tar-Ball \"{0}\" with OpsCenter Capture Date of {1} (Local Date {2})",
+                    Logger.Instance.InfoFormat("Using Diagnostic Tar-Ball \"{0}\" with OpsCenter Capture Date of {1}",
                                                     clusterName,
-                                                    DSEDiagnosticLibrary.DSEInfo.NodeToolCaptureUTCTimestamp.HasValue
-                                                        ? DSEDiagnosticLibrary.DSEInfo.NodeToolCaptureUTCTimestamp.Value.ToString(@"yyyy-MM-dd HH:mm:ss")
-                                                        : "<Unkown>",
-                                                    DSEDiagnosticLibrary.DSEInfo.NodeToolCaptureUTCTimestamp.HasValue
-                                                        ? Common.TimeZones.ConvertFromUTC(DSEDiagnosticLibrary.DSEInfo.NodeToolCaptureUTCTimestamp.Value).ToString(@"yyyy-MM-dd HH:mm:ss zzz")
+                                                    DSEDiagnosticLibrary.DSEInfo.NodeToolCaptureTimestamp.HasValue
+                                                        ? DSEDiagnosticLibrary.DSEInfo.NodeToolCaptureTimestamp.Value.ToString(@"yyyy-MM-dd HH:mm:ss zzz")
                                                         : "<Unkown>");
                 }
             }
 
             if(ParserSettings.OnlyIncludeXHrsofLogsFromDiagCaptureTime > 0
-                && DSEDiagnosticLibrary.DSEInfo.NodeToolCaptureUTCTimestamp.HasValue)
+                && DSEDiagnosticLibrary.DSEInfo.NodeToolCaptureTimestamp.HasValue)
             {
-                DSEDiagnosticFileParser.file_cassandra_log4net.LogTimeRangeUTC = new DateTimeRange(DSEDiagnosticLibrary.DSEInfo.NodeToolCaptureUTCTimestamp.Value - TimeSpan.FromHours(ParserSettings.OnlyIncludeXHrsofLogsFromDiagCaptureTime), DSEDiagnosticLibrary.DSEInfo.NodeToolCaptureUTCTimestamp.Value);
+                DSEDiagnosticFileParser.file_cassandra_log4net.LogTimeRange = new DateTimeOffsetRange(DSEDiagnosticLibrary.DSEInfo.NodeToolCaptureTimestamp.Value - TimeSpan.FromHours(ParserSettings.OnlyIncludeXHrsofLogsFromDiagCaptureTime), DSEDiagnosticLibrary.DSEInfo.NodeToolCaptureTimestamp.Value);
             }
 
-            if(DSEDiagnosticFileParser.file_cassandra_log4net.LogTimeRangeUTC != null)
+            if(DSEDiagnosticFileParser.file_cassandra_log4net.LogTimeRange != null)
             {
-                Logger.Instance.WarnFormat("Using UTC Log Range of {0} to {1} (Local Begin Time {2}, End Time {3})",
-                                                DSEDiagnosticFileParser.file_cassandra_log4net.LogTimeRangeUTC.Min.ToString(@"yyyy-MM-dd HH:mm:ss"),
-                                                 DSEDiagnosticFileParser.file_cassandra_log4net.LogTimeRangeUTC.Max.ToString(@"yyyy-MM-dd HH:mm:ss"),
-                                                 DSEDiagnosticFileParser.file_cassandra_log4net.LogTimeRangeUTC.Min == DateTime.MinValue
+                Logger.Instance.WarnFormat("Using UTC Log Range of {0} to {1}",
+                                                DSEDiagnosticFileParser.file_cassandra_log4net.LogTimeRange.Min == DateTimeOffset.MinValue
                                                             ? "MinValue"
-                                                            : DSEDiagnosticFileParser.file_cassandra_log4net.LogTimeRangeUTC.Min.ConvertFromUTC().ToString(@"yyyy-MM-dd HH:mm:ss zzz"),
-                                                 DSEDiagnosticFileParser.file_cassandra_log4net.LogTimeRangeUTC.Max == DateTime.MaxValue
+                                                            : DSEDiagnosticFileParser.file_cassandra_log4net.LogTimeRange.Min.ToString(@"yyyy-MM-dd HH:mm:ss zzz"),
+                                                 DSEDiagnosticFileParser.file_cassandra_log4net.LogTimeRange.Max == DateTimeOffset.MaxValue
                                                             ? "MaxValue"
-                                                            : DSEDiagnosticFileParser.file_cassandra_log4net.LogTimeRangeUTC.Max.ConvertFromUTC().ToString(@"yyyy-MM-dd HH:mm:ss zzz"));
+                                                            : DSEDiagnosticFileParser.file_cassandra_log4net.LogTimeRange.Max.ToString(@"yyyy-MM-dd HH:mm:ss zzz"));
             }
 
             var cancellationSource = new System.Threading.CancellationTokenSource();

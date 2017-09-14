@@ -73,13 +73,13 @@ namespace DSEDiagnosticLog4NetParser
 
         public IEnumerable<ILogMessage> Messages { get { return this._logMessages; } }
 
-        public DateTimeRange LogTimeRange
+        public DateTimeOffsetRange LogTimeRange
         {
             get
             {
                 return this._startingLogDateTime.IsMinOrMaxValue()
-                            ? DateTimeRange.EmptyMaxMin
-                            : new DateTimeRange(this._startingLogDateTime, this._endingLogDateTime);
+                            ? DateTimeOffsetRange.EmptyMaxMin
+                            : new DateTimeOffsetRange(this._startingLogDateTime, this._endingLogDateTime);
             }
         }
         public LogCompletionStatus CompletionStatus { get; internal set; }
@@ -186,21 +186,21 @@ namespace DSEDiagnosticLog4NetParser
                     }
                     else
                     {
-                        //This is an work-around to fix an timing issue in the TZ lib...
-                        try
-                        {
+                        //This is an work-around to fix a timing issue in the TZ lib...
+                        //try
+                        //{
                             logMessage.LogDateTimewTZOffset = Common.TimeZones.ConvertToOffset(logMessage.LogDateTime, this._timeZoneInstance);
-                        }
-                        catch (ArgumentOutOfRangeException)
-                        {
+                        //}
+                        //catch (ArgumentOutOfRangeException)
+                       // {
                             logMessage.LogDateTimewTZOffset = Common.TimeZones.ConvertToOffset(logMessage.LogDateTime, this._timeZoneInstance);
-                        }
+                       // }
                     }
 
-                    this._endingLogDateTime = timeStamp;
-                    if (this._startingLogDateTime == DateTime.MinValue)
+                    this._endingLogDateTime = logMessage.LogDateTimewTZOffset;
+                    if (this._startingLogDateTime == DateTimeOffset.MinValue)
                     {
-                        this._startingLogDateTime = timeStamp;
+                        this._startingLogDateTime = logMessage.LogDateTimewTZOffset;
                     }
                 }
                 else
@@ -281,7 +281,7 @@ namespace DSEDiagnosticLog4NetParser
             return logMessage;
         }
 
-        internal void SetEndingTimeRange(DateTime possibleEndDateTime)
+        internal void SetEndingTimeRange(DateTimeOffset possibleEndDateTime)
         {
             if (this._endingLogDateTime < possibleEndDateTime)
             {
@@ -289,20 +289,20 @@ namespace DSEDiagnosticLog4NetParser
             }
         }
 
-        internal void SetStartingTimeRange(DateTime possibleStartDateTime)
+        internal void SetStartingTimeRange(DateTimeOffset possibleStartDateTime)
         {
-            if (this._startingLogDateTime == DateTime.MinValue)
+            if (this._startingLogDateTime == DateTimeOffset.MinValue)
             {
                 this._startingLogDateTime = possibleStartDateTime;
             }
         }
 
-        internal void SetStartingTime(DateTime startDateTime)
+        internal void SetStartingTime(DateTimeOffset startDateTime)
         {
             this._startingLogDateTime = startDateTime;
         }
 
-        internal void SetEndingTime(DateTime endDateTime)
+        internal void SetEndingTime(DateTimeOffset endDateTime)
         {
             this._endingLogDateTime = endDateTime;
         }
@@ -384,8 +384,8 @@ namespace DSEDiagnosticLog4NetParser
         LogMessage _lastMessage;
         string _datetimeFormat;
         bool _logTimestampValue = false;
-        DateTime _startingLogDateTime;
-        DateTime _endingLogDateTime;
+        DateTimeOffset _startingLogDateTime;
+        DateTimeOffset _endingLogDateTime;
         Common.Patterns.TimeZoneInfo.IZone _timeZoneInstance = null;
 
         static Regex CreateRegEx(string field, IDictionary<string, Log4NetPatternImporter.OutputField> outputFields)
