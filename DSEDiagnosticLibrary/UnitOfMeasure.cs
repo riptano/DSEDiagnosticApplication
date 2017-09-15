@@ -163,8 +163,8 @@ namespace DSEDiagnosticLibrary
             this.UnitType = newUOM;
         }
 
-        public Types UnitType { get; }
-        public decimal Value { get; }
+        public Types UnitType { get; private set; }
+        public decimal Value { get; private set; }
 
         [JsonIgnore]
         public bool NaN { get { return (this.UnitType & Types.NaN) != 0; } }
@@ -227,6 +227,111 @@ namespace DSEDiagnosticLibrary
         }
 
         #region Convertors
+
+        public UnitOfMeasure Add(UnitOfMeasure addItem)
+        {
+            if (addItem.NaN) return this;
+
+            if (this.NaN)
+            {
+                this.UnitType &= ~Types.NaN;
+                this.Value = addItem.ConvertTo(this.UnitType);
+            }
+            else
+            {
+                this.Value += addItem.ConvertTo(this.UnitType);
+            }
+            return this;
+        }
+
+        public UnitOfMeasure Add(decimal addItem)
+        {
+            this.Value += addItem;
+            if (this.NaN)
+            {
+                this.UnitType &= ~Types.NaN;
+                this.Value = addItem;
+            }
+            else
+            {
+                this.Value += addItem;
+            }
+            return this;
+        }
+
+        public UnitOfMeasure Subtract(UnitOfMeasure subtractItem)
+        {
+            if (subtractItem.NaN) return this;
+            if (this.NaN)
+            {
+                this.UnitType &= ~Types.NaN;
+                this.Value = subtractItem.ConvertTo(this.UnitType);
+            }
+            else
+            {
+                this.Value -= subtractItem.ConvertTo(this.UnitType);
+            }
+            return this;
+        }
+
+        public UnitOfMeasure Subtract(decimal subtractItem)
+        {
+            this.Value -= subtractItem;
+            if (this.NaN)
+            {
+                this.UnitType &= ~Types.NaN;
+                this.Value = subtractItem;
+            }
+            else
+            {
+                this.Value -= subtractItem;
+            }
+            return this;
+        }
+
+        /// <summary>
+        /// Multiplies UOM by factor only if UOM is not NAN
+        /// </summary>
+        /// <param name="multipleBy"></param>
+        /// <returns></returns>
+        public UnitOfMeasure Multiple(decimal multipleBy)
+        {
+            if (this.NaN) return this;
+
+            this.Value *= multipleBy;
+            return this;
+        }
+
+        /// <summary>
+        /// Divides UOM by factor only if UOM is not NAN
+        /// </summary>
+        /// <param name="divideBy"></param>
+        /// <returns></returns>
+        public UnitOfMeasure Divide(decimal divideBy)
+        {
+            if (this.NaN) return this;
+
+            this.Value /= divideBy;
+            return this;
+        }
+
+        /// <summary>
+        /// Reset UOM to zero and removes NAN flag
+        /// </summary>
+        /// <returns></returns>
+        public UnitOfMeasure Reset()
+        {
+            this.Value = 0;
+            if (this.NaN) this.UnitType &= ~Types.NaN;
+            return this;
+        }
+
+        public UnitOfMeasure MakeNaN()
+        {
+            this.Value = decimal.MinValue;
+            this.UnitType |= Types.NaN;
+            return this;
+        }
 
         public decimal ConvertTo(Types newUOM)
         {

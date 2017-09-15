@@ -157,6 +157,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\DSEDiagnosticAnalytics\DSEDiagnosticAnalytics.csproj">
+      <Project>{17a460cf-1048-4851-844a-987a4a3762f8}</Project>
+      <Name>DSEDiagnosticAnalytics</Name>
+    </ProjectReference>
     <ProjectReference Include="..\DSEDiagnosticFileParser\DSEDiagnosticFileParser.csproj">
       <Project>{50db5780-7118-44e2-8d1f-e7288304eac5}</Project>
       <Name>DSEDiagnosticFileParser</Name>

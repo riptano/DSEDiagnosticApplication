@@ -12,10 +12,13 @@ namespace DSEDiagnosticToDataTable
 {
     public sealed class LogInfoDataTable : DataTableLoad
     {
-        public LogInfoDataTable(DSEDiagnosticLibrary.Cluster cluster, CancellationTokenSource cancellationSource = null)
+        public LogInfoDataTable(DSEDiagnosticLibrary.Cluster cluster, IEnumerable<DSEDiagnosticLibrary.IAggregatedStats> logFileStats, CancellationTokenSource cancellationSource = null)
             : base(cluster, cancellationSource)
         {
+            this.LogFileStats = logFileStats;
         }
+
+        public IEnumerable<DSEDiagnosticLibrary.IAggregatedStats> LogFileStats { get; }
 
         public override DataTable CreateInitializationTable()
         {
@@ -39,10 +42,7 @@ namespace DSEDiagnosticToDataTable
             dtLogFile.Columns.Add("Gap Timespan", typeof(TimeSpan)).AllowDBNull = true;//o
             dtLogFile.Columns.Add("OverLapping", typeof(string)).AllowDBNull = true;//p
             dtLogFile.Columns.Add("Start Range (UTC)", typeof(DateTime)).AllowDBNull = true;
-            dtLogFile.Columns.Add("End Range (UTC)", typeof(DateTime)).AllowDBNull = true;
-            dtLogFile.Columns.Add("Start Continuous (UTC)", typeof(DateTime)).AllowDBNull = true;//s
-            dtLogFile.Columns.Add("End Continuous (UTC)", typeof(DateTime)).AllowDBNull = true;
-            dtLogFile.Columns.Add("Continuous Duration", typeof(TimeSpan)).AllowDBNull = true;
+            dtLogFile.Columns.Add("End Range (UTC)", typeof(DateTime)).AllowDBNull = true; //r
 
             dtLogFile.DefaultView.ApplyDefaultSort = false;
             dtLogFile.DefaultView.AllowDelete = false;
@@ -60,126 +60,55 @@ namespace DSEDiagnosticToDataTable
         /// <exception cref="Exception">Should re-thrown any exception except for OperationCanceledException</exception>
         public override DataTable LoadTable()
         {
-            this.Table.BeginLoadData();
+            DataRow dataRow = null;
+            int nbrItems = 0;
+
+            Logger.Instance.InfoFormat("Loading Log Information into DataTable \"{0}\"", this.Table.TableName);
+
             try
             {
-                DataRow dataRow = null;
-                DataRow lastContDataRow = null;
-                TimeSpan? gaptimeSpan = null;
-                DateTimeOffsetRange contTimeRange = null;
-                TimeSpan contTimeSpan = new TimeSpan();
-                int nbrItems = 0;
+                this.Table.BeginLoadData();
 
-                foreach (var node in this.Cluster.Nodes
-                                        .OrderBy(n => n.Id.NodeName()))
+                foreach (var logInfo in from item in this.LogFileStats
+                                        let statItem = (DSEDiagnosticAnalytics.LogFileStats.LogInfoStat)item
+                                        orderby statItem.Node.Id.NodeName(), statItem.IsDebugFile, statItem.LogRange
+                                        select statItem)
                 {
                     this.CancellationToken.ThrowIfCancellationRequested();
 
-                    nbrItems = 0;
-                    Logger.Instance.InfoFormat("Loading Log Information for Node \"{0}\"", node);
-                    var logItems = from item in node.LogFiles
-                                   let isDebugFile = item.LogFile.Name.IndexOf("debug", StringComparison.OrdinalIgnoreCase) >= 0
-                                   group item by isDebugFile into g
-                                   select new { IsDebugFile = g.Key, LogInfos = g.OrderBy(l => l.LogDateRange).ToList() };
+                    dataRow = this.Table.NewRow();
 
-                    foreach (var fileType in logItems)
+                    dataRow.SetField(ColumnNames.NodeIPAddress, logInfo.Node.Id.NodeName());
+                    dataRow.SetField(ColumnNames.DataCenter, logInfo.DataCenter?.Name);
+                    dataRow.SetField("Node's TimeZone", logInfo.Node.Machine.TimeZone?.Name ?? logInfo.Node.Machine.TimeZoneName + '?');
+                    dataRow.SetField("Instance Type", logInfo.Product.ToString());
+                    dataRow.SetField("IsDebugLog", logInfo.IsDebugFile);
+                    dataRow.SetFieldToDecimal("File Size (MB)", logInfo.LogFileSize, DSEDiagnosticLibrary.UnitOfMeasure.Types.MiB);
+                    dataRow.SetField("OverLapping", logInfo.OverlappingType == DSEDiagnosticAnalytics.LogFileStats.LogInfoStat.OverLappingTypes.Normal ? null : logInfo.OverlappingType.ToString());
+                    dataRow.SetField("Start Range (Used)", logInfo.LogRange.Min);
+                    dataRow.SetField("End Range (Used)", logInfo.LogRange.Max);
+                    dataRow.SetField("Duration (Used)", logInfo.LogRange.TimeSpan());
+                    dataRow.SetField("Start Range (UTC)", logInfo.LogRange.Min.ToUniversalTime().DateTime);
+                    dataRow.SetField("End Range (UTC)", logInfo.LogRange.Max.ToUniversalTime().DateTime);
+                    dataRow.SetField("Events", logInfo.LogItems);
+
+                    if (logInfo.OverlappingType != DSEDiagnosticAnalytics.LogFileStats.LogInfoStat.OverLappingTypes.Continuous)
                     {
-                        this.CancellationToken.ThrowIfCancellationRequested();
-                        
-                        for (int nIdx = 0; nIdx < fileType.LogInfos.Count; ++nIdx)
-                        {
-                            this.CancellationToken.ThrowIfCancellationRequested();
-
-                            var logInfo = fileType.LogInfos[nIdx];
-
-                            dataRow = this.Table.NewRow();
-
-                            if (nIdx > 0)
-                            {
-                                if (logInfo.LogDateRange == fileType.LogInfos[nIdx - 1].LogDateRange || fileType.LogInfos[nIdx - 1].LogDateRange.IsWithIn(logInfo.LogDateRange.Min))
-                                {
-                                    dataRow.SetField("OverLapping", "Duplicated");
-                                    gaptimeSpan = null;
-                                }
-                                else if (fileType.LogInfos[nIdx - 1].LogDateRange.Includes(logInfo.LogDateRange.Min))
-                                {
-                                    dataRow.SetField("OverLapping", "Overlapping");
-                                    gaptimeSpan = null;
-                                }
-                                else
-                                {
-                                    dataRow.SetField("Gap Timespan", gaptimeSpan = (TimeSpan?)(logInfo.LogDateRange.Min - fileType.LogInfos[nIdx - 1].LogDateRange.Max));
-                                }
-                            }
-                            else
-                            {
-                                gaptimeSpan = TimeSpan.Zero;
-                                contTimeRange = new DateTimeOffsetRange();
-                                contTimeSpan = new TimeSpan();
-                                lastContDataRow = null;
-                            }
-
-                            dataRow.SetField(ColumnNames.NodeIPAddress, node.Id.NodeName());
-                            dataRow.SetField(ColumnNames.DataCenter, node.DataCenter?.Name);
-                            dataRow.SetField("Node's TimeZone", node.Machine.TimeZone?.Name ?? node.Machine.TimeZoneName + '?');
-                            dataRow.SetField("Instance Type", node.DSE.InstanceType.ToString());
-                            dataRow.SetField("Start Range (Log File)", logInfo.LogFileDateRange.Min);
-                            dataRow.SetField("End Range (Log File)", logInfo.LogFileDateRange.Max);
-                            dataRow.SetField("Duration (Log File)", logInfo.LogFileDateRange.TimeSpan());
-                            dataRow.SetField("Start Range (Used)", logInfo.LogDateRange.Min);
-                            dataRow.SetField("End Range (Used)", logInfo.LogDateRange.Max);
-                            dataRow.SetField("Duration (Used)", logInfo.LogDateRange.TimeSpan());
-                            dataRow.SetField("File Path", logInfo.LogFile.PathResolved);
-                            dataRow.SetField("Events", logInfo.LogItems);
-                            dataRow.SetFieldToDecimal("File Size (MB)", logInfo.LogFileSize, DSEDiagnosticLibrary.UnitOfMeasure.Types.MiB);
-                            dataRow.SetField("IsDebugLog", fileType.IsDebugFile);
-
-                            dataRow.SetField("Start Range (UTC)", logInfo.LogFileDateRange.Min.ToUniversalTime().DateTime);
-                            dataRow.SetField("End Range (UTC)", logInfo.LogFileDateRange.Max.ToUniversalTime().DateTime);                            
-
-                            if(gaptimeSpan.HasValue)
-                            {
-                                if (Math.Abs(gaptimeSpan.Value.TotalMinutes) <= Properties.Settings.Default.LogFileInfoAnalysisGapTriggerInMins)
-                                {
-                                    contTimeSpan = contTimeSpan.Add(logInfo.LogDateRange.TimeSpan());
-                                    contTimeRange.SetMinimal(logInfo.LogFileDateRange.Min.ToUniversalTime().DateTime);
-                                    contTimeRange.SetMaximum(logInfo.LogFileDateRange.Max.ToUniversalTime().DateTime);
-                                    lastContDataRow = dataRow;
-                                }
-                                else
-                                {
-                                    if(lastContDataRow != null && contTimeSpan.TotalDays >= Properties.Settings.Default.LogFileInfoAnalysisContinousEventInDays)
-                                    {
-                                        lastContDataRow.SetField("Start Continuous (UTC)", contTimeRange.Min.DateTime);
-                                        lastContDataRow.SetField("End Continuous (UTC)", contTimeRange.Max.DateTime);
-                                        lastContDataRow.SetField("Continuous Duration", contTimeSpan);
-                                    }
-
-                                    contTimeRange = new DateTimeOffsetRange(logInfo.LogFileDateRange.Min.ToUniversalTime(), logInfo.LogFileDateRange.Max.ToUniversalTime());
-                                    contTimeSpan = new TimeSpan(logInfo.LogDateRange.TimeSpan().Ticks);
-                                    lastContDataRow = dataRow;
-                                }
-                            }
-
-
-                            this.Table.Rows.Add(dataRow);
-                            ++nbrItems;
-                        }
-
-                        if (lastContDataRow != null && contTimeSpan.TotalDays >= Properties.Settings.Default.LogFileInfoAnalysisContinousEventInDays)
-                        {
-                            lastContDataRow.SetField("Start Continuous (UTC)", contTimeRange.Min.DateTime);
-                            lastContDataRow.SetField("End Continuous (UTC)", contTimeRange.Max.DateTime);
-                            lastContDataRow.SetField("Continuous Duration", contTimeSpan);
-                        }
+                        dataRow.SetField("Start Range (Log File)", logInfo.LogFileRange.Min);
+                        dataRow.SetField("End Range (Log File)", logInfo.LogFileRange.Max);
+                        dataRow.SetField("Duration (Log File)", logInfo.LogFileRange.TimeSpan());
+                        dataRow.SetField("File Path", logInfo.Path.PathResolved);
+                        dataRow.SetField("Gap Timespan", logInfo.Gap);
                     }
 
-                    Logger.Instance.InfoFormat("Loaded Log Information for Node \"{0}\", Total Nbr Items {1:###,###,##0}", node, nbrItems);
+                    this.Table.Rows.Add(dataRow);
+                    ++nbrItems;
                 }
+                Logger.Instance.InfoFormat("Loaded Log Information for DataTable \"{0}\", Total Nbr Items {1:###,###,##0}", this.Table.TableName, nbrItems);
             }
             catch (OperationCanceledException)
             {
-                Logger.Instance.Warn("Loading Log Information Canceled");
+                Logger.Instance.WarnFormat("Loading Log Information Canceled for Table \"{0}\"", this.Table.TableName);
             }
             finally
             {
