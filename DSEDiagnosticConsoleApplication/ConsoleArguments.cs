@@ -120,6 +120,20 @@ namespace DSEDiagnosticConsoleApplication
                 Description = "If defined the system/DSE keyspaces are not auto-loaded. The default is to load these keyspaces. Note that the app-config file element DSESystemDDL of DSEDiagnosticFileParser lib contains the DDL of the keyspaces/tables loaded."
             });
 
+            this._cmdLineParser.Arguments.Add(new ValueArgument<int>("LogFileGapAnalysis")
+            {
+                DefaultValue = (int) DSEDiagnosticAnalytics.LibrarySettings.LogFileInfoAnalysisGapTriggerInMins,
+                Optional = true,
+                Description = "The number of minutes that will determine if a Gap occurred between Log File events. A log file event is information around the actual log file which included the starting timestamp and ending timestamp within a file."
+            });
+
+            this._cmdLineParser.Arguments.Add(new ValueArgument<int>("LogFileContinousAnalysis")
+            {
+                DefaultValue = (int)DSEDiagnosticAnalytics.LibrarySettings.LogFileInfoAnalysisContinousEventInDays,
+                Optional = true,
+                Description = "The minimal number of days to determine a series of file log events as a continuous single event. A log file event is information around the actual log file which included the starting timestamp and ending timestamp within a file."
+            });
+
             this._cmdLineParser.Arguments.Add(new SwitchArgument("Debug", false)
             {
                 Description = "Debug Mode"
@@ -256,6 +270,12 @@ namespace DSEDiagnosticConsoleApplication
                         break;
                     case "ProcessFileMappingPath":
                         ParserSettings.ProcessFileMappingValue = ((FileArgument)item).Value.ToString();
+                        break;
+                    case "LogFileGapAnalysis":
+                        DSEDiagnosticAnalytics.LibrarySettings.LogFileInfoAnalysisGapTriggerInMins = ((ValueArgument<int>)item).Value;
+                        break;
+                    case "LogFileContinousAnalysis":
+                        DSEDiagnosticAnalytics.LibrarySettings.LogFileInfoAnalysisContinousEventInDays = ((ValueArgument<int>)item).Value;
                         break;
                     case "Debug":
                         this.Debug = ((SwitchArgument)item).Value;
