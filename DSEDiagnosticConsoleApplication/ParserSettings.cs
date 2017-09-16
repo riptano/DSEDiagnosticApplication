@@ -237,6 +237,24 @@ namespace DSEDiagnosticConsoleApplication
             get { return DSEDiagnosticFileParser.DiagnosticFile.DisableParallelProcessing; }
             set { DSEDiagnosticFileParser.DiagnosticFile.DisableParallelProcessing = value; }
         }
+        
+        public static int LogFileInfoAnalysisGapTriggerInMins
+        {
+            get { return (int) DSEDiagnosticAnalytics.LibrarySettings.LogFileInfoAnalysisGapTriggerInMins; }
+            set { DSEDiagnosticAnalytics.LibrarySettings.LogFileInfoAnalysisGapTriggerInMins = value; }
+        }
+
+        public static int LogFileInfoAnalysisContinousEventInDays
+        {
+            get { return (int)DSEDiagnosticAnalytics.LibrarySettings.LogFileInfoAnalysisContinousEventInDays; }
+            set { DSEDiagnosticAnalytics.LibrarySettings.LogFileInfoAnalysisContinousEventInDays = value; }
+        }
+
+        public static bool AppendToWorkSheet
+        {
+            get { return DSEDiagtnosticToExcel.LibrarySettings.AppendToWorkSheet; }
+            set { DSEDiagtnosticToExcel.LibrarySettings.AppendToWorkSheet = value; }
+        }
 
         #endregion
     }
