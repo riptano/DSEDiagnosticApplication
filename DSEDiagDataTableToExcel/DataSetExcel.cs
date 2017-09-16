@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Data;
 using System.Threading.Tasks;
 using OfficeOpenXml;
@@ -114,7 +115,9 @@ namespace DataTableToExcel
                                                 int maxRowInExcelWorkSheet = -1,
                                                 string startingWSCell = "A1",
                                                 bool useDefaultView = false,
-                                                bool renameFirstWorksheetIfDivided = true)
+                                                bool renameFirstWorksheetIfDivided = true,
+                                                bool appendToWorkSheet = false,
+                                                bool printHeaders = true)
         {
             if (string.IsNullOrEmpty(workSheetName)) workSheetName = dtExcel.TableName;
 
@@ -187,7 +190,9 @@ namespace DataTableToExcel
                                             -1,
                                             startingWSCell,
                                             false,
-                                            false);
+                                            false,
+                                            appendToWorkSheet,
+                                            printHeaders);
                     ++splitCnt;
                 }
 
@@ -217,22 +222,53 @@ namespace DataTableToExcel
             }
             else
             {
-                workSheet.Cells.Clear();
-                foreach (ExcelComment comment in workSheet.Comments.Cast<ExcelComment>().ToArray())
+                bool clear = true;
+
+                if (appendToWorkSheet)
                 {
-                    try
+                    var row = workSheet.Dimension.End.Row;
+                    var startingRange = workSheet.Cells[startingWSCell];
+                    var endingColumn = workSheet.Dimension.End.Column;
+
+                    if (row > startingRange.Start.Row)
                     {
-                        workSheet.Comments.Remove(comment);
+                        while (row >= 1)
+                        {
+                            var range = workSheet.Cells[row, 1, row, endingColumn];
+
+                            if (range.Any(c => !string.IsNullOrEmpty(c.Text)))
+                            {
+                                break;
+                            }
+                            row--;
+                        }
+
+                        startingWSCell = workSheet.Cells[row + 1, startingRange.End.Column].Address;
+                        printHeaders = false;
+                        clear = false;
                     }
-                    catch { }
+                }
+
+                if(clear)
+                {
+                    workSheet.Cells.Clear();
+                    foreach (ExcelComment comment in workSheet.Comments.Cast<ExcelComment>().ToArray())
+                    {
+                        try
+                        {
+                            workSheet.Comments.Remove(comment);
+                        }
+                        catch { }
+                    }
                 }
             }
 
-            Logger.Instance.InfoFormat("Loading DataTable \"{0}\" into Excel WorkSheet \"{1}\" for Workbook \"{3}\". Rows: {2:###,###,##0}",
+            Logger.Instance.InfoFormat("Loading DataTable \"{0}\" into Excel WorkSheet \"{1}\" at Cell \"{4}\" for Workbook \"{3}\". Rows: {2:###,###,##0}",
                                         dtExcel.TableName,
                                         workSheet.Name,
                                         dtExcel.Rows.Count,
-                                        excelPkg.File?.Name);
+                                        excelPkg.File?.Name,
+                                        startingWSCell);
 
             if (useDefaultView)
             {
@@ -266,7 +302,9 @@ namespace DataTableToExcel
                                         Properties.Settings.Default.ExcelPackageMaxRowsLimit,
                                         startingWSCell,
                                         false,
-                                        false);
+                                        false,
+                                        appendToWorkSheet,
+                                        printHeaders);
                 }
                 else
                 {
@@ -280,7 +318,7 @@ namespace DataTableToExcel
                 }
             }
 
-            var loadRange = workSheet.Cells[startingWSCell].LoadFromDataTable(dtExcel, true);
+            var loadRange = workSheet.Cells[startingWSCell].LoadFromDataTable(dtExcel, printHeaders);
 
             if (loadRange != null && worksheetAction != null)
             {
@@ -294,11 +332,12 @@ namespace DataTableToExcel
                 }
             }
 
-            Logger.Instance.InfoFormat("Loaded DataTable \"{0}\" into Excel WorkSheet \"{1}\" for Workbook \"{3}\". Range: {2}",
+            Logger.Instance.InfoFormat("Loaded DataTable \"{0}\" into Excel WorkSheet \"{1}\" at \"{4}\" for Workbook \"{3}\". Range: {2}",
                                         dtExcel.TableName,
                                         workSheet.Name,
                                         loadRange,
-                                        excelPkg.File?.Name);
+                                        excelPkg.File?.Name,
+                                        startingWSCell);
 
             return loadRange;
         }
@@ -348,7 +387,8 @@ namespace DataTableToExcel
                                                     int maxRowInExcelWorkSheet = -1,
                                                     string startingWSCell = "A1",
                                                     bool useDefaultView = false,
-                                                    bool generateNewFileName = false)
+                                                    bool generateNewFileName = false,
+                                                    bool appendToWorkSheet = false)
         {
             var excelTargetFile = Common.Path.PathUtils.BuildFilePath(excelFilePath);
             var orgTargetFile = (IFilePath)excelTargetFile.Clone();
@@ -391,10 +431,10 @@ namespace DataTableToExcel
                                 workSheetName,
                                 dtExcel,
                                 worksheetAction,
-                                true,
-                                maxRowInExcelWorkSheet,
-                                startingWSCell,
-                                useDefaultView);
+                                maxRowInExcelWorkSheet: maxRowInExcelWorkSheet,
+                                startingWSCell: startingWSCell,
+                                useDefaultView: useDefaultView,
+                                appendToWorkSheet: appendToWorkSheet);
 
                     workBookActions?.Invoke(WorkBookProcessingStage.PreSave, orgTargetFile, excelFile, workSheetName, excelPkg, dtExcel, dtExcel.Rows.Count);
                     excelPkg.Save();
@@ -447,9 +487,9 @@ namespace DataTableToExcel
                                 workSheetName,
                                 dtSplit,
                                 worksheetAction,
-                                true,
-                                maxRowInExcelWorkSheet,
-                                startingWSCell);
+                                maxRowInExcelWorkSheet: maxRowInExcelWorkSheet,
+                                startingWSCell: startingWSCell,
+                                appendToWorkSheet: appendToWorkSheet);
 
                     System.Threading.Interlocked.Add(ref nResult, dtSplit.Rows.Count);
 
@@ -522,6 +562,6 @@ namespace DataTableToExcel
 
             return excelWorksheet.Cells[excelStartRow, dtCol.Ordinal, excelEndRow, dtCol.Ordinal];
         }
-        
+
     }
 }

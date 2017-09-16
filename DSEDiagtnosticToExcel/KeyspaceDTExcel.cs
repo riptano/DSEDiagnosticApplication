@@ -19,12 +19,15 @@ namespace DSEDiagtnosticToExcel
                                 string worksheetName,
                                 bool useDataTableDefaultView)
             : base(keyspaceDataTable, excelTargetWorkbook, worksheetName, useDataTableDefaultView)
-        {}
+        {
+            this.AppendToWorkSheet = false;
+        }
 
         public KeyspaceExcel(DataTable keyspaceDataTable,
                                 IFilePath excelTargetWorkbook)
             : this(keyspaceDataTable, excelTargetWorkbook, null, true)
-        { }
+        {
+        }
 
         public override Tuple<IFilePath, string, int> Load()
         {
@@ -95,15 +98,17 @@ namespace DSEDiagtnosticToExcel
                                                                 workSheet.Cells[dtKeySpace.Rows.Count + 2, 20].FormulaR1C1 = string.Format("sum(T2:T{0})", dtKeySpace.Rows.Count + 1);
 
                                                                 workSheet.Cells[dtKeySpace.Rows.Count + 2, 5, dtKeySpace.Rows.Count + 2, 20].Style.Border.Top.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thick;
-                                                               
+
                                                                 workSheet.View.FreezePanes(2, 1);
                                                                 workSheet.Cells["A1:T1"].AutoFilter = true;
+                                                                
                                                                 workSheet.AutoFitColumn(workSheet.Cells["A:T"]);
                                                             },
                                                             -1,
                                                            -1,
                                                            "A1",
-                                                           this.UseDataTableDefaultView);
+                                                           this.UseDataTableDefaultView,
+                                                           appendToWorkSheet: this.AppendToWorkSheet);
 
             return new Tuple<IFilePath, string, int>(this.ExcelTargetWorkbook, this.WorkSheetName, nbrRows);
         }

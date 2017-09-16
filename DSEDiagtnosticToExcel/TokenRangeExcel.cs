@@ -19,7 +19,9 @@ namespace DSEDiagtnosticToExcel
                                 string worksheetName,
                                 bool useDataTableDefaultView)
             : base(keyspaceDataTable, excelTargetWorkbook, worksheetName, useDataTableDefaultView)
-        {}
+        {
+            this.AppendToWorkSheet = false;
+        }
 
         public TokenRangexcel(DataTable keyspaceDataTable,
                                 IFilePath excelTargetWorkbook)
@@ -62,12 +64,14 @@ namespace DSEDiagtnosticToExcel
                                                                 //workSheet.Cells["C:D"].Style.Numberformat.Format = "TEXT";
                                                                 //workSheet.Cells["E:E"].Style.Numberformat.Format = "TEXT";
                                                                 workSheet.Cells["F:F"].Style.Numberformat.Format = "#,###,###,##0.00";
+                                                                
                                                                 workSheet.AutoFitColumn();
                                                             },
                                                             -1,
                                                            -1,
                                                            "A1",
-                                                           this.UseDataTableDefaultView);
+                                                           this.UseDataTableDefaultView,
+                                                           appendToWorkSheet: this.AppendToWorkSheet);
 
             return new Tuple<IFilePath, string, int>(this.ExcelTargetWorkbook, this.WorkSheetName, nbrRows);
         }

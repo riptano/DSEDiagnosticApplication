@@ -19,7 +19,9 @@ namespace DSEDiagtnosticToExcel
                                 string worksheetName,
                                 bool useDataTableDefaultView)
             : base(keyspaceDataTable, excelTargetWorkbook, worksheetName, useDataTableDefaultView)
-        {}
+        {
+            this.AppendToWorkSheet = false;
+        }
 
         public NodeExcel(DataTable keyspaceDataTable,
                                 IFilePath excelTargetWorkbook)
@@ -87,13 +89,14 @@ namespace DSEDiagtnosticToExcel
                                                                 //workSheet.Cells["J1"].Value = "Uptime (Days)";
                                                                 //workSheet.Cells["K1"].Value = "Uptime";
                                                                 //workSheet.Cells[string.Format("K2:K{0}", dtRingInfo.Rows.Count + 2)].FormulaR1C1 = "CONCATENATE(TEXT(FLOOR(J2,1),\"@\"),\" \",TEXT(J2,\"hh:mm:ss\"))";
-
+                                                                
                                                                 workSheet.AutoFitColumn();
                                                             },
                                                             -1,
                                                            -1,
                                                            "A1",
-                                                           this.UseDataTableDefaultView);
+                                                           this.UseDataTableDefaultView,
+                                                           appendToWorkSheet: this.AppendToWorkSheet);
 
             return new Tuple<IFilePath, string, int>(this.ExcelTargetWorkbook, this.WorkSheetName, nbrRows);
         }

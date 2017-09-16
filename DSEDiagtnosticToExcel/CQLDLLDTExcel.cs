@@ -19,7 +19,9 @@ namespace DSEDiagtnosticToExcel
                                 string worksheetName,
                                 bool useDataTableDefaultView)
             : base(keyspaceDataTable, excelTargetWorkbook, worksheetName, useDataTableDefaultView)
-        {}
+        {
+            this.AppendToWorkSheet = false;
+        }
 
         public CQLDLLExcel(DataTable keyspaceDataTable,
                                 IFilePath excelTargetWorkbook)
@@ -90,13 +92,14 @@ namespace DSEDiagtnosticToExcel
                                                                 workSheet.Cells["J2"].AddComment("dclocal_read_repair_chance -- Specifies the probability of read repairs being invoked over all replicas in the current data center. Defaults are: 0.1 (Cassandra 2.1, Cassandra 2.0.9 and later) 0.0 (Cassandra 2.0.8 and earlier)", "Richard Andersen");
                                                                 workSheet.Cells["K2"].AddComment("read_repair_chance -- Specifies the basis for invoking read repairs on reads in clusters. The value must be between 0 and 1. Default Values are: 0.0 (Cassandra 2.1, Cassandra 2.0.9 and later) 0.1 (Cassandra 2.0.8 and earlier)", "Richard Andersen");
                                                                 workSheet.Cells["L2"].AddComment("gc_grace_seconds -- Specifies the time to wait before garbage collecting tombstones (deletion markers). The default value allows a great deal of time for consistency to be achieved prior to deletion. In many deployments this interval can be reduced, and in a single-node cluster it can be safely set to zero. Default value is 864000 [10 days]", "Richard Andersen");
-
+                                                                
                                                                 workSheet.AutoFitColumn(workSheet.Cells["A:X"]);
                                                             },
                                                             -1,
                                                            -1,
                                                            "A2",
-                                                           this.UseDataTableDefaultView);
+                                                           this.UseDataTableDefaultView,
+                                                           appendToWorkSheet: this.AppendToWorkSheet);
 
             return new Tuple<IFilePath, string, int>(this.ExcelTargetWorkbook, this.WorkSheetName, nbrRows);
         }

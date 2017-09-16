@@ -23,6 +23,7 @@ namespace DSEDiagtnosticToExcel
             this.ExcelTargetWorkbook = excelTargetWorkbook;
             this.ExcelTargetFolder = excelTargetWorkbook.ParentDirectoryPath;
             this.WorkSheetName = string.IsNullOrEmpty(worksheetName) ? dataTableToLoad.TableName : worksheetName;
+            this.AppendToWorkSheet = LibrarySettings.AppendToWorkSheet;
         }
 
         internal LoadToExcel(DataTable dataTableToLoad,
@@ -36,6 +37,7 @@ namespace DSEDiagtnosticToExcel
             this.DataTable = dataTableToLoad;
             this.ExcelTargetFolder = ExcelTargetFolder;
             this.WorkBookName = string.IsNullOrEmpty(workBookName) ? dataTableToLoad.TableName : workBookName;
+            this.AppendToWorkSheet = LibrarySettings.AppendToWorkSheet;
 
             IFilePath excelWorkbook;
             if (this.ExcelTargetFolder.MakeFile(this.WorkBookName,
@@ -53,7 +55,11 @@ namespace DSEDiagtnosticToExcel
         public IDirectoryPath ExcelTargetFolder { get; }
         public string WorkSheetName { get; }
         public string WorkBookName { get; }
-        
+        /// <summary>
+        /// The default of this property is set by the library setting property. Node that some instances will need to set this property explicitly.
+        /// </summary>
+        public bool AppendToWorkSheet { get; set; }
+
         /// <summary>
         ///
         /// </summary>

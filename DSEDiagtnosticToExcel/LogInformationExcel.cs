@@ -55,49 +55,51 @@ namespace DSEDiagtnosticToExcel
                                                              workSheet =>
                                                              {
                                                                  workSheet.Cells["L:L"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
-                                                                 workSheet.Cells["1:1"].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.LightGray;
-                                                                 workSheet.Cells["1:1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-                                                                 //workBook.Cells["1:1"].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
-                                                                 workSheet.View.FreezePanes(2, 1);
+                                                                workSheet.Cells["1:1"].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.LightGray;
+                                                                workSheet.Cells["1:1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                                                                //workBook.Cells["1:1"].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
+                                                                workSheet.View.FreezePanes(2, 1);
 
-                                                                 workSheet.Cells["F:F"].Style.Numberformat.Format = "yyyy-mm-dd hh:mm:ss zz";
-                                                                 workSheet.Cells["G:G"].Style.Numberformat.Format = "yyyy-mm-dd hh:mm:ss zz";
-                                                                 workSheet.Cells["H:H"].Style.Numberformat.Format = "d hh:mm";
-                                                                 workSheet.Cells["H:H"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-                                                                 workSheet.Cells["I:I"].Style.Numberformat.Format = "yyyy-mm-dd hh:mm:ss zz";
-                                                                 workSheet.Cells["J:J"].Style.Numberformat.Format = "yyyy-mm-dd hh:mm:ss zz";
-                                                                 workSheet.Cells["K:K"].Style.Numberformat.Format = "d hh:mm";
-                                                                 workSheet.Cells["K:K"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-                                                                 workSheet.Cells["M:M"].Style.Numberformat.Format = "#,###,###,##0";
-                                                                 workSheet.Cells["N:N"].Style.Numberformat.Format = "#,###,###,##0.00";
-                                                                 workSheet.Cells["O:O"].Style.Numberformat.Format = "d hh:mm";
-                                                                 workSheet.Cells["Q:Q"].Style.Numberformat.Format = "yyyy-mm-dd hh:mm:ss";
-                                                                 workSheet.Cells["R:R"].Style.Numberformat.Format = "yyyy-mm-dd hh:mm:ss";
+                                                                workSheet.Cells["F:F"].Style.Numberformat.Format = "yyyy-mm-dd hh:mm:ss zz";
+                                                                workSheet.Cells["G:G"].Style.Numberformat.Format = "yyyy-mm-dd hh:mm:ss zz";
+                                                                workSheet.Cells["H:H"].Style.Numberformat.Format = "d hh:mm";
+                                                                workSheet.Cells["H:H"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                                                                workSheet.Cells["I:I"].Style.Numberformat.Format = "yyyy-mm-dd hh:mm:ss zz";
+                                                                workSheet.Cells["J:J"].Style.Numberformat.Format = "yyyy-mm-dd hh:mm:ss zz";
+                                                                workSheet.Cells["K:K"].Style.Numberformat.Format = "d hh:mm";
+                                                                workSheet.Cells["K:K"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                                                                workSheet.Cells["M:M"].Style.Numberformat.Format = "#,###,###,##0";
+                                                                workSheet.Cells["N:N"].Style.Numberformat.Format = "#,###,###,##0.00";
+                                                                workSheet.Cells["O:O"].Style.Numberformat.Format = "d hh:mm";
+                                                                workSheet.Cells["Q:Q"].Style.Numberformat.Format = "yyyy-mm-dd hh:mm:ss";
+                                                                workSheet.Cells["R:R"].Style.Numberformat.Format = "yyyy-mm-dd hh:mm:ss";
 
-                                                                 //Column Group B, C, D
-                                                                 workSheet.Column(2).OutlineLevel = 1;
-                                                                 workSheet.Column(2).Collapsed = true;
-                                                                 workSheet.Column(3).OutlineLevel = 1;
-                                                                 workSheet.Column(3).Collapsed = true;
-                                                                 workSheet.Column(4).OutlineLevel = 1;
-                                                                 workSheet.Column(4).Collapsed = true;
+                                                                //Column Group B, C, D
+                                                                workSheet.Column(2).OutlineLevel = 1;
+                                                                workSheet.Column(2).Collapsed = true;
+                                                                workSheet.Column(3).OutlineLevel = 1;
+                                                                workSheet.Column(3).Collapsed = true;
+                                                                workSheet.Column(4).OutlineLevel = 1;
+                                                                workSheet.Column(4).Collapsed = true;
 
-                                                                 //Column Group J, K, L
-                                                                 workSheet.Column(9).OutlineLevel = 1;
-                                                                 workSheet.Column(9).Collapsed = true;
-                                                                 workSheet.Column(10).OutlineLevel = 1;
-                                                                 workSheet.Column(10).Collapsed = true;
-                                                                 workSheet.Column(11).OutlineLevel = 1;
-                                                                 workSheet.Column(11).Collapsed = true;
+                                                                //Column Group J, K, L
+                                                                workSheet.Column(9).OutlineLevel = 1;
+                                                                workSheet.Column(9).Collapsed = true;
+                                                                workSheet.Column(10).OutlineLevel = 1;
+                                                                workSheet.Column(10).Collapsed = true;
+                                                                workSheet.Column(11).OutlineLevel = 1;
+                                                                workSheet.Column(11).Collapsed = true;
 
-                                                                 workSheet.Cells["A1:R1"].AutoFilter = true;
-                                                                 workSheet.AutoFitColumn(workSheet.Cells["A:K"], workSheet.Cells["M:R"]);
-                                                                 workSheet.Column(12).Width = 27; //L
+                                                                workSheet.Cells["A1:R1"].AutoFilter = true;
+                                                                
+                                                                workSheet.AutoFitColumn(workSheet.Cells["A:K"], workSheet.Cells["M:R"]);
+                                                                workSheet.Column(12).Width = 27; //L
                                                              },
                                                              -1,
                                                             -1,
                                                             "A1",
-                                                            this.UseDataTableDefaultView);
+                                                            this.UseDataTableDefaultView,
+                                                            appendToWorkSheet: this.AppendToWorkSheet);
 
             return new Tuple<IFilePath, string, int>(this.ExcelTargetWorkbook, this.WorkSheetName, nbrRows);
         }

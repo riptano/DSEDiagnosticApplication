@@ -134,6 +134,12 @@ namespace DSEDiagnosticConsoleApplication
                 Description = "The minimal number of days to determine a series of file log events as a continuous single event. A log file event is information around the actual log file which included the starting timestamp and ending timestamp within a file."
             });
 
+            this._cmdLineParser.Arguments.Add(new SwitchArgument("AppendToExcelWorkSheet", DSEDiagtnosticToExcel.LibrarySettings.AppendToWorkSheet)
+            {
+                Optional = true,
+                Description = "If present, all existing worksheets in the Excel workbook will not be cleared but instead will be appended to existing data."
+            });
+
             this._cmdLineParser.Arguments.Add(new SwitchArgument("Debug", false)
             {
                 Description = "Debug Mode"
@@ -276,6 +282,9 @@ namespace DSEDiagnosticConsoleApplication
                         break;
                     case "LogFileContinousAnalysis":
                         DSEDiagnosticAnalytics.LibrarySettings.LogFileInfoAnalysisContinousEventInDays = ((ValueArgument<int>)item).Value;
+                        break;
+                    case "AppendToExcelWorkSheet":
+                        DSEDiagtnosticToExcel.LibrarySettings.AppendToWorkSheet = ((SwitchArgument)item).Value;
                         break;
                     case "Debug":
                         this.Debug = ((SwitchArgument)item).Value;

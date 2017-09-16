@@ -148,5 +148,14 @@ namespace DSEDiagtnosticToExcel.Properties {
                 return ((string)(this["WorkSheetDefaultAttrs"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool AppendToWorkSheet {
+            get {
+                return ((bool)(this["AppendToWorkSheet"]));
+            }
+        }
     }
 }

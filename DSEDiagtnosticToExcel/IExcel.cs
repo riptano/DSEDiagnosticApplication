@@ -26,6 +26,11 @@ namespace DSEDiagtnosticToExcel
         string WorkBookName { get; }
 
         /// <summary>
+        /// If true the data will be appended to the end of the workbook.
+        /// </summary>
+        bool AppendToWorkSheet { get; set; }
+
+        /// <summary>
         ///
         /// </summary>
         /// <returns>

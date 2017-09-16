@@ -19,7 +19,9 @@ namespace DSEDiagtnosticToExcel
                                 string worksheetName,
                                 bool useDataTableDefaultView)
             : base(keyspaceDataTable, excelTargetWorkbook, worksheetName, useDataTableDefaultView)
-        {}
+        {
+            this.AppendToWorkSheet = false;
+        }
 
         public MachineExcel(DataTable keyspaceDataTable,
                                 IFilePath excelTargetWorkbook)
@@ -132,12 +134,14 @@ namespace DSEDiagtnosticToExcel
                                                                 workSheet.Cells["AT:AT"].Style.Numberformat.Format = "#,###,###,##0.00";
 
                                                                 workSheet.Cells["A2:AT2"].AutoFilter = true;
+                                                                
                                                                 workSheet.AutoFitColumn();
                                                             },
                                                             -1,
                                                            -1,
                                                            "A2",
-                                                           this.UseDataTableDefaultView);
+                                                           this.UseDataTableDefaultView,
+                                                           appendToWorkSheet: this.AppendToWorkSheet);
 
             return new Tuple<IFilePath, string, int>(this.ExcelTargetWorkbook, this.WorkSheetName, nbrRows);
         }

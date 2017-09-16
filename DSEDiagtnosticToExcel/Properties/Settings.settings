@@ -290,5 +290,8 @@
 
 }</Value>
     </Setting>
+    <Setting Name="AppendToWorkSheet" Type="System.Boolean" Scope="Application">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

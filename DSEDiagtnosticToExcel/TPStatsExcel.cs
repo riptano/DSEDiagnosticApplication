@@ -54,23 +54,26 @@ namespace DSEDiagtnosticToExcel
                                                             },
                                                              workSheet =>
                                                              {
-                                                                 workSheet.Cells["1:1"].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.LightGray;
-                                                                 workSheet.Cells["1:1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-                                                                 //workBook.Cells["1:1"].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
-                                                                 workSheet.Cells["E:L"].Style.Numberformat.Format = "#,###,###,##0";
-                                                                 workSheet.Cells["M:Q"].Style.Numberformat.Format = "#,###,###,##0.00";
+                                                                workSheet.Cells["1:1"].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.LightGray;
+                                                                workSheet.Cells["1:1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                                                                //workBook.Cells["1:1"].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
+                                                                workSheet.Cells["E:L"].Style.Numberformat.Format = "#,###,###,##0";
+                                                                workSheet.Cells["M:Q"].Style.Numberformat.Format = "#,###,###,##0.00";
 
-                                                                 workSheet.View.FreezePanes(2, 1);
-                                                                 workSheet.Cells["A1:Q1"].AutoFilter = true;
+                                                                workSheet.View.FreezePanes(2, 1);
+                                                                workSheet.Cells["A1:Q1"].AutoFilter = true;
 
-                                                                 this.LoadDefaultAttributes(workSheet);
-
-                                                                 workSheet.AutoFitColumn(workSheet.Cells["A1:Q1"]);
+                                                                if (!this.AppendToWorkSheet)
+                                                                {
+                                                                    this.LoadDefaultAttributes(workSheet);
+                                                                }
+                                                                workSheet.AutoFitColumn(workSheet.Cells["A1:Q1"]);
                                                              },
                                                              -1,
                                                             -1,
                                                             "A1",
-                                                            this.UseDataTableDefaultView);
+                                                            this.UseDataTableDefaultView,
+                                                            appendToWorkSheet: this.AppendToWorkSheet);
 
             return new Tuple<IFilePath, string, int>(this.ExcelTargetWorkbook, this.WorkSheetName, nbrRows);
         }

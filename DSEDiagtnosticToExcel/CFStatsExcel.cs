@@ -54,24 +54,28 @@ namespace DSEDiagtnosticToExcel
                                                             },
                                                              workSheet =>
                                                              {
-                                                                 workSheet.Cells["1:1"].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.LightGray;
-                                                                 workSheet.Cells["1:1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-                                                                 //workBook.Cells["1:1"].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
-                                                                 workSheet.Cells["I:I"].Style.Numberformat.Format = "#,###,###,##0.00";
+                                                                    workSheet.Cells["1:1"].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.LightGray;
+                                                                    workSheet.Cells["1:1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                                                                    //workBook.Cells["1:1"].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
+                                                                    workSheet.Cells["I:I"].Style.Numberformat.Format = "#,###,###,##0.00";
 
-                                                                 workSheet.Cells["I1"].Value = workSheet.Cells["I1"].Text + "(Formatted)";
-                                                                 workSheet.View.FreezePanes(2, 1);
-                                                                 workSheet.Cells["A1:K1"].AutoFilter = true;
-                                                                 //workSheet.Column(10).Hidden = true;
+                                                                    workSheet.Cells["I1"].Value = workSheet.Cells["I1"].Text + "(Formatted)";
+                                                                    workSheet.View.FreezePanes(2, 1);
+                                                                    workSheet.Cells["A1:K1"].AutoFilter = true;
+                                                                    //workSheet.Column(10).Hidden = true;
 
-                                                                 this.LoadDefaultAttributes(workSheet);
+                                                                 if(!this.AppendToWorkSheet)
+                                                                 {
+                                                                     this.LoadDefaultAttributes(workSheet);
+                                                                 }
 
                                                                  workSheet.AutoFitColumn(workSheet.Cells["A:K"]);
                                                              },
                                                              -1,
                                                             -1,
                                                             "A1",
-                                                            this.UseDataTableDefaultView);
+                                                            this.UseDataTableDefaultView,
+                                                            appendToWorkSheet: this.AppendToWorkSheet);
 
             return new Tuple<IFilePath, string, int>(this.ExcelTargetWorkbook, this.WorkSheetName, nbrRows);
         }

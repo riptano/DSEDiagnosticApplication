@@ -19,12 +19,15 @@ namespace DSEDiagtnosticToExcel
                                 string worksheetName,
                                 bool useDataTableDefaultView)
             : base(keyspaceDataTable, excelTargetWorkbook, worksheetName, useDataTableDefaultView)
-        {}
+        {
+            this.AppendToWorkSheet = false;
+        }
 
         public Configexcel(DataTable keyspaceDataTable,
                                 IFilePath excelTargetWorkbook)
             : this(keyspaceDataTable, excelTargetWorkbook, null, true)
-        { }
+        {            
+        }
 
         public override Tuple<IFilePath, string, int> Load()
         {
@@ -59,12 +62,13 @@ namespace DSEDiagtnosticToExcel
                                                                 //workBook.Cells["1:1"].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
                                                                 workSheet.View.FreezePanes(2, 1);
                                                                 workSheet.Cells["A1:E1"].AutoFilter = true;
-                                                                workSheet.AutoFitColumn(workSheet.Cells["A:D"]);
+                                                                workSheet.AutoFitColumn(workSheet.Cells["A:D"]);                                                                
                                                             },
                                                             -1,
                                                            -1,
                                                            "A1",
-                                                           this.UseDataTableDefaultView);
+                                                           this.UseDataTableDefaultView,
+                                                           appendToWorkSheet: this.AppendToWorkSheet);
 
             return new Tuple<IFilePath, string, int>(this.ExcelTargetWorkbook, this.WorkSheetName, nbrRows);
         }
