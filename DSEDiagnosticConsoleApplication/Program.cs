@@ -198,6 +198,11 @@ namespace DSEDiagnosticConsoleApplication
                         return 1;
                     }
 
+                    if (ParserSettings.DiagnosticPath == null)
+                    {
+                        throw new ArgumentNullException("DiagnosticPath argument is required");
+                    }
+
                     if (consoleArgs.Debug)
                     {
                         DebugMode = true;
@@ -225,15 +230,26 @@ namespace DSEDiagnosticConsoleApplication
                 }
 
                 if (ParserSettings.ExcelFilePath != null
-                    && ParserSettings.ExcelFilePath.IsRelativePath
-                    && ParserSettings.DiagnosticPath != null
-                    && ParserSettings.DiagnosticPath.IsAbsolutePath)
+                        && ParserSettings.ExcelFilePath.IsRelativePath
+                        && ParserSettings.DiagnosticPath.IsAbsolutePath)
                 {
                     IAbsolutePath absPath;
 
                     if (ParserSettings.ExcelFilePath.MakePathFrom((Common.IAbsolutePath)ParserSettings.DiagnosticPath, out absPath))
                     {
                         ParserSettings.ExcelFilePath = (Common.IFilePath)absPath;
+                    }
+                }
+
+                if (ParserSettings.ExcelFilePath != null
+                        && ParserSettings.ExcelFilePath.IsAbsolutePath
+                        && ParserSettings.DiagnosticPath.IsRelativePath)
+                {
+                    IAbsolutePath absPath;
+
+                    if (ParserSettings.ExcelFileTemplatePath.MakePathFrom((Common.IAbsolutePath)ParserSettings.ExcelFilePath, out absPath))
+                    {
+                        ParserSettings.ExcelFileTemplatePath = (Common.IFilePath)absPath;
                     }
                 }
 
@@ -457,8 +473,19 @@ namespace DSEDiagnosticConsoleApplication
 
             #region Load Excel
             {
+                if (ParserSettings.ExcelFilePath == null)
+                {
+                    var cluster = DSEDiagnosticLibrary.Cluster.Clusters.FirstOrDefault(c => !c.IsMaster) ?? DSEDiagnosticLibrary.Cluster.Clusters.First();
+
+                    ParserSettings.ExcelFilePath = Common.Path.PathUtils.BuildFilePath(string.Format(@"{0}.\{1}-{2:yyyy-MM-dd-HH-mm-ss}{3}",
+                                                                                                        cluster.Name,
+                                                                                                        DateTime.Now,
+                                                                                                        ParserSettings.ExcelFileTemplatePath?.FileExtension ?? DSEDiagtnosticToExcel.LibrarySettings.ExcelFileExtension));
+                }
+
                 var loadExcel = new DSEDiagtnosticToExcel.LoadDataSet(loadAllDataTableTask,
                                                                             ParserSettings.ExcelFilePath,
+                                                                            ParserSettings.ExcelFileTemplatePath,
                                                                             cancellationSource);
 
                 loadExcel.OnAction += (DSEDiagtnosticToExcel.IExcel sender, string action) =>

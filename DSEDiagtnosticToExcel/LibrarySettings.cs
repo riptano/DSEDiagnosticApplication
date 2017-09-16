@@ -10,5 +10,6 @@ namespace DSEDiagtnosticToExcel
     {
         public static Dictionary<string, DataTableToExcel.WorkSheetColAttrDefaults> WorkSheetDefaultAttrs = DSEDiagnosticFileParser.LibrarySettings.ReadJsonFileIntoObject<Dictionary<string, DataTableToExcel.WorkSheetColAttrDefaults>>(Properties.Settings.Default.WorkSheetDefaultAttrs);
         public static bool AppendToWorkSheet = Properties.Settings.Default.AppendToWorkSheet;
+        public static string ExcelFileExtension = Properties.Settings.Default.ExcelFileExtension;
     }
 }

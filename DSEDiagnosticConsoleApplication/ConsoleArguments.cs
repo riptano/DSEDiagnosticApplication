@@ -31,6 +31,14 @@ namespace DSEDiagnosticConsoleApplication
                 Description = "Excel target file. If Relative Path, this path is merged with the current default file path. If the default file path is null, the DiagnosticPath is used for the merger. The defaults are defined in the ExcelFilePath app-config file."
             });
 
+            this._cmdLineParser.Arguments.Add(new FileArgument('E', "ExcelFileTemplatePath")
+            {
+                Optional = true,
+                FileMustExist = true,
+                DefaultValue = ParserSettings.ExcelFileTemplatePath?.FileInfo(),
+                Description = "Excel Template file that is used to create Excel target file (ExcelFilePath), if it doesn't already exists."
+            });
+
             this._cmdLineParser.Arguments.Add(new ValueArgument<string>('L', "AlternativeLogFilePath")
             {
                 Optional = true,
@@ -137,7 +145,7 @@ namespace DSEDiagnosticConsoleApplication
             this._cmdLineParser.Arguments.Add(new SwitchArgument("AppendToExcelWorkSheet", ParserSettings.AppendToWorkSheet)
             {
                 Optional = true,
-                Description = "If present, all existing worksheets in the Excel workbook will not be cleared but instead will be appended to existing data."
+                Description = "If present, all existing worksheets in the Excel workbook will NOT be cleared but instead will be appended to existing data."
             });
 
             this._cmdLineParser.Arguments.Add(new SwitchArgument("Debug", false)
@@ -172,6 +180,11 @@ namespace DSEDiagnosticConsoleApplication
                         break;
                     case "ExcelFilePath":
                         ParserSettings.ExcelFilePath = ParserSettings.MakeFilePath(((FileArgument) item).Value.ToString(), ParserSettings.ExcelFilePath?.ParentDirectoryPath, ParserSettings.ExcelFilePath);
+                        break;
+                    case "ExcelFileTemplatePath":
+                        ParserSettings.ExcelFileTemplatePath = ((FileArgument)item).Value == null
+                                                                    ? null
+                                                                    : ParserSettings.MakeFilePath(((FileArgument)item).Value.ToString(), ParserSettings.ExcelFileTemplatePath?.ParentDirectoryPath, ParserSettings.ExcelFileTemplatePath);
                         break;
                     case "DiagFolderStruct":
                         ParserSettings.DiagFolderStruct = ((ValueArgument<ParserSettings.DiagFolderStructOptions>) item).Value;

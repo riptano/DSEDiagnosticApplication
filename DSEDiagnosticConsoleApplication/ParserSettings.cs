@@ -217,6 +217,7 @@ namespace DSEDiagnosticConsoleApplication
         public static int OnlyIncludeXHrsofLogsFromDiagCaptureTime = Properties.Settings.Default.OnlyIncludeXHrsofLogsFromDiagCaptureTime;
         public static List<KeyValuePair<string, IFilePath>> AdditionalFilesForParsingClass = new List<KeyValuePair<string, IFilePath>>();
         public static List<string> WarnWhenKSTblIsDetected = Properties.Settings.Default.WarnWhenKSTblIsDetected.ToList(false);
+        public static IFilePath ExcelFileTemplatePath = MakeFilePath(Properties.Settings.Default.ExcelFilePath, ExcelFilePath?.ParentDirectoryPath);
         public static DateTimeOffsetRange LogTimeRange
         {
             get { return DSEDiagnosticFileParser.LibrarySettings.LogTimeRange; }
@@ -237,7 +238,7 @@ namespace DSEDiagnosticConsoleApplication
             get { return DSEDiagnosticFileParser.DiagnosticFile.DisableParallelProcessing; }
             set { DSEDiagnosticFileParser.DiagnosticFile.DisableParallelProcessing = value; }
         }
-        
+
         public static int LogFileInfoAnalysisGapTriggerInMins
         {
             get { return (int) DSEDiagnosticAnalytics.LibrarySettings.LogFileInfoAnalysisGapTriggerInMins; }

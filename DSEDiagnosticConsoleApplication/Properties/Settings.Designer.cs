@@ -127,5 +127,14 @@ namespace DSEDiagnosticConsoleApplication.Properties {
                 return ((global::System.Collections.Specialized.StringCollection)(this["WarnWhenKSTblIsDetected"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string ExcelFileTemplatePath {
+            get {
+                return ((string)(this["ExcelFileTemplatePath"]));
+            }
+        }
     }
 }
