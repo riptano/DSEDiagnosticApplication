@@ -65,7 +65,7 @@ namespace DSEDiagnosticConsoleApplication.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("[DeskTop]\\dseFastTemplate.xlsm")]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
         public string ExcelFilePath {
             get {
                 return ((string)(this["ExcelFilePath"]));
@@ -130,10 +130,19 @@ namespace DSEDiagnosticConsoleApplication.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        [global::System.Configuration.DefaultSettingValueAttribute(".\\dseFastTemplate.xlsm")]
         public string ExcelFileTemplatePath {
             get {
                 return ((string)(this["ExcelFileTemplatePath"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("{0}\\{1}-{2:yyyy-MM-dd-HH-mm-ss}{3}")]
+        public string ExcelFileNameGeneratedStringFormat {
+            get {
+                return ((string)(this["ExcelFileNameGeneratedStringFormat"]));
             }
         }
     }

@@ -116,6 +116,8 @@ namespace DSEDiagnosticConsoleApplication
 
         public static IDirectoryPath MakeDirectoryPath(string dirPath, IDirectoryPath defaultPath = null)
         {
+            if (string.IsNullOrEmpty(dirPath)) return null;
+
             var newPath = PathUtils.BuildDirectoryPath(dirPath);
 
             if(defaultPath != null && newPath.IsRelativePath && defaultPath.IsAbsolutePath)
@@ -132,6 +134,8 @@ namespace DSEDiagnosticConsoleApplication
         }
         public static IFilePath MakeFilePath(string filePath, IDirectoryPath defaultDirPath = null, IFilePath defaultFile = null)
         {
+            if (string.IsNullOrEmpty(filePath)) return null;
+
             var newFile = PathUtils.BuildPath(filePath,
                                                 defaultDirPath?.Path,
                                                 defaultFile?.FileExtension,
@@ -217,7 +221,7 @@ namespace DSEDiagnosticConsoleApplication
         public static int OnlyIncludeXHrsofLogsFromDiagCaptureTime = Properties.Settings.Default.OnlyIncludeXHrsofLogsFromDiagCaptureTime;
         public static List<KeyValuePair<string, IFilePath>> AdditionalFilesForParsingClass = new List<KeyValuePair<string, IFilePath>>();
         public static List<string> WarnWhenKSTblIsDetected = Properties.Settings.Default.WarnWhenKSTblIsDetected.ToList(false);
-        public static IFilePath ExcelFileTemplatePath = MakeFilePath(Properties.Settings.Default.ExcelFilePath, ExcelFilePath?.ParentDirectoryPath);
+        public static IFilePath ExcelFileTemplatePath = MakeFilePath(Properties.Settings.Default.ExcelFileTemplatePath, ExcelFilePath?.ParentDirectoryPath);
         public static DateTimeOffsetRange LogTimeRange
         {
             get { return DSEDiagnosticFileParser.LibrarySettings.LogTimeRange; }

@@ -25,7 +25,7 @@
 &lt;/ArrayOfString&gt;</Value>
     </Setting>
     <Setting Name="ExcelFilePath" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">[DeskTop]\dseFastTemplate.xlsm</Value>
+      <Value Profile="(Default)" />
     </Setting>
     <Setting Name="OpsCenterDiagFolderRegEx" Type="System.String" Scope="Application">
       <Value Profile="(Default)">^(?&lt;CLUSTERNAME&gt;.+)-diagnostics-(?&lt;TS&gt;\d{4}_\d{2}_\d{2}_\d{2}_\d{2}_\d{2})_(?&lt;TZ&gt;\w{3})$</Value>
@@ -52,7 +52,10 @@
 &lt;/ArrayOfString&gt;</Value>
     </Setting>
     <Setting Name="ExcelFileTemplatePath" Type="System.String" Scope="Application">
-      <Value Profile="(Default)" />
+      <Value Profile="(Default)">.\dseFastTemplate.xlsm</Value>
+    </Setting>
+    <Setting Name="ExcelFileNameGeneratedStringFormat" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">{0}\{1}-{2:yyyy-MM-dd-HH-mm-ss}{3}</Value>
     </Setting>
   </Settings>
 </SettingsFile>

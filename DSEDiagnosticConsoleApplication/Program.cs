@@ -265,7 +265,12 @@ namespace DSEDiagnosticConsoleApplication
             ConsoleDisplay.Console.WriteLine(" ");
             ConsoleDisplay.Console.WriteLine("Diagnostic Folder Structure: \"{0}\"", ParserSettings.DiagFolderStruct);
             ConsoleDisplay.Console.WriteLine("Diagnostic Source Folder: \"{0}\"", ParserSettings.DiagnosticPath);
-            ConsoleDisplay.Console.WriteLine("Excel Target File: \"{0}\"", ParserSettings.ExcelFilePath);
+            ConsoleDisplay.Console.WriteLine("Excel Target File: \"{0}\"", ParserSettings.ExcelFilePath?.ToString()
+                                                                                ?? string.Format(Properties.Settings.Default.ExcelFileNameGeneratedStringFormat,
+                                                                                                    ParserSettings.DiagnosticPath,
+                                                                                                    "<ClusterName>",
+                                                                                                    RunDateTime,
+                                                                                                    ParserSettings.ExcelFileTemplatePath?.FileExtension ?? DSEDiagtnosticToExcel.LibrarySettings.ExcelFileExtension));
 
             ConsoleDisplay.Console.WriteLine(" ");
 
@@ -477,9 +482,10 @@ namespace DSEDiagnosticConsoleApplication
                 {
                     var cluster = DSEDiagnosticLibrary.Cluster.Clusters.FirstOrDefault(c => !c.IsMaster) ?? DSEDiagnosticLibrary.Cluster.Clusters.First();
 
-                    ParserSettings.ExcelFilePath = Common.Path.PathUtils.BuildFilePath(string.Format(@"{0}.\{1}-{2:yyyy-MM-dd-HH-mm-ss}{3}",
+                    ParserSettings.ExcelFilePath = Common.Path.PathUtils.BuildFilePath(string.Format(Properties.Settings.Default.ExcelFileNameGeneratedStringFormat,
+                                                                                                        ParserSettings.DiagnosticPath,
                                                                                                         cluster.Name,
-                                                                                                        DateTime.Now,
+                                                                                                        RunDateTime,
                                                                                                         ParserSettings.ExcelFileTemplatePath?.FileExtension ?? DSEDiagtnosticToExcel.LibrarySettings.ExcelFileExtension));
                 }
 
