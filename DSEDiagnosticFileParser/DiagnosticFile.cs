@@ -146,6 +146,8 @@ namespace DSEDiagnosticFileParser
             }
         }
 
+        static DiagnosticFile() { }
+
         protected DiagnosticFile(CatagoryTypes catagory,
 									IDirectoryPath diagnosticDirectory,
 									IFilePath file,
@@ -174,7 +176,7 @@ namespace DSEDiagnosticFileParser
                                             this.DefaultDataCenterName,
                                             this.TargetDSEVersion,
                                             this.RegExParser,
-                                            this.Catagory);
+                                            this.Catagory);                          
         }
 
         protected DiagnosticFile(CatagoryTypes catagory,

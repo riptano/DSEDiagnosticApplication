@@ -808,6 +808,7 @@ namespace DSEDiagnosticLibrary
         public bool? NativeTransportEnabled;
         public bool? RepairServiceHasRan;
         public DateTimeRange RepairServiceRanRange;
+        public UnitOfMeasure RepairedPercent;
         public DirectoryLocations Locations;
         public string EndpointSnitch;
         public string Partitioner;

@@ -58,13 +58,14 @@ namespace DSEDiagnosticToDataTable
             dtNodeInfo.Columns.Add("Nbr of Exceptions", typeof(int)).AllowDBNull = true;//aa
             dtNodeInfo.Columns.Add("Percent Repaired", typeof(decimal)).AllowDBNull = true;//ab
             dtNodeInfo.Columns.Add("Repair Service Enabled", typeof(bool)).AllowDBNull = true;//ac
-            dtNodeInfo.Columns.Add("Gossip Enabled", typeof(bool)).AllowDBNull = true;//ad
-            dtNodeInfo.Columns.Add("Thrift Enabled", typeof(bool)).AllowDBNull = true;//ae
-            dtNodeInfo.Columns.Add("Native Transport Enabled", typeof(bool)).AllowDBNull = true;//af
-            dtNodeInfo.Columns.Add("Key Cache Information", typeof(string)).AllowDBNull = true;//ag
-            dtNodeInfo.Columns.Add("Row Cache Information", typeof(string)).AllowDBNull = true;//ah
-            dtNodeInfo.Columns.Add("Counter Cache Information", typeof(string)).AllowDBNull = true;//ai
-
+            dtNodeInfo.Columns.Add("Seed Node", typeof(bool)).AllowDBNull = true;//ad
+            dtNodeInfo.Columns.Add("Gossip Enabled", typeof(bool)).AllowDBNull = true;//ae
+            dtNodeInfo.Columns.Add("Thrift Enabled", typeof(bool)).AllowDBNull = true;//af
+            dtNodeInfo.Columns.Add("Native Transport Enabled", typeof(bool)).AllowDBNull = true;//ag
+            dtNodeInfo.Columns.Add("Key Cache Information", typeof(string)).AllowDBNull = true;//ah
+            dtNodeInfo.Columns.Add("Row Cache Information", typeof(string)).AllowDBNull = true;//ai
+            dtNodeInfo.Columns.Add("Counter Cache Information", typeof(string)).AllowDBNull = true;//aj
+            
             dtNodeInfo.DefaultView.ApplyDefaultSort = false;
             dtNodeInfo.DefaultView.AllowDelete = false;
             dtNodeInfo.DefaultView.AllowEdit = false;
@@ -165,7 +166,7 @@ namespace DSEDiagnosticToDataTable
                         dataRow.SetFieldToDecimal("Off Heap Memory (MB)", node.DSE.OffHeap, DSEDiagnosticLibrary.UnitOfMeasure.Types.MiB);
                         if(node.DSE.NbrTokens.HasValue) dataRow.SetField("Nbr VNodes", (int) node.DSE.NbrTokens.Value);
                         if(node.DSE.NbrExceptions.HasValue) dataRow.SetField("Nbr of Exceptions", (int) node.DSE.NbrExceptions.Value);
-                        //dataRow.SetField("Percent Repaired", typeof(decimal));
+                        dataRow.SetFieldToDecimal("Percent Repaired", node.DSE.RepairedPercent);
                         if(node.DSE.RepairServiceHasRan.HasValue) dataRow.SetField("Repair Service Enabled", node.DSE.RepairServiceHasRan.HasValue);
                         if(node.DSE.GossipEnabled.HasValue) dataRow.SetField("Gossip Enabled", node.DSE.GossipEnabled.Value);
                         if (node.DSE.ThriftEnabled.HasValue) dataRow.SetField("Thrift Enabled", node.DSE.ThriftEnabled.Value);
@@ -173,6 +174,7 @@ namespace DSEDiagnosticToDataTable
                         dataRow.SetField("Key Cache Information", node.DSE.KeyCacheInformation);
                         dataRow.SetField("Row Cache Information", node.DSE.RowCacheInformation);
                         dataRow.SetField("Counter Cache Information", node.DSE.CounterCacheInformation);
+                        if (node.DSE.IsSeedNode.HasValue) dataRow.SetField("Seed Node", node.DSE.IsSeedNode.Value);
 
                         this.Table.Rows.Add(dataRow);
                         ++nbrItems;

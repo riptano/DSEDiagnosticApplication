@@ -35,10 +35,7 @@ namespace DSEDiagnosticFileParser.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("[cpld]\\Json\\ProcessFileMappings.json,[cpld]\\ProcessFileMappings.json,[Application" +
-            "RunTimeDirectory]\\Json\\ProcessFileMappings.json,[ApplicationRunTimeDirectory]\\Pr" +
-            "ocessFileMappings.json,.\\Json\\ProcessFileMappings.json,.\\ProcessFileMappings.jso" +
-            "n")]
+        [global::System.Configuration.DefaultSettingValueAttribute(@".\ProcessFileMappings.json,.\Json\ProcessFileMappings.json,[cpld]\Json\ProcessFileMappings.json,[cpld]\ProcessFileMappings.json,[ApplicationRunTimeDirectory]\Json\ProcessFileMappings.json,[ApplicationRunTimeDirectory]\ProcessFileMappings.json,.\Json\ProcessFileMappings.json,.\ProcessFileMappings.json")]
         public string ProcessFileMappings {
             get {
                 return ((string)(this["ProcessFileMappings"]));
@@ -47,7 +44,7 @@ namespace DSEDiagnosticFileParser.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute(@"[cpld]\Json\DiagnosticFileRegExAssocations.json,[cpld]\DiagnosticFileRegExAssocations.json,[ApplicationRunTimeDirectory]\Json\DiagnosticFileRegExAssocations.json,[ApplicationRunTimeDirectory]\DiagnosticFileRegExAssocations.json,.\DiagnosticFileRegExAssocations.json,.\Json\DiagnosticFileRegExAssocations.json")]
+        [global::System.Configuration.DefaultSettingValueAttribute(@".\DiagnosticFileRegExAssocations.json,.\Json\DiagnosticFileRegExAssocations.json,[cpld]\Json\DiagnosticFileRegExAssocations.json,[cpld]\DiagnosticFileRegExAssocations.json,[ApplicationRunTimeDirectory]\Json\DiagnosticFileRegExAssocations.json,[ApplicationRunTimeDirectory]\DiagnosticFileRegExAssocations.json,.\DiagnosticFileRegExAssocations.json,.\Json\DiagnosticFileRegExAssocations.json")]
         public string DiagnosticFileRegExAssocations {
             get {
                 return ((string)(this["DiagnosticFileRegExAssocations"]));
@@ -97,9 +94,10 @@ namespace DSEDiagnosticFileParser.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("[cpld]\\Json\\Log4NetParser.json,[cpld]\\Log4NetParser.json,[ApplicationRunTimeDirec" +
-            "tory]\\Json\\Log4NetParser.json,[ApplicationRunTimeDirectory]\\Log4NetParser.json,." +
-            "\\Log4NetParser.json,.\\Json\\Log4NetParser.json")]
+        [global::System.Configuration.DefaultSettingValueAttribute(".\\Log4NetParser.json,.\\Json\\Log4NetParser.json,[cpld]\\Json\\Log4NetParser.json,[cp" +
+            "ld]\\Log4NetParser.json,[ApplicationRunTimeDirectory]\\Json\\Log4NetParser.json,[Ap" +
+            "plicationRunTimeDirectory]\\Log4NetParser.json,.\\Log4NetParser.json,.\\Json\\Log4Ne" +
+            "tParser.json")]
         public string Log4NetParser {
             get {
                 return ((string)(this["Log4NetParser"]));
@@ -149,7 +147,7 @@ public static class {0}
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute(@"[cpld]\Json\file-create-folder-structure-Mappings.json,[cpld]\file-create-folder-structure-Mappings.json,[ApplicationRunTimeDirectory]\Json\file-create-folder-structure-Mappings.json,[ApplicationRunTimeDirectory]\file-create-folder-structure-Mappings.json,.\file-create-folder-structure-Mappings.json,.\Json\file-create-folder-structure-Mappings.json")]
+        [global::System.Configuration.DefaultSettingValueAttribute(@".\file-create-folder-structure-Mappings.json,.\Json\file-create-folder-structure-Mappings.json,[cpld]\Json\file-create-folder-structure-Mappings.json,[cpld]\file-create-folder-structure-Mappings.json,[ApplicationRunTimeDirectory]\Json\file-create-folder-structure-Mappings.json,[ApplicationRunTimeDirectory]\file-create-folder-structure-Mappings.json,.\file-create-folder-structure-Mappings.json,.\Json\file-create-folder-structure-Mappings.json")]
         public string FileCreateFolderTargetSourceMappings {
             get {
                 return ((string)(this["FileCreateFolderTargetSourceMappings"]));

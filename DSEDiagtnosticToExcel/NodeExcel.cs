@@ -60,7 +60,7 @@ namespace DSEDiagtnosticToExcel
                                                                 workSheet.Cells["1:1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
                                                                 //workSheet.Cells["1:1"].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
                                                                 workSheet.View.FreezePanes(2, 1);
-                                                                workSheet.Cells["A1:V1"].AutoFilter = true;
+                                                                workSheet.Cells["A1:AG1"].AutoFilter = true;
                                                                 workSheet.Cells["G:G"].Style.Numberformat.Format = "#,###,###,##0.00";
                                                                 workSheet.Cells["H:H"].Style.Numberformat.Format = "##0.00%";
                                                                 workSheet.Cells["I:I"].Style.Numberformat.Format = "0.00";
@@ -80,16 +80,17 @@ namespace DSEDiagtnosticToExcel
                                                                 workSheet.Cells["W:W"].Style.Numberformat.Format = "#,###,###,##0";
 
                                                                 workSheet.Cells["X:X"].Style.Numberformat.Format = "#,###,###,##0.00";
-                                                                workSheet.Cells["Y:Y"].Style.Numberformat.Format = "#,###,###,##0";
+                                                                workSheet.Cells["Y:Y"].Style.Numberformat.Format = "#,###,###,##0.00";
                                                                 workSheet.Cells["Z:Z"].Style.Numberformat.Format = "#,###,###,##0";
                                                                 workSheet.Cells["AA:AA"].Style.Numberformat.Format = "#,###,###,##0.00";
+                                                                workSheet.Cells["AB:AB"].Style.Numberformat.Format = "#,###,###,##0.0000%";
 
                                                                 //workSheet.InsertColumn(11, 1);
                                                                 //workSheet.Column(10).Hidden = true;
                                                                 //workSheet.Cells["J1"].Value = "Uptime (Days)";
                                                                 //workSheet.Cells["K1"].Value = "Uptime";
                                                                 //workSheet.Cells[string.Format("K2:K{0}", dtRingInfo.Rows.Count + 2)].FormulaR1C1 = "CONCATENATE(TEXT(FLOOR(J2,1),\"@\"),\" \",TEXT(J2,\"hh:mm:ss\"))";
-                                                                
+
                                                                 workSheet.AutoFitColumn();
                                                             },
                                                             -1,

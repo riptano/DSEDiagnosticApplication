@@ -64,7 +64,7 @@ namespace DSEDiagnosticAnalytics
                 this.Path = logFilePath;
                 this.LogFileRange = logFileRange;
                 this.LogRange = logRange;
-                this.LogFileSize = logFileSize;
+                this.LogFileSize = new UnitOfMeasure(logFileSize);
                 this.OverlappingType = overlappingType;
                 this.IsDebugFile = isDebugFile;
                 this.Gap = gapLogDuration;

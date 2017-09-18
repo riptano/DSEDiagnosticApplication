@@ -52,6 +52,26 @@ namespace DSEDiagnosticFileParser
             Row Cache              : entries 0, size 0 bytes, capacity 0 bytes, 0 hits, 0 requests, NaN recent hit rate, 0 save period in seconds
             Counter Cache          : entries 0, size 0 bytes, capacity 50 MB, 0 hits, 0 requests, NaN recent hit rate, 7200 save period in seconds
             Token                  : (invoke with -T/--tokens to see all 256 tokens)
+
+
+            ID                     : 8c512ce5-8cdd-4047-b327-0e8e4d4658f9
+            Gossip active          : true
+            Thrift active          : true
+            Native Transport active: true
+            Load                   : 702.19 GB
+            Generation No          : 1503340279
+            Uptime (seconds)       : 1371412
+            Heap Memory (MB)       : 11351.44 / 16384.00
+            Off Heap Memory (MB)   : 591.28
+            Data Center            : EP1
+            Rack                   : RAC1
+            Exceptions             : 0
+            Key Cache              : entries 185238, size 97.91 MB, capacity 100 MB, 2663650 hits, 4067944 requests, 0.655 recent hit rate, 14400 save period in seconds
+            Row Cache              : entries 0, size 0 bytes, capacity 0 bytes, 0 hits, 0 requests, NaN recent hit rate, 0 save period in seconds
+            Counter Cache          : entries 0, size 0 bytes, capacity 50 MB, 0 hits, 0 requests, NaN recent hit rate, 7200 save period in seconds
+            Percent Repaired       : 0.002445829365017248%
+            Token                  : (invoke with -T/--tokens to see all 256 tokens)
+
             */
 
             string line;
@@ -146,6 +166,9 @@ namespace DSEDiagnosticFileParser
                         break;
                     case "counter cache":
                         this.Node.DSE.CounterCacheInformation = lineValue;
+                        break;
+                    case "percent repaired":
+                        this.Node.DSE.RepairedPercent = UnitOfMeasure.Create(lineValue, UnitOfMeasure.Types.Percent);
                         break;
                     default:
                         Logger.Instance.ErrorFormat("FileMapper<{3}>\t{0}\t{1}\tInvalid Line \"{2}\" found in NodeTool Info File.",

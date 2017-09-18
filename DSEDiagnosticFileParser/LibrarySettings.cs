@@ -77,6 +77,7 @@ namespace DSEDiagnosticFileParser
         {
             if (string.IsNullOrEmpty(jsonStringOrFile))
             {
+                Logger.Instance.DebugFormat("ReadJsonFileIntoObject detected a Null or empty string. \"jsonStringOrFile\" Value is \"{0}\", returning default value", jsonStringOrFile);
                 return default(T);
             }
 
@@ -111,10 +112,7 @@ namespace DSEDiagnosticFileParser
                     throw new System.IO.FileNotFoundException(string.Format("Json File Path was not found. Tried: {{{0}}}", string.Join(", ", triedPaths)), jsonStringOrFile);
                 }
 
-                string jsonString;
-                DSEDiagnosticLibrary.StringHelpers.RemoveInLineComment(jsonPath.ReadAllText(), out jsonString);
-
-                return ReadJsonFileIntoObject<T>(jsonString);
+                return ReadJsonFileIntoObject<T>(jsonPath.ReadAllText());
             }
             catch (Exception e)
             {
