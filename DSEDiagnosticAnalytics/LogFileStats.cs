@@ -116,7 +116,7 @@ namespace DSEDiagnosticAnalytics
             /// </summary>
             public TimeSpan? Duration { get { return this.LogRange.TimeSpan(); } }
 
-            public DSEInfo.InstanceTypes Product { get; }
+            public DSEInfo.InstanceTypes Product { get { return this.Node.DSE.InstanceType; } }
             public IKeyspace Keyspace { get; } = null;
             public IDDLStmt TableViewIndex { get; } = null;
 
