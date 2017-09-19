@@ -261,6 +261,8 @@ namespace DSEDiagnosticConsoleApplication
             set { DSEDiagtnosticToExcel.LibrarySettings.AppendToWorkSheet = value; }
         }
 
+        public static List<string> OnlyNodes = new List<string>();
+
         #endregion
     }
 }

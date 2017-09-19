@@ -176,7 +176,7 @@ namespace DSEDiagnosticFileParser
                                             this.DefaultDataCenterName,
                                             this.TargetDSEVersion,
                                             this.RegExParser,
-                                            this.Catagory);                          
+                                            this.Catagory);
         }
 
         protected DiagnosticFile(CatagoryTypes catagory,
@@ -330,7 +330,8 @@ namespace DSEDiagnosticFileParser
                                                                                     string clusterName = null,
                                                                                     Version dseVersion = null,
                                                                                     CancellationTokenSource cancellationSource = null,
-                                                                                    IEnumerable<KeyValuePair<string,IFilePath>> additionalFilesForClass = null)
+                                                                                    IEnumerable<KeyValuePair<string,IFilePath>> additionalFilesForClass = null,
+                                                                                    IEnumerable<NodeIdentifier> onlyNodes = null)
         {
             cancellationSource?.Token.ThrowIfCancellationRequested();
 
@@ -339,7 +340,8 @@ namespace DSEDiagnosticFileParser
                                                                                                                                 clusterName,
                                                                                                                                 dseVersion,
                                                                                                                                 cancellationSource,
-                                                                                                                                additionalFilesForClass)).Unwrap();
+                                                                                                                                additionalFilesForClass,
+                                                                                                                                onlyNodes)).Unwrap();
         }
 
         public static IEnumerable<DiagnosticFile> ProcessFile(IDirectoryPath diagnosticDirectory,
@@ -352,7 +354,8 @@ namespace DSEDiagnosticFileParser
                                                                 int fileMapperId,
                                                                 Common.Patterns.Collections.ThreadSafe.List<DiagnosticFile> diagFilesList,
                                                                 ParallelLoopState loopState,
-                                                                IEnumerable<KeyValuePair<string, IFilePath>> additionalFilesForClass = null)
+                                                                IEnumerable<KeyValuePair<string, IFilePath>> additionalFilesForClass = null,
+                                                                IEnumerable<NodeIdentifier> onlyNodes = null)
         {
             var localDiagFiles = new List<DiagnosticFile>();
 
@@ -379,7 +382,7 @@ namespace DSEDiagnosticFileParser
                     else fileMapper.CancellationSource.Cancel(true);
                 }
 
-                var diagnosticFiles = ProcessFile(diagnosticDirectory, fileMapper, fileMapperId, dataCenterName, clusterName, dseVersion, additionalFilesForClass);
+                var diagnosticFiles = ProcessFile(diagnosticDirectory, fileMapper, fileMapperId, dataCenterName, clusterName, dseVersion, additionalFilesForClass, onlyNodes);
 
                 diagFilesList.AddRange(diagnosticFiles);
                 localDiagFiles.AddRange(diagnosticFiles);
@@ -470,7 +473,8 @@ namespace DSEDiagnosticFileParser
                                                                         string clusterName = null,
                                                                         Version dseVersion = null,
                                                                         CancellationTokenSource cancellationSource = null,
-                                                                        IEnumerable<KeyValuePair<string, IFilePath>> additionalFilesForClass = null)
+                                                                        IEnumerable<KeyValuePair<string, IFilePath>> additionalFilesForClass = null,
+                                                                        IEnumerable<NodeIdentifier> onlyNodes = null)
         {
             var diagFilesList = new Common.Patterns.Collections.ThreadSafe.List<DiagnosticFile>();
             var mappers = DSEDiagnosticFileParser.LibrarySettings.ProcessFileMappings
@@ -526,7 +530,8 @@ namespace DSEDiagnosticFileParser
                                                             mapperId,
                                                             diagFilesList,
                                                             null,
-                                                            additionalFilesForClass);
+                                                            additionalFilesForClass,
+                                                            onlyNodes);
 
                         System.Threading.Tasks.Task.WaitAll(diagnosticFiles.Select(d => d.Task).ToArray());
                     }
@@ -553,7 +558,8 @@ namespace DSEDiagnosticFileParser
                                     mapperId,
                                     diagFilesList,
                                     loopState,
-                                    additionalFilesForClass);
+                                    additionalFilesForClass,
+                                    onlyNodes);
                     });
 
                     Logger.Instance.InfoFormat("FileMapper<{0}, ParallelProcessing, Completed>",
@@ -579,7 +585,8 @@ namespace DSEDiagnosticFileParser
                                                                     mapperId,
                                                                     diagFilesList,
                                                                     loopState,
-                                                                    additionalFilesForClass));
+                                                                    additionalFilesForClass,
+                                                                    onlyNodes));
                     });
 
                     Logger.Instance.InfoFormat("FileMapper<{0}, ParallelProcessingWithinPriorityLevel, Waiting>",
@@ -617,7 +624,8 @@ namespace DSEDiagnosticFileParser
                                                                     string dataCenterName = null,
                                                                     string clusterName = null,
                                                                     Version targetDSEVersion = null,
-                                                                    IEnumerable<KeyValuePair<string, IFilePath>> additionalFilesForClass = null)
+                                                                    IEnumerable<KeyValuePair<string, IFilePath>> additionalFilesForClass = null,
+                                                                    IEnumerable<NodeIdentifier> onlyNodes = null)
 		{
             CancellationToken? cancellationToken = fileMappings.CancellationSource?.Token;
 
@@ -737,15 +745,41 @@ namespace DSEDiagnosticFileParser
 
             INode[] processTheseNodes = null;
 
-            if(fileMappings.ProcessingTaskOption.HasFlag(FileMapper.ProcessingTaskOptions.AllNodesInCluster))
+            if (onlyNodes != null && onlyNodes.HasAtLeastOneElement())
             {
-                processTheseNodes = string.IsNullOrEmpty(clusterName) && Cluster.Clusters.Count() == 1
-                                        ? Cluster.Clusters.First().Nodes.ToArray()
-                                        : Cluster.GetNodes(null, clusterName).ToArray();
+
+                if (!fileMappings.ProcessingTaskOption.HasFlag(FileMapper.ProcessingTaskOptions.AllNodesInDataCenter))
+                {
+                    processTheseNodes = (string.IsNullOrEmpty(clusterName) && Cluster.Clusters.Count() == 1
+                                            ? Cluster.Clusters.First().Nodes
+                                            : Cluster.GetNodes(null, clusterName)).Where(n => onlyNodes.Any(i => i.Equals(n))).ToArray();
+                }
+                else
+                {
+                    processTheseNodes = Cluster.GetNodes(dataCenterName, clusterName).Where(n => onlyNodes.Any(i => i.Equals(n))).ToArray();
+                }
+
+                Logger.Instance.InfoFormat("FileMapper<{0}>\t<NoNodeId>\t<NoFile>\tUsing Only Nodes {{1}} for File Mapper File Parsing Class \"{2}\" for Category {3}, Processing Option {4}, Cluster \"{5}\", and Data Center \"{6}\". !",
+                                                fileMapperId,
+                                                string.Join(", ", processTheseNodes.Select(n => n.Id.NodeName())),
+                                                fileMappings.FileParsingClass,
+                                                fileMappings.Catagory,
+                                                fileMappings.ProcessingTaskOption,
+                                                clusterName,
+                                                dataCenterName);
             }
-            else if (fileMappings.ProcessingTaskOption.HasFlag(FileMapper.ProcessingTaskOptions.AllNodesInDataCenter))
+            else
             {
-                processTheseNodes = Cluster.GetNodes(dataCenterName, clusterName).ToArray();
+                if (fileMappings.ProcessingTaskOption.HasFlag(FileMapper.ProcessingTaskOptions.AllNodesInCluster))
+                {
+                    processTheseNodes = string.IsNullOrEmpty(clusterName) && Cluster.Clusters.Count() == 1
+                                            ? Cluster.Clusters.First().Nodes.ToArray()
+                                            : Cluster.GetNodes(null, clusterName).ToArray();
+                }
+                else if (fileMappings.ProcessingTaskOption.HasFlag(FileMapper.ProcessingTaskOptions.AllNodesInDataCenter))
+                {
+                    processTheseNodes = Cluster.GetNodes(dataCenterName, clusterName).ToArray();
+                }
             }
 
             if (processTheseNodes != null && processTheseNodes.Length == 0)

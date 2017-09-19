@@ -72,6 +72,15 @@ namespace DSEDiagnosticConsoleApplication
                 Example = @"ZipFile, c:\additionalfiles\*.tar.gz"
             });
 
+            this._cmdLineParser.Arguments.Add(new ValueArgument<string>("OnlyNodes")
+            {
+                Optional = true,
+                AllowMultiple = true,
+                DefaultValue = string.Join(", ", ParserSettings.OnlyNodes),
+                Description = "Only process these nodes. This can be an IP Address separated by a comma or multiple argument commands",
+                Example = @"10.0.0.1, 10.0.0.2"
+            });
+
             this._cmdLineParser.Arguments.Add(new ValueArgument<ParserSettings.DiagFolderStructOptions>('O', "DiagFolderStruct")
             {
                 DefaultValue = ParserSettings.DiagFolderStructOptions.OpsCtrDiagStruct,
@@ -161,6 +170,9 @@ namespace DSEDiagnosticConsoleApplication
 
         public bool ParseSetArguments(string[] args)
         {
+            bool additionalFilesForParsingClassInitial = true;
+            bool onlyNodesInitial = true;
+
             this._cmdLineParser.ParseCommandLine(args);
 
             if (!this._cmdLineParser.ParsingSucceeded)
@@ -251,12 +263,24 @@ namespace DSEDiagnosticConsoleApplication
                         {
                             var paths = ((ValueArgument<string>)item).Value.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
 
+                            if(additionalFilesForParsingClassInitial)
+                            {
+                                ParserSettings.AdditionalFilesForParsingClass.Clear();
+                                additionalFilesForParsingClassInitial = false;
+                            }
+
                             ParserSettings.AdditionalFilesForParsingClass.AddRange(paths.Select(p => new KeyValuePair<string, IFilePath>("LogFile", PathUtils.BuildFilePath(p))));
                         }
                         break;
                     case "AlternativeDDLFilePath":
                         {
                             var paths = ((ValueArgument<string>)item).Value.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+
+                            if(additionalFilesForParsingClassInitial)
+                            {
+                                ParserSettings.AdditionalFilesForParsingClass.Clear();
+                                additionalFilesForParsingClassInitial = false;
+                            }
 
                             ParserSettings.AdditionalFilesForParsingClass.AddRange(paths.Select(p => new KeyValuePair<string, IFilePath>("CQLFile", PathUtils.BuildFilePath(p))));
                         }
@@ -265,11 +289,23 @@ namespace DSEDiagnosticConsoleApplication
                         {
                             var paths = ((ValueArgument<string>)item).Value.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
 
+                            if (additionalFilesForParsingClassInitial)
+                            {
+                                ParserSettings.AdditionalFilesForParsingClass.Clear();
+                                additionalFilesForParsingClassInitial = false;
+                            }
+
                             ParserSettings.AdditionalFilesForParsingClass.AddRange(paths.Select(p => new KeyValuePair<string, IFilePath>("ZipFile", PathUtils.BuildFilePath(p))));
                         }
                         break;
                     case "AlternativeFilePath":
                         {
+                            if (additionalFilesForParsingClassInitial)
+                            {
+                                ParserSettings.AdditionalFilesForParsingClass.Clear();
+                                additionalFilesForParsingClassInitial = false;
+                            }
+
                             ParserSettings.AdditionalFilesForParsingClass.AddRange(((ValueArgument<string>)item).Values
                                                                                     .Select(i =>
                                                                                     {
@@ -277,6 +313,19 @@ namespace DSEDiagnosticConsoleApplication
 
                                                                                         return new KeyValuePair<string, IFilePath>(clsPath[0].Trim(), PathUtils.BuildFilePath(clsPath[1].Trim()));
                                                                                     }));
+                        }
+                        break;
+                    case "OnlyNodes":
+                        {
+                            var nodes = ((ValueArgument<string>)item).Value.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+
+                            if (onlyNodesInitial)
+                            {
+                                ParserSettings.OnlyNodes.Clear();
+                                onlyNodesInitial = false;
+                            }
+
+                            ParserSettings.OnlyNodes.AddRange(nodes);
                         }
                         break;
                     case "DisableSysDSEKSLoading":

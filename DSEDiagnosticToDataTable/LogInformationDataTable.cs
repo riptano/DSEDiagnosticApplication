@@ -29,7 +29,7 @@ namespace DSEDiagnosticToDataTable
 
             dtLogFile.Columns.Add("Instance Type", typeof(string));//c
             dtLogFile.Columns.Add("Node's TimeZone", typeof(string));//
-            dtLogFile.Columns.Add("Time Zone Offset", typeof(object)).AllowDBNull = true; //e
+            dtLogFile.Columns.Add("Time Zone Offset", typeof(string)).AllowDBNull = true; //e
             dtLogFile.Columns.Add("IsDebugLog", typeof(bool));//
 
             dtLogFile.Columns.Add("Start Range (Used)", typeof(DateTime));//g
@@ -90,16 +90,7 @@ namespace DSEDiagnosticToDataTable
                     dataRow.SetField("Start Range (Used)", logInfo.LogRange.Min.DateTime);
                     dataRow.SetField("End Range (Used)", logInfo.LogRange.Max.DateTime);
                     dataRow.SetField("Duration (Used)", logInfo.LogRange.TimeSpan());
-
-                    if(logInfo.LogRange.Min.Offset == logInfo.LogRange.Max.Offset)
-                        dataRow.SetField("Time Zone Offset", logInfo.LogRange.Max.Offset);
-                    else
-                        dataRow.SetField("Time Zone Offset", string.Format(@"{0}{1:hh\:mm}\{2}{3:hh\:mm}",
-                                                                                    logInfo.LogRange.Min.Offset < TimeSpan.Zero ? "-" : "+,",
-                                                                                    logInfo.LogRange.Min.Offset,
-                                                                                    logInfo.LogRange.Max.Offset < TimeSpan.Zero ? "-" : "+,",
-                                                                                    logInfo.LogRange.Max.Offset));
-
+                    dataRow.SetFieldToTZOffset("Time Zone Offset", logInfo.LogRange);
                     dataRow.SetField("Start Range (UTC)", logInfo.LogRange.Min.ToUniversalTime().DateTime);
                     dataRow.SetField("End Range (UTC)", logInfo.LogRange.Max.ToUniversalTime().DateTime);
                     dataRow.SetField("Events", logInfo.LogItems);

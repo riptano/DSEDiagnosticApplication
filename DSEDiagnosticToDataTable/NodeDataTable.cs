@@ -34,7 +34,7 @@ namespace DSEDiagnosticToDataTable
             dtNodeInfo.Columns.Add("Storage Utilization", typeof(decimal)).AllowDBNull = true;
             dtNodeInfo.Columns.Add("Health Rating", typeof(string)).AllowDBNull = true;
 
-            dtNodeInfo.Columns.Add("Time Zone Offset", typeof(object)).AllowDBNull = true; //J
+            dtNodeInfo.Columns.Add("Time Zone Offset", typeof(string)).AllowDBNull = true; //J
 
             dtNodeInfo.Columns.Add("Start NodeTool Range", typeof(DateTime)).AllowDBNull = true; //k
             dtNodeInfo.Columns.Add("End NodeTool Range", typeof(DateTime)).AllowDBNull = true; //l
@@ -118,18 +118,7 @@ namespace DSEDiagnosticToDataTable
                             dataRow.SetField("Start NodeTool Range", node.DSE.NodeToolDateRange.Min.DateTime);
                             dataRow.SetField("End NodeTool Range", node.DSE.NodeToolDateRange.Max.DateTime);
 
-                            if(node.DSE.NodeToolDateRange.Min.Offset == node.DSE.NodeToolDateRange.Max.Offset)
-                            {
-                                dataRow.SetField("Time Zone Offset", node.DSE.NodeToolDateRange.Max.Offset);
-                            }
-                            else
-                            {
-                                dataRow.SetField("Time Zone Offset", string.Format(@"{0}{1:hh\:mm}\{2}{3:hh\:mm}",
-                                                                                    node.DSE.NodeToolDateRange.Min.Offset < TimeSpan.Zero ? "-" : "+,",
-                                                                                    node.DSE.NodeToolDateRange.Min.Offset,
-                                                                                    node.DSE.NodeToolDateRange.Max.Offset < TimeSpan.Zero ? "-" : "+,",
-                                                                                    node.DSE.NodeToolDateRange.Max.Offset));
-                            }
+                            dataRow.SetFieldToTZOffset("Time Zone Offset", node.DSE.NodeToolDateRange);
                         }
 
                         dataRow.SetFieldToTimeSpan("Uptime (Days)", node.DSE.Uptime)
@@ -181,19 +170,7 @@ namespace DSEDiagnosticToDataTable
 
                             }
                             dataRow.SetField("Debug Log Nbr Files", debugLogEntries.Count());
-
-                            if (minTzOffset == maxTZOffset)
-                            {
-                                dataRow.SetField("Time Zone Offset", maxTZOffset);
-                            }
-                            else
-                            {
-                                dataRow.SetField("Time Zone Offset", string.Format(@"{0}{1:hh\:mm}\{2}{3:hh\:mm}",
-                                                                                    minTzOffset < TimeSpan.Zero ? "-" : "+,",
-                                                                                    minTzOffset,
-                                                                                    maxTZOffset < TimeSpan.Zero ? "-" : "+,",
-                                                                                    maxTZOffset));
-                            }
+                            dataRow.SetFieldToTZOffset("Time Zone Offset", minTzOffset, maxTZOffset);
                         }
 
                         if (node.DSE.HeapUsed != null || node.DSE.Heap != null)
