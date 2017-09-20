@@ -412,7 +412,7 @@ namespace DSEDiagnosticConsoleApplication
                         System.Threading.Thread.Sleep(500);
                         return !(cluster = DSEDiagnosticLibrary.Cluster.Clusters.FirstOrDefault(c => !c.IsMaster) ?? DSEDiagnosticLibrary.Cluster.Clusters.First()).IsMaster;
                     });
-                    
+
                     ConsoleParsingDataTable.TaskEnd("Load Data table is waiting on non-Master cluster");
                     Logger.Instance.DebugFormat("Load Data table is using Cluster \"{0}\"", cluster.Name);
                 }
@@ -554,9 +554,62 @@ namespace DSEDiagnosticConsoleApplication
                                         };
                 var excelTask = loadExcel.Load();
 
-                excelTask.Then(() => { ConsoleExcelWorkbook.Terminate(); ConsoleExcelWorkSheet.Terminate(); });
+                var excelUpdateAppInfoTask = Task.Factory.ContinueWhenAll(new Task[] { diagParserTask, excelTask }, tasks =>
+                {
+                    var parsedResults = ((Task<IEnumerable<DSEDiagnosticFileParser.DiagnosticFile>>)tasks[0]).Result;
 
-                excelTask.Wait();
+                    var loadAppInfo = new DSEDiagtnosticToExcel.ApplicationInfoExcel(ParserSettings.ExcelFilePath);
+
+                    loadAppInfo.ApplicationInfo.Aborted = AlreadyCanceled || tasks.Any(t => t.IsCanceled);
+                    loadAppInfo.ApplicationInfo.Erroes = (int)ConsoleErrors.Counter;
+                    loadAppInfo.ApplicationInfo.Warnings = (int)ConsoleWarnings.Counter;
+                    loadAppInfo.ApplicationInfo.ApplicationArgs = CommandLineArgsString;
+                    loadAppInfo.ApplicationInfo.ApplicationAssemblyDir = Common.Functions.Instance.AssemblyDir;
+                    loadAppInfo.ApplicationInfo.ApplicationLibrarySettings = ParserSettings.SettingValues();
+                    loadAppInfo.ApplicationInfo.ApplicationName = Common.Functions.Instance.ApplicationName;
+                    loadAppInfo.ApplicationInfo.ApplicationStartEndTime = new DateTimeRange(RunDateTime, DateTime.Now);
+                    loadAppInfo.ApplicationInfo.ApplicationVersion = Common.Functions.Instance.ApplicationVersion;
+                    loadAppInfo.ApplicationInfo.DiagnosticDirectory = ParserSettings.DiagnosticPath.PathResolved;
+                    loadAppInfo.ApplicationInfo.WorkingDir = Common.Functions.Instance.ApplicationRunTimeDir;
+
+                    var resultItems = from result in parsedResults
+                                      group result by new { DC = result.Node?.DataCenter?.Name, Node = result.Node?.Id.NodeName(), Class = result.GetType().Name, Category = result.Catagory, MapperId = result.MapperId } into g
+                                      select new
+                                      {
+                                          DC = g.Key.DC,
+                                          Node = g.Key.Node,
+                                          Class = g.Key.Class,
+                                          Category = g.Key.Category.ToString(),
+                                          MapperId = g.Key.MapperId,
+                                          NbrTasksCompleted = g.Count(i => i.Processed),
+                                          NbrItemsParsed = g.Sum(i => i.NbrItemsParsed),
+                                          NbrItemsGenerated = g.Sum(i => i.NbrItemGenerated),
+                                          NbrTasksCanceled = g.Count(i => i.Canceled),
+                                          NbrExceptions = g.Count(i => i.Exception != null || (i.ExceptionStrings?.HasAtLeastOneElement() ?? false))
+                                      };
+
+                    foreach (var item in resultItems)
+                    {
+                        loadAppInfo.ApplicationInfo.Results.Add(new DSEDiagtnosticToExcel.ApplicationInfoExcel.ApplInfo.ResultInfo()
+                        {
+                            Catagory = item.Category,
+                            MapperClass = item.Class,
+                            DataCenter = item.DC,
+                            MapperId = item.MapperId,
+                            NbrExceptions = item.NbrExceptions,
+                            NbrItemsGenerated = item.NbrItemsGenerated,
+                            NbrItemsParsed = item.NbrItemsParsed,
+                            NbrTasksCanceled = item.NbrTasksCanceled,
+                            NbrTasksCompleted = item.NbrTasksCompleted,
+                            Node = item.Node
+                        });
+                    }
+                    loadAppInfo.Load();
+                });
+
+                excelUpdateAppInfoTask.Then(() => { ConsoleExcelWorkbook.Terminate(); ConsoleExcelWorkSheet.Terminate(); });
+
+                excelUpdateAppInfoTask.Wait();
             }
             #endregion
 

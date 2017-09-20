@@ -117,7 +117,8 @@ namespace DataTableToExcel
                                                 bool useDefaultView = false,
                                                 bool renameFirstWorksheetIfDivided = true,
                                                 bool appendToWorkSheet = false,
-                                                bool printHeaders = true)
+                                                bool printHeaders = true,
+                                                bool clearWorkSheet = true)
         {
             if (string.IsNullOrEmpty(workSheetName)) workSheetName = dtExcel.TableName;
 
@@ -192,7 +193,8 @@ namespace DataTableToExcel
                                             false,
                                             false,
                                             appendToWorkSheet,
-                                            printHeaders);
+                                            printHeaders,
+                                            clearWorkSheet);
                     ++splitCnt;
                 }
 
@@ -222,8 +224,6 @@ namespace DataTableToExcel
             }
             else
             {
-                bool clear = true;
-
                 if (appendToWorkSheet)
                 {
                     var row = workSheet.Dimension.End.Row;
@@ -245,11 +245,11 @@ namespace DataTableToExcel
 
                         startingWSCell = workSheet.Cells[row + 1, startingRange.End.Column].Address;
                         printHeaders = false;
-                        clear = false;
+                        clearWorkSheet = false;
                     }
                 }
 
-                if(clear)
+                if(clearWorkSheet)
                 {
                     workSheet.Cells.Clear();
                     foreach (ExcelComment comment in workSheet.Comments.Cast<ExcelComment>().ToArray())
@@ -304,7 +304,8 @@ namespace DataTableToExcel
                                         false,
                                         false,
                                         appendToWorkSheet,
-                                        printHeaders);
+                                        printHeaders,
+                                        clearWorkSheet);
                 }
                 else
                 {
@@ -388,7 +389,8 @@ namespace DataTableToExcel
                                                     string startingWSCell = "A1",
                                                     bool useDefaultView = false,
                                                     bool generateNewFileName = false,
-                                                    bool appendToWorkSheet = false)
+                                                    bool appendToWorkSheet = false,
+                                                    bool clearWorkSheet = true)
         {
             var excelTargetFile = Common.Path.PathUtils.BuildFilePath(excelFilePath);
             var orgTargetFile = (IFilePath)excelTargetFile.Clone();
@@ -434,7 +436,8 @@ namespace DataTableToExcel
                                 maxRowInExcelWorkSheet: maxRowInExcelWorkSheet,
                                 startingWSCell: startingWSCell,
                                 useDefaultView: useDefaultView,
-                                appendToWorkSheet: appendToWorkSheet);
+                                appendToWorkSheet: appendToWorkSheet,
+                                clearWorkSheet: clearWorkSheet);
 
                     workBookActions?.Invoke(WorkBookProcessingStage.PreSave, orgTargetFile, excelFile, workSheetName, excelPkg, dtExcel, dtExcel.Rows.Count);
                     excelPkg.Save();
@@ -489,7 +492,8 @@ namespace DataTableToExcel
                                 worksheetAction,
                                 maxRowInExcelWorkSheet: maxRowInExcelWorkSheet,
                                 startingWSCell: startingWSCell,
-                                appendToWorkSheet: appendToWorkSheet);
+                                appendToWorkSheet: appendToWorkSheet,
+                                clearWorkSheet: clearWorkSheet);
 
                     System.Threading.Interlocked.Add(ref nResult, dtSplit.Rows.Count);
 

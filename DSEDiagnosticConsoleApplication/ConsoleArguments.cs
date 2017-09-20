@@ -367,7 +367,7 @@ namespace DSEDiagnosticConsoleApplication
         }
 
         public void ShowUsage()
-        {
+        {            
             this._cmdLineParser.ShowUsage();
         }
 
