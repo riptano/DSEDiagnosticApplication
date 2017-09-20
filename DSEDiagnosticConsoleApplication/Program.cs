@@ -409,9 +409,10 @@ namespace DSEDiagnosticConsoleApplication
                     ConsoleParsingDataTable.Increment("Load Data table is waiting on non-Master cluster");
                     Common.Patterns.Threading.LockFree.SpinWait(() =>
                     {
-                        System.Threading.Thread.Sleep(100);
+                        System.Threading.Thread.Sleep(500);
                         return !(cluster = DSEDiagnosticLibrary.Cluster.Clusters.FirstOrDefault(c => !c.IsMaster) ?? DSEDiagnosticLibrary.Cluster.Clusters.First()).IsMaster;
                     });
+                    
                     ConsoleParsingDataTable.TaskEnd("Load Data table is waiting on non-Master cluster");
                     Logger.Instance.DebugFormat("Load Data table is using Cluster \"{0}\"", cluster.Name);
                 }
@@ -502,16 +503,17 @@ namespace DSEDiagnosticConsoleApplication
                         ConsoleExcelWorkbook.Increment("Load Excel is waiting on non-Master cluster");
                         Common.Patterns.Threading.LockFree.SpinWait(() =>
                         {
-                            System.Threading.Thread.Sleep(100);
+                            System.Threading.Thread.Sleep(500);
                             return !(cluster = DSEDiagnosticLibrary.Cluster.Clusters.FirstOrDefault(c => !c.IsMaster) ?? DSEDiagnosticLibrary.Cluster.Clusters.First()).IsMaster;
                         });
+
                         ConsoleExcelWorkbook.TaskEnd("Load Excel is waiting on non-Master cluster");
                         Logger.Instance.DebugFormat("Load Excel is using Cluster \"{0}\"", cluster.Name);
                     }
 
                     ParserSettings.ExcelFilePath = Common.Path.PathUtils.BuildFilePath(string.Format(Properties.Settings.Default.ExcelFileNameGeneratedStringFormat,
                                                                                                         ParserSettings.DiagnosticPath,
-                                                                                                        cluster.Name,
+                                                                                                        cluster.IsMaster ? "MasterCluster" : cluster.Name,
                                                                                                         RunDateTime,
                                                                                                         ParserSettings.ExcelFileTemplatePath?.FileExtension ?? DSEDiagtnosticToExcel.LibrarySettings.ExcelFileExtension));
                 }
