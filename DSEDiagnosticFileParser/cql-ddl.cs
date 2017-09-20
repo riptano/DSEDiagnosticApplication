@@ -68,6 +68,7 @@ namespace DSEDiagnosticFileParser
                         this._localKS.Clear();
                         this._ddlList.Clear();
                         this._usingKeySpace = null;
+                        this.NbrItemsParsed = 0;
                     }
                 }
             }
@@ -276,6 +277,7 @@ namespace DSEDiagnosticFileParser
                     if (this._usingKeySpace == null)
                     {
                         Logger.Instance.ErrorFormat("<NoNodeId>\t{0}\tUsing Keyspace \"{1}\" was not found during CQL DDL. Keyspaces need to be defined before a using CQL statement.", this.File.PathResolved, keyspaceName);
+                        ++this.NbrErrors;
                     }
                     continue;
                 }
@@ -348,7 +350,7 @@ namespace DSEDiagnosticFileParser
 
                 Logger.Instance.ErrorFormat("{0}\t{1}\tCQL Statement Processing Error. Unknown CQL statement of \"{2}\".",
                                                 this.Node, this.File, string.Join(", ", cqlStatements.Select(s => "'" + s + "'")));
-
+                ++this.NbrErrors;
             }
 
             this.Processed = true;

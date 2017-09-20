@@ -94,6 +94,7 @@ namespace DSEDiagnosticFileParser
                                                     this.File,
                                                     line,
                                                     this.MapperId);
+                        ++this.NbrErrors;
                         regExSplit = null;
                     }
                 }
@@ -136,6 +137,7 @@ namespace DSEDiagnosticFileParser
                                                             this.File,
                                                             regExSplit[4],
                                                             this.MapperId);
+                                ++this.NbrWarnings;
                             }
                         }
 

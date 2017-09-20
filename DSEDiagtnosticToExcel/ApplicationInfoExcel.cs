@@ -25,7 +25,7 @@ namespace DSEDiagtnosticToExcel
             public string ApplicationLibrarySettings;
             public string DiagnosticDirectory;
             public bool Aborted;
-            public int Erroes;
+            public int Errors;
             public int Warnings;
 
             public sealed class ResultInfo
@@ -39,6 +39,8 @@ namespace DSEDiagtnosticToExcel
                 public int NbrItemsParsed;
                 public int NbrItemsGenerated;
                 public int NbrTasksCanceled;
+                public int NbrWarnings;
+                public int NbrErrors;
                 public int NbrExceptions;
             }
 
@@ -65,16 +67,18 @@ namespace DSEDiagtnosticToExcel
             bool hasException = false;
 
             #region Update DataTable with ResultInfo
-            this.DataTable.Columns.Add("Mapper Class", typeof(string));//a
-            this.DataTable.Columns.Add("Mapper Id", typeof(int));//b
+            this.DataTable.Columns.Add("Mapper Class", typeof(string));//b
+            this.DataTable.Columns.Add("Mapper Id", typeof(int));//c
             this.DataTable.Columns.Add("Catagory", typeof(string));
-            this.DataTable.Columns.Add("Data Center", typeof(string)).AllowDBNull = true; //d
-            this.DataTable.Columns.Add("Node", typeof(string)).AllowDBNull = true; //e
-            this.DataTable.Columns.Add("Nbr Tasks Completed", typeof(int));
+            this.DataTable.Columns.Add("Data Center", typeof(string)).AllowDBNull = true; //e
+            this.DataTable.Columns.Add("Node", typeof(string)).AllowDBNull = true; //f
+            this.DataTable.Columns.Add("Nbr Tasks Completed", typeof(int)); //g
             this.DataTable.Columns.Add("Nbr Items Parsed", typeof(int));
-            this.DataTable.Columns.Add("Nbr Items Generated", typeof(int)); //h
+            this.DataTable.Columns.Add("Nbr Items Generated", typeof(int)); //i
             this.DataTable.Columns.Add("Nbr Tasks Canceled", typeof(int));
-            this.DataTable.Columns.Add("Nbr Exceptions", typeof(int));//j
+            this.DataTable.Columns.Add("Nbr Warnings", typeof(int));
+            this.DataTable.Columns.Add("Nbr Errors", typeof(int)); //l
+            this.DataTable.Columns.Add("Nbr Exceptions", typeof(int));//m
 
             foreach (var item in this.ApplicationInfo.Results)
             {
@@ -89,6 +93,8 @@ namespace DSEDiagtnosticToExcel
                 dataRow.SetField("Nbr Items Parsed", item.NbrItemsParsed);
                 dataRow.SetField("Nbr Items Generated", item.NbrItemsGenerated);
                 dataRow.SetField("Nbr Tasks Canceled", item.NbrTasksCanceled);
+                dataRow.SetField("Nbr Warnings", item.NbrWarnings);
+                dataRow.SetField("Nbr Errors", item.NbrErrors);
                 dataRow.SetField("Nbr Exceptions", item.NbrExceptions);
 
                 hasException = item.NbrExceptions > 0;
@@ -99,7 +105,7 @@ namespace DSEDiagtnosticToExcel
             #endregion
 
             var nbrRows = DataTableToExcel.Helpers.WorkBook(this.ExcelTargetWorkbook.PathResolved, this.WorkSheetName, this.DataTable,
-                                                           (stage, orgFilePath, targetFilePath, workSheetName, excelPackage, excelDataTable, rowCount) =>
+                                                           (stage, orgFilePath, targetFilePath, workSheetName, excelPackage, excelDataTable, rowCount, loadRange) =>
                                                            {
                                                                switch (stage)
                                                                {
@@ -111,7 +117,103 @@ namespace DSEDiagtnosticToExcel
                                                                        this.CallActionEvent("Begin Loading");
                                                                        break;
                                                                    case WorkBookProcessingStage.PreSave:
-                                                                       this.CallActionEvent("Loaded");
+                                                                       {
+                                                                           var workSheet = excelPackage.Workbook.Worksheets[WorkSheetName];
+                                                                           var rangeAddress = loadRange == null ? null : workSheet?.Cells[loadRange];
+
+                                                                           if(rangeAddress != null)
+                                                                           {
+                                                                               var startRow = rangeAddress.Start.Row;
+                                                                               var endRow = rangeAddress.End.Row;
+                                                                               bool canceled = false; //j
+                                                                               bool errors = false; //l
+                                                                               bool exceptions = false; //m
+                                                                               bool notCompleted = false; //g
+                                                                               bool warnings = false; //k
+
+                                                                               for(int nRow = startRow; nRow <= endRow; ++nRow)
+                                                                               {
+                                                                                   if(workSheet.Cells[nRow,2] != null)
+                                                                                   {
+                                                                                       //K
+                                                                                       if(workSheet.Cells[nRow, 11].Value is int &&  ((int)workSheet.Cells[nRow, 11].Value) > 0)
+                                                                                       {
+                                                                                           workSheet.Cells[nRow, 2].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                                                                                           workSheet.Cells[nRow, 2].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Yellow);
+                                                                                           workSheet.Cells[nRow, 11].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                                                                                           workSheet.Cells[nRow, 11].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Yellow);
+                                                                                           warnings = true;
+                                                                                       }
+                                                                                       //J
+                                                                                       if (workSheet.Cells[nRow, 10].Value is int && ((int)workSheet.Cells[nRow, 10].Value) > 0)
+                                                                                       {
+                                                                                           workSheet.Cells[nRow, 2].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                                                                                           workSheet.Cells[nRow, 2].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Red);
+                                                                                           workSheet.Cells[nRow, 10].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                                                                                           workSheet.Cells[nRow, 10].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Red);
+                                                                                           canceled = true;
+                                                                                       }
+                                                                                       //L
+                                                                                       if (workSheet.Cells[nRow, 12].Value is int && ((int)workSheet.Cells[nRow, 12].Value) > 0)
+                                                                                       {
+                                                                                           workSheet.Cells[nRow, 2].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                                                                                           workSheet.Cells[nRow, 2].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Red);
+                                                                                           workSheet.Cells[nRow, 12].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                                                                                           workSheet.Cells[nRow, 12].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Red);
+                                                                                           errors = true;
+                                                                                       }
+                                                                                       //M
+                                                                                       if (workSheet.Cells[nRow, 13].Value is int && ((int)workSheet.Cells[nRow, 13].Value) > 0)
+                                                                                       {
+                                                                                           workSheet.Cells[nRow, 2].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                                                                                           workSheet.Cells[nRow, 2].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Red);
+                                                                                           workSheet.Cells[nRow, 13].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                                                                                           workSheet.Cells[nRow, 13].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Red);
+                                                                                           exceptions = true;
+                                                                                       }
+                                                                                       //G
+                                                                                       if (workSheet.Cells[nRow, 7].Value is int && ((int)workSheet.Cells[nRow, 7].Value) == 0)
+                                                                                       {
+                                                                                           workSheet.Cells[nRow, 2].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                                                                                           workSheet.Cells[nRow, 2].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Red);
+                                                                                           workSheet.Cells[nRow, 7].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                                                                                           workSheet.Cells[nRow, 7].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Red);
+                                                                                           notCompleted = true;
+                                                                                       }
+                                                                                   }
+                                                                                   workSheet.Row(nRow).OutlineLevel = 2;
+                                                                                   workSheet.Row(nRow).Collapsed = false;
+                                                                               }
+
+                                                                               if(errors)
+                                                                               {
+                                                                                   workSheet.Cells[13, 12].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.LightGray;
+                                                                                   workSheet.Cells[13, 12].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.OrangeRed);
+                                                                               }
+                                                                               if(exceptions)
+                                                                               {
+                                                                                   workSheet.Cells[13, 13].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.LightGray;
+                                                                                   workSheet.Cells[13, 13].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.OrangeRed);
+                                                                               }
+                                                                               if(notCompleted)
+                                                                               {
+                                                                                   workSheet.Cells[13, 7].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.LightGray;
+                                                                                   workSheet.Cells[13, 7].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.OrangeRed);
+                                                                               }
+                                                                               if(canceled)
+                                                                               {
+                                                                                   workSheet.Cells[13, 10].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.LightGray;
+                                                                                   workSheet.Cells[13, 10].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.OrangeRed);
+                                                                               }
+                                                                               if (warnings)
+                                                                               {
+                                                                                   workSheet.Cells[13, 11].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.LightGray;
+                                                                                   workSheet.Cells[13, 11].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightYellow);
+                                                                               }
+                                                                           }
+
+                                                                           this.CallActionEvent("Loaded");
+                                                                       }
                                                                        break;
                                                                    case WorkBookProcessingStage.Saved:
                                                                        this.CallActionEvent("Workbook Saved");
@@ -124,15 +226,13 @@ namespace DSEDiagtnosticToExcel
                                                            },
                                                             workSheet =>
                                                             {
-
-                                                                workSheet.Column(1).Width = 50;
+                                                                workSheet.Column(1).Width = 100;
                                                                 workSheet.Column(1).Style.WrapText = true;
                                                                 workSheet.Column(1).Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
 
                                                                 if (!this.AppendToWorkSheet)
                                                                 {
-                                                                    workSheet.Cells["B12"].Value =
-                                                                        workSheet.Cells["A2"].Value = this.ApplicationInfo.Aborted ? "** Aborted **" : (hasException ? "** Exception(s) Detected **" : null);
+                                                                    workSheet.Cells["A2"].Value = this.ApplicationInfo.Aborted ? "** Aborted **" : (hasException ? "** Exception(s) Detected **" : null);
                                                                     workSheet.Cells["A3"].Value = this.ApplicationInfo.ApplicationName;
                                                                     workSheet.Cells["A4"].Value = this.ApplicationInfo.ApplicationVersion;
                                                                     workSheet.Cells["A5"].Value = this.ApplicationInfo.ApplicationAssemblyDir;
@@ -149,12 +249,7 @@ namespace DSEDiagtnosticToExcel
                                                                     }
                                                                     workSheet.Cells["A9"].Value = "Working Directory: " + this.ApplicationInfo.WorkingDir;
                                                                     workSheet.Cells["A10"].Value = "Diagnostic Directory: " + this.ApplicationInfo.DiagnosticDirectory;
-                                                                    workSheet.Cells["A11"].Value = string.Format("Errors: {0:###,###,##0} Warnings: {1:###,###,##0}", this.ApplicationInfo.Erroes, this.ApplicationInfo.Warnings);
-
-                                                                    if(this.ApplicationInfo.Erroes > 0)
-                                                                    {
-                                                                        workSheet.Cells["D12"].Value = "** Errors Detected in Application Log **";
-                                                                    }
+                                                                    workSheet.Cells["A11"].Value = string.Format("Errors: {0:###,###,##0} Warnings: {1:###,###,##0}", this.ApplicationInfo.Errors, this.ApplicationInfo.Warnings);
 
                                                                     for (int nRow = 1; nRow <= 11; ++nRow)
                                                                     {
@@ -175,10 +270,12 @@ namespace DSEDiagtnosticToExcel
                                                                 workSheet.Cells["I:I"].Style.Numberformat.Format = "#,###,###,##0";
                                                                 workSheet.Cells["J:J"].Style.Numberformat.Format = "#,###,###,##0";
                                                                 workSheet.Cells["K:K"].Style.Numberformat.Format = "#,###,###,##0";
+                                                                workSheet.Cells["L:L"].Style.Numberformat.Format = "#,###,###,##0";
+                                                                workSheet.Cells["M:M"].Style.Numberformat.Format = "#,###,###,##0";
 
-                                                                workSheet.Cells["B13:K13"].AutoFilter = true;
+                                                                workSheet.Cells["B13:M13"].AutoFilter = true;
 
-                                                                workSheet.AutoFitColumn(workSheet.Cells["B:K"]);
+                                                                workSheet.AutoFitColumn(workSheet.Cells["B:M"]);
                                                             },
                                                             -1,
                                                            -1,

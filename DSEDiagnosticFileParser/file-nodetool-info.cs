@@ -176,6 +176,7 @@ namespace DSEDiagnosticFileParser
                                                         this.File,
                                                         line,
                                                         this.MapperId);
+                        ++this.NbrErrors;
                         break;
                 }
             }

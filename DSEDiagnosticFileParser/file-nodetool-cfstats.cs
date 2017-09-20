@@ -196,6 +196,7 @@ namespace DSEDiagnosticFileParser
                                                     this.File.PathResolved,
                                                     splitValue[1].Trim(),
                                                     this.Node.DataCenter.Name);
+                        ++this.NbrWarnings;
                         this._unknownDDLs.Add(splitValue[1].Trim());
                         skipSection = true;
                         statItem = null;
@@ -230,6 +231,7 @@ namespace DSEDiagnosticFileParser
                                                     this.File.PathResolved,
                                                     tableName,
                                                     currentKeyspace.DataCenter.Name);
+                        ++this.NbrWarnings;
                         this._unknownDDLs.Add(tableName);
                         skipSection = true;
                         statItem = null;

@@ -266,6 +266,9 @@ namespace DSEDiagnosticFileParser
         private int _nbrItemGenerated = 0;
         [JsonIgnore]
         public int NbrItemGenerated { get { return this._nbrItemGenerated; } }
+
+        public int NbrWarnings { get; protected set; }
+        public int NbrErrors { get; protected set; }
         [JsonIgnore]
         public RegExParseString RegExParser { get; protected set; }
         [JsonIgnore]

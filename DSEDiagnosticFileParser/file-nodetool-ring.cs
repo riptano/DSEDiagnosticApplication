@@ -114,12 +114,14 @@ namespace DSEDiagnosticFileParser
                                                 this.File,
                                                 line,
                                                 this.MapperId);
+                    ++this.NbrErrors;
                 }
                 else
                 {
                     if (currentDataCenter == null)
                     {
                         Logger.Instance.ErrorFormat("FileMapper<{2}>\t<NoNodeId>\t{1}\tmissing a DataCenter for \"{0}\"", this.GetType().Name, this.File, this.MapperId);
+                        ++this.NbrErrors;
                         continue;
                     }
 
@@ -156,6 +158,7 @@ namespace DSEDiagnosticFileParser
                                                                 line,
                                                                 this.MapperId),
                                                     ex);
+                            ++this.NbrErrors;
                         }
                     }
                 }

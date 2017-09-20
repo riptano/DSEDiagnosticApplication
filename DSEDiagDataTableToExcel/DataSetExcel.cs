@@ -382,7 +382,7 @@ namespace DataTableToExcel
         static public int WorkBook(string excelFilePath,
                                                     string workSheetName,
                                                     DataTable dtExcel,
-                                                    Action<WorkBookProcessingStage, IFilePath, IFilePath, string, ExcelPackage, DataTable, int> workBookActions = null,
+                                                    Action<WorkBookProcessingStage, IFilePath, IFilePath, string, ExcelPackage, DataTable, int, string> workBookActions = null,
                                                     Action<ExcelWorksheet> worksheetAction = null,
                                                     int maxRowInExcelWorkBook = -1,
                                                     int maxRowInExcelWorkSheet = -1,
@@ -403,11 +403,12 @@ namespace DataTableToExcel
                                         workSheetName,
                                         null,
                                         dtExcel,
-                                        -1);
+                                        -1,
+                                        null);
 
             if (dtExcel.Rows.Count == 0)
             {
-                workBookActions?.Invoke(WorkBookProcessingStage.PostProcess, orgTargetFile, null, null, null, dtExcel, 0);
+                workBookActions?.Invoke(WorkBookProcessingStage.PostProcess, orgTargetFile, null, null, null, dtExcel, 0, null);
                 return 0;
             }
 
@@ -423,33 +424,33 @@ namespace DataTableToExcel
                                     ? ((IFilePath)excelTargetFile.Clone()).ApplyFileNameFormat(new object[] { workSheetName })
                                     : excelTargetFile;
 
-                workBookActions?.Invoke(WorkBookProcessingStage.PrepareFileName, orgTargetFile, excelFile, workSheetName, null, dtExcel, -1);
+                workBookActions?.Invoke(WorkBookProcessingStage.PrepareFileName, orgTargetFile, excelFile, workSheetName, null, dtExcel, -1, null);
 
                 using (var excelPkg = new ExcelPackage(excelFile.FileInfo()))
                 {
-                    workBookActions?.Invoke(WorkBookProcessingStage.PreLoad, orgTargetFile, excelFile, workSheetName, excelPkg, dtExcel, -1);
+                    workBookActions?.Invoke(WorkBookProcessingStage.PreLoad, orgTargetFile, excelFile, workSheetName, excelPkg, dtExcel, -1, null);
 
-                    WorkSheet(excelPkg,
-                                workSheetName,
-                                dtExcel,
-                                worksheetAction,
-                                maxRowInExcelWorkSheet: maxRowInExcelWorkSheet,
-                                startingWSCell: startingWSCell,
-                                useDefaultView: useDefaultView,
-                                appendToWorkSheet: appendToWorkSheet,
-                                clearWorkSheet: clearWorkSheet);
+                    var loadRange = WorkSheet(excelPkg,
+                                                workSheetName,
+                                                dtExcel,
+                                                worksheetAction,
+                                                maxRowInExcelWorkSheet: maxRowInExcelWorkSheet,
+                                                startingWSCell: startingWSCell,
+                                                useDefaultView: useDefaultView,
+                                                appendToWorkSheet: appendToWorkSheet,
+                                                clearWorkSheet: clearWorkSheet);
 
-                    workBookActions?.Invoke(WorkBookProcessingStage.PreSave, orgTargetFile, excelFile, workSheetName, excelPkg, dtExcel, dtExcel.Rows.Count);
+                    workBookActions?.Invoke(WorkBookProcessingStage.PreSave, orgTargetFile, excelFile, workSheetName, excelPkg, dtExcel, dtExcel.Rows.Count, loadRange?.Address);
                     excelPkg.Save();
-                    workBookActions?.Invoke(WorkBookProcessingStage.Saved, orgTargetFile, excelFile, workSheetName, excelPkg, dtExcel, dtExcel.Rows.Count);
+                    workBookActions?.Invoke(WorkBookProcessingStage.Saved, orgTargetFile, excelFile, workSheetName, excelPkg, dtExcel, dtExcel.Rows.Count, loadRange?.Address);
                     Logger.Instance.InfoFormat("Excel WorkBooks saved to \"{0}\"", excelPkg.File?.FullName);
                 }
 
-                workBookActions?.Invoke(WorkBookProcessingStage.PostProcess, orgTargetFile, null, workSheetName, null, dtExcel, dtExcel.Rows.Count);
+                workBookActions?.Invoke(WorkBookProcessingStage.PostProcess, orgTargetFile, null, workSheetName, null, dtExcel, dtExcel.Rows.Count, null);
                 return dtExcel.Rows.Count;
             }
 
-            workBookActions?.Invoke(WorkBookProcessingStage.PreProcessDataTable, orgTargetFile, null, workSheetName, null, dtExcel, -1);
+            workBookActions?.Invoke(WorkBookProcessingStage.PreProcessDataTable, orgTargetFile, null, workSheetName, null, dtExcel, -1, null);
 
             var dtSplits = dtExcel.SplitTable(maxRowInExcelWorkBook, useDefaultView);
             int nResult = 0;
@@ -480,31 +481,31 @@ namespace DataTableToExcel
                                                 .ApplyFileNameFormat(new object[] { workSheetName, System.Threading.Interlocked.Increment(ref totalRows) })
                                          : excelTargetFile;
 
-                workBookActions?.Invoke(WorkBookProcessingStage.PrepareFileName, orgTargetFile, excelFile, workSheetName, null, dtSplit, -1);
+                workBookActions?.Invoke(WorkBookProcessingStage.PrepareFileName, orgTargetFile, excelFile, workSheetName, null, dtSplit, -1, null);
 
                 using (var excelPkg = new ExcelPackage(excelFile.FileInfo()))
                 {
-                    workBookActions?.Invoke(WorkBookProcessingStage.PreLoad, orgTargetFile, excelFile, workSheetName, excelPkg, dtSplit, -1);
+                    workBookActions?.Invoke(WorkBookProcessingStage.PreLoad, orgTargetFile, excelFile, workSheetName, excelPkg, dtSplit, -1, null);
 
-                    WorkSheet(excelPkg,
-                                workSheetName,
-                                dtSplit,
-                                worksheetAction,
-                                maxRowInExcelWorkSheet: maxRowInExcelWorkSheet,
-                                startingWSCell: startingWSCell,
-                                appendToWorkSheet: appendToWorkSheet,
-                                clearWorkSheet: clearWorkSheet);
+                    var loadRange = WorkSheet(excelPkg,
+                                                workSheetName,
+                                                dtSplit,
+                                                worksheetAction,
+                                                maxRowInExcelWorkSheet: maxRowInExcelWorkSheet,
+                                                startingWSCell: startingWSCell,
+                                                appendToWorkSheet: appendToWorkSheet,
+                                                clearWorkSheet: clearWorkSheet);
 
                     System.Threading.Interlocked.Add(ref nResult, dtSplit.Rows.Count);
 
-                    workBookActions?.Invoke(WorkBookProcessingStage.PreSave, orgTargetFile, excelFile, workSheetName, excelPkg, dtSplit, dtSplit.Rows.Count);
+                    workBookActions?.Invoke(WorkBookProcessingStage.PreSave, orgTargetFile, excelFile, workSheetName, excelPkg, dtSplit, dtSplit.Rows.Count, loadRange?.Address);
                     excelPkg.Save();
-                    workBookActions?.Invoke(WorkBookProcessingStage.Saved, orgTargetFile, excelFile, workSheetName, excelPkg, dtSplit, dtSplit.Rows.Count);
+                    workBookActions?.Invoke(WorkBookProcessingStage.Saved, orgTargetFile, excelFile, workSheetName, excelPkg, dtSplit, dtSplit.Rows.Count, loadRange?.Address);
                     Logger.Instance.InfoFormat("Excel WorkBooks saved to \"{0}\"", excelFile.PathResolved);
                 }
             });
 
-            workBookActions?.Invoke(WorkBookProcessingStage.PostProcess, orgTargetFile, null, workSheetName, null, null, nResult);
+            workBookActions?.Invoke(WorkBookProcessingStage.PostProcess, orgTargetFile, null, workSheetName, null, null, nResult, null);
 
             return nResult;
         }

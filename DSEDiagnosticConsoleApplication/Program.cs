@@ -561,7 +561,7 @@ namespace DSEDiagnosticConsoleApplication
                     var loadAppInfo = new DSEDiagtnosticToExcel.ApplicationInfoExcel(ParserSettings.ExcelFilePath);
 
                     loadAppInfo.ApplicationInfo.Aborted = AlreadyCanceled || tasks.Any(t => t.IsCanceled);
-                    loadAppInfo.ApplicationInfo.Erroes = (int)ConsoleErrors.Counter;
+                    loadAppInfo.ApplicationInfo.Errors = (int)ConsoleErrors.Counter;
                     loadAppInfo.ApplicationInfo.Warnings = (int)ConsoleWarnings.Counter;
                     loadAppInfo.ApplicationInfo.ApplicationArgs = CommandLineArgsString;
                     loadAppInfo.ApplicationInfo.ApplicationAssemblyDir = Common.Functions.Instance.AssemblyDir;
@@ -585,6 +585,8 @@ namespace DSEDiagnosticConsoleApplication
                                           NbrItemsParsed = g.Sum(i => i.NbrItemsParsed),
                                           NbrItemsGenerated = g.Sum(i => i.NbrItemGenerated),
                                           NbrTasksCanceled = g.Count(i => i.Canceled),
+                                          NbrWarnings = g.Sum(i => i.NbrWarnings),
+                                          NbrErrors = g.Sum(i => i.NbrErrors),
                                           NbrExceptions = g.Count(i => i.Exception != null || (i.ExceptionStrings?.HasAtLeastOneElement() ?? false))
                                       };
 
@@ -597,6 +599,8 @@ namespace DSEDiagnosticConsoleApplication
                             DataCenter = item.DC,
                             MapperId = item.MapperId,
                             NbrExceptions = item.NbrExceptions,
+                            NbrErrors = item.NbrErrors,
+                            NbrWarnings = item.NbrWarnings,
                             NbrItemsGenerated = item.NbrItemsGenerated,
                             NbrItemsParsed = item.NbrItemsParsed,
                             NbrTasksCanceled = item.NbrTasksCanceled,
