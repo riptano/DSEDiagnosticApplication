@@ -172,7 +172,7 @@ namespace DSEDiagnosticLibrary
             this.IsSystemKeyspace = LibrarySettings.SystemKeyspaces.Contains(this.Name);
             this.IsPerformanceKeyspace = LibrarySettings.PerformanceKeyspaces.Contains(this.Name);
 
-            if (this.Replications == null || this.Replications.Count() == 0)
+            if (this.Replications == null || this.Replications.IsEmpty())
             {
                 if (this.EverywhereStrategy || this.LocalStrategy)
                 {
@@ -191,6 +191,11 @@ namespace DSEDiagnosticLibrary
             {
                 this.Replications = this.Replications.OrderBy(r => r.DataCenter?.Name).ThenBy(r => r.RF);
             }
+
+            if(this.Node == null && this._cluster == null && (this.Replications?.HasAtLeastOneElement() ?? false))
+            {
+                this._cluster = this.Replications.First().DataCenter?.Cluster;
+            }
         }
 
         #region IParse
@@ -203,7 +208,7 @@ namespace DSEDiagnosticLibrary
         [JsonIgnore]
         public Cluster Cluster { get { return this.Node == null ? this._cluster : this.Node.Cluster; } }
         [JsonIgnore]
-        public IDataCenter DataCenter { get { return this.Node?.DataCenter; } }
+        public IDataCenter DataCenter { get { return this.Node?.DataCenter ?? this.Replications.FirstOrDefault()?.DataCenter; } }
         public INode Node { get; }
         [JsonIgnore]
         public int Items { get { return this._ddlList.Count; } }

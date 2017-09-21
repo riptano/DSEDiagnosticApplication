@@ -830,7 +830,7 @@ namespace DSEDiagnosticFileParser
                     {
                         var nodeId = DetermineNodeIdentifier(targetFile, fileMappings.NodeIdPos);
 
-                        if (nodeId == null)
+                        if (nodeId == null && !fileMappings.ProcessingTaskOption.HasFlag(FileMapper.ProcessingTaskOptions.ScanForNode))
                         {
                             Logger.Instance.ErrorFormat("FileMapper<{1}>\t<NoNodeId>\t{0}\tCouldn't detect node identity (IPAdress or host name) for this file path. This file will be skipped.",
                                                             targetFile.PathResolved,
