@@ -253,8 +253,23 @@ namespace DSEDiagnosticLibrary
         public IKeyspace Keyspace { get { return this._keyspace ?? this.TableViewIndex?.Keyspace; } }
         public IDDLStmt TableViewIndex { get; private set; }
         public DSEInfo.InstanceTypes Product { get; }
-        #endregion
 
+        public int CompareTo(IEvent other)
+        {
+            if (this.EventTimeBegin.HasValue && other.EventTimeBegin.HasValue)
+            {
+                if (this.EventTimeBegin.Value == other.EventTimeBegin.Value)
+                {
+                    if (this.EventTimeEnd.HasValue && other.EventTimeEnd.HasValue)
+                        return this.EventTimeEnd.Value.CompareTo(other.EventTimeEnd.Value);
+                    return 0;
+                }
+                return this.EventTimeBegin.Value.CompareTo(other.EventTimeBegin.Value);
+            }
+
+            return this.EventTimeLocal.CompareTo(other.EventTimeLocal);
+        }
+        #endregion
 
         public string SessionTieOutId { get; private set; }
         public IReadOnlyDictionary<string, object> LogProperties { get; }

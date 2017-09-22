@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 namespace DSEDiagnosticLibrary
 {
     [JsonObjectAttribute(MemberSerialization.OptOut)]
-    public sealed class UnitOfMeasure : IEquatable<UnitOfMeasure>
+    public sealed class UnitOfMeasure : IComparable, IComparable<UnitOfMeasure>, IComparable<decimal>, IEquatable<UnitOfMeasure>, IEquatable<decimal>
     {
         /// <summary>
         /// da (deca) = x10 (rarely used)
@@ -1258,6 +1258,30 @@ namespace DSEDiagnosticLibrary
 
             return false;
         }
+
+        public bool Equals(decimal other)
+        {
+            return this.Value.Equals(other);
+        }
+        #endregion
+
+        #region IComparable
+
+        public int CompareTo(UnitOfMeasure other)
+        {
+            return this.Value.CompareTo(other.Value);
+        }
+
+        public int CompareTo(decimal other)
+        {
+            return this.Value.CompareTo(other);
+        }
+
+        public int CompareTo(object other)
+        {
+            return this.Value.CompareTo(other);
+        }
+
         #endregion
 
         #region overrides

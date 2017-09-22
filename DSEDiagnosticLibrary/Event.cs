@@ -95,8 +95,8 @@ namespace DSEDiagnosticLibrary
         StatusTypes = Information | Warning | Error | Exception | Fatal | Orphaned
     }
 
-	public interface IEvent : IParsed, IEquatable<Guid>, IEquatable<IEvent>
-	{
+	public interface IEvent : IParsed, IEquatable<Guid>, IEquatable<IEvent>, IComparable<IEvent>
+    {
         EventTypes Type { get; }
         EventClasses Class { get; }
         /// <summary>
