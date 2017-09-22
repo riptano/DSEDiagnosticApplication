@@ -304,7 +304,7 @@
     "FilePatterns": [ ".\\nodes\\*\\cqlsh\\describe_schema", ".\\nodes\\*\\driver\\schema" ],
     "FileParsingClass": "DSEDiagnosticFileParser.cql_ddl",
     "NodeIdPos": -1,
-    "ProcessingTaskOption": "ScanForNode,ParallelProcessing",
+    "ProcessingTaskOption": "ScanForNode,IgnoreNode,ParallelProcessing",
     "ProcessPriorityLevel": 300
   },
   {
