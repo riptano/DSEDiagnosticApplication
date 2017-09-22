@@ -157,6 +157,13 @@ namespace DSEDiagnosticConsoleApplication
                 Description = "If present, all existing worksheets in the Excel workbook will NOT be cleared but instead will be appended to existing data."
             });
 
+            this._cmdLineParser.Arguments.Add(new ValueArgument<string>("LogLinePatternLayout")
+            {
+                DefaultValue = DSEDiagnosticFileParser.LibrarySettings.Log4NetConversionPattern,
+                Optional = true,
+                Description = "The definition that defines the format of a Log Line. This definition must follow the Apache Log PatternLayout configuration."
+            });
+
             this._cmdLineParser.Arguments.Add(new SwitchArgument("Debug", false)
             {
                 Description = "Debug Mode"
@@ -348,6 +355,16 @@ namespace DSEDiagnosticConsoleApplication
                     case "AppendToExcelWorkSheet":
                         ParserSettings.AppendToWorkSheet = ((SwitchArgument)item).Value;
                         break;
+                    case "LogLinePatternLayout":
+                        {
+                            var value = ((ValueArgument<string>)item).Value;
+
+                            if(!string.IsNullOrEmpty(value))
+                            {
+                                DSEDiagnosticFileParser.LibrarySettings.Log4NetConversionPattern = value;
+                            }
+                        }
+                        break;
                     case "Debug":
                         this.Debug = ((SwitchArgument)item).Value;
                         break;
@@ -367,7 +384,7 @@ namespace DSEDiagnosticConsoleApplication
         }
 
         public void ShowUsage()
-        {            
+        {
             this._cmdLineParser.ShowUsage();
         }
 

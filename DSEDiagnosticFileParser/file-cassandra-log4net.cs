@@ -287,6 +287,17 @@ namespace DSEDiagnosticFileParser
 
         private LogCassandraEvent PorcessMatch(ILogMessage logMessage, Tuple<Regex, Match, Regex, Match, CLogLineTypeParser> matchItem)
         {
+            if(matchItem.Item5.IncrementRunningCount(this.Node))
+            {
+                Logger.Instance.WarnFormat("MapperId<{0}>\t{1}\t{2}\tCasandra Log Event {4} at {3:yyyy-MM-dd HH:mm:ss,fff} reached the maximum total occurence count. This event will be ignored.",
+                                                    this.MapperId,
+                                                    this.Node,
+                                                    this.File.PathResolved,
+                                                    logMessage.LogDateTime,
+                                                    matchItem.Item5.EventClass);
+                return null;
+            }
+
             var logProperties = new Dictionary<string, object>();
 
             if(matchItem.Item2 != null)

@@ -16,8 +16,6 @@ namespace DSEDiagnosticFileParser
     [JsonObject(MemberSerialization.OptOut)]
     public sealed class file_cassandra_log4net_ReadTimeRange : DiagnosticFile
     {
-        CLogLineTypeParser[] _parser = null;
-
         public file_cassandra_log4net_ReadTimeRange(CatagoryTypes catagory,
                                                         IDirectoryPath diagnosticDirectory,
                                                         IFilePath file,
@@ -55,14 +53,11 @@ namespace DSEDiagnosticFileParser
                 this.DataCenter = Cluster.TryGetDataCenter(defaultDCName, this.Cluster);
             }
 
-            this._parser = LibrarySettings.Log4NetParser.DetermineParsers(targetDSEVersion);
-
             this._result = new LogResults(this);
 
-            Logger.Instance.DebugFormat("Loaded class \"{0}\"{{File{{{1}}}, Parser{{{2}}} }}",
+            Logger.Instance.DebugFormat("Loaded class \"{0}\"{{File{{{1}}}}}",
                                             this.GetType().Name,
-                                            this.File,
-                                            this._parser == null ? string.Empty : string.Join(", ", this._parser.Select(l => l.ToString())));
+                                            this.File);
         }
 
         [JsonObject(MemberSerialization.OptOut)]

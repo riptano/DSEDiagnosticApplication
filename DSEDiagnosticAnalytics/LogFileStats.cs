@@ -144,6 +144,22 @@ namespace DSEDiagnosticAnalytics
                         && this.Duration == item.Duration;
             }
 
+            public int CompareTo(IEvent other)
+            {
+                if (this.EventTimeBegin.HasValue && other.EventTimeBegin.HasValue)
+                {
+                    if (this.EventTimeBegin.Value == other.EventTimeBegin.Value)
+                    {
+                        if (this.EventTimeEnd.HasValue && other.EventTimeEnd.HasValue)
+                            return this.EventTimeEnd.Value.CompareTo(other.EventTimeEnd.Value);
+                        return 0;
+                    }
+                    return this.EventTimeBegin.Value.CompareTo(other.EventTimeBegin.Value);
+                }
+
+                return this.EventTimeLocal.CompareTo(other.EventTimeLocal);
+            }
+
             #endregion
 
             #region IAggregatedStats

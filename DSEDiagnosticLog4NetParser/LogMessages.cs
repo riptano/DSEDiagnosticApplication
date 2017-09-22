@@ -62,12 +62,12 @@ namespace DSEDiagnosticLog4NetParser
             this.IANATimeZoneName = logMessages.IANATimeZoneName;
         }
 
-        public INode Node { get; private set; }
-        public string IANATimeZoneName { get; private set; }
-        public string Log4NetConversionPattern { get; private set; }
-        public Regex Log4NetConversionPatternRegExLine { get; private set; }
+        public INode Node { get; }
+        public string IANATimeZoneName { get; }
+        public string Log4NetConversionPattern { get; }
+        public Regex Log4NetConversionPatternRegExLine { get; }
 
-        public IFilePath LogFile { get; private set; }
+        public IFilePath LogFile { get; }
 
         private List<LogMessage> _logMessages = new List<LogMessage>();
 
@@ -364,7 +364,7 @@ namespace DSEDiagnosticLog4NetParser
                     // Dispose all managed resources.
                     if (this._logMessages != null) this._logMessages.Clear();
                     if (this._errors != null) this._errors.Clear();
-                    this.Log4NetConversionPatternRegExLine = null;
+                    
                     this._logMessages = null;
                     this._lastMessage = null;
                     this._errors = null;

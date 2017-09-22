@@ -54,8 +54,21 @@ namespace DSEDiagnosticFileParser
             return null;
         }
 
+        private sealed class NodeRunningCount
+        {
+            public NodeRunningCount(NodeIdentifier node)
+            {
+                this.Node = node;
+            }
+
+            public readonly NodeIdentifier Node;
+            public long Count = 0;
+        }
+
+        private IList<NodeRunningCount> _nodesRunningCnt = null;
+
         #endregion
-        
+
         [Flags]
         public enum SessionLookupActions
         {
@@ -85,7 +98,7 @@ namespace DSEDiagnosticFileParser
             ReadRemove = 4
         }
 
-        #region constructors 
+        #region constructors
         public CLogLineTypeParser()
         {
             if (SessionLookupAction == SessionLookupActions.Default)
@@ -161,10 +174,15 @@ namespace DSEDiagnosticFileParser
         #region public properties
 
         /// <summary>
-        /// Used to uniquely identify this parser block. 
+        /// Used to uniquely identify this parser block.
+        /// If a session, the begin session decimal should be zero and the session items should be an increment of the begin session. Example: Begin - 4.0, Item - 4.1.
         /// </summary>
         public decimal TagId;
-        
+        /// <summary>
+        /// If a session item this should be the session begin blokck&apos;s TagId.
+        /// </summary>
+        public decimal? SessionBeginTagId = null;
+
         /// <summary>
         /// If null any DSE version will match this mappings.
         /// If defined, any DSE version that is equal to or greater than this version will match this mapping.
@@ -292,6 +310,18 @@ namespace DSEDiagnosticFileParser
         public RegExParseString ParseThreadId { get; set; }
         public EventTypes EventType { get; set; }
         public EventClasses EventClass { get; set; }
+
+        /// <summary>
+        /// If the running count is equal to this value all log events for this instance are ignored. For a Session item this must be defined at the SessionBegin EventType.
+        /// </summary>
+        public long MaxNumberOfEvents { get; set; } = -1;
+        /// <summary>
+        /// If the running count for this node is equal to this value all log events for this instance are ignored. For a Session item this must be defined at the SessionBegin EventType.
+        /// </summary>
+        public long MaxNumberOfEventsPerNode { get; set; } = -1;
+
+        public long RunningCount = 0;
+
         /// <summary>
         /// If true, the event is ignored and not processed.
         /// </summary>
@@ -428,8 +458,10 @@ namespace DSEDiagnosticFileParser
 
         public string[] Examples;
 
+        public CLogLineTypeParser SessionBeginReference { get; internal set; } = null;
+
         #endregion
-        
+
         #region public methods
 
         public struct SessionInfo
@@ -709,6 +741,64 @@ namespace DSEDiagnosticFileParser
                                         logLineMessage);
         }
 
+        public bool IncrementRunningCount(INode node)
+        {
+            var runningCnt = System.Threading.Interlocked.Increment(ref this.RunningCount);
+
+            if (this.MaxNumberOfEvents >= 0)
+            {
+                return runningCnt >= this.MaxNumberOfEvents;
+            }
+
+            if(this.MaxNumberOfEventsPerNode >= 0)
+            {
+                NodeRunningCount nodeCnt;
+
+                if (this._nodesRunningCnt == null)
+                {
+                    nodeCnt = new NodeRunningCount(node.Id);
+                    this._nodesRunningCnt = new List<NodeRunningCount>() { nodeCnt };
+                }
+                else
+                {
+                    nodeCnt = this._nodesRunningCnt.FirstOrDefault(i => i.Node.Equals(node.Id));
+
+                    if(nodeCnt == null) nodeCnt = new NodeRunningCount(node.Id);
+                }
+
+
+                return System.Threading.Interlocked.Increment(ref nodeCnt.Count) >= this.MaxNumberOfEventsPerNode;
+            }
+
+            if (this.SessionBeginReference != null)
+            {
+                return this.SessionBeginReference.CheckRunningCount(node);
+            }
+
+            return false;
+        }
+
+        public bool CheckRunningCount(INode node)
+        {
+            var runningCnt = System.Threading.Interlocked.Increment(ref this.RunningCount);
+
+            if (this.MaxNumberOfEvents >= 0)
+            {
+                return runningCnt >= this.MaxNumberOfEvents;
+            }
+
+            if (this.MaxNumberOfEventsPerNode >= 0)
+            {
+                NodeRunningCount nodeCnt = this._nodesRunningCnt == null ? null : this._nodesRunningCnt.FirstOrDefault(i => i.Node.Equals(node.Id));
+
+                return nodeCnt == null ? false : System.Threading.Interlocked.Increment(ref nodeCnt.Count) >= this.MaxNumberOfEventsPerNode;
+            }
+
+            if (this.SessionBeginReference != null) return this.SessionBeginReference.CheckRunningCount(node);
+
+            return false;
+        }
+
         public static string GenerateSessionKey(string varName,
                                                     bool isGroupName,
                                                     CLogLineTypeParser logLineParser,
@@ -822,7 +912,6 @@ namespace DSEDiagnosticFileParser
 
             return string.Empty;
         }
-
 
         #endregion
 
@@ -1114,7 +1203,7 @@ namespace DSEDiagnosticFileParser
             return false;
         }
 
-        
+
         private static string DetermineKeyValue(CLogLineTypeParser logLineParser,
                                                 int cacheIdx,
                                                 Cluster cluster,
@@ -1229,6 +1318,8 @@ namespace DSEDiagnosticFileParser
 
     public sealed class CLogTypeParser
     {
+        private bool _initializeParsers = false;
+
         public CLogTypeParser() { }
 
         public CLogTypeParser(string logClass, params CLogLineTypeParser[] args)
@@ -1246,6 +1337,19 @@ namespace DSEDiagnosticFileParser
 
         public CLogLineTypeParser[] DetermineParsers(Version dseVersion)
         {
+            if(!this._initializeParsers)
+            {
+                this._initializeParsers = true;
+
+                this.Parsers.ForEach(parser =>
+                {
+                    if(parser.SessionBeginTagId.HasValue && parser.SessionBeginReference == null)
+                    {
+                        parser.SessionBeginReference = this.Parsers.FirstOrDefault(i => i.TagId == parser.SessionBeginTagId);
+                    }
+                });
+            }
+
             var parserList = this.Parsers.Where(m => m.MatchVersion == null).ToList();
 
             if (dseVersion != null)
