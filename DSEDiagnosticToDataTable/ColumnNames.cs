@@ -8,6 +8,7 @@ namespace DSEDiagnosticToDataTable
 {
     public static class ColumnNames
     {
+        public const string SessionId = "Session Id";
         public const string DataCenter = "Data Center";
         public const string NodeIPAddress = "Node IPAddress";
         public const string KeySpace = "Keyspace Name";

@@ -11,7 +11,7 @@ namespace DSEDiagnosticToDataTable
 {
     public abstract class DataTableLoad : IDataTable
     {
-        public DataTableLoad(DSEDiagnosticLibrary.Cluster cluster, CancellationTokenSource cancellationSource)
+        public DataTableLoad(DSEDiagnosticLibrary.Cluster cluster, CancellationTokenSource cancellationSource, Guid? sessionId = null)
         {
             this.Cluster = cluster;
             this.Table = this.CreateInitializationTable();
@@ -24,8 +24,10 @@ namespace DSEDiagnosticToDataTable
             {
                 this.CancellationToken = cancellationSource.Token;
             }
+            this.SessionId = sessionId;
         }
 
+        public Guid? SessionId { get; }
         public DSEDiagnosticLibrary.Cluster Cluster { get; }
         public DataTable Table { get; }
         public CancellationToken CancellationToken { get; }

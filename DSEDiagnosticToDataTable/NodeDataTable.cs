@@ -12,13 +12,15 @@ namespace DSEDiagnosticToDataTable
 {
     public sealed class NodeDataTable : DataTableLoad
     {
-        public NodeDataTable(DSEDiagnosticLibrary.Cluster cluster, CancellationTokenSource cancellationSource = null)
-            : base(cluster, cancellationSource)
+        public NodeDataTable(DSEDiagnosticLibrary.Cluster cluster, CancellationTokenSource cancellationSource = null, Guid? sessionId = null)
+            : base(cluster, cancellationSource, sessionId)
         {}
 
         public override DataTable CreateInitializationTable()
         {
             var dtNodeInfo = new DataTable(TableNames.Node, TableNames.Namespace);
+
+            if (this.SessionId.HasValue) dtNodeInfo.Columns.Add(ColumnNames.SessionId, typeof(Guid));
 
             dtNodeInfo.Columns.Add(ColumnNames.NodeIPAddress, typeof(string));
             dtNodeInfo.Columns[ColumnNames.NodeIPAddress].Unique = true; //A
@@ -102,6 +104,8 @@ namespace DSEDiagnosticToDataTable
                         this.CancellationToken.ThrowIfCancellationRequested();
 
                         dataRow = this.Table.NewRow();
+
+                        if (this.SessionId.HasValue) dataRow.SetField(ColumnNames.SessionId, this.SessionId.Value);
 
                         dataRow.SetField(ColumnNames.DataCenter, dataCenter.Name);
                         dataRow.SetField(ColumnNames.NodeIPAddress, node.Id.NodeName());

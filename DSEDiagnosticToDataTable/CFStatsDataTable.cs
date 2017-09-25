@@ -12,8 +12,8 @@ namespace DSEDiagnosticToDataTable
 {
     public sealed class CFStatsDataTable : DataTableLoad
     {
-        public CFStatsDataTable(DSEDiagnosticLibrary.Cluster cluster, CancellationTokenSource cancellationSource = null, string[] ignoreKeySpaces = null, string[] warnWhenKSTblIsDetected = null)
-            : base(cluster, cancellationSource)
+        public CFStatsDataTable(DSEDiagnosticLibrary.Cluster cluster, CancellationTokenSource cancellationSource = null, string[] ignoreKeySpaces = null, string[] warnWhenKSTblIsDetected = null, Guid? sessionId = null)
+            : base(cluster, cancellationSource, sessionId)
         {
             this.IgnoreKeySpaces = ignoreKeySpaces ?? new string[0];
             this.WarnWhenKSTblIsDetected = warnWhenKSTblIsDetected ?? new string[0];
@@ -25,6 +25,8 @@ namespace DSEDiagnosticToDataTable
         public override DataTable CreateInitializationTable()
         {
             var dtCFStats = new DataTable(TableNames.CFStats, TableNames.Namespace);
+
+            if(this.SessionId.HasValue) dtCFStats.Columns.Add(ColumnNames.SessionId, typeof(Guid));
 
             dtCFStats.Columns.Add(ColumnNames.Source, typeof(string)); //A
             dtCFStats.Columns.Add(ColumnNames.DataCenter, typeof(string));
@@ -89,6 +91,8 @@ namespace DSEDiagnosticToDataTable
                         this.CancellationToken.ThrowIfCancellationRequested();
 
                         dataRow = this.Table.NewRow();
+
+                        if(this.SessionId.HasValue) dataRow.SetField(ColumnNames.SessionId, this.SessionId.Value);
 
                         dataRow.SetField(ColumnNames.Source, stat.Source.ToString());
                         dataRow.SetField(ColumnNames.DataCenter, stat.DataCenter.Name);

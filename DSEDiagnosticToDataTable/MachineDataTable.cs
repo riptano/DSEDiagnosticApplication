@@ -11,13 +11,15 @@ namespace DSEDiagnosticToDataTable
 {
     public sealed class MachineDataTable : DataTableLoad
     {
-        public MachineDataTable(DSEDiagnosticLibrary.Cluster cluster, CancellationTokenSource cancellationSource = null)
-            : base(cluster, cancellationSource)
+        public MachineDataTable(DSEDiagnosticLibrary.Cluster cluster, CancellationTokenSource cancellationSource = null, Guid? sessionId = null)
+            : base(cluster, cancellationSource, sessionId)
         {}
 
         public override DataTable CreateInitializationTable()
         {
             var dtOSMachineInfo = new DataTable(TableNames.Machine, TableNames.Namespace);
+
+            if (this.SessionId.HasValue) dtOSMachineInfo.Columns.Add(ColumnNames.SessionId, typeof(Guid));
 
             dtOSMachineInfo.Columns.Add(ColumnNames.NodeIPAddress, typeof(string)).Unique = true;
             dtOSMachineInfo.Columns.Add(ColumnNames.DataCenter, typeof(string));
@@ -111,6 +113,8 @@ namespace DSEDiagnosticToDataTable
                         this.CancellationToken.ThrowIfCancellationRequested();
 
                         dataRow = this.Table.NewRow();
+
+                        if (this.SessionId.HasValue) dataRow.SetField(ColumnNames.SessionId, this.SessionId.Value);
 
                         dataRow.SetField(ColumnNames.NodeIPAddress, node.Id.NodeName());
                         dataRow.SetField(ColumnNames.DataCenter, dataCenter.Name);

@@ -12,13 +12,15 @@ namespace DSEDiagnosticToDataTable
     public sealed class ConfigDataTable : DataTableLoad
     {
 
-        public ConfigDataTable(DSEDiagnosticLibrary.Cluster cluster, CancellationTokenSource cancellationSource = null)
-            : base(cluster, cancellationSource)
+        public ConfigDataTable(DSEDiagnosticLibrary.Cluster cluster, CancellationTokenSource cancellationSource = null, Guid? sessionId = null)
+            : base(cluster, cancellationSource, sessionId)
         {}
 
         public override DataTable CreateInitializationTable()
         {
             var dtConfig = new DataTable(TableNames.Config, TableNames.Namespace);
+
+            if(this.SessionId.HasValue) dtConfig.Columns.Add(ColumnNames.SessionId, typeof(Guid));
 
             dtConfig.Columns.Add(ColumnNames.DataCenter, typeof(string));
             dtConfig.Columns.Add(ColumnNames.NodeIPAddress, typeof(string));
@@ -70,6 +72,8 @@ namespace DSEDiagnosticToDataTable
                         }
 
                         dataRow = this.Table.NewRow();
+
+                        if (this.SessionId.HasValue) dataRow.SetField(ColumnNames.SessionId, this.SessionId.Value);
 
                         dataRow.SetField(ColumnNames.DataCenter, dataCenter.Name);
 

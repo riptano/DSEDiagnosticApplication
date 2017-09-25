@@ -12,14 +12,16 @@ namespace DSEDiagnosticToDataTable
 {
     public sealed class TPStatsDataTable : DataTableLoad
     {
-        public TPStatsDataTable(DSEDiagnosticLibrary.Cluster cluster, CancellationTokenSource cancellationSource = null)
-            : base(cluster, cancellationSource)
+        public TPStatsDataTable(DSEDiagnosticLibrary.Cluster cluster, CancellationTokenSource cancellationSource = null, Guid? sessionId = null)
+            : base(cluster, cancellationSource, sessionId)
         {
         }
 
         public override DataTable CreateInitializationTable()
         {
             var dtTPStats = new DataTable(TableNames.NodeStats, TableNames.Namespace);
+
+            if (this.SessionId.HasValue) dtTPStats.Columns.Add(ColumnNames.SessionId, typeof(Guid));
 
             dtTPStats.Columns.Add(ColumnNames.Source, typeof(string)); //A
             dtTPStats.Columns.Add(ColumnNames.DataCenter, typeof(string));
@@ -94,6 +96,8 @@ namespace DSEDiagnosticToDataTable
                         this.CancellationToken.ThrowIfCancellationRequested();
 
                         dataRow = this.Table.NewRow();
+
+                        if (this.SessionId.HasValue) dataRow.SetField(ColumnNames.SessionId, this.SessionId.Value);
 
                         dataRow.SetField(ColumnNames.Source, stat.Source.ToString());
                         dataRow.SetField(ColumnNames.DataCenter, stat.DataCenter.Name);

@@ -12,8 +12,8 @@ namespace DSEDiagnosticToDataTable
 {
     public sealed class KeyspaceDataTable : DataTableLoad
     {
-        public KeyspaceDataTable(DSEDiagnosticLibrary.Cluster cluster, CancellationTokenSource cancellationSource = null, string[] ignoreKeySpaces = null)
-            : base(cluster, cancellationSource)
+        public KeyspaceDataTable(DSEDiagnosticLibrary.Cluster cluster, CancellationTokenSource cancellationSource = null, string[] ignoreKeySpaces = null, Guid? sessionId = null)
+            : base(cluster, cancellationSource, sessionId)
         {
             this.IgnoreKeySpaces = ignoreKeySpaces ?? new string[0];
         }
@@ -23,6 +23,8 @@ namespace DSEDiagnosticToDataTable
         public override DataTable CreateInitializationTable()
         {
             var dtKeySpace = new DataTable(TableNames.Keyspaces, TableNames.Namespace);
+
+            if (this.SessionId.HasValue) dtKeySpace.Columns.Add(ColumnNames.SessionId, typeof(Guid));
 
             dtKeySpace.Columns.Add("Name", typeof(string));//a
             dtKeySpace.Columns.Add("Replication Strategy", typeof(string));
@@ -86,6 +88,7 @@ namespace DSEDiagnosticToDataTable
                         if (!this.Table.Rows.Contains(new object[] { keySpace.Name, keySpace.DataCenter.Name }))
                         {
                             dataRow = this.Table.NewRow();
+                            if (this.SessionId.HasValue) dataRow.SetField(ColumnNames.SessionId, this.SessionId.Value);
                             dataRow["Name"] = keySpace.Name;
                             dataRow["Replication Strategy"] = keySpace.ReplicationStrategy;
                             dataRow[ColumnNames.DataCenter] = keySpace.DataCenter.Name;
@@ -108,6 +111,7 @@ namespace DSEDiagnosticToDataTable
                             }
 
                             dataRow = this.Table.NewRow();
+                            if (this.SessionId.HasValue) dataRow.SetField(ColumnNames.SessionId, this.SessionId.Value);
                             dataRow["Name"] = keySpace.Name;
                             dataRow["Replication Strategy"] = keySpace.ReplicationStrategy;
                             dataRow["Data Center"] = replication.DataCenter.Name;

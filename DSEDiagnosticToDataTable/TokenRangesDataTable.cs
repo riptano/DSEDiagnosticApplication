@@ -12,13 +12,15 @@ namespace DSEDiagnosticToDataTable
     public sealed class TokenRangesDataTable : DataTableLoad
     {
 
-        public TokenRangesDataTable(DSEDiagnosticLibrary.Cluster cluster, CancellationTokenSource cancellationSource = null)
-            : base(cluster, cancellationSource)
+        public TokenRangesDataTable(DSEDiagnosticLibrary.Cluster cluster, CancellationTokenSource cancellationSource = null, Guid? sessionId = null)
+            : base(cluster, cancellationSource, sessionId)
         { }
 
         public override DataTable CreateInitializationTable()
         {
             var dtTokenRange = new DataTable(TableNames.TokenRanges, TableNames.Namespace);
+
+            if (this.SessionId.HasValue) dtTokenRange.Columns.Add(ColumnNames.SessionId, typeof(Guid));
 
             dtTokenRange.Columns.Add(ColumnNames.DataCenter, typeof(string));
             dtTokenRange.Columns.Add(ColumnNames.NodeIPAddress, typeof(string));
@@ -64,6 +66,8 @@ namespace DSEDiagnosticToDataTable
                             this.CancellationToken.ThrowIfCancellationRequested();
 
                             dataRow = this.Table.NewRow();
+
+                            if (this.SessionId.HasValue) dataRow.SetField(ColumnNames.SessionId, this.SessionId.Value);
 
                             dataRow.SetField(ColumnNames.DataCenter, dataCenter.Name);
                             dataRow.SetField(ColumnNames.NodeIPAddress, node.Id.NodeName());

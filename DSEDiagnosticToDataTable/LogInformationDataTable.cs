@@ -12,8 +12,8 @@ namespace DSEDiagnosticToDataTable
 {
     public sealed class LogInfoDataTable : DataTableLoad
     {
-        public LogInfoDataTable(DSEDiagnosticLibrary.Cluster cluster, IEnumerable<DSEDiagnosticLibrary.IAggregatedStats> logFileStats, CancellationTokenSource cancellationSource = null)
-            : base(cluster, cancellationSource)
+        public LogInfoDataTable(DSEDiagnosticLibrary.Cluster cluster, IEnumerable<DSEDiagnosticLibrary.IAggregatedStats> logFileStats, CancellationTokenSource cancellationSource = null, Guid? sessionId = null)
+            : base(cluster, cancellationSource, sessionId)
         {
             this.LogFileStats = logFileStats;
         }
@@ -23,6 +23,8 @@ namespace DSEDiagnosticToDataTable
         public override DataTable CreateInitializationTable()
         {
             var dtLogFile = new DataTable(TableNames.LogInfo, TableNames.Namespace);
+
+            if (this.SessionId.HasValue) dtLogFile.Columns.Add(ColumnNames.SessionId, typeof(Guid));
 
             dtLogFile.Columns.Add(ColumnNames.NodeIPAddress, typeof(string)); //a
             dtLogFile.Columns.Add(ColumnNames.DataCenter, typeof(string)).AllowDBNull = true;
@@ -79,6 +81,8 @@ namespace DSEDiagnosticToDataTable
                     this.CancellationToken.ThrowIfCancellationRequested();
 
                     dataRow = this.Table.NewRow();
+
+                    if (this.SessionId.HasValue) dataRow.SetField(ColumnNames.SessionId, this.SessionId.Value);
 
                     dataRow.SetField(ColumnNames.NodeIPAddress, logInfo.Node.Id.NodeName());
                     dataRow.SetField(ColumnNames.DataCenter, logInfo.DataCenter?.Name);

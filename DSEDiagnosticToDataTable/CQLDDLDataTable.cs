@@ -13,8 +13,8 @@ namespace DSEDiagnosticToDataTable
 {
     public sealed class CQLDDLDataTable : DataTableLoad
     {
-        public CQLDDLDataTable(DSEDiagnosticLibrary.Cluster cluster, CancellationTokenSource cancellationSource = null, string[] ignoreKeySpaces = null)
-            : base(cluster, cancellationSource)
+        public CQLDDLDataTable(DSEDiagnosticLibrary.Cluster cluster, CancellationTokenSource cancellationSource = null, string[] ignoreKeySpaces = null, Guid? sessionId = null)
+            : base(cluster, cancellationSource, sessionId)
         {
             this.IgnoreKeySpaces = ignoreKeySpaces ?? new string[0];
         }
@@ -24,6 +24,8 @@ namespace DSEDiagnosticToDataTable
         public override DataTable CreateInitializationTable()
         {
             var dtDDL = new DataTable(TableNames.CQLDLL, TableNames.Namespace);
+
+            if(this.SessionId.HasValue) dtDDL.Columns.Add(ColumnNames.SessionId, typeof(Guid));
 
             dtDDL.Columns.Add("Active", typeof(bool));//a
             dtDDL.Columns.Add(ColumnNames.KeySpace, typeof(string));//b
@@ -100,6 +102,8 @@ namespace DSEDiagnosticToDataTable
                         }
 
                         dataRow = this.Table.NewRow();
+
+                        if (this.SessionId.HasValue) dataRow.SetField(ColumnNames.SessionId, this.SessionId.Value);
 
                         dataRow["Keyspace Name"] = keySpace.Name;
                         dataRow["Name"] = ddlItem.Name;
