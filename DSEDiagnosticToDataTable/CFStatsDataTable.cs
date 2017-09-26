@@ -134,10 +134,10 @@ namespace DSEDiagnosticToDataTable
 
                         if (stat.ReconciliationRefs.HasAtLeastOneElement())
                         {
-                            dataRow.SetField(ColumnNames.ReconciliationRef,
-                                                stat.ReconciliationRefs.IsMultiple()
-                                                    ? (object) string.Join(",", stat.ReconciliationRefs)
-                                                    : (object) stat.ReconciliationRefs.First());
+                            dataRow.SetFieldStringLimit(ColumnNames.ReconciliationRef,
+                                                            stat.ReconciliationRefs.IsMultiple()
+                                                                    ? (object) string.Join(",", stat.ReconciliationRefs)
+                                                                    : (object) stat.ReconciliationRefs.First());
                         }
 
                         this.Table.Rows.Add(dataRow);

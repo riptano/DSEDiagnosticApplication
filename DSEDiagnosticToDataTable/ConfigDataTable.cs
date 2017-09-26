@@ -87,7 +87,7 @@ namespace DSEDiagnosticToDataTable
                         }
                         dataRow.SetField("Yaml Type", fileType);
                         dataRow.SetField("Property", configItem.Property);
-                        dataRow.SetField("Value", configItem.NormalizeValue());
+                        dataRow.SetFieldStringLimit("Value", configItem.NormalizeValue());
 
                         this.Table.Rows.Add(dataRow);
                         ++nbrItems;

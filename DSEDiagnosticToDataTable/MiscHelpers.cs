@@ -125,5 +125,24 @@ namespace DSEDiagnosticToDataTable
             return dataRow.SetFieldToTZOffset(columnName, dtRange.Min, dtRange.Max);
         }
 
+        public static DataRow SetFieldStringLimit(this DataRow dataRow, string columnName, string stringValue, int maxStringLength = 32767)
+        {
+            if (!string.IsNullOrEmpty(stringValue))
+            {
+                dataRow.SetField(columnName, stringValue.Length > maxStringLength ? stringValue.Substring(0, maxStringLength - 4) + "..." : stringValue);
+            }
+
+            return dataRow;
+        }
+
+        public static DataRow SetFieldStringLimit(this DataRow dataRow, string columnName, object value, int maxStringLength = 32767)
+        {
+            if(value is string) return SetFieldStringLimit(dataRow, columnName, (string) value, maxStringLength);
+
+            if(dataRow.Table.Columns[columnName].DataType == typeof(string)) return SetFieldStringLimit(dataRow, columnName, value?.ToString(), maxStringLength);
+
+            dataRow.SetField(columnName, value);
+            return dataRow;
+        }
     }
 }

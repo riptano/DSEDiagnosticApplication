@@ -93,7 +93,7 @@ namespace DSEDiagnosticToDataTable
                             dataRow["Replication Strategy"] = keySpace.ReplicationStrategy;
                             dataRow[ColumnNames.DataCenter] = keySpace.DataCenter.Name;
                             dataRow["Replication Factor"] = 0;
-                            dataRow["DDL"] = keySpace.DDL;
+                            dataRow.SetFieldStringLimit("DDL", keySpace.DDL);
                             this.SetKeyspaceStats(keySpace, dataRow);
                             this.Table.Rows.Add(dataRow);
                             ++nbrItems;
@@ -116,7 +116,7 @@ namespace DSEDiagnosticToDataTable
                             dataRow["Replication Strategy"] = keySpace.ReplicationStrategy;
                             dataRow["Data Center"] = replication.DataCenter.Name;
                             dataRow["Replication Factor"] = (int)replication.RF;
-                            dataRow["DDL"] = keySpace.DDL;
+                            dataRow.SetFieldStringLimit("DDL", keySpace.DDL);
 
                             if (firstRepl)
                             {

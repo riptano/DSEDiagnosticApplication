@@ -108,7 +108,7 @@ namespace DSEDiagnosticToDataTable
                         dataRow["Keyspace Name"] = keySpace.Name;
                         dataRow["Name"] = ddlItem.Name;
                         dataRow["Type"] = ddlItem.GetType().Name;
-                        dataRow["DDL"] = ddlItem.DDL;
+                        dataRow.SetFieldStringLimit("DDL", ddlItem.DDL);
                         dataRow["Total"] = ddlItem.Items;
 
                         if (ddlItem is IDDLStmt && ((IDDLStmt)ddlItem).IsActive.HasValue)
@@ -124,8 +124,8 @@ namespace DSEDiagnosticToDataTable
                         {
                             dataRow["Associated Table"] = ((DSEDiagnosticLibrary.ICQLIndex)ddlItem).Table.FullName;
                             dataRow["Index"] = true;
-                            dataRow["Partition Key"] = string.Join(", ", ((DSEDiagnosticLibrary.ICQLIndex)ddlItem).Columns
-                                                                            .Select(cf => cf.PrettyPrint()));
+                            dataRow.SetFieldStringLimit("Partition Key", string.Join(", ", ((DSEDiagnosticLibrary.ICQLIndex)ddlItem).Columns
+                                                                                    .Select(cf => cf.PrettyPrint())));
                             if (!string.IsNullOrEmpty(((DSEDiagnosticLibrary.ICQLIndex)ddlItem).UsingClass))
                             {
                                 dataRow["Compaction Strategy"] = ((DSEDiagnosticLibrary.ICQLIndex)ddlItem).UsingClassNormalized;
@@ -154,8 +154,8 @@ namespace DSEDiagnosticToDataTable
                             dataRow["UDT"] = (int)((DSEDiagnosticLibrary.ICQLTable)ddlItem).Stats.UDTs;
                             dataRow["HasOrderBy"] = ((DSEDiagnosticLibrary.ICQLTable)ddlItem).OrderByCols.HasAtLeastOneElement();
 
-                            dataRow["Partition Key"] = string.Join(",", ((DSEDiagnosticLibrary.ICQLTable)ddlItem).PrimaryKeys.Select(k => k.Name + ' ' + k.CQLType.Name));
-                            dataRow["Cluster Key"] = string.Join(",", ((DSEDiagnosticLibrary.ICQLTable)ddlItem).ClusteringKeys.Select(k => k.Name + ' ' + k.CQLType.Name));
+                            dataRow.SetFieldStringLimit("Partition Key", string.Join(",", ((DSEDiagnosticLibrary.ICQLTable)ddlItem).PrimaryKeys.Select(k => k.Name + ' ' + k.CQLType.Name)));
+                            dataRow.SetFieldStringLimit("Cluster Key", string.Join(",", ((DSEDiagnosticLibrary.ICQLTable)ddlItem).ClusteringKeys.Select(k => k.Name + ' ' + k.CQLType.Name)));
                             dataRow["Compaction Strategy"] = ((DSEDiagnosticLibrary.ICQLTable)ddlItem).Compaction;
                             dataRow["Compression"] = ((DSEDiagnosticLibrary.ICQLTable)ddlItem).Compression;
                             dataRow["Chance"] = ((DSEDiagnosticLibrary.ICQLTable)ddlItem).GetPropertyValue("read_repair_chance");
