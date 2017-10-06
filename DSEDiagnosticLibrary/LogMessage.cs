@@ -41,6 +41,8 @@ namespace DSEDiagnosticLibrary
         IEnumerable<string> ExtraMessages { get; }
 
         uint LogLinePosition { get; }
+
+        int OriginalLineHashCode { get; }
     }
 
     public enum LogCompletionStatus

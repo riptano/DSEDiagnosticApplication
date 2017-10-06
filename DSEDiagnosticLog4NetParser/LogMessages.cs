@@ -101,7 +101,7 @@ namespace DSEDiagnosticLog4NetParser
 
             if (lineMatch.Success)
             {
-                logMessage = new LogMessage(logLinePos);
+                logMessage = new LogMessage(logLinePos, logLine.GetHashCode());
             }
             else if (this._lastMessage != null)
             {
@@ -364,7 +364,7 @@ namespace DSEDiagnosticLog4NetParser
                     // Dispose all managed resources.
                     if (this._logMessages != null) this._logMessages.Clear();
                     if (this._errors != null) this._errors.Clear();
-                    
+
                     this._logMessages = null;
                     this._lastMessage = null;
                     this._errors = null;

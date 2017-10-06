@@ -8,9 +8,10 @@ namespace DSEDiagnosticLog4NetParser
 {
     public sealed class LogMessage : ILogMessage
     {
-        public LogMessage(uint logLinePos)
+        public LogMessage(uint logLinePos, int originalLineHashCode)
         {
             this.LogLinePosition = logLinePos;
+            this.OriginalLineHashCode = originalLineHashCode;
         }
 
         public LogLevels Level { get; set; }
@@ -31,6 +32,8 @@ namespace DSEDiagnosticLog4NetParser
         public string FileName { get; set; }
         public int FileLine { get; set; }
         public string Message { get; set; }
+
+        public int OriginalLineHashCode { get; }
 
         private List<string> _extraMessages = new List<string>();
         public IEnumerable<string> ExtraMessages { get { return this._extraMessages; } }
