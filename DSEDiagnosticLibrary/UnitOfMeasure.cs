@@ -1027,6 +1027,14 @@ namespace DSEDiagnosticLibrary
 
             if (checkForWords && uof.IndexOfAny(new char[] { '/', '_', ',', ' ' }) >= 0)
             {
+                if(uof.EndsWith("live", StringComparison.OrdinalIgnoreCase)
+                        && (uof.EndsWith("time_to_live", StringComparison.OrdinalIgnoreCase)
+                                || uof.EndsWith("time to live", StringComparison.OrdinalIgnoreCase)))
+                {
+                    uof = uof.Substring(0, uof.Length - 12);
+                    uof += "ttl";
+                }
+
                 var splitUOFs = uof.Split(new char[] { '/', '_', ',', ' ' });
 
                 if (splitUOFs != null)
