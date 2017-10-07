@@ -164,6 +164,13 @@ namespace DSEDiagnosticConsoleApplication
                 Description = "The definition that defines the format of a Log Line. This definition must follow the Apache Log PatternLayout configuration."
             });
 
+            this._cmdLineParser.Arguments.Add(new ValueArgument<string>("DSEVersion")
+            {
+                DefaultValue = ParserSettings.DSEVersion?.ToString(),
+                Optional = true,
+                Description = "The DSE Version to use for processing"
+            });
+
             this._cmdLineParser.Arguments.Add(new SwitchArgument("Debug", false)
             {
                 Description = "Debug Mode"
@@ -365,6 +372,20 @@ namespace DSEDiagnosticConsoleApplication
                             }
                         }
                         break;
+                    case "DSEVersion":
+                        {
+                            var value = ((ValueArgument<string>)item).Value;
+
+                            if (string.IsNullOrEmpty(value))
+                            {
+                                ParserSettings.DSEVersion = null;
+                            }
+                            else
+                            {
+                                ParserSettings.DSEVersion = new Version(value);
+                            }
+                        }
+                        break;
                     case "Debug":
                         this.Debug = ((SwitchArgument)item).Value;
                         break;
@@ -392,6 +413,6 @@ namespace DSEDiagnosticConsoleApplication
         {
             get;
             set;
-        }
+        }        
     }
 }

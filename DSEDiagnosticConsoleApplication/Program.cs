@@ -350,11 +350,14 @@ namespace DSEDiagnosticConsoleApplication
 
             var cancellationSource = new System.Threading.CancellationTokenSource();
             var diagParserTask = DSEDiagnosticFileParser.DiagnosticFile.ProcessFile(ParserSettings.DiagnosticPath,
-                                                                                     null,
-                                                                                     defaultCluster,
-                                                                                     null,
-                                                                                     cancellationSource,
-                                                                                     ParserSettings.AdditionalFilesForParsingClass);
+                                                                                     clusterName: defaultCluster,
+                                                                                     dseVersion: ParserSettings.DSEVersion,
+                                                                                     cancellationSource: cancellationSource,
+                                                                                     additionalFilesForClass: ParserSettings.AdditionalFilesForParsingClass,
+                                                                                     onlyNodes: ParserSettings.OnlyNodes == null || ParserSettings.OnlyNodes.Count == 0
+                                                                                                    ? null
+                                                                                                    : ParserSettings.OnlyNodes
+                                                                                                        .Select(n => DSEDiagnosticLibrary.NodeIdentifier.Create(n)));
 
             diagParserTask.Then(ignore => { ConsoleNonLogReadFiles.Terminate(); ConsoleLogReadFiles.Terminate(); ConsoleDeCompressFiles.Terminate(); });
             diagParserTask.Then(ignore =>
