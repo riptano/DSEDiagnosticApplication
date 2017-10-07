@@ -101,9 +101,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Analytics LogInfo.cs" />
     <Compile Include="ConsoleArguments.cs" />
     <Compile Include="ConsoleDisplay.cs" />
+    <Compile Include="DSEDiagnosticFileParser.cs" />
     <Compile Include="GCMonitor.cs" />
+    <Compile Include="LoadDataTables.cs" />
+    <Compile Include="LoadExcelWorkbook.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="ParserSettings.cs" />
     <Compile Include="Program.cs" />

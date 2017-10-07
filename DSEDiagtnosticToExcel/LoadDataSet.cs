@@ -63,7 +63,7 @@ namespace DSEDiagtnosticToExcel
                                                                                                 && typeof(LoadToExcel).IsAssignableFrom(t))
                                                                                     .SelectMany(t => t.GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.FlattenHierarchy)
                                                                                                         .Where(fi => fi.IsLiteral && !fi.IsInitOnly && fi.Name == "DataTableName"));
-        public Task Load()
+        public Task<IFilePath> Load()
         {
             var excelTargetFileFound = this.ExcelTargetWorkBook.Exist();
             var excelTargetFileAttrs = excelTargetFileFound ? this.ExcelTargetWorkBook.GetAttributes() : System.IO.FileAttributes.Normal;
@@ -147,6 +147,8 @@ namespace DSEDiagtnosticToExcel
                 {
                     this.ExcelTargetWorkBook.SetAttributes(excelTargetFileAttrs);
                 }
+
+                return this.ExcelTargetWorkBook;
             },
             this.CancellationToken,
             TaskContinuationOptions.OnlyOnRanToCompletion,
