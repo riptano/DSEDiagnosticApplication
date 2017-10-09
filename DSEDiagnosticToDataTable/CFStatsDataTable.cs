@@ -65,7 +65,6 @@ namespace DSEDiagnosticToDataTable
                 DataRow dataRow = null;
                 int nbrItems = 0;
                 var statCollection = this.Cluster.Nodes.SelectMany(d => d.AggregatedStats.Where(i => i.Class.HasFlag(DSEDiagnosticLibrary.EventClasses.KeyspaceTableViewIndexStats | DSEDiagnosticLibrary.EventClasses.Node)));
-                DSEDiagnosticLibrary.UnitOfMeasure uom = null;
                 bool warn = false;
 
                 Logger.Instance.InfoFormat("Loading {0} CFStats", statCollection.Count());
@@ -107,15 +106,10 @@ namespace DSEDiagnosticToDataTable
 
                         dataRow.SetField("Attribute", item.Key);
 
-                        uom = item.Value as DSEDiagnosticLibrary.UnitOfMeasure;
-
-                        if(uom == null)
+                        if(item.Value is DSEDiagnosticLibrary.UnitOfMeasure)
                         {
-                            dataRow.SetField("Value", item.Value);
-                        }
-                        else
-                        {
-                            if(uom.Value % 1 == 0)
+                            DSEDiagnosticLibrary.UnitOfMeasure uom = (DSEDiagnosticLibrary.UnitOfMeasure) item.Value;
+                            if (uom.Value % 1 == 0)
                             {
                                 dataRow.SetFieldToLong("Value", uom);
                             }
@@ -126,12 +120,16 @@ namespace DSEDiagnosticToDataTable
 
                             dataRow.SetField("Unit of Measure", uom.UnitType.ToString());
 
-                            if((uom.UnitType & DSEDiagnosticLibrary.UnitOfMeasure.Types.SizeUnits) != 0)
+                            if ((uom.UnitType & DSEDiagnosticLibrary.UnitOfMeasure.Types.SizeUnits) != 0)
                             {
                                 dataRow.SetField("Size in MB", uom.ConvertSizeUOM(DSEDiagnosticLibrary.UnitOfMeasure.Types.MiB));
                             }
                         }
-
+                        else
+                        {
+                            dataRow.SetField("Value", item.Value);
+                        }
+                        
                         if (stat.ReconciliationRefs.HasAtLeastOneElement())
                         {
                             dataRow.SetFieldStringLimit(ColumnNames.ReconciliationRef,

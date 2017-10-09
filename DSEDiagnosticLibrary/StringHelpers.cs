@@ -265,7 +265,7 @@ namespace DSEDiagnosticLibrary
             {
                 var uom = UnitOfMeasure.Create(strValue);
 
-                if (uom != null && uom.UnitType != UnitOfMeasure.Types.Unknown)
+                if (!uom.NaN && uom.UnitType != UnitOfMeasure.Types.Unknown)
                 {
                     return uom;
                 }

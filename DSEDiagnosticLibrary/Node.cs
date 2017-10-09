@@ -624,11 +624,11 @@ namespace DSEDiagnosticLibrary
             static readonly Regex RegExTokenRange = new Regex(Properties.Settings.Default.TokenRangeRegEx, RegexOptions.Compiled);
 
             private TokenRangeInfo() { }
-            public TokenRangeInfo(long startToken, long endToken, UnitOfMeasure loadToken = null)
+            public TokenRangeInfo(long startToken, long endToken, UnitOfMeasure? loadToken = null)
             {
                 this.StartRange = startToken;
                 this.EndRange = endToken;
-                this.Load = loadToken;
+                this.Load = loadToken.HasValue ? UnitOfMeasure.NaNValue : loadToken.Value;
 
                 if (this.StartRange > 0 && this.EndRange < 0)
                 {
@@ -651,7 +651,7 @@ namespace DSEDiagnosticLibrary
                 {
                     throw new ArgumentException(string.Format("Could not parse value \"{0}\" into a long End Token value.", endToken), "endToken");
                 }
-                this.Load = string.IsNullOrEmpty(loadToken) ? null : UnitOfMeasure.Create(loadToken);
+                this.Load = UnitOfMeasure.Create(loadToken);
 
                 if (this.StartRange > 0 && this.EndRange < 0)
                 {
@@ -681,7 +681,7 @@ namespace DSEDiagnosticLibrary
                     {
                         throw new ArgumentException(string.Format("Could not parse value \"{0}\" ({1}) into a long End Token value.", endToken, tokenRange), "tokenRange");
                     }
-                    this.Load = string.IsNullOrEmpty(loadToken) ? null : UnitOfMeasure.Create(loadToken);
+                    this.Load = UnitOfMeasure.Create(loadToken);
                     if (this.StartRange > 0 && this.EndRange < 0)
                     {
                         this.Slots = (ulong)((this.EndRange - long.MinValue)
@@ -737,7 +737,7 @@ namespace DSEDiagnosticLibrary
                                         this.StartRange,
                                         this.EndRange,
                                         this.Slots,
-                                        this.Load == null ? string.Empty : string.Format("Load:{0}", this.Load));
+                                        this.Load.NaN ? string.Empty : string.Format("Load:{0}", this.Load));
             }
 
             #region Overrides/Equals
@@ -1136,7 +1136,7 @@ namespace DSEDiagnosticLibrary
         {
             bool bResult = false;
 
-            if(this.DSE.Uptime != null
+            if(!this.DSE.Uptime.NaN
                 && DSEInfo.NodeToolCaptureTimestamp.HasValue
                 && (this.DSE.NodeToolDateRange == null || (this.Machine.TimeZone != null && this.DSE.NodeToolDateRange.Max == DSEInfo.NodeToolCaptureTimestamp.Value)))
             {
@@ -1148,7 +1148,7 @@ namespace DSEDiagnosticLibrary
                 }
                 else
                 {
-                    refDTO = Common.TimeZones.Convert(DSEInfo.NodeToolCaptureTimestamp.Value, this.Machine.TimeZone);                    
+                    refDTO = Common.TimeZones.Convert(DSEInfo.NodeToolCaptureTimestamp.Value, this.Machine.TimeZone);
                 }
 
                 this.DSE.NodeToolDateRange = new DateTimeOffsetRange(refDTO - (TimeSpan)this.DSE.Uptime, refDTO);

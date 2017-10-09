@@ -263,7 +263,7 @@ namespace DSEDiagnosticAnalytics
                                 contTimeRange = new DateTimeOffsetRange();
                                 contTimeSpan = new TimeSpan();
                                 overlappingType = LogInfoStat.OverLappingTypes.Normal;
-                                contSize.Reset();
+                                contSize = contSize.Zero();
                                 contLogItems = 0;
                             }
 
@@ -274,7 +274,7 @@ namespace DSEDiagnosticAnalytics
                                     contTimeSpan = contTimeSpan.Add(logInfo.LogDateRange.TimeSpan());
                                     contTimeRange.SetMinimal(logInfo.LogDateRange.Min);
                                     contTimeRange.SetMaximum(logInfo.LogDateRange.Max);
-                                    contSize.Add(logInfo.LogFileSize);
+                                    contSize = contSize.Add(logInfo.LogFileSize);
                                     contLogItems += logInfo.LogItems;
                                 }
                                 else
@@ -293,7 +293,7 @@ namespace DSEDiagnosticAnalytics
 
                                     contTimeRange = new DateTimeOffsetRange(logInfo.LogDateRange);
                                     contTimeSpan = logInfo.LogDateRange.TimeSpan();
-                                    contSize.Reset().Add(logInfo.LogFileSize);
+                                    contSize = contSize.Zero().Add(logInfo.LogFileSize);
                                     contLogItems = logInfo.LogItems;
                                 }
                             }

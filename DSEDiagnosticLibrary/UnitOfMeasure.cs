@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 namespace DSEDiagnosticLibrary
 {
     [JsonObjectAttribute(MemberSerialization.OptOut)]
-    public sealed class UnitOfMeasure : IComparable, IComparable<UnitOfMeasure>, IComparable<decimal>, IEquatable<UnitOfMeasure>, IEquatable<decimal>
+    public struct UnitOfMeasure : IComparable, IComparable<UnitOfMeasure>, IComparable<decimal>, IEquatable<UnitOfMeasure>, IEquatable<decimal>
     {
         /// <summary>
         /// da (deca) = x10 (rarely used)
@@ -81,15 +81,17 @@ namespace DSEDiagnosticLibrary
 
         readonly static Regex RegExValueUOF = new Regex(@"^(\-?[0-9,]*(?:\.[0-9]+)?)\s*([a-z%,_/\ .\-]*)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
-        public UnitOfMeasure()
-        {
-            this.UnitType = Types.NaN;
-            this.Value = decimal.MinValue;
-        }
+        public static readonly UnitOfMeasure NaNValue = new UnitOfMeasure(Types.NaN);
+        public static readonly UnitOfMeasure ZeroValue = new UnitOfMeasure(0, Types.Unknown);
+        public static readonly UnitOfMeasure MinValue = new UnitOfMeasure(Decimal.MinValue, Types.Unknown);
+        public static readonly UnitOfMeasure MaxValue = new UnitOfMeasure(Decimal.MaxValue, Types.Unknown);
 
         public UnitOfMeasure(Types uofType)
         {
+            this._hashcode = 0;
             this.UnitType = uofType;
+            this.Value = 0;
+            this.Initialized = true;
 
             if(this.NaN)
             {
@@ -99,6 +101,8 @@ namespace DSEDiagnosticLibrary
 
         public UnitOfMeasure(string uofString, Types uofType = Types.Unknown)
         {
+            this._hashcode = 0;
+            this.Initialized = true;
             if (string.IsNullOrEmpty(uofString))
             {
                 this.UnitType = Types.NaN | uofType;
@@ -121,11 +125,18 @@ namespace DSEDiagnosticLibrary
                         this.UnitType = ConvertToType(uofValues.Groups[2].Value, uofType);
                     }
                 }
+                else
+                {
+                    this.UnitType = Types.Unknown;
+                    this.Value = 0;
+                }
             }
         }
 
         public UnitOfMeasure(string value, string uof, Types uofType = Types.Unknown)
         {
+            this._hashcode = 0;
+            this.Initialized = true;
             if (string.IsNullOrEmpty(value))
             {
                 this.UnitType = ConvertToType(uof, uofType | Types.NaN);
@@ -140,34 +151,51 @@ namespace DSEDiagnosticLibrary
 
         public UnitOfMeasure(decimal value, Types uofType)
         {
+            this.Initialized = true;
+            this._hashcode = 0;
             this.Value = value;
             this.UnitType = uofType;
         }
 
         public UnitOfMeasure(decimal value, string uof, Types uofType)
         {
+            this.Initialized = true;
+            this._hashcode = 0;
             this.Value = value;
             this.UnitType = ConvertToType(uof, uofType);
         }
 
-
         public UnitOfMeasure(UnitOfMeasure copy)
         {
+            this.Initialized = copy.Initialized;
+            this._hashcode = copy._hashcode;
             this.Value = copy.Value;
             this.UnitType = copy.UnitType;
         }
 
         public UnitOfMeasure(UnitOfMeasure copy, Types newUOM)
         {
+            this.Initialized = true;
+            this._hashcode = 0;
             this.Value = copy.ConvertTo(newUOM);
             this.UnitType = newUOM;
         }
 
-        public Types UnitType { get; private set; }
-        public decimal Value { get; private set; }
+        public readonly Types UnitType;
+        public readonly decimal Value;
+        public readonly bool Initialized;
 
+        /// <summary>
+        /// Returns true if UOM is not initialized (created with the default constructor) or is a NaN UOM type.
+        /// </summary>
         [JsonIgnore]
-        public bool NaN { get { return (this.UnitType & Types.NaN) != 0; } }
+        public bool NaN { get { return !this.Initialized || (this.UnitType & Types.NaN) != 0; } }
+        [JsonIgnore]
+        public bool IsZeroValue { get { return this.Initialized && this.Value == 0; } }
+        [JsonIgnore]
+        public bool IsMinValue { get { return (this.UnitType & Types.NaN) == 0 && this.Value == Decimal.MinValue; } }
+        [JsonIgnore]
+        public bool IsMaxValue { get { return this.Value == Decimal.MaxValue; } }
 
         /// <summary>
         /// Returns a new UOM based on the default normalized types.
@@ -234,59 +262,42 @@ namespace DSEDiagnosticLibrary
 
             if (this.NaN)
             {
-                this.UnitType &= ~Types.NaN;
-                this.Value = addItem.ConvertTo(this.UnitType);
+                return new UnitOfMeasure(addItem.ConvertTo(this.UnitType), this.UnitType & ~Types.NaN);
             }
-            else
-            {
-                this.Value += addItem.ConvertTo(this.UnitType);
-            }
-            return this;
+
+            return new UnitOfMeasure(this.Value + addItem.ConvertTo(this.UnitType), this.UnitType);
         }
 
         public UnitOfMeasure Add(decimal addItem)
         {
-            this.Value += addItem;
             if (this.NaN)
             {
-                this.UnitType &= ~Types.NaN;
-                this.Value = addItem;
+                return new UnitOfMeasure(addItem, this.UnitType & ~Types.NaN);
             }
-            else
-            {
-                this.Value += addItem;
-            }
-            return this;
+
+            return new UnitOfMeasure(this.Value + addItem, this.UnitType);
         }
 
         public UnitOfMeasure Subtract(UnitOfMeasure subtractItem)
         {
             if (subtractItem.NaN) return this;
+
             if (this.NaN)
             {
-                this.UnitType &= ~Types.NaN;
-                this.Value = subtractItem.ConvertTo(this.UnitType);
+                return new UnitOfMeasure(subtractItem.ConvertTo(this.UnitType) * -1m, this.UnitType & ~Types.NaN);
             }
-            else
-            {
-                this.Value -= subtractItem.ConvertTo(this.UnitType);
-            }
-            return this;
+
+            return new UnitOfMeasure(this.Value - subtractItem.ConvertTo(this.UnitType), this.UnitType);
         }
 
         public UnitOfMeasure Subtract(decimal subtractItem)
         {
-            this.Value -= subtractItem;
             if (this.NaN)
             {
-                this.UnitType &= ~Types.NaN;
-                this.Value = subtractItem;
+                return new UnitOfMeasure(subtractItem * -1m, this.UnitType & ~Types.NaN);
             }
-            else
-            {
-                this.Value -= subtractItem;
-            }
-            return this;
+
+            return new UnitOfMeasure(this.Value - subtractItem, this.UnitType);
         }
 
         /// <summary>
@@ -298,8 +309,7 @@ namespace DSEDiagnosticLibrary
         {
             if (this.NaN) return this;
 
-            this.Value *= multipleBy;
-            return this;
+            return new UnitOfMeasure(this.Value * multipleBy, this.UnitType);
         }
 
         /// <summary>
@@ -307,30 +317,30 @@ namespace DSEDiagnosticLibrary
         /// </summary>
         /// <param name="divideBy"></param>
         /// <returns></returns>
+        /// <exception cref="System.DivideByZeroException"></exception>
         public UnitOfMeasure Divide(decimal divideBy)
         {
             if (this.NaN) return this;
 
-            this.Value /= divideBy;
-            return this;
+            return new UnitOfMeasure(this.Value / divideBy, this.UnitType);
         }
 
         /// <summary>
         /// Reset UOM to zero and removes NAN flag
         /// </summary>
         /// <returns></returns>
-        public UnitOfMeasure Reset()
+        public UnitOfMeasure Zero()
         {
-            this.Value = 0;
-            if (this.NaN) this.UnitType &= ~Types.NaN;
-            return this;
+            return new UnitOfMeasure(0, this.NaN ? this.UnitType & ~Types.NaN : this.UnitType);
         }
 
+        /// <summary>
+        /// Turns UOM into a NaN keeping the UOM defined types
+        /// </summary>
+        /// <returns></returns>
         public UnitOfMeasure MakeNaN()
         {
-            this.Value = decimal.MinValue;
-            this.UnitType |= Types.NaN;
-            return this;
+            return this.NaN ? this : new UnitOfMeasure(this.UnitType | Types.NaN);
         }
 
         public decimal ConvertTo(Types newUOM)
@@ -842,7 +852,7 @@ namespace DSEDiagnosticLibrary
 
         public static explicit operator decimal?(UnitOfMeasure uom)
         {
-            if (uom == null || uom.NaN) return null;
+            if (uom.NaN) return null;
 
             return uom.Value;
         }
@@ -859,7 +869,7 @@ namespace DSEDiagnosticLibrary
 
         public static explicit operator TimeSpan?(UnitOfMeasure uom)
         {
-            if (uom == null || uom.NaN) return null;
+            if (uom.NaN) return null;
 
             if ((uom.UnitType & Types.TimeUnits) != 0)
             {
@@ -871,19 +881,35 @@ namespace DSEDiagnosticLibrary
 
         public static bool operator==(UnitOfMeasure a, UnitOfMeasure b)
         {
-            return ReferenceEquals(a, b) ? true : (ReferenceEquals(a,null) ? ReferenceEquals(b, null) : a.Equals(b));
+            var thisN = a.NormalizedValue;
+            var otherN = b.NormalizedValue;
+
+            if (thisN.UnitType == otherN.UnitType)
+            {
+                return thisN.Value == otherN.Value;
+            }
+
+            return false;
         }
 
         public static bool operator !=(UnitOfMeasure a, UnitOfMeasure b)
         {
-            return ReferenceEquals(a, b) ? false : (ReferenceEquals(a, null) ? !ReferenceEquals(b, null) : !(a.Equals(b)));
+            var thisN = a.NormalizedValue;
+            var otherN = b.NormalizedValue;
+
+            if (thisN.UnitType == otherN.UnitType)
+            {
+                return thisN.Value != otherN.Value;
+            }
+
+            return true;
         }
 
         public static UnitOfMeasure Create(string value, string uof, Types uofType = Types.Unknown)
         {
             if (IsNaN(value))
             {
-                return null;
+                return NaNValue;
             }
 
             try
@@ -893,14 +919,14 @@ namespace DSEDiagnosticLibrary
             catch
             { }
 
-            return null;
+            return NaNValue;
         }
 
         public static UnitOfMeasure Create(string uofString, Types uofType = Types.Unknown, bool emptyNullIsNan = true, bool convertOverflowOnSize = false, bool throwException = false)
         {
             if (IsNaN(uofString, emptyNullIsNan))
             {
-                return emptyNullIsNan ? new UnitOfMeasure(Types.NaN | uofType) : null;
+                return emptyNullIsNan ? NaNValue: ZeroValue;
             }
 
             try
@@ -920,7 +946,7 @@ namespace DSEDiagnosticLibrary
                 if (throwException) throw;
             }
 
-            return null;
+            return NaNValue;
         }
 
         public static UnitOfMeasure Create(int uof, Types uofType, string strUOF = null, bool convertOverflowOnSize = false)
@@ -995,12 +1021,12 @@ namespace DSEDiagnosticLibrary
 
         public static UnitOfMeasure Create(int? uof, Types uofType)
         {
-            return uof.HasValue ? new UnitOfMeasure((decimal)uof.Value, uofType) : null;
+            return uof.HasValue ? new UnitOfMeasure((decimal)uof.Value, uofType) : NaNValue;
         }
 
         public static UnitOfMeasure Create(long? uof, Types uofType)
         {
-            return uof.HasValue ? new UnitOfMeasure((decimal)uof.Value, uofType) : null;
+            return uof.HasValue ? new UnitOfMeasure((decimal)uof.Value, uofType) : NaNValue;
         }
 
         public static UnitOfMeasure Create(TimeSpan uof, Types uofType)
@@ -1010,12 +1036,12 @@ namespace DSEDiagnosticLibrary
 
         public static UnitOfMeasure Create(TimeSpan? uof, Types uofType)
         {
-            return uof.HasValue ? new UnitOfMeasure((decimal)uof.Value.TotalMilliseconds, Types.Time | Types.MS) : null;
+            return uof.HasValue ? new UnitOfMeasure((decimal)uof.Value.TotalMilliseconds, Types.Time | Types.MS) : NaNValue;
         }
 
         public static UnitOfMeasure Create(decimal? uof, Types uofType)
         {
-            return uof.HasValue ? new UnitOfMeasure(uof.Value, uofType) : null;
+            return uof.HasValue ? new UnitOfMeasure(uof.Value, uofType) : NaNValue;
         }
 
         public static Types ConvertToType(string uof, Types uofType = Types.Unknown, bool checkForWords = true)
@@ -1252,9 +1278,9 @@ namespace DSEDiagnosticLibrary
 
         #region IEquatable
         public bool Equals(UnitOfMeasure other)
-        {
-            if (ReferenceEquals(this, other)) return true;
-            if (ReferenceEquals(other,null)) return false;
+        {            
+            if (this.Initialized != other.Initialized) return false;
+            if (!this.Initialized) return true;
 
             var thisN = this.NormalizedValue;
             var otherN = other.NormalizedValue;
@@ -1269,7 +1295,7 @@ namespace DSEDiagnosticLibrary
 
         public bool Equals(decimal other)
         {
-            return this.Value.Equals(other);
+            return this.Value == other;
         }
         #endregion
 
@@ -1277,7 +1303,13 @@ namespace DSEDiagnosticLibrary
 
         public int CompareTo(UnitOfMeasure other)
         {
-            return this.Value.CompareTo(other.Value);
+            if(this.Initialized != other.Initialized)
+            {
+                if (this.Initialized) return 1;
+                return -1;
+            }
+
+            return this.Value == other.Value ? 0 : (this.Value > other.Value ? 1 : -1);
         }
 
         public int CompareTo(decimal other)
@@ -1296,17 +1328,17 @@ namespace DSEDiagnosticLibrary
 
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(this, obj)) return true;
             if (obj is UnitOfMeasure) return this.Equals((UnitOfMeasure)obj);
 
             return base.Equals(obj);
         }
 
         [JsonProperty(PropertyName="HashCode")]
-        private int _hashcode = 0;
+        private int _hashcode;
         public override int GetHashCode()
         {
             if (this._hashcode != 0) return this._hashcode;
+            if (!this.Initialized) return 0;
 
             var thisN = this.NormalizedValue;
             return this._hashcode = (589 + thisN.UnitType.GetHashCode()) * 31 + thisN.Value.GetHashCode();
@@ -1314,7 +1346,7 @@ namespace DSEDiagnosticLibrary
 
         public override string ToString()
         {
-            return this.NaN ? this.UnitType.ToString() : string.Format("{0} {1}", this.Value, this.UnitType);
+            return !this.Initialized ? "UOM{NotInitialized}" : (this.NaN ? this.UnitType.ToString() : string.Format("{0} {1}", this.Value, this.UnitType));
         }
 
         #endregion

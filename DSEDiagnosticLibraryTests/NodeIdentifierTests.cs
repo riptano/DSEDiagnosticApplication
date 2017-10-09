@@ -70,13 +70,16 @@ namespace DSEDiagnosticLibrary.Tests
             Assert.IsNotNull(result);
             Assert.AreEqual("2001:db8:85a3::8a2e:370:7334", result.Addresses.First().ToString());
 
-            result = NodeIdentifier.CreateNodeIdentifer("hostname abc999.txt");
+            result = NodeIdentifier.CreateNodeIdentifer("hostname@abc999.txt");
             Assert.IsNotNull(result);
             Assert.AreEqual("hostname", result.HostName);
 
             result = NodeIdentifier.CreateNodeIdentifer("hostname+abc999.txt");
             Assert.IsNotNull(result);
             Assert.AreEqual("hostname", result.HostName);
+
+            result = NodeIdentifier.CreateNodeIdentifer("hostname abc999.txt");
+            Assert.IsNull(result);            
 
         }
 

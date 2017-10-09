@@ -13,7 +13,7 @@ namespace DSEDiagnosticToDataTable
 
         public static DataRow SetFieldToDecimal(this DataRow dataRow, string columnName, UnitOfMeasure uom, UnitOfMeasure.Types uomType = UnitOfMeasure.Types.Unknown, bool convertFromPercent = false)
         {
-            if(uom != null && !uom.NaN)
+            if(!uom.NaN)
             {
                 if (convertFromPercent && (uom.UnitType & UnitOfMeasure.Types.Percent) != 0)
                 {
@@ -30,7 +30,7 @@ namespace DSEDiagnosticToDataTable
 
         public static DataRow SetFieldToInt(this DataRow dataRow, string columnName, UnitOfMeasure uom, UnitOfMeasure.Types uomType = UnitOfMeasure.Types.Unknown)
         {
-            if (uom != null && !uom.NaN)
+            if (!uom.NaN)
             {
                 dataRow.SetField(columnName, (int) (uomType == UnitOfMeasure.Types.Unknown ? uom.Value : uom.ConvertTo(uomType)));
             }
@@ -40,7 +40,7 @@ namespace DSEDiagnosticToDataTable
 
         public static DataRow SetFieldToLong(this DataRow dataRow, string columnName, UnitOfMeasure uom, UnitOfMeasure.Types uomType = UnitOfMeasure.Types.Unknown)
         {
-            if (uom != null && !uom.NaN)
+            if (!uom.NaN)
             {
                 if (uom.Value > long.MaxValue)
                 {
@@ -57,7 +57,7 @@ namespace DSEDiagnosticToDataTable
 
         public static DataRow SetFieldToTimeSpan(this DataRow dataRow, string columnName, UnitOfMeasure uom)
         {
-            if (uom != null && !uom.NaN)
+            if (!uom.NaN)
             {
                 dataRow.SetField(columnName, (TimeSpan) uom);
             }
@@ -67,7 +67,7 @@ namespace DSEDiagnosticToDataTable
 
         public static DataRow SetFieldToTimeSpan(this DataRow dataRow, string columnName, UnitOfMeasure uom, string tostringFormat)
         {
-            if (uom != null && !uom.NaN)
+            if (!uom.NaN)
             {
                 dataRow.SetField(columnName, ((TimeSpan)uom).ToString(tostringFormat));
             }

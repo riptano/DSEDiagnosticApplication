@@ -333,7 +333,7 @@ namespace DSEDiagnosticFileParser
                                             ? new UnitOfMeasure((dynamic)objDuration, UnitOfMeasure.Types.MS)
                                             : (objDuration is string
                                                 ? UnitOfMeasure.Create((string) objDuration)
-                                                : null));
+                                                : UnitOfMeasure.NaNValue));
             DateTime? eventDurationTime = logProperties.TryGetValue("EVENTDURATIONDATETIME") as DateTime?;
 
             var keyspaceName = StringHelpers.RemoveQuotes((string) logProperties.TryGetValue("KEYSPACE"));
@@ -777,7 +777,7 @@ namespace DSEDiagnosticFileParser
                                                         sessionId,
                                                         matchItem.Item5.Product);
                 }
-                else if ((eventType & EventTypes.SessionItem) != EventTypes.SessionItem && duration != null)
+                else if ((eventType & EventTypes.SessionItem) != EventTypes.SessionItem && !duration.NaN)
                 {
                     logEvent = new LogCassandraEvent(this.File,
                                                         this.Node,

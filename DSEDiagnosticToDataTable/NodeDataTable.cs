@@ -177,10 +177,10 @@ namespace DSEDiagnosticToDataTable
                             dataRow.SetFieldToTZOffset("Time Zone Offset", minTzOffset, maxTZOffset);
                         }
 
-                        if (node.DSE.HeapUsed != null || node.DSE.Heap != null)
+                        if (!node.DSE.HeapUsed.NaN || !node.DSE.Heap.NaN)
                         {
-                            var used = node.DSE.HeapUsed == null || node.DSE.HeapUsed.NaN ? "?" : node.DSE.HeapUsed.ConvertTo(DSEDiagnosticLibrary.UnitOfMeasure.Types.MiB).ToString();
-                            var size = node.DSE.Heap == null || node.DSE.Heap.NaN ? "?" : node.DSE.Heap.ConvertTo(DSEDiagnosticLibrary.UnitOfMeasure.Types.MiB).ToString();
+                            var used = node.DSE.HeapUsed.NaN ? "?" : node.DSE.HeapUsed.ConvertTo(DSEDiagnosticLibrary.UnitOfMeasure.Types.MiB).ToString();
+                            var size = node.DSE.Heap.NaN ? "?" : node.DSE.Heap.ConvertTo(DSEDiagnosticLibrary.UnitOfMeasure.Types.MiB).ToString();
                             dataRow.SetField("Heap Memory (MB)", used + '/' + size);
                         }
                         dataRow.SetFieldToDecimal("Off Heap Memory (MB)", node.DSE.OffHeap, DSEDiagnosticLibrary.UnitOfMeasure.Types.MiB);

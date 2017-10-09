@@ -139,9 +139,7 @@ namespace DSEDiagnosticLibrary
                         sessionTieOutId,
                         product,
                         assocateToNode)
-        {
-            if (uomDuration == null) throw new ArgumentNullException("uomDuration cannot be null");
-
+        {            
             this.Duration = (TimeSpan)uomDuration;
             this.EventTimeBegin = this.EventTime - this.Duration;
             this.EventTimeEnd = this.EventTime;
