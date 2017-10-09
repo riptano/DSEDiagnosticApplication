@@ -328,6 +328,11 @@ namespace DSEDiagnosticFileParser
 			return nodeId;
 		}
 
+        public static void ClearCaches()
+        {
+            file_cassandra_log4net.ClearCaches();
+        }
+
         public static async Task<IEnumerable<DiagnosticFile>> ProcessFileWaitable(IDirectoryPath diagnosticDirectory,
                                                                                     string dataCenterName = null,
                                                                                     string clusterName = null,
@@ -347,6 +352,22 @@ namespace DSEDiagnosticFileParser
                                                                                                                                 onlyNodes)).Unwrap();
         }
 
+        /// <summary>
+        /// Must call ClearCaches to release cached collections
+        /// </summary>
+        /// <param name="diagnosticDirectory"></param>
+        /// <param name="dataCenterName"></param>
+        /// <param name="clusterName"></param>
+        /// <param name="dseVersion"></param>
+        /// <param name="processPriorityLevel"></param>
+        /// <param name="parallelProcessingWithinPriorityLevel"></param>
+        /// <param name="fileMapper"></param>
+        /// <param name="fileMapperId"></param>
+        /// <param name="diagFilesList"></param>
+        /// <param name="loopState"></param>
+        /// <param name="additionalFilesForClass"></param>
+        /// <param name="onlyNodes"></param>
+        /// <returns></returns>
         public static IEnumerable<DiagnosticFile> ProcessFile(IDirectoryPath diagnosticDirectory,
                                                                 string dataCenterName,
                                                                 string clusterName,
@@ -471,6 +492,17 @@ namespace DSEDiagnosticFileParser
             return localDiagFiles;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="diagnosticDirectory"></param>
+        /// <param name="dataCenterName"></param>
+        /// <param name="clusterName"></param>
+        /// <param name="dseVersion"></param>
+        /// <param name="cancellationSource"></param>
+        /// <param name="additionalFilesForClass"></param>
+        /// <param name="onlyNodes"></param>
+        /// <returns></returns>
         public static Task<IEnumerable<DiagnosticFile>> ProcessFile(IDirectoryPath diagnosticDirectory,
                                                                         string dataCenterName = null,
                                                                         string clusterName = null,
@@ -618,9 +650,21 @@ namespace DSEDiagnosticFileParser
 
             return diagFilesList.Count == 0
                         ? Common.Patterns.Tasks.CompletionExtensions.CompletedTask<IEnumerable<DiagnosticFile>>(Enumerable.Empty<DiagnosticFile>())
-                        : Task<IEnumerable<DiagnosticFile>>.Factory.ContinueWhenAll(diagFilesList.Select(f => f.Task).ToArray(), ignoreItem => diagFilesList.UnSafe);
+                        : Task<IEnumerable<DiagnosticFile>>.Factory.ContinueWhenAll(diagFilesList.Select(f => f.Task).ToArray(), ignoreItem => { ClearCaches(); return diagFilesList.UnSafe; });
         }
 
+        /// <summary>
+        ///  Must call ClearCaches to release cached collections
+        /// </summary>
+        /// <param name="diagnosticDirectory"></param>
+        /// <param name="fileMappings"></param>
+        /// <param name="fileMapperId"></param>
+        /// <param name="dataCenterName"></param>
+        /// <param name="clusterName"></param>
+        /// <param name="targetDSEVersion"></param>
+        /// <param name="additionalFilesForClass"></param>
+        /// <param name="onlyNodes"></param>
+        /// <returns></returns>
         public static IEnumerable<DiagnosticFile> ProcessFile(IDirectoryPath diagnosticDirectory,
                                                                     FileMapper fileMappings,
                                                                     int fileMapperId,

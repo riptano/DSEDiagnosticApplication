@@ -83,6 +83,8 @@ namespace DSEDiagnosticFileParser
 
             this._result = new LogResults(this);
 
+            this._nodeStrId = this.Node.Id.GetHashCode().ToString();
+
             Logger.Instance.DebugFormat("Loaded class \"{0}\"{{File{{{1}}}, Parser{{{2}}} }}",
                                             this.GetType().Name,
                                             this.File,
@@ -134,6 +136,14 @@ namespace DSEDiagnosticFileParser
             return this._result;
         }
 
+        /// <summary>
+        /// Clears all log related caches. Should only be called when log processing is complete.
+        /// </summary>
+        public static new void ClearCaches()
+        {
+            LogLinesHash.Clear();
+        }
+
         public override uint ProcessFile()
         {
             this.CancellationToken.ThrowIfCancellationRequested();
@@ -143,10 +153,17 @@ namespace DSEDiagnosticFileParser
             {
                 Tuple<Regex, Match, Regex, Match, CLogLineTypeParser> matchItem;
                 LogCassandraEvent logEvent;
-                bool firstLine = false;
+                bool firstLine = true;
 
                 logFileInstance.ProcessedLogLineAction += (IReadLogFile readLogFileInstance, ILogMessages alreadyParsedLines, ILogMessage logMessage) =>
                 {
+                    readLogFileInstance.CancellationToken.ThrowIfCancellationRequested();
+
+                    if(this.DuplicateLogLineFound(logMessage))
+                    {
+                        return;
+                    }
+
                     if (firstLine)
                     {
                         firstLine = false;
@@ -159,8 +176,6 @@ namespace DSEDiagnosticFileParser
 
                         possibleOpenSessions.ForEach(o => this._openSessions[o.SessionTieOutId] = o);
                     }
-
-                    readLogFileInstance.CancellationToken.ThrowIfCancellationRequested();
 
                     matchItem = CLogTypeParser.FindMatch(this._parser, logMessage);
 
@@ -1228,6 +1243,25 @@ namespace DSEDiagnosticFileParser
             }
 
             return null;
+        }
+
+        static public readonly HashSet<string> LogLinesHash = new HashSet<string>();
+        static public long NbrDuplicatedLogEventsTotal = 0;
+        private readonly string _nodeStrId;
+
+        private bool DuplicateLogLineFound(ILogMessage logMessage)
+        {
+            var dupString = this._nodeStrId + logMessage.FileName + logMessage.FileLine.ToString() + logMessage.LogDateTime.Ticks.ToString() + logMessage.Message;
+
+            if(LogLinesHash.Contains(dupString))
+            {
+                return true;
+            }
+
+            lock (LogLinesHash)
+            {
+                return !LogLinesHash.Add(dupString);
+            }
         }
     }
 }
