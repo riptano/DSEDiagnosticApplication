@@ -279,7 +279,15 @@ namespace DSEDiagnosticApplication
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            this.ultraTextEditorDiagnosticsFolder.Text = Properties.Settings.Default.DefaultDiagnosticsFolder;
+            if (!string.IsNullOrEmpty(Properties.Settings.Default.DefaultDiagnosticsFolder)
+                    && System.IO.Directory.Exists(Properties.Settings.Default.DefaultDiagnosticsFolder))
+            {
+                this.ultraTextEditorDiagnosticsFolder.Text = Properties.Settings.Default.DefaultDiagnosticsFolder;
+            }
+            else
+            {
+                this.ultraTextEditorDiagnosticsFolder.Text = @"C:\";
+            }
             this.ultraTextEditorProcessMapperJSONFile.Text = null;
         }
 
@@ -290,7 +298,8 @@ namespace DSEDiagnosticApplication
                 CommonOpenFileDialog dialog = new CommonOpenFileDialog();
                 if(string.IsNullOrEmpty(this.ultraTextEditorProcessMapperJSONFile.Text))
                 {
-                    if(string.IsNullOrEmpty(Properties.Settings.Default.DefaultProcessMapperJSONFile))
+                    if(string.IsNullOrEmpty(Properties.Settings.Default.DefaultProcessMapperJSONFile)
+                        || !System.IO.File.Exists(Properties.Settings.Default.DefaultProcessMapperJSONFile))
                     {
                         dialog.InitialDirectory = this.ultraTextEditorDiagnosticsFolder.Text ?? @"C:\";
                         dialog.DefaultExtension = "json";
