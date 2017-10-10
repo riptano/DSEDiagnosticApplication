@@ -296,6 +296,19 @@ namespace DSEDiagnosticLibrary
             }
         }
 
+        public static Cluster TryGetCluster(int clusterHashCode)
+        {
+            Clusters.Lock();
+            try
+            {
+                return Clusters.UnSafe.FirstOrDefault(c => c.GetHashCode() == clusterHashCode);
+            }
+            finally
+            {
+                Clusters.UnLock();
+            }
+        }
+
         public static IDataCenter TryGetAddDataCenter(string dataCenterName, Cluster cluster = null)
 		{
             var currentCuster = cluster == null ? MasterCluster : cluster;
@@ -341,6 +354,31 @@ namespace DSEDiagnosticLibrary
             var currentCuster = string.IsNullOrEmpty(clusterName) ? MasterCluster : TryGetCluster(clusterName);
 
             return TryGetDataCenter(dataCenterName, currentCuster);
+        }
+
+        public static IDataCenter TryGetDataCenter(int dataCenterHashCode)
+        {
+            IDataCenter dataCenter = null;
+
+           foreach (var currentCuster in Clusters)
+           {
+                currentCuster._dataCenters.Lock();
+                try
+                {
+                    dataCenter = currentCuster._dataCenters.UnSafe.FirstOrDefault(d => d.GetHashCode() == dataCenterHashCode);
+
+                    if (dataCenter != null)
+                    {
+                        break;
+                    }
+                }
+                finally
+                {
+                    currentCuster._dataCenters.UnLock();
+                }
+            }
+
+            return dataCenter;
         }
 
         public static INode TryGetAddNode(string nodeId, string dataCenterName = null, string clusterName = null)
@@ -434,6 +472,22 @@ namespace DSEDiagnosticLibrary
             if(dcNodes != null)
             {
                 return dcNodes.FirstOrDefault(n => n.Id.Equals(nodeId));
+            }
+
+            return null;
+        }
+
+        public static INode TryGetNode(int nodeHashCode)
+        {
+            INode node = null;
+            foreach (var currentCluster in Clusters)
+            {
+                foreach (var currentDC in currentCluster.DataCenters)
+                {
+                    node = currentDC.TryGetNode(nodeHashCode);
+
+                    if (node != null) return node;
+                }
             }
 
             return null;
@@ -614,6 +668,42 @@ namespace DSEDiagnosticLibrary
             return cluster;
         }
 
+        public static IKeyspace TryGetKeySpace(int keyspaceHashCode)
+        {
+            IKeyspace keyspace = null;
+
+            foreach (var currentCluster in Clusters)
+            {
+                foreach (var currentDC in currentCluster.DataCenters)
+                {
+                    keyspace = currentDC.TryGetKeyspace(keyspaceHashCode);
+
+                    if (keyspace != null) return keyspace;
+                }
+            }
+
+            return null;
+        }
+
+        public static IDDLStmt TryGetDDLStmt(int ddlHashCode)
+        {
+            IDDLStmt ddl = null;
+
+            foreach (var currentCluster in Clusters)
+            {
+                foreach (var currentDC in currentCluster.DataCenters)
+                {
+                   foreach (var currentKS in currentDC.Keyspaces)
+                   {
+                        ddl = currentKS.TryGetDDL(ddlHashCode);
+                        if (ddl != null) return ddl;
+                   }
+                }
+            }
+
+            return null;
+        }
+
         /// <summary>
         /// Tries to find a Table, View, or Index based on either a SSTable file path or a keyspace.&lt;item name&gt; where item is a table, view, or index name.
         /// </summary>
@@ -772,7 +862,7 @@ namespace DSEDiagnosticLibrary
         /// <summary>
         /// Nodes that are not associated to a data center.
         ///
-        /// Note that this is will changed based on processing since a node can become assocated anytime during the process.
+        /// Note that this is will changed based on processing since a node can become associated anytime during the process.
         /// </summary>
         /// <returns></returns>
         static public IEnumerable<INode> GetUnAssocaitedNodes()

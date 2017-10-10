@@ -736,5 +736,14 @@ public static class {0}
                 return ((global::System.Collections.Specialized.StringCollection)(this["IgnoreFileWExtensions"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool DetectDuplicatedLogEvents {
+            get {
+                return ((bool)(this["DetectDuplicatedLogEvents"]));
+            }
+        }
     }
 }

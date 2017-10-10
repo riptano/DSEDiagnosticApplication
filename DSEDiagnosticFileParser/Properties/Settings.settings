@@ -1071,5 +1071,8 @@ CREATE TABLE dse_system.leases (
   &lt;string&gt;.ignore&lt;/string&gt;
 &lt;/ArrayOfString&gt;</Value>
     </Setting>
+    <Setting Name="DetectDuplicatedLogEvents" Type="System.Boolean" Scope="Application">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

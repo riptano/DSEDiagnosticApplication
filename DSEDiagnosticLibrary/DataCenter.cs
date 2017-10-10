@@ -22,8 +22,10 @@ namespace DSEDiagnosticLibrary
 		IEnumerable<IKeyspace> Keyspaces { get; }
 
         IKeyspace TryGetKeyspace(string ksName);
+        IKeyspace TryGetKeyspace(int keyspaceHashCode);
 
 		INode TryGetNode(string nodeId);
+        INode TryGetNode(int nodeHashCode);
         INode TryGetAddNode(INode node);
 
         IEnumerable<LogCassandraEvent> LogEvents { get; }
@@ -132,12 +134,21 @@ namespace DSEDiagnosticLibrary
             throw new NotImplementedException();
         }
 
+        virtual public IKeyspace TryGetKeyspace(int keyspaceHashCode)
+        {
+            throw new NotImplementedException();
+        }
+
         public INode TryGetNode(string nodeId)
         {
             if (string.IsNullOrEmpty(nodeId))
             { return null; }
 
             return this._nodes.FirstOrDefault(n => n.Equals(nodeId));
+        }
+        public INode TryGetNode(int nodeHashCode)
+        {
+            return this._nodes.FirstOrDefault(n => n.GetHashCode() == nodeHashCode);
         }
         virtual public INode TryGetAddNode(INode node)
         {
@@ -244,6 +255,11 @@ namespace DSEDiagnosticLibrary
             ksName = StringHelpers.RemoveQuotes(ksName?.Trim());
 
             return this.Keyspaces.FirstOrDefault(k => k.Name == ksName);
+        }
+
+        public override IKeyspace TryGetKeyspace(int keyspaceHashCode)
+        {
+            return this.Keyspaces.FirstOrDefault(k => k.GetHashCode() == keyspaceHashCode);
         }
 
         public INode TryGetAddNode(string nodeId)

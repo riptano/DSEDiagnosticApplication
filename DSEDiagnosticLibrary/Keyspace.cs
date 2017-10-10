@@ -123,6 +123,7 @@ namespace DSEDiagnosticLibrary
         ICQLTrigger TryGetTrigger(string triggerName);
         ICQLUserDefinedType TryGetUDT(string udtName);
         IDDLStmt TryGetDDL(string ddlName);
+        IDDLStmt TryGetDDL(int ddlHashCode);
         IEnumerable<ICQLTable> GetTables();
         IEnumerable<ICQLUserDefinedType> GetUDTs();
         IEnumerable<ICQLIndex> GetIndexes();
@@ -472,7 +473,20 @@ namespace DSEDiagnosticLibrary
                 this._ddlList.UnLock();
             }
         }
-
+        public IDDLStmt TryGetDDL(int ddlHashCode)
+        {
+            this._ddlList.Lock();
+            try
+            {
+                return (IDDLStmt)this._ddlList
+                                        .UnSafe
+                                        .FirstOrDefault(d => d.GetHashCode() == ddlHashCode);
+            }
+            finally
+            {
+                this._ddlList.UnLock();
+            }
+        }
         public IEnumerable<ICQLUserDefinedType> GetUDTs()
         {
             return this._ddlList.Where(c => c is ICQLUserDefinedType).Cast<ICQLUserDefinedType>();

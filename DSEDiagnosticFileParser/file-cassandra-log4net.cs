@@ -159,7 +159,7 @@ namespace DSEDiagnosticFileParser
                 {
                     readLogFileInstance.CancellationToken.ThrowIfCancellationRequested();
 
-                    if(this.DuplicateLogLineFound(logMessage))
+                    if(this.DuplicateLogEventFound(logMessage))
                     {
                         return;
                     }
@@ -1249,18 +1249,34 @@ namespace DSEDiagnosticFileParser
         static public long NbrDuplicatedLogEventsTotal = 0;
         private readonly string _nodeStrId;
 
-        private bool DuplicateLogLineFound(ILogMessage logMessage)
+        private bool DuplicateLogEventFound(ILogMessage logMessage)
         {
-            var dupString = this._nodeStrId + logMessage.FileName + logMessage.FileLine.ToString() + logMessage.LogDateTime.Ticks.ToString() + logMessage.Message;
+            if (LibrarySettings.DetectDuplicatedLogEvents)
+            {
+               return DuplicateLogEventFound(this._nodeStrId
+                                                + '|'
+                                                + logMessage.FileName
+                                                + '|'
+                                                + logMessage.FileLine.ToString()
+                                                + '|'
+                                                + logMessage.LogDateTime.Ticks.ToString()
+                                                + '|'
+                                                + (logMessage.Message?.GetHashCode().ToString() ?? string.Empty));
+            }
 
-            if(LogLinesHash.Contains(dupString))
+            return false;
+        }
+
+        private static bool DuplicateLogEventFound(string checkTag)
+        {
+            if (LogLinesHash.Contains(checkTag))
             {
                 return true;
             }
 
             lock (LogLinesHash)
             {
-                return !LogLinesHash.Add(dupString);
+                return !LogLinesHash.Add(checkTag);
             }
         }
     }
