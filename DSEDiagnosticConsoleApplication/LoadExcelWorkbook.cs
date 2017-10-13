@@ -147,9 +147,7 @@ namespace DSEDiagnosticConsoleApplication
                 }
                 return loadAppInfo.Load()?.Item1;
             },
-            cancellationSource.Token,
-            TaskContinuationOptions.OnlyOnRanToCompletion,
-            TaskScheduler.Current);
+            cancellationSource.Token);
         }
     }
 }

@@ -71,7 +71,14 @@ namespace DSEDiagnosticConsoleApplication
                 }
                 else
                 {
-                    consoleWriter.WriteLine(this.Line(taskItem, 1));
+                    var lineStr = this.Line(taskItem, 1);
+
+                    if(lineStr.Contains('{'))
+                    {
+                        lineStr = lineStr.Replace('{', '[').Replace('}', ']');
+                    }
+
+                    consoleWriter.WriteLine(lineStr);
                 }
             }
 
@@ -104,7 +111,13 @@ namespace DSEDiagnosticConsoleApplication
                     }
                     else
                     {
-                        consoleWriter.WriteLine(this.Line(taskItem, 0));
+                        var lineStr = this.Line(taskItem, 0);
+
+                        if (lineStr.Contains('{'))
+                        {
+                            lineStr = lineStr.Replace('{', '[').Replace('}', ']');
+                        }
+                        consoleWriter.WriteLine(lineStr);
                     }
                 }
             }
