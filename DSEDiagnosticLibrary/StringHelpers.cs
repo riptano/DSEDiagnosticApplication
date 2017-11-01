@@ -464,5 +464,378 @@ namespace DSEDiagnosticLibrary
         {
             return Common.TimeZones.Find(ianaName, Common.Patterns.TimeZoneInfo.ZoneNameTypes.IANATZName) ?? Common.TimeZones.Find(ianaName, Common.Patterns.TimeZoneInfo.ZoneNameTypes.FormattedName);
         }
+
+        private enum MMElementType
+        {
+            JSON = 0,
+            Long = 1,
+            DDLStmt = 4,
+            Keyspace = 5,
+            Node = 6,
+            DataCenter = 7,
+            Cluster = 8,
+            String = 9,
+            UnitOfMeasure = 10,
+            DateTime = 11,
+            DateTimeOffset = 12,
+            Timespan = 13,
+            TokenRange = 14,
+            IPAddress = 15
+        }
+        static public void WriteMMElement(this Common.Patterns.Collections.MemoryMapper.WriteElement writeElement, object value)
+        {
+            //true if null or false is not null
+            if (value == null)
+            {
+                writeElement.StoreValue(true);
+                return;
+            }
+            writeElement.StoreValue(false);
+
+            if (value.GetType().IsValueType)
+            {
+                if(value.IsNumber())
+                {
+                    writeElement.StoreValue((int)MMElementType.Long);
+                    writeElement.StoreValue((long) ((dynamic)value));
+                }
+                else if(value is UnitOfMeasure)
+                {
+                    writeElement.StoreValue((int)MMElementType.UnitOfMeasure);
+                    writeElement.WriteMMElement((UnitOfMeasure)value);
+                }
+                else if(value is DateTime)
+                {
+                    writeElement.StoreValue((int)MMElementType.DateTime);
+                    writeElement.StoreValue((DateTime)value);
+                }
+                else if(value is DateTimeOffset)
+                {
+                    writeElement.StoreValue((int)MMElementType.DateTimeOffset);
+                    writeElement.StoreValue((DateTimeOffset)value);
+                }
+                else if (value is TimeSpan)
+                {
+                    writeElement.StoreValue((int)MMElementType.Timespan);
+                    writeElement.StoreValue((TimeSpan)value);
+                }
+                else
+                {
+                    writeElement.StoreValue((int)MMElementType.JSON);
+                    writeElement.StoreValue(Newtonsoft.Json.JsonConvert.SerializeObject(value));
+                }
+
+                return;
+            }
+
+            if(value is string)
+            {
+                writeElement.StoreValue((int)MMElementType.String);
+                writeElement.StoreValue((string) value);
+            }
+            else if (value is IDDLStmt)
+            {
+                writeElement.StoreValue((int)MMElementType.DDLStmt);
+                writeElement.StoreValue(value.GetHashCode());
+            }
+            else if (value is IKeyspace)
+            {
+                writeElement.StoreValue((int)MMElementType.Keyspace);
+                writeElement.StoreValue(value.GetHashCode());
+            }
+            else if (value is INode)
+            {
+                writeElement.StoreValue((int)MMElementType.Node);
+                writeElement.StoreValue(value.GetHashCode());
+            }
+            else if (value is IDataCenter)
+            {
+                writeElement.StoreValue((int)MMElementType.DataCenter);
+                writeElement.StoreValue(value.GetHashCode());
+            }
+            else if (value is Cluster)
+            {
+                writeElement.StoreValue((int)MMElementType.Cluster);
+                writeElement.StoreValue(value.GetHashCode());
+            }
+            else if(value is DSEInfo.TokenRangeInfo)
+            {
+                writeElement.StoreValue((int)MMElementType.TokenRange);
+                writeElement.WriteMMElement((DSEInfo.TokenRangeInfo)value);
+            }
+            else if(value is IPAddress)
+            {
+                writeElement.StoreValue((int)MMElementType.IPAddress);
+                writeElement.WriteMMElement((IPAddress)value);
+            }
+            else
+            {
+                writeElement.StoreValue((int)MMElementType.JSON);
+                writeElement.StoreValue(Newtonsoft.Json.JsonConvert.SerializeObject(value));
+            }
+        }
+
+        static public void WriteMMElement(this Common.Patterns.Collections.MemoryMapper.WriteElement writeElement, DSEInfo.TokenRangeInfo value)
+        {
+            writeElement.StoreValue(value.StartRange);
+            writeElement.StoreValue(value.EndRange);
+            writeElement.WriteMMElement(value.Load);
+        }
+
+        static public void WriteMMElement(this Common.Patterns.Collections.MemoryMapper.WriteElement writeElement, IPAddress value)
+        {
+            if(value == null)
+            {
+                writeElement.StoreValue((string) null);
+            }
+            else
+            {
+                writeElement.StoreValue(value.ToString());
+            }
+        }
+
+        static public void WriteMMElement(this Common.Patterns.Collections.MemoryMapper.WriteElement writeElement, UnitOfMeasure value)
+        {
+            writeElement.StoreValue(value.Value);
+            writeElement.StoreValue((ulong)value.UnitType);
+        }
+
+        static public void WriteMMElement(this Common.Patterns.Collections.MemoryMapper.WriteElement writeElement, IEnumerable<DSEInfo.TokenRangeInfo> value)
+        {
+            var count = value?.Count() ?? -1;
+
+            writeElement.StoreValue(count);
+            foreach (var tokenRange in value)
+            {
+                writeElement.WriteMMElement(tokenRange);
+            }
+        }
+
+        static public object GetMMElement(this Common.Patterns.Collections.MemoryMapper.ReadElement readElement, Cluster cluster, IDataCenter dc, INode node, IKeyspace keyspace)
+        {
+            object value = null;
+
+            if (readElement.GetBoolValue()) return null;
+
+            if (dc == null)
+            {
+                if (node != null)
+                    dc = node.DataCenter;
+                else if (keyspace != null)
+                    dc = keyspace.DataCenter;
+            }
+            if (cluster == null)
+            {
+                if (dc != null)
+                    cluster = dc.Cluster;
+            }
+
+            MMElementType elementType = (MMElementType)readElement.GetIntValue();
+            int hashCode;
+
+            switch (elementType)
+            {
+                case MMElementType.JSON:
+                    value = Newtonsoft.Json.JsonConvert.DeserializeObject(readElement.GetStringValue());
+                    break;
+                case MMElementType.Long:
+                    value = readElement.GetLongValue();
+                    break;
+                case MMElementType.UnitOfMeasure:
+                    value = readElement.GetMMUOM();
+                    break;
+                case MMElementType.DateTime:
+                    value = readElement.GetStructValue<DateTime>();
+                    break;
+                case MMElementType.DateTimeOffset:
+                    value = readElement.GetStructValue<DateTimeOffset>();
+                    break;
+                case MMElementType.Timespan:
+                    value = readElement.GetStructValue<TimeSpan>();
+                    break;
+                case MMElementType.DDLStmt:
+                    hashCode = readElement.GetIntValue();
+                    value = keyspace?.TryGetDDL(hashCode) ?? dc?.Keyspaces.Select(k => k.TryGetDDL(hashCode)).FirstOrDefault() ?? Cluster.TryGetDDLStmt(hashCode);
+                    break;
+                case MMElementType.Keyspace:
+                    hashCode = readElement.GetIntValue();
+                    value = dc?.TryGetKeyspace(hashCode) ?? Cluster.TryGetKeySpace(hashCode);
+                    break;
+                case MMElementType.Node:
+                    hashCode = readElement.GetIntValue();
+                    value = dc?.TryGetNode(hashCode) ?? Cluster.TryGetNode(hashCode);
+                    break;
+                case MMElementType.DataCenter:
+                    hashCode = readElement.GetIntValue();
+                    value = Cluster.TryGetDataCenter(hashCode);
+                    break;
+                case MMElementType.Cluster:
+                    hashCode = readElement.GetIntValue();
+                    value = Cluster.TryGetCluster(hashCode);
+                    break;
+                case MMElementType.String:
+                    value = readElement.GetStringValue();
+                    break;
+                case MMElementType.TokenRange:
+                    value = readElement.GetMMTokenRange();
+                    break;
+                case MMElementType.IPAddress:
+                    value = readElement.GetMMIPAddress();
+                    break;
+                default:
+                    throw new ArgumentException(string.Format("GetMMElement Failed with an unkown MMEllementType of {0}", elementType));
+                    //break;
+            }
+
+            return value;
+        }
+
+        static public DSEInfo.TokenRangeInfo GetMMTokenRange(this Common.Patterns.Collections.MemoryMapper.ReadElement readElement)
+        {
+            return new DSEInfo.TokenRangeInfo(readElement.GetLongValue(),
+                                                readElement.GetLongValue(),
+                                                readElement.GetMMUOM());
+        }
+
+        static public IEnumerable<DSEInfo.TokenRangeInfo> GetMMTokenRangeEnum(this Common.Patterns.Collections.MemoryMapper.ReadElement readView)
+        {
+            var count = readView.GetIntValue();
+
+            if (count < 0) return null;
+            if (count == 0) return Enumerable.Empty<DSEInfo.TokenRangeInfo>();
+
+            var tokenRanges = new List<DSEInfo.TokenRangeInfo>(count);
+
+            for(int nIdx = 1; nIdx <= count; nIdx++)
+            {
+                tokenRanges.Add(readView.GetMMTokenRange());
+            }
+            return tokenRanges;
+        }
+
+        static public IPAddress GetMMIPAddress(this Common.Patterns.Collections.MemoryMapper.ReadElement readView)
+        {
+            var ipAddressStr = readView.GetStringValue();
+
+            return ipAddressStr == null ? null : IPAddress.Parse(ipAddressStr);
+        }
+
+        static public UnitOfMeasure GetMMUOM(this Common.Patterns.Collections.MemoryMapper.ReadElement readView)
+        {
+            return new UnitOfMeasure(readView.GetDecimalValue(), (UnitOfMeasure.Types) readView.GetULongValue());
+        }
+
+        static public void SkipMMElement(this Common.Patterns.Collections.MemoryMapper.ReadElement readElement)
+        {
+
+            if (readElement.GetBoolValue()) return;
+
+            MMElementType elementType = (MMElementType)readElement.GetIntValue();
+
+            switch (elementType)
+            {
+                case MMElementType.Long:
+                    readElement.SkipLong();
+                    break;
+                case MMElementType.UnitOfMeasure:
+                    readElement.SkipMMUOM();
+                    break;
+                case MMElementType.DateTime:
+                case MMElementType.DateTimeOffset:
+                case MMElementType.Timespan:
+                    readElement.SkipStruct();
+                    break;
+                case MMElementType.DDLStmt:
+                case MMElementType.Keyspace:
+                case MMElementType.Node:
+                case MMElementType.DataCenter:
+                case MMElementType.Cluster:
+                    readElement.SkipInt();
+                    break;
+                case MMElementType.JSON:
+                case MMElementType.String:
+                case MMElementType.IPAddress:
+                    readElement.SkipString();
+                    break;
+                case MMElementType.TokenRange:
+                    readElement.SkipMMTokenRange();
+                    break;
+                default:
+                    throw new ArgumentException(string.Format("SkipMMElement Failed with an unkown MMEllementType of {0}", elementType));
+                    //break;
+            }
+        }
+
+        static public void SkipMMTokenRange(this Common.Patterns.Collections.MemoryMapper.ReadElement readElement)
+        {
+            readElement.SkipLong();
+            readElement.SkipLong();
+            readElement.SkipMMUOM();
+        }
+
+        static public void SkipMMTokenRangeEnum(this Common.Patterns.Collections.MemoryMapper.ReadElement readElement)
+        {
+            var count = readElement.GetIntValue();
+
+            if (count <= 0) return;
+
+            for (int nIdx = 1; nIdx <= count; nIdx++)
+            {
+                readElement.SkipMMTokenRange();
+            }
+        }
+
+        static public void SkipMMIpAddresse(this Common.Patterns.Collections.MemoryMapper.ReadElement readElement)
+        {
+            readElement.SkipString();
+        }
+
+        static public void SkipMMUOM(this Common.Patterns.Collections.MemoryMapper.ReadElement readElement)
+        {
+            readElement.SkipDecimal();
+            readElement.SkipULong();
+        }
+
+        static public void WriteMMElement(this Common.Patterns.Collections.MemoryMapper.WriteElement writeElement, IEnumerable<KeyValuePair<string, object>> values)
+        {
+            var startPos = writeElement.CurrentMMPosition;
+            var startSize = writeElement.CurrentElementSize;
+            int nbrItems = 0;
+
+            writeElement.Pad(sizeof(int) * 2);
+
+            foreach (var keyvaluePair in values)
+            {
+                writeElement.StoreValue(keyvaluePair.Key);
+                writeElement.WriteMMElement(keyvaluePair.Value);
+                nbrItems++;
+            }
+
+            writeElement.MemoryMapper.Write(startPos, (int) (writeElement.CurrentElementSize - startSize));
+            writeElement.MemoryMapper.Write(startPos + sizeof(int), nbrItems);
+        }
+
+        static public Dictionary<string, object> ReadMMElement(this Common.Patterns.Collections.MemoryMapper.ReadElement readElement, Cluster cluster, IDataCenter dc, INode node, IKeyspace keyspace)
+        {
+            var values = new Dictionary<string, object>();
+
+            readElement.SkipInt(); //Skip the total size
+            var nbrElements = readElement.GetIntValue();
+
+            for(int nIdx = 1; nIdx <= nbrElements; nIdx++)
+            {
+                values.Add(readElement.GetStringValue(),
+                           readElement.GetMMElement(cluster, dc, node, keyspace));
+            }
+
+            return values;
+        }
+
+        static public void SkipMMElementKVPStrObj(this Common.Patterns.Collections.MemoryMapper.ReadElement readElement)
+        {
+            var writtenSize = readElement.GetIntValue();
+
+            readElement.SkipBasedOnSize(writtenSize - sizeof(int));
+        }
     }
 }

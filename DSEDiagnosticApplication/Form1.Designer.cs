@@ -37,6 +37,8 @@
             Infragistics.Win.UltraWinGrid.UltraGridColumn ultraGridColumn4 = new Infragistics.Win.UltraWinGrid.UltraGridColumn("Node");
             Infragistics.Win.UltraWinGrid.UltraGridColumn ultraGridColumn5 = new Infragistics.Win.UltraWinGrid.UltraGridColumn("NbrItems");
             Infragistics.Win.UltraWinGrid.UltraGridColumn ultraGridColumn6 = new Infragistics.Win.UltraWinGrid.UltraGridColumn("Results");
+            Infragistics.Win.UltraWinGrid.UltraGridColumn ultraGridColumn8 = new Infragistics.Win.UltraWinGrid.UltraGridColumn("ExportResults", 0);
+            Infragistics.Win.UltraWinGrid.UltraGridColumn ultraGridColumn7 = new Infragistics.Win.UltraWinGrid.UltraGridColumn("ShowLogEventDialog", 1);
             Infragistics.Win.UltraWinGrid.UltraGridBand ultraGridBand2 = new Infragistics.Win.UltraWinGrid.UltraGridBand("Results", -1);
             Infragistics.Win.Appearance appearance2 = new Infragistics.Win.Appearance();
             Infragistics.Win.Appearance appearance3 = new Infragistics.Win.Appearance();
@@ -74,8 +76,8 @@
             this.button4 = new System.Windows.Forms.Button();
             this.button5 = new System.Windows.Forms.Button();
             this.ultraGroupBox5 = new Infragistics.Win.Misc.UltraGroupBox();
-            this.ultraGroupBox6 = new Infragistics.Win.Misc.UltraGroupBox();
             this.ultraDateTimeEditorStartLog = new Infragistics.Win.UltraWinEditors.UltraDateTimeEditor();
+            this.ultraGroupBox6 = new Infragistics.Win.Misc.UltraGroupBox();
             this.ultraDateTimeEditorEndLog = new Infragistics.Win.UltraWinEditors.UltraDateTimeEditor();
             ((System.ComponentModel.ISupportInitialize)(this.ultraGrid1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.ultraGroupBox1)).BeginInit();
@@ -94,9 +96,9 @@
             ((System.ComponentModel.ISupportInitialize)(this.ultraStatusBar1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.ultraGroupBox5)).BeginInit();
             this.ultraGroupBox5.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.ultraDateTimeEditorStartLog)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.ultraGroupBox6)).BeginInit();
             this.ultraGroupBox6.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.ultraDateTimeEditorStartLog)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.ultraDateTimeEditorEndLog)).BeginInit();
             this.SuspendLayout();
             // 
@@ -131,24 +133,46 @@
             this.ultraGrid1.DisplayLayout.Appearance = appearance1;
             this.ultraGrid1.DisplayLayout.AutoFitStyle = Infragistics.Win.UltraWinGrid.AutoFitStyle.ResizeAllColumns;
             ultraGridColumn1.Header.VisiblePosition = 0;
-            ultraGridColumn1.Width = 212;
+            ultraGridColumn1.Width = 168;
             ultraGridColumn2.Header.VisiblePosition = 1;
-            ultraGridColumn2.Width = 207;
+            ultraGridColumn2.Width = 171;
             ultraGridColumn3.Header.VisiblePosition = 2;
-            ultraGridColumn3.Width = 207;
+            ultraGridColumn3.Width = 171;
             ultraGridColumn4.Header.VisiblePosition = 3;
-            ultraGridColumn4.Width = 207;
+            ultraGridColumn4.Width = 171;
             ultraGridColumn5.Header.VisiblePosition = 4;
-            ultraGridColumn5.Width = 207;
+            ultraGridColumn5.Width = 171;
             ultraGridColumn6.Header.VisiblePosition = 5;
-            ultraGridColumn6.Width = 207;
+            ultraGridColumn6.Width = 171;
+            ultraGridColumn8.AllowGroupBy = Infragistics.Win.DefaultableBoolean.False;
+            ultraGridColumn8.AllowRowFiltering = Infragistics.Win.DefaultableBoolean.False;
+            ultraGridColumn8.AllowRowSummaries = Infragistics.Win.UltraWinGrid.AllowRowSummaries.False;
+            ultraGridColumn8.AutoCompleteMode = Infragistics.Win.AutoCompleteMode.None;
+            ultraGridColumn8.CellActivation = Infragistics.Win.UltraWinGrid.Activation.ActivateOnly;
+            ultraGridColumn8.DefaultCellValue = "Export";
+            ultraGridColumn8.Header.Caption = "Export";
+            ultraGridColumn8.Header.ToolTipText = "Export Results";
+            ultraGridColumn8.Header.VisiblePosition = 6;
+            ultraGridColumn8.Style = Infragistics.Win.UltraWinGrid.ColumnStyle.Button;
+            ultraGridColumn8.Width = 107;
+            ultraGridColumn7.AllowGroupBy = Infragistics.Win.DefaultableBoolean.False;
+            ultraGridColumn7.AllowRowFiltering = Infragistics.Win.DefaultableBoolean.False;
+            ultraGridColumn7.AllowRowSummaries = Infragistics.Win.UltraWinGrid.AllowRowSummaries.False;
+            ultraGridColumn7.AutoCompleteMode = Infragistics.Win.AutoCompleteMode.None;
+            ultraGridColumn7.CellActivation = Infragistics.Win.UltraWinGrid.Activation.ActivateOnly;
+            ultraGridColumn7.DefaultCellValue = "Log Event Dialog";
+            ultraGridColumn7.Header.VisiblePosition = 7;
+            ultraGridColumn7.Style = Infragistics.Win.UltraWinGrid.ColumnStyle.Button;
+            ultraGridColumn7.Width = 117;
             ultraGridBand1.Columns.AddRange(new object[] {
             ultraGridColumn1,
             ultraGridColumn2,
             ultraGridColumn3,
             ultraGridColumn4,
             ultraGridColumn5,
-            ultraGridColumn6});
+            ultraGridColumn6,
+            ultraGridColumn8,
+            ultraGridColumn7});
             this.ultraGrid1.DisplayLayout.BandsSerializer.Add(ultraGridBand1);
             this.ultraGrid1.DisplayLayout.BandsSerializer.Add(ultraGridBand2);
             this.ultraGrid1.DisplayLayout.BorderStyle = Infragistics.Win.UIElementBorderStyle.Solid;
@@ -215,6 +239,8 @@
             this.ultraGrid1.TabIndex = 3;
             this.ultraGrid1.Text = "Result";
             this.ultraGrid1.InitializeLayout += new Infragistics.Win.UltraWinGrid.InitializeLayoutEventHandler(this.ultraGrid1_InitializeLayout);
+            this.ultraGrid1.InitializeRow += new Infragistics.Win.UltraWinGrid.InitializeRowEventHandler(this.ultraGrid1_InitializeRow);
+            this.ultraGrid1.ClickCellButton += new Infragistics.Win.UltraWinGrid.CellEventHandler(this.ultraGrid1_ClickCellButton);
             this.ultraGrid1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.ultraGrid1_MouseDown);
             // 
             // ultraGroupBox1
@@ -335,7 +361,7 @@
             // timerProgress
             // 
             this.timerProgress.Enabled = true;
-            this.timerProgress.Interval = 1500;
+            this.timerProgress.Interval = 2000;
             this.timerProgress.Tick += new System.EventHandler(this.timerProgress_Tick);
             // 
             // button3
@@ -377,15 +403,6 @@
             this.ultraGroupBox5.TabIndex = 5;
             this.ultraGroupBox5.Text = "Log Beginning Timeframe";
             // 
-            // ultraGroupBox6
-            // 
-            this.ultraGroupBox6.Controls.Add(this.ultraDateTimeEditorEndLog);
-            this.ultraGroupBox6.Location = new System.Drawing.Point(439, 81);
-            this.ultraGroupBox6.Name = "ultraGroupBox6";
-            this.ultraGroupBox6.Size = new System.Drawing.Size(200, 44);
-            this.ultraGroupBox6.TabIndex = 6;
-            this.ultraGroupBox6.Text = "Log Ending Timeframe";
-            // 
             // ultraDateTimeEditorStartLog
             // 
             stateEditorButton1.Key = "UTCStart";
@@ -397,6 +414,15 @@
             this.ultraDateTimeEditorStartLog.Size = new System.Drawing.Size(194, 21);
             this.ultraDateTimeEditorStartLog.SpinButtonDisplayStyle = Infragistics.Win.ButtonDisplayStyle.Always;
             this.ultraDateTimeEditorStartLog.TabIndex = 0;
+            // 
+            // ultraGroupBox6
+            // 
+            this.ultraGroupBox6.Controls.Add(this.ultraDateTimeEditorEndLog);
+            this.ultraGroupBox6.Location = new System.Drawing.Point(439, 81);
+            this.ultraGroupBox6.Name = "ultraGroupBox6";
+            this.ultraGroupBox6.Size = new System.Drawing.Size(200, 44);
+            this.ultraGroupBox6.TabIndex = 6;
+            this.ultraGroupBox6.Text = "Log Ending Timeframe";
             // 
             // ultraDateTimeEditorEndLog
             // 
@@ -430,7 +456,7 @@
             this.Controls.Add(this.button2);
             this.Controls.Add(this.button1);
             this.Name = "Form1";
-            this.Text = "Form1";
+            this.Text = "DSE Diagnostic Parsing Engine";
             this.Load += new System.EventHandler(this.Form1_Load);
             ((System.ComponentModel.ISupportInitialize)(this.ultraGrid1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.ultraGroupBox1)).EndInit();
@@ -454,10 +480,10 @@
             ((System.ComponentModel.ISupportInitialize)(this.ultraGroupBox5)).EndInit();
             this.ultraGroupBox5.ResumeLayout(false);
             this.ultraGroupBox5.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.ultraDateTimeEditorStartLog)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.ultraGroupBox6)).EndInit();
             this.ultraGroupBox6.ResumeLayout(false);
             this.ultraGroupBox6.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.ultraDateTimeEditorStartLog)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.ultraDateTimeEditorEndLog)).EndInit();
             this.ResumeLayout(false);
 

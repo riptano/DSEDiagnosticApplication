@@ -10,6 +10,7 @@ using DSEDiagnosticLogger;
 using Common;
 using DSEDiagnosticLog4NetParser;
 using CTS = Common.Patterns.Collections.ThreadSafe;
+using IMMLogValue = Common.Patterns.Collections.MemoryMapped.IMMValue<DSEDiagnosticLibrary.ILogEvent>;
 
 namespace DSEDiagnosticFileParser
 {
@@ -99,12 +100,9 @@ namespace DSEDiagnosticFileParser
             {
                 this.Path = fileInstance.File;
                 this.Node = fileInstance.Node;
-                this._eventList = fileInstance._logEvents;
                 this.OrphanedSessionEvents = fileInstance._orphanedSessionEvents;
             }
 
-            [JsonProperty(PropertyName="Events")]
-            private readonly List<LogCassandraEvent> _eventList;
             public readonly IEnumerable<LogCassandraEvent> OrphanedSessionEvents;
 
             #region IResult
@@ -115,12 +113,33 @@ namespace DSEDiagnosticFileParser
             [JsonIgnore]
             public IDataCenter DataCenter { get { return this.Node?.DataCenter; } }
             public INode Node { get; private set; }
-            public int NbrItems { get { return this._eventList.Count; } }
+            public int NbrItems { get; private set; }
 
             [JsonIgnore]
-            public IEnumerable<IParsed> Results { get { return this._eventList; } }
+            public IEnumerable<IParsed> Results { get { return this.ResultsTask?.Result.Select(e => e.GetValue()); } }
 
             #endregion
+
+            [JsonIgnore]
+            public Task<IEnumerable<IMMLogValue>> ResultsTask { get; private set; }
+
+            internal int RunLogResultsTask(INode node, List<LogCassandraEvent> eventList)
+            {
+                this.NbrItems = eventList.Count;
+                this.ResultsTask = System.Threading.Tasks.Task.Factory.StartNew(() =>
+                                    {
+                                        var mmEvents = new List<IMMLogValue>(eventList.Count);
+
+                                        eventList.ForEach(e =>
+                                        {
+                                            mmEvents.Add(node.AssociateItem(e));
+                                        });
+
+                                        eventList.Clear();
+                                        return (IEnumerable<IMMLogValue>) mmEvents;
+                                    });
+                return this.NbrItems;
+            }
         }
 
         [JsonProperty(PropertyName="Results")]
@@ -174,7 +193,7 @@ namespace DSEDiagnosticFileParser
                                                                             .SelectMany(f => f.OrphanedEvents)
                                                                             .OrderBy(o => o.EventTimeLocal);
 
-                        possibleOpenSessions.ForEach(o => this._openSessions[o.SessionTieOutId] = o);
+                        possibleOpenSessions.ForEach(o => this._openSessions[o.SessionTieOutId] = (LogCassandraEvent) o);
                     }
 
                     matchItem = CLogTypeParser.FindMatch(this._parser, logMessage);
@@ -257,7 +276,7 @@ namespace DSEDiagnosticFileParser
             this._openSessions.Clear();
             this._unsedOpenSessionEvents.Clear();
 
-            return (uint) this._logEvents.Count;
+            return (uint) this._result.RunLogResultsTask(this.Node, this._logEvents);
         }
 
         private LogCassandraEvent PorcessUnhandledError()
@@ -690,7 +709,7 @@ namespace DSEDiagnosticFileParser
 
                     if (sessionEvent.ParentEvents.HasAtLeastOneElement())
                     {
-                        parentEvents.AddRange(sessionEvent.ParentEvents.Cast<LogCassandraEvent>());
+                        parentEvents.AddRange(sessionEvent.ParentEvents.Select(e => (LogCassandraEvent) e.GetValue()));
                     }
 
                     if ((sessionEvent.Type & EventTypes.SessionBegin) == EventTypes.SessionBegin)
@@ -855,8 +874,8 @@ namespace DSEDiagnosticFileParser
                                                         sessionId,
                                                         matchItem.Item5.Product);
 
-                    ((LogCassandraEvent)logEvent.ParentEvents.LastOrDefault(p => ((LogCassandraEvent)p).SessionTieOutId == logEvent.SessionTieOutId))?.UpdateEndingTimeStamp(logEvent.EventTimeLocal);
-                    ((LogCassandraEvent)logEvent.ParentEvents.FirstOrDefault())?.UpdateEndingTimeStamp(logEvent.EventTimeLocal);
+                    ((LogCassandraEvent) (logEvent.ParentEvents.LastOrDefault(p => p.GetValue().SessionTieOutId == logEvent.SessionTieOutId))?.GetValue())?.UpdateEndingTimeStamp(logEvent.EventTimeLocal);
+                    ((LogCassandraEvent) (logEvent.ParentEvents.FirstOrDefault())?.GetValue())?.UpdateEndingTimeStamp(logEvent.EventTimeLocal);
                 }
                 else
                 {
@@ -1279,5 +1298,7 @@ namespace DSEDiagnosticFileParser
                 return !LogLinesHash.Add(checkTag);
             }
         }
+
+
     }
 }

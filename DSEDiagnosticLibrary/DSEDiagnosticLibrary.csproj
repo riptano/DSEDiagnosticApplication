@@ -97,6 +97,7 @@
     <Compile Include="Keyspace.cs" />
     <Compile Include="LibrarySettings.cs" />
     <Compile Include="LogCassandraEvent.cs" />
+    <Compile Include="LogEvent.cs" />
     <Compile Include="LogMessage.cs" />
     <Compile Include="MiscHelpers1.cs" />
     <Compile Include="Node.cs" />

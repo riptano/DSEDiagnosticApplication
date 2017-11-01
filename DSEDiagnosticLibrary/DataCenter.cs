@@ -8,6 +8,7 @@ using Common.Patterns;
 using System.Threading.Tasks;
 using Common.Patterns.Tasks;
 using CTS = Common.Patterns.Collections.ThreadSafe;
+using IMMLogValue = Common.Patterns.Collections.MemoryMapped.IMMValue<DSEDiagnosticLibrary.ILogEvent>;
 
 namespace DSEDiagnosticLibrary
 {
@@ -28,7 +29,7 @@ namespace DSEDiagnosticLibrary
         INode TryGetNode(int nodeHashCode);
         INode TryGetAddNode(INode node);
 
-        IEnumerable<LogCassandraEvent> LogEvents { get; }
+        IEnumerable<IMMLogValue> LogEvents { get; }
 		IEnumerable<IConfigurationLine> Configurations { get; }
         IEnumerable<IConfigurationLine> GetConfigurations(INode node);
 
@@ -161,7 +162,7 @@ namespace DSEDiagnosticLibrary
         }
 
         [JsonIgnore]
-        virtual public IEnumerable<LogCassandraEvent> LogEvents { get { throw new NotImplementedException(); } }
+        virtual public IEnumerable<IMMLogValue> LogEvents { get { throw new NotImplementedException(); } }
         [JsonIgnore]
         virtual public IEnumerable<IConfigurationLine> Configurations { get { throw new NotImplementedException(); } }
         [JsonIgnore]
@@ -443,7 +444,7 @@ namespace DSEDiagnosticLibrary
 		}
 
         [JsonIgnore]
-        override public IEnumerable<LogCassandraEvent> LogEvents { get { return this.Nodes.SelectMany(n => n.LogEvents); } }
+        override public IEnumerable<IMMLogValue> LogEvents { get { return this.Nodes.SelectMany(n => n.LogEvents); } }
 
         [JsonProperty(PropertyName="Configurations")]
         private List<IConfigurationLine> _configurations = new List<IConfigurationLine>();

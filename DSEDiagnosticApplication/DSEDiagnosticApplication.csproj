@@ -49,17 +49,38 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\CommonPatterns\Release\Common.Patterns.Threading.dll</HintPath>
     </Reference>
+    <Reference Include="Common.Patterns.TimeZoneInfo, Version=4.0.5.0, Culture=neutral, PublicKeyToken=75d1a63e21e859f1, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Common Patterns\Assemblies\40\Release\Common.Patterns.TimeZoneInfo.dll</HintPath>
+    </Reference>
     <Reference Include="Common.Patterns.WaitCursor">
       <HintPath>..\packages\CommonPatterns\Release\Common.Patterns.WaitCursor.dll</HintPath>
+    </Reference>
+    <Reference Include="Common.TimeZones, Version=4.0.5.0, Culture=neutral, PublicKeyToken=75d1a63e21e859f1, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Common Patterns\Assemblies\40\Release\Common.TimeZones.dll</HintPath>
     </Reference>
     <Reference Include="Common.WinForm">
       <HintPath>..\packages\CommonPatterns\Release\Common.WinForm.dll</HintPath>
     </Reference>
+    <Reference Include="Dexiom.EPPlusExporter, Version=0.9.99.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dexiom.EPPlusExporter.0.9.99\lib\net45\Dexiom.EPPlusExporter.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="EPPlus, Version=4.1.1.0, Culture=neutral, PublicKeyToken=ea159fdaa78159a1, processorArchitecture=MSIL">
+      <HintPath>..\packages\EPPlus.4.1.1\lib\net40\EPPlus.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Infragistics4.Shared.v14.2, Version=14.2.20142.2168, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb" />
     <Reference Include="Infragistics4.Win.Misc.v14.2, Version=14.2.20142.2168, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb" />
+    <Reference Include="Infragistics4.Win.UltraWinDataSource.v14.2, Version=14.2.20142.2168, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb, processorArchitecture=MSIL" />
     <Reference Include="Infragistics4.Win.UltraWinEditors.v14.2, Version=14.2.20142.2168, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb, processorArchitecture=MSIL" />
+    <Reference Include="Infragistics4.Win.UltraWinGanttView.v14.2, Version=14.2.20142.2168, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb, processorArchitecture=MSIL" />
     <Reference Include="Infragistics4.Win.UltraWinGrid.v14.2, Version=14.2.20142.2168, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb, processorArchitecture=MSIL" />
+    <Reference Include="Infragistics4.Win.UltraWinSchedule.v14.2, Version=14.2.20142.2168, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb, processorArchitecture=MSIL" />
     <Reference Include="Infragistics4.Win.UltraWinStatusBar.v14.2, Version=14.2.20142.2168, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb, processorArchitecture=MSIL" />
+    <Reference Include="Infragistics4.Win.UltraWinTabControl.v14.2, Version=14.2.20142.2168, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb" />
+    <Reference Include="Infragistics4.Win.UltraWinToolbars.v14.2, Version=14.2.20142.2168, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb" />
     <Reference Include="Infragistics4.Win.v14.2, Version=14.2.20142.2168, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb" />
     <Reference Include="log4net, Version=2.0.8.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
       <HintPath>..\packages\log4net.2.0.8\lib\net45-full\log4net.dll</HintPath>
@@ -91,7 +112,9 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization.Formatters.Soap" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -117,6 +140,12 @@
     <Compile Include="FormJSONEditor.Designer.cs">
       <DependentUpon>FormJSONEditor.cs</DependentUpon>
     </Compile>
+    <Compile Include="FormLogEventGrid.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormLogEventGrid.Designer.cs">
+      <DependentUpon>FormLogEventGrid.cs</DependentUpon>
+    </Compile>
     <Compile Include="FormObjectGrid.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -132,6 +161,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="FormJSONEditor.resx">
       <DependentUpon>FormJSONEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormLogEventGrid.resx">
+      <DependentUpon>FormLogEventGrid.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FormObjectGrid.resx">
       <DependentUpon>FormObjectGrid.cs</DependentUpon>

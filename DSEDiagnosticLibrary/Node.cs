@@ -11,6 +11,8 @@ using Common;
 using Common.Patterns;
 using Common.Patterns.TimeZoneInfo;
 using CTS = Common.Patterns.Collections.ThreadSafe;
+using CMM = Common.Patterns.Collections.MemoryMapped;
+using IMMLogValue = Common.Patterns.Collections.MemoryMapped.IMMValue<DSEDiagnosticLibrary.ILogEvent>;
 
 namespace DSEDiagnosticLibrary
 {
@@ -699,10 +701,25 @@ namespace DSEDiagnosticLibrary
                 }
             }
 
+            /// <summary>
+            /// If true, this range wraps from a starting range that is positive but ends in a negative numeric value (e.g., from the maximum numeric value to the minimal numeric value).
+            /// </summary>
             public bool WrapsRange = false;
-            public long StartRange; //Start Token (exclusive)
+            /// <summary>
+            /// Start Token (exclusive)
+            /// </summary>
+            public long StartRange;
+            /// <summary>
+            /// End Token (inclusive)
+            /// </summary>
             public long EndRange; //End Token (inclusive)
+            /// <summary>
+            /// The number of tokens (slots) that can be accommodated within this range
+            /// </summary>
             public ulong Slots;
+            /// <summary>
+            /// The size/amount of data that is currently within this token range.
+            /// </summary>
             public UnitOfMeasure Load;
 
             /// <summary>
@@ -842,7 +859,7 @@ namespace DSEDiagnosticLibrary
         public LogFileInfo(IFilePath logFile,
                             DateTimeOffsetRange logfileDateRange,
                             int logItems,
-                            IEnumerable<LogCassandraEvent> orphanedEvents = null,
+                            IEnumerable<ILogEvent> orphanedEvents = null,
                             DateTimeOffsetRange logDateRange = null)
         {
             this.LogFile = logFile;
@@ -869,15 +886,15 @@ namespace DSEDiagnosticLibrary
         public UnitOfMeasure LogFileSize { get; }
 
         [JsonProperty(PropertyName = "OrphanedEvents")]
-        private IEnumerable<LogCassandraEvent> datamemberOrphanedEvents
+        private IEnumerable<ILogEvent> datamemberOrphanedEvents
         {
             get { return this._orphanedEvents.UnSafe; }
-            set { this._orphanedEvents = new CTS.List<LogCassandraEvent>(value); }
+            set { this._orphanedEvents = new CTS.List<ILogEvent>(value); }
         }
 
-        private CTS.List<LogCassandraEvent> _orphanedEvents = new CTS.List<LogCassandraEvent>();
+        private CTS.List<ILogEvent> _orphanedEvents = new CTS.List<ILogEvent>();
         [JsonIgnore]
-        public IList<LogCassandraEvent> OrphanedEvents { get { return this._orphanedEvents; } }
+        public IList<ILogEvent> OrphanedEvents { get { return this._orphanedEvents; } }
 
         public override string ToString()
         {
@@ -897,8 +914,9 @@ namespace DSEDiagnosticLibrary
 		MachineInfo Machine { get; }
 		DSEInfo DSE { get; }
 
-		IEnumerable<LogCassandraEvent> LogEvents { get; }
-        INode AssociateItem(LogCassandraEvent eventItems);
+		IEnumerable<IMMLogValue> LogEvents { get; }
+        INode AssociateItem(IMMLogValue eventItems);
+        IMMLogValue AssociateItem(ILogEvent eventItems);
         IEnumerable<IAggregatedStats> AggregatedStats { get; }
         INode AssociateItem(IAggregatedStats aggregatedStat);
 
@@ -1060,21 +1078,26 @@ namespace DSEDiagnosticLibrary
 			get;
 		}
 
-        [JsonProperty(PropertyName="LogEvents")]
-        private IEnumerable<LogCassandraEvent> datamemberEvents
+        /*[JsonProperty(PropertyName="LogEvents")]
+        private IEnumerable<IMMLogValue> datamemberEvents
         {
             get { return this._events.UnSafe; }
             set { this._events = new CTS.List<LogCassandraEvent>(value); }
-        }
+        }*/
 
-        private CTS.List<LogCassandraEvent> _events = new CTS.List<LogCassandraEvent>();
+        private CMM.List<LogCassandraEvent,ILogEvent> _events = new CMM.List<LogCassandraEvent,ILogEvent>();
         [JsonIgnore]
-        public IEnumerable<LogCassandraEvent> LogEvents { get { return this._events; } }
+        public IEnumerable<IMMLogValue> LogEvents { get { return this._events.ToEnumerable(); } }
 
-        public INode AssociateItem(LogCassandraEvent eventItems)
+        public INode AssociateItem(IMMLogValue eventItems)
         {
             this._events.Add(eventItems);
             return this;
+        }
+
+        public IMMLogValue AssociateItem(ILogEvent eventItems)
+        {
+            return this._events.AddElement((LogCassandraEvent) eventItems);
         }
 
         [JsonProperty(PropertyName = "AggregatedStats")]

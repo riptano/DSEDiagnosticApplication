@@ -8,6 +8,7 @@ using Common.Patterns;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using CTS = Common.Patterns.Collections.ThreadSafe;
+using IMMLogValue = Common.Patterns.Collections.MemoryMapped.IMMValue<DSEDiagnosticLibrary.ILogEvent>;
 
 namespace DSEDiagnosticLibrary
 {
@@ -62,7 +63,7 @@ namespace DSEDiagnosticLibrary
         public IEnumerable<IDataCenter> DataCenters { get { return this._dataCenters; } }
 
         [JsonIgnore]
-        public IEnumerable<LogCassandraEvent> LogEvents
+        public IEnumerable<IMMLogValue> LogEvents
         {
             get
             {

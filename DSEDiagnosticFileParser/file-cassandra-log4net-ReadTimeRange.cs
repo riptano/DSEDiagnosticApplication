@@ -82,6 +82,19 @@ namespace DSEDiagnosticFileParser
             public uint LineNbr { get { return 0; } }
 
             public LogFileInfo LogFileInfo { get; }
+
+            public override string ToString()
+            {
+                return string.Format("LogFileInfoParsed{{Source={0}, Path=\"{1}\", Cluster=\"{2}\", DataCenter=\"{3}\", Node=\"{4}\", Items={5}, LineNbr={6}, {7}",
+                                        this.Source,
+                                        this.Path.PathResolved,
+                                        this.Cluster.Name,
+                                        this.DataCenter.Name,
+                                        this.Node.Id.NodeName(),
+                                        this.Items,
+                                        this.LineNbr,
+                                        this.LogFileInfo);
+            }
         }
 
         [JsonObject(MemberSerialization.OptOut)]

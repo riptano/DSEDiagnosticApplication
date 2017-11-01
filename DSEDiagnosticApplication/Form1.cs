@@ -350,6 +350,68 @@ namespace DSEDiagnosticApplication
             resultCol.CellAppearance.ForeColor = Color.Blue;
             resultCol.CellAppearance.FontData.Underline = Infragistics.Win.DefaultableBoolean.True;
             resultCol.CellAppearance.Cursor = Cursors.Hand;
+
+            resultCol = e.Layout.Rows.Band.Columns["ExportResults"];
+            resultCol.CellAppearance.ForeColor = Color.Blue;
+            resultCol.CellAppearance.FontData.Underline = Infragistics.Win.DefaultableBoolean.True;
+            resultCol.CellAppearance.Cursor = Cursors.Arrow;
+            resultCol.Header.VisiblePosition = e.Layout.Bands[0].Columns.Count - 1;
+
+            resultCol = e.Layout.Rows.Band.Columns["ShowLogEventDialog"];
+            resultCol.CellAppearance.ForeColor = Color.Blue;
+            resultCol.CellAppearance.FontData.Underline = Infragistics.Win.DefaultableBoolean.True;
+            resultCol.CellAppearance.Cursor = Cursors.Arrow;
+            resultCol.Header.VisiblePosition = e.Layout.Bands[0].Columns.Count - 1;
+        }
+
+        private void ultraGrid1_InitializeRow(object sender, Infragistics.Win.UltraWinGrid.InitializeRowEventArgs e)
+        {
+            if(!e.ReInitialize)
+            {
+                var resultValue = e.Row.Cells["Result"].Value;
+
+                if(resultValue is DSEDiagnosticLibrary.IResult)
+                {
+                    var nbrItems = ((DSEDiagnosticLibrary.IResult)resultValue).NbrItems;
+
+                    if (nbrItems > 0)
+                    {
+                        e.Row.Cells["ExportResults"].Value = string.Format("{0:###,###,##0} ...", ((DSEDiagnosticLibrary.IResult)resultValue).NbrItems);
+                        e.Row.Cells["ExportResults"].ToolTipText = "Click to Export to Excel";
+                    }
+                    else
+                    {
+                        e.Row.Cells["ExportResults"].Value = null;
+                        e.Row.Cells["ExportResults"].Hidden = true;
+                    }
+                }
+                else
+                {
+                    e.Row.Cells["ExportResults"].Value = null;
+                    e.Row.Cells["ExportResults"].Hidden = true;
+                }
+
+                if (resultValue is DSEDiagnosticFileParser.file_cassandra_log4net.LogResults)
+                {
+                    var nbrItems = ((DSEDiagnosticLibrary.IResult)resultValue).NbrItems;
+
+                    if (nbrItems > 0)
+                    {
+                        e.Row.Cells["ShowLogEventDialog"].Value = "Show Log Events";
+                        e.Row.Cells["ShowLogEventDialog"].ToolTipText = "Click to display Log Event Dialog";
+                    }
+                    else
+                    {
+                        e.Row.Cells["ShowLogEventDialog"].Value = null;
+                        e.Row.Cells["ShowLogEventDialog"].Hidden = true;
+                    }
+                }
+                else
+                {
+                    e.Row.Cells["ShowLogEventDialog"].Value = null;
+                    e.Row.Cells["ShowLogEventDialog"].Hidden = true;
+                }
+            }
         }
 
         private void ultraGrid1_MouseDown(object sender, System.Windows.Forms.MouseEventArgs e)
@@ -370,47 +432,119 @@ namespace DSEDiagnosticApplication
             {
                 var gridDialog = new FormObjectGrid();
                 var propertyTbl = new PropertyTable();
+                string dialogText = null;
+                object itemValue;
 
                 //var resultArray = Array.CreateInstance(objCell.Value.GetType(), 2);
 
                 //resultArray.SetValue(objCell.Value, 0);
                 //resultArray.SetValue(((DSEDiagnosticLibrary.IResult)objCell.Value).Cluster, 1);
                 //
-
-                propertyTbl.Properties.Add(new PropertySpec("Result", objCell.Value.GetType(), "Result"));
-                propertyTbl["Result"] = objCell.Value;
-
-                foreach (var prop in objCell.Value.GetType().GetFields())
+                using (var waitCusor = Common.WaitCursor.UsingCreate(this.ultraGrid1, Common.Patterns.WaitCursorModes.GUI))
                 {
-                    propertyTbl.Properties.Add(new PropertySpec(prop.Name, prop.FieldType, "Result"));
-                    propertyTbl[prop.Name] = prop.GetValue(objCell.Value);
-                }
-                foreach (var prop in objCell.Value.GetType().GetProperties())
-                {
-                    propertyTbl.Properties.Add(new PropertySpec(prop.Name, prop.PropertyType, "Result"));
-                    propertyTbl[prop.Name] = prop.GetValue(objCell.Value);
+                    propertyTbl.Properties.Add(new PropertySpec("Result", objCell.Value.GetType(), "Result"));
+                    propertyTbl["Result"] = objCell.Value;
+
+                    if (objCell.Value != null)
+                    {
+                        {
+                            var resultInstance = objCell.Value as DSEDiagnosticLibrary.IResult;
+
+                            if(resultInstance != null)
+                            {
+                                dialogText = string.Format("{0} {1}",
+                                                            resultInstance.Node?.Id.NodeName(),
+                                                            resultInstance.Path?.Name);
+                            }
+                        }
+                        foreach (var prop in objCell.Value.GetType().GetFields())
+                        {
+                            var propType = prop.FieldType != typeof(string) && typeof(System.Collections.IEnumerable).IsAssignableFrom(prop.FieldType)
+                                            ? typeof(string[])
+                                            : typeof(string);
+
+                            propertyTbl.Properties.Add(new PropertySpec(prop.Name, propType, "Result"));
+                            itemValue = prop.GetValue(objCell.Value);
+
+                            if (propType.IsArray)
+                            {
+                                propertyTbl[prop.Name] = ((IEnumerable<object>)itemValue).Select(i => i.ToString()).ToArray();
+                            }
+                            else
+                            {
+                                propertyTbl[prop.Name] = itemValue?.ToString();
+                            }
+                        }
+                        foreach (var prop in objCell.Value.GetType().GetProperties())
+                        {
+                            var propType = prop.PropertyType != typeof(string) && typeof(System.Collections.IEnumerable).IsAssignableFrom(prop.PropertyType)
+                                            ? typeof(string[])
+                                            : typeof(string);
+
+                            propertyTbl.Properties.Add(new PropertySpec(prop.Name, propType, "Result"));
+                            itemValue = prop.GetValue(objCell.Value);
+
+                            if (propType.IsArray)
+                            {
+                                propertyTbl[prop.Name] = ((IEnumerable<object>)itemValue).Select(i => i.ToString()).ToArray();
+                            }
+                            else
+                            {
+                                propertyTbl[prop.Name] = itemValue?.ToString();
+                            }
+                        }
+                    }
+
+                    var cluster = ((DSEDiagnosticLibrary.IResult)objCell.Value).Cluster;
+                    propertyTbl.Properties.Add(new PropertySpec("Cluster", typeof(DSEDiagnosticLibrary.Cluster), "Custer"));
+                    propertyTbl["Cluster"] = cluster;
+
+                    if (cluster != null)
+                    {
+                        foreach (var prop in cluster.GetType().GetFields())
+                        {
+                            var propType = prop.FieldType != typeof(string) && typeof(System.Collections.IEnumerable).IsAssignableFrom(prop.FieldType)
+                                            ? typeof(string[])
+                                            : typeof(string);
+
+                            propertyTbl.Properties.Add(new PropertySpec(prop.Name, propType, "Custer"));
+                            itemValue = prop.GetValue(cluster);
+
+                            if (propType.IsArray)
+                            {
+                                propertyTbl[prop.Name] = ((IEnumerable<object>)itemValue).Select(i => i.ToString()).ToArray();
+                            }
+                            else
+                            {
+                                propertyTbl[prop.Name] = itemValue?.ToString();
+                            }
+                        }
+                        foreach (var prop in cluster.GetType().GetProperties())
+                        {
+                            var propType = prop.PropertyType != typeof(string) && typeof(System.Collections.IEnumerable).IsAssignableFrom(prop.PropertyType)
+                                            ? typeof(string[])
+                                            : typeof(string);
+
+                            propertyTbl.Properties.Add(new PropertySpec(prop.Name, propType, "Custer"));
+                            itemValue = prop.GetValue(cluster);
+
+                            if (propType.IsArray)
+                            {
+                                propertyTbl[prop.Name] = ((IEnumerable<object>)itemValue).Select(i => i.ToString()).ToArray();
+                            }
+                            else
+                            {
+                                propertyTbl[prop.Name] = itemValue?.ToString();
+                            }
+                        }
+                    }
+
+                    gridDialog.DataSource = propertyTbl;
                 }
 
-                var cluster = ((DSEDiagnosticLibrary.IResult)objCell.Value).Cluster;
-                propertyTbl.Properties.Add(new PropertySpec("Cluster", typeof(DSEDiagnosticLibrary.Cluster), "Custer"));
-                propertyTbl["Cluster"] = cluster;
-
-                foreach (var prop in cluster.GetType().GetFields())
-                {
-                    propertyTbl.Properties.Add(new PropertySpec(prop.Name, prop.FieldType, "Custer"));
-                    propertyTbl[prop.Name] = prop.GetValue(cluster);
-                }
-                foreach (var prop in cluster.GetType().GetProperties())
-                {
-                    propertyTbl.Properties.Add(new PropertySpec(prop.Name, prop.PropertyType, "Custer"));
-                    propertyTbl[prop.Name] = prop.GetValue(cluster);
-                }
-
-                gridDialog.DataSource = propertyTbl;
-
-                gridDialog.Show(this);
+                gridDialog.Text = dialogText;
+                gridDialog.Show();
             }
-
         }
 
         int _currentTimerIdx = 0;
@@ -476,6 +610,110 @@ namespace DSEDiagnosticApplication
             textPad.StartInfo.FileName = "textpad.exe";
             textPad.StartInfo.Arguments = @".\DSEDiagnosticApplication.log";
             textPad.Start();
+        }
+
+        private void ultraGrid1_ClickCellButton(object sender, Infragistics.Win.UltraWinGrid.CellEventArgs e)
+        {
+            if(e.Cell.Column.Key as string == "ExportResults")
+            {
+                #region Export to Excel
+                using (var waitCusor = Common.WaitCursor.UsingCreate(this.ultraGrid1, Common.Patterns.WaitCursorModes.GUI))
+                {
+                    var results = e.Cell.Row.Cells["Result"].Value as DSEDiagnosticLibrary.IResult;
+
+                    if (results != null)
+                    {
+                        string excelFileName = null;
+                        CommonOpenFileDialog dialog = new CommonOpenFileDialog();
+                        //dialog.InitialDirectory = this.ultraTextEditorDiagnosticsFolder.Text ?? @"C:\";
+                        dialog.IsFolderPicker = false;
+                        dialog.Title = "Choose Export Excel Folder Location";
+                        dialog.EnsurePathExists = false;
+                        dialog.DefaultExtension = ".xlsx";
+                        dialog.EnsurePathExists = true;
+                        dialog.EnsureValidNames = true;
+                        dialog.Filters.Add(new CommonFileDialogFilter("Excel File", "*.xlsx"));
+                        using (var suspend = Common.WaitCursor.UsingSuspend())
+                        {
+                            if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+                            {
+                                excelFileName = dialog.FileName;
+                            }
+                        }
+
+                        if (!string.IsNullOrEmpty(excelFileName))
+                        {
+                            System.Threading.Tasks.Task.Factory.StartNew(() =>
+                           {
+                               var buttonText = e.Cell.Row.Cells["ExportResults"].Value;
+                               var cellRow = e.Cell.Row;
+                               var threadId = System.Threading.Thread.CurrentThread.ManagedThreadId;
+
+                               try
+                               {
+                                   cellRow.Cells["ExportResults"].Value = "Running...";
+                                   cellRow.Cells["ExportResults"].Activation = Infragistics.Win.UltraWinGrid.Activation.Disabled;
+
+                                   if (results is DSEDiagnosticFileParser.file_cassandra_log4net.LogResults)
+                                   {
+                                       this._progressionMsgs.Add(new Tuple<int, string>(threadId, "Excel Exporting of \"LogCassandraEvent\"..."));
+
+                                       var exporter = Dexiom.EPPlusExporter.EnumerableExporter.Create(results.Results.Cast<DSEDiagnosticLibrary.LogCassandraEvent>());
+                                       var excelPackage = exporter.CreateExcelPackage();
+
+                                       this._progressionMsgs.Add(new Tuple<int, string>(threadId, string.Format("Saving Excel file \"{0}\"...", excelFileName)));
+
+                                       //save the document
+                                       excelPackage.SaveAs(new System.IO.FileInfo(excelFileName));
+                                   }
+                                   else
+                                   {
+                                       this._progressionMsgs.Add(new Tuple<int, string>(threadId, string.Format("Excel Exporting of \"{0}\"...", results.Results.GetType().Name)));
+
+                                       var exporter = Dexiom.EPPlusExporter.EnumerableExporter.Create(results.Results);
+                                       var excelPackage = exporter.CreateExcelPackage();
+
+                                       this._progressionMsgs.Add(new Tuple<int, string>(threadId, string.Format("Saving Excel file \"{0}\"...", excelFileName)));
+
+                                       //save the document
+                                       excelPackage.SaveAs(new System.IO.FileInfo(excelFileName));
+                                   }
+
+                                   this._progressionMsgs.Add(new Tuple<int, string>(threadId, string.Format("Saved Excel file \"{0}\"", excelFileName)));
+                               }
+                               catch (System.Exception ex)
+                               {
+                                   buttonText = string.Format("Failed: {0} \"{1}\"", ex.GetType().Name, ex.Message);
+                                   this._progressionMsgs.Add(new Tuple<int, string>(threadId, string.Format("Failed saving of Excel file \"{0}\" with exception \"{1}\" ({2})",
+                                                                                                        excelFileName,
+                                                                                                        ex.Message,
+                                                                                                        ex.GetType().Name)));
+                                   throw;
+                               }
+                               finally
+                               {
+                                   cellRow.Cells["ExportResults"].Value = buttonText;
+                                   cellRow.Cells["ExportResults"].Activation = Infragistics.Win.UltraWinGrid.Activation.ActivateOnly;
+                                   this._progressionMsgs.RemoveAll(m => m.Item1 == threadId);
+                               }
+                           });
+                        }
+                    }
+                }
+                #endregion
+            }
+            else if (e.Cell.Column.Key as string == "ShowLogEventDialog")
+            {
+                #region Show Log Event Dialog
+                var logResults = e.Cell.Row.Cells["Result"].Value as DSEDiagnosticFileParser.file_cassandra_log4net.LogResults;
+
+                if (logResults != null)
+                {
+                    var logEventDialog = new FormLogEventGrid(logResults.ResultsTask);
+                    logEventDialog.Show();
+                }
+                #endregion
+            }
         }
     }
 }
