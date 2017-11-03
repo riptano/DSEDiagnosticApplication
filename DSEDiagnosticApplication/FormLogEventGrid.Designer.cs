@@ -88,8 +88,7 @@
             Infragistics.Win.UltraWinGrid.UltraGridColumn ultraGridColumn3 = new Infragistics.Win.UltraWinGrid.UltraGridColumn("Cluster");
             Infragistics.Win.UltraWinGrid.UltraGridColumn ultraGridColumn4 = new Infragistics.Win.UltraWinGrid.UltraGridColumn("DataCenter");
             Infragistics.Win.UltraWinGrid.UltraGridColumn ultraGridColumn5 = new Infragistics.Win.UltraWinGrid.UltraGridColumn("Node");
-            Infragistics.Win.UltraWinGrid.UltraGridColumn ultraGridColumn6 = new Infragistics.Win.UltraWinGrid.UltraGridColumn("Items");
-            Infragistics.Win.UltraWinGrid.UltraGridColumn ultraGridColumn7 = new Infragistics.Win.UltraWinGrid.UltraGridColumn("LineNbr");
+            Infragistics.Win.UltraWinGrid.UltraGridColumn ultraGridColumn46 = new Infragistics.Win.UltraWinGrid.UltraGridColumn("Type");
             Infragistics.Win.UltraWinGrid.UltraGridColumn ultraGridColumn8 = new Infragistics.Win.UltraWinGrid.UltraGridColumn("Class");
             Infragistics.Win.UltraWinGrid.UltraGridColumn ultraGridColumn9 = new Infragistics.Win.UltraWinGrid.UltraGridColumn("SubClass");
             Infragistics.Win.UltraWinGrid.UltraGridColumn ultraGridColumn10 = new Infragistics.Win.UltraWinGrid.UltraGridColumn("Id");
@@ -104,9 +103,10 @@
             Infragistics.Win.UltraWinGrid.UltraGridColumn ultraGridColumn19 = new Infragistics.Win.UltraWinGrid.UltraGridColumn("DSEProduct");
             Infragistics.Win.UltraWinGrid.UltraGridColumn ultraGridColumn20 = new Infragistics.Win.UltraWinGrid.UltraGridColumn("Keyspace");
             Infragistics.Win.UltraWinGrid.UltraGridColumn ultraGridColumn21 = new Infragistics.Win.UltraWinGrid.UltraGridColumn("TableViewIndex");
+            Infragistics.Win.UltraWinGrid.UltraGridColumn ultraGridColumn6 = new Infragistics.Win.UltraWinGrid.UltraGridColumn("Items");
             Infragistics.Win.UltraWinGrid.UltraGridColumn ultraGridColumn22 = new Infragistics.Win.UltraWinGrid.UltraGridColumn("Exception");
+            Infragistics.Win.UltraWinGrid.UltraGridColumn ultraGridColumn7 = new Infragistics.Win.UltraWinGrid.UltraGridColumn("LineNbr");
             Infragistics.Win.UltraWinGrid.UltraGridColumn ultraGridColumn23 = new Infragistics.Win.UltraWinGrid.UltraGridColumn("LogMessage");
-            Infragistics.Win.UltraWinGrid.UltraGridColumn ultraGridColumn46 = new Infragistics.Win.UltraWinGrid.UltraGridColumn("Type");
             Infragistics.Win.UltraWinGrid.UltraGridColumn ultraGridColumn24 = new Infragistics.Win.UltraWinGrid.UltraGridColumn("BandParentEvents");
             Infragistics.Win.UltraWinGrid.UltraGridColumn ultraGridColumn25 = new Infragistics.Win.UltraWinGrid.UltraGridColumn("BandSSTables");
             Infragistics.Win.UltraWinGrid.UltraGridColumn ultraGridColumn26 = new Infragistics.Win.UltraWinGrid.UltraGridColumn("BandDDLItems");
@@ -453,10 +453,7 @@
             ultraGridColumn4.Hidden = true;
             ultraGridColumn5.Header.VisiblePosition = 4;
             ultraGridColumn5.Hidden = true;
-            ultraGridColumn6.Header.VisiblePosition = 20;
-            ultraGridColumn6.Width = 77;
-            ultraGridColumn7.Header.VisiblePosition = 22;
-            ultraGridColumn7.Width = 82;
+            ultraGridColumn46.Header.VisiblePosition = 5;
             ultraGridColumn8.Header.VisiblePosition = 6;
             ultraGridColumn8.Width = 83;
             ultraGridColumn9.Header.VisiblePosition = 7;
@@ -481,9 +478,12 @@
             ultraGridColumn19.Header.VisiblePosition = 17;
             ultraGridColumn20.Header.VisiblePosition = 18;
             ultraGridColumn21.Header.VisiblePosition = 19;
+            ultraGridColumn6.Header.VisiblePosition = 20;
+            ultraGridColumn6.Width = 77;
             ultraGridColumn22.Header.VisiblePosition = 21;
+            ultraGridColumn7.Header.VisiblePosition = 22;
+            ultraGridColumn7.Width = 82;
             ultraGridColumn23.Header.VisiblePosition = 23;
-            ultraGridColumn46.Header.VisiblePosition = 5;
             ultraGridColumn24.Header.VisiblePosition = 24;
             ultraGridColumn25.Header.VisiblePosition = 25;
             ultraGridColumn26.Header.VisiblePosition = 26;
@@ -496,8 +496,7 @@
             ultraGridColumn3,
             ultraGridColumn4,
             ultraGridColumn5,
-            ultraGridColumn6,
-            ultraGridColumn7,
+            ultraGridColumn46,
             ultraGridColumn8,
             ultraGridColumn9,
             ultraGridColumn10,
@@ -512,9 +511,10 @@
             ultraGridColumn19,
             ultraGridColumn20,
             ultraGridColumn21,
+            ultraGridColumn6,
             ultraGridColumn22,
+            ultraGridColumn7,
             ultraGridColumn23,
-            ultraGridColumn46,
             ultraGridColumn24,
             ultraGridColumn25,
             ultraGridColumn26,

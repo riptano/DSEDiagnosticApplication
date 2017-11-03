@@ -15,35 +15,64 @@ using Microsoft.WindowsAPICodePack.Dialogs;
 
 namespace DSEDiagnosticApplication
 {
-	public partial class Form1 : Form
+	public partial class FormMain : Form
 	{
         CancellationTokenSource _cancellationSource;
         Common.WaitCursor _waitCusor = new Common.WaitCursor();
+        IEnumerable<DSEDiagnosticFileParser.DiagnosticFile> _currentDiagnosticFiles = null;
 
-        public Form1()
+        public FormMain()
 		{
 			InitializeComponent();
         }
 
-        IEnumerable<DSEDiagnosticFileParser.DiagnosticFile> _currentDiagnosticFiles = null;
+        #region Form events
 
-        private async void button1_Click(object sender, EventArgs e)
+        private void FormMain_Load(object sender, EventArgs e)
         {
-            var buttonLabel = this.button1.Text;
-            this.button1.Enabled = false;
-            this.button1.Text = "Running...";
-            this.button3.Enabled = false;
-            this.button3.Visible = false;
+            if (!string.IsNullOrEmpty(Properties.Settings.Default.DefaultDiagnosticsFolder)
+                    && System.IO.Directory.Exists(Properties.Settings.Default.DefaultDiagnosticsFolder))
+            {
+                this.ultraTextEditorDiagnosticsFolder.Text = Properties.Settings.Default.DefaultDiagnosticsFolder;
+            }
+            else
+            {
+                this.ultraTextEditorDiagnosticsFolder.Text = @"C:\";
+            }
+            this.ultraTextEditorProcessMapperJSONFile.Text = null;
+        }
+
+        #endregion
+
+        #region Button Click Events
+
+        private async void buttonAsyncExec_Click(object sender, EventArgs e)
+        {
+            var buttonLabel = this.buttonAsyncExcute.Text;
+            this.buttonAsyncExcute.Enabled = false;
+            this.buttonAsyncExcute.Text = "Running...";
+            this.buttonSyncExcute.Enabled = false;
+            this.buttonSyncExcute.Visible = false;
             this._cancellationSource = new CancellationTokenSource();
 
-            this.button2.Enabled = true;
-            this.button2.Text = "Cancel";
+            this.buttonCancelExecution.Enabled = true;
+            this.buttonCancelExecution.Text = "Cancel";
 
             this.ultraTextEditorProcessMapperJSONFile.Enabled = false;
             this.ultraTextEditorDiagnosticsFolder.Enabled = false;
             this.ultraCheckEditorDisableParallelProcessing.Enabled = false;
             this.ultraTextEditorCluster.Enabled = false;
             this.ultraTextEditorDC.Enabled = false;
+            this.ultraTextEditorAdditionalDDLFiles.Enabled = false;
+            this.ultraTextEditorAdditionalLogs.Enabled = false;
+            this.ultraTextEditorAltCompFiles.Enabled = false;
+            this.ultraDateTimeEditorEndLog.Enabled = false;
+            this.ultraDateTimeEditorStartLog.Enabled = false;
+            this.ultraTextEditorAdditionalDDLFiles.Enabled = false;
+            this.ultraTextEditorAdditionalLogs.Enabled = false;
+            this.ultraTextEditorAltCompFiles.Enabled = false;
+            this.ultraDateTimeEditorEndLog.Enabled = false;
+            this.ultraDateTimeEditorStartLog.Enabled = false;
 
             var items = await this.RunProcessFile().ConfigureAwait(false);
 
@@ -52,36 +81,244 @@ namespace DSEDiagnosticApplication
             this.EnableRunButton(buttonLabel);
         }
 
-        delegate void EnableRunButtondEL(string buttonLabel);
+        private void buttonSyncExcute_Click(object sender, EventArgs e)
+        {
+            var buttonLabel = this.buttonAsyncExcute.Text;
+            this.buttonAsyncExcute.Enabled = false;
+            this.buttonAsyncExcute.Text = "Sync-Running...";
+            this.buttonSyncExcute.Enabled = false;
+            this.buttonSyncExcute.Visible = false;
+            this.buttonOpenLogFile.Enabled = false;
+            this.buttonOpenLogFile.Visible = false;
+            //this._cancellationSource = new CancellationTokenSource();
 
+            //this.button2.Enabled = true;
+            //this.button2.Text = "Cancel";
+
+            this.ultraTextEditorProcessMapperJSONFile.Enabled = false;
+            this.ultraTextEditorDiagnosticsFolder.Enabled = false;
+            this.ultraCheckEditorDisableParallelProcessing.Enabled = false;
+            this.ultraTextEditorCluster.Enabled = false;
+            this.ultraTextEditorDC.Enabled = false;
+            this.ultraTextEditorAdditionalDDLFiles.Enabled = false;
+            this.ultraTextEditorAdditionalLogs.Enabled = false;
+            this.ultraTextEditorAltCompFiles.Enabled = false;
+            this.ultraDateTimeEditorEndLog.Enabled = false;
+            this.ultraDateTimeEditorStartLog.Enabled = false;
+            this.ultraTextEditorAdditionalDDLFiles.Enabled = false;
+            this.ultraTextEditorAdditionalLogs.Enabled = false;
+            this.ultraTextEditorAltCompFiles.Enabled = false;
+            this.ultraDateTimeEditorEndLog.Enabled = false;
+            this.ultraDateTimeEditorStartLog.Enabled = false;
+
+            var items = this.RunSyncProcessFile();
+
+            this.ultraGrid1.DataSource = this._currentDiagnosticFiles = items;
+
+            this.EnableRunButton(buttonLabel);
+        }
+
+        private void buttonCancelExcution_Click(object sender, EventArgs e)
+        {
+            if (this._cancellationSource != null)
+            {
+                this.buttonCancelExecution.Enabled = false;
+                this._cancellationSource.Cancel();
+                this.buttonCancelExecution.Text = "Canceling";
+            }
+        }
+
+        private void ultraTextEditorDiagnosticsFolder_EditorButtonClick(object sender, Infragistics.Win.UltraWinEditors.EditorButtonEventArgs e)
+        {
+            if (e.Button.Key == "DirEditor")
+            {
+                CommonOpenFileDialog dialog = new CommonOpenFileDialog();
+                dialog.InitialDirectory = this.ultraTextEditorDiagnosticsFolder.Text ?? @"C:\";
+                dialog.IsFolderPicker = true;
+                dialog.Title = "Choose Diagnostics Folder Location";
+                dialog.EnsurePathExists = true;
+                if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+                {
+                    this.ultraTextEditorDiagnosticsFolder.Text = dialog.FileName;
+                }
+            }
+        }
+
+        private void ultraTextEditorProcessMapperJSONFile_EditorButtonClick(object sender, Infragistics.Win.UltraWinEditors.EditorButtonEventArgs e)
+        {
+            if (e.Button.Key == "FileEditor")
+            {
+                CommonOpenFileDialog dialog = new CommonOpenFileDialog();
+                if (string.IsNullOrEmpty(this.ultraTextEditorProcessMapperJSONFile.Text))
+                {
+                    if (string.IsNullOrEmpty(Properties.Settings.Default.DefaultProcessMapperJSONFile)
+                        || !System.IO.File.Exists(Properties.Settings.Default.DefaultProcessMapperJSONFile))
+                    {
+                        dialog.InitialDirectory = this.ultraTextEditorDiagnosticsFolder.Text ?? @"C:\";
+                        dialog.DefaultExtension = "json";
+                    }
+                    else
+                    {
+                        dialog.InitialDirectory = System.IO.Path.GetDirectoryName(Properties.Settings.Default.DefaultProcessMapperJSONFile).ToString();
+                        dialog.DefaultFileName = System.IO.Path.GetFileName(Properties.Settings.Default.DefaultProcessMapperJSONFile);
+                        dialog.DefaultExtension = System.IO.Path.GetExtension(Properties.Settings.Default.DefaultProcessMapperJSONFile);
+                    }
+                }
+                else
+                {
+                    dialog.InitialDirectory = System.IO.Path.GetDirectoryName(this.ultraTextEditorProcessMapperJSONFile.Text).ToString();
+                    dialog.DefaultFileName = System.IO.Path.GetFileName(this.ultraTextEditorProcessMapperJSONFile.Text);
+                    dialog.DefaultExtension = System.IO.Path.GetExtension(this.ultraTextEditorProcessMapperJSONFile.Text);
+                }
+
+                dialog.IsFolderPicker = false;
+                dialog.Filters.Add(new CommonFileDialogFilter("JSON", "*.json"));
+                dialog.Title = "Choose Process Mapper JSON file";
+                dialog.EnsureFileExists = true;
+                if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+                {
+                    this.ultraTextEditorProcessMapperJSONFile.Text = dialog.FileName;
+                }
+            }
+            else if (e.Button.Key == "StringEditor")
+            {
+                var dialog = new FormJSONEditor();
+
+                if (!string.IsNullOrEmpty(this.ultraTextEditorProcessMapperJSONFile.Text)
+                        && this.ultraTextEditorProcessMapperJSONFile.Text.Length > 2
+                        && (this.ultraTextEditorProcessMapperJSONFile.Text[1] == ':'
+                                || this.ultraTextEditorProcessMapperJSONFile.Text[0] == '.'
+                                || this.ultraTextEditorProcessMapperJSONFile.Text[0] == '\\'))
+                {
+                    dialog.Text = System.IO.File.ReadAllText(this.ultraTextEditorProcessMapperJSONFile.Text);
+                }
+                else
+                {
+                    dialog.Text = this.ultraTextEditorProcessMapperJSONFile.Text;
+                }
+
+                if (dialog.ShowDialog(this) == DialogResult.OK)
+                {
+                    this.ultraTextEditorProcessMapperJSONFile.Text = dialog.Text;
+                }
+            }
+        }
+
+        private void buttonClearResults_Click(object sender, EventArgs e)
+        {
+            using (var waitCusor = Common.WaitCursor.UsingCreate(this.ultraGrid1, Common.Patterns.WaitCursorModes.GUI))
+            {
+                DSEDiagnosticLibrary.Cluster.Clear();
+                this.ultraGrid1.DataSource = this._currentDiagnosticFiles = null;
+            }
+        }
+
+        private void buttonOpenLogFile_Click(object sender, EventArgs e)
+        {
+            var textPad = new System.Diagnostics.Process();
+            textPad.StartInfo.FileName = "textpad.exe";
+            textPad.StartInfo.Arguments = @".\DSEDiagnosticApplication.log";
+            textPad.Start();
+        }
+
+        private void ultraTextEditorAdditionalLogs_EditorButtonClick(object sender, Infragistics.Win.UltraWinEditors.EditorButtonEventArgs e)
+        {
+            if (e.Button.Key == "FileEditor")
+            {
+                CommonOpenFileDialog dialog = new CommonOpenFileDialog();
+                dialog.InitialDirectory = this.ultraTextEditorDiagnosticsFolder.Text ?? @"C:\";
+                dialog.IsFolderPicker = false;
+                dialog.Title = "Choose Alternative Log Files";
+                dialog.EnsureFileExists = true;
+                dialog.Filters.Add(new CommonFileDialogFilter("Log Files", ".log"));
+                dialog.Filters.Add(new CommonFileDialogFilter("All Files", ".*"));
+                dialog.Multiselect = true;
+                dialog.DefaultExtension = ".log";
+                if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+                {
+                    this.ultraTextEditorAdditionalLogs.Text = string.Join(System.Environment.NewLine, dialog.FileNames);
+                }
+            }
+        }
+
+        private void ultraTextEditorAdditionalDDLFiles_EditorButtonClick(object sender, Infragistics.Win.UltraWinEditors.EditorButtonEventArgs e)
+        {
+            if (e.Button.Key == "FileEditor")
+            {
+                CommonOpenFileDialog dialog = new CommonOpenFileDialog();
+                dialog.InitialDirectory = this.ultraTextEditorDiagnosticsFolder.Text ?? @"C:\";
+                dialog.IsFolderPicker = false;
+                dialog.Title = "Choose Alternative DDL Files";
+                dialog.EnsureFileExists = true;
+                dialog.Filters.Add(new CommonFileDialogFilter("CQL Files", ".cql,.ddl"));
+                dialog.Filters.Add(new CommonFileDialogFilter("All Files", ".*"));
+                dialog.Multiselect = true;
+
+                if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+                {
+                    this.ultraTextEditorAdditionalDDLFiles.Text = string.Join(System.Environment.NewLine, dialog.FileNames);
+                }
+            }
+        }
+
+        private void ultraTextEditorAltCompFiles_EditorButtonClick(object sender, Infragistics.Win.UltraWinEditors.EditorButtonEventArgs e)
+        {
+            if (e.Button.Key == "FileEditor")
+            {
+                CommonOpenFileDialog dialog = new CommonOpenFileDialog();
+                dialog.InitialDirectory = this.ultraTextEditorDiagnosticsFolder.Text ?? @"C:\";
+                dialog.IsFolderPicker = false;
+                dialog.Title = "Choose Alternative Compression Files";
+                dialog.EnsureFileExists = true;
+                dialog.Multiselect = true;
+                dialog.DefaultExtension = ".tar.gz";
+                dialog.Filters.Add(new CommonFileDialogFilter("Compression Files", ".zip,.tar,.tar.gz"));
+                dialog.Filters.Add(new CommonFileDialogFilter("All Files", ".*"));
+
+                if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+                {
+                    this.ultraTextEditorAltCompFiles.Text = string.Join(System.Environment.NewLine, dialog.FileNames);
+                }
+            }
+        }
+
+        #endregion
+
+        #region Execution/Operation Methods
+        delegate void EnableRunButtondEL(string buttonLabel);
 
         void EnableRunButton(string buttonLabel)
         {
-            if(this.button1.InvokeRequired)
+            if(this.buttonAsyncExcute.InvokeRequired)
             {
                 this.Invoke(new EnableRunButtondEL(this.EnableRunButton), buttonLabel);
                 return;
             }
 
-            this.button1.Text = buttonLabel;
-            this.button1.Enabled = true;
+            this.buttonAsyncExcute.Text = buttonLabel;
+            this.buttonAsyncExcute.Enabled = true;
 
-            this.button3.Enabled = true;
-            this.button3.Visible = true;
+            this.buttonSyncExcute.Enabled = true;
+            this.buttonSyncExcute.Visible = true;
 
-            this.button2.Enabled = false;
-            this.button2.Text = this._cancellationSource == null
+            this.buttonCancelExecution.Enabled = false;
+            this.buttonCancelExecution.Text = this._cancellationSource == null
                                     ? "Cancel"
                                     : (this._cancellationSource.IsCancellationRequested ? "Canceled" : "Cancel");
 
-            this.button5.Enabled = true;
-            this.button5.Visible = true;
+            this.buttonOpenLogFile.Enabled = true;
+            this.buttonOpenLogFile.Visible = true;
 
             this.ultraTextEditorProcessMapperJSONFile.Enabled = true;
             this.ultraTextEditorDiagnosticsFolder.Enabled = true;
             this.ultraCheckEditorDisableParallelProcessing.Enabled = true;
             this.ultraTextEditorCluster.Enabled = true;
             this.ultraTextEditorDC.Enabled = true;
+            this.ultraTextEditorAdditionalDDLFiles.Enabled = true;
+            this.ultraTextEditorAdditionalLogs.Enabled = true;
+            this.ultraTextEditorAltCompFiles.Enabled = true;
+            this.ultraDateTimeEditorEndLog.Enabled = true;
+            this.ultraDateTimeEditorStartLog.Enabled = true;
         }
 
         delegate void SetLabelDelegate(string newvalue);
@@ -105,6 +342,35 @@ namespace DSEDiagnosticApplication
                 this._lastLogMsg = logMsg;
             }
         }
+
+        private IEnumerable<KeyValuePair<string, IFilePath>> ProcessAdditionalFiles()
+        {
+            var additionalFiles = new List<KeyValuePair<string, IFilePath>>();
+
+            if(!string.IsNullOrEmpty(this.ultraTextEditorAltCompFiles.Text))
+            {
+                additionalFiles.AddRange(this.ultraTextEditorAltCompFiles.Text
+                                            .Split(new string[] { System.Environment.NewLine, "," }, StringSplitOptions.RemoveEmptyEntries)
+                                            .Select(p => new KeyValuePair<string, IFilePath>("ZipFile", PathUtils.BuildFilePath(p))));
+            }
+
+            if (!string.IsNullOrEmpty(this.ultraTextEditorAdditionalLogs.Text))
+            {
+                additionalFiles.AddRange(this.ultraTextEditorAdditionalLogs.Text
+                                            .Split(new string[] { System.Environment.NewLine, "," }, StringSplitOptions.RemoveEmptyEntries)
+                                            .Select(p => new KeyValuePair<string, IFilePath>("LogFile", PathUtils.BuildFilePath(p))));
+            }
+
+            if (!string.IsNullOrEmpty(this.ultraTextEditorAdditionalDDLFiles.Text))
+            {
+                additionalFiles.AddRange(this.ultraTextEditorAdditionalDDLFiles.Text
+                                            .Split(new string[] { System.Environment.NewLine, "," }, StringSplitOptions.RemoveEmptyEntries)
+                                            .Select(p => new KeyValuePair<string, IFilePath>("CQLFile", PathUtils.BuildFilePath(p))));
+            }
+
+            return additionalFiles.Count == 0 ? null : additionalFiles;
+        }
+
 
         private async Task<IEnumerable<DSEDiagnosticFileParser.DiagnosticFile>> RunProcessFile()
         {
@@ -144,7 +410,12 @@ namespace DSEDiagnosticApplication
 
                 var diagPath = PathUtils.BuildDirectoryPath(this.ultraTextEditorDiagnosticsFolder.Text);
 
-                var task = await DSEDiagnosticFileParser.DiagnosticFile.ProcessFileWaitable(diagPath, this.ultraTextEditorDC.Text, this.ultraTextEditorCluster.Text, null, this._cancellationSource);
+                var task = await DSEDiagnosticFileParser.DiagnosticFile.ProcessFileWaitable(diagPath,
+                                                                                            this.ultraTextEditorDC.Text,
+                                                                                            this.ultraTextEditorCluster.Text,
+                                                                                            null,
+                                                                                            this._cancellationSource,
+                                                                                            this.ProcessAdditionalFiles());
 
                 if (task.Any(t => t.Processed))
                 {
@@ -197,7 +468,12 @@ namespace DSEDiagnosticApplication
 
                 var diagPath = PathUtils.BuildDirectoryPath(this.ultraTextEditorDiagnosticsFolder.Text);
 
-                var task = DSEDiagnosticFileParser.DiagnosticFile.ProcessFile(diagPath).Result;
+                var task = DSEDiagnosticFileParser.DiagnosticFile.ProcessFile(diagPath,
+                                                                                this.ultraTextEditorDC.Text,
+                                                                                this.ultraTextEditorCluster.Text,
+                                                                                null,
+                                                                                null,
+                                                                                this.ProcessAdditionalFiles()).Result;
 
                 //task.Wait();
 
@@ -251,106 +527,9 @@ namespace DSEDiagnosticApplication
             this._progressionMsgs.Add(new Tuple<int, string>(eventArgs.Exception.GetHashCode(), string.Format("Exception: {0}", eventArgs.Exception.Message)));
         }
 
-        private void button2_Click(object sender, EventArgs e)
-        {
-            if (this._cancellationSource != null)
-            {
-                this.button2.Enabled = false;
-                this._cancellationSource.Cancel();
-                this.button2.Text = "Canceling";
-            }
-        }
+        #endregion
 
-        private void ultraTextEditorDiagnosticsFolder_EditorButtonClick(object sender, Infragistics.Win.UltraWinEditors.EditorButtonEventArgs e)
-        {
-            if (e.Button.Key == "DirEditor")
-            {
-                CommonOpenFileDialog dialog = new CommonOpenFileDialog();
-                dialog.InitialDirectory = this.ultraTextEditorDiagnosticsFolder.Text ?? @"C:\";
-                dialog.IsFolderPicker = true;
-                dialog.Title = "Choose Diagnostics Folder Location";
-                dialog.EnsurePathExists = true;
-                if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
-                {
-                    this.ultraTextEditorDiagnosticsFolder.Text = dialog.FileName;
-                }
-            }
-        }
-
-        private void Form1_Load(object sender, EventArgs e)
-        {
-            if (!string.IsNullOrEmpty(Properties.Settings.Default.DefaultDiagnosticsFolder)
-                    && System.IO.Directory.Exists(Properties.Settings.Default.DefaultDiagnosticsFolder))
-            {
-                this.ultraTextEditorDiagnosticsFolder.Text = Properties.Settings.Default.DefaultDiagnosticsFolder;
-            }
-            else
-            {
-                this.ultraTextEditorDiagnosticsFolder.Text = @"C:\";
-            }
-            this.ultraTextEditorProcessMapperJSONFile.Text = null;
-        }
-
-        private void ultraTextEditorProcessMapperJSONFile_EditorButtonClick(object sender, Infragistics.Win.UltraWinEditors.EditorButtonEventArgs e)
-        {
-            if (e.Button.Key == "FileEditor")
-            {
-                CommonOpenFileDialog dialog = new CommonOpenFileDialog();
-                if(string.IsNullOrEmpty(this.ultraTextEditorProcessMapperJSONFile.Text))
-                {
-                    if(string.IsNullOrEmpty(Properties.Settings.Default.DefaultProcessMapperJSONFile)
-                        || !System.IO.File.Exists(Properties.Settings.Default.DefaultProcessMapperJSONFile))
-                    {
-                        dialog.InitialDirectory = this.ultraTextEditorDiagnosticsFolder.Text ?? @"C:\";
-                        dialog.DefaultExtension = "json";
-                    }
-                    else
-                    {
-                        dialog.InitialDirectory = System.IO.Path.GetDirectoryName(Properties.Settings.Default.DefaultProcessMapperJSONFile).ToString();
-                        dialog.DefaultFileName = System.IO.Path.GetFileName(Properties.Settings.Default.DefaultProcessMapperJSONFile);
-                        dialog.DefaultExtension = System.IO.Path.GetExtension(Properties.Settings.Default.DefaultProcessMapperJSONFile);
-                    }
-                }
-                else
-                {
-                    dialog.InitialDirectory = System.IO.Path.GetDirectoryName(this.ultraTextEditorProcessMapperJSONFile.Text).ToString();
-                    dialog.DefaultFileName = System.IO.Path.GetFileName(this.ultraTextEditorProcessMapperJSONFile.Text);
-                    dialog.DefaultExtension = System.IO.Path.GetExtension(this.ultraTextEditorProcessMapperJSONFile.Text);
-                }
-
-                dialog.IsFolderPicker = false;
-                dialog.Filters.Add(new CommonFileDialogFilter("JSON", "*.json"));
-                dialog.Title = "Choose Process Mapper JSON file";
-                dialog.EnsureFileExists = true;
-                if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
-                {
-                    this.ultraTextEditorProcessMapperJSONFile.Text = dialog.FileName;
-                }
-            }
-            else if(e.Button.Key == "StringEditor")
-            {
-                var dialog = new FormJSONEditor();
-
-                if (!string.IsNullOrEmpty(this.ultraTextEditorProcessMapperJSONFile.Text)
-                        && this.ultraTextEditorProcessMapperJSONFile.Text.Length > 2
-                        && (this.ultraTextEditorProcessMapperJSONFile.Text[1] == ':'
-                                || this.ultraTextEditorProcessMapperJSONFile.Text[0] == '.'
-                                || this.ultraTextEditorProcessMapperJSONFile.Text[0] == '\\'))
-                {
-                    dialog.Text = System.IO.File.ReadAllText(this.ultraTextEditorProcessMapperJSONFile.Text);
-                }
-                else
-                {
-                    dialog.Text = this.ultraTextEditorProcessMapperJSONFile.Text;
-                }
-
-                if(dialog.ShowDialog(this) == DialogResult.OK)
-                {
-                    this.ultraTextEditorProcessMapperJSONFile.Text = dialog.Text;
-                }
-            }
-        }
-
+        #region Grid Events
         private void ultraGrid1_InitializeLayout(object sender, Infragistics.Win.UltraWinGrid.InitializeLayoutEventArgs e)
         {
             var resultCol = e.Layout.Bands[0].Columns["Result"];
@@ -425,7 +604,7 @@ namespace DSEDiagnosticApplication
 
         private void ultraGrid1_MouseDown(object sender, System.Windows.Forms.MouseEventArgs e)
         {
-            var objClickedElement = this.ultraGrid1.DisplayLayout.UIElement.ElementFromPoint(this.ultraGrid1.PointToClient(Form1.MousePosition));
+            var objClickedElement = this.ultraGrid1.DisplayLayout.UIElement.ElementFromPoint(this.ultraGrid1.PointToClient(FormMain.MousePosition));
 
             if (objClickedElement == null) return;
 
@@ -466,6 +645,7 @@ namespace DSEDiagnosticApplication
                                                             resultInstance.Path?.Name);
                             }
                         }
+                        bool isLog4NetResult = objCell.Value is DSEDiagnosticFileParser.file_cassandra_log4net.LogResults;
                         foreach (var prop in objCell.Value.GetType().GetFields())
                         {
                             var propType = prop.FieldType != typeof(string) && typeof(System.Collections.IEnumerable).IsAssignableFrom(prop.FieldType)
@@ -486,20 +666,30 @@ namespace DSEDiagnosticApplication
                         }
                         foreach (var prop in objCell.Value.GetType().GetProperties())
                         {
-                            var propType = prop.PropertyType != typeof(string) && typeof(System.Collections.IEnumerable).IsAssignableFrom(prop.PropertyType)
-                                            ? typeof(string[])
-                                            : typeof(string);
-
-                            propertyTbl.Properties.Add(new PropertySpec(prop.Name, propType, "Result"));
                             itemValue = prop.GetValue(objCell.Value);
 
-                            if (propType.IsArray)
+                            if (isLog4NetResult && prop.Name == "Results" && itemValue != null)
                             {
-                                propertyTbl[prop.Name] = ((IEnumerable<object>)itemValue).Select(i => i.ToString()).ToArray();
+                                propertyTbl.Properties.Add(new PropertySpec(prop.Name, typeof(string[]), "Result"));
+                                propertyTbl[prop.Name] = ((DSEDiagnosticFileParser.file_cassandra_log4net.LogResults)objCell.Value).ResultsTask.Result
+                                                            .Select(i => i.ToString()).ToArray();
                             }
                             else
                             {
-                                propertyTbl[prop.Name] = itemValue?.ToString();
+                                var propType = prop.PropertyType != typeof(string) && typeof(System.Collections.IEnumerable).IsAssignableFrom(prop.PropertyType)
+                                            ? typeof(string[])
+                                            : typeof(string);
+
+                                propertyTbl.Properties.Add(new PropertySpec(prop.Name, propType, "Result"));
+
+                                if (propType.IsArray)
+                                {
+                                    propertyTbl[prop.Name] = ((IEnumerable<object>)itemValue).Select(i => i.ToString()).ToArray();
+                                }
+                                else
+                                {
+                                    propertyTbl[prop.Name] = itemValue?.ToString();
+                                }
                             }
                         }
                     }
@@ -556,74 +746,9 @@ namespace DSEDiagnosticApplication
             }
         }
 
-        int _currentTimerIdx = 0;
-        private void timerProgress_Tick(object sender, EventArgs e)
-        {
-            this._progressionMsgs.Lock();
-
-            if (this._currentTimerIdx < this._progressionMsgs.UnSafe.Count)
-            {
-                this.ultraStatusBar1.Panels["Progress"].Text = this._progressionMsgs.UnSafe[this._currentTimerIdx++].Item2;
-            }
-
-            if (this._currentTimerIdx >= this._progressionMsgs.UnSafe.Count)
-            {
-                this._currentTimerIdx = 0;
-            }
-
-            this._progressionMsgs.UnLock();
-
-            this.SetLoggingStatus(this._lastLogMsg);
-        }
-
-        private void button3_Click(object sender, EventArgs e)
-        {
-            var buttonLabel = this.button1.Text;
-            this.button1.Enabled = false;
-            this.button1.Text = "Sync-Running...";
-            this.button3.Enabled = false;
-            this.button3.Visible = false;
-            this.button5.Enabled = false;
-            this.button5.Visible = false;
-            //this._cancellationSource = new CancellationTokenSource();
-
-            //this.button2.Enabled = true;
-            //this.button2.Text = "Cancel";
-
-            this.ultraTextEditorProcessMapperJSONFile.Enabled = false;
-            this.ultraTextEditorDiagnosticsFolder.Enabled = false;
-            this.ultraCheckEditorDisableParallelProcessing.Enabled = false;
-            this.ultraTextEditorCluster.Enabled = false;
-            this.ultraTextEditorDC.Enabled = false;
-
-
-            var items = this.RunSyncProcessFile();
-
-            this.ultraGrid1.DataSource = this._currentDiagnosticFiles = items;
-
-            this.EnableRunButton(buttonLabel);
-        }
-
-        private void button4_Click(object sender, EventArgs e)
-        {
-            using (var waitCusor = Common.WaitCursor.UsingCreate(this.ultraGrid1, Common.Patterns.WaitCursorModes.GUI))
-            {
-                DSEDiagnosticLibrary.Cluster.Clear();
-                this.ultraGrid1.DataSource = this._currentDiagnosticFiles = null;
-            }
-        }
-
-        private void button5_Click(object sender, EventArgs e)
-        {
-            var textPad = new System.Diagnostics.Process();
-            textPad.StartInfo.FileName = "textpad.exe";
-            textPad.StartInfo.Arguments = @".\DSEDiagnosticApplication.log";
-            textPad.Start();
-        }
-
         private void ultraGrid1_ClickCellButton(object sender, Infragistics.Win.UltraWinGrid.CellEventArgs e)
         {
-            if(e.Cell.Column.Key as string == "ExportResults")
+            if (e.Cell.Column.Key as string == "ExportResults")
             {
                 #region Export to Excel
                 using (var waitCusor = Common.WaitCursor.UsingCreate(this.ultraGrid1, Common.Patterns.WaitCursorModes.GUI))
@@ -653,59 +778,59 @@ namespace DSEDiagnosticApplication
                         if (!string.IsNullOrEmpty(excelFileName))
                         {
                             System.Threading.Tasks.Task.Factory.StartNew(() =>
-                           {
-                               var buttonText = e.Cell.Row.Cells["ExportResults"].Value;
-                               var cellRow = e.Cell.Row;
-                               var threadId = System.Threading.Thread.CurrentThread.ManagedThreadId;
+                            {
+                                var buttonText = e.Cell.Row.Cells["ExportResults"].Value;
+                                var cellRow = e.Cell.Row;
+                                var threadId = System.Threading.Thread.CurrentThread.ManagedThreadId;
 
-                               try
-                               {
-                                   cellRow.Cells["ExportResults"].Value = "Running...";
-                                   cellRow.Cells["ExportResults"].Activation = Infragistics.Win.UltraWinGrid.Activation.Disabled;
+                                try
+                                {
+                                    cellRow.Cells["ExportResults"].Value = "Running...";
+                                    cellRow.Cells["ExportResults"].Activation = Infragistics.Win.UltraWinGrid.Activation.Disabled;
 
-                                   if (results is DSEDiagnosticFileParser.file_cassandra_log4net.LogResults)
-                                   {
-                                       this._progressionMsgs.Add(new Tuple<int, string>(threadId, "Excel Exporting of \"LogCassandraEvent\"..."));
+                                    if (results is DSEDiagnosticFileParser.file_cassandra_log4net.LogResults)
+                                    {
+                                        this._progressionMsgs.Add(new Tuple<int, string>(threadId, "Excel Exporting of \"LogCassandraEvent\"..."));
 
-                                       var exporter = Dexiom.EPPlusExporter.EnumerableExporter.Create(results.Results.Cast<DSEDiagnosticLibrary.LogCassandraEvent>());
-                                       var excelPackage = exporter.CreateExcelPackage();
+                                        var exporter = Dexiom.EPPlusExporter.EnumerableExporter.Create(results.Results.Cast<DSEDiagnosticLibrary.LogCassandraEvent>());
+                                        var excelPackage = exporter.CreateExcelPackage();
 
-                                       this._progressionMsgs.Add(new Tuple<int, string>(threadId, string.Format("Saving Excel file \"{0}\"...", excelFileName)));
+                                        this._progressionMsgs.Add(new Tuple<int, string>(threadId, string.Format("Saving Excel file \"{0}\"...", excelFileName)));
 
-                                       //save the document
-                                       excelPackage.SaveAs(new System.IO.FileInfo(excelFileName));
-                                   }
-                                   else
-                                   {
-                                       this._progressionMsgs.Add(new Tuple<int, string>(threadId, string.Format("Excel Exporting of \"{0}\"...", results.Results.GetType().Name)));
+                                        //save the document
+                                        excelPackage.SaveAs(new System.IO.FileInfo(excelFileName));
+                                    }
+                                    else
+                                    {
+                                        this._progressionMsgs.Add(new Tuple<int, string>(threadId, string.Format("Excel Exporting of \"{0}\"...", results.Results.GetType().Name)));
 
-                                       var exporter = Dexiom.EPPlusExporter.EnumerableExporter.Create(results.Results);
-                                       var excelPackage = exporter.CreateExcelPackage();
+                                        var exporter = Dexiom.EPPlusExporter.EnumerableExporter.Create(results.Results);
+                                        var excelPackage = exporter.CreateExcelPackage();
 
-                                       this._progressionMsgs.Add(new Tuple<int, string>(threadId, string.Format("Saving Excel file \"{0}\"...", excelFileName)));
+                                        this._progressionMsgs.Add(new Tuple<int, string>(threadId, string.Format("Saving Excel file \"{0}\"...", excelFileName)));
 
-                                       //save the document
-                                       excelPackage.SaveAs(new System.IO.FileInfo(excelFileName));
-                                   }
+                                        //save the document
+                                        excelPackage.SaveAs(new System.IO.FileInfo(excelFileName));
+                                    }
 
-                                   this._progressionMsgs.Add(new Tuple<int, string>(threadId, string.Format("Saved Excel file \"{0}\"", excelFileName)));
-                               }
-                               catch (System.Exception ex)
-                               {
-                                   buttonText = string.Format("Failed: {0} \"{1}\"", ex.GetType().Name, ex.Message);
-                                   this._progressionMsgs.Add(new Tuple<int, string>(threadId, string.Format("Failed saving of Excel file \"{0}\" with exception \"{1}\" ({2})",
-                                                                                                        excelFileName,
-                                                                                                        ex.Message,
-                                                                                                        ex.GetType().Name)));
-                                   throw;
-                               }
-                               finally
-                               {
-                                   cellRow.Cells["ExportResults"].Value = buttonText;
-                                   cellRow.Cells["ExportResults"].Activation = Infragistics.Win.UltraWinGrid.Activation.ActivateOnly;
-                                   this._progressionMsgs.RemoveAll(m => m.Item1 == threadId);
-                               }
-                           });
+                                    this._progressionMsgs.Add(new Tuple<int, string>(threadId, string.Format("Saved Excel file \"{0}\"", excelFileName)));
+                                }
+                                catch (System.Exception ex)
+                                {
+                                    buttonText = string.Format("Failed: {0} \"{1}\"", ex.GetType().Name, ex.Message);
+                                    this._progressionMsgs.Add(new Tuple<int, string>(threadId, string.Format("Failed saving of Excel file \"{0}\" with exception \"{1}\" ({2})",
+                                                                                                         excelFileName,
+                                                                                                         ex.Message,
+                                                                                                         ex.GetType().Name)));
+                                    throw;
+                                }
+                                finally
+                                {
+                                    cellRow.Cells["ExportResults"].Value = buttonText;
+                                    cellRow.Cells["ExportResults"].Activation = Infragistics.Win.UltraWinGrid.Activation.ActivateOnly;
+                                    this._progressionMsgs.RemoveAll(m => m.Item1 == threadId);
+                                }
+                            });
                         }
                     }
                 }
@@ -724,5 +849,30 @@ namespace DSEDiagnosticApplication
                 #endregion
             }
         }
+        #endregion
+
+        #region Timer Events
+        int _currentTimerIdx = 0;
+        private void timerProgress_Tick(object sender, EventArgs e)
+        {
+            this._progressionMsgs.Lock();
+
+            if (this._currentTimerIdx < this._progressionMsgs.UnSafe.Count)
+            {
+                this.ultraStatusBar1.Panels["Progress"].Text = this._progressionMsgs.UnSafe[this._currentTimerIdx++].Item2;
+            }
+
+            if (this._currentTimerIdx >= this._progressionMsgs.UnSafe.Count)
+            {
+                this._currentTimerIdx = 0;
+            }
+
+            this._progressionMsgs.UnLock();
+
+            this.SetLoggingStatus(this._lastLogMsg);
+        }
+        #endregion
+
+
     }
 }

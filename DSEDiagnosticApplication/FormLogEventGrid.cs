@@ -28,6 +28,52 @@ namespace DSEDiagnosticApplication
             this.ultraDataSourceLogEvents.Rows.SetCount(this._logMMValues.Count());
         }
 
+        #region Form Events
+        private void FormLogEventGrid_Load(object sender, EventArgs e)
+        {
+            if (this.ultraDataSourceLogEvents.Rows.Count > 0)
+            {
+                var firstEvent = this._logMMValues.First().GetValue();
+                var lastEvent = this._logMMValues.Last().GetValue();
+
+                #region text Editors
+                this.ultraTextEditorClusterName.Value = firstEvent.Cluster?.Name;
+                this.ultraTextEditorDCName.Value = firstEvent.DataCenter?.Name;
+                this.ultraTextEditorFilePath.Value = firstEvent.Path?.Path;
+                this.ultraTextEditorNode.Value = firstEvent.Node?.Id.NodeName();
+                this.ultraTextEditorTimeZone.Value = firstEvent.TimeZone?.Name;
+                this.ultraTextEditorTZOffset.Value = string.Format("{0:zzz}", firstEvent.EventTime);
+                #endregion
+
+                #region Grantt View
+                // Create a new Project other than the Unassigned Project
+                var logeventProject = this.ultraCalendarInfoLogEvents.Projects.Add("Log Events", firstEvent.EventTime.DateTime);
+                logeventProject.Key = "LogEventsProject";
+
+                this.ultraGanttView1.GridSettings.ColumnSettings[Infragistics.Win.UltraWinSchedule.TaskField.Name].Visible = Infragistics.Win.DefaultableBoolean.False;
+                this.ultraGanttView1.GridSettings.ColumnSettings[Infragistics.Win.UltraWinSchedule.TaskField.Dependencies].Visible = Infragistics.Win.DefaultableBoolean.False;
+                this.ultraGanttView1.GridSettings.ColumnSettings[Infragistics.Win.UltraWinSchedule.TaskField.Resources].Visible = Infragistics.Win.DefaultableBoolean.False;
+                this.ultraGanttView1.GridSettings.ColumnSettings[Infragistics.Win.UltraWinSchedule.TaskField.StartDateTime].Format = "yyyy-MM-dd HH:mm:ss.fff";
+                this.ultraGanttView1.GridSettings.ColumnSettings[Infragistics.Win.UltraWinSchedule.TaskField.EndDateTime].Format = "yyyy-MM-dd HH:mm:ss.fff";
+
+                var logEventTask = this.ultraCalendarInfoLogEvents.Tasks.Add(firstEvent.EventTime.DateTime,
+                                                                                lastEvent.EventTime - firstEvent.EventTime,
+                                                                                string.Format("{0:MM-dd} to {1:MM-dd}", firstEvent.EventTime.Date, lastEvent.EventTime.Date),
+                                                                                "LogEventsProject");
+
+                this.ultraGanttView1.Project = this.ultraGanttView1.CalendarInfo.Projects[1];
+
+                this.ultraGanttView1.PerformAutoSizeAllGridColumns();
+                #endregion
+
+                this.Text = string.Format("{0} Log Events from \"{1:MM-dd HH:mm zzz}\" to \"{2:MM-dd HH:mm zzz}\"",
+                                            firstEvent.Node.Id.NodeName(),
+                                            firstEvent.EventTime,
+                                            lastEvent.EventTime);
+            }
+        }
+        #endregion
+
         #region Datasource
 
         int _cachedRowIndex = -1;
@@ -193,56 +239,9 @@ namespace DSEDiagnosticApplication
             }
         }
 
-
         #endregion
 
         #region Grid Events
-
-        #endregion
-
-        private void FormLogEventGrid_Load(object sender, EventArgs e)
-        {
-            if (this.ultraDataSourceLogEvents.Rows.Count > 0)
-            {
-                var firstEvent = this._logMMValues.First().GetValue();
-                var lastEvent = this._logMMValues.Last().GetValue();
-
-                #region text Editors
-                this.ultraTextEditorClusterName.Value = firstEvent.Cluster?.Name;
-                this.ultraTextEditorDCName.Value = firstEvent.DataCenter?.Name;
-                this.ultraTextEditorFilePath.Value = firstEvent.Path?.Path;
-                this.ultraTextEditorNode.Value = firstEvent.Node?.Id.NodeName();
-                this.ultraTextEditorTimeZone.Value = firstEvent.TimeZone?.Name;
-                this.ultraTextEditorTZOffset.Value = string.Format("{0:zzz}", firstEvent.EventTime);
-                #endregion
-
-                #region Grantt View
-                // Create a new Project other than the Unassigned Project
-                var logeventProject = this.ultraCalendarInfoLogEvents.Projects.Add("Log Events", firstEvent.EventTime.DateTime);
-                logeventProject.Key = "LogEventsProject";
-
-                this.ultraGanttView1.GridSettings.ColumnSettings[Infragistics.Win.UltraWinSchedule.TaskField.Name].Visible = Infragistics.Win.DefaultableBoolean.False;
-                this.ultraGanttView1.GridSettings.ColumnSettings[Infragistics.Win.UltraWinSchedule.TaskField.Dependencies].Visible = Infragistics.Win.DefaultableBoolean.False;
-                this.ultraGanttView1.GridSettings.ColumnSettings[Infragistics.Win.UltraWinSchedule.TaskField.Resources].Visible = Infragistics.Win.DefaultableBoolean.False;
-                this.ultraGanttView1.GridSettings.ColumnSettings[Infragistics.Win.UltraWinSchedule.TaskField.StartDateTime].Format = "yyyy-MM-dd HH:mm:ss.fff";
-                this.ultraGanttView1.GridSettings.ColumnSettings[Infragistics.Win.UltraWinSchedule.TaskField.EndDateTime].Format = "yyyy-MM-dd HH:mm:ss.fff";
-
-                var logEventTask = this.ultraCalendarInfoLogEvents.Tasks.Add(firstEvent.EventTime.DateTime,
-                                                                                lastEvent.EventTime - firstEvent.EventTime,
-                                                                                string.Format("{0:MM-dd} to {1:MM-dd}", firstEvent.EventTime.Date, lastEvent.EventTime.Date),
-                                                                                "LogEventsProject");
-
-                this.ultraGanttView1.Project = this.ultraGanttView1.CalendarInfo.Projects[1];
-
-                this.ultraGanttView1.PerformAutoSizeAllGridColumns();
-                #endregion
-
-                this.Text = string.Format("{0} Log Events from \"{1:MM-dd HH:mm zzz}\" to \"{2:MM-dd HH:mm zzz}\"",
-                                            firstEvent.Node.Id.NodeName(),
-                                            firstEvent.EventTime,
-                                            lastEvent.EventTime);
-            }
-        }
 
         private void ultraGrid1_InitializeRowsCollection(object sender, Infragistics.Win.UltraWinGrid.InitializeRowsCollectionEventArgs e)
         {
@@ -274,5 +273,8 @@ namespace DSEDiagnosticApplication
                 }
             }
         }
+
+        #endregion
+
     }
 }

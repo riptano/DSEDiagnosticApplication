@@ -1,6 +1,6 @@
 ﻿namespace DSEDiagnosticApplication
 {
-	partial class Form1
+	partial class FormMain
 	{
 		/// <summary>
 		/// Required designer variable.
@@ -58,8 +58,11 @@
             Infragistics.Win.UltraWinStatusBar.UltraStatusPanel ultraStatusPanel2 = new Infragistics.Win.UltraWinStatusBar.UltraStatusPanel();
             Infragistics.Win.UltraWinEditors.StateEditorButton stateEditorButton1 = new Infragistics.Win.UltraWinEditors.StateEditorButton("UTCStart");
             Infragistics.Win.UltraWinEditors.StateEditorButton stateEditorButton2 = new Infragistics.Win.UltraWinEditors.StateEditorButton("UTCEnd");
-            this.button1 = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
+            Infragistics.Win.UltraWinEditors.EditorButton editorButton4 = new Infragistics.Win.UltraWinEditors.EditorButton("FileEditor");
+            Infragistics.Win.UltraWinEditors.EditorButton editorButton5 = new Infragistics.Win.UltraWinEditors.EditorButton("FileEditor");
+            Infragistics.Win.UltraWinEditors.EditorButton editorButton6 = new Infragistics.Win.UltraWinEditors.EditorButton("FileEditor");
+            this.buttonAsyncExcute = new System.Windows.Forms.Button();
+            this.buttonCancelExecution = new System.Windows.Forms.Button();
             this.ultraGrid1 = new Infragistics.Win.UltraWinGrid.UltraGrid();
             this.ultraGroupBox1 = new Infragistics.Win.Misc.UltraGroupBox();
             this.ultraTextEditorCluster = new Infragistics.Win.UltraWinEditors.UltraTextEditor();
@@ -72,13 +75,19 @@
             this.ultraCheckEditorDisableParallelProcessing = new Infragistics.Win.UltraWinEditors.UltraCheckEditor();
             this.ultraStatusBar1 = new Infragistics.Win.UltraWinStatusBar.UltraStatusBar();
             this.timerProgress = new System.Windows.Forms.Timer(this.components);
-            this.button3 = new System.Windows.Forms.Button();
-            this.button4 = new System.Windows.Forms.Button();
-            this.button5 = new System.Windows.Forms.Button();
+            this.buttonSyncExcute = new System.Windows.Forms.Button();
+            this.buttonClearResults = new System.Windows.Forms.Button();
+            this.buttonOpenLogFile = new System.Windows.Forms.Button();
             this.ultraGroupBox5 = new Infragistics.Win.Misc.UltraGroupBox();
             this.ultraDateTimeEditorStartLog = new Infragistics.Win.UltraWinEditors.UltraDateTimeEditor();
             this.ultraGroupBox6 = new Infragistics.Win.Misc.UltraGroupBox();
             this.ultraDateTimeEditorEndLog = new Infragistics.Win.UltraWinEditors.UltraDateTimeEditor();
+            this.ultraGroupBox7 = new Infragistics.Win.Misc.UltraGroupBox();
+            this.ultraTextEditorAdditionalLogs = new Infragistics.Win.UltraWinEditors.UltraTextEditor();
+            this.ultraGroupBox8 = new Infragistics.Win.Misc.UltraGroupBox();
+            this.ultraTextEditorAdditionalDDLFiles = new Infragistics.Win.UltraWinEditors.UltraTextEditor();
+            this.ultraGroupBox9 = new Infragistics.Win.Misc.UltraGroupBox();
+            this.ultraTextEditorAltCompFiles = new Infragistics.Win.UltraWinEditors.UltraTextEditor();
             ((System.ComponentModel.ISupportInitialize)(this.ultraGrid1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.ultraGroupBox1)).BeginInit();
             this.ultraGroupBox1.SuspendLayout();
@@ -100,28 +109,37 @@
             ((System.ComponentModel.ISupportInitialize)(this.ultraGroupBox6)).BeginInit();
             this.ultraGroupBox6.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.ultraDateTimeEditorEndLog)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.ultraGroupBox7)).BeginInit();
+            this.ultraGroupBox7.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.ultraTextEditorAdditionalLogs)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.ultraGroupBox8)).BeginInit();
+            this.ultraGroupBox8.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.ultraTextEditorAdditionalDDLFiles)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.ultraGroupBox9)).BeginInit();
+            this.ultraGroupBox9.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.ultraTextEditorAltCompFiles)).BeginInit();
             this.SuspendLayout();
             // 
-            // button1
+            // buttonAsyncExcute
             // 
-            this.button1.Location = new System.Drawing.Point(23, 22);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 0;
-            this.button1.Text = "Execute";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.buttonAsyncExcute.Location = new System.Drawing.Point(23, 22);
+            this.buttonAsyncExcute.Name = "buttonAsyncExcute";
+            this.buttonAsyncExcute.Size = new System.Drawing.Size(75, 23);
+            this.buttonAsyncExcute.TabIndex = 0;
+            this.buttonAsyncExcute.Text = "Execute";
+            this.buttonAsyncExcute.UseVisualStyleBackColor = true;
+            this.buttonAsyncExcute.Click += new System.EventHandler(this.buttonAsyncExec_Click);
             // 
-            // button2
+            // buttonCancelExecution
             // 
-            this.button2.Enabled = false;
-            this.button2.Location = new System.Drawing.Point(118, 22);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(75, 23);
-            this.button2.TabIndex = 2;
-            this.button2.Text = "Cancel";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
+            this.buttonCancelExecution.Enabled = false;
+            this.buttonCancelExecution.Location = new System.Drawing.Point(118, 22);
+            this.buttonCancelExecution.Name = "buttonCancelExecution";
+            this.buttonCancelExecution.Size = new System.Drawing.Size(75, 23);
+            this.buttonCancelExecution.TabIndex = 2;
+            this.buttonCancelExecution.Text = "Cancel";
+            this.buttonCancelExecution.UseVisualStyleBackColor = true;
+            this.buttonCancelExecution.Click += new System.EventHandler(this.buttonCancelExcution_Click);
             // 
             // ultraGrid1
             // 
@@ -233,9 +251,9 @@
             this.ultraGrid1.DisplayLayout.ScrollStyle = Infragistics.Win.UltraWinGrid.ScrollStyle.Immediate;
             this.ultraGrid1.DisplayLayout.ViewStyleBand = Infragistics.Win.UltraWinGrid.ViewStyleBand.OutlookGroupBy;
             this.ultraGrid1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.ultraGrid1.Location = new System.Drawing.Point(2, 135);
+            this.ultraGrid1.Location = new System.Drawing.Point(2, 200);
             this.ultraGrid1.Name = "ultraGrid1";
-            this.ultraGrid1.Size = new System.Drawing.Size(1285, 400);
+            this.ultraGrid1.Size = new System.Drawing.Size(1285, 413);
             this.ultraGrid1.TabIndex = 3;
             this.ultraGrid1.Text = "Result";
             this.ultraGrid1.InitializeLayout += new Infragistics.Win.UltraWinGrid.InitializeLayoutEventHandler(this.ultraGrid1_InitializeLayout);
@@ -325,7 +343,7 @@
             this.ultraGroupBox4.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.ultraGroupBox4.Controls.Add(this.ultraTextEditorProcessMapperJSONFile);
-            this.ultraGroupBox4.Location = new System.Drawing.Point(659, 62);
+            this.ultraGroupBox4.Location = new System.Drawing.Point(23, 135);
             this.ultraGroupBox4.Name = "ultraGroupBox4";
             this.ultraGroupBox4.Size = new System.Drawing.Size(625, 44);
             this.ultraGroupBox4.TabIndex = 7;
@@ -341,7 +359,7 @@
             // 
             // ultraStatusBar1
             // 
-            this.ultraStatusBar1.Location = new System.Drawing.Point(0, 541);
+            this.ultraStatusBar1.Location = new System.Drawing.Point(0, 619);
             this.ultraStatusBar1.Name = "ultraStatusBar1";
             ultraStatusPanel1.Key = "Progress";
             ultraStatusPanel1.MinWidth = 100;
@@ -364,35 +382,35 @@
             this.timerProgress.Interval = 2000;
             this.timerProgress.Tick += new System.EventHandler(this.timerProgress_Tick);
             // 
-            // button3
+            // buttonSyncExcute
             // 
-            this.button3.Location = new System.Drawing.Point(23, 51);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(75, 23);
-            this.button3.TabIndex = 10;
-            this.button3.Text = "Sync-Execute";
-            this.button3.UseVisualStyleBackColor = true;
-            this.button3.Click += new System.EventHandler(this.button3_Click);
+            this.buttonSyncExcute.Location = new System.Drawing.Point(23, 51);
+            this.buttonSyncExcute.Name = "buttonSyncExcute";
+            this.buttonSyncExcute.Size = new System.Drawing.Size(75, 23);
+            this.buttonSyncExcute.TabIndex = 10;
+            this.buttonSyncExcute.Text = "Sync-Execute";
+            this.buttonSyncExcute.UseVisualStyleBackColor = true;
+            this.buttonSyncExcute.Click += new System.EventHandler(this.buttonSyncExcute_Click);
             // 
-            // button4
+            // buttonClearResults
             // 
-            this.button4.Location = new System.Drawing.Point(118, 51);
-            this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(75, 23);
-            this.button4.TabIndex = 11;
-            this.button4.Text = "Clear";
-            this.button4.UseVisualStyleBackColor = true;
-            this.button4.Click += new System.EventHandler(this.button4_Click);
+            this.buttonClearResults.Location = new System.Drawing.Point(118, 51);
+            this.buttonClearResults.Name = "buttonClearResults";
+            this.buttonClearResults.Size = new System.Drawing.Size(75, 23);
+            this.buttonClearResults.TabIndex = 11;
+            this.buttonClearResults.Text = "Clear";
+            this.buttonClearResults.UseVisualStyleBackColor = true;
+            this.buttonClearResults.Click += new System.EventHandler(this.buttonClearResults_Click);
             // 
-            // button5
+            // buttonOpenLogFile
             // 
-            this.button5.Location = new System.Drawing.Point(23, 93);
-            this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(75, 23);
-            this.button5.TabIndex = 12;
-            this.button5.Text = "Open Log";
-            this.button5.UseVisualStyleBackColor = true;
-            this.button5.Click += new System.EventHandler(this.button5_Click);
+            this.buttonOpenLogFile.Location = new System.Drawing.Point(23, 93);
+            this.buttonOpenLogFile.Name = "buttonOpenLogFile";
+            this.buttonOpenLogFile.Size = new System.Drawing.Size(75, 23);
+            this.buttonOpenLogFile.TabIndex = 12;
+            this.buttonOpenLogFile.Text = "Open Log";
+            this.buttonOpenLogFile.UseVisualStyleBackColor = true;
+            this.buttonOpenLogFile.Click += new System.EventHandler(this.buttonOpenLogFile_Click);
             // 
             // ultraGroupBox5
             // 
@@ -436,16 +454,97 @@
             this.ultraDateTimeEditorEndLog.SpinButtonDisplayStyle = Infragistics.Win.ButtonDisplayStyle.Always;
             this.ultraDateTimeEditorEndLog.TabIndex = 1;
             // 
-            // Form1
+            // ultraGroupBox7
+            // 
+            this.ultraGroupBox7.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.ultraGroupBox7.Controls.Add(this.ultraTextEditorAdditionalLogs);
+            this.ultraGroupBox7.Location = new System.Drawing.Point(658, 55);
+            this.ultraGroupBox7.Name = "ultraGroupBox7";
+            this.ultraGroupBox7.Size = new System.Drawing.Size(623, 44);
+            this.ultraGroupBox7.TabIndex = 7;
+            this.ultraGroupBox7.Text = "Additional Log Files";
+            // 
+            // ultraTextEditorAdditionalLogs
+            // 
+            editorButton4.Key = "FileEditor";
+            editorButton4.Text = "...";
+            this.ultraTextEditorAdditionalLogs.ButtonsRight.Add(editorButton4);
+            this.ultraTextEditorAdditionalLogs.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.ultraTextEditorAdditionalLogs.Location = new System.Drawing.Point(3, 16);
+            this.ultraTextEditorAdditionalLogs.Multiline = true;
+            this.ultraTextEditorAdditionalLogs.Name = "ultraTextEditorAdditionalLogs";
+            this.ultraTextEditorAdditionalLogs.ShowOverflowIndicator = true;
+            this.ultraTextEditorAdditionalLogs.Size = new System.Drawing.Size(617, 21);
+            this.ultraTextEditorAdditionalLogs.TabIndex = 0;
+            this.ultraTextEditorAdditionalLogs.WordWrap = false;
+            this.ultraTextEditorAdditionalLogs.EditorButtonClick += new Infragistics.Win.UltraWinEditors.EditorButtonEventHandler(this.ultraTextEditorAdditionalLogs_EditorButtonClick);
+            // 
+            // ultraGroupBox8
+            // 
+            this.ultraGroupBox8.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.ultraGroupBox8.Controls.Add(this.ultraTextEditorAdditionalDDLFiles);
+            this.ultraGroupBox8.Location = new System.Drawing.Point(661, 100);
+            this.ultraGroupBox8.Name = "ultraGroupBox8";
+            this.ultraGroupBox8.Size = new System.Drawing.Size(623, 44);
+            this.ultraGroupBox8.TabIndex = 7;
+            this.ultraGroupBox8.Text = "Additional DDL Files";
+            // 
+            // ultraTextEditorAdditionalDDLFiles
+            // 
+            editorButton5.Key = "FileEditor";
+            editorButton5.Text = "...";
+            this.ultraTextEditorAdditionalDDLFiles.ButtonsRight.Add(editorButton5);
+            this.ultraTextEditorAdditionalDDLFiles.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.ultraTextEditorAdditionalDDLFiles.Location = new System.Drawing.Point(3, 16);
+            this.ultraTextEditorAdditionalDDLFiles.Multiline = true;
+            this.ultraTextEditorAdditionalDDLFiles.Name = "ultraTextEditorAdditionalDDLFiles";
+            this.ultraTextEditorAdditionalDDLFiles.ShowOverflowIndicator = true;
+            this.ultraTextEditorAdditionalDDLFiles.Size = new System.Drawing.Size(617, 21);
+            this.ultraTextEditorAdditionalDDLFiles.TabIndex = 0;
+            this.ultraTextEditorAdditionalDDLFiles.WordWrap = false;
+            this.ultraTextEditorAdditionalDDLFiles.EditorButtonClick += new Infragistics.Win.UltraWinEditors.EditorButtonEventHandler(this.ultraTextEditorAdditionalDDLFiles_EditorButtonClick);
+            // 
+            // ultraGroupBox9
+            // 
+            this.ultraGroupBox9.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.ultraGroupBox9.Controls.Add(this.ultraTextEditorAltCompFiles);
+            this.ultraGroupBox9.Location = new System.Drawing.Point(663, 150);
+            this.ultraGroupBox9.Name = "ultraGroupBox9";
+            this.ultraGroupBox9.Size = new System.Drawing.Size(623, 44);
+            this.ultraGroupBox9.TabIndex = 13;
+            this.ultraGroupBox9.Text = "Additional Compression Files";
+            // 
+            // ultraTextEditorAltCompFiles
+            // 
+            editorButton6.Key = "FileEditor";
+            editorButton6.Text = "...";
+            this.ultraTextEditorAltCompFiles.ButtonsRight.Add(editorButton6);
+            this.ultraTextEditorAltCompFiles.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.ultraTextEditorAltCompFiles.Location = new System.Drawing.Point(3, 16);
+            this.ultraTextEditorAltCompFiles.Multiline = true;
+            this.ultraTextEditorAltCompFiles.Name = "ultraTextEditorAltCompFiles";
+            this.ultraTextEditorAltCompFiles.ShowOverflowIndicator = true;
+            this.ultraTextEditorAltCompFiles.Size = new System.Drawing.Size(617, 25);
+            this.ultraTextEditorAltCompFiles.TabIndex = 0;
+            this.ultraTextEditorAltCompFiles.WordWrap = false;
+            this.ultraTextEditorAltCompFiles.EditorButtonClick += new Infragistics.Win.UltraWinEditors.EditorButtonEventHandler(this.ultraTextEditorAltCompFiles_EditorButtonClick);
+            // 
+            // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1296, 566);
+            this.ClientSize = new System.Drawing.Size(1296, 644);
+            this.Controls.Add(this.ultraGroupBox9);
+            this.Controls.Add(this.ultraGroupBox8);
+            this.Controls.Add(this.ultraGroupBox7);
             this.Controls.Add(this.ultraGroupBox6);
             this.Controls.Add(this.ultraGroupBox5);
-            this.Controls.Add(this.button5);
-            this.Controls.Add(this.button4);
-            this.Controls.Add(this.button3);
+            this.Controls.Add(this.buttonOpenLogFile);
+            this.Controls.Add(this.buttonClearResults);
+            this.Controls.Add(this.buttonSyncExcute);
             this.Controls.Add(this.ultraStatusBar1);
             this.Controls.Add(this.ultraCheckEditorDisableParallelProcessing);
             this.Controls.Add(this.ultraGroupBox4);
@@ -453,11 +552,11 @@
             this.Controls.Add(this.ultraGroupBox2);
             this.Controls.Add(this.ultraGroupBox1);
             this.Controls.Add(this.ultraGrid1);
-            this.Controls.Add(this.button2);
-            this.Controls.Add(this.button1);
-            this.Name = "Form1";
+            this.Controls.Add(this.buttonCancelExecution);
+            this.Controls.Add(this.buttonAsyncExcute);
+            this.Name = "FormMain";
             this.Text = "DSE Diagnostic Parsing Engine";
-            this.Load += new System.EventHandler(this.Form1_Load);
+            this.Load += new System.EventHandler(this.FormMain_Load);
             ((System.ComponentModel.ISupportInitialize)(this.ultraGrid1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.ultraGroupBox1)).EndInit();
             this.ultraGroupBox1.ResumeLayout(false);
@@ -485,14 +584,26 @@
             this.ultraGroupBox6.ResumeLayout(false);
             this.ultraGroupBox6.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.ultraDateTimeEditorEndLog)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.ultraGroupBox7)).EndInit();
+            this.ultraGroupBox7.ResumeLayout(false);
+            this.ultraGroupBox7.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.ultraTextEditorAdditionalLogs)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.ultraGroupBox8)).EndInit();
+            this.ultraGroupBox8.ResumeLayout(false);
+            this.ultraGroupBox8.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.ultraTextEditorAdditionalDDLFiles)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.ultraGroupBox9)).EndInit();
+            this.ultraGroupBox9.ResumeLayout(false);
+            this.ultraGroupBox9.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.ultraTextEditorAltCompFiles)).EndInit();
             this.ResumeLayout(false);
 
 		}
 
         #endregion
 
-        private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Button buttonAsyncExcute;
+        private System.Windows.Forms.Button buttonCancelExecution;
         private Infragistics.Win.UltraWinGrid.UltraGrid ultraGrid1;
         private Infragistics.Win.Misc.UltraGroupBox ultraGroupBox1;
         private Infragistics.Win.UltraWinEditors.UltraTextEditor ultraTextEditorCluster;
@@ -505,13 +616,19 @@
         private Infragistics.Win.UltraWinEditors.UltraCheckEditor ultraCheckEditorDisableParallelProcessing;
         private Infragistics.Win.UltraWinStatusBar.UltraStatusBar ultraStatusBar1;
         private System.Windows.Forms.Timer timerProgress;
-        private System.Windows.Forms.Button button3;
-        private System.Windows.Forms.Button button4;
-        private System.Windows.Forms.Button button5;
+        private System.Windows.Forms.Button buttonSyncExcute;
+        private System.Windows.Forms.Button buttonClearResults;
+        private System.Windows.Forms.Button buttonOpenLogFile;
         private Infragistics.Win.Misc.UltraGroupBox ultraGroupBox5;
         private Infragistics.Win.UltraWinEditors.UltraDateTimeEditor ultraDateTimeEditorStartLog;
         private Infragistics.Win.Misc.UltraGroupBox ultraGroupBox6;
         private Infragistics.Win.UltraWinEditors.UltraDateTimeEditor ultraDateTimeEditorEndLog;
+        private Infragistics.Win.Misc.UltraGroupBox ultraGroupBox7;
+        private Infragistics.Win.UltraWinEditors.UltraTextEditor ultraTextEditorAdditionalLogs;
+        private Infragistics.Win.Misc.UltraGroupBox ultraGroupBox8;
+        private Infragistics.Win.UltraWinEditors.UltraTextEditor ultraTextEditorAdditionalDDLFiles;
+        private Infragistics.Win.Misc.UltraGroupBox ultraGroupBox9;
+        private Infragistics.Win.UltraWinEditors.UltraTextEditor ultraTextEditorAltCompFiles;
     }
 }
 

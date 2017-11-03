@@ -60,7 +60,7 @@ namespace DSEDiagnosticConsoleApplication
                 Optional = true,
                 DefaultValue = string.Join(", ", ParserSettings.AdditionalFilesForParsingClass.Where(a => a.Key == "ZipFile" || a.Key == "file_unzip").Select(s => s.Value)),
                 Description = "A list of file paths separated by comma that will be included in the decompress process, if enabled. This can include wild card patterns.",
-                Example = @"c:\additionalDDL\describe_schema, c:\additional DDL\describe.cql"
+                Example = @"c:\additionalZip\system.log.1.zip, c:\additionalZip\system.2.zip"
             });
 
             this._cmdLineParser.Arguments.Add(new ValueArgument<string>('A', "AlternativeFilePath")
@@ -413,6 +413,6 @@ namespace DSEDiagnosticConsoleApplication
         {
             get;
             set;
-        }        
+        }
     }
 }
