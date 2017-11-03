@@ -631,7 +631,7 @@ namespace DSEDiagnosticLibrary
         /// <param name="node"></param>
         /// <param name="clusterName"></param>
         /// <returns></returns>
-        public static Cluster NameClusterAssociatewItem(IDataCenter dc, string clusterName)
+        public static Cluster NameClusterAssociatewItem(IDataCenter dc, string clusterName, bool associateKeySpaces = true)
         {
             if (dc == null || string.IsNullOrEmpty(clusterName)) return null;
 
@@ -654,9 +654,36 @@ namespace DSEDiagnosticLibrary
                             {
                                 oldCluster._dataCenters.UnSafe.Remove(dc);
                             }
+
+                            if (associateKeySpaces)
+                            {
+                                oldCluster._keySpaces.Lock();
+                                cluster._keySpaces.Lock();
+                                try
+                                {
+                                    var existingKSInDC = oldCluster._keySpaces.UnSafe.Where(k => k.DataCenter.Equals(dc));
+
+                                    foreach(var existingKS in existingKSInDC)
+                                    {
+                                        if(!cluster._keySpaces.UnSafe.Contains(existingKS))
+                                        {
+                                            cluster.AssociateItem(existingKS);
+                                            if (!oldCluster.IsMaster)
+                                            {
+                                                oldCluster._keySpaces.UnSafe.Remove(existingKS);
+                                            }
+                                        }
+                                    }
+                                }
+                                finally
+                                {
+                                    cluster._keySpaces.UnLock();
+                                    oldCluster._keySpaces.UnLock();
+                                }
+                            }
                         }
 
-                        ((DataCenter)dc).AssociateItem(cluster);
+                        ((DataCenter)dc).AssociateItem(cluster);                       
                     }
                     finally
                     {

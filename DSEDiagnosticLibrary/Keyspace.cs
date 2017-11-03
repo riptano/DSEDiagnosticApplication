@@ -193,9 +193,11 @@ namespace DSEDiagnosticLibrary
                 this.Replications = this.Replications.OrderBy(r => r.DataCenter?.Name).ThenBy(r => r.RF);
             }
 
-            if(this.Node == null && this._cluster == null && (this.Replications?.HasAtLeastOneElement() ?? false))
+            if(this.Node == null
+                    && (this._cluster == null || this._cluster.IsMaster)
+                    && (this.Replications?.HasAtLeastOneElement() ?? false))
             {
-                this._cluster = this.Replications.First().DataCenter?.Cluster;
+                this._cluster = this.Replications.First().DataCenter?.Cluster;                
             }
         }
 

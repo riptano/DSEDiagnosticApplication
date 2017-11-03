@@ -380,7 +380,16 @@ namespace DSEDiagnosticFileParser
 
             if (ksInstance == null)
             {
-                ksInstance = this.Cluster.AssociateItem(keySpace);
+                Cluster localCluster = this.Cluster;
+
+                if(localCluster.IsMaster
+                        && keySpace.Cluster != null
+                        && !keySpace.Cluster.IsMaster)
+                {
+                    localCluster = keySpace.Cluster;
+                }
+
+                ksInstance = localCluster.AssociateItem(keySpace);
                 this._localKS.Add(ksInstance);
 
                 if (ReferenceEquals(keySpace, ksInstance))
