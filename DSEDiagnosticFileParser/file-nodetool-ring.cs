@@ -94,7 +94,7 @@ namespace DSEDiagnosticFileParser
 
                 if (regExSplit.Length == 3)
                 {
-                    currentDataCenter = Cluster.TryGetDataCenter(regExSplit[1], this.DefaultClusterName);
+                    currentDataCenter = Cluster.TryGetAddDataCenter(regExSplit[1], this.DefaultClusterName);
                     continue;
                 }
 
