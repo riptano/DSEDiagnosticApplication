@@ -194,10 +194,16 @@ namespace DSEDiagnosticLibrary
             }
 
             if(this.Node == null
-                    && (this._cluster == null || this._cluster.IsMaster)
-                    && (this.Replications?.HasAtLeastOneElement() ?? false))
+                    && (this._cluster == null || this._cluster.IsMaster))                    
             {
-                this._cluster = this.Replications.First().DataCenter?.Cluster;                
+                if (this.Replications?.HasAtLeastOneElement() ?? false)
+                {
+                    this._cluster = this.Replications.First().DataCenter?.Cluster;
+                }
+                else
+                {
+                    this._cluster = Cluster.GetCurrentOrMaster();
+                }
             }
         }
 

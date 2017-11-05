@@ -85,9 +85,78 @@ namespace DSEDiagnosticToDataTable
                         continue;
                     }
 
+                    var keyspaceName = warn ? stat.Keyspace.Name + " (warn)" : stat.Keyspace.Name;
+
+                    {
+                        object errorValue;
+
+                        if (stat.Data.TryGetValue(DSEDiagnosticLibrary.AggregatedStats.DCNotInKS, out errorValue))
+                        {
+                            keyspaceName += string.Format(" {{!{0}}}", errorValue);
+                            dataRow = this.Table.NewRow();
+
+                            if (this.SessionId.HasValue) dataRow.SetField(ColumnNames.SessionId, this.SessionId.Value);
+
+                            dataRow.SetField(ColumnNames.Source, stat.Source.ToString());
+                            dataRow.SetField(ColumnNames.DataCenter, stat.DataCenter.Name);
+                            dataRow.SetField(ColumnNames.NodeIPAddress, stat.Node.Id.NodeName());
+                            dataRow.SetField(ColumnNames.KeySpace, keyspaceName);
+                            if (stat.TableViewIndex != null)
+                            {
+                                dataRow.SetField(ColumnNames.Table, warn ? stat.TableViewIndex.Name + " (warn)" : stat.TableViewIndex.Name);
+                                dataRow.SetField("Active", stat.TableViewIndex.IsActive);
+                            }
+
+                            dataRow.SetField("Attribute", DSEDiagnosticLibrary.AggregatedStats.DCNotInKS);
+                            dataRow.SetField("Value",
+                                                string.Format("{0} not found within Keyspace \"{1}\"",
+                                                                errorValue.ToString(),
+                                                                stat.Keyspace.Name));
+
+                            this.Table.Rows.Add(dataRow);
+
+                            ++nbrItems;
+                        }
+
+                        if (stat.Data.TryGetValue(DSEDiagnosticLibrary.AggregatedStats.Errors, out errorValue))
+                        {
+                            foreach(var strError in (IList<string>) errorValue)
+                            {
+                                this.CancellationToken.ThrowIfCancellationRequested();
+
+                                dataRow = this.Table.NewRow();
+
+                                if (this.SessionId.HasValue) dataRow.SetField(ColumnNames.SessionId, this.SessionId.Value);
+
+                                dataRow.SetField(ColumnNames.Source, stat.Source.ToString());
+                                dataRow.SetField(ColumnNames.DataCenter, stat.DataCenter.Name);
+                                dataRow.SetField(ColumnNames.NodeIPAddress, stat.Node.Id.NodeName());
+                                dataRow.SetField(ColumnNames.KeySpace, keyspaceName);
+                                if (stat.TableViewIndex != null)
+                                {
+                                    dataRow.SetField(ColumnNames.Table, warn ? stat.TableViewIndex.Name + " (warn)" : stat.TableViewIndex.Name);
+                                    dataRow.SetField("Active", stat.TableViewIndex.IsActive);
+                                }
+
+                                dataRow.SetField("Attribute", DSEDiagnosticLibrary.AggregatedStats.Errors);
+                                dataRow.SetField("Value", strError);
+
+                                this.Table.Rows.Add(dataRow);
+
+                                ++nbrItems;
+                            }
+                        }                        
+                    }
+
                     foreach (var item in stat.Data)
                     {
                         this.CancellationToken.ThrowIfCancellationRequested();
+
+                        if(item.Key == DSEDiagnosticLibrary.AggregatedStats.Errors
+                            || item.Key == DSEDiagnosticLibrary.AggregatedStats.DCNotInKS)
+                        {
+                            continue;
+                        }
 
                         dataRow = this.Table.NewRow();
 
@@ -96,7 +165,7 @@ namespace DSEDiagnosticToDataTable
                         dataRow.SetField(ColumnNames.Source, stat.Source.ToString());
                         dataRow.SetField(ColumnNames.DataCenter, stat.DataCenter.Name);
                         dataRow.SetField(ColumnNames.NodeIPAddress, stat.Node.Id.NodeName());
-                        dataRow.SetField(ColumnNames.KeySpace, warn ? stat.Keyspace.Name + " (warn)" : stat.Keyspace.Name);
+                        dataRow.SetField(ColumnNames.KeySpace, keyspaceName);
 
                         if (stat.TableViewIndex != null)
                         {

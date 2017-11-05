@@ -107,7 +107,9 @@
 	"Memtable Flush maximum Storage",
 	"Memtable Flush mean Storage",
 	"Memtable Flush minimum Storage",
-	"Memtable Flush total Storage"
+	"Memtable Flush total Storage",
+                   "Error (DC Not Defined within KS)",
+                   "Errors"
 ]},
 "NodeStats":{"Column":"D","Attrs":[
 	"AntiEntropySessions",

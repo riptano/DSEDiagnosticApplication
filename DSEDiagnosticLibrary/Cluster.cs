@@ -34,9 +34,20 @@ namespace DSEDiagnosticLibrary
         }
 
         public Cluster()
-		{
-			Clusters.Add(this);
+        {
+            Clusters.Add(this);
             this.OpsCenter = new OpsCenterInfo();
+
+            if (MasterCluster != null)
+            {
+                //Only key spaces that were not parsed from a node associated file
+                var everwherelocalKSs = MasterCluster._keySpaces.Where(k => k.Node == null && (k.LocalStrategy || k.EverywhereStrategy));
+
+                if (everwherelocalKSs.HasAtLeastOneElement())
+                {
+                    this._keySpaces = new CTS.List<IKeyspace>(everwherelocalKSs);
+                }
+            }
 		}
 
 		public Cluster(string clusterName)
@@ -661,7 +672,7 @@ namespace DSEDiagnosticLibrary
                                 cluster._keySpaces.Lock();
                                 try
                                 {
-                                    var existingKSInDC = oldCluster._keySpaces.UnSafe.Where(k => k.DataCenter.Equals(dc));
+                                    var existingKSInDC = oldCluster._keySpaces.UnSafe.Where(k => k.DataCenters.Contains(dc));
 
                                     foreach(var existingKS in existingKSInDC)
                                     {

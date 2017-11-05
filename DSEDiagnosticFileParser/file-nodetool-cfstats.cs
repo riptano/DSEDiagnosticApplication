@@ -161,6 +161,7 @@ namespace DSEDiagnosticFileParser
             IKeyspace currentKeyspace = null;
             IDDLStmt currentDDL = null;
             AggregatedStats statItem = null;
+            AggregatedStats statItemCurrentKeyspace = null;
             string[] splitValue = null; //first is the key/property and second item is the value
             Tuple<string, UnitOfMeasure.Types> UOM = null;
             string[] propValueSplit = null;
@@ -185,8 +186,49 @@ namespace DSEDiagnosticFileParser
 
                 if (attribute == "Keyspace")
                 {
+                    var keyspaceNotInDC = false;
+                    var ksName = splitValue[1].Trim();
                     skipSection = false;
-                    currentKeyspace = this.Node.DataCenter.TryGetKeyspace(splitValue[1].Trim());
+                    currentKeyspace = this.Node.DataCenter.TryGetKeyspace(ksName);
+
+                    if(currentKeyspace == null)
+                    {
+                        //Try Master Cluster!
+                        currentKeyspace = Cluster.MasterCluster
+                                                .GetKeyspaces(ksName)
+                                                .FirstOrDefault(k => k.EverywhereStrategy
+                                                                        || k.LocalStrategy
+                                                                        || k.Replications.Any(r => r.DataCenter.Name == this.Node.DataCenter.Name));
+
+                        if(currentKeyspace == null)
+                        {
+                            currentKeyspace = this.Node.Cluster.Keyspaces.FirstOrDefault(k => k.Name == ksName);
+
+                            if (currentKeyspace != null)
+                            {
+                                Logger.Instance.WarnFormat("MapperId<{0}>\t{1}\t{2}\tNodetool CFStats Keyspace \"{3}\" was found but not in DC \"{4}\" (Keyspace DC(s) are {{{5}}}). This section will use this Keyspace and the AggregatedStats instance will be marked as in Error.",
+                                                            this.MapperId,
+                                                            this.Node,
+                                                            this.File.PathResolved,
+                                                            ksName,
+                                                            this.Node.DataCenter.Name,
+                                                            string.Join(",", currentKeyspace.DataCenters.Select(dc => dc.Name)));
+                                ++this.NbrWarnings;
+                                this._unknownDDLs.Add(string.Format("{0} (KS Not Fnd in DC {1})", ksName, this.Node.DataCenter.Name));
+                                keyspaceNotInDC = true;
+                            }
+                        }
+                        else
+                        {
+                            Logger.Instance.InfoFormat("MapperId<{0}>\t{1}\t{2}\tNodetool CFStats Keyspace \"{3}\" was not found in DC \"{4}\" in Cluster \"{5}\" but was Found in the Master Cluster. Using the Master Cluster's instance.",
+                                                        this.MapperId,
+                                                        this.Node,
+                                                        this.File.PathResolved,
+                                                        ksName,
+                                                        this.Node.DataCenter.Name,
+                                                        this.Node.Cluster?.Name);
+                        }
+                    }
 
                     if (currentKeyspace == null)
                     {
@@ -194,12 +236,13 @@ namespace DSEDiagnosticFileParser
                                                     this.MapperId,
                                                     this.Node,
                                                     this.File.PathResolved,
-                                                    splitValue[1].Trim(),
+                                                    ksName,
                                                     this.Node.DataCenter.Name);
                         ++this.NbrWarnings;
-                        this._unknownDDLs.Add(splitValue[1].Trim());
+                        this._unknownDDLs.Add(ksName);
                         skipSection = true;
                         statItem = null;
+                        statItemCurrentKeyspace = null;
                     }
                     else
                     {
@@ -210,6 +253,12 @@ namespace DSEDiagnosticFileParser
                                                         EventClasses.PerformanceStats | EventClasses.Node | EventClasses.KeyspaceTableViewIndexStats,
                                                         currentKeyspace);
                         this._statsList.Add(statItem);
+                        statItemCurrentKeyspace = statItem;
+
+                        if(keyspaceNotInDC)
+                        {
+                            statItem.AssociateItem(AggregatedStats.DCNotInKS, this.Node.DataCenter);
+                        }
                     }
                     continue;
                 }
@@ -225,16 +274,31 @@ namespace DSEDiagnosticFileParser
                     if (currentDDL == null)
                     {
                         var tableName = currentKeyspace.Name + '.' + splitValue[1].Trim();
-                        Logger.Instance.WarnFormat("MapperId<{0}>\t{1}\t{2}\tNodetool CFStats Table/Index/View \"{3}\" was not found in DC \"{4}\" and this complete section will be skipped.",
+                        Logger.Instance.WarnFormat("MapperId<{0}>\t{1}\t{2}\tNodetool CFStats Table/Index/View \"{3}\" was not found in \"{4}\" and this complete section will be skipped.",
                                                     this.MapperId,
                                                     this.Node,
                                                     this.File.PathResolved,
                                                     tableName,
-                                                    currentKeyspace.DataCenter.Name);
+                                                    currentKeyspace.DataCenter?.ToString() ?? currentKeyspace.Cluster?.ToString());
                         ++this.NbrWarnings;
                         this._unknownDDLs.Add(tableName);
                         skipSection = true;
                         statItem = null;
+
+                        if(statItemCurrentKeyspace != null)
+                        {
+                            object existingValue;
+
+                            if(statItemCurrentKeyspace.Data.TryGetValue(AggregatedStats.Errors, out existingValue))
+                            {
+                                ((List<string>)existingValue).Add(string.Format("Table \"{0}\" not found", tableName));
+                            }
+                            else
+                            {
+                                statItemCurrentKeyspace.AssociateItem(AggregatedStats.Errors,
+                                                                        new List<string>() { string.Format("Table \"{0}\" not found", tableName) });
+                            }
+                        }
                     }
                     else
                     {

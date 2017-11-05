@@ -169,7 +169,7 @@ namespace DSEDiagnosticConsoleApplication
 
             Common.TimeZones.Convert(DateTime.Now, "UTC");
 
-            Logger.Instance.InfoFormat("Starting {0} ({1}) Vetsion: {2} RunAs: {3} RunTime Dir: {4}",
+            Logger.Instance.InfoFormat("Starting {0} ({1}) Version: {2} RunAs: {3} RunTime Dir: {4}",
                                             Common.Functions.Instance.ApplicationName,
                                             Common.Functions.Instance.AssemblyFullName,
                                             Common.Functions.Instance.ApplicationVersion,

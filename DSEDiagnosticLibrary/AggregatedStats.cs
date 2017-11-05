@@ -28,6 +28,8 @@ namespace DSEDiagnosticLibrary
     [JsonObject(MemberSerialization.OptOut)]
     public sealed class AggregatedStats : IAggregatedStats
     {
+        public const string DCNotInKS = "Error (DC Not Defined within KS)";
+        public const string Errors = "Errors";
 
         #region Constructors
         private AggregatedStats(IPath filePath,
