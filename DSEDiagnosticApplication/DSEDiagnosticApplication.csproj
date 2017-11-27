@@ -51,14 +51,14 @@
     </Reference>
     <Reference Include="Common.Patterns.TimeZoneInfo, Version=4.0.5.0, Culture=neutral, PublicKeyToken=75d1a63e21e859f1, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\Common Patterns\Assemblies\40\Release\Common.Patterns.TimeZoneInfo.dll</HintPath>
+      <HintPath>..\packages\CommonPatterns\Release\Common.Patterns.TimeZoneInfo.dll</HintPath>
     </Reference>
     <Reference Include="Common.Patterns.WaitCursor">
       <HintPath>..\packages\CommonPatterns\Release\Common.Patterns.WaitCursor.dll</HintPath>
     </Reference>
     <Reference Include="Common.TimeZones, Version=4.0.5.0, Culture=neutral, PublicKeyToken=75d1a63e21e859f1, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\Common Patterns\Assemblies\40\Release\Common.TimeZones.dll</HintPath>
+      <HintPath>..\packages\CommonPatterns\Release\Common.TimeZones.dll</HintPath>
     </Reference>
     <Reference Include="Common.WinForm">
       <HintPath>..\packages\CommonPatterns\Release\Common.WinForm.dll</HintPath>
