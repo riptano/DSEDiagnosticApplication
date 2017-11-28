@@ -574,33 +574,42 @@ namespace DSEDiagnosticLibrary
         public string OSVersion;
         public string InstanceType;
         public string Placement;
-
-        private IZone _timezone = null;
+       
+        [JsonIgnore]
         public IZone TimeZone
         {
             get
             {
-                if(this._timezone == null && string.IsNullOrEmpty(this.TimeZoneName))
+                if(this.ExplictTimeZone == null && string.IsNullOrEmpty(this.TimeZoneName))
                 {
                     if(Node.DefaultTimeZones != null && Node.DefaultTimeZones.Length > 0)
                     {
                         this.UsesDefaultTZ = false;
-                        this._timezone = Node.DefaultTimeZones.FindDefaultTimeZone(this._assocatedNode.Id.NodeName());                        
+                        this.ExplictTimeZone = Node.DefaultTimeZones.FindDefaultTimeZone(this._assocatedNode.Id.NodeName());                        
                     }
 
-                    if (this._timezone == null)
+                    if (this.ExplictTimeZone == null)
                     {
                         this.UsesDefaultTZ = true;
                         return this._assocatedNode.DataCenter?.DefaultMajorityTimeZone;
                     }
                 }
-                return this._timezone;
+                return this.ExplictTimeZone;
             }
 
-            set { this._timezone = value; }
+            set { this.ExplictTimeZone = value; }
         }
+
+        /// <summary>
+        /// If true the default time zone from the DC is used.
+        /// </summary>
         [JsonIgnore]
         public bool UsesDefaultTZ { get; private set; }
+
+        /// <summary>
+        /// This is the time zone that has been explicitly defined
+        /// </summary>
+        public Common.Patterns.TimeZoneInfo.IZone ExplictTimeZone { get; private set; }
         public string TimeZoneName;
         public CPULoadInfo CPULoad;
         public MemoryInfo Memory;

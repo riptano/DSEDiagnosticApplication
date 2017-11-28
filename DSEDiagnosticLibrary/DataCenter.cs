@@ -184,13 +184,13 @@ namespace DSEDiagnosticLibrary
         {
             get
             {
-                var tz = this._nodes.FirstOrDefault()?.Machine.TimeZone;
-                return this._nodes.All(n => n.Machine.TimeZone == tz) ? tz : null;
+                var tz = this._nodes.FirstOrDefault()?.Machine.ExplictTimeZone;
+                return this._nodes.All(n => n.Machine.ExplictTimeZone == tz) ? tz : null;
             }
         }
 
         /// <summary>
-        /// This will return the timezone for this datacenter based on the DC associated timezones, major of nodes&apos; timezone, or the cluster&apos;s default timezone.
+        /// This will return the timezone for this datacenter based on the DC associated timezones, majority of nodes&apos; timezone, or the cluster&apos;s default timezone.
         /// This can return null.
         /// </summary>
         [JsonIgnore]        
