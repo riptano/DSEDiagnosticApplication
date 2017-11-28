@@ -178,6 +178,7 @@ namespace DSEDiagnosticFileParser
         /// If a session, the begin session decimal should be zero and the session items should be an increment of the begin session. Example: Begin - 4.0, Item - 4.1.
         /// </summary>
         public decimal TagId;
+        public string Description;
         /// <summary>
         /// If a session item this should be the session begin blokck&apos;s TagId.
         /// </summary>

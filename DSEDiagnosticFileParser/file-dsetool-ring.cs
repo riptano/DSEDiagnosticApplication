@@ -159,9 +159,11 @@ namespace DSEDiagnosticFileParser
                                     node.DSE.InstanceType = DSEInfo.InstanceTypes.Search;
                                     break;
                                 case "analytics(jt)":
+                                case "cassandra(jt)":
                                     node.DSE.InstanceType = DSEInfo.InstanceTypes.Analytics_JT;
                                     break;
                                 case "analytics(tt)":
+                                case "cassandra(tt)":
                                     node.DSE.InstanceType = DSEInfo.InstanceTypes.Analytics_TT;
                                     break;
                             }

@@ -130,6 +130,10 @@ namespace DSEDiagnosticToDataTable
                         {
                             dataRow.SetField("TimeZone", (node.Machine.TimeZoneName ?? string.Empty) + " (?)");
                         }
+                        else if(node.Machine.UsesDefaultTZ)                           
+                        {
+                            dataRow.SetField("TimeZone", node.Machine.TimeZone.Name + " (default");
+                        }
                         else
                         {
                             dataRow.SetField("TimeZone", node.Machine.TimeZone.Name);

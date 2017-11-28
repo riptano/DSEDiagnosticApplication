@@ -19,6 +19,8 @@ namespace DSEDiagnosticLibrary
         public static CTS.List<Cluster> Clusters = new CTS.List<Cluster>();
 		private static CTS.List<INode> UnAssociatedNodes = new CTS.List<INode>();
 
+        public static string DefaultClusterTimeZone = Properties.Settings.Default.DefaultClusterTZ;
+
         #region constructors
 
         static Cluster()
@@ -171,6 +173,17 @@ namespace DSEDiagnosticLibrary
             get
             {
                 return this.DataCenters.SelectMany(dc => dc.Nodes);
+            }
+        }
+
+        [JsonIgnore]
+        public Common.Patterns.TimeZoneInfo.IZone DefaultTimeZone
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(DefaultClusterTimeZone)) return null;
+
+                return StringHelpers.FindTimeZone(DefaultClusterTimeZone);
             }
         }
 

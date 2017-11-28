@@ -44,8 +44,8 @@ namespace DSEDiagnosticLog4NetParser.Tests
             }
 
             Assert.AreEqual(5, logMessages.Messages.Count());
-            Assert.AreEqual(new DateTime(2016, 12, 9, 10, 20, 41, 478), logMessages.LogTimeRange.Max);
-            Assert.AreEqual(new DateTime(2016, 12, 7, 15, 02, 05, 817), logMessages.LogTimeRange.Min);
+            Assert.AreEqual(new DateTime(2016, 12, 9, 10, 20, 41, 478), logMessages.LogTimeRange.Max.DateTime);
+            Assert.AreEqual(new DateTime(2016, 12, 7, 15, 02, 05, 817), logMessages.LogTimeRange.Min.DateTime);
             Assert.AreEqual(0, logMessages.Messages.ElementAt(0).ExtraMessages.Count());
             Assert.AreEqual(4, logMessages.Messages.ElementAt(2).ExtraMessages.Count());
             Assert.AreEqual(@"Unexpected exception during request; channel = [id: 0xc37b0c1e, /10.14.148.224:61446 => /10.14.148.34:9042]",
