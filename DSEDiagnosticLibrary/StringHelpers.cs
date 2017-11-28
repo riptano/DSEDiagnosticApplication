@@ -462,7 +462,10 @@ namespace DSEDiagnosticLibrary
 
         static public Common.Patterns.TimeZoneInfo.IZone FindTimeZone(string ianaName)
         {
-            return Common.TimeZones.Find(ianaName, Common.Patterns.TimeZoneInfo.ZoneNameTypes.IANATZName) ?? Common.TimeZones.Find(ianaName, Common.Patterns.TimeZoneInfo.ZoneNameTypes.FormattedName);
+            return string.IsNullOrEmpty(ianaName)
+                        ? null
+                        : Common.TimeZones.Find(ianaName, Common.Patterns.TimeZoneInfo.ZoneNameTypes.IANATZName)
+                            ?? Common.TimeZones.Find(ianaName, Common.Patterns.TimeZoneInfo.ZoneNameTypes.FormattedName);
         }
 
         private enum MMElementType

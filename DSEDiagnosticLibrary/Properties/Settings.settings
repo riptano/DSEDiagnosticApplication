@@ -144,5 +144,8 @@
     <Setting Name="LogMessageToStringMaxLength" Type="System.Int32" Scope="Application">
       <Value Profile="(Default)">100</Value>
     </Setting>
+    <Setting Name="DefaultClusterTZ" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">UTC</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

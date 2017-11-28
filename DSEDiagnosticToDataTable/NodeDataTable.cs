@@ -131,6 +131,8 @@ namespace DSEDiagnosticToDataTable
                         {
                             TimeSpan minTzOffset = TimeSpan.Zero;
                             TimeSpan maxTZOffset = TimeSpan.Zero;
+                            int fileCnt;
+                            int totalFiles = 0;
                             var systemLogFiles = node.LogFiles
                                                        .Where(l => l.LogFile.Name.IndexOf("debug", StringComparison.OrdinalIgnoreCase) < 0);
                             var debugLogFiles = node.LogFiles
@@ -152,7 +154,8 @@ namespace DSEDiagnosticToDataTable
                                 minTzOffset = systemMinLogTS.Offset;
                                 maxTZOffset = systemMaxLogTS.Offset;
                             }
-                            dataRow.SetField("Log Nbr Files", systemLogEntries.Count());
+                            dataRow.SetField("Log Nbr Files", fileCnt = systemLogEntries.Count());
+                            totalFiles += fileCnt;
 
                             var debugLogEntries = debugLogFiles;
 
@@ -173,8 +176,13 @@ namespace DSEDiagnosticToDataTable
                                     minTzOffset = debugMinLogTS.Offset;
 
                             }
-                            dataRow.SetField("Debug Log Nbr Files", debugLogEntries.Count());
-                            dataRow.SetFieldToTZOffset("Time Zone Offset", minTzOffset, maxTZOffset);
+                            dataRow.SetField("Debug Log Nbr Files", fileCnt = debugLogEntries.Count());
+                            totalFiles += fileCnt;
+
+                            if (fileCnt > 0)
+                            {
+                                dataRow.SetFieldToTZOffset("Time Zone Offset", minTzOffset, maxTZOffset);
+                            }
                         }
 
                         if (!node.DSE.HeapUsed.NaN || !node.DSE.Heap.NaN)

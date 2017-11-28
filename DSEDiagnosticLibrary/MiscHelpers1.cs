@@ -8,6 +8,12 @@ using System.Net;
 
 namespace DSEDiagnosticLibrary
 {
+    public struct DefaultAssocItemToTimeZone
+    {
+        public string Item;
+        public string IANATZName;
+    }
+
     public static partial class MiscHelpers
     {
         public static bool IsNumber(this object value)
@@ -45,6 +51,12 @@ namespace DSEDiagnosticLibrary
                 return value;
             }
             return null;
+        }
+
+        public static Common.Patterns.TimeZoneInfo.IZone FindDefaultTimeZone(this DefaultAssocItemToTimeZone[] associates, string keyItem)
+        {
+            if (associates == null || string.IsNullOrEmpty(keyItem)) return null;
+            return StringHelpers.FindTimeZone(associates.FirstOrDefault(i => i.Item == keyItem).IANATZName);
         }
     }
 }

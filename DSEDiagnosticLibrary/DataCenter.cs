@@ -12,16 +12,16 @@ using IMMLogValue = Common.Patterns.Collections.MemoryMapped.IMMValue<DSEDiagnos
 
 namespace DSEDiagnosticLibrary
 {
-	public interface IDataCenter : IEquatable<IDataCenter>, IEquatable<string>
-	{
-		Cluster Cluster { get; }
-		string Name { get; }
+    public interface IDataCenter : IEquatable<IDataCenter>, IEquatable<string>
+    {
+        Cluster Cluster { get; }
+        string Name { get; }
 
         IConfigurationLine ConfigurationMatch(string property, string value, ConfigTypes type, SourceTypes source);
 
         IEnumerable<INode> Nodes { get; }
-		IEnumerable<IKeyspace> Keyspaces { get; }
-
+        IEnumerable<IKeyspace> Keyspaces { get; }
+      
         IKeyspace TryGetKeyspace(string ksName);
         IKeyspace TryGetKeyspace(int keyspaceHashCode);
 
@@ -36,6 +36,10 @@ namespace DSEDiagnosticLibrary
         IEnumerable<IAggregatedStats> AggregatedStats { get; }
         IDataCenter AssociateItem(IAggregatedStats aggregatedStat);
 
+        /// <summary>
+        /// This will return the timezone for this datacenter based on the major of nodes&apos; timezone. If null, the cluster&apos;s default timezone is used.
+        /// </summary>
+        Common.Patterns.TimeZoneInfo.IZone DefaultMajorityTimeZone { get; }
         /// <summary>
         /// Returns a time zone only if all nodes in the DC have the same time zone. Otherwise null is returned.
         /// </summary>
@@ -185,6 +189,44 @@ namespace DSEDiagnosticLibrary
             }
         }
 
+        /// <summary>
+        /// This will return the timezone for this datacenter based on the DC associated timezones, major of nodes&apos; timezone, or the cluster&apos;s default timezone.
+        /// This can return null.
+        /// </summary>
+        [JsonIgnore]        
+        public Common.Patterns.TimeZoneInfo.IZone DefaultMajorityTimeZone
+        {
+            get
+            {
+                Common.Patterns.TimeZoneInfo.IZone tz = null;
+
+                if(DataCenter.DefaultTimeZones != null && DataCenter.DefaultTimeZones.Length > 0)
+                {
+                    tz = DataCenter.DefaultTimeZones.FindDefaultTimeZone(this.Name);
+                }
+
+                if (tz == null)
+                {
+                    tz = this.TimeZone;
+                }
+
+                if(tz == null)
+                {
+                    tz = StringHelpers.FindTimeZone(this._nodes.GroupBy(x => x.Machine.TimeZone?.Name ?? x.Machine.TimeZoneName)
+                                                               .OrderByDescending(g => g.Count())
+                                                               .First()
+                                                               .Key);
+                }
+
+                if(tz == null)
+                {
+                    tz = this.Cluster?.DefaultTimeZone;
+                }
+
+                return tz;
+            }
+        }
+
         #endregion
 
         #region IEquatable
@@ -242,7 +284,12 @@ namespace DSEDiagnosticLibrary
     [JsonObject(MemberSerialization.OptOut)]
     public sealed class DataCenter : PlaceholderDataCenter
 	{
-		public DataCenter()
+        /// <summary>
+        /// An array of data centers that are associated to a IANA time zone name.
+        /// </summary>
+        public static DefaultAssocItemToTimeZone[] DefaultTimeZones = null;
+
+        public DataCenter()
 		{ }
 
 		public DataCenter(Cluster cluster, string name)

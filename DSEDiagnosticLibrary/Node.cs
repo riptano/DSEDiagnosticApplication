@@ -558,21 +558,49 @@ namespace DSEDiagnosticLibrary
             public UnitOfMeasure Tolerance;
 		}
 
-        public MachineInfo()
+        public MachineInfo(INode assocatedNode)
         {
+            this._assocatedNode = assocatedNode;
             this.CPU = new CPUInfo();
             this.CPULoad = new CPULoadInfo();
             this.Java = new JavaInfo();
             this.Memory = new MemoryInfo();
             this.NTP = new NTPInfo();
         }
+        private INode _assocatedNode;
 
         public CPUInfo CPU;
         public string OS;
         public string OSVersion;
         public string InstanceType;
         public string Placement;
-        public IZone TimeZone;
+
+        private IZone _timezone = null;
+        public IZone TimeZone
+        {
+            get
+            {
+                if(this._timezone == null && string.IsNullOrEmpty(this.TimeZoneName))
+                {
+                    if(Node.DefaultTimeZones != null && Node.DefaultTimeZones.Length > 0)
+                    {
+                        this.UsesDefaultTZ = false;
+                        this._timezone = Node.DefaultTimeZones.FindDefaultTimeZone(this._assocatedNode.Id.NodeName());                        
+                    }
+
+                    if (this._timezone == null)
+                    {
+                        this.UsesDefaultTZ = true;
+                        return this._assocatedNode.DataCenter?.DefaultMajorityTimeZone;
+                    }
+                }
+                return this._timezone;
+            }
+
+            set { this._timezone = value; }
+        }
+        [JsonIgnore]
+        public bool UsesDefaultTZ { get; private set; }
         public string TimeZoneName;
         public CPULoadInfo CPULoad;
         public MemoryInfo Memory;
@@ -933,14 +961,19 @@ namespace DSEDiagnosticLibrary
     [JsonObject(MemberSerialization.OptOut)]
     public sealed class Node : INode
 	{
-		static Node()
+        /// <summary>
+        /// An array of nodes that are associated to a IANA time zone name.
+        /// </summary>
+        public static DefaultAssocItemToTimeZone[] DefaultTimeZones = null;
+
+        static Node()
 		{
 		}
 
 		private Node()
 		{
             this.DSE = new DSEInfo();
-            this.Machine = new MachineInfo();
+            this.Machine = new MachineInfo(this);
         }
 
 		public Node(IDataCenter dataCenter, string nodeId)
