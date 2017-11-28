@@ -39,6 +39,8 @@ namespace DSEDiagnosticLibrary
         public static string[] IsSolrIndexClass = Properties.Settings.Default.IsSolrIndexClass.ToArray();
         public static string[] SSTableVersionMarkers = Properties.Settings.Default.SSTableVersionMarkers.ToArray();
         public static int LogMessageToStringMaxLength = Properties.Settings.Default.LogMessageToStringMaxLength;
+        public static string DefaultClusterTZ = Properties.Settings.Default.DefaultClusterTZ;
+
         public static DateTimeOffset? NodeToolCaptureTimestamp
         {
             get { return DSEDiagnosticLibrary.DSEInfo.NodeToolCaptureTimestamp; }

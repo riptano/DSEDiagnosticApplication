@@ -18,9 +18,7 @@ namespace DSEDiagnosticLibrary
 		public static readonly Cluster MasterCluster = null;
         public static CTS.List<Cluster> Clusters = new CTS.List<Cluster>();
 		private static CTS.List<INode> UnAssociatedNodes = new CTS.List<INode>();
-
-        public static string DefaultClusterTimeZone = Properties.Settings.Default.DefaultClusterTZ;
-
+        
         #region constructors
 
         static Cluster()
@@ -181,9 +179,9 @@ namespace DSEDiagnosticLibrary
         {
             get
             {
-                if (string.IsNullOrEmpty(DefaultClusterTimeZone)) return null;
+                if (string.IsNullOrEmpty(LibrarySettings.DefaultClusterTZ)) return null;
 
-                return StringHelpers.FindTimeZone(DefaultClusterTimeZone);
+                return StringHelpers.FindTimeZone(LibrarySettings.DefaultClusterTZ);
             }
         }
 

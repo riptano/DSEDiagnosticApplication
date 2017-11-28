@@ -171,6 +171,30 @@ namespace DSEDiagnosticConsoleApplication
                 Description = "The DSE Version to use for processing"
             });
 
+            this._cmdLineParser.Arguments.Add(new ValueArgument<string>("DefauClusterTimeZone")
+            {
+                Optional = true,
+                DefaultValue = DSEDiagnosticLibrary.LibrarySettings.DefaultClusterTZ,
+                Description = "An IANA TimeZone name used as the default time zone for all data centers/nodes where the time zone could not be determined.",
+                Example = @"America/Chicago"
+            });
+
+            this._cmdLineParser.Arguments.Add(new ValueArgument<string>("DefaultDCTimeZone")
+            {
+                Optional = true,
+                AllowMultiple = true,
+                Description = "Key-Value pair where the key is the Data Center name and the value is the IANA time zone name. The Key and Value are separated by a comma.",
+                Example = @"DC1, America/Chicago"
+            });
+
+            this._cmdLineParser.Arguments.Add(new ValueArgument<string>("DefaultNodeTimeZone")
+            {
+                Optional = true,
+                AllowMultiple = true,
+                Description = "Key-Value pair where the key is the Node's IP Address and the value is the IANA time zone name. The Key and Value are separated by a comma.",
+                Example = @"10.0.0.1, America/Chicago"
+            });
+
             this._cmdLineParser.Arguments.Add(new SwitchArgument("Debug", false)
             {
                 Description = "Debug Mode"
@@ -384,6 +408,38 @@ namespace DSEDiagnosticConsoleApplication
                             {
                                 ParserSettings.DSEVersion = new Version(value);
                             }
+                        }
+                        break;
+                    case "DefauClusterTimeZone":
+                        {
+                            var value = ((ValueArgument<string>)item).Value;
+                            DSEDiagnosticLibrary.LibrarySettings.DefaultClusterTZ = value;
+                            break;
+                        }
+                    case "DefaultDCTimeZone":
+                        {
+                           
+                            var items = ((ValueArgument<string>)item).Values
+                                                                        .Select(i =>
+                                                                        {
+                                                                            var dctz = i.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+
+                                                                            return new DSEDiagnosticLibrary.DefaultAssocItemToTimeZone() { Item = dctz[0].Trim(), IANATZName = dctz[1].Trim() };
+                                                                        });
+                            DSEDiagnosticLibrary.DataCenter.DefaultTimeZones = items.ToArray();
+                        }
+                        break;
+                    case "DefaultNodeTimeZone":
+                        {
+
+                            var items = ((ValueArgument<string>)item).Values
+                                                                        .Select(i =>
+                                                                        {
+                                                                            var nodetz = i.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+
+                                                                            return new DSEDiagnosticLibrary.DefaultAssocItemToTimeZone() { Item = nodetz[0].Trim(), IANATZName = nodetz[1].Trim() };
+                                                                        });
+                            DSEDiagnosticLibrary.Node.DefaultTimeZones = items.ToArray();
                         }
                         break;
                     case "Debug":
