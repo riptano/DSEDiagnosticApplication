@@ -594,9 +594,8 @@ namespace DSEDiagnosticLibrary
                     if (string.IsNullOrEmpty(this._timezoneName))
                     {
                         if (Node.DefaultTimeZones != null && Node.DefaultTimeZones.Length > 0)
-                        {
-                            this.UsesDefaultTZ = false;
-                            this.TimeZoneName = this._assocatedNode.Id.NodeName();
+                        {                            
+                            this.ExplictTimeZone = Node.DefaultTimeZones.FindDefaultTimeZone(this._assocatedNode.Id.NodeName());
                         }
 
                         if (this._explictTimeZone == null)
@@ -1274,11 +1273,11 @@ namespace DSEDiagnosticLibrary
                     refDTO = Common.TimeZones.Convert(DSEInfo.NodeToolCaptureTimestamp.Value, machineTZ);
                 }
 
-                if (this.DSE.NodeToolDateRange == null || this.DSE.NodeToolDateRange.Max != refDTO)
+                if (this.DSE.NodeToolDateRange == null || this.DSE.NodeToolDateRange.Max.Offset != refDTO.Offset)
                 {
                     this.DSE.NodeToolDateRange = new DateTimeOffsetRange(refDTO - (TimeSpan)this.DSE.Uptime, refDTO);
                     bResult = true;
-                }                
+                }
             }
 
             return bResult;

@@ -214,7 +214,7 @@ namespace DSEDiagnosticLibrary
 
                 if(tz == null)
                 {
-                    tz = StringHelpers.FindTimeZone(this._nodes.GroupBy(x => x.Machine.ExplictTimeZone?.Name ?? x.Machine.TimeZoneName)
+                    tz = StringHelpers.FindTimeZone(this._nodes.GroupBy(x => x.Machine.TimeZoneName)
                                                                .OrderByDescending(g => g.Count())
                                                                .First()
                                                                .Key);

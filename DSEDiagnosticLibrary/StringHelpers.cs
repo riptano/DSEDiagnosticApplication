@@ -460,24 +460,12 @@ namespace DSEDiagnosticLibrary
             return nResult;
         }
 
-        static public Common.Patterns.TimeZoneInfo.IZone FindTimeZone(string ianaName, bool retryOnException = true)
+        static public Common.Patterns.TimeZoneInfo.IZone FindTimeZone(string ianaName)
         {
-            try
-            {
-                return string.IsNullOrEmpty(ianaName)
+            return string.IsNullOrEmpty(ianaName)
                             ? null
                             : Common.TimeZones.Find(ianaName, Common.Patterns.TimeZoneInfo.ZoneNameTypes.IANATZName)
-                                ?? Common.TimeZones.Find(ianaName, Common.Patterns.TimeZoneInfo.ZoneNameTypes.FormattedName);
-
-            }
-            catch(System.Exception) //work-around regarding issue with CP TimeZone throwing a exception at times
-            {
-                if(retryOnException)
-                {  
-                    return FindTimeZone(ianaName, false);
-                }
-            }
-            return null;
+                                ?? Common.TimeZones.Find(ianaName, Common.Patterns.TimeZoneInfo.ZoneNameTypes.FormattedName);            
         }
 
         private enum MMElementType
