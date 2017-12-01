@@ -574,43 +574,100 @@ namespace DSEDiagnosticLibrary
         public string OSVersion;
         public string InstanceType;
         public string Placement;
-       
+
+        /// <summary>
+        /// Returns a time zone instance depending on if ExplictTimeZone is set. If not set the default time zone is used.
+        /// The default time zone can be defined at the node, DC, or cluster levels.
+        /// </summary>
+        /// <seealso cref="ExplictTimeZone"/>
+        /// <seealso cref="TimeZoneName"/>
+        /// <seealso cref="DefaultAssocItemToTimeZone"/>
+        /// <seealso cref="DataCenter.DefaultTimeZones"/>
+        /// <seealso cref="Cluster.DefaultTimeZone"/>
         [JsonIgnore]
         public IZone TimeZone
         {
             get
             {
-                if(this.ExplictTimeZone == null && string.IsNullOrEmpty(this.TimeZoneName))
+                if (this._explictTimeZone == null)
                 {
-                    if(Node.DefaultTimeZones != null && Node.DefaultTimeZones.Length > 0)
+                    if (string.IsNullOrEmpty(this._timezoneName))
+                    {
+                        if (Node.DefaultTimeZones != null && Node.DefaultTimeZones.Length > 0)
+                        {
+                            this.UsesDefaultTZ = false;
+                            this.TimeZoneName = this._assocatedNode.Id.NodeName();
+                        }
+
+                        if (this._explictTimeZone == null)
+                        {
+                            this.UsesDefaultTZ = true;
+                            return this._assocatedNode.DataCenter?.DefaultMajorityTimeZone;
+                        }
+                    }
+                    else
                     {
                         this.UsesDefaultTZ = false;
-                        this.ExplictTimeZone = Node.DefaultTimeZones.FindDefaultTimeZone(this._assocatedNode.Id.NodeName());                        
-                    }
-
-                    if (this.ExplictTimeZone == null)
-                    {
-                        this.UsesDefaultTZ = true;
-                        return this._assocatedNode.DataCenter?.DefaultMajorityTimeZone;
+                        this._explictTimeZone = StringHelpers.FindTimeZone(this._timezoneName);
                     }
                 }
-                return this.ExplictTimeZone;
-            }
-
-            set { this.ExplictTimeZone = value; }
+                return this._explictTimeZone;
+            }            
         }
 
         /// <summary>
         /// If true the default time zone from the DC is used.
         /// </summary>
         [JsonIgnore]
-        public bool UsesDefaultTZ { get; private set; }
+        public bool UsesDefaultTZ { get; private set; } = true;
 
+        private Common.Patterns.TimeZoneInfo.IZone _explictTimeZone = null;
         /// <summary>
-        /// This is the time zone that has been explicitly defined
+        /// This is the time zone that has been explicitly defined. This will also set TimeZoneName.
         /// </summary>
-        public Common.Patterns.TimeZoneInfo.IZone ExplictTimeZone { get; private set; }
-        public string TimeZoneName;
+        /// <seealso cref="TimeZoneName"/>
+        public Common.Patterns.TimeZoneInfo.IZone ExplictTimeZone
+        {
+            get { return this._explictTimeZone; }
+            set
+            {
+                if (value == null)
+                    this.UsesDefaultTZ = true;
+                else
+                    this.UsesDefaultTZ = false;
+
+                this._explictTimeZone = value;
+                this._timezoneName = this._explictTimeZone?.Name;
+            }
+        }
+
+        private string _timezoneName;
+        /// <summary>
+        /// Sets the time zone. This will also set ExplictTimeZone property if the name is a valid IANA name.
+        /// </summary>
+        /// <seealso cref="ExplictTimeZone"/>
+        public string TimeZoneName
+        {
+            get { return this._timezoneName; }
+            set
+            {
+                if (value != this._timezoneName)
+                {
+                    if (string.IsNullOrEmpty(value))
+                    {
+                        this._timezoneName = null;
+                        this._explictTimeZone = null;
+                        this.UsesDefaultTZ = true;
+                    }
+                    else
+                    {
+                        this._timezoneName = value;
+                        this._explictTimeZone = StringHelpers.FindTimeZone(this._timezoneName);
+                        this.UsesDefaultTZ = false;
+                    }
+                }
+            }
+        }
         public CPULoadInfo CPULoad;
         public MemoryInfo Memory;
         public JavaInfo Java;
@@ -637,8 +694,9 @@ namespace DSEDiagnosticLibrary
             Hadoop = 0x0080,
             CFS = 0x0100,
             Analytics_TT = Analytics | TT,
-            Analytics_JT = Analytics | JT
-		}
+            Analytics_JT = Analytics | JT,
+            Cassandra_JT = Cassandra | JT
+        }
 
 		public enum DSEStatuses
 		{
@@ -1200,24 +1258,27 @@ namespace DSEDiagnosticLibrary
         public bool UpdateDSENodeToolDateRange()
         {
             bool bResult = false;
+            var machineTZ = this.Machine.TimeZone;
 
             if(!this.DSE.Uptime.NaN
-                && DSEInfo.NodeToolCaptureTimestamp.HasValue
-                && (this.DSE.NodeToolDateRange == null || (this.Machine.TimeZone != null && this.DSE.NodeToolDateRange.Max == DSEInfo.NodeToolCaptureTimestamp.Value)))
+                && DSEInfo.NodeToolCaptureTimestamp.HasValue)
             {
                 DateTimeOffset refDTO;
 
-                if (this.Machine.TimeZone == null)
+                if (machineTZ == null)
                 {
                     refDTO = DSEInfo.NodeToolCaptureTimestamp.Value;
                 }
                 else
                 {
-                    refDTO = Common.TimeZones.Convert(DSEInfo.NodeToolCaptureTimestamp.Value, this.Machine.TimeZone);
+                    refDTO = Common.TimeZones.Convert(DSEInfo.NodeToolCaptureTimestamp.Value, machineTZ);
                 }
 
-                this.DSE.NodeToolDateRange = new DateTimeOffsetRange(refDTO - (TimeSpan)this.DSE.Uptime, refDTO);
-                bResult = true;
+                if (this.DSE.NodeToolDateRange == null || this.DSE.NodeToolDateRange.Max != refDTO)
+                {
+                    this.DSE.NodeToolDateRange = new DateTimeOffsetRange(refDTO - (TimeSpan)this.DSE.Uptime, refDTO);
+                    bResult = true;
+                }                
             }
 
             return bResult;

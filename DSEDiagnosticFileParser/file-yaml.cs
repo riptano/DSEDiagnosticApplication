@@ -87,7 +87,7 @@ namespace DSEDiagnosticFileParser
 
                 //Still have more than 2, maybe colon has been escaped
                 //fe80\:0\:0\:0\:202\:b3ff\:fe1e\:8329=DC1:RAC3
-                if (lineSplit.Length > 2 && lineSplit.Any(i => i.Last() == '\\'))
+                if (lineSplit.Length > 2 && lineSplit.Any(i => i.Length > 0 && i.Last() == '\\'))
                 {
                     int fndPos = -1;
 
@@ -184,6 +184,10 @@ namespace DSEDiagnosticFileParser
                     this.NbrItemsParsed = 0;
                     return 0;
                 }
+            }
+            else if (this.ConfigType == ConfigTypes.OpsCenter)
+            {
+                //noop
             }
             else if (this.ConfigType == ConfigTypes.Snitch)
             {
@@ -302,6 +306,8 @@ namespace DSEDiagnosticFileParser
                 nLineLevel = line.TakeWhile(Char.IsWhiteSpace).Count();
                 line = line.TrimStart();
 
+                if (line.Length == 0) continue;
+
                 if(multipleLine == null
                         && line.Last() == '}'
                         && line.IndexOf('{') > 0)
@@ -399,6 +405,8 @@ namespace DSEDiagnosticFileParser
                         if (nestedCmdLevels.Count == 0) break;
                     }
                 }
+
+                if (line.Length == 0) continue;
 
                 //List Item
                 if (line[0] == ContinuousDelimiter)

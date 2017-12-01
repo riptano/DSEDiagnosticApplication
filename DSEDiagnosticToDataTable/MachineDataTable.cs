@@ -132,7 +132,7 @@ namespace DSEDiagnosticToDataTable
                         }
                         else if(node.Machine.UsesDefaultTZ)                           
                         {
-                            dataRow.SetField("TimeZone", node.Machine.TimeZone.Name + " (default");
+                            dataRow.SetField("TimeZone", node.Machine.TimeZone.Name + " (default)");
                         }
                         else
                         {

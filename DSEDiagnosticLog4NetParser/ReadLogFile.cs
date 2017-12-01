@@ -19,7 +19,35 @@ namespace DSEDiagnosticLog4NetParser
             this.Log4NetConversionPattern = log4netConversionPattern;
             this.Node = node;
 
-            if (logTimeFrame != null)
+            this.Node?.UpdateDSENodeToolDateRange();
+
+            if (logTimeFrame == null)
+            {
+                if (this.Node?.Machine.TimeZone == null)
+                {
+                    if(string.IsNullOrEmpty(this.Node?.Machine.TimeZoneName))
+                    {
+                        DSEDiagnosticLogger.Logger.Instance.WarnFormat("Timezone instance for Node {0} with File \"{1}\" is missing!",
+                                                                        this.Node,
+                                                                        logFilePath);    
+                    }
+                    else
+                    {
+                        DSEDiagnosticLogger.Logger.Instance.WarnFormat("Timezone instance for Node {0} with File \"{1}\" is missing but a time zone name of \"{2}\" found! Time zone is still ignored.",
+                                                                        this.Node,
+                                                                        logFilePath,
+                                                                        this.Node.Machine.TimeZoneName);
+                    }
+                }
+                else if(this.Node.Machine.UsesDefaultTZ && DSEDiagnosticLogger.Logger.Instance.IsDebugEnabled)
+                {
+                    DSEDiagnosticLogger.Logger.Instance.DebugFormat("Using Default Timezone instance ({2}) for Node {0} with File \"{1}\".",
+                                                                    this.Node,
+                                                                    logFilePath,
+                                                                    this.Node.Machine.TimeZone?.Name);
+                }
+            }
+            else
             {
                 if (this.Node == null || this.Node.Machine.TimeZone == null)
                 {

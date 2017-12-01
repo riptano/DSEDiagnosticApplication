@@ -30,7 +30,6 @@ namespace DSEDiagnosticFileParser
             jObject.TryGetValue("sun.arch.data.model").NullSafeSet<int>(c => this.Node.Machine.Java.Model = c);
             jObject.TryGetValue("java.runtime.name").NullSafeSet<string>(c => this.Node.Machine.Java.RuntimeName = c);
             jObject.TryGetValue("java.runtime.version").NullSafeSet<string>(c => this.Node.Machine.Java.Version = c);
-            jObject.TryGetValue("user.timezone").NullSafeSet<string>(c => this.Node.Machine.TimeZone = StringHelpers.FindTimeZone(c));
             jObject.TryGetValue("user.timezone").NullSafeSet<string>(c => this.Node.Machine.TimeZoneName = c);
             jObject.TryGetValue("dse.system_cpu_cores").EmptySafeSet<uint>(this.Node.Machine.CPU.Cores, c => this.Node.Machine.CPU.Cores = c);
 

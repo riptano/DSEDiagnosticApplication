@@ -89,7 +89,11 @@ namespace DSEDiagnosticToDataTable
             else
             {
                 dataRow.SetField(columnName,
-                                    string.Format(@"{0}{1:hh\:mm}", offset < TimeSpan.Zero ? "-" : "+", offset));
+                                    string.Format(@"{0}{1:hh\:mm}",
+                                                    offset < TimeSpan.Zero
+                                                        ? "-"
+                                                        : (offset == TimeSpan.Zero ? string.Empty : "+"),
+                                                    offset));
             }
 
             return dataRow;
@@ -105,15 +109,19 @@ namespace DSEDiagnosticToDataTable
             if (offsetMin == offsetMax)
             {
                 dataRow.SetField(columnName,
-                                    string.Format(@"{0}{1:hh\:mm}", offsetMax < TimeSpan.Zero ? "-" : "+", offsetMax));
+                                    string.Format(@"{0}{1:hh\:mm}",
+                                    offsetMax < TimeSpan.Zero
+                                        ? "-"
+                                        : (offsetMax == TimeSpan.Zero ? string.Empty : "+"),
+                                    offsetMax));
             }
             else
             {
                 dataRow.SetField(columnName,
                                     string.Format(@"{0}{1:hh\:mm}\{2}{3:hh\:mm}",
-                                                    offsetMin < TimeSpan.Zero ? "-" : "+",
+                                                    offsetMin < TimeSpan.Zero ? "-" : (offsetMax == TimeSpan.Zero ? string.Empty : "+"),
                                                     offsetMin,
-                                                    offsetMax < TimeSpan.Zero ? "-" : "+",
+                                                    offsetMax < TimeSpan.Zero ? "-" : (offsetMax == TimeSpan.Zero ? string.Empty : "+"),
                                                     offsetMax));
             }
 

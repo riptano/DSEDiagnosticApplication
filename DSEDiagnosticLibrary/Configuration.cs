@@ -18,7 +18,8 @@ namespace DSEDiagnosticLibrary
         Hadoop,
         Solr,
         Spark,
-        Snitch
+        Snitch,
+        OpsCenter
     }
 
     public interface IConfigurationLine : IParsed

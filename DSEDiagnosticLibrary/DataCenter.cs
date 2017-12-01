@@ -193,6 +193,8 @@ namespace DSEDiagnosticLibrary
         /// This will return the timezone for this datacenter based on the DC associated timezones, majority of nodes&apos; timezone, or the cluster&apos;s default timezone.
         /// This can return null.
         /// </summary>
+        /// <seealso cref="DefaultAssocItemToTimeZone"/>
+        /// <seealso cref="Cluster.DefaultTimeZone"/>
         [JsonIgnore]        
         public Common.Patterns.TimeZoneInfo.IZone DefaultMajorityTimeZone
         {
@@ -212,7 +214,7 @@ namespace DSEDiagnosticLibrary
 
                 if(tz == null)
                 {
-                    tz = StringHelpers.FindTimeZone(this._nodes.GroupBy(x => x.Machine.TimeZone?.Name ?? x.Machine.TimeZoneName)
+                    tz = StringHelpers.FindTimeZone(this._nodes.GroupBy(x => x.Machine.ExplictTimeZone?.Name ?? x.Machine.TimeZoneName)
                                                                .OrderByDescending(g => g.Count())
                                                                .First()
                                                                .Key);

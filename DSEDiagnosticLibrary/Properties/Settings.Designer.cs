@@ -76,7 +76,8 @@ namespace DSEDiagnosticLibrary.Properties {
 {""ConfigType"":""Snitch"",""ContainsString"":""cassandra-rackdc.properties"",""MatchAction"":""FileNamewExtension,Equals""},
 {""ConfigType"":""Snitch"",""ContainsString"":""cassandra-topology.yaml"",""MatchAction"":""FileNamewExtension,Equals""},
 {""ConfigType"":""Cassandra"",""ContainsString"":""cassandra.yaml"",""MatchAction"":""FileNamewExtension,Equals""},
-{""ConfigType"":""Cassandra"",""ContainsString"":""cassandra-env.sh"",""MatchAction"":""FileNamewExtension,Equals""}
+{""ConfigType"":""Cassandra"",""ContainsString"":""cassandra-env.sh"",""MatchAction"":""FileNamewExtension,Equals""},
+{""ConfigType"":""OpsCenter"",""ContainsString"":""address.yaml"",""MatchAction"":""FileNamewExtension,Equals""}
 ]")]
         public string ConfigTypeMappers {
             get {

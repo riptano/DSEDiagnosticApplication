@@ -164,7 +164,7 @@
   },
   {
     "Catagory": "ConfigurationFile",
-    "FilePatterns": [ ".\\nodes\\*\\dse" ],
+    "FilePatterns": [ ".\\nodes\\*\\dse", ".\\nodes\\*\\cassandra-env.sh" ],
     "FileParsingClass": "DSEDiagnosticFileParser.file_DSE_env",
     "NodeIdPos": -1,
     "ProcessingTaskOption": "ScanForNode,ParallelProcessingWithinPriorityLevel",

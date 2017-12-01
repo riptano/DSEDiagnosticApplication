@@ -113,7 +113,7 @@ namespace DSEDiagnosticFileParser
                             node.DSE.Rack = regExSplit[3];
                         }
 
-                        if (Enum.TryParse<DSEInfo.InstanceTypes>(regExSplit[4], out type))
+                        if (Enum.TryParse<DSEInfo.InstanceTypes>(regExSplit[4], true, out type))
                         {
                             node.DSE.InstanceType |= type;
                         }
@@ -125,7 +125,7 @@ namespace DSEDiagnosticFileParser
                             {
                                 var newName = regExSplit[4].Replace('(', '_').Substring(0, regExSplit[4].Length - 1);
 
-                                if (updated = Enum.TryParse<DSEInfo.InstanceTypes>(newName, out type))
+                                if (updated = Enum.TryParse<DSEInfo.InstanceTypes>(newName, true, out type))
                                 {
                                     node.DSE.InstanceType |= type;
                                 }
@@ -133,11 +133,35 @@ namespace DSEDiagnosticFileParser
 
                             if(!updated)
                             {
-                                Logger.Instance.WarnFormat("FileMapper<{2}>\t<NoNodeId>\t{0}\tInvalid DSE Instance Type of \"{1}\" found in DSETool Ring File. Type Ignored",
-                                                            this.File,
-                                                            regExSplit[4],
-                                                            this.MapperId);
-                                ++this.NbrWarnings;
+                                {
+                                    var indexPos = regExSplit[4].IndexOf('(');
+                                    if (indexPos < 0)
+                                    {
+                                        var instanceType = regExSplit[4].Substring(0, indexPos);
+                                        var subType = regExSplit[4].Substring(indexPos + 1, regExSplit[4].Length - indexPos - 2);
+
+                                        if (updated = Enum.TryParse<DSEInfo.InstanceTypes>(instanceType, true, out type))
+                                        {
+                                            node.DSE.InstanceType |= type;
+                                        }
+
+                                        if (!string.IsNullOrEmpty(subType))
+                                        {
+                                            if (updated = Enum.TryParse<DSEInfo.InstanceTypes>(subType, true, out type))
+                                            {
+                                                node.DSE.InstanceType |= type;
+                                            }
+                                        }
+                                    }
+                                }
+                                if (!updated)
+                                {
+                                    Logger.Instance.WarnFormat("FileMapper<{2}>\t<NoNodeId>\t{0}\tInvalid DSE Instance Type of \"{1}\" found in DSETool Ring File. Type Ignored",
+                                                                this.File,
+                                                                regExSplit[4],
+                                                                this.MapperId);
+                                    ++this.NbrWarnings;
+                                }
                             }
                         }
 
@@ -147,27 +171,7 @@ namespace DSEDiagnosticFileParser
                         {
                             node.DSE.InstanceType |= DSEInfo.InstanceTypes.Graph;
                         }
-                        if (node.DSE.InstanceType == DSEInfo.InstanceTypes.Unkown
-                                || (node.DSE.InstanceType == DSEInfo.InstanceTypes.Cassandra && regExSplit[4] != "Cassandra"))
-                        {
-                            switch(regExSplit[4].ToLower())
-                            {
-                                case "cassandra":
-                                    node.DSE.InstanceType = DSEInfo.InstanceTypes.Cassandra;
-                                    break;
-                                case "search":
-                                    node.DSE.InstanceType = DSEInfo.InstanceTypes.Search;
-                                    break;
-                                case "analytics(jt)":
-                                case "cassandra(jt)":
-                                    node.DSE.InstanceType = DSEInfo.InstanceTypes.Analytics_JT;
-                                    break;
-                                case "analytics(tt)":
-                                case "cassandra(tt)":
-                                    node.DSE.InstanceType = DSEInfo.InstanceTypes.Analytics_TT;
-                                    break;
-                            }
-                        }
+                        
                         if (regExSplit[6 + offset].ToLower() == "up")
                         {
                             node.DSE.Statuses = DSEInfo.DSEStatuses.Up;
