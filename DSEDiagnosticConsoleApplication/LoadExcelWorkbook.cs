@@ -16,7 +16,7 @@ namespace DSEDiagnosticConsoleApplication
         {
             if (ParserSettings.ExcelFilePath == null)
             {
-                var cluster = DSEDiagnosticLibrary.Cluster.Clusters.FirstOrDefault(c => !c.IsMaster) ?? DSEDiagnosticLibrary.Cluster.Clusters.First();
+                var cluster = DSEDiagnosticLibrary.Cluster.GetCurrentOrMaster();
 
                 if (cluster.IsMaster)
                 {
@@ -25,7 +25,7 @@ namespace DSEDiagnosticConsoleApplication
                     Common.Patterns.Threading.LockFree.SpinWait(() =>
                     {
                         System.Threading.Thread.Sleep(500);
-                        return !(cluster = DSEDiagnosticLibrary.Cluster.Clusters.FirstOrDefault(c => !c.IsMaster) ?? DSEDiagnosticLibrary.Cluster.Clusters.First()).IsMaster;
+                        return !(cluster = DSEDiagnosticLibrary.Cluster.GetCurrentOrMaster()).IsMaster;
                     });
 
                     ConsoleExcelWorkbook.TaskEnd("Load Excel is waiting on non-Master cluster");

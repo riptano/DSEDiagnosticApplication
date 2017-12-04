@@ -797,8 +797,8 @@ namespace DSEDiagnosticFileParser
 
                 if (!fileMappings.ProcessingTaskOption.HasFlag(FileMapper.ProcessingTaskOptions.AllNodesInDataCenter))
                 {
-                    processTheseNodes = (string.IsNullOrEmpty(clusterName) && Cluster.Clusters.Count() == 1
-                                            ? Cluster.Clusters.First().Nodes
+                    processTheseNodes = (string.IsNullOrEmpty(clusterName)
+                                            ? Cluster.GetCurrentOrMaster().Nodes
                                             : Cluster.GetNodes(null, clusterName)).Where(n => onlyNodes.Any(i => i.Equals(n))).ToArray();
                 }
                 else
@@ -819,8 +819,8 @@ namespace DSEDiagnosticFileParser
             {
                 if (fileMappings.ProcessingTaskOption.HasFlag(FileMapper.ProcessingTaskOptions.AllNodesInCluster))
                 {
-                    processTheseNodes = string.IsNullOrEmpty(clusterName) && Cluster.Clusters.Count() == 1
-                                            ? Cluster.Clusters.First().Nodes.ToArray()
+                    processTheseNodes = string.IsNullOrEmpty(clusterName)
+                                            ? Cluster.GetCurrentOrMaster().Nodes.ToArray()
                                             : Cluster.GetNodes(null, clusterName).ToArray();
                 }
                 else if (fileMappings.ProcessingTaskOption.HasFlag(FileMapper.ProcessingTaskOptions.AllNodesInDataCenter))

@@ -15,7 +15,7 @@ namespace DSEDiagnosticConsoleApplication
             var logInfoStatsTask = diagParserTask.ContinueWith((task, ignore) =>
             {
                 ConsoleAnalyze.Increment("LogFileStats");
-                var cluster = DSEDiagnosticLibrary.Cluster.Clusters.FirstOrDefault(c => !c.IsMaster) ?? DSEDiagnosticLibrary.Cluster.Clusters.First();
+                var cluster = DSEDiagnosticLibrary.Cluster.GetCurrentOrMaster();
                 var analyticInstance = new DSEDiagnosticAnalytics.LogFileStats(cluster, cancellationSource.Token);
 
                 return analyticInstance.ComputeStats();

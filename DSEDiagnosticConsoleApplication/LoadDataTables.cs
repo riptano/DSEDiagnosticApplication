@@ -18,7 +18,7 @@ namespace DSEDiagnosticConsoleApplication
             var datatableTasks = new List<Task<System.Data.DataTable>>();
             var loadAllDataTableTask = Common.Patterns.Tasks.CompletionExtensions.CompletedTask<System.Data.DataSet>();
             {
-                var cluster = DSEDiagnosticLibrary.Cluster.Clusters.FirstOrDefault(c => !c.IsMaster) ?? DSEDiagnosticLibrary.Cluster.Clusters.First();
+                var cluster = DSEDiagnosticLibrary.Cluster.GetCurrentOrMaster();
 
                 if (cluster.IsMaster)
                 {
@@ -27,7 +27,7 @@ namespace DSEDiagnosticConsoleApplication
                     Common.Patterns.Threading.LockFree.SpinWait(() =>
                     {
                         System.Threading.Thread.Sleep(500);
-                        return !(cluster = DSEDiagnosticLibrary.Cluster.Clusters.FirstOrDefault(c => !c.IsMaster) ?? DSEDiagnosticLibrary.Cluster.Clusters.First()).IsMaster;
+                        return !(cluster = DSEDiagnosticLibrary.Cluster.GetCurrentOrMaster()).IsMaster;
                     });
 
                     ConsoleParsingDataTable.TaskEnd("Load Data table is waiting on non-Master cluster");
@@ -63,7 +63,7 @@ namespace DSEDiagnosticConsoleApplication
 
                 datatableTasks.Add(logInfoStatsTask.ContinueWith((task, ignore) =>
                 {
-                    var clusterInstance = DSEDiagnosticLibrary.Cluster.Clusters.FirstOrDefault(c => !c.IsMaster) ?? DSEDiagnosticLibrary.Cluster.Clusters.First();
+                    var clusterInstance = DSEDiagnosticLibrary.Cluster.GetCurrentOrMaster();
                     var dtLoadInstance = new DSEDiagnosticToDataTable.LogInfoDataTable(clusterInstance, task.Result, cancellationSource, sessionGuid);
 
                     ConsoleParsingDataTable.Increment(dtLoadInstance.Table.TableName);

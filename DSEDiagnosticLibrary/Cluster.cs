@@ -275,12 +275,7 @@ namespace DSEDiagnosticLibrary
 
         public static Cluster GetCurrentOrMaster()
         {
-            if(Clusters.Count == 1)
-            {
-                return Clusters.First();
-            }
-
-            return MasterCluster;
+            return Clusters.Last();            
         }
 
         public static Cluster TryGetAddCluster(string clusterName)

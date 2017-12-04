@@ -46,6 +46,10 @@ namespace DSEDiagnosticLibrary
         /// </summary>
         SessionIgnore = SessionElement | 0x0100,
         /// <summary>
+        /// Defines a session based on the ending event&apos;s duration. A Session Begin is generated based on this event&apos;s timestamp minus the duration.
+        /// </summary>
+        SessionDefinedByDuration = SessionEnd | 0x0200,
+        /// <summary>
         ///  Statistical data that is typically aggregated over some time period (e.g., node uptime, Log Period, etc.)
         /// </summary>
         AggregateData = 0x1000,
