@@ -61,10 +61,22 @@ namespace DSEDiagnosticFileParser
             10.1.44.21       DC1          RAC1         Cassandra        Up      Normal   452.61 GB        14.94%               256
             10.1.46.110      DC1_SPARK    RAC1         Cassandra        Up      Normal   916.67 GB        5.12%                64
              */
+            /*
+              Note: Ownership information does not include topology, please specify a keyspace. 
+                Address          DC           Rack         Workload         Status  State    Load             Owns                 Token                                       
+                                                                                                                                   3074457345618258602                         
+                10.20.70.20      Analytics    rack1        Analytics(JT)    Up      Normal   316.61 GB        16.67%               0                                           
+                10.20.70.25      Analytics    rack1        Analytics(TT)    Up      Normal   316.98 GB        13.33%               5534023222112865484                         
+                10.20.70.52      Cassandra    rack1        Cassandra        Up      Normal   315.01 GB        20.00%               -9223372036854775808                        
+                10.20.70.82      Cassandra    rack1        Cassandra        Up      Normal   316.21 GB        33.33%               -3074457345618258603                        
+                10.20.70.83      Cassandra    rack1        Cassandra        Up      Normal   315.75 GB        16.67%               3074457345618258602                         
+
+            */
 
             string line = null;
             string[] regExSplit = null;
             bool graphStatusCol = true;
+            bool usesTokens = false;
 
             foreach (var element in fileLines)
             {
@@ -73,11 +85,21 @@ namespace DSEDiagnosticFileParser
                 ++this.NbrItemsParsed;
                 line = element.Trim();
 
-                if( string.Empty == line
+                if(string.Empty == line
                     || line.StartsWith("Address")
                     || line.StartsWith("Note:"))
                 {
+                    usesTokens = line.EndsWith("Token");
                     continue;
+                }
+
+                if(usesTokens)
+                {
+                    if(line.Length <= 20
+                            && line.All(i => char.IsNumber(i)))
+                    {
+                        continue;
+                    }
                 }
 
                 //null,10.14.149.207,Ejby,RAC1,Cassandra,no,Up,Normal,24.23 GB,?,256
@@ -184,7 +206,7 @@ namespace DSEDiagnosticFileParser
                             node.DSE.StorageUtilization = new UnitOfMeasure(regExSplit[9 + offset], UnitOfMeasure.Types.Utilization | UnitOfMeasure.Types.Storage | UnitOfMeasure.Types.Percent);
                         }
 
-                        if (uint.TryParse(regExSplit[10 + offset], out vNodes))
+                        if (!usesTokens && uint.TryParse(regExSplit[10 + offset], out vNodes))
                         {
                             node.DSE.NbrTokens = vNodes;
                             node.DSE.VNodesEnabled = vNodes > 1;
