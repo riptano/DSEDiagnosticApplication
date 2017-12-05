@@ -98,6 +98,22 @@ namespace DSEDiagnosticFileParser
             ReadRemove = 4
         }
 
+        public enum SessionParentActions
+        {
+            /// <summary>
+            /// Current session and it&apos;s parents are added
+            /// </summary>
+            Default = 0,
+            /// <summary>
+            /// Current session is not added as a parent. Note that the current session&apos;s parents are added, if any. 
+            /// </summary>
+            IgnoreCurrent = 1,
+            /// <summary>
+            /// Current session&apos;s parents are not added
+            /// </summary>
+            IgnoreParents = 2
+        }
+
         #region constructors
         public CLogLineTypeParser()
         {
@@ -457,6 +473,7 @@ namespace DSEDiagnosticFileParser
 
         public SessionLookupActions SessionLookupAction { get; set; }
 
+        public SessionParentActions SessionParentAction { get; set; } = SessionParentActions.Default;
         public string[] Examples;
 
         public CLogLineTypeParser SessionBeginReference { get; internal set; } = null;

@@ -380,6 +380,7 @@ namespace DSEDiagnosticFileParser
             string sessionId = null;
             LogCassandraEvent sessionEvent = null;
             var eventType = matchItem.Item5.EventType;
+            var sessionParentAction = matchItem.Item5.SessionParentAction;
             bool orphanedSession = false;
             LateDDLResolution? lateDDLresolution = null;
 
@@ -565,7 +566,7 @@ namespace DSEDiagnosticFileParser
 
                         var diffNames = ddlInstancesCnt > ddlNamesCnt
                                             ? instanceNames.Complement(names)
-                                            : names.Complement(instanceNames);
+                                            : names.Complement(instanceNames ?? Enumerable.Empty<string>());
 
                         if(diffNames.IsEmpty())
                         {
@@ -709,12 +710,18 @@ namespace DSEDiagnosticFileParser
 
                     if (sessionEvent.ParentEvents.HasAtLeastOneElement())
                     {
-                        parentEvents.AddRange(sessionEvent.ParentEvents.Select(e => (LogCassandraEvent) e.GetValue()));
+                        if (sessionParentAction != CLogLineTypeParser.SessionParentActions.IgnoreParents)
+                        {
+                            parentEvents.AddRange(sessionEvent.ParentEvents.Select(e => (LogCassandraEvent)e.GetValue()));
+                        }                                                
                     }
 
                     if ((sessionEvent.Type & EventTypes.SessionBegin) == EventTypes.SessionBegin)
                     {
-                        parentEvents.Add(sessionEvent);
+                        if (sessionParentAction != CLogLineTypeParser.SessionParentActions.IgnoreCurrent)
+                        {
+                            parentEvents.Add(sessionEvent);
+                        }
                     }
                 }
             }
