@@ -415,7 +415,7 @@ namespace DSEDiagnosticLibrary
             writeView.StoreValue(this.LogMessage);
             writeView.StoreValue(this.SSTables);
             writeView.StoreValue(this.DDLItems.Select(i => i.GetHashCode()));
-            writeView.StoreValue(this.AssociatedNodes.Select(i => i.GetHashCode()));
+            writeView.StoreValue(this.AssociatedNodes.Where(i => i != null).Select(i => i.GetHashCode()));
             writeView.WriteMMElement(this.TokenRanges);
             writeView.StoreValue(this.Exception);
             writeView.StoreValue(this.ExceptionPath);
