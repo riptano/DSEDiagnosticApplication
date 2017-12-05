@@ -1,0 +1,5006 @@
+
+CREATE KEYSPACE coafstatim WITH replication = {'class': 'NetworkTopologyStrategy', 'DC1': '3', 'DC1_SPARK': '2'}  AND durable_writes = true;
+
+
+CREATE TABLE coafstatim.application (
+    appid bigint PRIMARY KEY,
+    advtsgsrccd text,
+    appasgnmtaudt set<text>,
+    appattrmtrx text,
+    appbrsengndata set<text>,
+    appcntrtstrc text,
+    appcretddt timestamp,
+    appcretddtmap_ map<text, text>,
+    appcrplcyflexexcpn set<text>,
+    appdealstrc text,
+    apphighsideflexrespns set<text>,
+    appownrtxt text,
+    appownrupdtdt timestamp,
+    apprecvddt timestamp,
+    apprecvddtmap_ map<text, text>,
+    apprlexpirydt timestamp,
+    appstatbyid int,
+    appstatdt timestamp,
+    appstatdtmap_ map<text, text>,
+    appstatlkupid int,
+    appstpln text,
+    apptaskaudt set<text>,
+    apptaskaudtdtfltr set<timestamp>,
+    apptaskvfcn set<text>,
+    apptypecd text,
+    appupdtbyid int,
+    appupdtdt timestamp,
+    appupdtdtmap_ map<text, text>,
+    asgndprodid int,
+    asmid int,
+    audtdetl set<text>,
+    banknum int,
+    brchid bigint,
+    brchnum int,
+    bumpingficoscore int,
+    bustypeid int,
+    buygprirtscorenum int,
+    calbktypecd text,
+    capstappstatcd text,
+    chnghist map<text, frozen<map<timestamp, text>>>,
+    chnlid int,
+    cmtmentcd text,
+    cmtmentlndrlkupid int,
+    cmtmentreaslkupid int,
+    cmttednm text,
+    cntrtcretddt timestamp,
+    cntrtdt timestamp,
+    cntrtnumtxt text,
+    cntrtrecvddt timestamp,
+    cntrtrecvddtmap_ map<text, text>,
+    cntrtupdtbyid int,
+    cntrtupdtdt timestamp,
+    cust text,
+    cust_empmt set<text>,
+    dcsnbyid int,
+    dcsndt timestamp,
+    dcsnstatlkupid int,
+    dlrcmtmentcretdbyid int,
+    dlrcmtmentcretddt timestamp,
+    dlrcmtmentupdtdbyid int,
+    dlrcmtmentupdtdt timestamp,
+    dlrshporgid bigint,
+    docrvisncd text,
+    etlbtchids set<int>,
+    etldt timestamp,
+    etldtmap_ map<text, text>,
+    fundddt timestamp,
+    fundddtmap_ map<text, text>,
+    fundgcomppnts set<text>,
+    fundgprirtscorenum int,
+    gorcd text,
+    hrflag boolean,
+    latechrgstatlkupid int,
+    latefeeshawcd text,
+    loanbrdgdt timestamp,
+    loancustnumtxt text,
+    loannum int,
+    lobid int,
+    maxappasgnmtaudtdt timestamp,
+    maxapptaskaudtcretddt timestamp,
+    maxaudtcretddt timestamp,
+    memaexcpn boolean,
+    note set<text>,
+    notecretddtfltr timestamp,
+    ofrinvlddt timestamp,
+    ownrtypecd text,
+    pricgsid int,
+    procstlkupid int,
+    rmid int,
+    rsrvnnum int,
+    rtrnddt timestamp,
+    salesasocid int,
+    sbmtternm text,
+    solitationid int,
+    solr_query text,
+    strgynum int,
+    tpmvendrappid text,
+    turnaroundtmnum int,
+    uasgdprodid int,
+    veh text,
+    wrdrndt timestamp
+) WITH bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = 'Application table that has task, notes, assignment audit and audit details'
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 172800
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+CREATE CUSTOM INDEX coafstatim_application_appcretddt_index ON coafstatim.application (appcretddt) USING 'com.datastax.bdp.search.solr.Cql3SolrSecondaryIndex';
+CREATE CUSTOM INDEX coafstatim_application_appownrtxt_index ON coafstatim.application (appownrtxt) USING 'com.datastax.bdp.search.solr.Cql3SolrSecondaryIndex';
+CREATE CUSTOM INDEX coafstatim_application_apprecvddt_index ON coafstatim.application (apprecvddt) USING 'com.datastax.bdp.search.solr.Cql3SolrSecondaryIndex';
+CREATE CUSTOM INDEX coafstatim_application_appstatdt_index ON coafstatim.application (appstatdt) USING 'com.datastax.bdp.search.solr.Cql3SolrSecondaryIndex';
+CREATE CUSTOM INDEX coafstatim_application_appstatlkupid_index ON coafstatim.application (appstatlkupid) USING 'com.datastax.bdp.search.solr.Cql3SolrSecondaryIndex';
+CREATE CUSTOM INDEX coafstatim_application_apptaskaudtdtfltr_index ON coafstatim.application (apptaskaudtdtfltr) USING 'com.datastax.bdp.search.solr.Cql3SolrSecondaryIndex';
+CREATE CUSTOM INDEX coafstatim_application_chnlid_index ON coafstatim.application (chnlid) USING 'com.datastax.bdp.search.solr.Cql3SolrSecondaryIndex';
+CREATE CUSTOM INDEX coafstatim_application_cmtmentcd_index ON coafstatim.application (cmtmentcd) USING 'com.datastax.bdp.search.solr.Cql3SolrSecondaryIndex';
+CREATE CUSTOM INDEX coafstatim_application_cntrtcretddt_index ON coafstatim.application (cntrtcretddt) USING 'com.datastax.bdp.search.solr.Cql3SolrSecondaryIndex';
+CREATE CUSTOM INDEX coafstatim_application_cntrtrecvddt_index ON coafstatim.application (cntrtrecvddt) USING 'com.datastax.bdp.search.solr.Cql3SolrSecondaryIndex';
+CREATE CUSTOM INDEX coafstatim_application_dcsndt_index ON coafstatim.application (dcsndt) USING 'com.datastax.bdp.search.solr.Cql3SolrSecondaryIndex';
+CREATE CUSTOM INDEX coafstatim_application_dcsnstatlkupid_index ON coafstatim.application (dcsnstatlkupid) USING 'com.datastax.bdp.search.solr.Cql3SolrSecondaryIndex';
+CREATE CUSTOM INDEX coafstatim_application_dlrshporgid_index ON coafstatim.application (dlrshporgid) USING 'com.datastax.bdp.search.solr.Cql3SolrSecondaryIndex';
+CREATE CUSTOM INDEX coafstatim_application_fundddt_index ON coafstatim.application (fundddt) USING 'com.datastax.bdp.search.solr.Cql3SolrSecondaryIndex';
+CREATE CUSTOM INDEX coafstatim_application_hrflag_index ON coafstatim.application (hrflag) USING 'com.datastax.bdp.search.solr.Cql3SolrSecondaryIndex';
+CREATE CUSTOM INDEX coafstatim_application_lobid_index ON coafstatim.application (lobid) USING 'com.datastax.bdp.search.solr.Cql3SolrSecondaryIndex';
+CREATE CUSTOM INDEX coafstatim_application_maxappasgnmtaudtdt_index ON coafstatim.application (maxappasgnmtaudtdt) USING 'com.datastax.bdp.search.solr.Cql3SolrSecondaryIndex';
+CREATE CUSTOM INDEX coafstatim_application_maxapptaskaudtcretddt_index ON coafstatim.application (maxapptaskaudtcretddt) USING 'com.datastax.bdp.search.solr.Cql3SolrSecondaryIndex';
+CREATE CUSTOM INDEX coafstatim_application_maxaudtcretddt_index ON coafstatim.application (maxaudtcretddt) USING 'com.datastax.bdp.search.solr.Cql3SolrSecondaryIndex';
+CREATE CUSTOM INDEX coafstatim_application_notecretddtfltr_index ON coafstatim.application (notecretddtfltr) USING 'com.datastax.bdp.search.solr.Cql3SolrSecondaryIndex';
+CREATE CUSTOM INDEX coafstatim_application_solr_query_index ON coafstatim.application (solr_query) USING 'com.datastax.bdp.search.solr.Cql3SolrSecondaryIndex';
+
+
+[?1034h
+CREATE KEYSPACE usprodcfg WITH replication = {'class': 'NetworkTopologyStrategy', 'DC1': '3', 'DC1_SPARK': '2'}  AND durable_writes = true;
+
+CREATE TABLE usprodcfg.nodehealth_3_0_0 (
+    node_id text,
+    recorded_on timestamp,
+    cpu int,
+    disk int,
+    memory int,
+    PRIMARY KEY (node_id, recorded_on)
+) WITH CLUSTERING ORDER BY (recorded_on DESC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 3600
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodcfg.ecp_schema_version (
+    mapper_name text PRIMARY KEY,
+    last_updated timestamp,
+    schema_version text,
+    status text
+) WITH bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodcfg.counter_commitlog_1 (
+    marketname text,
+    cachekey text,
+    counter bigint,
+    PRIMARY KEY (marketname, cachekey)
+) WITH CLUSTERING ORDER BY (cachekey ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 3600
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodcfg.nodeperfcounter_3_0_0 (
+    node_id text,
+    role text,
+    counters text,
+    recorded_on timestamp,
+    PRIMARY KEY (node_id, role)
+) WITH CLUSTERING ORDER BY (role ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 3600
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodcfg.heartbeat_3_0_0 (
+    role text,
+    machine_name text,
+    child_services text,
+    config_rev int,
+    lastupdated timestamp,
+    node_js_port text,
+    state_info text,
+    version text,
+    PRIMARY KEY ((role, machine_name))
+) WITH bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 3600
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodcfg.certificate_3_2_0 (
+    marketname text,
+    name text,
+    content blob,
+    expirationdate timestamp,
+    password text,
+    PRIMARY KEY (marketname, name)
+) WITH CLUSTERING ORDER BY (name ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodcfg.marketfile_3_0_2 (
+    filename text,
+    marketname text,
+    content blob,
+    filetype text,
+    lastupdated timestamp,
+    lastupdatedby text,
+    roles text,
+    PRIMARY KEY (filename, marketname)
+) WITH CLUSTERING ORDER BY (marketname ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 3600
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+[?1034h
+CREATE KEYSPACE usprodrst WITH replication = {'class': 'NetworkTopologyStrategy', 'DC1': '3', 'DC1_SPARK': '2'}  AND durable_writes = true;
+
+CREATE TABLE usprodrst.restaurantconfigstatus_3_0_12 (
+    marketname text,
+    yhour int,
+    mins int,
+    posnumber text,
+    activefororder boolean,
+    applicationname text,
+    businessdate text,
+    companyname text,
+    cryptoid text,
+    cryptokey text,
+    endpoint1 text,
+    endpoint2 text,
+    foeversion text,
+    lastmodification timestamp,
+    laststatuscheck timeuuid,
+    latitude double,
+    longitude double,
+    numberofretries int,
+    orderversion text,
+    outageversion text,
+    podname text,
+    podtype text,
+    remotepodtype text,
+    requestid uuid,
+    restaurantpaymentconfig text,
+    seqnumber text,
+    sessionid uuid,
+    sevalues text,
+    storestatus boolean,
+    timeout int,
+    timezone text,
+    userid text,
+    PRIMARY KEY ((marketname, yhour, mins), posnumber)
+) WITH CLUSTERING ORDER BY (posnumber ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'max_threshold': '32', 'min_threshold': '4', 'cold_reads_to_omit': '0.05', 'enabled': 'true', 'unchecked_tombstone_compaction': 'false', 'tombstone_compaction_interval': '86400', 'min_sstable_size': '50', 'tombstone_threshold': '0.2', 'bucket_low': '0.5', 'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy', 'bucket_high': '1.5'}
+    AND compression = {'chunk_length_kb': '64', 'crc_check_chance': '1.0', 'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 86400
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodrst.datacache_3_0_0 (
+    otype text,
+    cachekey text,
+    odata blob,
+    PRIMARY KEY (otype, cachekey)
+) WITH CLUSTERING ORDER BY (cachekey ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 3600
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodrst.storefileproductoutages_3_0_0 (
+    marketname text,
+    posnumber text,
+    shardid int,
+    seqnumber text,
+    creationtime timeuuid,
+    shard blob,
+    totalshards int,
+    totalsize int,
+    PRIMARY KEY ((marketname, posnumber, shardid), seqnumber)
+) WITH CLUSTERING ORDER BY (seqnumber ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 3600
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodrst.storefilenamesdb_3_0_3 (
+    marketname text,
+    posnumber text,
+    shardid int,
+    seqnumber text,
+    creationtime timeuuid,
+    shard blob,
+    totalshards int,
+    totalsize int,
+    PRIMARY KEY ((marketname, posnumber, shardid), seqnumber)
+) WITH CLUSTERING ORDER BY (seqnumber ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 3600
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodrst.oelayout_3_1_3 (
+    marketname text,
+    oelayouthash text,
+    oelayout text,
+    PRIMARY KEY (marketname, oelayouthash)
+) WITH CLUSTERING ORDER BY (oelayouthash ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodrst.restaurantconfigstatus_3_0_10 (
+    marketname text,
+    yhour int,
+    mins int,
+    posnumber text,
+    activefororder boolean,
+    applicationname text,
+    businessdate text,
+    cryptoid text,
+    cryptokey text,
+    endpoint1 text,
+    endpoint2 text,
+    foeversion text,
+    lastmodification timestamp,
+    laststatuscheck timeuuid,
+    latitude double,
+    longitude double,
+    numberofretries int,
+    orderversion text,
+    outageversion text,
+    paymentconfig text,
+    podname text,
+    podtype text,
+    remotepodtype text,
+    requestid uuid,
+    seqnumber text,
+    sessionid uuid,
+    storestatus boolean,
+    timeout int,
+    timezone text,
+    userid text,
+    PRIMARY KEY ((marketname, yhour, mins), posnumber)
+) WITH CLUSTERING ORDER BY (posnumber ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 3600
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodrst.taxchain_3_0_0 (
+    marketname text,
+    posnumber text,
+    seqnumber text,
+    chainid int,
+    categoryid int,
+    createddate timestamp,
+    ids text,
+    position int,
+    PRIMARY KEY ((marketname, posnumber), seqnumber, chainid)
+) WITH CLUSTERING ORDER BY (seqnumber ASC, chainid ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 3600
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodrst.taxchain_31 (
+    marketname text,
+    posnumber text,
+    seqnumber text,
+    chainid int,
+    categoryid int,
+    createddate timestamp,
+    ids text,
+    position int,
+    PRIMARY KEY ((marketname, posnumber), seqnumber, chainid)
+) WITH CLUSTERING ORDER BY (seqnumber ASC, chainid ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodrst.info_3_2_9 (
+    marketname text,
+    posnumber text,
+    seqnumber text,
+    acceptsoffers boolean,
+    areaopeninghours list<text>,
+    autobagsale text,
+    calendar list<text>,
+    considersubitems boolean,
+    createddate timeuuid,
+    currencydecimal int,
+    currencyname text,
+    cytingredientgroups text,
+    dataservicename text,
+    deliverearlymode text,
+    deliverlaterproductcode text,
+    facilities list<text>,
+    foundationalcheckincleanuptimeout int,
+    lastmodification timeuuid,
+    loyaltyamountexchangerate int,
+    maxpromotionsperorder int,
+    menupricebasisid int,
+    menutypecalendar list<text>,
+    menutypetransitionthreshold int,
+    npversion text,
+    nutritionalinformation text,
+    operationmode int,
+    participatesinloyalty boolean,
+    pod list<text>,
+    promodiscounts list<text>,
+    tableservice text,
+    taxcalculationtypeid int,
+    tinthresholdamount int,
+    vatnumber text,
+    PRIMARY KEY ((marketname, posnumber), seqnumber)
+) WITH CLUSTERING ORDER BY (seqnumber ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodrst.storefilestoredb_3_0_3 (
+    marketname text,
+    posnumber text,
+    shardid int,
+    seqnumber text,
+    creationtime timeuuid,
+    shard blob,
+    totalshards int,
+    totalsize int,
+    PRIMARY KEY ((marketname, posnumber, shardid), seqnumber)
+) WITH CLUSTERING ORDER BY (seqnumber ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 3600
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodrst.seqactivationdsp_3_1_1_0 (
+    marketname text PRIMARY KEY,
+    dsphash text,
+    seqnumber text
+) WITH bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodrst.seqimportdsp_3_1_1_0 (
+    marketname text,
+    seqnumber text,
+    dsphash text,
+    PRIMARY KEY (marketname, seqnumber)
+) WITH CLUSTERING ORDER BY (seqnumber ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodrst.defaultstoreproperties_3_1_1_3 (
+    marketname text,
+    hash text,
+    properties text,
+    seqnumber text,
+    PRIMARY KEY (marketname, hash)
+) WITH CLUSTERING ORDER BY (hash ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodrst.restaurantconfig_3_0_7 (
+    marketname text,
+    posnumber text,
+    activefororder boolean,
+    applicationname text,
+    businessdate text,
+    cryptoid text,
+    cryptokey text,
+    endpoint1 text,
+    endpoint2 text,
+    foeversion text,
+    lastmodification timestamp,
+    laststatuscheck timeuuid,
+    latitude double,
+    longitude double,
+    numberofretries int,
+    orderversion text,
+    outageversion text,
+    paymentconfig text,
+    podname text,
+    podtype text,
+    remotepodtype text,
+    requestid uuid,
+    seqnumber text,
+    sessionid uuid,
+    storestatus boolean,
+    timeout int,
+    timezone text,
+    userid text,
+    PRIMARY KEY (marketname, posnumber)
+) WITH CLUSTERING ORDER BY (posnumber ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.LeveledCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.0
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 3600
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.1
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodrst.ecp_schema_version (
+    mapper_name text PRIMARY KEY,
+    last_updated timestamp,
+    schema_version text,
+    status text
+) WITH bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodrst.restaurantconfig_3_0_9 (
+    marketname text,
+    posnumber text,
+    activefororder boolean,
+    applicationname text,
+    businessdate text,
+    companyname text,
+    cryptoid text,
+    cryptokey text,
+    endpoint1 text,
+    endpoint2 text,
+    foeversion text,
+    lastmodification timestamp,
+    laststatuscheck timeuuid,
+    latitude double,
+    longitude double,
+    numberofretries int,
+    orderversion text,
+    outageversion text,
+    podname text,
+    podtype text,
+    remotepodtype text,
+    requestid uuid,
+    restaurantpaymentconfig text,
+    seqnumber text,
+    sessionid uuid,
+    sevalues text,
+    storestatus boolean,
+    timeout int,
+    timezone text,
+    userid text,
+    PRIMARY KEY (marketname, posnumber)
+) WITH CLUSTERING ORDER BY (posnumber ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.LeveledCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.0
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.1
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodrst.restaurantpromo_3_2_0 (
+    marketname text,
+    posnumber text,
+    seqnumber text,
+    code int,
+    isadvertisable boolean,
+    longdescription text,
+    name text,
+    priority text,
+    shortdescription text,
+    status boolean,
+    xml text,
+    PRIMARY KEY ((marketname, posnumber), seqnumber, code)
+) WITH CLUSTERING ORDER BY (seqnumber ASC, code ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodrst.storefilepromotiondb_3_1_0 (
+    marketname text,
+    posnumber text,
+    shardid int,
+    seqnumber text,
+    creationtime timeuuid,
+    shard blob,
+    totalshards int,
+    totalsize int,
+    PRIMARY KEY ((marketname, posnumber, shardid), seqnumber)
+) WITH CLUSTERING ORDER BY (seqnumber ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodrst.activestorefile_outages_3_0_0 (
+    marketname text,
+    posnumber text,
+    shardid int,
+    seqactivation timeuuid,
+    seqnumber text,
+    shard blob,
+    totalshards int,
+    totalsize int,
+    PRIMARY KEY ((marketname, posnumber, shardid))
+) WITH bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 3600
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodrst.info_3_0_3 (
+    marketname text,
+    posnumber text,
+    seqnumber text,
+    acceptsoffers boolean,
+    areaopeninghours list<text>,
+    calendar list<text>,
+    createddate timeuuid,
+    currencydecimal int,
+    currencyname text,
+    dataservicename text,
+    facilities list<text>,
+    lastmodification timeuuid,
+    menupricebasisid int,
+    menutypecalendar list<text>,
+    npversion text,
+    operationmode int,
+    pod list<text>,
+    promodiscounts list<text>,
+    taxcalculationtypeid int,
+    PRIMARY KEY ((marketname, posnumber), seqnumber)
+) WITH CLUSTERING ORDER BY (seqnumber ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 3600
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodrst.taxtype_31 (
+    marketname text,
+    posnumber text,
+    seqnumber text,
+    id int,
+    basis text,
+    breakpointtable text,
+    calcbase text,
+    createddate timestamp,
+    grouping text,
+    precision int,
+    rate decimal,
+    rounding text,
+    PRIMARY KEY ((marketname, posnumber), seqnumber, id)
+) WITH CLUSTERING ORDER BY (seqnumber ASC, id ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodrst.activestorefile_names_3_0_1 (
+    marketname text,
+    posnumber text,
+    shardid int,
+    seqactivation timeuuid,
+    seqnumber text,
+    shard blob,
+    totalshards int,
+    totalsize int,
+    PRIMARY KEY ((marketname, posnumber, shardid))
+) WITH bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 3600
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodrst.info_3_0_7 (
+    marketname text,
+    posnumber text,
+    seqnumber text,
+    acceptsoffers boolean,
+    areaopeninghours list<text>,
+    calendar list<text>,
+    considersubitems boolean,
+    createddate timeuuid,
+    currencydecimal int,
+    currencyname text,
+    dataservicename text,
+    facilities list<text>,
+    foundationalcheckincleanuptimeout int,
+    lastmodification timeuuid,
+    loyaltyamountexchangerate int,
+    menupricebasisid int,
+    menutypecalendar list<text>,
+    menutypetransitionthreshold int,
+    npversion text,
+    operationmode int,
+    participatesinloyalty boolean,
+    pod list<text>,
+    promodiscounts list<text>,
+    tableservice text,
+    taxcalculationtypeid int,
+    tinthresholdamount int,
+    PRIMARY KEY ((marketname, posnumber), seqnumber)
+) WITH CLUSTERING ORDER BY (seqnumber ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'max_threshold': '32', 'min_threshold': '4', 'cold_reads_to_omit': '0.05', 'enabled': 'true', 'unchecked_tombstone_compaction': 'false', 'tombstone_compaction_interval': '86400', 'min_sstable_size': '50', 'tombstone_threshold': '0.2', 'bucket_low': '0.5', 'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy', 'bucket_high': '1.5'}
+    AND compression = {'chunk_length_kb': '64', 'crc_check_chance': '1.0', 'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodrst.restaurantpromo_3_1_0 (
+    marketname text,
+    posnumber text,
+    seqnumber text,
+    code int,
+    longdescription text,
+    name text,
+    priority text,
+    shortdescription text,
+    status boolean,
+    xml text,
+    PRIMARY KEY ((marketname, posnumber), seqnumber, code)
+) WITH CLUSTERING ORDER BY (seqnumber ASC, code ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodrst.storefilerestaurantpromotiondb_3_1_0 (
+    marketname text,
+    posnumber text,
+    shardid int,
+    seqnumber text,
+    creationtime timeuuid,
+    shard blob,
+    totalshards int,
+    totalsize int,
+    PRIMARY KEY ((marketname, posnumber, shardid), seqnumber)
+) WITH CLUSTERING ORDER BY (seqnumber ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodrst.companyconfig_3_0_0 (
+    marketname text,
+    companyname text,
+    companypaymentconfig text,
+    PRIMARY KEY (marketname, companyname)
+) WITH CLUSTERING ORDER BY (companyname ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodrst.address (
+    marketname text,
+    posnumber text,
+    seqnumber text,
+    address text,
+    apartment text,
+    building text,
+    city text,
+    country text,
+    countrycode text,
+    department text,
+    facilities list<text>,
+    fax text,
+    id uuid,
+    latitude double,
+    latlong text,
+    longitude double,
+    name text,
+    phone text,
+    room text,
+    solr_query text,
+    state text,
+    statecode text,
+    status int,
+    suite text,
+    unit text,
+    zip text,
+    PRIMARY KEY (marketname, posnumber, seqnumber)
+) WITH CLUSTERING ORDER BY (posnumber ASC, seqnumber ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 3600
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodrst.taxbyid_3_0_3 (
+    marketname text,
+    posnumber text,
+    seqnumber text,
+    activationtime timestamp,
+    precision int,
+    rounding text,
+    taxbasis text,
+    taxbreakdown list<text>,
+    taxcalctype text,
+    taxchain map<int, text>,
+    taxdescription text,
+    taxid int,
+    taxrate decimal,
+    PRIMARY KEY ((marketname, posnumber), seqnumber)
+) WITH CLUSTERING ORDER BY (seqnumber DESC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodrst.activestorefile_restaurantpromotion_3_1_0 (
+    marketname text,
+    posnumber text,
+    shardid int,
+    seqactivation timeuuid,
+    seqnumber text,
+    shard blob,
+    totalshards int,
+    totalsize int,
+    PRIMARY KEY ((marketname, posnumber, shardid))
+) WITH bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodrst.dinfo_3104 (
+    marketname text,
+    posnumber text,
+    seqnumber text,
+    advancedordermaximumtimelimitminutes int,
+    advancedorderminimumtimelimitminutes int,
+    advorderinghours text,
+    customdayparts text,
+    dcrules text,
+    largeorderallowed boolean,
+    lorules text,
+    movrules text,
+    orderinghours text,
+    ssm text,
+    PRIMARY KEY ((marketname, posnumber), seqnumber)
+) WITH CLUSTERING ORDER BY (seqnumber ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodrst.activestorefile_promotion_3_1_0 (
+    marketname text,
+    posnumber text,
+    shardid int,
+    seqactivation timeuuid,
+    seqnumber text,
+    shard blob,
+    totalshards int,
+    totalsize int,
+    PRIMARY KEY ((marketname, posnumber, shardid))
+) WITH bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodrst.taxtype_3_0_0 (
+    marketname text,
+    posnumber text,
+    seqnumber text,
+    id int,
+    basis text,
+    breakpointtable text,
+    calcbase text,
+    createddate timestamp,
+    grouping text,
+    precision int,
+    rate decimal,
+    rounding text,
+    PRIMARY KEY ((marketname, posnumber), seqnumber, id)
+) WITH CLUSTERING ORDER BY (seqnumber ASC, id ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 3600
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodrst.storefileproductdb_3_0_3 (
+    marketname text,
+    posnumber text,
+    shardid int,
+    seqnumber text,
+    creationtime timeuuid,
+    shard blob,
+    totalshards int,
+    totalsize int,
+    PRIMARY KEY ((marketname, posnumber, shardid), seqnumber)
+) WITH CLUSTERING ORDER BY (seqnumber ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 3600
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodrst.activestorefile_store_3_0_1 (
+    marketname text,
+    posnumber text,
+    shardid int,
+    seqactivation timeuuid,
+    seqnumber text,
+    shard blob,
+    totalshards int,
+    totalsize int,
+    PRIMARY KEY ((marketname, posnumber, shardid))
+) WITH bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 3600
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodrst.activestorefile_product_3_0_1 (
+    marketname text,
+    posnumber text,
+    shardid int,
+    seqactivation timeuuid,
+    seqnumber text,
+    shard blob,
+    totalshards int,
+    totalsize int,
+    PRIMARY KEY ((marketname, posnumber, shardid))
+) WITH bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 3600
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodrst.address_3_0_0 (
+    marketname text,
+    posnumber text,
+    address text,
+    apartment text,
+    building text,
+    city text,
+    country text,
+    countrycode text,
+    department text,
+    facilities list<text>,
+    fax text,
+    id uuid,
+    latitude double,
+    latlong text,
+    longitude double,
+    name text,
+    phone text,
+    room text,
+    state text,
+    statecode text,
+    status int,
+    suite text,
+    unit text,
+    zip text,
+    PRIMARY KEY (marketname, posnumber)
+) WITH CLUSTERING ORDER BY (posnumber ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 3600
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodrst.storesalefile_3_0_4 (
+    date text,
+    time text,
+    posstorenumber text,
+    downloaded boolean,
+    loyaltyprocessed boolean,
+    punchprocessed boolean,
+    salebatchcontent text,
+    PRIMARY KEY (date, time, posstorenumber)
+) WITH CLUSTERING ORDER BY (time ASC, posstorenumber ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+[?1034h
+CREATE KEYSPACE usprodaudit WITH replication = {'class': 'NetworkTopologyStrategy', 'DC1': '3', 'DC1_SPARK': '2'}  AND durable_writes = true;
+
+CREATE TABLE usprodaudit.audit_index_request_id_3_0_0 (
+    request_id text,
+    time timeuuid,
+    minute text,
+    split int,
+    PRIMARY KEY (request_id, time)
+) WITH CLUSTERING ORDER BY (time DESC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodaudit.audits_3_0_0 (
+    id uuid,
+    recorded_date bigint,
+    recorded_on bigint,
+    event_id int,
+    event_name text,
+    machine_name text,
+    payload text,
+    request_id text,
+    service_name text,
+    session_id text,
+    task_name text,
+    PRIMARY KEY (id, recorded_date, recorded_on)
+) WITH CLUSTERING ORDER BY (recorded_date ASC, recorded_on ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodaudit.audit_counts_3_0_0 (
+    period text PRIMARY KEY,
+    logcount counter
+) WITH bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodaudit.ecp_schema_version (
+    mapper_name text PRIMARY KEY,
+    last_updated timestamp,
+    schema_version text,
+    status text
+) WITH bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodaudit.audit_all_3_0_1 (
+    minute text,
+    split int,
+    time timeuuid,
+    apiver text,
+    event_id int,
+    event_name text,
+    level int,
+    machine_name text,
+    payload text,
+    recorded_on bigint,
+    request_id text,
+    service_name text,
+    session_id text,
+    task_name text,
+    PRIMARY KEY ((minute, split), time)
+) WITH CLUSTERING ORDER BY (time DESC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodaudit.audit_index_cew_3_0_0 (
+    level int,
+    time timeuuid,
+    minute text,
+    split int,
+    PRIMARY KEY (level, time)
+) WITH CLUSTERING ORDER BY (time DESC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodaudit.audit_split_factors_3_0_0 (
+    period text PRIMARY KEY,
+    lastadjustment timestamp,
+    split_factor int
+) WITH bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodaudit.audit_index_session_id_3_0_0 (
+    session_id text,
+    time timeuuid,
+    minute text,
+    split int,
+    PRIMARY KEY (session_id, time)
+) WITH CLUSTERING ORDER BY (time DESC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+[?1034h
+CREATE KEYSPACE usprodnotif WITH replication = {'class': 'NetworkTopologyStrategy', 'DC1': '3', 'DC1_SPARK': '2'}  AND durable_writes = true;
+
+CREATE TABLE usprodnotif.notification_3_0_1 (
+    market text,
+    day int,
+    chunk int,
+    time timeuuid,
+    added timestamp,
+    notification text,
+    PRIMARY KEY ((market, day, chunk), time)
+) WITH CLUSTERING ORDER BY (time ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 3600
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodnotif.ecp_schema_version (
+    mapper_name text PRIMARY KEY,
+    last_updated timestamp,
+    schema_version text,
+    status text
+) WITH bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodnotif.notification_chunks_3_0_1 (
+    market text,
+    day int,
+    chunk int,
+    PRIMARY KEY ((market, day), chunk)
+) WITH CLUSTERING ORDER BY (chunk ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 3600
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+[?1034h
+CREATE KEYSPACE usprodres WITH replication = {'class': 'NetworkTopologyStrategy', 'DC1': '3', 'DC1_SPARK': '2'}  AND durable_writes = true;
+
+CREATE TABLE usprodres.ecp_schema_version (
+    mapper_name text PRIMARY KEY,
+    last_updated timestamp,
+    schema_version text,
+    status text
+) WITH bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodres.resources_3_0_1 (
+    name text,
+    marketname text,
+    locale_id text,
+    approved timestamp,
+    approvedby text,
+    lastupdated timestamp,
+    lastupdatedby text,
+    published timestamp,
+    publishedby text,
+    resources text,
+    status text,
+    PRIMARY KEY (name, marketname, locale_id)
+) WITH CLUSTERING ORDER BY (marketname ASC, locale_id ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 3600
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+[?1034h
+CREATE KEYSPACE usprodsec WITH replication = {'class': 'NetworkTopologyStrategy', 'DC1': '3', 'DC1_SPARK': '2'}  AND durable_writes = true;
+
+CREATE TABLE usprodsec.ecp_schema_version (
+    mapper_name text PRIMARY KEY,
+    last_updated timestamp,
+    schema_version text,
+    status text
+) WITH bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodsec.session (
+    sessionid uuid PRIMARY KEY,
+    marketid text,
+    nexttoken uuid,
+    nonce text,
+    roles list<text>,
+    userid int,
+    username text
+) WITH bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.LeveledCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.0
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 3600
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.1
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodsec.session_3 (
+    sessionid uuid PRIMARY KEY,
+    apiver text,
+    marketid text,
+    nexttoken uuid,
+    nonce text,
+    roles list<text>,
+    sevalues text,
+    userid int,
+    username text
+) WITH bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.LeveledCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.0
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 86400
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.1
+    AND speculative_retry = '99.0PERCENTILE';
+
+[?1034h
+CREATE KEYSPACE usprodcuspay WITH replication = {'class': 'NetworkTopologyStrategy', 'DC1': '3', 'DC1_SPARK': '2'}  AND durable_writes = true;
+
+CREATE TABLE usprodcuspay.ecp_schema_version (
+    mapper_name text PRIMARY KEY,
+    last_updated timestamp,
+    schema_version text,
+    status text
+) WITH bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodcuspay.idcode_3_0_0_1 (
+    randomcode text PRIMARY KEY,
+    custid int,
+    custpaymentmethodid int,
+    expirationtime timestamp
+) WITH bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 3600
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+[?1034h
+CREATE KEYSPACE usprodofrs WITH replication = {'class': 'NetworkTopologyStrategy', 'DC1': '3', 'DC1_SPARK': '2'}  AND durable_writes = true;
+
+CREATE TABLE usprodofrs.offerplatform_3_2_0 (
+    marketname text,
+    offerid bigint,
+    platform text,
+    PRIMARY KEY ((marketname, offerid))
+) WITH bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodofrs.rstpromobydate_3_0_0_4 (
+    marketname text,
+    weeknum int,
+    lastmodification timeuuid,
+    created timestamp,
+    posnumber text,
+    promoid bigint,
+    PRIMARY KEY ((marketname, weeknum), lastmodification)
+) WITH CLUSTERING ORDER BY (lastmodification DESC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodofrs.identificationoffer_3_0_1 (
+    marketname text,
+    offerid bigint,
+    custid int,
+    PRIMARY KEY ((marketname, offerid))
+) WITH bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodofrs.promolist_3_0_0_1 (
+    marketname text,
+    offertype text,
+    promoid bigint,
+    PRIMARY KEY ((marketname, offertype), promoid)
+) WITH CLUSTERING ORDER BY (promoid ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodofrs.offerbycustomer_3_2_1 (
+    marketname text,
+    custid text,
+    customertype text,
+    offerid bigint,
+    channels text,
+    createdutc timestamp,
+    currentpunch int,
+    daterangefromutc timestamp,
+    daterangethruutc timestamp,
+    ecpcustid int,
+    expirationchanged boolean,
+    expirationchangedatutc timestamp,
+    externalid text,
+    lastmodificationutc timeuuid,
+    offerpromoid bigint,
+    offerstate text,
+    redeemedatutc timestamp,
+    redeemedoverriden boolean,
+    redeemedposnumber text,
+    redemptioncode text,
+    PRIMARY KEY ((marketname, custid, customertype), offerid)
+) WITH CLUSTERING ORDER BY (offerid ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodofrs.revokedpromo_3_0_1 (
+    promotionid bigint PRIMARY KEY
+) WITH bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodofrs.rstpromo_3_0_0_4 (
+    marketname text,
+    posnumber text,
+    promoid bigint,
+    created timestamp,
+    lastmodification timeuuid,
+    PRIMARY KEY ((marketname, posnumber), promoid)
+) WITH CLUSTERING ORDER BY (promoid ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodofrs.archiveoffer_3_2_10 (
+    marketname text,
+    custid int,
+    offerid bigint,
+    created timestamp,
+    currentpunch int,
+    duration int,
+    emailreminderdate timestamp,
+    emailsent boolean,
+    expirationchanged boolean,
+    expirationchangedat timestamp,
+    extendtoeod boolean,
+    imagepath text,
+    lastmodification timeuuid,
+    localvalidfrom timestamp,
+    localvalidthru timestamp,
+    longdescription text,
+    name text,
+    offertypename text,
+    posnumber text,
+    promoid bigint,
+    promotionparameters text,
+    redeemedoverriden boolean,
+    restaurants text,
+    selected boolean,
+    shortdescription text,
+    templateid bigint,
+    totalpunch int,
+    updated timestamp,
+    viewed boolean,
+    xml text,
+    PRIMARY KEY ((marketname, custid), offerid)
+) WITH CLUSTERING ORDER BY (offerid ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodofrs.offeridentification_3_2_1 (
+    marketname text,
+    offerid bigint,
+    custid text,
+    customertype text,
+    offerstate text,
+    redemptioncode text,
+    redemptioncodetype text,
+    PRIMARY KEY ((marketname, offerid))
+) WITH bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodofrs.redeemedoffer_3_2_10 (
+    marketname text,
+    custid int,
+    offerid bigint,
+    created timestamp,
+    currentpunch int,
+    duration int,
+    emailreminderdate timestamp,
+    emailsent boolean,
+    expirationchanged boolean,
+    expirationchangedat timestamp,
+    extendtoeod boolean,
+    imagepath text,
+    lastmodification timeuuid,
+    localvalidfrom timestamp,
+    localvalidthru timestamp,
+    longdescription text,
+    name text,
+    offertypename text,
+    posnumber text,
+    promoid bigint,
+    promotionparameters text,
+    redeemedoverriden boolean,
+    restaurants text,
+    selected boolean,
+    shortdescription text,
+    templateid bigint,
+    totalpunch int,
+    updated timestamp,
+    viewed boolean,
+    xml text,
+    PRIMARY KEY ((marketname, custid), offerid)
+) WITH CLUSTERING ORDER BY (offerid ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodofrs.offercategory_3_0_0_3 (
+    marketname text,
+    id int,
+    description text,
+    PRIMARY KEY (marketname, id)
+) WITH CLUSTERING ORDER BY (id ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodofrs.idcode_3_0_6 (
+    marketname text,
+    randomcode text,
+    custid int,
+    expirationtime timestamp,
+    offerid bigint,
+    posnumber text,
+    PRIMARY KEY ((marketname, randomcode))
+) WITH bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.LeveledCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 86400
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodofrs.expiredoffers_chunks_3_0_2 (
+    market text,
+    day int,
+    offerid bigint,
+    PRIMARY KEY ((market, day), offerid)
+) WITH CLUSTERING ORDER BY (offerid ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodofrs.expiredoffers_chunks_3_0_1 (
+    market text,
+    day int,
+    chunk int,
+    PRIMARY KEY ((market, day), chunk)
+) WITH CLUSTERING ORDER BY (chunk ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodofrs.templates_3_0_0_3 (
+    marketname text,
+    templateid bigint,
+    templatecreated timestamp,
+    xml text,
+    PRIMARY KEY (marketname, templateid)
+) WITH CLUSTERING ORDER BY (templateid DESC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodofrs.archiveoffer_3_0_8 (
+    marketname text,
+    custid int,
+    offerid bigint,
+    created timestamp,
+    currentpunch int,
+    emailreminderdate timestamp,
+    emailsent boolean,
+    imagepath text,
+    lastmodification timeuuid,
+    localvalidfrom timestamp,
+    localvalidthru timestamp,
+    longdescription text,
+    name text,
+    offertypename text,
+    posnumber text,
+    promoid bigint,
+    promotionparameters text,
+    redeemedoverriden boolean,
+    restaurants text,
+    selected boolean,
+    shortdescription text,
+    templateid bigint,
+    totalpunch int,
+    viewed boolean,
+    xml text,
+    PRIMARY KEY ((marketname, custid), offerid)
+) WITH CLUSTERING ORDER BY (offerid DESC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodofrs.promooffers_3_0_0 (
+    promotionid bigint,
+    shardid int,
+    marketname text,
+    offerid int,
+    PRIMARY KEY (promotionid, shardid, marketname, offerid)
+) WITH CLUSTERING ORDER BY (shardid ASC, marketname ASC, offerid ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodofrs.expiredoffer_3_2_4 (
+    marketname text,
+    custid int,
+    offerid bigint,
+    created timestamp,
+    currentpunch int,
+    duration int,
+    emailreminderdate timestamp,
+    emailsent boolean,
+    expirationchanged boolean,
+    expirationchangedat timestamp,
+    extendtoeod boolean,
+    imagepath text,
+    lastmodification timeuuid,
+    localvalidfrom timestamp,
+    localvalidthru timestamp,
+    longdescription text,
+    name text,
+    offertypename text,
+    posnumber text,
+    promoid bigint,
+    promotionparameters text,
+    redeemedoverriden boolean,
+    restaurants text,
+    selected boolean,
+    shortdescription text,
+    templateid bigint,
+    totalpunch int,
+    updated timestamp,
+    viewed boolean,
+    xml text,
+    PRIMARY KEY ((marketname, custid), offerid)
+) WITH CLUSTERING ORDER BY (offerid ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodofrs.expiredofferscheduled_3_0_2 (
+    market text,
+    day int,
+    offerid bigint,
+    time timeuuid,
+    added timestamp,
+    offer text,
+    PRIMARY KEY ((market, day, offerid), time)
+) WITH CLUSTERING ORDER BY (time ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodofrs.storesalessofferprocess_3_2_0 (
+    marketname text,
+    orderkey text,
+    customerid text,
+    storeposnumber text,
+    attempts int,
+    considersubitems boolean,
+    lastmodificationutc timestamp,
+    sale text,
+    state text,
+    PRIMARY KEY ((marketname, orderkey, customerid), storeposnumber)
+) WITH CLUSTERING ORDER BY (storeposnumber ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodofrs.dataextractemailoffercode_3_2_1 (
+    marketname text,
+    creationday text,
+    shardid int,
+    creationdatetimeutc timeuuid,
+    checkincode text,
+    customertype int,
+    expirationdatetimeutc text,
+    externalid bigint,
+    promoid bigint,
+    PRIMARY KEY ((marketname, creationday, shardid), creationdatetimeutc, checkincode)
+) WITH CLUSTERING ORDER BY (creationdatetimeutc ASC, checkincode ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodofrs.promo_3_2_0_9 (
+    marketname text,
+    promoid bigint,
+    created timestamp,
+    daterangefrom text,
+    daterangethru text,
+    duration int,
+    extendtoeod boolean,
+    imagepath text,
+    longdescription text,
+    name text,
+    offertype text,
+    promotionparameters text,
+    restaurants text,
+    shortdescription text,
+    templatecreated timestamp,
+    templateid bigint,
+    totalpunch int,
+    updated timestamp,
+    xml text,
+    PRIMARY KEY (marketname, promoid)
+) WITH CLUSTERING ORDER BY (promoid ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodofrs.promo_3_0_0_8 (
+    marketname text,
+    promoid bigint,
+    created timestamp,
+    daterangefrom text,
+    daterangethru text,
+    imagepath text,
+    longdescription text,
+    name text,
+    offertype text,
+    promotionparameters text,
+    restaurants text,
+    shortdescription text,
+    templatecreated timestamp,
+    templateid bigint,
+    totalpunch int,
+    xml text,
+    PRIMARY KEY ((marketname, promoid))
+) WITH bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodofrs.reservedoffer_3_2_4 (
+    marketname text,
+    custid int,
+    offerid bigint,
+    created timestamp,
+    currentpunch int,
+    duration int,
+    emailreminderdate timestamp,
+    emailsent boolean,
+    expirationchanged boolean,
+    expirationchangedat timestamp,
+    extendtoeod boolean,
+    imagepath text,
+    lastmodification timeuuid,
+    localvalidfrom timestamp,
+    localvalidthru timestamp,
+    longdescription text,
+    name text,
+    offertypename text,
+    posnumber text,
+    promoid bigint,
+    promotionparameters text,
+    redeemedoverriden boolean,
+    restaurants text,
+    selected boolean,
+    shortdescription text,
+    templateid bigint,
+    totalpunch int,
+    updated timestamp,
+    viewed boolean,
+    xml text,
+    PRIMARY KEY ((marketname, custid), offerid)
+) WITH CLUSTERING ORDER BY (offerid DESC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodofrs.redemptioncode_3_2_1 (
+    marketname text,
+    redemptioncode text,
+    custid text,
+    customertype text,
+    expirationtimeutc timestamp,
+    offerid bigint,
+    PRIMARY KEY ((marketname, redemptioncode))
+) WITH bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodofrs.emailoffercode_3_2_1 (
+    marketname text,
+    checkincode text,
+    creationdatetimeutc timestamp,
+    customertype int,
+    expirationdatetimeutc text,
+    externalid bigint,
+    posnumber text,
+    promoid bigint,
+    redeemoverridden boolean,
+    redemptiondatetimeutc text,
+    PRIMARY KEY ((marketname, checkincode))
+) WITH bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodofrs.auditoffercreatedevent_3_2_1 (
+    marketname text,
+    year int,
+    month int,
+    day int,
+    shard int,
+    offerid bigint,
+    channels text,
+    createdutc timestamp,
+    daterangefromutc timestamp,
+    daterangethruutc timestamp,
+    ecpcustomerid bigint,
+    externalcustomerid text,
+    externalustomertype text,
+    lastmodificationutc timestamp,
+    longdescription text,
+    name text,
+    offertype text,
+    orderdiscount decimal,
+    orderdiscountba decimal,
+    orderdiscounttype text,
+    promotionid bigint,
+    punchesquantity int,
+    redemptioncode text,
+    restaurants text,
+    shortdescription text,
+    templateid bigint,
+    totalpunch int,
+    PRIMARY KEY ((marketname, year, month, day, shard), offerid)
+) WITH CLUSTERING ORDER BY (offerid ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodofrs.ecp_schema_version (
+    mapper_name text PRIMARY KEY,
+    last_updated timestamp,
+    schema_version text,
+    status text
+) WITH bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodofrs.dataextractredeemedemailoffercode_3_2_1 (
+    marketname text,
+    redemptionday text,
+    shardid int,
+    redemptiondatetimeutc timeuuid,
+    checkincode text,
+    creationdatetimeutc timestamp,
+    customertype int,
+    externalid bigint,
+    posnumber text,
+    promoid bigint,
+    redeemoverridden boolean,
+    PRIMARY KEY ((marketname, redemptionday, shardid), redemptiondatetimeutc, checkincode)
+) WITH CLUSTERING ORDER BY (redemptiondatetimeutc ASC, checkincode ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodofrs.revokedpromo_3_2_1 (
+    marketname text,
+    offerpromotionid bigint,
+    PRIMARY KEY (marketname, offerpromotionid)
+) WITH CLUSTERING ORDER BY (offerpromotionid ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodofrs.templates_3_2_0 (
+    marketname text,
+    templateid bigint,
+    templatecreatedutc timestamp,
+    xml text,
+    PRIMARY KEY (marketname, templateid)
+) WITH CLUSTERING ORDER BY (templateid DESC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodofrs.promolist_3_2_0_1 (
+    marketname text,
+    offertype text,
+    promoid bigint,
+    PRIMARY KEY ((marketname, offertype), promoid)
+) WITH CLUSTERING ORDER BY (promoid ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodofrs.promotooffer_3_0_1 (
+    marketname text,
+    promoid bigint,
+    offerid bigint,
+    customerid int,
+    PRIMARY KEY ((marketname, promoid), offerid)
+) WITH CLUSTERING ORDER BY (offerid ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodofrs.newoffer_3_2_10 (
+    marketname text,
+    custid int,
+    offerid bigint,
+    created timestamp,
+    currentpunch int,
+    duration int,
+    emailreminderdate timestamp,
+    emailsent boolean,
+    expirationchanged boolean,
+    expirationchangedat timestamp,
+    extendtoeod boolean,
+    imagepath text,
+    lastmodification timeuuid,
+    localvalidfrom timestamp,
+    localvalidthru timestamp,
+    longdescription text,
+    name text,
+    offertypename text,
+    posnumber text,
+    promoid bigint,
+    promotionparameters text,
+    redeemedoverriden boolean,
+    restaurants text,
+    selected boolean,
+    shortdescription text,
+    templateid bigint,
+    totalpunch int,
+    updated timestamp,
+    viewed boolean,
+    xml text,
+    PRIMARY KEY ((marketname, custid), offerid)
+) WITH CLUSTERING ORDER BY (offerid ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodofrs.emailoffertempcode_3_2_2 (
+    marketname text,
+    externalid bigint,
+    offerid bigint,
+    checkincode text,
+    creationdatetimeutc timestamp,
+    customertype int,
+    promoid bigint,
+    PRIMARY KEY ((marketname, externalid), offerid)
+) WITH CLUSTERING ORDER BY (offerid DESC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodofrs.auditofferevent_3_2_2 (
+    marketname text,
+    year int,
+    month int,
+    day int,
+    event text,
+    eventdateutctimeuuid timeuuid,
+    currentpunch int,
+    ecpcustomerid bigint,
+    externalcustomerid text,
+    offerchangetype text,
+    offerid bigint,
+    promotionid bigint,
+    punchesquantity int,
+    redemptioncode text,
+    redemptiondateutc timestamp,
+    PRIMARY KEY ((marketname, year, month, day, event), eventdateutctimeuuid)
+) WITH CLUSTERING ORDER BY (eventdateutctimeuuid ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodofrs.offerpromolist_3_2_2 (
+    marketname text,
+    offertype text,
+    promoid bigint,
+    daterangefromutc timestamp,
+    daterangethruutc timestamp,
+    PRIMARY KEY ((marketname, offertype), promoid)
+) WITH CLUSTERING ORDER BY (promoid ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodofrs.offerpromo_3_2_10 (
+    marketname text,
+    promoid bigint,
+    channels text,
+    createdutc timestamp,
+    daterangefromutc timestamp,
+    daterangethruutc timestamp,
+    duration int,
+    extendtoeod boolean,
+    imagepath text,
+    languages text,
+    lastmodificationutc timestamp,
+    name text,
+    offertype text,
+    promotionparameters text,
+    restaurants text,
+    templateid bigint,
+    totalpunch int,
+    xml text,
+    PRIMARY KEY ((marketname, promoid))
+) WITH bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+[?1034h
+CREATE KEYSPACE usprodcusord WITH replication = {'class': 'NetworkTopologyStrategy', 'DC1': '3', 'DC1_SPARK': '2'}  AND durable_writes = true;
+
+CREATE TABLE usprodcusord.recentorder_3_2_2 (
+    custid int,
+    created timestamp,
+    data text,
+    displayordernumber text,
+    isfinalized boolean,
+    name text,
+    orderid text,
+    PRIMARY KEY (custid, created)
+) WITH CLUSTERING ORDER BY (created ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodcusord.ecp_schema_version (
+    mapper_name text PRIMARY KEY,
+    last_updated timestamp,
+    schema_version text,
+    status text
+) WITH bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodcusord.orderstatushistory_3_2_0 (
+    market text,
+    ordid text,
+    posnumber text,
+    date timestamp,
+    state text,
+    PRIMARY KEY ((market, ordid), posnumber, date)
+) WITH CLUSTERING ORDER BY (posnumber ASC, date ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodcusord.recentorder (
+    custid int,
+    created timestamp,
+    data text,
+    name text,
+    PRIMARY KEY (custid, created)
+) WITH CLUSTERING ORDER BY (created ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 3600
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodcusord.orderextractstatushistory_3_2_0 (
+    market text,
+    changedatetimeutc timestamp,
+    ordid text,
+    posnumber text,
+    state text,
+    PRIMARY KEY (market, changedatetimeutc)
+) WITH CLUSTERING ORDER BY (changedatetimeutc ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+[?1034h
+CREATE KEYSPACE usprodrp WITH replication = {'class': 'NetworkTopologyStrategy', 'DC1': '3', 'DC1_SPARK': '2'}  AND durable_writes = true;
+
+CREATE TABLE usprodrp.product_3_2_0 (
+    marketid text,
+    posnumber text,
+    seqnumber text,
+    pid int,
+    acceptslight boolean,
+    acceptsonly boolean,
+    canadds text,
+    choices text,
+    cid text,
+    comments text,
+    compositions text,
+    cytingredientgroup text,
+    cytingredienttype text,
+    cytproductcategory text,
+    cytproductdisplayorder text,
+    deliverearlyenabled boolean,
+    dimensions text,
+    displaycategories text,
+    displayimagename text,
+    distributions text,
+    fid text,
+    iscytingredient boolean,
+    iscytproduct boolean,
+    ismccafe boolean,
+    ispromotional boolean,
+    ispromotionalchoice boolean,
+    issalable boolean,
+    issoldout boolean,
+    lastmodification timestamp,
+    loyaltypoints int,
+    maxallowedperorder int,
+    maxextraingredients int,
+    menutypes text,
+    names text,
+    nutritionprimaryproductcode text,
+    nutritions text,
+    prices text,
+    producttype text,
+    productunit text,
+    promotionallabel text,
+    promotionenddate text,
+    promotionsassociated text,
+    promotionsrestriction text,
+    promotionstartdate text,
+    removefrommot boolean,
+    timeofday text,
+    timerestrictions text,
+    PRIMARY KEY ((marketid, posnumber, seqnumber), pid)
+) WITH CLUSTERING ORDER BY (pid ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.LeveledCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.0
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.1
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodrp.product_3_0_4 (
+    marketid text,
+    posnumber text,
+    seqnumber text,
+    pid int,
+    acceptslight boolean,
+    acceptsonly boolean,
+    canadds text,
+    choices text,
+    cid text,
+    comments text,
+    compositions text,
+    dimensions text,
+    displaycategories text,
+    displayimagename text,
+    distributions text,
+    fid text,
+    ismccafe boolean,
+    ispromotional boolean,
+    ispromotionalchoice boolean,
+    issalable boolean,
+    issoldout boolean,
+    lastmodification timestamp,
+    loyaltypoints int,
+    maxallowedperorder int,
+    menutypes text,
+    names text,
+    nutritionprimaryproductcode text,
+    nutritions text,
+    prices text,
+    producttype text,
+    productunit text,
+    promotionallabel text,
+    promotionenddate text,
+    promotionsassociated text,
+    promotionsrestriction text,
+    promotionstartdate text,
+    removefrommot boolean,
+    timeofday text,
+    timerestrictions text,
+    PRIMARY KEY ((marketid, posnumber, seqnumber), pid)
+) WITH CLUSTERING ORDER BY (pid ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.LeveledCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.0
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.1
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodrp.seqimport (
+    marketname text,
+    posnumber text,
+    importtime timestamp,
+    seqnumber text,
+    PRIMARY KEY ((marketname, posnumber), importtime)
+) WITH CLUSTERING ORDER BY (importtime DESC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 3600
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodrp.categoryhash (
+    marketid text,
+    posnumber text,
+    seqnumber text,
+    displaycategoryid int,
+    hash blob,
+    PRIMARY KEY ((marketid, posnumber), seqnumber, displaycategoryid)
+) WITH CLUSTERING ORDER BY (seqnumber ASC, displaycategoryid ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 3600
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodrp.ecp_schema_version (
+    mapper_name text PRIMARY KEY,
+    last_updated timestamp,
+    schema_version text,
+    status text
+) WITH bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodrp.seqactivation_3_0_2 (
+    marketname text,
+    posnumber text,
+    activationtime timestamp,
+    seqnumber text,
+    PRIMARY KEY ((marketname, posnumber), activationtime)
+) WITH CLUSTERING ORDER BY (activationtime DESC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 3600
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodrp.outage_3_0_1 (
+    marketname text,
+    posnumber text,
+    pids text,
+    PRIMARY KEY ((marketname, posnumber))
+) WITH bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'max_threshold': '32', 'min_threshold': '4', 'cold_reads_to_omit': '0.05', 'enabled': 'true', 'unchecked_tombstone_compaction': 'false', 'tombstone_compaction_interval': '86400', 'min_sstable_size': '50', 'tombstone_threshold': '0.2', 'bucket_low': '0.5', 'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy', 'bucket_high': '1.5'}
+    AND compression = {'chunk_length_kb': '64', 'crc_check_chance': '1.0', 'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodrp.outage_3_0_0 (
+    marketname text,
+    posnumber text,
+    pid int,
+    lastmodification timestamp,
+    PRIMARY KEY ((marketname, posnumber), pid)
+) WITH CLUSTERING ORDER BY (pid ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 3600
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodrp.category_3_0_0 (
+    marketid text,
+    seqnumber text,
+    displaycategoryid int,
+    categorydisplayorder int,
+    categoryhours list<text>,
+    color text,
+    displayimagename text,
+    fromtime text,
+    isvalid boolean,
+    lastmodification timestamp,
+    menutypeid int,
+    names map<text, text>,
+    parentdisplaycategoryid int,
+    staticdata list<int>,
+    timeofday text,
+    totime text,
+    PRIMARY KEY ((marketid, seqnumber), displaycategoryid)
+) WITH CLUSTERING ORDER BY (displaycategoryid ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.LeveledCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.0
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 3600
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.1
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodrp.marketrecipe_3_0_0 (
+    marketid text,
+    importtime timestamp,
+    recipeid int,
+    canadds map<int, text>,
+    choices map<int, text>,
+    comments map<int, text>,
+    compositions list<text>,
+    seqnumber text,
+    PRIMARY KEY (marketid, importtime, recipeid)
+) WITH CLUSTERING ORDER BY (importtime DESC, recipeid ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 3600
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodrp.product_3_0_2 (
+    marketid text,
+    posnumber text,
+    seqnumber text,
+    pid int,
+    acceptslight boolean,
+    acceptsonly boolean,
+    canadds text,
+    choices text,
+    cid text,
+    comments text,
+    compositions text,
+    dimensions text,
+    displaycategories text,
+    displayimagename text,
+    distributions text,
+    fid text,
+    ismccafe boolean,
+    ispromotional boolean,
+    ispromotionalchoice boolean,
+    issalable boolean,
+    issoldout boolean,
+    lastmodification timestamp,
+    maxallowedperorder int,
+    menutypes text,
+    names text,
+    nutritions text,
+    prices text,
+    producttype text,
+    productunit text,
+    promotionallabel text,
+    promotionenddate text,
+    promotionsassociated text,
+    promotionsrestriction text,
+    promotionstartdate text,
+    removefrommot boolean,
+    timeofday text,
+    timerestrictions text,
+    PRIMARY KEY ((marketid, posnumber, seqnumber), pid)
+) WITH CLUSTERING ORDER BY (pid ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.LeveledCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.0
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 3600
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.1
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodrp.hash (
+    marketid text,
+    posnumber text,
+    seqnumber text,
+    pid int,
+    names blob,
+    price blob,
+    prod blob,
+    recipe int,
+    rprice blob,
+    PRIMARY KEY ((marketid, posnumber), seqnumber, pid)
+) WITH CLUSTERING ORDER BY (seqnumber ASC, pid ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 3600
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+[?1034h
+CREATE KEYSPACE usprodlog WITH replication = {'class': 'NetworkTopologyStrategy', 'DC1': '3', 'DC1_SPARK': '2'}  AND durable_writes = true;
+
+CREATE TABLE usprodlog.logs_split_factors_3_0_0 (
+    period text PRIMARY KEY,
+    lastadjustment timestamp,
+    split_factor int
+) WITH bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 3600
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodlog.ecp_schema_version (
+    mapper_name text PRIMARY KEY,
+    last_updated timestamp,
+    schema_version text,
+    status text
+) WITH bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodlog.logs_all_3_0_1 (
+    minute text,
+    split int,
+    time timeuuid,
+    apiver text,
+    event_id int,
+    event_name text,
+    level int,
+    machine_name text,
+    payload text,
+    recorded_on bigint,
+    request_id text,
+    service_name text,
+    session_id text,
+    task_name text,
+    PRIMARY KEY ((minute, split), time)
+) WITH CLUSTERING ORDER BY (time DESC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodlog.logs_all_3_0_0 (
+    minute text,
+    split int,
+    time timeuuid,
+    event_id int,
+    event_name text,
+    level int,
+    machine_name text,
+    payload text,
+    recorded_on bigint,
+    request_id text,
+    service_name text,
+    session_id text,
+    task_name text,
+    PRIMARY KEY ((minute, split), time)
+) WITH CLUSTERING ORDER BY (time DESC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 3600
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodlog.logs_index_session_id_3_0_0 (
+    session_id text,
+    time timeuuid,
+    minute text,
+    split int,
+    PRIMARY KEY (session_id, time)
+) WITH CLUSTERING ORDER BY (time DESC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 3600
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodlog.logs_index_request_id_3_0_0 (
+    request_id text,
+    time timeuuid,
+    minute text,
+    split int,
+    PRIMARY KEY (request_id, time)
+) WITH CLUSTERING ORDER BY (time DESC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 3600
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodlog.logs_index_cew_3_0_0 (
+    level int,
+    time timeuuid,
+    minute text,
+    split int,
+    PRIMARY KEY (level, time)
+) WITH CLUSTERING ORDER BY (time DESC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 3600
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodlog.logs_counts_3_0_0 (
+    period text PRIMARY KEY,
+    logcount counter
+) WITH bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 3600
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+[?1034h
+CREATE KEYSPACE usproddof WITH replication = {'class': 'NetworkTopologyStrategy', 'DC1': '3', 'DC1_SPARK': '2'}  AND durable_writes = true;
+
+CREATE TABLE usproddof.scheduled_msg_minutes_3_1_1 (
+    marketname text,
+    day text,
+    minute text,
+    PRIMARY KEY ((marketname, day), minute)
+) WITH CLUSTERING ORDER BY (minute DESC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usproddof.ecp_schema_version (
+    mapper_name text PRIMARY KEY,
+    last_updated timestamp,
+    schema_version text,
+    status text
+) WITH bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usproddof.edm_3_1_0 (
+    marketname text,
+    posnumber text,
+    adjustment int,
+    calculated int,
+    overriden int,
+    PRIMARY KEY (marketname, posnumber)
+) WITH CLUSTERING ORDER BY (posnumber ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 86400
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usproddof.statechanges_3_1_2 (
+    marketname text,
+    posnumber text,
+    timeseq timeuuid,
+    intdetails text,
+    ofcorderkey uuid,
+    state text,
+    statechangejson text,
+    PRIMARY KEY ((marketname, posnumber), timeseq)
+) WITH CLUSTERING ORDER BY (timeseq ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 86400
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usproddof.trackorder_3_1_3 (
+    marketname text,
+    dpid text,
+    changed timestamp,
+    deliveryaddress text,
+    deliverytime timestamp,
+    grosstotal double,
+    haspromotion boolean,
+    islargeorder boolean,
+    orderid text,
+    ordersource text,
+    paymenttype text,
+    posnumber text,
+    state int,
+    storename text,
+    userid text,
+    PRIMARY KEY ((marketname, dpid))
+) WITH bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 86400
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usproddof.ofcohfilter_3_1_0 (
+    market text,
+    posnumber text,
+    bdate text,
+    ofcorderkey uuid,
+    agent text,
+    cfname text,
+    clname text,
+    doid text,
+    onumber text,
+    phone text,
+    rider text,
+    status text,
+    PRIMARY KEY ((market, posnumber), bdate, ofcorderkey)
+) WITH CLUSTERING ORDER BY (bdate ASC, ofcorderkey ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usproddof.ofcorderdata_3_1_3 (
+    ofcorderkey uuid PRIMARY KEY,
+    lastmoddate timestamp,
+    newposid text,
+    orderdatajson text,
+    rider text,
+    status text
+) WITH bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usproddof.riderstatechanges_3_1_1 (
+    marketname text,
+    posnumber text,
+    timeseq timeuuid,
+    riderid uuid,
+    state text,
+    statechangejson text,
+    statechangejsontype text,
+    PRIMARY KEY ((marketname, posnumber), timeseq)
+) WITH CLUSTERING ORDER BY (timeseq ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 86400
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usproddof.statechangesbystatus_3_1_2 (
+    marketname text,
+    timeseq timeuuid,
+    intdetails text,
+    ofcorderkey uuid,
+    posnumber text,
+    state text,
+    statechangejson text,
+    PRIMARY KEY (marketname, timeseq)
+) WITH CLUSTERING ORDER BY (timeseq ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 86400
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usproddof.stopacceptingorders_3_1_0 (
+    marketname text,
+    posnumber text,
+    comment text,
+    setstopacceptingorderstime timestamp,
+    startacceptingorders timestamp,
+    stopacceptingordersisvalid boolean,
+    stopreasoncode text,
+    PRIMARY KEY ((marketname, posnumber))
+) WITH bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usproddof.suspended_msgs_3_1_0 (
+    marketname text,
+    day text,
+    minute text,
+    id uuid,
+    message text,
+    PRIMARY KEY ((marketname, day, minute), id)
+) WITH CLUSTERING ORDER BY (id ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usproddof.trackuserorder_3_1_3 (
+    marketname text,
+    userid text,
+    dpid text,
+    changed timestamp,
+    deliveryaddress text,
+    deliverytime timestamp,
+    grosstotal double,
+    haspromotion boolean,
+    islargeorder boolean,
+    orderid text,
+    ordersource text,
+    paymenttype text,
+    posnumber text,
+    state int,
+    storename text,
+    PRIMARY KEY ((marketname, userid), dpid)
+) WITH CLUSTERING ORDER BY (dpid ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 86400
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+[?1034h
+CREATE KEYSPACE usprodda WITH replication = {'class': 'NetworkTopologyStrategy', 'DC1': '3', 'DC1_SPARK': '2'}  AND durable_writes = true;
+
+CREATE TABLE usprodda.ecp_schema_version (
+    mapper_name text PRIMARY KEY,
+    last_updated timestamp,
+    schema_version text,
+    status text
+) WITH bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodda.digitalfolder_3_0_2 (
+    marketname text,
+    restaurantid text,
+    path text,
+    PRIMARY KEY (marketname, restaurantid, path)
+) WITH CLUSTERING ORDER BY (restaurantid ASC, path ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 3600
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodda.counter_commitlog_1 (
+    marketname text,
+    cachekey text,
+    counter bigint,
+    PRIMARY KEY (marketname, cachekey)
+) WITH CLUSTERING ORDER BY (cachekey ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE usprodda.digitalasset_3_0_2 (
+    marketname text,
+    restaurantid text,
+    virtualpath text,
+    filename text,
+    content blob,
+    filetype text,
+    id uuid,
+    lastupdated timestamp,
+    lastupdatedby text,
+    tags text,
+    PRIMARY KEY (marketname, restaurantid, virtualpath, filename)
+) WITH CLUSTERING ORDER BY (restaurantid ASC, virtualpath ASC, filename ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 3600
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+CREATE INDEX digitalasset_3_0_2_id ON usprodda.digitalasset_3_0_2 (id);
+
+[?1034h
+CREATE KEYSPACE cfs WITH replication = {'class': 'NetworkTopologyStrategy', 'DC1': '3', 'DC1_SPARK': '2'}  AND durable_writes = true;
+
+CREATE TABLE cfs.rules (
+    key text PRIMARY KEY,
+    compression boolean,
+    priority int
+) WITH COMPACT STORAGE
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = 'Stores properties associated with groups of files and directories selected by path patterns'
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = 'NONE';
+
+CREATE TABLE cfs.sblocks (
+    key blob,
+    column1 blob,
+    value blob,
+    PRIMARY KEY (key, column1)
+) WITH COMPACT STORAGE
+    AND CLUSTERING ORDER BY (column1 ASC)
+    AND bloom_filter_fp_chance = 6.8e-05
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = 'Stores blocks of information associated with a inode'
+    AND compaction = {'class': 'com.datastax.bdp.hadoop.cfs.compaction.CFSCompactionStrategy'}
+    AND compression = {}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = 'NONE';
+
+CREATE TABLE cfs.cleanup (
+    key blob,
+    column1 blob,
+    value blob,
+    PRIMARY KEY (key, column1)
+) WITH COMPACT STORAGE
+    AND CLUSTERING ORDER BY (column1 ASC)
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = 'Stores blocks row key to perform a cleanup for when jobs fail'
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = 'NONE';
+
+/*
+Warning: Table cfs.inode omitted because it has constructs not compatible with CQL (was created via legacy API).
+
+Approximate structure, for reference:
+(this should not be used to reproduce this schema)
+*/
+CREATE TABLE cfs.inode (
+    key blob,
+    column1 'org.apache.cassandra.db.marshal.DynamicCompositeType(org.apache.cassandra.db.marshal.BytesType, org.apache.cassandra.db.marshal.UTF8Type, org.apache.cassandra.db.marshal.TimeUUIDType)',
+    "b@706172656e745f70617468" blob,
+    "b@70617468" blob,
+    "b@73656e74696e656c" blob,
+    PRIMARY KEY (key, column1)
+) WITH COMPACT STORAGE
+    AND CLUSTERING ORDER BY (column1 ASC)
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = 'Stores file meta data'
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = 'NONE';
+CREATE INDEX cfs_parent_path ON cfs.inode ("b@706172656e745f70617468");
+CREATE INDEX cfs_path ON cfs.inode ("b@70617468");
+CREATE INDEX cfs_sentinel ON cfs.inode ("b@73656e74696e656c");
+
+
+[?1034h
+CREATE KEYSPACE "HiveMetaStore" WITH replication = {'class': 'NetworkTopologyStrategy', 'DC1': '3', 'DC1_SPARK': '2'}  AND durable_writes = true;
+
+CREATE TABLE "HiveMetaStore"."MetaStore" (
+    key text,
+    entity text,
+    value blob,
+    PRIMARY KEY (key, entity)
+) WITH COMPACT STORAGE
+    AND CLUSTERING ORDER BY (entity ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+[?1034h
+CREATE KEYSPACE system_traces WITH replication = {'class': 'NetworkTopologyStrategy', 'DC1': '3', 'DC1_SPARK': '2'}  AND durable_writes = true;
+
+CREATE TABLE system_traces.events (
+    session_id uuid,
+    event_id timeuuid,
+    activity text,
+    source inet,
+    source_elapsed int,
+    thread text,
+    PRIMARY KEY (session_id, event_id)
+) WITH CLUSTERING ORDER BY (event_id ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.0
+    AND default_time_to_live = 86400
+    AND gc_grace_seconds = 0
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 3600000
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE system_traces.sessions (
+    session_id uuid PRIMARY KEY,
+    coordinator inet,
+    duration int,
+    parameters map<text, text>,
+    request text,
+    started_at timestamp
+) WITH bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = 'traced sessions'
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.0
+    AND default_time_to_live = 86400
+    AND gc_grace_seconds = 0
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 3600000
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+[?1034h
+CREATE KEYSPACE dse_system WITH replication = {'class': 'EverywhereStrategy'}  AND durable_writes = true;
+
+CREATE TABLE dse_system.encrypted_keys (
+    key_file text,
+    cipher text,
+    strength int,
+    key_id timeuuid,
+    key text,
+    PRIMARY KEY (key_file, cipher, strength, key_id)
+) WITH CLUSTERING ORDER BY (cipher ASC, strength ASC, key_id ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE dse_system.leases (
+    lease_id text PRIMARY KEY,
+    duration int,
+    generation bigint,
+    owner uuid,
+    ts timestamp
+) WITH bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE dse_system.spark_1_3_master_recovery (
+    dc text,
+    id text,
+    data blob,
+    PRIMARY KEY (dc, id)
+) WITH CLUSTERING ORDER BY (id ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE dse_system.registered_leaders (
+    army text,
+    datacenter text,
+    candidates map<text, inet>,
+    required text,
+    PRIMARY KEY (army, datacenter)
+) WITH CLUSTERING ORDER BY (datacenter ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE dse_system.real_leaders (
+    army text,
+    datacenter text,
+    address inet,
+    PRIMARY KEY (army, datacenter)
+) WITH CLUSTERING ORDER BY (datacenter ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+[?1034h
+CREATE KEYSPACE dse_perf WITH replication = {'class': 'NetworkTopologyStrategy', 'DC1': '3', 'DC1_SPARK': '2'}  AND durable_writes = true;
+
+CREATE TABLE dse_perf.node_slow_log (
+    node_ip inet,
+    date timestamp,
+    start_time timeuuid,
+    commands list<text>,
+    duration bigint,
+    parameters map<text, text>,
+    source_ip inet,
+    table_names set<text>,
+    username text,
+    PRIMARY KEY ((node_ip, date), start_time)
+) WITH CLUSTERING ORDER BY (start_time DESC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+[?1034h
+CREATE KEYSPACE system WITH replication = {'class': 'LocalStrategy'}  AND durable_writes = true;
+
+CREATE TABLE system.peers (
+    peer inet PRIMARY KEY,
+    data_center text,
+    host_id uuid,
+    preferred_ip inet,
+    rack text,
+    release_version text,
+    rpc_address inet,
+    schema_version uuid,
+    tokens set<text>,
+    workload text
+) WITH bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = 'known peers in the cluster'
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.0
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 0
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 3600000
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE system.range_xfers (
+    token_bytes blob PRIMARY KEY,
+    requested_at timestamp
+) WITH bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = 'ranges requested for transfer here'
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.0
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 0
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 3600000
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE system.schema_keyspaces (
+    keyspace_name text PRIMARY KEY,
+    durable_writes boolean,
+    strategy_class text,
+    strategy_options text
+) WITH COMPACT STORAGE
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = 'keyspace definitions'
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.0
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 604800
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 3600000
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE system.schema_columns (
+    keyspace_name text,
+    columnfamily_name text,
+    column_name text,
+    component_index int,
+    index_name text,
+    index_options text,
+    index_type text,
+    type text,
+    validator text,
+    PRIMARY KEY (keyspace_name, columnfamily_name, column_name)
+) WITH CLUSTERING ORDER BY (columnfamily_name ASC, column_name ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = 'ColumnFamily column attributes'
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.0
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 604800
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 3600000
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE system."IndexInfo" (
+    table_name text,
+    index_name text,
+    "" blob,
+    PRIMARY KEY (table_name, index_name)
+) WITH COMPACT STORAGE
+    AND CLUSTERING ORDER BY (index_name ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = 'indexes that have been completed'
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.0
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 0
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 3600000
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE system.schema_triggers (
+    keyspace_name text,
+    columnfamily_name text,
+    trigger_name text,
+    trigger_options map<text, text>,
+    PRIMARY KEY (keyspace_name, columnfamily_name, trigger_name)
+) WITH CLUSTERING ORDER BY (columnfamily_name ASC, trigger_name ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = 'triggers metadata table'
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.0
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 604800
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 3600000
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE system.sstable_activity (
+    keyspace_name text,
+    columnfamily_name text,
+    generation int,
+    rate_120m double,
+    rate_15m double,
+    PRIMARY KEY ((keyspace_name, columnfamily_name, generation))
+) WITH bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = 'historic sstable read rates'
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.0
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 0
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 3600000
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE system.peer_events (
+    peer inet PRIMARY KEY,
+    hints_dropped map<uuid, int>
+) WITH bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = 'cf contains events related to peers'
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.0
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 0
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 3600000
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE system.schema_usertypes (
+    keyspace_name text,
+    type_name text,
+    field_names list<text>,
+    field_types list<text>,
+    PRIMARY KEY (keyspace_name, type_name)
+) WITH CLUSTERING ORDER BY (type_name ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = 'Defined user types'
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.0
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 604800
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 3600000
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE system.paxos (
+    row_key blob,
+    cf_id uuid,
+    in_progress_ballot timeuuid,
+    most_recent_commit blob,
+    most_recent_commit_at timeuuid,
+    proposal blob,
+    proposal_ballot timeuuid,
+    PRIMARY KEY (row_key, cf_id)
+) WITH CLUSTERING ORDER BY (cf_id ASC)
+    AND bloom_filter_fp_chance = 0.1
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = 'in-progress paxos proposals'
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.LeveledCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.0
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 0
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 3600000
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE system.batchlog (
+    id uuid PRIMARY KEY,
+    data blob,
+    version int,
+    written_at timestamp
+) WITH bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = 'uncommited batches'
+    AND compaction = {'min_threshold': '2', 'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.0
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 0
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 3600000
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE system.size_estimates (
+    keyspace_name text,
+    table_name text,
+    range_start text,
+    range_end text,
+    mean_partition_size bigint,
+    partitions_count bigint,
+    PRIMARY KEY (keyspace_name, table_name, range_start, range_end)
+) WITH CLUSTERING ORDER BY (table_name ASC, range_start ASC, range_end ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = 'per-table primary range size estimates'
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.0
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 0
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 3600000
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE system.compaction_history (
+    id uuid PRIMARY KEY,
+    bytes_in bigint,
+    bytes_out bigint,
+    columnfamily_name text,
+    compacted_at timestamp,
+    keyspace_name text,
+    rows_merged map<int, bigint>
+) WITH bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = 'show all compaction history'
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.0
+    AND default_time_to_live = 604800
+    AND gc_grace_seconds = 0
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 3600000
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE system.compactions_in_progress (
+    id uuid PRIMARY KEY,
+    columnfamily_name text,
+    inputs set<int>,
+    keyspace_name text
+) WITH bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = 'unfinished compactions'
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.0
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 0
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 3600000
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE system.schema_columnfamilies (
+    keyspace_name text,
+    columnfamily_name text,
+    bloom_filter_fp_chance double,
+    caching text,
+    cf_id uuid,
+    column_aliases text,
+    comment text,
+    compaction_strategy_class text,
+    compaction_strategy_options text,
+    comparator text,
+    compression_parameters text,
+    default_time_to_live int,
+    default_validator text,
+    dropped_columns map<text, bigint>,
+    gc_grace_seconds int,
+    index_interval int,
+    is_dense boolean,
+    key_aliases text,
+    key_validator text,
+    local_read_repair_chance double,
+    max_compaction_threshold int,
+    max_index_interval int,
+    memtable_flush_period_in_ms int,
+    min_compaction_threshold int,
+    min_index_interval int,
+    read_repair_chance double,
+    speculative_retry text,
+    subcomparator text,
+    type text,
+    value_alias text,
+    PRIMARY KEY (keyspace_name, columnfamily_name)
+) WITH CLUSTERING ORDER BY (columnfamily_name ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = 'ColumnFamily definitions'
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.0
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 604800
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 3600000
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE system.local (
+    key text PRIMARY KEY,
+    bootstrapped text,
+    broadcast_address inet,
+    cluster_name text,
+    cql_version text,
+    data_center text,
+    dse_version text,
+    gossip_generation int,
+    host_id uuid,
+    listen_address inet,
+    native_protocol_version text,
+    partitioner text,
+    rack text,
+    release_version text,
+    rpc_address inet,
+    schema_version uuid,
+    thrift_version text,
+    tokens set<text>,
+    truncated_at map<uuid, blob>,
+    workload text
+) WITH bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = 'information about the local node'
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.0
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 0
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 3600000
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE system.hints (
+    target_id uuid,
+    hint_id timeuuid,
+    message_version int,
+    mutation blob,
+    PRIMARY KEY (target_id, hint_id, message_version)
+) WITH COMPACT STORAGE
+    AND CLUSTERING ORDER BY (hint_id ASC, message_version ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = 'hints awaiting delivery'
+    AND compaction = {'enabled': 'false', 'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.0
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 0
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 3600000
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+[?1034h
+CREATE KEYSPACE cfs_archive WITH replication = {'class': 'NetworkTopologyStrategy', 'DC1': '3', 'DC1_SPARK': '2'}  AND durable_writes = true;
+
+CREATE TABLE cfs_archive.rules (
+    key text PRIMARY KEY,
+    compression boolean,
+    priority int
+) WITH COMPACT STORAGE
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = 'Stores properties associated with groups of files and directories selected by path patterns'
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = 'NONE';
+
+CREATE TABLE cfs_archive.sblocks (
+    key blob,
+    column1 blob,
+    value blob,
+    PRIMARY KEY (key, column1)
+) WITH COMPACT STORAGE
+    AND CLUSTERING ORDER BY (column1 ASC)
+    AND bloom_filter_fp_chance = 6.8e-05
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = 'Stores blocks of information associated with a inode'
+    AND compaction = {'class': 'com.datastax.bdp.hadoop.cfs.compaction.CFSCompactionStrategy'}
+    AND compression = {}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = 'NONE';
+
+CREATE TABLE cfs_archive.cleanup (
+    key blob,
+    column1 blob,
+    value blob,
+    PRIMARY KEY (key, column1)
+) WITH COMPACT STORAGE
+    AND CLUSTERING ORDER BY (column1 ASC)
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = 'Stores blocks row key to perform a cleanup for when jobs fail'
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = 'NONE';
+
+/*
+Warning: Table cfs_archive.inode omitted because it has constructs not compatible with CQL (was created via legacy API).
+
+Approximate structure, for reference:
+(this should not be used to reproduce this schema)
+*/
+CREATE TABLE cfs_archive.inode (
+    key blob,
+    column1 'org.apache.cassandra.db.marshal.DynamicCompositeType(org.apache.cassandra.db.marshal.BytesType, org.apache.cassandra.db.marshal.UTF8Type, org.apache.cassandra.db.marshal.TimeUUIDType)',
+    "b@706172656e745f70617468" blob,
+    "b@70617468" blob,
+    "b@73656e74696e656c" blob,
+    PRIMARY KEY (key, column1)
+) WITH COMPACT STORAGE
+    AND CLUSTERING ORDER BY (column1 ASC)
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = 'Stores file meta data'
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = 'NONE';
+CREATE INDEX cfs_archive_parent_path ON cfs_archive.inode ("b@706172656e745f70617468");
+CREATE INDEX cfs_archive_path ON cfs_archive.inode ("b@70617468");
+CREATE INDEX cfs_archive_sentinel ON cfs_archive.inode ("b@73656e74696e656c");
+
+
+[?1034h
+CREATE KEYSPACE dse_security WITH replication = {'class': 'NetworkTopologyStrategy', 'DC1': '3', 'DC1_SPARK': '2'}  AND durable_writes = true;
+
+CREATE TABLE dse_security.tokens (
+    key blob,
+    column1 text,
+    value blob,
+    PRIMARY KEY (key, column1)
+) WITH COMPACT STORAGE
+    AND CLUSTERING ORDER BY (column1 ASC)
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = 'Stores delegate tokens meta data'
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 60
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = 'NONE';
+
+[?1034h
+CREATE KEYSPACE "OpsCenter" WITH replication = {'class': 'NetworkTopologyStrategy', 'DC1': '3', 'DC1_SPARK': '2'}  AND durable_writes = true;
+
+CREATE TABLE "OpsCenter".rollup_state (
+    node text,
+    name text,
+    res int,
+    avg float,
+    histogram blob,
+    max float,
+    min float,
+    ts timestamp,
+    type int,
+    value float,
+    weight float,
+    PRIMARY KEY (node, name, res)
+) WITH CLUSTERING ORDER BY (name ASC, res ASC)
+    AND bloom_filter_fp_chance = 0.1
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = '{"version": [5, 2, 1], "info": "OpsCenter management data."}'
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.LeveledCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.0
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 0
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE "OpsCenter".events_timeline (
+    key text,
+    column1 bigint,
+    value blob,
+    PRIMARY KEY (key, column1)
+) WITH COMPACT STORAGE
+    AND CLUSTERING ORDER BY (column1 ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = '{"version": [5, 2, 1], "info": "OpsCenter management data."}'
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.0
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.25
+    AND speculative_retry = 'NONE';
+
+CREATE TABLE "OpsCenter".settings (
+    key blob,
+    column1 blob,
+    value blob,
+    PRIMARY KEY (key, column1)
+) WITH COMPACT STORAGE
+    AND CLUSTERING ORDER BY (column1 ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = '{"version": [5, 2, 1], "info": "OpsCenter management data."}'
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.0
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 1.0
+    AND speculative_retry = 'NONE';
+
+CREATE TABLE "OpsCenter".rollups60 (
+    key text,
+    timestamp varint,
+    value blob,
+    PRIMARY KEY (key, timestamp)
+) WITH COMPACT STORAGE
+    AND CLUSTERING ORDER BY (timestamp ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = '{"version": [5, 2, 1], "info": "OpsCenter management data."}'
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.0
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 0
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.25
+    AND speculative_retry = 'NONE';
+
+CREATE TABLE "OpsCenter".backup_reports (
+    week text,
+    event_time timestamp,
+    backup_id text,
+    type text,
+    destination text,
+    deleted_at timestamp,
+    full_status text,
+    keyspaces text,
+    status text,
+    PRIMARY KEY (week, event_time, backup_id, type, destination)
+) WITH CLUSTERING ORDER BY (event_time DESC, backup_id ASC, type ASC, destination ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = '{"version": [5, 2, 1], "info": "OpsCenter management data."}'
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE "OpsCenter".rollups86400 (
+    key text,
+    timestamp varint,
+    value blob,
+    PRIMARY KEY (key, timestamp)
+) WITH COMPACT STORAGE
+    AND CLUSTERING ORDER BY (timestamp ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = '{"version": [5, 2, 1], "info": "OpsCenter management data."}'
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.0
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 0
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.25
+    AND speculative_retry = 'NONE';
+
+CREATE TABLE "OpsCenter".bestpractice_results (
+    key text,
+    column1 varint,
+    value blob,
+    PRIMARY KEY (key, column1)
+) WITH COMPACT STORAGE
+    AND CLUSTERING ORDER BY (column1 DESC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = '{"version": [5, 2, 1], "info": "OpsCenter management data."}'
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.0
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 0
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.25
+    AND speculative_retry = 'NONE';
+
+CREATE TABLE "OpsCenter".pdps (
+    key text,
+    column1 text,
+    value blob,
+    PRIMARY KEY (key, column1)
+) WITH COMPACT STORAGE
+    AND CLUSTERING ORDER BY (column1 ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = '{"version": [5, 2, 1], "info": "OpsCenter management data."}'
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.0
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 0
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.25
+    AND speculative_retry = 'NONE';
+
+CREATE TABLE "OpsCenter".rollups7200 (
+    key text,
+    timestamp varint,
+    value blob,
+    PRIMARY KEY (key, timestamp)
+) WITH COMPACT STORAGE
+    AND CLUSTERING ORDER BY (timestamp ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = '{"version": [5, 2, 1], "info": "OpsCenter management data."}'
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.0
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 0
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.25
+    AND speculative_retry = 'NONE';
+
+CREATE TABLE "OpsCenter".events (
+    key text PRIMARY KEY,
+    action bigint,
+    api_source_ip text,
+    column_family text,
+    event_source text,
+    "keyspace" text,
+    level bigint,
+    message text,
+    source_node text,
+    success boolean,
+    target_node text,
+    time bigint,
+    user text
+) WITH COMPACT STORAGE
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = '{"version": [5, 2, 1], "info": "OpsCenter management data."}'
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.0
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.25
+    AND speculative_retry = 'NONE';
+
+CREATE TABLE "OpsCenter".rollups300 (
+    key text,
+    timestamp varint,
+    value blob,
+    PRIMARY KEY (key, timestamp)
+) WITH COMPACT STORAGE
+    AND CLUSTERING ORDER BY (timestamp ASC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = '{"version": [5, 2, 1], "info": "OpsCenter management data."}'
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.0
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 0
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.25
+    AND speculative_retry = 'NONE';
+
+CREATE KEYSPACE "TestKS" WITH replication = {'class': 'NetworkTopologyStrategy', 'DC1': '3'}  AND durable_writes = false;
+
+use "TestKS";
+
+CREATE TYPE card_details (
+   num int,
+   pin int,
+   name text,
+   cvv int,
+   phone set<int>
+   );
+  
+CREATE TABLE cyclist_mv (cid UUID PRIMARY KEY, name text, age int, birthday date, country text, card card_details);
+
+CREATE MATERIALIZED VIEW cyclist_by_age 
+AS SELECT age, birthday, name, country 
+	FROM cyclist_mv 
+	WHERE age IS NOT NULL AND cid IS NOT NULL 
+	PRIMARY KEY (age, cid);
+
+CREATE MATERIALIZED VIEW cyclist_by_country 
+AS SELECT age,birthday, name, country, card 
+	FROM cyclist_mv 
+	WHERE country IS NOT NULL AND cid IS NOT NULL
+	PRIMARY KEY (country, cid);
+
+CREATE KEYSPACE "push" WITH replication = {'class': 'NetworkTopologyStrategy', 'DC1': '3'}  AND durable_writes = false;
+
+use "push";
+  
+CREATE TABLE push_device (cid UUID PRIMARY KEY, name text, age int, birthday date, country text);
