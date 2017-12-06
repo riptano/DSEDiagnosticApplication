@@ -297,7 +297,18 @@ namespace DSEDiagnosticLibrary
                                             UnitOfMeasure.ConvertToType(convertToUOMBasedOnContext));
             }
 
-            return removeNamespace ? RemoveNamespace(strValue) : strValue;
+            if(removeNamespace)
+            {
+                if (strValue.EndsWith(".local", StringComparison.OrdinalIgnoreCase)) return strValue;
+
+                var lastPos = strValue.LastIndexOf('.');
+
+                if (lastPos > 0 && (strValue.Length - lastPos) <= 4) return strValue;
+
+                return RemoveNamespace(strValue);
+            }
+
+            return strValue;
         }
 
 

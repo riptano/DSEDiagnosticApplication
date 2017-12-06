@@ -58,6 +58,31 @@ namespace DSEDiagnosticLibrary.Tests
 
             Assert.AreEqual(expected, actual);
 
+            expected = "classname";
+            actual = StringHelpers.DetermineProperObjectFormat("namespaceA.namespaceb.classname");
+
+            Assert.AreEqual(expected, actual);
+
+            expected = "classname";
+            actual = StringHelpers.DetermineProperObjectFormat("classname");
+
+            expected = "class";
+            actual = StringHelpers.DetermineProperObjectFormat("namespaceb.class");
+
+            expected = "clss";
+            actual = StringHelpers.DetermineProperObjectFormat("clss");
+
+            expected = "host.com";
+            actual = StringHelpers.DetermineProperObjectFormat("host.com");
+
+            expected = "host.us";
+            actual = StringHelpers.DetermineProperObjectFormat("host.us");
+
+            expected = "host.local";
+            actual = StringHelpers.DetermineProperObjectFormat("host.local");
+
+            expected = "host.LOCAL";
+            actual = StringHelpers.DetermineProperObjectFormat("host.LOCAL");
         }
 
         [TestMethod()]
