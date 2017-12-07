@@ -30,7 +30,7 @@ namespace DSEDiagnosticLibrary
 		public NodeIdentifier(string hostName)
             : this()
 		{
-			this.HostName = hostName?.Trim();
+			this.HostName = hostName;
 		}
 
 		#region Methods
@@ -68,7 +68,6 @@ namespace DSEDiagnosticLibrary
 
 		public IPAddress AddIPAddress(string strIPAddress)
 		{
-            strIPAddress = strIPAddress?.Trim();
 			if (!string.IsNullOrEmpty(strIPAddress))
 			{
 				IPAddress ipAddress;
@@ -88,9 +87,7 @@ namespace DSEDiagnosticLibrary
 		{
 			IPAddress ipAddress = null;
 
-            strIPAddressOrHostName = strIPAddressOrHostName?.Trim();
-
-            if (!string.IsNullOrEmpty(strIPAddressOrHostName))
+			if (!string.IsNullOrEmpty(strIPAddressOrHostName))
 			{
                 if (tryParseAsIPAddress && IPAddress.TryParse(strIPAddressOrHostName, out ipAddress))
                 {
@@ -196,8 +193,6 @@ namespace DSEDiagnosticLibrary
 
         public static bool ValidNodeIdName(string possibleNodeName)
         {
-            possibleNodeName = possibleNodeName?.Trim();
-
             if (string.IsNullOrEmpty(possibleNodeName)
                      || possibleNodeName == "127.0.0.1"
                      || possibleNodeName == "0.0.0.0"
@@ -227,8 +222,6 @@ namespace DSEDiagnosticLibrary
 		public static NodeIdentifier CreateNodeIdentifer(string possibleNodeName, CreateNodeIdentiferParsingOptions options = CreateNodeIdentiferParsingOptions.IPAddressOrHostNameEmbeddedScan)
         {
             IPAddress ipAddress = null;
-
-            possibleNodeName = possibleNodeName?.Trim();
 
             if (ValidNodeIdName(possibleNodeName))
             {
@@ -289,7 +282,7 @@ namespace DSEDiagnosticLibrary
         /// Thrown is the Id string is not valid
         /// </exception>
         public static NodeIdentifier Create(string strIPAddressOrHostName, bool tryParseAsIPAddress = true)
-        {            
+        {
             if (NodeIdentifier.ValidNodeIdName(strIPAddressOrHostName))
             {
                 var instance = new NodeIdentifier();
@@ -385,9 +378,6 @@ namespace DSEDiagnosticLibrary
         /// <returns></returns>
         public static bool HostNameEqual(string a, string b)
         {
-            a = a?.Trim();
-            b = b?.Trim();
-
             if (string.IsNullOrEmpty(a)) return false;
             if (string.IsNullOrEmpty(b)) return false;
             if (a == b) return true;

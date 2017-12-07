@@ -302,18 +302,16 @@ namespace DSEDiagnosticLibrary
 
         public static Cluster TryGetCluster(string clusterName)
         {
-            if (clusterName == null) return null;
-
             Clusters.Lock();
             try
             {
-                clusterName = StringHelpers.RemoveQuotes(clusterName.Trim());
-                return Clusters.UnSafe.FirstOrDefault(c => c.Name == clusterName);                
+                clusterName = clusterName == null ? null : StringHelpers.RemoveQuotes(clusterName.Trim());
+                return Clusters.UnSafe.FirstOrDefault(c => c.Name == clusterName);
             }
             finally
             {
                 Clusters.UnLock();
-            }            
+            }
         }
 
         public static Cluster TryGetCluster(int clusterHashCode)
@@ -521,7 +519,7 @@ namespace DSEDiagnosticLibrary
                 return dcInstance == null ? Enumerable.Empty<INode>() : dcInstance.Nodes;
             }
 
-            var cluster = TryGetCluster(clusterName) ?? Cluster.GetCurrentOrMaster();            
+            var cluster = TryGetCluster(clusterName);
             var clusterNodes = cluster?.DataCenters?.SelectMany(dc => dc.Nodes);
 
             if(includeUnAssociatedNodes)
@@ -784,7 +782,7 @@ namespace DSEDiagnosticLibrary
 
         public static IDDLStmt TryGetTableIndexViewbyString(string SSTableOrKSItemName, string clusterName, string dcName = null, string defaultKSName = null)
         {
-            var cluster = Cluster.TryGetCluster(clusterName) ?? Cluster.GetCurrentOrMaster();
+            var cluster = Cluster.TryGetCluster(clusterName);
             return TryGetTableIndexViewbyString(SSTableOrKSItemName, cluster, cluster?.TryGetDataCenter(dcName), defaultKSName);
         }
 
@@ -849,7 +847,7 @@ namespace DSEDiagnosticLibrary
 
         public static IEnumerable<IDDLStmt> TryGetTableIndexViewsbyString(string SSTableOrKSItemName, string clusterName, string dcName = null, string defaultKSName = null)
         {
-            var cluster = Cluster.TryGetCluster(clusterName) ?? Cluster.GetCurrentOrMaster();
+            var cluster = Cluster.TryGetCluster(clusterName);
             return TryGetTableIndexViewsbyString(SSTableOrKSItemName, cluster, cluster?.TryGetDataCenter(dcName), defaultKSName);
         }
 

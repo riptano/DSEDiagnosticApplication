@@ -171,14 +171,6 @@
     "ProcessPriorityLevel": 875
   },
   {
-    "Catagory": "SystemOutputFile",
-    "FilePatterns": [ ".\\nodes\\*\\conf\\system\\hosts" ],
-    "FileParsingClass": "DSEDiagnosticFileParser.file_system_hosts",
-    "NodeIdPos": -1,
-    "ProcessingTaskOption": "ScanForNode,ParallelProcessingWithinPriorityLevel",
-    "ProcessPriorityLevel": 875
-  },
-  {
     "Catagory": "ConfigurationFile",
     "FilePatterns": [ ".\\nodes\\*\\*.yaml" ],
     "FileParsingClass": "DSEDiagnosticFileParser.file_yaml",
