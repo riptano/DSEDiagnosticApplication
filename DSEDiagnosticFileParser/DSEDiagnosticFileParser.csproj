@@ -106,6 +106,7 @@
     <Compile Include="file-ntpstat.cs" />
     <Compile Include="file-ntptime.cs" />
     <Compile Include="file-return-collection.cs" />
+    <Compile Include="file-system-hosts.cs" />
     <Compile Include="file-unzip.cs" />
     <Compile Include="file-yaml.cs" />
     <Compile Include="FileMapper.cs" />
