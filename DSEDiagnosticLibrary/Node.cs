@@ -139,6 +139,16 @@ namespace DSEDiagnosticLibrary
                             {
                                 this.HostName = strIPAddressOrHostName;
                             }
+                            else
+                            {
+                                var hostParts = this.HostName.Count(c => c == '.');
+                                var otherParts = strIPAddressOrHostName.Count(c => c == '.');
+
+                                if (otherParts > hostParts)
+                                {
+                                    this.HostName = strIPAddressOrHostName;
+                                }
+                            }
                             this._hostnames.UnSafe.Add(strIPAddressOrHostName);
                         }
                     }

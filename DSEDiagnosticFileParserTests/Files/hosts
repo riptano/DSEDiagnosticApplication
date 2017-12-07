@@ -15,7 +15,7 @@
 # - Cassandra
 10.20.70.82     pmcs-con-cas02  pmcs-con-cas02.mcs.corp.moxiesoft.com
 10.20.70.83     pmcs-con-cas03  pmcs-con-cas03.mcs.corp.moxiesoft.com
-10.20.70.20     pmcs-con-cas04  pmcs-con-cas04.mcs.corp.moxiesoft.com
+10.20.70.20     pmcs-con-cas04  pmcs-con-cas04.mcs.corp.moxiesoft.com node2 node2.mcs.corp.moxiesoft.com
 10.20.70.25     pmcs-con-cas05  pmcs-con-cas05.mcs.corp.moxiesoft.com
 10.20.70.52    pconcasvp01  pconcasvp01.mcs.corp.moxiesoft.com
 #10.20.70.39   prod-con-cass02.mcs.corp.moxiesoft.com prod-con-cass02

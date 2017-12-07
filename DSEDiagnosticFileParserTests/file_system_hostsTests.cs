@@ -97,6 +97,11 @@ namespace DSEDiagnosticFileParser.Tests
             Assert.IsTrue(NodeIdentifier.HostNameEqual("pmcs-con-cas04.mcs.corp.moxiesoft.com", this._node2.Id.HostName));
             Assert.IsTrue(NodeIdentifier.HostNameEqual("pmcs-con-cas04", this._node2.Id.HostName));
 
+            Assert.AreEqual(2, this._node2.Id.HostNames.Count());
+            Assert.IsTrue(this._node2.Id.Equals("node2.mcs.corp.moxiesoft.com"));
+            Assert.IsTrue(this._node2.Id.Equals("node2"));
+            Assert.IsFalse(this._node2.Id.Equals("none"));
+
             parseFile = new file_system_hosts(DiagnosticFile.CatagoryTypes.SystemOutputFile,
                                                    testLogFile.ParentDirectoryPath,
                                                    testLogFile,
