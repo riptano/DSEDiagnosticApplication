@@ -76,6 +76,10 @@ namespace DSEDiagnosticFileParser.Tests
             var nbrLinesParsed = parseFile.ProcessFile();
 
             Assert.AreEqual("pconcasvp01.mcs.corp.moxiesoft.com", this._node1.Id.HostName);
+            Assert.AreEqual(1, this._node1.Id.HostNames.Count());
+            Assert.IsTrue(this._node1.Id.Equals("pconcasvp01.mcs.corp.moxiesoft.com"));
+            Assert.IsTrue(this._node1.Id.Equals("pconcasvp01"));
+            Assert.IsFalse(this._node1.Id.Equals("none"));
             Assert.AreEqual(NodeName1, this._node1.Id.NodeName());
             Assert.IsTrue(NodeIdentifier.HostNameEqual("pconcasvp01.mcs.corp.moxiesoft.com", this._node1.Id.HostName));
             Assert.IsTrue(NodeIdentifier.HostNameEqual("pconcasvp01", this._node1.Id.HostName));

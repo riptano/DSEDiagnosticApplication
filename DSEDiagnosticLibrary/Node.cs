@@ -22,16 +22,20 @@ namespace DSEDiagnosticLibrary
 		private NodeIdentifier()
 		{
 			this._addresses = new System.Collections.Concurrent.ConcurrentBag<IPAddress>();
+            this._hostnames = new CTS.List<string>();
 		}
 		public NodeIdentifier(IPAddress ipAddress)
+            : this()
 		{
-			this._addresses = new System.Collections.Concurrent.ConcurrentBag<IPAddress>() { ipAddress };
-		}
-		public NodeIdentifier(string hostName)
+            if (ipAddress != null) this._addresses.Add(ipAddress);
+        }
+		public NodeIdentifier(string hostName) 
             : this()
 		{
 			this.HostName = hostName?.Trim();
-		}
+            if (this.HostName == string.Empty) this.HostName = null;
+            if (this.HostName != null) this._hostnames.Add(this.HostName);
+        }
 
 		#region Methods
 		public IPAddress AddIPAddress(IPAddress ipAddress)
@@ -109,20 +113,40 @@ namespace DSEDiagnosticLibrary
                 }
                 else
                 {
-                    if (string.IsNullOrEmpty(this.HostName))
+                    bool isLocked = false;
+                    this._hostnames.Lock(ref isLocked);
+                    try
                     {
-                        this.HostName = strIPAddressOrHostName;
-                    }
-                    else if(NodeIdentifier.HostNameEqual(this.HostName, strIPAddressOrHostName))
-                    {
-                        var hostParts = this.HostName.Count(c => c == '.');
-                        var otherParts = strIPAddressOrHostName.Count(c => c == '.');
+                        var hostPos = this._hostnames.UnSafe.FindIndex(n => HostNameEqual(n, strIPAddressOrHostName));
 
-                        if(otherParts > hostParts)
+                        if (hostPos >= 0)
                         {
-                            this.HostName = strIPAddressOrHostName;
+                            var hostParts = this._hostnames.UnSafe[hostPos].Count(c => c == '.');
+                            var otherParts = strIPAddressOrHostName.Count(c => c == '.');
+
+                            if (otherParts > hostParts)
+                            {
+                                if(this.HostName == this._hostnames.UnSafe[hostPos])
+                                {
+                                    this.HostName = strIPAddressOrHostName;
+                                }
+                                this._hostnames.UnSafe[hostPos] = strIPAddressOrHostName;                                
+                            }
+                        }
+                        else
+                        {
+                            if (string.IsNullOrEmpty(this.HostName))
+                            {
+                                this.HostName = strIPAddressOrHostName;
+                            }
+                            this._hostnames.UnSafe.Add(strIPAddressOrHostName);
                         }
                     }
+                    finally
+                    {
+                        if (isLocked) this._hostnames.UnLock();
+                    }
+                    
                 }
 			}
 
@@ -318,7 +342,23 @@ namespace DSEDiagnosticLibrary
 
         #endregion
 
-        public string HostName { get; set; }
+        [JsonProperty(PropertyName = "HostNames")]
+        private IEnumerable<string> datamemberHostNames
+        {
+            get { return this._hostnames; }
+            set
+            {
+                this._hostnames = value == null
+                     ? null
+                     : new Common.Patterns.Collections.ThreadSafe.List<string>(value);
+            }
+        }
+        private Common.Patterns.Collections.ThreadSafe.List<string> _hostnames { get; set; }
+       
+        public string HostName { get; private set; }
+        [JsonIgnore]
+        public IEnumerable<string> HostNames { get { return this._hostnames; } }
+
         [JsonProperty(PropertyName= "Addresses")]
         private IEnumerable<string> datamemberAddresses
         {
@@ -365,7 +405,7 @@ namespace DSEDiagnosticLibrary
 
 		public bool Equals(string other)
 		{
-            if (HostNameEqual(this.HostName, other)) return true;
+            if (this._hostnames.Any(n => HostNameEqual(n, other))) return true;
 
 			IPAddress address;
 
@@ -432,7 +472,7 @@ namespace DSEDiagnosticLibrary
             var newId = new NodeIdentifier();
 
             newId.HostName = this.HostName;
-
+            this._hostnames.ForEach(n => newId._hostnames.Add(n));
             this._addresses.ForEach(a => newId._addresses.Add(a));
             newId._hashCode = this._hashCode;
 
