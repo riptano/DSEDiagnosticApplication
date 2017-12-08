@@ -324,11 +324,20 @@ namespace DSEDiagnosticLibrary
 
                 if (node == null)
                 {
-                    node = Cluster.FindNodeInUnAssocaitedNodes(nodeId);
+                    node = Cluster.MasterCluster.TryGetNode(nodeId);
 
                     if (node == null)
                     {
-                        node = new Node(this, nodeId);
+                        node = Cluster.FindNodeInUnAssocaitedNodes(nodeId);
+
+                        if (node == null)
+                        {
+                            node = new Node(this, nodeId);
+                        }
+                        else
+                        {
+                            ((Node)node).SetNodeToDataCenter(this);
+                        }
                     }
                     else
                     {
@@ -355,14 +364,23 @@ namespace DSEDiagnosticLibrary
             try
             {
                 var node = this._nodes.UnSafe.FirstOrDefault(n => n.Equals(nodeId));
-
+                
                 if (node == null)
                 {
-                    node = Cluster.FindNodeInUnAssocaitedNodes(nodeId);
+                    node = Cluster.MasterCluster.TryGetNode(nodeId);
 
                     if (node == null)
                     {
-                        node = new Node(this, nodeId);
+                        node = Cluster.FindNodeInUnAssocaitedNodes(nodeId);
+
+                        if (node == null)
+                        {
+                            node = new Node(this, nodeId);
+                        }
+                        else
+                        {
+                            ((Node)node).SetNodeToDataCenter(this);
+                        }
                     }
                     else
                     {
@@ -418,7 +436,7 @@ namespace DSEDiagnosticLibrary
 
 			return this;
 		}
-
+        
         override public IEnumerable<IConfigurationLine> GetConfigurations(INode node)
         {
             lock (this._configurations) { return this._configurations.Where(c => ((YamlConfigurationLine)c).Node.Equals(node)); }
@@ -451,6 +469,7 @@ namespace DSEDiagnosticLibrary
                     if (!ReferenceEquals(this.Cluster, newCluster))
                     {
                         this.Cluster = newCluster;
+                        this._nodes.ForEach(n => ((Node)n).SetCluster(newCluster));
                     }
                 }
             }

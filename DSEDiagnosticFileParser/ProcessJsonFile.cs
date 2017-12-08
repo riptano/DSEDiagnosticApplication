@@ -35,7 +35,22 @@ namespace DSEDiagnosticFileParser
             {
                 this.CancellationToken.ThrowIfCancellationRequested();
 
-                jsonObject = (JObject)JToken.ReadFrom(reader);
+                try
+                {
+                    jsonObject = (JObject)JToken.ReadFrom(reader);
+                }
+                catch(System.Exception ex)
+                {
+                    DSEDiagnosticLogger.Logger.Instance.Error(string.Format("FileMapper<{2}>\t{0}\t{1}\tJSON Parsing Exception for File Class \"{3}\"",
+                                                                                this.Node,
+                                                                                this.File.PathResolved,                                                                                
+                                                                                this.MapperId,
+                                                                                this.GetType().Name),
+                                                                ex);
+                    this.Exception = ex;
+                    this.NbrErrors += 1;
+                    jsonObject = null;
+                }
             }
 
             return jsonObject == null ? 0 : this.ProcessJSON(jsonObject);

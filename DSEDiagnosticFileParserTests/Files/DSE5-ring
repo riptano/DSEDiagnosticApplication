@@ -1,0 +1,26 @@
+Address          DC                   Rack         Workload             Graph  Status  State    Load             Owns                 VNodes                                       Health [0,1] 
+10.146.117.100   ashburn              rack1        Analytics(TT)        no     Up      Normal   148.06 GB        ?                    256                                          0.50         
+10.146.117.101   ashburn              rack1        Analytics(TT)        no     Up      Normal   157.62 GB        ?                    256                                          0.50         
+10.146.117.102   ashburn              rack1        Analytics(TT)        no     Up      Normal   153.98 GB        ?                    256                                          0.40         
+10.146.117.103   ashburn              rack1        Analytics(TT)        no     Up      Normal   174.49 GB        ?                    256                                          0.40         
+10.146.117.104   ashburn              rack1        Analytics(TT)        no     Up      Normal   164.54 GB        ?                    256                                          0.40         
+10.146.117.93    ashburn              rack1        Analytics(TT)        no     Up      Normal   169.31 GB        ?                    256                                          0.50         
+10.146.117.94    ashburn              rack1        Analytics(JT)        no     Up      Normal   149.09 GB        ?                    256                                          0.50         
+10.146.117.95    ashburn              rack1        Analytics(TT)        no     Up      Normal   163.7 GB         ?                    256                                          0.10         
+10.146.117.96    ashburn              rack1        Analytics(TT)        no     Up      Normal   156.31 GB        ?                    256                                          0.50         
+10.146.117.97    ashburn              rack1        Analytics(TT)        no     Up      Normal   157.8 GB         ?                    256                                          0.50         
+10.146.117.98    ashburn              rack1        Analytics(TT)        no     Up      Normal   158.73 GB        ?                    256                                          0.50         
+10.146.117.99    ashburn              rack1        Analytics(TT)        no     Up      Normal   159.45 GB        ?                    256                                          0.50         
+172.27.205.228   hillsboro            rack1        Cassandra	        no     Up      Normal   158.99 GB        ?                    256                                          0.40         
+172.27.205.229   hillsboro            rack1        Cassandra	        no     Up      Normal   176.85 GB        ?                    256                                          0.40         
+172.27.205.230   hillsboro            rack1        Cassandra	        no     Up      Normal   159.36 GB        ?                    256                                          0.30         
+172.27.205.231   hillsboro            rack1        Cassandra		no     Up      Normal   170.76 GB        ?                    256                                          0.30         
+172.27.205.232   hillsboro            rack1        Cassandra	        no     Up      Normal   170.86 GB        ?                    256                                          0.30         
+172.27.205.233   hillsboro            rack1        Cassandra	        no     Up      Normal   168.91 GB        ?                    256                                          0.30         
+172.27.205.234   hillsboro            rack1        Cassandra	        no     Up      Normal   171.3 GB         ?                    256                                          0.20         
+172.27.205.235   hillsboro            rack1        Cassandra	        no     Up      Normal   155.14 GB        ?                    256                                          0.20         
+172.27.205.236   hillsboro            rack1        Cassandra	        no     Up      Normal   175.85 GB        ?                    256                                          0.20         
+172.27.205.237   hillsboro            rack1        Cassandra	        no     Up      Normal   144.08 GB        ?                    256                                          0.20         
+172.27.205.238   hillsboro            rack1        Cassandra	        no     Up      Normal   165.23 GB        ?                    256                                          0.10         
+172.27.205.239   hillsboro            rack1        Cassandra	        no     Up      Normal   147.98 GB        ?                    256                                          0.10         
+Note: you must specify a keyspace to get ownership information.

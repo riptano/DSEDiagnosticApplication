@@ -360,8 +360,16 @@ namespace DSEDiagnosticFileParser
                     }
                     else
                     {
-                        Logger.Instance.ErrorFormat("FileMapper<{4}>\t{0}\t{1}\tInvalid configuration line \"{2}\" at line position {3}.", this.Node.Id, this.File, multipleLine, this.NbrItemsParsed, this.MapperId);
-                        ++this.NbrErrors;
+                        if (this.Source == SourceTypes.EnvFile)
+                        {
+                            cmdPathValueList.Add(GenerateCmdValuePair(string.Format("Line[{0}]", this.NbrItemsParsed),
+                                                                        multipleLine.ToString()));
+                        }
+                        else
+                        {
+                            Logger.Instance.ErrorFormat("FileMapper<{4}>\t{0}\t{1}\tInvalid configuration line \"{2}\" at line position {3}.", this.Node.Id, this.File, multipleLine, this.NbrItemsParsed, this.MapperId);
+                            ++this.NbrErrors;
+                        }
                         multipleLine = null;
                     }
                 }
@@ -455,8 +463,16 @@ namespace DSEDiagnosticFileParser
                 //lineSplit is more than two elements... assume command/value pair....
                 if(lineSplit.Length > 2)
                 {
-                    Logger.Instance.ErrorFormat("FileMapper<{4}>\t{0}\t{1}\tInvalid configuration line \"{2}\" at line position {3}.", this.Node.Id, this.File, line, this.NbrItemsParsed, this.MapperId);
-                    ++this.NbrErrors;
+                    if (this.Source == SourceTypes.EnvFile)
+                    {
+                        cmdPathValueList.Add(GenerateCmdValuePair(string.Format("Line[{0}]", this.NbrItemsParsed),
+                                                                    line));
+                    }
+                    else
+                    {
+                        Logger.Instance.ErrorFormat("FileMapper<{4}>\t{0}\t{1}\tInvalid configuration line \"{2}\" at line position {3}.", this.Node.Id, this.File, line, this.NbrItemsParsed, this.MapperId);
+                        ++this.NbrErrors;
+                    }
                     continue;
                 }
 

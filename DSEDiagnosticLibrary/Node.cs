@@ -390,14 +390,10 @@ namespace DSEDiagnosticLibrary
             if (ReferenceEquals(other, null)) return false;
 
             if (ReferenceEquals(this, other)) return true;
+			
+            if (this._addresses.Contains(other._addresses)) return true;
 
-			if(HostNameEqual(this.HostName, other.HostName)) return true;
-
-			if(this._addresses != null
-					&& other._addresses != null)
-			{
-				return this._addresses.Contains(other._addresses);
-			}
+            if (this._hostnames.Any(other._hostnames, (x, y) => HostNameEqual(x, y))) return true;
 
 			return false;
 		}
@@ -1138,37 +1134,29 @@ namespace DSEDiagnosticLibrary
 			}
 
 			if(this.DataCenter == null)
-			{
-				//lock(this._events)
-				//lock(this._configurations)
-				//lock(this._ddls)
-				//{
-				//	this._events.ForEach(item => ((DataCenter)dataCenter).AssociateItem(item));
-				//	this._configurations.ForEach(item => ((DataCenter)dataCenter).AssociateItem(item));
-				//	this._ddls.ForEach(item => ((DataCenter)dataCenter).AssociateItem(item));
-
-				//	this.DataCenter = dataCenter;
-				//}
-
+			{				
                 lock(this)
                 {
                     if(this.DataCenter == null)
                     {
-                        this.DataCenter = dataCenter;
+                        this.DataCenter = dataCenter;                        
+                        this._hashcode = 0;
                     }
                 }
 			}
 
-			if(this.DataCenter.Equals(dataCenter))
+			if(ReferenceEquals(this.DataCenter, dataCenter))
 			{
-				return this.DataCenter;
+                Cluster.RemoveNodeFromUnAssociatedList(this.Id);
+                this._defaultCluster = null;
+                return this.DataCenter;
 			}
 
 			throw new ArgumentOutOfRangeException("dataCenter",
 													string.Format("Node \"{0}\" has an existing DataCenter of \"{1}\". Trying to set it to DataCenter \"{2}\". This is not allowed once a datacenter is set.",
 																	this.Id,
 																	this.DataCenter.Name,
-																	dataCenter?.Name));
+																	dataCenter.Name));
 		}
 
         internal Cluster SetCluster(Cluster associateCluster)
@@ -1180,6 +1168,7 @@ namespace DSEDiagnosticLibrary
                     if (this._defaultCluster != null && !ReferenceEquals(this._defaultCluster, associateCluster))
                     {
                         this._defaultCluster = associateCluster;
+                        this._hashcode = 0;
                     }
                 }
             }

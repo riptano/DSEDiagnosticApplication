@@ -150,12 +150,12 @@ namespace DSEDiagnosticConsoleApplication
             foreach (var item in eventArgs.LogInfo.LoggingEvents)
             {
                 if(item.Level == log4net.Core.Level.Error || item.Level == log4net.Core.Level.Fatal)
-                {
-                    ConsoleErrors.Increment(string.Format(@"Log: {0:yyyy-MM-dd\ HH\:mm\:ss.fff}", item.TimeStamp));
+                {                    
+                    ConsoleErrors?.Increment(string.Format(@"Log: {0:yyyy-MM-dd\ HH\:mm\:ss.fff}", item.TimeStamp));
                 }
                 else if(item.Level == log4net.Core.Level.Warn)
                 {
-                    ConsoleWarnings.Increment(string.Format(@"Log: {0:yyyy-MM-dd\ HH\:mm\:ss.fff}", item.TimeStamp));
+                    ConsoleWarnings?.Increment(string.Format(@"Log: {0:yyyy-MM-dd\ HH\:mm\:ss.fff}", item.TimeStamp));
                 }
 
             }

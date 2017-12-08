@@ -82,6 +82,7 @@
   </Choose>
   <ItemGroup>
     <Compile Include="file_cassandra_log4netTests.cs" />
+    <Compile Include="file_dsetool_ringTests.cs" />
     <Compile Include="file_system_hostsTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -95,6 +96,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="DDL\describe_schema">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Files\DSE5-ring">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="LogFiles\CompactionFlush.log">

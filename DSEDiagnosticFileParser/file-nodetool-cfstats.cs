@@ -189,7 +189,7 @@ namespace DSEDiagnosticFileParser
                     var keyspaceNotInDC = false;
                     var ksName = splitValue[1].Trim();
                     skipSection = false;
-                    currentKeyspace = this.Node.DataCenter.TryGetKeyspace(ksName);
+                    currentKeyspace = this.Node.DataCenter?.TryGetKeyspace(ksName);
 
                     if(currentKeyspace == null)
                     {
@@ -198,6 +198,7 @@ namespace DSEDiagnosticFileParser
                                                 .GetKeyspaces(ksName)
                                                 .FirstOrDefault(k => k.EverywhereStrategy
                                                                         || k.LocalStrategy
+                                                                        || this.Node.DataCenter == null
                                                                         || k.Replications.Any(r => r.DataCenter.Name == this.Node.DataCenter.Name));
 
                         if(currentKeyspace == null)
@@ -211,7 +212,7 @@ namespace DSEDiagnosticFileParser
                                                             this.Node,
                                                             this.File.PathResolved,
                                                             ksName,
-                                                            this.Node.DataCenter.Name,
+                                                            this.Node.DataCenter?.Name ?? "<NoDC>",
                                                             string.Join(",", currentKeyspace.DataCenters.Select(dc => dc.Name)));
                                 ++this.NbrWarnings;
                                 this._unknownDDLs.Add(string.Format("{0} (KS Not Fnd in DC {1})", ksName, this.Node.DataCenter.Name));
@@ -225,8 +226,8 @@ namespace DSEDiagnosticFileParser
                                                         this.Node,
                                                         this.File.PathResolved,
                                                         ksName,
-                                                        this.Node.DataCenter.Name,
-                                                        this.Node.Cluster?.Name);
+                                                        this.Node.DataCenter?.Name ?? "<NoDC>",
+                                                        this.Node.Cluster.Name);
                         }
                     }
 
@@ -237,7 +238,7 @@ namespace DSEDiagnosticFileParser
                                                     this.Node,
                                                     this.File.PathResolved,
                                                     ksName,
-                                                    this.Node.DataCenter.Name);
+                                                    this.Node.DataCenter?.Name ?? "<NoDC>");
                         ++this.NbrWarnings;
                         this._unknownDDLs.Add(ksName);
                         skipSection = true;
