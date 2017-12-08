@@ -225,18 +225,13 @@ namespace DSEDiagnosticLibrary
 
             if (!ignoreBraces)
             {
-                if (strValue[0] == '{')
+                if (strValue[0] == '{' && strValue[strValue.Length - 1] == '}')
                 {
-                    strValue = strValue.Substring(1);
+                    strValue = strValue.Substring(1, strValue.Length - 2);                    
                 }
-                if (strValue[strValue.Length - 1] == '}')
-                {
-                    strValue = strValue.Substring(0, strValue.Length - 1);
-                }
-
 
                 if (strValue[0] == '['
-                    && (strValue[strValue.Length - 1] == ']'))
+                    && strValue[strValue.Length - 1] == ']')
                 {
                     strValue = strValue.Substring(1, strValue.Length - 2);
 
@@ -483,6 +478,7 @@ namespace DSEDiagnosticLibrary
         {
             JSON = 0,
             Long = 1,
+            Decimal = 2,
             DDLStmt = 4,
             Keyspace = 5,
             Node = 6,
@@ -508,10 +504,18 @@ namespace DSEDiagnosticLibrary
 
             if (value.GetType().IsValueType)
             {
-                if(value.IsNumber())
+                if (value.IsNumber())
                 {
-                    writeElement.StoreValue((int)MMElementType.Long);
-                    writeElement.StoreValue((long) ((dynamic)value));
+                    if (value is decimal || value is Double || value is float)
+                    {
+                        writeElement.StoreValue((int)MMElementType.Decimal);
+                        writeElement.StoreValue((decimal)((dynamic)value));
+                    }
+                    else
+                    {
+                        writeElement.StoreValue((int)MMElementType.Long);
+                        writeElement.StoreValue((long)((dynamic)value));
+                    }
                 }
                 else if(value is UnitOfMeasure)
                 {
@@ -655,6 +659,9 @@ namespace DSEDiagnosticLibrary
                 case MMElementType.Long:
                     value = readElement.GetLongValue();
                     break;
+                case MMElementType.Decimal:
+                    value = readElement.GetDecimalValue();
+                    break;
                 case MMElementType.UnitOfMeasure:
                     value = readElement.GetMMUOM();
                     break;
@@ -750,6 +757,9 @@ namespace DSEDiagnosticLibrary
             {
                 case MMElementType.Long:
                     readElement.SkipLong();
+                    break;
+                case MMElementType.Decimal:
+                    readElement.SkipDecimal();
                     break;
                 case MMElementType.UnitOfMeasure:
                     readElement.SkipMMUOM();

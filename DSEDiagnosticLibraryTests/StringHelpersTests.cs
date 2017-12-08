@@ -66,23 +66,48 @@ namespace DSEDiagnosticLibrary.Tests
             expected = "classname";
             actual = StringHelpers.DetermineProperObjectFormat("classname");
 
+            Assert.AreEqual(expected, actual);
+
             expected = "class";
             actual = StringHelpers.DetermineProperObjectFormat("namespaceb.class");
 
+            Assert.AreEqual(expected, actual);
+
             expected = "clss";
             actual = StringHelpers.DetermineProperObjectFormat("clss");
+            Assert.AreEqual(expected, actual);
 
             expected = "host.com";
             actual = StringHelpers.DetermineProperObjectFormat("host.com");
+            Assert.AreEqual(expected, actual);
 
             expected = "host.us";
             actual = StringHelpers.DetermineProperObjectFormat("host.us");
+            Assert.AreEqual(expected, actual);
 
             expected = "host.local";
             actual = StringHelpers.DetermineProperObjectFormat("host.local");
+            Assert.AreEqual(expected, actual);
 
             expected = "host.LOCAL";
             actual = StringHelpers.DetermineProperObjectFormat("host.LOCAL");
+            Assert.AreEqual(expected, actual);
+
+            expected = (decimal) 0.1;
+            actual = StringHelpers.DetermineProperObjectFormat("0.1");
+            Assert.AreEqual(expected, actual);
+
+            expected = "org.apache.cassandra.locator.SimpleSeedProvider{seeds=192.168.247.69}";
+            actual = StringHelpers.DetermineProperObjectFormat((string) expected, false, false);
+            Assert.AreEqual(expected, actual);
+
+            expected = "org.apache.cassandra.locator.SimpleSeedProvider{seeds=192.168.247.69}";
+            actual = StringHelpers.DetermineProperObjectFormat("{org.apache.cassandra.locator.SimpleSeedProvider{seeds=192.168.247.69}}");
+            Assert.AreEqual(expected, actual);
+
+            expected = "[1, 10.0.1.1, 2, 5, class]";
+            actual = StringHelpers.DetermineProperObjectFormat("[1, 2, a.b.class, 10.0.1.1, 5]");
+            Assert.AreEqual(expected, actual);
         }
 
         [TestMethod()]
