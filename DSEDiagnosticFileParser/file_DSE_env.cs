@@ -21,7 +21,7 @@ namespace DSEDiagnosticFileParser
                                 Version targetDSEVersion)
             : base(catagory, diagnosticDirectory, file, node, defaultClusterName, defaultDCName, targetDSEVersion)
         {
-            this.SplitLineDelimiter = '=';
+            this.SplitLineDelimiter = '=';            
         }
 
         [JsonIgnore]

@@ -1,0 +1,117 @@
+spark_cluster_info_options: {enabled: false, refresh_rate_ms: 10000}
+system_info_encryption: {enabled: false, cipher_algorithm: AES, secret_key_strength: 128,
+  chunk_length_kb: 64, key_name: system_table_keytab}
+authentication_options:
+  enabled: false
+  default_scheme: kerberos
+  other_schemes: [internal]
+  scheme_permissions: true
+  allow_digest_with_kerberos: true
+  plain_text_without_ssl: warn
+  transitional_mode: disabled
+spark_security_enabled: false
+config_encryption_active: false
+histogram_data_options: {enabled: 'true', refresh_rate_ms: '10000', retention_count: '3'}
+config_encryption_key_name: system_key
+hive_meta_store_enabled: true
+resource_level_latency_tracking_options: {enabled: 'false', refresh_rate_ms: '10000'}
+spark_application_info_options:
+  enabled: false
+  refresh_rate_ms: 10000
+  driver: {sink: false, connectorSource: false, jvmSource: false, stateSource: false}
+  executor: {sink: false, connectorSource: false, jvmSource: false}
+graph:
+  analytic_evaluation_timeout: PT168H
+  max_query_queue: 10000
+  realtime_evaluation_timeout: 30 sec
+  schema_agreement_timeout: 10 sec
+  system_evaluation_timeout: PT3M
+  window_size: 100000
+  ids: {block_renew: 0.8, community_reuse: 28, id_hash_modulus: 20, member_block_size: 512}
+  listener: null
+  msg: {graph_msg_timeout: 5 sec}
+  observer: null
+  shared_data: {refresh_interval: PT1M}
+  gremlin_server:
+    maxContentLength: 65536000
+    maxChunkSize: 4096000
+    port: 8182
+    serializers:
+    - className: org.apache.tinkerpop.gremlin.driver.ser.GryoMessageSerializerV1d0
+      config:
+        ioRegistries: [org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerIoRegistry]
+        classResolverSupplier: com.datastax.bdp.graph.impl.tinkerpop.io.DseClassResolverProvider
+    - className: org.apache.tinkerpop.gremlin.driver.ser.GryoLiteMessageSerializerV1d0
+      config:
+        ioRegistries: [org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerIoRegistry]
+        classResolverSupplier: com.datastax.bdp.graph.impl.tinkerpop.io.DseClassResolverProvider
+    - className: org.apache.tinkerpop.gremlin.driver.ser.GryoMessageSerializerV1d0
+      config: {serializeResultToString: true}
+    - className: org.apache.tinkerpop.gremlin.driver.ser.GraphSONMessageSerializerGremlinV1d0
+      config:
+        ioRegistries: [org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerIoRegistry]
+    - className: org.apache.tinkerpop.gremlin.driver.ser.GraphSONMessageSerializerV1d0
+      config:
+        ioRegistries: [org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerIoRegistry]
+    scriptEngines:
+      gremlin-groovy:
+        config:
+          compilerCustomizerProviders:
+            org.apache.tinkerpop.gremlin.groovy.jsr223.customizer.ThreadInterruptCustomizerProvider: []
+            org.apache.tinkerpop.gremlin.groovy.jsr223.customizer.InterpreterModeCustomizerProvider: []
+  schema_mode: Production
+kerberos_options: {keytab: resources/dse/conf/dse.keytab, service_principal: dse/_HOST@REALM,
+  http_principal: HTTP/_HOST@REALM, qop: auth}
+user_level_latency_tracking_options: {enabled: 'false', refresh_rate_ms: '10000',
+  top_stats_limit: '100', async_writers: '1', backpressure_threshold: '1000', flush_timeout_ms: '1000',
+  quantiles: 'false'}
+dsefs_options:
+  enabled: false
+  keyspace_name: dsefs
+  work_dir: /var/lib/dsefs
+  public_port: 5598
+  private_port: 5599
+  data_directories:
+  - {dir: /var/lib/dsefs/data, storage_weight: 1.0, min_free_space: 5368709120}
+solr_request_handler_metrics_options: {enabled: 'false', ttl_seconds: '604800', refresh_rate_ms: '60000'}
+spark_shared_secret_bit_length: 256
+internode_messaging_options: {port: 8609}
+hive_options: {insert_max_retries: 6, insert_retry_sleep_period: 50}
+performance_max_threads: '32'
+initial_spark_worker_resources: 0.4
+enable_health_based_routing: true
+lease_metrics_options: {enabled: false, ttl_seconds: 604800}
+node_health_options: {refresh_rate_ms: 60000, uptime_ramp_up_period_seconds: 86400,
+  dropped_mutation_window_minutes: 30}
+solr_encryption_options: null
+spark_encryption_options: {enabled: false, keystore: .keystore, keystore_password: cassandra,
+  key_password: cassandra, truststore: .truststore, truststore_password: cassandra}
+solr_latency_snapshot_options: {enabled: 'false', ttl_seconds: '604800', refresh_rate_ms: '60000'}
+db_summary_stats_options: {enabled: 'false', refresh_rate_ms: '10000'}
+solr_cache_stats_options: {enabled: 'false', ttl_seconds: '604800', refresh_rate_ms: '60000'}
+cluster_summary_stats_options: {enabled: 'false', refresh_rate_ms: '10000'}
+solr_slow_sub_query_log_options: {enabled: 'false', ttl_seconds: '604800', async_writers: '1',
+  synchronous: 'false', threshold_ms: '100'}
+hadoop_options: null
+solr_indexing_error_log_options: {enabled: 'false', ttl_seconds: '604800', async_writers: '1',
+  synchronous: 'false'}
+system_key_directory: /etc/dse/conf
+solr_index_stats_options: {enabled: 'false', ttl_seconds: '604800', refresh_rate_ms: '60000'}
+audit_logging_options:
+  enabled: false
+  logger: SLF4JAuditWriter
+  retention_time: 0
+  cassandra_audit_writer_options: {mode: sync, batch_size: 50, flush_time: 500, num_writers: 10,
+    queue_size: 10000, write_consistency: QUORUM}
+cql_slow_log_options: {enabled: 'true', threshold: '2000.0', minimum_samples: '100',
+  ttl_seconds: '259200'}
+solr_update_handler_metrics_options: {enabled: 'false', ttl_seconds: '604800', refresh_rate_ms: '60000'}
+cql_system_info_options: {enabled: 'false', refresh_rate_ms: '10000'}
+max_memory_to_lock_fraction: 0.2
+performance_core_threads: '1'
+authorization_options: {enabled: false, transitional_mode: disabled}
+shard_transport_options: {type: netty, netty_server_port: 8984}
+role_management_options: {mode: internal}
+ttl_index_rebuild_options: {fixed_rate_period: 300, initial_delay: 20, max_docs_per_batch: 200,
+  thread_pool_size: 1}
+graph_events: {ttl_seconds: 600}

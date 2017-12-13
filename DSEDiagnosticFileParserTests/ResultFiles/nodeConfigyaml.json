@@ -1,0 +1,1025 @@
+{
+    "type": "System.Collections.Generic.List<System.Tuple<string, string>>",
+    "values": [
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(cluster_name, TstCluster)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(num_tokens, 256)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(hinted_handoff_enabled, True)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(max_hint_window_in_ms, 86400000 MS)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(hinted_handoff_throttle_in_kb, 1024 KiB)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(max_hints_delivery_threads, 2)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(hints_directory, /app/cyclone/cassandra/hints)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(hints_flush_period_in_ms, 10000 MS, Time)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(max_hints_file_size_in_mb, 128 MiB)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(batchlog_replay_throttle_in_kb, 1024 KiB)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(authenticator, PasswordAuthenticator)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(authorizer, AllowAllAuthorizer)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(role_manager, com.datastax.bdp.cassandra.auth.DseRoleManager)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(roles_validity_in_ms, 2000 MS)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(permissions_validity_in_ms, 2000 MS)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(partitioner, org.apache.cassandra.dht.Murmur3Partitioner)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(data_file_directories[1], /app/cyclone/data)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(commitlog_directory, /app/cyclone/commitlog)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(disk_failure_policy, stop)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(commit_failure_policy, stop)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(key_cache_size_in_mb, )"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(key_cache_save_period, 14400 SEC, Time)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(row_cache_size_in_mb, 0 MiB)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(row_cache_save_period, 0 SEC, Time)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(counter_cache_size_in_mb, )"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(counter_cache_save_period, 7200 SEC, Time)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(saved_caches_directory, /var/lib/cassandra/saved_caches)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(commitlog_sync, periodic)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(commitlog_sync_period_in_ms, 10000 MS, Time)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(commitlog_segment_size_in_mb, 32 MiB)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(seed_provider[1].class_name, org.apache.cassandra.locator.SimpleSeedProvider)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(seed_provider[1].parameters[1].seeds, System.Linq.Enumerable+WhereSelectListIterator`2[System.String,System.Object])"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(concurrent_reads, 32)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(concurrent_writes, 32)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(concurrent_counter_writes, 32)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(concurrent_materialized_view_writes, 32)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(memtable_cleanup_threshold, 0.95)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(memtable_allocation_type, heap_buffers)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(commitlog_total_space_in_mb, 8192 MiB)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(index_summary_capacity_in_mb, )"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(index_summary_resize_interval_in_minutes, 60 MIN)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(trickle_fsync, False)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(trickle_fsync_interval_in_kb, 10240 KiB)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(storage_port, 7000)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(ssl_storage_port, 7001)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(start_native_transport, True)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(native_transport_port, 9042)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(start_rpc, True)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(rpc_port, 9160)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(rpc_keepalive, True)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(rpc_server_type, sync)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(thrift_framed_transport_size_in_mb, 15 MiB)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(incremental_backups, False)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(snapshot_before_compaction, False)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(auto_snapshot, True)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(tombstone_warn_threshold, 1000)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(tombstone_failure_threshold, 100000)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(column_index_size_in_kb, 64 KiB)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(batch_size_warn_threshold_in_kb, 64 KiB)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(batch_size_fail_threshold_in_kb, 640 KiB)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(unlogged_batch_across_partitions_warn_threshold, 10)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(concurrent_compactors, 4)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(compaction_throughput_mb_per_sec, 128 Rate, MiB, SEC)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(compaction_large_partition_warning_threshold_mb, 100 MiB)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(sstable_preemptive_open_interval_in_mb, 50 MiB)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(stream_throughput_outbound_megabits_per_sec, 400 Rate, SEC)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(read_request_timeout_in_ms, 5000 MS)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(range_request_timeout_in_ms, 10000 MS)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(write_request_timeout_in_ms, 2000 MS)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(counter_write_request_timeout_in_ms, 5000 MS)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(cas_contention_timeout_in_ms, 1000 MS)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(truncate_request_timeout_in_ms, 60000 MS)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(request_timeout_in_ms, 10000 MS)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(cross_node_timeout, False)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(endpoint_snitch, GossipingPropertyFileSnitch)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(dynamic_snitch_update_interval_in_ms, 100 MS)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(dynamic_snitch_reset_interval_in_ms, 600000 MS)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(dynamic_snitch_badness_threshold, 0.1)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(request_scheduler, org.apache.cassandra.scheduler.NoScheduler)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(server_encryption_options.internode_encryption, none)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(server_encryption_options.keystore, resources/dse/conf/.keystore)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(server_encryption_options.keystore_password, *********)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(server_encryption_options.truststore, resources/dse/conf/.truststore)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(server_encryption_options.truststore_password, *********)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(client_encryption_options.enabled, False)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(client_encryption_options.optional, False)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(client_encryption_options.keystore, resources/dse/conf/.keystore)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(client_encryption_options.keystore_password, *********)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(internode_compression, dc)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(inter_dc_tcp_nodelay, False)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(tracetype_query_ttl, 86400 SEC, Time)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(tracetype_repair_ttl, 604800 SEC, Time)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(gc_warn_threshold_in_ms, 1000 MS)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(enable_user_defined_functions, False)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(enable_scripted_user_defined_functions, False)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(windows_timer_interval, 1)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(spark_cluster_info_options.enabled, False)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(spark_cluster_info_options.refresh_rate_ms, 10000 Rate, MS)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(system_info_encryption.enabled, False)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(system_info_encryption.cipher_algorithm, AES)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(system_info_encryption.secret_key_strength, 128)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(system_info_encryption.chunk_length_kb, 64 KiB)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(system_info_encryption.key_name, system_table_keytab)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(authentication_options.enabled, False)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(authentication_options.default_scheme, kerberos)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(authentication_options.other_schemes, [internal])"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(authentication_options.scheme_permissions, True)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(authentication_options.allow_digest_with_kerberos, True)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(authentication_options.plain_text_without_ssl, warn)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(authentication_options.transitional_mode, False)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(spark_security_enabled, False)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(config_encryption_active, False)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(histogram_data_options.enabled, true)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(histogram_data_options.refresh_rate_ms, 10000 Rate, MS)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(histogram_data_options.retention_count, 3)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(config_encryption_key_name, system_key)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(hive_meta_store_enabled, True)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(resource_level_latency_tracking_options.enabled, false)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(resource_level_latency_tracking_options.refresh_rate_ms, 10000 Rate, MS)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(spark_application_info_options.enabled, False)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(spark_application_info_options.refresh_rate_ms, 10000 Rate, MS)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(spark_application_info_options.driver.sink, False)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(spark_application_info_options.driver.connectorSource, False)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(spark_application_info_options.driver.jvmSource, False)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(spark_application_info_options.driver.stateSource, False)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(spark_application_info_options.executor.sink, False)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(spark_application_info_options.executor.connectorSource, False)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(spark_application_info_options.executor.jvmSource, False)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(graph.analytic_evaluation_timeout, PT168H)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(graph.max_query_queue, 10000)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(graph.realtime_evaluation_timeout, 30 SEC)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(graph.schema_agreement_timeout, 10 SEC)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(graph.system_evaluation_timeout, PT3M)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(graph.window_size, 100000)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(graph.ids.block_renew, 0.8)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(graph.ids.community_reuse, 28)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(graph.ids.id_hash_modulus, 20)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(graph.ids.member_block_size, 512)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(graph.listener, )"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(graph.msg.graph_msg_timeout, 5 SEC)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(graph.observer, )"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(graph.shared_data.refresh_interval, PT1M)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(graph.gremlin_server.maxContentLength, 65536000)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(graph.gremlin_server.maxChunkSize, 4096000)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(graph.gremlin_server.port, 8182)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(graph.gremlin_server.serializers, )"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(graph.gremlin_server[1].className, org.apache.tinkerpop.gremlin.driver.ser.GryoMessageSerializerV1d0)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(graph.gremlin_server[1].config.ioRegistries, [org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerIoRegistry])"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(graph.gremlin_server[1].config.classResolverSupplier, com.datastax.bdp.graph.impl.tinkerpop.io.DseClassResolverProvider)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(graph.gremlin_server[1][1].className, org.apache.tinkerpop.gremlin.driver.ser.GryoLiteMessageSerializerV1d0)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(graph.gremlin_server[1][1].config.ioRegistries, [org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerIoRegistry])"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(graph.gremlin_server[1][1].config.classResolverSupplier, com.datastax.bdp.graph.impl.tinkerpop.io.DseClassResolverProvider)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(graph.gremlin_server[1][1][1].className, org.apache.tinkerpop.gremlin.driver.ser.GryoMessageSerializerV1d0)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(graph.gremlin_server[1][1][1].config.serializeResultToString, True)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(graph.gremlin_server[1][1][1][1].className, org.apache.tinkerpop.gremlin.driver.ser.GraphSONMessageSerializerGremlinV1d0)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(graph.gremlin_server[1][1][1][1].config.ioRegistries, [org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerIoRegistry])"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(graph.gremlin_server[1][1][1][1][1].className, org.apache.tinkerpop.gremlin.driver.ser.GraphSONMessageSerializerV1d0)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(graph.gremlin_server[1][1][1][1][1].config.ioRegistries, [org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerIoRegistry])"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(graph.gremlin_server[1][1][1][1][1].scriptEngines.gremlin-groovy.config.compilerCustomizerProviders.org.apache.tinkerpop.gremlin.groovy.jsr223.customizer.ThreadInterruptCustomizerProvider, [])"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(graph.gremlin_server[1][1][1][1][1].scriptEngines.gremlin-groovy.config.compilerCustomizerProviders.org.apache.tinkerpop.gremlin.groovy.jsr223.customizer.InterpreterModeCustomizerProvider, [])"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(graph.schema_mode, Production)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(kerberos_options.keytab, resources/dse/conf/dse.keytab)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(kerberos_options.service_principal, dse/_HOST@REALM)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(kerberos_options.http_principal, HTTP/_HOST@REALM)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(kerberos_options.qop, auth)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(user_level_latency_tracking_options.enabled, false)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(user_level_latency_tracking_options.refresh_rate_ms, 10000 Rate, MS)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(user_level_latency_tracking_options.top_stats_limit, 100)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(user_level_latency_tracking_options.async_writers, 1)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(user_level_latency_tracking_options.backpressure_threshold, 1000)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(user_level_latency_tracking_options.flush_timeout_ms, 1000 MS)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(user_level_latency_tracking_options.quantiles, false)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(dsefs_options.enabled, False)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(dsefs_options.keyspace_name, dsefs)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(dsefs_options.work_dir, /var/lib/dsefs)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(dsefs_options.public_port, 5598)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(dsefs_options.private_port, 5599)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(dsefs_options.data_directories[1].dir, /var/lib/dsefs/data)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(dsefs_options.data_directories[1].storage_weight, 1.0)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(dsefs_options.data_directories[1].min_free_space, 5368709120)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(solr_request_handler_metrics_options.enabled, false)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(solr_request_handler_metrics_options.ttl_seconds, 604800 SEC)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(solr_request_handler_metrics_options.refresh_rate_ms, 60000 Rate, MS)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(spark_shared_secret_bit_length, 256 Bit)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(internode_messaging_options.port, 8609)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(hive_options.insert_max_retries, 6)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(hive_options.insert_retry_sleep_period, 50 SEC, Time)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(performance_max_threads, 32)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(initial_spark_worker_resources, 0.4)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(enable_health_based_routing, True)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(lease_metrics_options.enabled, False)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(lease_metrics_options.ttl_seconds, 604800 SEC)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(node_health_options.refresh_rate_ms, 60000 Rate, MS)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(node_health_options.uptime_ramp_up_period_seconds, 86400 SEC, Time)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(node_health_options.dropped_mutation_window_minutes, 30 MIN)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(solr_encryption_options, )"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(spark_encryption_options.enabled, False)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(spark_encryption_options.keystore, .keystore)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(spark_encryption_options.keystore_password, *********)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(spark_encryption_options.key_password, *********)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(spark_encryption_options.truststore, .truststore)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(spark_encryption_options.truststore_password, *********)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(solr_latency_snapshot_options.enabled, false)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(solr_latency_snapshot_options.ttl_seconds, 604800 SEC)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(solr_latency_snapshot_options.refresh_rate_ms, 60000 Rate, MS)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(db_summary_stats_options.enabled, false)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(db_summary_stats_options.refresh_rate_ms, 10000 Rate, MS)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(solr_cache_stats_options.enabled, false)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(solr_cache_stats_options.ttl_seconds, 604800 SEC)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(solr_cache_stats_options.refresh_rate_ms, 60000 Rate, MS)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(cluster_summary_stats_options.enabled, false)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(cluster_summary_stats_options.refresh_rate_ms, 10000 Rate, MS)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(solr_slow_sub_query_log_options.enabled, false)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(solr_slow_sub_query_log_options.ttl_seconds, 604800 SEC)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(solr_slow_sub_query_log_options.async_writers, 1)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(solr_slow_sub_query_log_options.synchronous, false)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(solr_slow_sub_query_log_options.threshold_ms, 100 MS)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(hadoop_options, )"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(solr_indexing_error_log_options.enabled, false)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(solr_indexing_error_log_options.ttl_seconds, 604800 SEC)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(solr_indexing_error_log_options.async_writers, 1)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(solr_indexing_error_log_options.synchronous, false)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(system_key_directory, /etc/dse/conf)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(solr_index_stats_options.enabled, false)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(solr_index_stats_options.ttl_seconds, 604800 SEC)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(solr_index_stats_options.refresh_rate_ms, 60000 Rate, MS)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(audit_logging_options.enabled, False)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(audit_logging_options.logger, SLF4JAuditWriter)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(audit_logging_options.retention_time, 0)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(audit_logging_options.cassandra_audit_writer_options.mode, sync)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(audit_logging_options.cassandra_audit_writer_options.batch_size, 50)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(audit_logging_options.cassandra_audit_writer_options.flush_time, 500)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(audit_logging_options.cassandra_audit_writer_options.num_writers, 10)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(audit_logging_options.cassandra_audit_writer_options.queue_size, 10000)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(audit_logging_options.cassandra_audit_writer_options.write_consistency, QUORUM)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(cql_slow_log_options.enabled, true)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(cql_slow_log_options.threshold, 2000.0)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(cql_slow_log_options.minimum_samples, 100)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(cql_slow_log_options.ttl_seconds, 259200 SEC)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(solr_update_handler_metrics_options.enabled, false)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(solr_update_handler_metrics_options.ttl_seconds, 604800 SEC)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(solr_update_handler_metrics_options.refresh_rate_ms, 60000 Rate, MS)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(cql_system_info_options.enabled, false)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(cql_system_info_options.refresh_rate_ms, 10000 Rate, MS)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(max_memory_to_lock_fraction, 0.2)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(performance_core_threads, 1)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(authorization_options.enabled, False)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(authorization_options.transitional_mode, False)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(shard_transport_options.type, netty)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(shard_transport_options.netty_server_port, 8984)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(role_management_options.mode, internal)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(ttl_index_rebuild_options.fixed_rate_period, 300 Rate, SEC, Time)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(ttl_index_rebuild_options.initial_delay, 20 SEC, Time)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(ttl_index_rebuild_options.max_docs_per_batch, 200 Rate, SEC, Time)"
+        },
+        {
+            "type": "System.Tuple<string, string>",
+            "tostring": "(ttl_index_rebuild_options.thread_pool_size, 1 SEC, Time)"
+        }
+    ]
+}

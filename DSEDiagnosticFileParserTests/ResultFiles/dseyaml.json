@@ -1,0 +1,641 @@
+{
+    "type": "System.Collections.Generic.List<DSEDiagnosticLibrary.IConfigurationLine>",
+    "values": [
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{spark_cluster_info_options.enabled:false}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{spark_cluster_info_options.refresh_rate_ms:10000}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{system_info_encryption.enabled:false}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{system_info_encryption.cipher_algorithm:AES}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{system_info_encryption.secret_key_strength:128}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{system_info_encryption.chunk_length_kb:64}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{system_info_encryption.key_name:system_table_keytab}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{authentication_options.enabled:false}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{authentication_options.default_scheme:kerberos}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{authentication_options.other_schemes:[internal]}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{authentication_options.scheme_permissions:true}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{authentication_options.allow_digest_with_kerberos:true}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{authentication_options.plain_text_without_ssl:warn}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{authentication_options.transitional_mode:disabled}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{spark_security_enabled:false}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{config_encryption_active:false}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{histogram_data_options.enabled:'true'}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{histogram_data_options.refresh_rate_ms:'10000'}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{histogram_data_options.retention_count:'3'}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{config_encryption_key_name:system_key}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{hive_meta_store_enabled:true}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{resource_level_latency_tracking_options.enabled:'false'}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{resource_level_latency_tracking_options.refresh_rate_ms:'10000'}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{spark_application_info_options.enabled:false}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{spark_application_info_options.refresh_rate_ms:10000}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{spark_application_info_options.driver.sink:false}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{spark_application_info_options.driver.connectorSource:false}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{spark_application_info_options.driver.jvmSource:false}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{spark_application_info_options.driver.stateSource:false}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{spark_application_info_options.executor.sink:false}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{spark_application_info_options.executor.connectorSource:false}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{spark_application_info_options.executor.jvmSource:false}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{graph.analytic_evaluation_timeout:PT168H}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{graph.max_query_queue:10000}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{graph.realtime_evaluation_timeout:30 sec}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{graph.schema_agreement_timeout:10 sec}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{graph.system_evaluation_timeout:PT3M}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{graph.window_size:100000}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{graph.ids.block_renew:0.8}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{graph.ids.community_reuse:28}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{graph.ids.id_hash_modulus:20}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{graph.ids.member_block_size:512}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{graph.listener:null}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{graph.msg.graph_msg_timeout:5 sec}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{graph.observer:null}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{graph.shared_data.refresh_interval:PT1M}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{graph.gremlin_server.maxContentLength:65536000}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{graph.gremlin_server.maxChunkSize:4096000}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{graph.gremlin_server.port:8182}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{graph.gremlin_server.serializers:}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{graph.gremlin_server[1].className:org.apache.tinkerpop.gremlin.driver.ser.GryoMessageSerializerV1d0}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{graph.gremlin_server[1].config.ioRegistries:[org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerIoRegistry]}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{graph.gremlin_server[1].config.classResolverSupplier:com.datastax.bdp.graph.impl.tinkerpop.io.DseClassResolverProvider}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{graph.gremlin_server[1][1].className:org.apache.tinkerpop.gremlin.driver.ser.GryoLiteMessageSerializerV1d0}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{graph.gremlin_server[1][1].config.ioRegistries:[org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerIoRegistry]}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{graph.gremlin_server[1][1].config.classResolverSupplier:com.datastax.bdp.graph.impl.tinkerpop.io.DseClassResolverProvider}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{graph.gremlin_server[1][1][1].className:org.apache.tinkerpop.gremlin.driver.ser.GryoMessageSerializerV1d0}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{graph.gremlin_server[1][1][1].config.serializeResultToString:true}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{graph.gremlin_server[1][1][1][1].className:org.apache.tinkerpop.gremlin.driver.ser.GraphSONMessageSerializerGremlinV1d0}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{graph.gremlin_server[1][1][1][1].config.ioRegistries:[org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerIoRegistry]}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{graph.gremlin_server[1][1][1][1][1].className:org.apache.tinkerpop.gremlin.driver.ser.GraphSONMessageSerializerV1d0}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{graph.gremlin_server[1][1][1][1][1].config.ioRegistries:[org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerIoRegistry]}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{graph.gremlin_server[1][1][1][1][1].scriptEngines.gremlin-groovy.config.compilerCustomizerProviders.org.apache.tinkerpop.gremlin.groovy.jsr223.customizer.ThreadInterruptCustomizerProvider:[]}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{graph.gremlin_server[1][1][1][1][1].scriptEngines.gremlin-groovy.config.compilerCustomizerProviders.org.apache.tinkerpop.gremlin.groovy.jsr223.customizer.InterpreterModeCustomizerProvider:[]}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{graph.schema_mode:Production}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{kerberos_options.keytab:resources/dse/conf/dse.keytab}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{kerberos_options.service_principal:dse/_HOST@REALM}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{kerberos_options.http_principal:HTTP/_HOST@REALM}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{kerberos_options.qop:auth}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{user_level_latency_tracking_options.enabled:'false'}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{user_level_latency_tracking_options.refresh_rate_ms:'10000'}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{user_level_latency_tracking_options.top_stats_limit:'100'}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{user_level_latency_tracking_options.async_writers:'1'}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{user_level_latency_tracking_options.backpressure_threshold:'1000'}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{user_level_latency_tracking_options.flush_timeout_ms:'1000'}}"
+        },        
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{user_level_latency_tracking_options.quantiles:'false'}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{dsefs_options.enabled:false}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{dsefs_options.keyspace_name:dsefs}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{dsefs_options.work_dir:/var/lib/dsefs}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{dsefs_options.public_port:5598}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{dsefs_options.private_port:5599}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{dsefs_options.data_directories[1].dir:/var/lib/dsefs/data}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{dsefs_options.data_directories[1].storage_weight:1.0}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{dsefs_options.data_directories[1].min_free_space:5368709120}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{solr_request_handler_metrics_options.enabled:'false'}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{solr_request_handler_metrics_options.ttl_seconds:'604800'}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{solr_request_handler_metrics_options.refresh_rate_ms:'60000'}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{spark_shared_secret_bit_length:256}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{internode_messaging_options.port:8609}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{hive_options.insert_max_retries:6}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{hive_options.insert_retry_sleep_period:50}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{performance_max_threads:'32'}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{initial_spark_worker_resources:0.4}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{enable_health_based_routing:true}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{lease_metrics_options.enabled:false}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{lease_metrics_options.ttl_seconds:604800}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{node_health_options.refresh_rate_ms:60000}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{node_health_options.uptime_ramp_up_period_seconds:86400}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{node_health_options.dropped_mutation_window_minutes:30}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{solr_encryption_options:null}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{spark_encryption_options.enabled:false}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{spark_encryption_options.keystore:.keystore}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{spark_encryption_options.keystore_password:*********}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{spark_encryption_options.key_password:*********}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{spark_encryption_options.truststore:.truststore}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{spark_encryption_options.truststore_password:*********}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{solr_latency_snapshot_options.enabled:'false'}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{solr_latency_snapshot_options.ttl_seconds:'604800'}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{solr_latency_snapshot_options.refresh_rate_ms:'60000'}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{db_summary_stats_options.enabled:'false'}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{db_summary_stats_options.refresh_rate_ms:'10000'}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{solr_cache_stats_options.enabled:'false'}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{solr_cache_stats_options.ttl_seconds:'604800'}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{solr_cache_stats_options.refresh_rate_ms:'60000'}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{cluster_summary_stats_options.enabled:'false'}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{cluster_summary_stats_options.refresh_rate_ms:'10000'}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{solr_slow_sub_query_log_options.enabled:'false'}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{solr_slow_sub_query_log_options.ttl_seconds:'604800'}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{solr_slow_sub_query_log_options.async_writers:'1'}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{solr_slow_sub_query_log_options.synchronous:'false'}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{solr_slow_sub_query_log_options.threshold_ms:'100'}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{hadoop_options:null}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{solr_indexing_error_log_options.enabled:'false'}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{solr_indexing_error_log_options.ttl_seconds:'604800'}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{solr_indexing_error_log_options.async_writers:'1'}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{solr_indexing_error_log_options.synchronous:'false'}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{system_key_directory:/etc/dse/conf}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{solr_index_stats_options.enabled:'false'}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{solr_index_stats_options.ttl_seconds:'604800'}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{solr_index_stats_options.refresh_rate_ms:'60000'}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{audit_logging_options.enabled:false}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{audit_logging_options.logger:SLF4JAuditWriter}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{audit_logging_options.retention_time:0}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{audit_logging_options.cassandra_audit_writer_options.mode:sync}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{audit_logging_options.cassandra_audit_writer_options.batch_size:50}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{audit_logging_options.cassandra_audit_writer_options.flush_time:500}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{audit_logging_options.cassandra_audit_writer_options.num_writers:10}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{audit_logging_options.cassandra_audit_writer_options.queue_size:10000}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{audit_logging_options.cassandra_audit_writer_options.write_consistency:QUORUM}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{cql_slow_log_options.enabled:'true'}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{cql_slow_log_options.threshold:'2000.0'}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{cql_slow_log_options.minimum_samples:'100'}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{cql_slow_log_options.ttl_seconds:'259200'}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{solr_update_handler_metrics_options.enabled:'false'}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{solr_update_handler_metrics_options.ttl_seconds:'604800'}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{solr_update_handler_metrics_options.refresh_rate_ms:'60000'}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{cql_system_info_options.enabled:'false'}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{cql_system_info_options.refresh_rate_ms:'10000'}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{max_memory_to_lock_fraction:0.2}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{performance_core_threads:'1'}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{authorization_options.enabled:false}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{authorization_options.transitional_mode:disabled}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{shard_transport_options.type:netty}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{shard_transport_options.netty_server_port:8984}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{role_management_options.mode:internal}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{ttl_index_rebuild_options.fixed_rate_period:300}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{ttl_index_rebuild_options.initial_delay:20}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{ttl_index_rebuild_options.max_docs_per_batch:200}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "DSE.YamlConfigLine{NodeIdentifier{10.0.0.1}{ttl_index_rebuild_options.thread_pool_size:1}}"
+        }
+    ]
+}

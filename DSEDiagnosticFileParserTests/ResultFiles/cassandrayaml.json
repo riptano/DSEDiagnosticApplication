@@ -1,0 +1,389 @@
+{
+    "type": "System.Collections.Generic.List<DSEDiagnosticLibrary.IConfigurationLine>",
+    "values": [
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{cluster_name:'TstCluster'}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{num_tokens:256}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{hinted_handoff_enabled:true}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{max_hint_window_in_ms:86400000}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{hinted_handoff_throttle_in_kb:1024}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{max_hints_delivery_threads:2}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{hints_directory:/app/cyclone/cassandra/hints}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{hints_flush_period_in_ms:10000}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{max_hints_file_size_in_mb:128}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{batchlog_replay_throttle_in_kb:1024}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{authenticator:PasswordAuthenticator}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{authorizer:AllowAllAuthorizer}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{role_manager:com.datastax.bdp.cassandra.auth.DseRoleManager}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{roles_validity_in_ms:2000}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{permissions_validity_in_ms:2000}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{partitioner:org.apache.cassandra.dht.Murmur3Partitioner}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{data_file_directories[1]:/app/cyclone/data}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{commitlog_directory:/app/cyclone/commitlog}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{disk_failure_policy:stop}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{commit_failure_policy:stop}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{key_cache_size_in_mb:}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{key_cache_save_period:14400}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{row_cache_size_in_mb:0}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{row_cache_save_period:0}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{counter_cache_size_in_mb:}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{counter_cache_save_period:7200}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{saved_caches_directory:/var/lib/cassandra/saved_caches}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{commitlog_sync:periodic}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{commitlog_sync_period_in_ms:10000}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{commitlog_segment_size_in_mb:32}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{seed_provider[1].class_name:org.apache.cassandra.locator.SimpleSeedProvider}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{seed_provider[1].parameters[1].seeds:\"10.146.117.93,10.146.117.99\"}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{concurrent_reads:32}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{concurrent_writes:32}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{concurrent_counter_writes:32}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{concurrent_materialized_view_writes:32}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{memtable_cleanup_threshold:0.95}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{memtable_allocation_type:heap_buffers}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{commitlog_total_space_in_mb:8192}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{index_summary_capacity_in_mb:}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{index_summary_resize_interval_in_minutes:60}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{trickle_fsync:false}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{trickle_fsync_interval_in_kb:10240}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{storage_port:7000}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{ssl_storage_port:7001}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{start_native_transport:true}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{native_transport_port:9042}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{start_rpc:true}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{rpc_port:9160}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{rpc_keepalive:true}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{rpc_server_type:sync}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{thrift_framed_transport_size_in_mb:15}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{incremental_backups:false}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{snapshot_before_compaction:false}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{auto_snapshot:true}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{tombstone_warn_threshold:1000}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{tombstone_failure_threshold:100000}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{column_index_size_in_kb:64}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{batch_size_warn_threshold_in_kb:64}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{batch_size_fail_threshold_in_kb:640}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{unlogged_batch_across_partitions_warn_threshold:10}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{concurrent_compactors:4}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{compaction_throughput_mb_per_sec:128}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{compaction_large_partition_warning_threshold_mb:100}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{sstable_preemptive_open_interval_in_mb:50}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{stream_throughput_outbound_megabits_per_sec:400}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{read_request_timeout_in_ms:5000}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{range_request_timeout_in_ms:10000}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{write_request_timeout_in_ms:2000}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{counter_write_request_timeout_in_ms:5000}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{cas_contention_timeout_in_ms:1000}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{truncate_request_timeout_in_ms:60000}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{request_timeout_in_ms:10000}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{cross_node_timeout:false}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{endpoint_snitch:GossipingPropertyFileSnitch}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{dynamic_snitch_update_interval_in_ms:100}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{dynamic_snitch_reset_interval_in_ms:600000}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{dynamic_snitch_badness_threshold:0.1}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{request_scheduler:org.apache.cassandra.scheduler.NoScheduler}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{server_encryption_options.internode_encryption:none}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{server_encryption_options.keystore:resources/dse/conf/.keystore}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{server_encryption_options.keystore_password:*********}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{server_encryption_options.truststore:resources/dse/conf/.truststore}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{server_encryption_options.truststore_password:*********}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{client_encryption_options.enabled:false}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{client_encryption_options.optional:false}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{client_encryption_options.keystore:resources/dse/conf/.keystore}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{client_encryption_options.keystore_password:*********}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{internode_compression:dc}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{inter_dc_tcp_nodelay:false}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{tracetype_query_ttl:86400}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{tracetype_repair_ttl:604800}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{gc_warn_threshold_in_ms:1000}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{enable_user_defined_functions:false}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{enable_scripted_user_defined_functions:false}}"
+        },
+        {
+            "type": "DSEDiagnosticLibrary.YamlConfigurationLine",
+            "tostring": "Cassandra.YamlConfigLine{NodeIdentifier{10.0.0.1}{windows_timer_interval:1}}"
+        }
+    ]
+}

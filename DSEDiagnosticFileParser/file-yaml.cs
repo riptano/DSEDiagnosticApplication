@@ -66,6 +66,7 @@ namespace DSEDiagnosticFileParser
         protected char SplitLineDelimiter = ':';
         protected char CommentDelimiter = '#';
         protected char ContinuousDelimiter = '-';
+        protected char? EndLineDelimiter = null;
 
         public ConfigTypes ConfigType { get; protected set; }
         public virtual SourceTypes Source { get { return SourceTypes.Yaml; } }
@@ -256,6 +257,7 @@ namespace DSEDiagnosticFileParser
             StringBuilder multipleLine = null;
             string[] multipleLineItems = null;
             int multipleLineItemPos = 0;
+            Queue<string> multipleStatementsPerLine = null;
 
             List<Tuple<string,string>> cmdPathValueList = new List<Tuple<string, string>>();
 
@@ -267,17 +269,60 @@ namespace DSEDiagnosticFileParser
 
                 if (multipleLineItems == null)
                 {
-                    line = fileLines[fileLineIdx].TrimStart();
+                    if (this.EndLineDelimiter.HasValue
+                            && multipleStatementsPerLine != null
+                            && multipleStatementsPerLine.Count > 0)
+                    {
+                        line = multipleStatementsPerLine.Dequeue().TrimStart();                        
+                    }
+                    else
+                    {
+                        line = fileLines[fileLineIdx].TrimStart();
 
-                    if (string.IsNullOrEmpty(line)
-                        || line[0] == CommentDelimiter)
+                        if (line == string.Empty
+                                || line[0] == CommentDelimiter)
+                        {
+                            ++fileLineIdx;
+                            continue;
+                        }
+                    }
+                    
+                    line = fileLines[fileLineIdx].Replace('\t', ' ').TrimEnd();
+
+                    if (this.EndLineDelimiter.HasValue)
+                    {
+                        if (multipleStatementsPerLine == null)
+                        {
+                            var multiStmts = Common.StringFunctions.Split(line,
+                                                                            this.EndLineDelimiter.Value,
+                                                                            Common.StringFunctions.IgnoreWithinDelimiterFlag.All,
+                                                                            Common.StringFunctions.SplitBehaviorOptions.MismatchedWithinDelimitersTreatAsSingleElement
+                                                                                | Common.StringFunctions.SplitBehaviorOptions.RemoveEmptyEntries
+                                                                                | Common.StringFunctions.SplitBehaviorOptions.StringTrimEachElement);
+                            if(multiStmts.Count > 1)
+                            {                                
+                                multipleStatementsPerLine = new Queue<string>(multiStmts.Count);
+                                multiStmts.ForEach(i => multipleStatementsPerLine.Enqueue(i));
+                                continue;
+                            }
+                            else
+                            {
+                                ++fileLineIdx;
+                            }
+                        }
+                        else
+                        {
+                            if (multipleStatementsPerLine.Count == 0)
+                            {
+                                multipleStatementsPerLine = null;
+                            }
+                            ++fileLineIdx;
+                        }
+                    }
+                    else
                     {
                         ++fileLineIdx;
-                        continue;
                     }
-
-                    line = fileLines[fileLineIdx].Replace('\t', ' ').TrimEnd();
-                    ++fileLineIdx;
                 }
                 else if(multipleLine == null)
                 {
@@ -357,6 +402,7 @@ namespace DSEDiagnosticFileParser
                     else if (line.Last() == ',')
                     {
                         multipleLine.Append(line);
+                        continue;
                     }
                     else
                     {
