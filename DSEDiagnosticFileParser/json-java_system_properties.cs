@@ -32,6 +32,7 @@ namespace DSEDiagnosticFileParser
             jObject.TryGetValue("java.runtime.version").NullSafeSet<string>(c => this.Node.Machine.Java.Version = c);
             jObject.TryGetValue("user.timezone").NullSafeSet<string>(c => this.Node.Machine.TimeZoneName = c);
             jObject.TryGetValue("dse.system_cpu_cores").EmptySafeSet<uint>(this.Node.Machine.CPU.Cores, c => this.Node.Machine.CPU.Cores = c);
+            jObject.TryGetValue("os.version").NullSafeSet<string>(c => this.Node.Machine.Kernel = c);
 
             this.Node.UpdateDSENodeToolDateRange();
 

@@ -30,54 +30,55 @@ namespace DSEDiagnosticToDataTable
             dtOSMachineInfo.Columns.Add("Cores", typeof(int)).AllowDBNull = true; //e
             dtOSMachineInfo.Columns.Add("Physical Memory (MB)", typeof(int)); //f
             dtOSMachineInfo.Columns.Add("OS", typeof(string));
-            dtOSMachineInfo.Columns.Add("OS Version", typeof(string));
+            dtOSMachineInfo.Columns.Add("OS Version", typeof(string));//h
+            dtOSMachineInfo.Columns.Add("Kernel", typeof(string));//i
             dtOSMachineInfo.Columns.Add("TimeZone", typeof(string));
             //CPU Load
-            dtOSMachineInfo.Columns.Add("Average", typeof(decimal)); //j
+            dtOSMachineInfo.Columns.Add("Average", typeof(decimal)); //k
             dtOSMachineInfo.Columns.Add("Idle", typeof(decimal));
             dtOSMachineInfo.Columns.Add("System", typeof(decimal));
-            dtOSMachineInfo.Columns.Add("User", typeof(decimal)); //m
+            dtOSMachineInfo.Columns.Add("User", typeof(decimal)); //n
                                                                   //Memory
-            dtOSMachineInfo.Columns.Add("Available", typeof(int)); //n
+            dtOSMachineInfo.Columns.Add("Available", typeof(int)); //o
             dtOSMachineInfo.Columns.Add("Cache", typeof(int));
             dtOSMachineInfo.Columns.Add("Buffers", typeof(int));
             dtOSMachineInfo.Columns.Add("Shared", typeof(int));
             dtOSMachineInfo.Columns.Add("Free", typeof(int));
-            dtOSMachineInfo.Columns.Add("Used", typeof(int)); //s
+            dtOSMachineInfo.Columns.Add("Used", typeof(int)); //t
                                                               //Java
-            dtOSMachineInfo.Columns.Add("Vendor", typeof(string));//t
+            dtOSMachineInfo.Columns.Add("Vendor", typeof(string));//u
             dtOSMachineInfo.Columns.Add("Model", typeof(string));
             dtOSMachineInfo.Columns.Add("Runtime Name", typeof(string));
-            dtOSMachineInfo.Columns.Add("Runtime Version", typeof(string));//w
+            dtOSMachineInfo.Columns.Add("Runtime Version", typeof(string));//x
             dtOSMachineInfo.Columns.Add("GC", typeof(string)).AllowDBNull = true;
             //Java NonHeapMemoryUsage
-            dtOSMachineInfo.Columns.Add("Non-Heap Committed", typeof(decimal)); //y
+            dtOSMachineInfo.Columns.Add("Non-Heap Committed", typeof(decimal)); //z
             dtOSMachineInfo.Columns.Add("Non-Heap Init", typeof(decimal));
-            dtOSMachineInfo.Columns.Add("Non-Heap Max", typeof(decimal));//aa
-            dtOSMachineInfo.Columns.Add("Non-Heap Used", typeof(decimal));//ab
+            dtOSMachineInfo.Columns.Add("Non-Heap Max", typeof(decimal));//ab
+            dtOSMachineInfo.Columns.Add("Non-Heap Used", typeof(decimal));//ac
             //Javaa HeapMemoryUsage
-            dtOSMachineInfo.Columns.Add("Heap Committed", typeof(decimal)); //ac
-            dtOSMachineInfo.Columns.Add("Heap Init", typeof(decimal)); //ad
-            dtOSMachineInfo.Columns.Add("Heap Max", typeof(decimal)); //ae
-            dtOSMachineInfo.Columns.Add("Heap Used", typeof(decimal)); //af
+            dtOSMachineInfo.Columns.Add("Heap Committed", typeof(decimal)); //ad
+            dtOSMachineInfo.Columns.Add("Heap Init", typeof(decimal)); //ae
+            dtOSMachineInfo.Columns.Add("Heap Max", typeof(decimal)); //af
+            dtOSMachineInfo.Columns.Add("Heap Used", typeof(decimal)); //ag
 
             //DataStax Versions
-            dtOSMachineInfo.Columns.Add("DSE", typeof(string)).AllowDBNull = true; //ag
+            dtOSMachineInfo.Columns.Add("DSE", typeof(string)).AllowDBNull = true; //ah
             dtOSMachineInfo.Columns.Add("Cassandra", typeof(string)).AllowDBNull = true;
             dtOSMachineInfo.Columns.Add("Search", typeof(string)).AllowDBNull = true;
-            dtOSMachineInfo.Columns.Add("Spark", typeof(string)).AllowDBNull = true;//aj
-            dtOSMachineInfo.Columns.Add("Agent", typeof(string)).AllowDBNull = true; //ak
-            dtOSMachineInfo.Columns.Add("VNodes", typeof(bool)).AllowDBNull = true; //al
+            dtOSMachineInfo.Columns.Add("Spark", typeof(string)).AllowDBNull = true;//ak
+            dtOSMachineInfo.Columns.Add("Agent", typeof(string)).AllowDBNull = true; //al
+            dtOSMachineInfo.Columns.Add("VNodes", typeof(bool)).AllowDBNull = true; //am
 
             //NTP
-            dtOSMachineInfo.Columns.Add("Correction (ms)", typeof(int)); //am
+            dtOSMachineInfo.Columns.Add("Correction (ms)", typeof(int)); //an
             dtOSMachineInfo.Columns.Add("Polling (secs)", typeof(int));
             dtOSMachineInfo.Columns.Add("Maximum Error (us)", typeof(int));
             dtOSMachineInfo.Columns.Add("Estimated Error (us)", typeof(int));
-            dtOSMachineInfo.Columns.Add("Time Constant", typeof(int)); //aq
-            dtOSMachineInfo.Columns.Add("Precision (us)", typeof(decimal)); //ar
+            dtOSMachineInfo.Columns.Add("Time Constant", typeof(int)); //ar
+            dtOSMachineInfo.Columns.Add("Precision (us)", typeof(decimal)); //as
             dtOSMachineInfo.Columns.Add("Frequency (ppm)", typeof(decimal));
-            dtOSMachineInfo.Columns.Add("Tolerance (ppm)", typeof(decimal)); //at
+            dtOSMachineInfo.Columns.Add("Tolerance (ppm)", typeof(decimal)); //au
 
             dtOSMachineInfo.DefaultView.ApplyDefaultSort = false;
             dtOSMachineInfo.DefaultView.AllowDelete = false;
@@ -125,6 +126,7 @@ namespace DSEDiagnosticToDataTable
                         dataRow.SetFieldToInt("Physical Memory (MB)", node.Machine.Memory.PhysicalMemory, DSEDiagnosticLibrary.UnitOfMeasure.Types.MiB);
                         dataRow.SetField("OS", node.Machine.OS);
                         dataRow.SetField("OS Version", node.Machine.OSVersion);
+                        dataRow.SetField("Kernel", node.Machine.Kernel);
 
                         if (node.Machine.TimeZone == null)
                         {

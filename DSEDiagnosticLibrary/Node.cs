@@ -628,6 +628,7 @@ namespace DSEDiagnosticLibrary
         public CPUInfo CPU;
         public string OS;
         public string OSVersion;
+        public string Kernel;
         public string InstanceType;
         public string Placement;
 
