@@ -29,25 +29,34 @@ namespace DSEDiagnosticAnalytics
         {
             static readonly Guid GuidValue = new Guid();
 
+            [Flags]
             public enum OverLappingTypes
             {
                 Normal = 0,
                 /// <summary>
                 /// There is a gap in time between this entry and the prior
                 /// </summary>
-                Gap,
+                Gap = 0x1,
                 /// <summary>
                 /// This entry is a duplicate based on the prior entry
                 /// </summary>
-                Duplicated,
+                Duplicated = 0x2,
                 /// <summary>
                 /// This entry is a overlapping based on the prior entry
                 /// </summary>
-                OverLapping,
+                OverLapping = 0x4,
                 /// <summary>
                 /// This entry represents a series of continuous log files for a node (no gaps between log files)
                 /// </summary>
-                Continuous
+                Continuous = 0x8,
+                /// <summary>
+                /// This entry represents a log files that meets or exceeds LogFileInfoAnalysisContinousEventInDays property for a node
+                /// </summary>
+                DurationThresholdMet = 0x10,
+                /// <summary>
+                /// This entry represents a series of continuous log files that meets or exceeds LogFileInfoAnalysisContinousEventInDays property for a node (no gaps between log files)
+                /// </summary>
+                ContinuousThresholdMet = Continuous | DurationThresholdMet                
             }
 
             public LogInfoStat(INode node,
@@ -211,6 +220,7 @@ namespace DSEDiagnosticAnalytics
                 TimeSpan? gaptimeSpan = null;
                 DateTimeOffsetRange contTimeRange = null;
                 TimeSpan contTimeSpan = new TimeSpan();
+                int contTimeCnt = 0;
                 UnitOfMeasure contSize = new UnitOfMeasure(UnitOfMeasure.Types.Storage | UnitOfMeasure.Types.MiB);
                 long contLogItems = 0;
                 LogInfoStat.OverLappingTypes overlappingType = LogInfoStat.OverLappingTypes.Normal;
@@ -256,6 +266,7 @@ namespace DSEDiagnosticAnalytics
                                                         ? LogInfoStat.OverLappingTypes.Normal
                                                         : LogInfoStat.OverLappingTypes.Gap;
                                 }
+                                ++contTimeCnt;
                             }
                             else
                             {
@@ -265,6 +276,7 @@ namespace DSEDiagnosticAnalytics
                                 overlappingType = LogInfoStat.OverLappingTypes.Normal;
                                 contSize = contSize.Zero();
                                 contLogItems = 0;
+                                contTimeCnt = 0;
                             }
 
                             if (gaptimeSpan.HasValue)
@@ -275,7 +287,7 @@ namespace DSEDiagnosticAnalytics
                                     contTimeRange.SetMinimal(logInfo.LogDateRange.Min);
                                     contTimeRange.SetMaximum(logInfo.LogDateRange.Max);
                                     contSize = contSize.Add(logInfo.LogFileSize);
-                                    contLogItems += logInfo.LogItems;
+                                    contLogItems += logInfo.LogItems;                                   
                                 }
                                 else
                                 {
@@ -286,15 +298,16 @@ namespace DSEDiagnosticAnalytics
                                                                         contTimeRange,
                                                                         null,
                                                                         contSize,
-                                                                        LogInfoStat.OverLappingTypes.Continuous,
+                                                                        LogInfoStat.OverLappingTypes.ContinuousThresholdMet,
                                                                         fileType.IsDebugFile,
                                                                         contLogItems));
-                                    }
+                                    }                                    
 
                                     contTimeRange = new DateTimeOffsetRange(logInfo.LogDateRange);
                                     contTimeSpan = logInfo.LogDateRange.TimeSpan();
                                     contSize = contSize.Zero().Add(logInfo.LogFileSize);
                                     contLogItems = logInfo.LogItems;
+                                    contTimeCnt = 0;
                                 }
                             }
 
@@ -317,10 +330,12 @@ namespace DSEDiagnosticAnalytics
                                                             contTimeRange,
                                                             null,
                                                             contSize,
-                                                            LogInfoStat.OverLappingTypes.Continuous,
+                                                            contTimeCnt > 1
+                                                                ? LogInfoStat.OverLappingTypes.ContinuousThresholdMet
+                                                                : LogInfoStat.OverLappingTypes.DurationThresholdMet,
                                                             fileType.IsDebugFile,
                                                             contLogItems));
-                        }
+                        }                        
                     }
 
                     Logger.Instance.InfoFormat("Analyzed Log Information for Node \"{0}\", Total Nbr Items {1:###,###,##0}", node, nbrItems);

@@ -27,7 +27,7 @@ namespace DSEDiagnosticFileParser
         public override uint ProcessJSON(JObject jObject)
         {
             jObject.TryGetValue("java.vendor").NullSafeSet<string>(c => this.Node.Machine.Java.Vendor = c);
-            jObject.TryGetValue("sun.arch.data.model").NullSafeSet<int>(c => this.Node.Machine.Java.Model = c);
+            jObject.TryGetValue("sun.arch.data.model").NullSafeSet<int>(c => this.Node.Machine.Java.Model = c, null);
             jObject.TryGetValue("java.runtime.name").NullSafeSet<string>(c => this.Node.Machine.Java.RuntimeName = c);
             jObject.TryGetValue("java.runtime.version").NullSafeSet<string>(c => this.Node.Machine.Java.Version = c);
             jObject.TryGetValue("user.timezone").NullSafeSet<string>(c => this.Node.Machine.TimeZoneName = c);

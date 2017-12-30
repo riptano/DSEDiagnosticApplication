@@ -99,7 +99,8 @@ namespace DSEDiagnosticToDataTable
                     dataRow.SetField("End Range (UTC)", logInfo.LogRange.Max.ToUniversalTime().DateTime);
                     dataRow.SetField("Events", logInfo.LogItems);
 
-                    if (logInfo.OverlappingType != DSEDiagnosticAnalytics.LogFileStats.LogInfoStat.OverLappingTypes.Continuous)
+                    if (!logInfo.OverlappingType.HasFlag(DSEDiagnosticAnalytics.LogFileStats.LogInfoStat.OverLappingTypes.Continuous)
+                            && !logInfo.OverlappingType.HasFlag(DSEDiagnosticAnalytics.LogFileStats.LogInfoStat.OverLappingTypes.DurationThresholdMet))
                     {
                         dataRow.SetField("Start Range (Log File)", logInfo.LogFileRange.Min.DateTime);
                         dataRow.SetField("End Range (Log File)", logInfo.LogFileRange.Max.DateTime);

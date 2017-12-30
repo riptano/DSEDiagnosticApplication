@@ -784,7 +784,28 @@ namespace DSEDiagnosticFileParser
             return false;
         }
 
-        public static bool NullSafeSet<JValue>(this JToken jtoken, Action<JValue> setOutput)
+        public static bool NullSafeSet<JValue>(this JToken jtoken, int index, Action<JValue> setOutput, Action onNullValue)
+            where JValue : struct
+        {
+            if (jtoken != null)
+            {
+                var jsonValue = jtoken.ElementAtOrDefault(index)?.ToObject(typeof(Nullable<JValue>));
+
+                if (jsonValue != null && ((JValue?)jsonValue).HasValue)
+                {
+                    setOutput((JValue)jsonValue);
+                    return true;
+                }
+                else if(onNullValue != null)
+                {
+                    onNullValue();
+                }
+            }
+
+            return false;
+        }
+
+        public static bool NullSafeSet<JValue>(this JToken jtoken, Action<JValue> setOutput)            
         {
             if (jtoken != null)
             {
@@ -794,6 +815,27 @@ namespace DSEDiagnosticFileParser
                 {
                     setOutput((JValue)jsonValue);
                     return true;
+                }
+            }
+
+            return false;
+        }
+
+        public static bool NullSafeSet<JValue>(this JToken jtoken, Action<JValue> setOutput, Action onNullValue)
+            where JValue : struct
+        {
+            if (jtoken != null)
+            {
+                var jsonValue = jtoken.ToObject(typeof(Nullable<JValue>));
+
+                if (jsonValue != null && ((JValue?)jsonValue).HasValue)
+                {
+                    setOutput((JValue)jsonValue);
+                    return true;
+                }
+                else if(onNullValue != null)
+                {
+                    onNullValue();
                 }
             }
 
@@ -834,7 +876,7 @@ namespace DSEDiagnosticFileParser
             {
                 if (!inputValue.HasValue)
                 {
-                    return jtoken.NullSafeSet<JValue>(nIndex, setOutput);
+                    return jtoken.NullSafeSet<JValue>(nIndex, setOutput, null);
                 }
             }
 
@@ -876,7 +918,7 @@ namespace DSEDiagnosticFileParser
             {
                 if(!inputValue.HasValue)
                 {
-                    return jtoken.NullSafeSet<JValue>(setOutput);
+                    return jtoken.NullSafeSet<JValue>(setOutput, null);
                 }
             }
 
