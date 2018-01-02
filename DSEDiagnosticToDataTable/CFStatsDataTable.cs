@@ -85,7 +85,7 @@ namespace DSEDiagnosticToDataTable
                         continue;
                     }
 
-                    var keyspaceName = warn ? stat.Keyspace.Name + " (warn)" : stat.Keyspace.Name;
+                    var keyspaceName = warn ? stat.Keyspace.Name + " (warn)" : (stat.Keyspace?.Name ?? "<KS does not Exist>");
 
                     {
                         object errorValue;

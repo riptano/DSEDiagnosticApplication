@@ -64,28 +64,28 @@ namespace DSEDiagtnosticToExcel
                                                                 workSheet.Cells["G:G"].Style.Numberformat.Format = "#,###,###,##0.00";
                                                                 workSheet.Cells["H:H"].Style.Numberformat.Format = "##0.00%";
                                                                 workSheet.Cells["I:I"].Style.Numberformat.Format = "0.00";
-                                                                workSheet.Cells["J:J"].Style.Numberformat.Format = "hh:mm";
+                                                                workSheet.Cells["J:J"].Style.Numberformat.Format = Properties.Settings.Default.ExcelTimeFormat;
 
-                                                                workSheet.Cells["K:K"].Style.Numberformat.Format = "mm/dd/yyyy hh:mm:ss";
-                                                                workSheet.Cells["L:L"].Style.Numberformat.Format = "mm/dd/yyyy hh:mm:ss";
-                                                                workSheet.Cells["M:M"].Style.Numberformat.Format = "0.00";
-                                                                //workSheet.Cells["K:K"].Style.Numberformat.Format = "d hh:mm";
-                                                                workSheet.Cells["O:O"].Style.Numberformat.Format = "mm/dd/yyyy hh:mm:ss.000";
-                                                                workSheet.Cells["P:P"].Style.Numberformat.Format = "mm/dd/yyyy hh:mm:ss.000";
-                                                                workSheet.Cells["Q:Q"].Style.Numberformat.Format = "d hh:mm";
-                                                                workSheet.Cells["R:R"].Style.Numberformat.Format = "d hh:mm";
-                                                                workSheet.Cells["S:S"].Style.Numberformat.Format = "#,###,###,##0";
-                                                                workSheet.Cells["T:T"].Style.Numberformat.Format = "mm/dd/yyyy hh:mm:ss.000";
-                                                                workSheet.Cells["U:U"].Style.Numberformat.Format = "mm/dd/yyyy hh:mm:ss.000";
-                                                                workSheet.Cells["V:V"].Style.Numberformat.Format = "d hh:mm";
-                                                                workSheet.Cells["W:W"].Style.Numberformat.Format = "d hh:mm";
-                                                                workSheet.Cells["X:X"].Style.Numberformat.Format = "#,###,###,##0";
+                                                                workSheet.Cells["K:K"].Style.Numberformat.Format = Properties.Settings.Default.ExcelDateTimeFormat;
+                                                                workSheet.Cells["L:L"].Style.Numberformat.Format = Properties.Settings.Default.ExcelDateTimeFormat;
+                                                                workSheet.Cells["M:M"].Style.Numberformat.Format = Properties.Settings.Default.ExcelTimeSpanFormat; // "0.00";
+                                                               
+                                                                workSheet.Cells["N:N"].Style.Numberformat.Format = Properties.Settings.Default.ExcelDateTimeFormat;
+                                                                workSheet.Cells["O:O"].Style.Numberformat.Format = Properties.Settings.Default.ExcelDateTimeFormat;
+                                                                workSheet.Cells["P:P"].Style.Numberformat.Format = Properties.Settings.Default.ExcelTimeSpanFormat;
+                                                                workSheet.Cells["Q:Q"].Style.Numberformat.Format = Properties.Settings.Default.ExcelTimeSpanFormat;
+                                                                workSheet.Cells["R:R"].Style.Numberformat.Format = "#,###,###,##0";
+                                                                workSheet.Cells["S:S"].Style.Numberformat.Format = Properties.Settings.Default.ExcelDateTimeFormat;
+                                                                workSheet.Cells["T:T"].Style.Numberformat.Format = Properties.Settings.Default.ExcelDateTimeFormat;
+                                                                workSheet.Cells["U:U"].Style.Numberformat.Format = Properties.Settings.Default.ExcelTimeSpanFormat;
+                                                                workSheet.Cells["V:V"].Style.Numberformat.Format = Properties.Settings.Default.ExcelTimeSpanFormat;
+                                                                workSheet.Cells["W:W"].Style.Numberformat.Format = "#,###,###,##0";
 
+                                                                workSheet.Cells["X:X"].Style.Numberformat.Format = "#,###,###,##0.00";
                                                                 workSheet.Cells["Y:Y"].Style.Numberformat.Format = "#,###,###,##0.00";
-                                                                workSheet.Cells["Z:Z"].Style.Numberformat.Format = "#,###,###,##0.00";
-                                                                workSheet.Cells["AA:AA"].Style.Numberformat.Format = "#,###,###,##0";
-                                                                workSheet.Cells["AB:AB"].Style.Numberformat.Format = "#,###,###,##0.00";
-                                                                workSheet.Cells["AC:AC"].Style.Numberformat.Format = "#,###,###,##0.0000%";
+                                                                workSheet.Cells["Z:Z"].Style.Numberformat.Format = "#,###,###,##0";
+                                                                workSheet.Cells["AA:AA"].Style.Numberformat.Format = "#,###,###,##0.00";
+                                                                workSheet.Cells["AB:AB"].Style.Numberformat.Format = "#,###,###,##0.0000%";
 
                                                                 //workSheet.InsertColumn(11, 1);
                                                                 //workSheet.Column(10).Hidden = true;

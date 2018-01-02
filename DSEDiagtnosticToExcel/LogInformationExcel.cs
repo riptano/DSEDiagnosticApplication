@@ -60,20 +60,20 @@ namespace DSEDiagtnosticToExcel
                                                                 //workBook.Cells["1:1"].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
                                                                 workSheet.View.FreezePanes(2, 1);
 
-                                                                workSheet.Cells["E:E"].Style.Numberformat.Format = "hh:mm";
-                                                                workSheet.Cells["G:G"].Style.Numberformat.Format = "yyyy-mm-dd hh:mm:ss";
-                                                                workSheet.Cells["H:H"].Style.Numberformat.Format = "yyyy-mm-dd hh:mm:ss";
-                                                                workSheet.Cells["I:I"].Style.Numberformat.Format = "d hh:mm";
+                                                                workSheet.Cells["E:E"].Style.Numberformat.Format = Properties.Settings.Default.ExcelTimeFormat;
+                                                                workSheet.Cells["G:G"].Style.Numberformat.Format = Properties.Settings.Default.ExcelDateTimeFormat;
+                                                                workSheet.Cells["H:H"].Style.Numberformat.Format = Properties.Settings.Default.ExcelDateTimeFormat;
+                                                                workSheet.Cells["I:I"].Style.Numberformat.Format = Properties.Settings.Default.ExcelTimeSpanFormat;
                                                                 workSheet.Cells["I:I"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-                                                                workSheet.Cells["J:J"].Style.Numberformat.Format = "yyyy-mm-dd hh:mm:ss";
-                                                                workSheet.Cells["K:K"].Style.Numberformat.Format = "yyyy-mm-dd hh:mm:ss";
-                                                                workSheet.Cells["L:L"].Style.Numberformat.Format = "d hh:mm";
+                                                                workSheet.Cells["J:J"].Style.Numberformat.Format = Properties.Settings.Default.ExcelDateTimeFormat;
+                                                                workSheet.Cells["K:K"].Style.Numberformat.Format = Properties.Settings.Default.ExcelDateTimeFormat;
+                                                                workSheet.Cells["L:L"].Style.Numberformat.Format = Properties.Settings.Default.ExcelTimeSpanFormat;
                                                                 workSheet.Cells["L:L"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
                                                                 workSheet.Cells["N:N"].Style.Numberformat.Format = "#,###,###,##0";
                                                                 workSheet.Cells["O:O"].Style.Numberformat.Format = "#,###,###,##0.00";
-                                                                workSheet.Cells["P:P"].Style.Numberformat.Format = "d hh:mm";
-                                                                workSheet.Cells["R:R"].Style.Numberformat.Format = "yyyy-mm-dd hh:mm:ss";
-                                                                workSheet.Cells["S:S"].Style.Numberformat.Format = "yyyy-mm-dd hh:mm:ss";
+                                                                workSheet.Cells["P:P"].Style.Numberformat.Format = Properties.Settings.Default.ExcelTimeSpanFormat;
+                                                                workSheet.Cells["R:R"].Style.Numberformat.Format = Properties.Settings.Default.ExcelDateTimeFormat;
+                                                                workSheet.Cells["S:S"].Style.Numberformat.Format = Properties.Settings.Default.ExcelDateTimeFormat;
 
                                                                 //Column Group B, C, D, E
                                                                 workSheet.Column(2).OutlineLevel = 1;

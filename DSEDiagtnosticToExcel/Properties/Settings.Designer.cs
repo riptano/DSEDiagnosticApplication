@@ -12,7 +12,7 @@ namespace DSEDiagtnosticToExcel.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "14.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "15.3.0.0")]
     internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
         
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
@@ -157,6 +157,33 @@ namespace DSEDiagtnosticToExcel.Properties {
         public bool AppendToWorkSheet {
             get {
                 return ((bool)(this["AppendToWorkSheet"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("[>=32] 0.00 \"days\";[<1]  [hh]:mm;d hh:mm")]
+        public string ExcelTimeSpanFormat {
+            get {
+                return ((string)(this["ExcelTimeSpanFormat"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("mm/dd/yyyy hh:mm:ss.000")]
+        public string ExcelDateTimeFormat {
+            get {
+                return ((string)(this["ExcelDateTimeFormat"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("[hh]:mm")]
+        public string ExcelTimeFormat {
+            get {
+                return ((string)(this["ExcelTimeFormat"]));
             }
         }
     }

@@ -244,6 +244,18 @@ namespace DSEDiagnosticFileParser
                         skipSection = true;
                         statItem = null;
                         statItemCurrentKeyspace = null;
+
+                        var errorStatItem = new AggregatedStats(this.File,
+                                                                    this.Node,
+                                                                    SourceTypes.CFStats,
+                                                                    EventTypes.AggregateDataTool,
+                                                                    EventClasses.Node | EventClasses.KeyspaceTableViewIndexStats);
+                        this._statsList.Add(errorStatItem);
+
+                        errorStatItem.AssociateItem(AggregatedStats.Errors,
+                                                        new List<string>() { string.Format("Keyspace \"{0}\" not found in DC \"{1}\"",
+                                                                                            ksName,
+                                                                                            this.Node.DataCenter?.Name ?? "<NoDC>") });
                     }
                     else
                     {

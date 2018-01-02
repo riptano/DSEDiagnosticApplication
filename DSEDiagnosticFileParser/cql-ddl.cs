@@ -348,8 +348,11 @@ namespace DSEDiagnosticFileParser
                     continue;
                 }
 
-                Logger.Instance.ErrorFormat("{0}\t{1}\tCQL Statement Processing Error. Unknown CQL statement of \"{2}\".",
-                                                this.Node, this.File, string.Join(", ", cqlStatements.Select(s => "'" + s + "'")));
+                Logger.Instance.ErrorFormat("{0}\t{1}\tCQL Statement Processing Error (DC {3}). Unknown CQL statement of \"{2}\".",
+                                                this.Node,
+                                                this.File,
+                                                string.Join(", ", cqlStatements.Select(s => "'" + s + "'")),
+                                                this.Node?.DataCenter?.Name);
                 ++this.NbrErrors;
             }
 

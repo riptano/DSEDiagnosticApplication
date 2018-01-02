@@ -75,7 +75,8 @@ namespace DSEDiagtnosticToExcel
                                                                 workSheet.View.FreezePanes(3, 1);
                                                                 workSheet.Cells["I:I"].Style.Numberformat.Format = "0%";
                                                                 workSheet.Cells["J:J"].Style.Numberformat.Format = "0%";
-                                                                workSheet.Cells["L:L"].Style.Numberformat.Format = "d hh:mm";
+                                                                workSheet.Cells["L:L"].Style.Numberformat.Format = Properties.Settings.Default.ExcelTimeSpanFormat;
+                                                                workSheet.Cells["M:M"].Style.Numberformat.Format = Properties.Settings.Default.ExcelTimeSpanFormat;
 
                                                                 workSheet.Cells["N:N"].Style.Numberformat.Format = "#,###";
                                                                 workSheet.Cells["O:O"].Style.Numberformat.Format = "#,###";
