@@ -165,6 +165,7 @@ namespace DSEDiagnosticLog4NetParser
             using (var readStream = new StreamReader(logStream))
             {
                 LogMessage logMessage;
+                LogMessage lastLogMessage = null;
                 string logLine;
                 Task<string> nextLogLine = readStream.ReadLineAsync();
                 var eventAction = this.ProcessedLogLineAction;
@@ -186,6 +187,18 @@ namespace DSEDiagnosticLog4NetParser
 
                     if (logMessage != null)
                     {
+                        if(ReferenceEquals(logMessage, lastLogMessage))
+                        {
+                            continue;
+                        }
+                        else if(lastLogMessage != null
+                                    && lastLogMessage.ExtraMessages.HasAtLeastOneElement()
+                                    && ReferenceEquals(logMessages.Messages.LastOrDefault(), lastLogMessage))
+                        {
+                            eventAction?.Invoke(this, logMessages, lastLogMessage);
+                        }
+
+                        lastLogMessage = logMessage;
                         logRangeCheck = this.LogFileWithinTimeRange(logMessage, logMessages, readStream, nextLogLine);
 
                         if(logRangeCheck > 0)
@@ -218,6 +231,13 @@ namespace DSEDiagnosticLog4NetParser
                             break;
                         }
                     }
+                }
+
+                if (lastLogMessage != null
+                        && lastLogMessage.ExtraMessages.HasAtLeastOneElement()
+                        && ReferenceEquals(logMessages.Messages.LastOrDefault(), lastLogMessage))
+                {
+                    eventAction?.Invoke(this, logMessages, lastLogMessage);
                 }
             }
 

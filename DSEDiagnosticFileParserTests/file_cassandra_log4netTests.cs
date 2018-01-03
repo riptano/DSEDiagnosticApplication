@@ -371,5 +371,27 @@ namespace DSEDiagnosticFileParser.Tests
             var totalConfigEvents = logeventResults.Where(re => (re.GetValue(Common.Patterns.Collections.MemoryMapperElementCreationTypes.SearchView).Class & EventClasses.Config) == EventClasses.Config)
                                                     .Count();
         }
+
+        [TestMethod()]
+        public void ProcessFileTest_Exception()
+        {
+            this.CreateClusterDCNodeDDL();
+
+            Assert.AreEqual(this._cluster, DSEDiagnosticLibrary.Cluster.GetCurrentOrMaster());
+            Assert.IsNotNull(this._node1);
+
+            var testLogFile = Common.Path.PathUtils.BuildFilePath(@".\LogFiles\ExceptionSimple.log");
+
+            var parseFile = new file_cassandra_log4net(DiagnosticFile.CatagoryTypes.LogFile, testLogFile.ParentDirectoryPath, testLogFile, this._node1, null, null, null);
+
+            var nbrLinesParsed = parseFile.ProcessFile();
+
+            Assert.AreEqual((uint)4, nbrLinesParsed);
+            Assert.AreEqual(0, parseFile.NbrErrors);
+            Assert.AreEqual(4, parseFile.NbrItemsParsed);
+            Assert.AreEqual(DSEDiagnosticFileParser.DiagnosticFile.CatagoryTypes.LogFile, parseFile.Catagory);
+            Assert.AreEqual(this._cluster, parseFile.Cluster);
+            Assert.AreEqual(this._node1, parseFile.Node);
+        }
     }
 }

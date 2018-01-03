@@ -78,6 +78,9 @@ namespace DSEDiagnosticFileParser
             Read = 0x0004,
             Define = 0x0008,
             Delete = 0x0010,
+            /// <summary>
+            /// When defining a label instead of creating it, it is pushed onto a stack that upon delete it is poped off.
+            /// </summary>
             Stack = 0x0020,
             ReadSession = Read | Session,
             ReadLabel = Read | Label,
@@ -473,6 +476,9 @@ namespace DSEDiagnosticFileParser
 
         public SessionLookupActions SessionLookupAction { get; set; }
 
+        /// <summary>
+        /// Determines how parent sessions are added to the current instane&apos;s Parent property.
+        /// </summary>        
         public SessionParentActions SessionParentAction { get; set; } = SessionParentActions.Default;
         public string[] Examples;
 

@@ -173,12 +173,20 @@ namespace DSEDiagnosticFileParser
                 Tuple<Regex, Match, Regex, Match, CLogLineTypeParser> matchItem;
                 LogCassandraEvent logEvent;
                 bool firstLine = true;
+                bool ignoreLogEvent = false;
 
                 logFileInstance.ProcessedLogLineAction += (IReadLogFile readLogFileInstance, ILogMessages alreadyParsedLines, ILogMessage logMessage) =>
                 {
                     readLogFileInstance.CancellationToken.ThrowIfCancellationRequested();
 
-                    if(this.DuplicateLogEventFound(logMessage))
+                    //Exception messages will be invoked twice. Once on the original log event (no exception info) and than with the exception information for the original logMessage instance. 
+                    if (!ignoreLogEvent && logMessage.ExtraMessages.HasAtLeastOneElement())
+                    {
+                        logEvent = this.PorcessException();
+                        return;
+                    }
+
+                    if (this.DuplicateLogEventFound(logMessage))
                     {
                         return;
                     }
@@ -195,9 +203,11 @@ namespace DSEDiagnosticFileParser
 
                         possibleOpenSessions.ForEach(o => this._openSessions[o.SessionTieOutId] = (LogCassandraEvent) o);
                     }
-
+                    
                     matchItem = CLogTypeParser.FindMatch(this._parser, logMessage);
 
+                    logEvent = null;
+                    ignoreLogEvent = false;
                     if (matchItem == null)
                     {
                         if (logMessage.Level == LogLevels.Error)
@@ -217,6 +227,7 @@ namespace DSEDiagnosticFileParser
                     }
                     else if (matchItem.Item5.IgnoreEvent)
                     {
+                        ignoreLogEvent = true;
                         return;
                     }
                     else
@@ -225,12 +236,7 @@ namespace DSEDiagnosticFileParser
 
                         if (logEvent != null)
                             this._logEvents.Add(logEvent);
-                    }
-
-                    if (logMessage.ExtraMessages.HasAtLeastOneElement())
-                    {
-                        this.PorcessException();
-                    }
+                    }                    
                 };
 
                 using (var logMessages = logFileInstance.ProcessLogFile())
