@@ -427,13 +427,24 @@ namespace DSEDiagnosticLibrary
         #region ILogEvent
 
         public string SessionTieOutId { get; private set; }
+        
         public IReadOnlyDictionary<string, object> LogProperties { get; }
         public string LogMessage { get; }
         public IEnumerable<string> SSTables { get; private set; }
         public IEnumerable<IDDLStmt> DDLItems { get; private set; }
         public IEnumerable<INode> AssociatedNodes { get; private set; }
         public IEnumerable<DSEInfo.TokenRangeInfo> TokenRanges { get; private set; }
+
+        /// <summary>
+        /// Top level exception
+        /// </summary>
         public string Exception { get; private set; }
+
+        /// <summary>
+        /// An collection that represents the exception path.
+        /// 
+        /// e.g., ExceptionTopLevel(Exception Description), ExceptionNextLevelB(Exception Description), ExceptionNextLevelC(Exception Description)  
+        /// </summary>
         public IEnumerable<string> ExceptionPath { get; private set; }
 
         public IEnumerable<IMMLogValue> ParentEvents { get; private set; }
@@ -614,6 +625,12 @@ namespace DSEDiagnosticLibrary
         public void MarkAsOrphaned()
         {
             this.Class |= EventClasses.Orphaned;
+        }
+
+        public void SetException(string topLevelException, IEnumerable<string> exceptionPath)
+        {
+            this.Exception = topLevelException;
+            this.ExceptionPath = exceptionPath;
         }
 
         #region IEquatable

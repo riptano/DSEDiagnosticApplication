@@ -4,11 +4,38 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using IMMLogValue = Common.Patterns.Collections.MemoryMapped.IMMValue<DSEDiagnosticLibrary.ILogEvent>;
 
 namespace DSEDiagnosticLibrary
 {
-    public class IPathJsonConverter : JsonConverter
+    static class JsonConverters 
     {
+        volatile static bool Initialized = false;
+        public readonly static JsonConverter[] Instance = new JsonConverter[]
+                                                                    {
+                                                                        new IPAddressJsonConverter(),
+                                                                        new IPEndPointJsonConverter(),
+                                                                        new IPathJsonConverter(),
+                                                                        new DateTimeRangeJsonConverter()
+                                                                    };
+        public readonly static JsonSerializerSettings Settings = new JsonSerializerSettings
+                                                                    {
+                                                                        Converters = Instance
+                                                                    };
+
+        static JsonConverters()
+        {
+            if(!Initialized)
+            {
+                Initialized = true;
+                JsonConvert.DefaultSettings = () => Settings;
+            }
+        }
+    }
+
+
+    public class IPathJsonConverter : JsonConverter
+    {        
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
             writer.WriteStartObject();
@@ -127,7 +154,7 @@ namespace DSEDiagnosticLibrary
     }
 
     public class DateTimeRangeJsonConverter : JsonConverter
-    {
+    {        
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
             writer.WriteStartObject();
@@ -199,7 +226,7 @@ namespace DSEDiagnosticLibrary
     }
 
     public class IPAddressJsonConverter : JsonConverter
-    {
+    {       
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
             writer.WriteValue(((System.Net.IPAddress)value)?.ToString());
@@ -219,7 +246,73 @@ namespace DSEDiagnosticLibrary
 
         public override bool CanConvert(Type objectType)
         {
-            return objectType == typeof(Common.DateTimeRange);
+            return objectType == typeof(System.Net.IPAddress);
         }
     }
+
+    public class IPEndPointJsonConverter : JsonConverter
+    {        
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        {
+            var ep = (System.Net.IPEndPoint)value;
+            var jo = new Newtonsoft.Json.Linq.JObject();
+
+            jo.Add("Address", Newtonsoft.Json.Linq.JToken.FromObject(ep.Address, serializer));
+            jo.Add("Port", ep?.Port ?? 0);
+            jo.WriteTo(writer);
+        }
+
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        {
+            var jo = Newtonsoft.Json.Linq.JObject.Load(reader);
+            var address = jo["Address"].ToObject<System.Net.IPAddress>(serializer);
+
+            if (address != null)
+            {
+                int port = (int)jo["Port"];
+
+                return new System.Net.IPEndPoint(address, port);
+            }
+
+            return null;
+        }
+        
+        public override bool CanConvert(Type objectType)
+        {
+            return objectType == typeof(System.Net.IPEndPoint);
+        }
+    }
+
+    /*public class IMMLogValueJsonConverter : JsonConverter
+    {
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        {
+            var mmLogValue = (IMMLogValue)value;
+            var logValue = mmLogValue == null
+                                ? null
+                                : mmLogValue.Value;
+            var jo = new Newtonsoft.Json.Linq.JObject();
+
+            jo.Add("MMLogValue", Newtonsoft.Json.Linq.JToken.FromObject(logValue, serializer));            
+            jo.WriteTo(writer);
+        }
+
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        {
+            var jo = Newtonsoft.Json.Linq.JObject.Load(reader);
+            var logValue = jo["MMLogValue"].ToObject<ILogEvent>(serializer);
+
+            if (logValue != null)
+            {
+               return 
+            }
+
+            return null;
+        }
+
+        public override bool CanConvert(Type objectType)
+        {
+            return objectType == typeof(IMMLogValue);
+        }
+    }*/
 }

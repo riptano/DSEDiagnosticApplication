@@ -490,8 +490,16 @@ namespace DSEDiagnosticLibrary
             DateTimeOffset = 12,
             Timespan = 13,
             TokenRange = 14,
-            IPAddress = 15
+            IPAddress = 15,
+            IPEndPoint = 16,
+            List = 17
         }
+
+        //private static Newtonsoft.Json.JsonConverter[] CustomJsonConverters = new Newtonsoft.Json.JsonConverter[] { new DSEDiagnosticLibrary.IPAddressJsonConverter(),
+        //                                                                                                            new DSEDiagnosticLibrary.IPEndPointJsonConverter(),
+        //                                                                                                            new DSEDiagnosticLibrary.IPathJsonConverter(),
+        //                                                                                                            new DSEDiagnosticLibrary.DateTimeRangeJsonConverter() };
+
         static public void WriteMMElement(this Common.Patterns.Collections.MemoryMapper.WriteElement writeElement, object value)
         {
             //true if null or false is not null
@@ -546,10 +554,10 @@ namespace DSEDiagnosticLibrary
                 return;
             }
 
-            if(value is string)
+            if (value is string)
             {
                 writeElement.StoreValue((int)MMElementType.String);
-                writeElement.StoreValue((string) value);
+                writeElement.StoreValue((string)value);
             }
             else if (value is IDDLStmt)
             {
@@ -576,20 +584,36 @@ namespace DSEDiagnosticLibrary
                 writeElement.StoreValue((int)MMElementType.Cluster);
                 writeElement.StoreValue(value.GetHashCode());
             }
-            else if(value is DSEInfo.TokenRangeInfo)
+            else if (value is DSEInfo.TokenRangeInfo)
             {
                 writeElement.StoreValue((int)MMElementType.TokenRange);
                 writeElement.WriteMMElement((DSEInfo.TokenRangeInfo)value);
             }
-            else if(value is IPAddress)
+            else if (value is IPAddress)
             {
                 writeElement.StoreValue((int)MMElementType.IPAddress);
                 writeElement.WriteMMElement((IPAddress)value);
             }
+            else if (value is IPEndPoint)
+            {
+                writeElement.StoreValue((int)MMElementType.IPEndPoint);
+                writeElement.WriteMMElement((IPEndPoint)value);
+            }
+            else if (typeof(System.Collections.IEnumerable).IsAssignableFrom(value.GetType()))
+            {
+                writeElement.StoreValue((int)MMElementType.List);
+                writeElement.StoreValue(((IEnumerable<object>)value).Count());
+
+                foreach(var item in (IEnumerable<object>)value)
+                {
+                    WriteMMElement(writeElement, item);
+                }
+
+            }
             else
             {
                 writeElement.StoreValue((int)MMElementType.JSON);
-                writeElement.StoreValue(Newtonsoft.Json.JsonConvert.SerializeObject(value));
+                writeElement.StoreValue(Newtonsoft.Json.JsonConvert.SerializeObject(value, JsonConverters.Settings));
             }
         }
 
@@ -609,6 +633,20 @@ namespace DSEDiagnosticLibrary
             else
             {
                 writeElement.StoreValue(value.ToString());
+            }
+        }
+
+        static public void WriteMMElement(this Common.Patterns.Collections.MemoryMapper.WriteElement writeElement, IPEndPoint value)
+        {
+            if (value == null)
+            {
+                writeElement.StoreValue((string)null);
+                writeElement.StoreValue((int) 0);
+            }
+            else
+            {
+                writeElement.StoreValue(value.Address.ToString());
+                writeElement.StoreValue(value.Port);
             }
         }
 
@@ -654,7 +692,7 @@ namespace DSEDiagnosticLibrary
             switch (elementType)
             {
                 case MMElementType.JSON:
-                    value = Newtonsoft.Json.JsonConvert.DeserializeObject(readElement.GetStringValue());
+                    value = Newtonsoft.Json.JsonConvert.DeserializeObject(readElement.GetStringValue(), JsonConverters.Settings);
                     break;
                 case MMElementType.Long:
                     value = readElement.GetLongValue();
@@ -703,6 +741,19 @@ namespace DSEDiagnosticLibrary
                 case MMElementType.IPAddress:
                     value = readElement.GetMMIPAddress();
                     break;
+                case MMElementType.IPEndPoint:
+                    value = readElement.GetMMIPEndPoint();
+                    break;
+                case MMElementType.List:
+                    var count = readElement.GetIntValue();
+                    var itemLst = new List<object>(count);
+
+                    for(int nIdx = 0; nIdx < count; nIdx++)
+                    {
+                        itemLst.Add(GetMMElement(readElement, cluster, dc, node, keyspace));
+                    }
+                    value = itemLst;
+                    break;
                 default:
                     throw new ArgumentException(string.Format("GetMMElement Failed with an unkown MMEllementType of {0}", elementType));
                     //break;
@@ -739,6 +790,14 @@ namespace DSEDiagnosticLibrary
             var ipAddressStr = readView.GetStringValue();
 
             return ipAddressStr == null ? null : IPAddress.Parse(ipAddressStr);
+        }
+
+        static public IPEndPoint GetMMIPEndPoint(this Common.Patterns.Collections.MemoryMapper.ReadElement readView)
+        {
+            var ipAddressStr = readView.GetStringValue();
+            var port = readView.GetIntValue();
+
+            return ipAddressStr == null ? null : new IPEndPoint(IPAddress.Parse(ipAddressStr), port);
         }
 
         static public UnitOfMeasure GetMMUOM(this Common.Patterns.Collections.MemoryMapper.ReadElement readView)
@@ -781,8 +840,19 @@ namespace DSEDiagnosticLibrary
                 case MMElementType.IPAddress:
                     readElement.SkipString();
                     break;
+                case MMElementType.IPEndPoint:
+                    readElement.SkipString();
+                    readElement.SkipInt();
+                    break;
                 case MMElementType.TokenRange:
                     readElement.SkipMMTokenRange();
+                    break;
+                case MMElementType.List:
+                    var count = readElement.GetIntValue();
+                    for(int nIdx = 0; nIdx < count; nIdx++)
+                    {
+                        SkipMMElement(readElement);
+                    }
                     break;
                 default:
                     throw new ArgumentException(string.Format("SkipMMElement Failed with an unkown MMEllementType of {0}", elementType));

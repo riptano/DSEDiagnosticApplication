@@ -386,12 +386,13 @@ namespace DSEDiagnosticFileParser.Tests
 
             var nbrLinesParsed = parseFile.ProcessFile();
 
-            Assert.AreEqual((uint)4, nbrLinesParsed);
+            Assert.AreEqual((uint)9, nbrLinesParsed);
             Assert.AreEqual(0, parseFile.NbrErrors);
-            Assert.AreEqual(4, parseFile.NbrItemsParsed);
+            Assert.AreEqual(181, parseFile.NbrItemsParsed);
             Assert.AreEqual(DSEDiagnosticFileParser.DiagnosticFile.CatagoryTypes.LogFile, parseFile.Catagory);
             Assert.AreEqual(this._cluster, parseFile.Cluster);
             Assert.AreEqual(this._node1, parseFile.Node);
+            Assert.AreEqual(9, parseFile.Result.Results.Count());
         }
     }
 }

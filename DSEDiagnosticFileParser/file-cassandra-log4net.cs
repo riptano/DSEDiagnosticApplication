@@ -182,7 +182,11 @@ namespace DSEDiagnosticFileParser
                     //Exception messages will be invoked twice. Once on the original log event (no exception info) and than with the exception information for the original logMessage instance. 
                     if (!ignoreLogEvent && logMessage.ExtraMessages.HasAtLeastOneElement())
                     {
-                        logEvent = this.PorcessException();
+                        logEvent = this.PorcessException(logMessage);
+
+                        if (logEvent != null)
+                            this._logEvents.Add(logEvent);
+
                         return;
                     }
 
@@ -295,9 +299,222 @@ namespace DSEDiagnosticFileParser
             return null;
         }
 
-        private LogCassandraEvent PorcessException()
+        /*
+         INFO [SharedPool-Worker-2] 2016-07-25 04:25:35,012  Message.java:532 - Unexpected exception during request; channel = [id: 0x40c292ba, /10.0.0.2:42705 :> /<1ocal node>:9042]
+        java.io.IOException: Error while read(...): Connection reset by peer
+
+        ERROR [SharedPool-Worker-4] 2016-07-25 04:35:35,123  Message.java:617 - Unexpected exception during request; channel = [id: 0xd30bc260, /10.0.0.2:55526 => /10.0.0.1:9042]
+        java.lang.RuntimeException: org.apache.cassandra.exceptions.ReadTimeoutException: Operation timed out - received only 0 responses.
+        Caused by: org.apache.cassandra.exceptions.ReadTimeoutException: Operation timed out - received only 0 responses
+
+        ERROR [SharedPool-Worker-4] 2016-07-25 04:35:35,123  Message.java:617 - Unexpected exception during request; channel = [id: 0xd30bc260, /10.0.0.2:55526 => /10.0.0.1:9042]
+        java.lang.RuntimeException: org.apache.cassandra.exceptions.ReadTimeoutException: Operation timed out - received only 0 responses.
+
+
+        ERROR [SharedPool-Worker-5] 2016-07-25 04:45:35,234  Message.java:617 - Unexpected exception during request; channel = [id: 0x16977ddb, /10.0.0.2:61415 => /10.0.0.1:9042]
+        com.google.common.util.concurrent.UncheckedExecutionException: java.lang.RuntimeException: org.apache.cassandra.exceptions.UnavailableException: Cannot achieve consistency level LOCAL_ONE
+        Caused by: org.apache.cassandra.exceptions.ReadTimeoutException: Operation timed out - received only 0 responses.
+
+        ERROR [SSTableBatchOpen:2] 2016-07-25 05:15:35,590  DebuggableThreadPoolExecutor.java:227 - Error in ThreadPoolExecutor
+        java.lang.AssertionError: Data component is missing for sstable/apps/cassandra/data/data2/system/local-7ad54392bcdd35a684174e047860b377/system-local-ka-11048
+
+        ERROR [SharedPool-Worker-1] 2016-09-28 19:18:25,277  CqlSolrQueryExecutor.java:375 - No response after timeout: 60000
+        org.apache.solr.common.SolrException: No response after timeout: 60000
+
+        ERROR [MessagingService-Incoming-/10.12.49.27] 2016-09-28 18:53:54,898  JVMStabilityInspector.java:106 - JVM state determined to be unstable.  Exiting forcefully due to:
+        java.lang.OutOfMemoryError: Java heap space
+
+         ERROR [Repair#508:1] 2017-08-28 14:48:16,321  SystemDistributedKeyspace.java:208 - Error executing query UPDATE system_distributed.repair_history SET status = 'SUCCESS', finished_at = toTimestamp(now()) WHERE keyspace_name = 'rts_data' AND columnfamily_name = 'minmax_by_logid_mnemonic' AND id = eb437f00-8bff-11e7-8f3d-cf2f446dbb84
+         org.apache.cassandra.exceptions.UnavailableException: Cannot achieve consistency level ONE
+        */
+
+        private LogCassandraEvent PorcessException(ILogMessage logMessage)
         {
-            return null;
+            var logProperties = new Dictionary<string, object>();
+            var ssTablePaths = new List<string>();
+            string subClass = null;
+            string topLevelException;
+            var exceptionPaths = new List<string>();
+            var assocNodes = new List<INode>();
+
+            topLevelException = this.DetermineExceptionInfo(logMessage, logProperties, ssTablePaths, exceptionPaths, assocNodes);
+
+            var logEvent = new LogCassandraEvent(this.File,
+                                                    this.Node,
+                                                    (uint)logMessage.FileLine,
+                                                    EventClasses.Exception,
+                                                    logMessage.LogDateTime,
+                                                    logMessage.LogDateTimewTZOffset,                                                    
+                                                    logMessage.Message,
+                                                    EventTypes.SingleInstance,
+                                                    null,
+                                                    subClass,
+                                                    null, //parentEvents,
+                                                    this.Node.Machine.TimeZone,
+                                                    null, //primaryKS,
+                                                    null, //primaryDDL,   
+                                                    null, //duration
+                                                    logProperties.Count == 0 ? (IReadOnlyDictionary<string,object>) null : logProperties, //logProperties,
+                                                    ssTablePaths.Count == 0 ? (IEnumerable<string>) null : ssTablePaths, //sstableFilePaths,
+                                                    null, //ddlInstances,
+                                                    assocNodes.Count == 0 ? null : assocNodes, //assocatedNodes,
+                                                    null, //tokenRanges,
+                                                    null //sessionId,
+                                                    );
+
+            logEvent.SetException(topLevelException, exceptionPaths.Count == 0 ? null : exceptionPaths);
+
+            return logEvent;
+        }
+
+        private string DetermineExceptionInfo(ILogMessage logMessage, Dictionary<string, object> logProperties, List<string> ssTables, List<string> exceptionPaths, List<INode> assocatedNodes)
+        {
+            string topLefvelException = null;
+            var msgList = new List<string>() { logMessage.Message };
+            msgList.AddRange(logMessage.ExtraMessages);
+
+            foreach(var exceptionLine in msgList)
+            {
+                //Skip stack
+                if (exceptionLine.TrimStart().StartsWith("at ", StringComparison.OrdinalIgnoreCase)
+                        || exceptionLine.TrimStart().StartsWith("..."))
+                    continue;
+               
+                var exceptionDesc = ParseExceptionString(exceptionLine);
+                var exceptClass = exceptionDesc.Item1;
+                var exceptDescription = exceptionDesc.Item2;
+
+                if (topLefvelException == null && !string.IsNullOrEmpty(exceptClass))
+                    topLefvelException = exceptClass;
+
+                if (exceptDescription.IndexOf("/<1ocal node>") >= 0)
+                {
+                    var ipAddress = this.Node.Id.Addresses.FirstOrDefault()?.ToString();
+
+                    if(!string.IsNullOrEmpty(ipAddress))
+                        exceptDescription = exceptDescription.Replace("/<1ocal node>", string.Format("/{0}", ipAddress));
+                }
+
+                var matches = string.IsNullOrEmpty(exceptDescription) ? null : LibrarySettings.LogExceptionRegExMatches.Matches(exceptDescription);
+
+                if (matches != null)
+                {
+                    foreach (Match match in matches)
+                    {
+                        UpdateMatchProperties(LibrarySettings.LogExceptionRegExMatches, match, logProperties, true);
+                    }
+
+                    if(logProperties.ContainsKey("NODE"))
+                    {
+                        var assocNodes = logProperties["NODE"];
+                        
+                        if(assocNodes is IEnumerable<object>)
+                        {
+                            assocatedNodes.AddRange(((IEnumerable<object>)assocNodes)
+                                                        .Select(n => n is INode
+                                                                        ? (INode) n
+                                                                        : this.Cluster.TryGetNode(n is System.Net.IPEndPoint
+                                                                                                    ? ((System.Net.IPEndPoint)n).Address.ToString()
+                                                                                                    : n.ToString()))
+                                                        .Where(n => !this.Node.Equals(n) && !assocatedNodes.Contains(n)));
+
+                            ((IEnumerable<object>)assocNodes)
+                                .Where(n => n is System.Net.IPEndPoint)
+                                .Cast<System.Net.IPEndPoint>()
+                                .ForEach(ep => exceptDescription = exceptDescription.Replace(ep.Port.ToString(), "XXXX"));
+                        }
+                        else
+                        {
+                            var node = assocNodes is INode
+                                        ? (INode)assocNodes
+                                        : this.Cluster.TryGetNode(assocNodes is System.Net.IPEndPoint
+                                                                    ? ((System.Net.IPEndPoint)assocNodes).Address.ToString()
+                                                                    : assocNodes.ToString());
+
+                            if (!this.Node.Equals(node))
+                            {
+                                if(!assocatedNodes.Contains(node))
+                                    assocatedNodes.Add(node);
+                                
+                                if(assocNodes is System.Net.IPEndPoint)
+                                {
+                                    exceptDescription = exceptDescription.Replace(((System.Net.IPEndPoint)assocNodes).Port.ToString(), "XXXX");
+                                }
+                            }
+                        }                        
+                    }
+
+                    if (logProperties.ContainsKey("SSTABLEPATH"))
+                    {
+                        var assocTables = logProperties["SSTABLEPATH"];
+
+                        if (assocTables is IEnumerable<object>)
+                        {
+                            ssTables.AddRange(((IEnumerable<object>)assocTables).Cast<string>().Where(s => !ssTables.Contains(s)));
+                        }
+                        else
+                        {
+                            if(!ssTables.Contains((string)assocTables))
+                                ssTables.Add((string)assocTables);                            
+                        }                
+                    }
+                }
+
+                var clsPath = string.Format("{0}({1})", exceptClass ?? logMessage.Level.ToString(), exceptDescription ?? string.Empty);
+
+                if (exceptionPaths.Count > 1)
+                {
+                    var lstPath = exceptionPaths.Last();
+
+                    if(lstPath != clsPath)
+                    {
+                        var emptyDesc = lstPath.EndsWith("()");
+
+                        if(!emptyDesc || !clsPath.StartsWith(lstPath.Substring(0,lstPath.Length - 1)))
+                        {
+                            exceptionPaths.Add(clsPath);
+                        }
+                    }
+                }
+                else
+                {
+                    exceptionPaths.Add(clsPath);
+                }
+            }
+
+            return topLefvelException;
+        }
+
+        /// <summary>
+        /// Takes a line and looks for the exception and description
+        /// 
+        /// cases like &quot;com.google.common.util.concurrent.UncheckedExecutionException: java.lang.RuntimeException: org.apache.cassandra.exceptions.UnavailableException: Cannot achieve consistency level LOCAL_ONE&quot;
+        /// will return &quot;org.apache.cassandra.exceptions.UnavailableException&quot; and &quot;Cannot achieve consistency level LOCAL_ONE&quot;
+        /// </summary>
+        /// <param name="exceptionLine"></param>
+        /// <returns>
+        /// Returns the exception as the first item and the exception&apos;s description. If no exception detected, the first item is null.
+        /// </returns>
+        private static Tuple<string, string> ParseExceptionString(string exceptionLine)
+        {
+            if(exceptionLine.StartsWith("caused by:",StringComparison.OrdinalIgnoreCase))
+            {
+                exceptionLine = exceptionLine.Substring(9).TrimStart();
+            }
+
+            var exceptionInfo = StringFunctions.Split(exceptionLine,
+                                                        ':',
+                                                        StringFunctions.IgnoreWithinDelimiterFlag.All,
+                                                        StringFunctions.SplitBehaviorOptions.RemoveEmptyEntries | StringFunctions.SplitBehaviorOptions.StringTrimEachElement | StringFunctions.SplitBehaviorOptions.MismatchedWithinDelimitersTreatAsSingleElement);
+
+            //Find first exception with a "valid" description 
+            var validDescIndex = exceptionInfo.IndexOf(i => !i.EndsWith("exception", StringComparison.OrdinalIgnoreCase)
+                                                            && !i.EndsWith("error", StringComparison.OrdinalIgnoreCase)
+                                                            && !i.EndsWith("assertion", StringComparison.OrdinalIgnoreCase));
+
+            return validDescIndex <= 0
+                        ? (exceptionInfo.Count > 1 ? new Tuple<string, string>(exceptionInfo.Last(), string.Empty) : new Tuple<string, string>(null, exceptionLine.Trim()))
+                        : new Tuple<string, string>(exceptionInfo[validDescIndex - 1], string.Join(": ", exceptionInfo.Skip(validDescIndex)));
         }
 
         /* INFO  [CompactionExecutor:749] 2017-02-11 00:17:43,927  CompactionTask.java:141 - Compacting [SSTableReader(path='/data/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/system-compactions_in_progress-ka-156636-Data.db'), SSTableReader(path='/data/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/system-compactions_in_progress-ka-156635-Data.db'), SSTableReader(path='/data/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/system-compactions_in_progress-ka-156638-Data.db'), SSTableReader(path='/data/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/system-compactions_in_progress-ka-156637-Data.db')]
@@ -1026,7 +1243,7 @@ namespace DSEDiagnosticFileParser
             return logEvent;
         }
 
-        private static void UpdateMatchProperties(Regex matchRegEx, Match matchItem, Dictionary<string, object> logProperties)
+        private static void UpdateMatchProperties(Regex matchRegEx, Match matchItem, Dictionary<string, object> logProperties, bool appendToPropertyValueOnDupKey = false)
         {
             string normalizedGroupName;
             string uomType;
@@ -1189,13 +1406,48 @@ namespace DSEDiagnosticFileParser
                         {
                             if (groupInstance.Captures.Count <= 1)
                             {
-                                logProperties.TryAddValue(normalizedGroupName,
-                                                            StringHelpers.DetermineProperObjectFormat(groupInstance.Value,
-                                                                                                        true,
-                                                                                                        false,
-                                                                                                        true,
-                                                                                                        uomType,
-                                                                                                        true));
+                                if (appendToPropertyValueOnDupKey)
+                                {
+                                    var objValue = StringHelpers.DetermineProperObjectFormat(groupInstance.Value,
+                                                                                                true,
+                                                                                                false,
+                                                                                                true,
+                                                                                                uomType,
+                                                                                                true);
+                                    if(logProperties.ContainsKey(normalizedGroupName))
+                                    {
+                                        var currentValue = logProperties[normalizedGroupName];
+
+                                        if(currentValue is IList<object>)
+                                        {
+                                            if(!((IList<object>) currentValue).Contains(objValue))
+                                                ((IList<object>)currentValue).Add(objValue);
+                                        }
+                                        else if(currentValue is IEnumerable<object>)
+                                        {
+                                            if(!((IEnumerable<object>)currentValue).Contains(objValue))
+                                                logProperties[normalizedGroupName] = new List<object>((IEnumerable<object>) currentValue) { objValue };
+                                        }
+                                        else if(!currentValue.Equals(objValue))
+                                        {
+                                            logProperties[normalizedGroupName] = new List<object>() { currentValue, objValue };
+                                        }
+                                    }
+                                    else
+                                    {
+                                        logProperties.TryAddValue(normalizedGroupName, objValue);
+                                    }
+                                }
+                                else
+                                {
+                                    logProperties.TryAddValue(normalizedGroupName,
+                                                                StringHelpers.DetermineProperObjectFormat(groupInstance.Value,
+                                                                                                            true,
+                                                                                                            false,
+                                                                                                            true,
+                                                                                                            uomType,
+                                                                                                            true));
+                                }
                             }
                             else
                             {

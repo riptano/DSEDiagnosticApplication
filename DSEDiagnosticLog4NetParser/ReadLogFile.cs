@@ -185,7 +185,17 @@ namespace DSEDiagnosticLog4NetParser
 
                     logMessage = logMessages.AddMessage(logLine, ++this.LinesRead);
 
-                    if (logMessage != null)
+                    if (logMessage == null)
+                    {
+                        if (lastLogMessage != null
+                                && lastLogMessage.ExtraMessages.HasAtLeastOneElement()
+                                && ReferenceEquals(logMessages.Messages.LastOrDefault(), lastLogMessage))
+                        {
+                            eventAction?.Invoke(this, logMessages, lastLogMessage);
+                        }
+                        lastLogMessage = logMessage;
+                    }
+                    else
                     {
                         if(ReferenceEquals(logMessage, lastLogMessage))
                         {

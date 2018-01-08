@@ -23,6 +23,15 @@ namespace DSEDiagnosticLibrary.Tests
 
             Assert.AreEqual(expected, actual);
 
+            expected = new System.Net.IPEndPoint(System.Net.IPAddress.Parse("10.11.12.14"), 1024);
+            actual = StringHelpers.DetermineProperObjectFormat("10.11.12.14:1024", false, true, true, null, true);
+
+            Assert.AreEqual(expected, actual);
+
+            actual = StringHelpers.DetermineProperObjectFormat("/10.11.12.14:1024", false, true, true, null, true);
+
+            Assert.AreEqual(expected, actual);
+
             expected = System.DateTime.Parse(@"12/25/1991 13:50:25.34");
             actual = StringHelpers.DetermineProperObjectFormat(@"12/25/1991 13:50:25.34", false, true, true, null, true);
 
