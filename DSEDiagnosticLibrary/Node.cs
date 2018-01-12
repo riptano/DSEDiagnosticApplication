@@ -245,6 +245,25 @@ namespace DSEDiagnosticLibrary
             return true ;
         }
 
+        public static bool DetermineIfNameHasIPAddressOrHostName(string possibleNodeName, bool checkForHostName = true)
+        {
+            var ipMatch = IPAddressRegEx.Match(possibleNodeName);
+
+            if (!ipMatch.Success)
+            {
+                if (checkForHostName)
+                {
+                    var nameParts = possibleNodeName.Split(LibrarySettings.HostNamePathNameCharSeparators);
+
+                    return nameParts.Length > 1;
+                }
+
+                return false;
+            }
+
+            return true;
+        }
+
         /// <summary>
 		/// Evaluates possibleNodeName to determine a Node&apos;s IPAdress (V4 or V6) or HostName.
 		/// If a nodes&apos;s name is an IPAdress it can be embeded anywhere in the name.
@@ -874,6 +893,11 @@ namespace DSEDiagnosticLibrary
             public UnitOfMeasure Load;
 
             /// <summary>
+            /// Returns the Token range as a string representation 
+            /// </summary>
+            public string Range { get { return string.Format("({0},{1}]", this.StartRange, this.EndRange); } }
+
+            /// <summary>
             /// Checks to determine if checkRange is within this range.
             /// </summary>
             /// <param name="checkRange"></param>
@@ -898,6 +922,20 @@ namespace DSEDiagnosticLibrary
 
                 return false;
             }
+
+            public bool IsWithinRange(long checkRange)
+            {
+                if (checkRange <= this.EndRange)
+                {
+                    if (checkRange > this.StartRange)
+                    {
+                        return true;
+                    }
+                }
+                
+                return false;
+            }
+
 
             public override string ToString()
             {

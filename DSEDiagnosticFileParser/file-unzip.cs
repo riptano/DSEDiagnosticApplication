@@ -60,8 +60,11 @@ namespace DSEDiagnosticFileParser
         {
             IDirectoryPath newDirectory = null;
             int nbrFilesExtracted = 0;
+            //If file name has an IP address or host name embedded, the extractor will create a direction based on this file name. Otherwise just extract into the file's parent directory.
+            var extractToParentFolder = !NodeIdentifier.DetermineIfNameHasIPAddressOrHostName(this.File.FileNameWithoutExtension);
+            
 
-            nbrFilesExtracted = MiscHelpers.UnZipFileToFolder(this.File, out newDirectory, false, true, true, true, this.CancellationToken);
+            nbrFilesExtracted = MiscHelpers.UnZipFileToFolder(this.File, out newDirectory, false, extractToParentFolder, true, true, this.CancellationToken);
             
             this._result = new ExtractionResult(newDirectory, nbrFilesExtracted, nbrFilesExtracted > 0);
 

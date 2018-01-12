@@ -106,6 +106,14 @@ namespace DataTableToExcel
         /// <param name="renameFirstWorksheetIfDivided">
         /// renames the first worksheet (default) in cases where the maxRowInExcelWorkSheet is exceed. Otherwise the original workSheetName is used.
         /// </param>
+        /// <param name="appendToWorkSheet">
+        /// if true, worksheet is appended (not overwritten). The default is false.
+        /// </param>
+        /// <param name="clearWorkSheet">
+        /// If true (default), the worksheet is first cleared (ignored if appendToWorksheet is true)
+        /// </param>
+        /// <param name="printHeaders">
+        /// </param>
         /// <returns></returns>
         static public ExcelRangeBase WorkSheet(this ExcelPackage excelPkg,
                                                 string workSheetName,
@@ -132,10 +140,28 @@ namespace DataTableToExcel
 
             if (dtExcel.Rows.Count == 0)
             {
-                Logger.Instance.InfoFormat("No row in DataTable \"{0}\" for Excel WorkSheet \"{1}\" in Workbook \"{2}\".",
+                Logger.Instance.InfoFormat("No row in DataTable \"{0}\" for Excel WorkSheet \"{1}\" in Workbook \"{2}\".{3}",
                                             dtExcel.TableName,
                                             workSheetName,
-                                            excelPkg.File?.Name);
+                                            excelPkg.File?.Name,
+                                            clearWorkSheet ? " Worksheet Cleared" : string.Empty);
+                if (!appendToWorkSheet && clearWorkSheet)
+                {
+                    var clrWorkSheet = excelPkg.Workbook.Worksheets[workSheetName];
+
+                    if (clrWorkSheet != null)
+                    {
+                        clrWorkSheet.Cells.Clear();
+                        foreach (ExcelComment comment in clrWorkSheet.Comments.Cast<ExcelComment>().ToArray())
+                        {
+                            try
+                            {
+                                clrWorkSheet.Comments.Remove(comment);
+                            }
+                            catch { }
+                        }
+                    }
+                }
                 return null;
             }
 
@@ -165,10 +191,28 @@ namespace DataTableToExcel
                                                 dtExcel.DefaultView.RowStateFilter,
                                                 excelPkg.File?.Name);
                 }
-                Logger.Instance.InfoFormat("No row in DataTable \"{0}\" for Excel WorkSheet \"{1}\" in Workbook \"{2}\".",
+                Logger.Instance.InfoFormat("No row in DataTable \"{0}\" for Excel WorkSheet \"{1}\" in Workbook \"{2}\".{3}",
                                             dtExcel.TableName,
                                             workSheetName,
-                                            excelPkg.File?.Name);
+                                            excelPkg.File?.Name,
+                                            clearWorkSheet ? " Worksheet Cleared" : string.Empty);
+                if (!appendToWorkSheet && clearWorkSheet)
+                {
+                    var clrWorkSheet = excelPkg.Workbook.Worksheets[workSheetName];
+
+                    if (clrWorkSheet != null)
+                    {
+                        clrWorkSheet.Cells.Clear();
+                        foreach (ExcelComment comment in clrWorkSheet.Comments.Cast<ExcelComment>().ToArray())
+                        {
+                            try
+                            {
+                                clrWorkSheet.Comments.Remove(comment);
+                            }
+                            catch { }
+                        }
+                    }
+                }
                 return null;
             }
 
@@ -378,6 +422,18 @@ namespace DataTableToExcel
         /// if useDefaultView is true the datatable&apos;s default view is used to filter and/or sort the table.
         /// Default is false.
         /// </param>
+        /// <param name="appendToWorkSheet">
+        /// if true, worksheet is appended (not overwritten). The default is false.
+        /// </param>
+        /// <param name="clearWorkSheet">
+        /// If true (default), the worksheet is first cleared (ignored if appendToWorksheetis true)
+        /// </param>
+        /// <param name="generateNewFileName">
+        /// If true, the worksheet name is appended to the file name. Default is false.
+        /// </param>
+        /// <param name="processWorkSheetOnEmptyDataTable">
+        /// If true (default), empty data tables are still processed. If false this method just returns (calls PostProcess event).
+        /// </param>
         /// <returns></returns>
         static public int WorkBook(string excelFilePath,
                                                     string workSheetName,
@@ -390,7 +446,8 @@ namespace DataTableToExcel
                                                     bool useDefaultView = false,
                                                     bool generateNewFileName = false,
                                                     bool appendToWorkSheet = false,
-                                                    bool clearWorkSheet = true)
+                                                    bool clearWorkSheet = true,
+                                                    bool processWorkSheetOnEmptyDataTable = true)
         {
             var excelTargetFile = Common.Path.PathUtils.BuildFilePath(excelFilePath);
             var orgTargetFile = (IFilePath)excelTargetFile.Clone();
@@ -406,7 +463,7 @@ namespace DataTableToExcel
                                         -1,
                                         null);
 
-            if (dtExcel.Rows.Count == 0)
+            if (dtExcel.Rows.Count == 0 && !processWorkSheetOnEmptyDataTable)
             {
                 workBookActions?.Invoke(WorkBookProcessingStage.PostProcess, orgTargetFile, null, null, null, dtExcel, 0, null);
                 return 0;

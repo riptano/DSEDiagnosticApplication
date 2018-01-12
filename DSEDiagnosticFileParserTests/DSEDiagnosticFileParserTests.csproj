@@ -84,6 +84,7 @@
     <Otherwise />
   </Choose>
   <ItemGroup>
+    <Compile Include="cql_ddlTests.cs" />
     <Compile Include="file_cassandra_log4netTests.cs" />
     <Compile Include="file_dsetool_ringTests.cs" />
     <Compile Include="file_system_hostsTests.cs" />
@@ -154,7 +155,11 @@
       <Name>DSEDiagnosticLog4NetParser</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="DDL\Simple_DDL">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
       <ItemGroup>

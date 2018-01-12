@@ -97,7 +97,7 @@ java.lang.AssertionError: java.lang.InterruptedException
 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142) ~[na:1.8.0_111]
 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617) ~[na:1.8.0_111]
 	at java.lang.Thread.run(Thread.java:745) ~[na:1.8.0_111]
-Caused by: java.lang.InterruptedException: null
+Caused by: java.lang.InterruptedException: Test String
 	at java.util.concurrent.locks.AbstractQueuedSynchronizer.acquireInterruptibly(AbstractQueuedSynchronizer.java:1220) ~[na:1.8.0_111]
 	at java.util.concurrent.locks.ReentrantLock.lockInterruptibly(ReentrantLock.java:335) ~[na:1.8.0_111]
 	at java.util.concurrent.LinkedBlockingQueue.put(LinkedBlockingQueue.java:339) ~[na:1.8.0_111]
@@ -115,7 +115,6 @@ java.lang.AssertionError: null
 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142) ~[na:1.8.0_111]
 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617) [na:1.8.0_111]
 	at java.lang.Thread.run(Thread.java:745) [na:1.8.0_111]
-
 ERROR [SSTableBatchOpen:2] 2016-07-25 05:15:35,590  DebuggableThreadPoolExecutor.java:227 - Error in ThreadPoolExecutor
 java.lang.AssertionError: Data component is missing for sstable/apps/cassandra/data/data2/system/local-7ad54392bcdd35a684174e047860b377/system-local-ka-11048
 	at org.apache.cassandra.io.sstable.SSTableReader.open(SSTableReader.java:456) ~[cassandra-all-2.1.14.97642.jar:2.1.14.97642]
@@ -126,7 +125,7 @@ java.lang.AssertionError: Data component is missing for sstable/apps/cassandra/d
 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142) ~[na:1.8.0_66]
 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(Th
 
-WARN  [DbInfoRollup-Scheduler-thread-0] 22016-07-25 05:25:35,901   DbInfoRollupScheduler.java:230 - Error attempting to check lease for periodic update task
+WARN  [DbInfoRollup-Scheduler-thread-0] 2016-07-25 05:25:35,901   DbInfoRollupScheduler.java:230 - Error attempting to check lease for periodic update task
 org.apache.cassandra.exceptions.ReadTimeoutException: Operation timed out - received only 7 responses.
 	at org.apache.cassandra.service.StorageProxy.fetchRows(StorageProxy.java:1491) ~[cassandra-all-2.1.17.1439.jar:2.1.17.1439]
 	at org.apache.cassandra.service.StorageProxy.readWithPaxos(StorageProxy.java:1292) ~[cassandra-all-2.1.17.1439.jar:2.1.17.1439]
@@ -149,7 +148,7 @@ org.apache.cassandra.exceptions.ReadTimeoutException: Operation timed out - rece
 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617) [na:1.8.0_71]
 	at java.lang.Thread.run(Thread.java:745) [na:1.8.0_71]
 
-ERROR [GossipTasks:1] 2017-01-05 15:34:59,614  RepairRunnable.java:261 - Repair session 9fc39482-d353-11e6-9940-7d76bd094de7 for range [(-5041742244861454083,-5031228534686663405], (-5031228534686663405,-5027634690056969021], (-4998749603121144073,-4997554617625990702], (4801964342755268407,4821940070161401515], (-5484640490263850666,-5482659095377290339], (-4992832937061935230,-4983094210752029477], (6080817576420974861,6085344121835895255], (-5631687778475504058,-5628789915215383820], (-8239902477410357537,-8234601316997007237], (-4997554617625990702,-4992832937061935230]] failed with error Endpoint /10.14.150.233 died
+ERROR [GossipTasks:1] 2017-01-05 15:34:59,614  RepairRunnable.java:261 - Repair session 9fc39482-d353-11e6-9940-7d76bd094de7 for range [(-5041742244861454083,-5031228534686663405], (-5031228534686663405,-5027634690056969021], (-4998749603121144073,-4997554617625990702], (4801964342755268407,4821940070161401515], (-5484640490263850666,-5482659095377290339], (-4992832937061935230,-4983094210752029477], (6080817576420974861,6085344121835895255], (-5631687778475504058,-5628789915215383820], (-8239902477410357537,-8234601316997007237], (-4997554617625990702,-4992832937061935230]] failed with error Endpoint /10.0.0.2 died
 java.io.IOException: Endpoint /10.0.0.2 died
 	at org.apache.cassandra.repair.RepairSession.convict(RepairSession.java:346) ~[cassandra-all-3.0.8.1293.jar:3.0.8.1293]
 	at org.apache.cassandra.gms.FailureDetector.interpret(FailureDetector.java:306) [cassandra-all-3.0.8.1293.jar:3.0.8.1293]

@@ -748,9 +748,7 @@ public static class {0}
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("(?:/(?<NODE>[^  \\]}),]+))|(?:consistency\\s+level\\s+(?<consistencylevel>[a-z\\-_]+)" +
-            ")|(?:timeout\\:?\\s+(?<timeout>[0-9,.\\-]+))|(?:sstable\\s*(?<SSTABLEPATH>[a-z0-9\\-_" +
-            "@#/.,\\\\ +%]+)[\\]})]?)|(?:executing\\s+query\\s+(?<cql>.+))")]
+        [global::System.Configuration.DefaultSettingValueAttribute(@"(?:/(?<NODE>[^  \]}),]+))|(?:consistency\s+level\s+(?<consistencylevel>[a-z\-_]+))|(?:timeout\:?\s+(?<timeout>[0-9,.\-]+))|(?:sstable\s*(?<SSTABLEPATH>[a-z0-9\-_@#/.,\\ +%]+)[\]})]?)|(?:executing\s+query\s+(?<cql>.+)|(?:(?:\s+|\#)(?<ID>[0-9a-f]{8}\-[0-9a-f]{4}\-[0-9a-f]{4}\-[0-9a-f]{4}\-[0-9a-f]{12})(?:\s|\]))|(?:\s?(?<TOKENRANGE>\(\-?[0-9]+\,\-?[0-9]+\])\,?))")]
         public string LogExceptionRegExMatches {
             get {
                 return ((string)(this["LogExceptionRegExMatches"]));

@@ -1,0 +1,51 @@
+﻿CREATE KEYSPACE tstKeyspace WITH replication = {'class': 'NetworkTopologyStrategy', 'DC1': '3', 'DC2': '2'}  AND durable_writes = true;
+
+CREATE TYPE tstKeyspace.UDTTimestampTextList (
+  colTimestamp timestamp,
+  colText text,
+  colLastFrozenListInt list<frozen <list<int>>>
+);
+
+CREATE TABLE tstKeyspace.tstTblAST (
+    colBigIntPK bigint PRIMARY KEY,
+    colText text,
+    colSetText set<text>,    
+    coltimestamp timestamp,	
+    colMapTextText map<text, text>,    
+    colInt int,   
+    colBitInt bigint,    
+    colMapTextFrozenMapTimestampText map<text, frozen<map<timestamp, text>>>,    
+    colBool boolean,    
+	colBlob blob,
+	colASCII ascii,
+	colVarchar varchar,
+	colVarint varint,
+	colInet inet,
+	colUUID uuid,
+	colTimeUUID timeuuid,
+	colFloat float,
+	colDouble double,
+	colDecimal decimal,
+	colCounter counter,
+	colSmallInt smallint,
+	colTinyInt tinyint,
+	colDate date,
+	colTime time,
+	colListTime list<time>,
+	colLastFrozenListInt list<frozen <list<int>>>,
+	colTupleIntTextFloat tuple<int, text, float>,
+	colUDTTimestampTextList UDTTimestampTextList,
+	colListUDTTimestampTextList list<UDTTimestampTextList>
+) WITH bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = 'Application table that has task, notes, assignment audit and audit details'
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 172800
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';

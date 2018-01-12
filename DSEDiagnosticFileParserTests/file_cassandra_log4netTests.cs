@@ -370,6 +370,8 @@ namespace DSEDiagnosticFileParser.Tests
 
             var totalConfigEvents = logeventResults.Where(re => (re.GetValue(Common.Patterns.Collections.MemoryMapperElementCreationTypes.SearchView).Class & EventClasses.Config) == EventClasses.Config)
                                                     .Count();
+            var totalExceptionEvents = logeventResults.Where(re => (re.GetValue(Common.Patterns.Collections.MemoryMapperElementCreationTypes.SearchView).Class & EventClasses.Exception) == EventClasses.Exception)
+                                                    .Count();
         }
 
         [TestMethod()]
@@ -388,11 +390,135 @@ namespace DSEDiagnosticFileParser.Tests
 
             Assert.AreEqual((uint)9, nbrLinesParsed);
             Assert.AreEqual(0, parseFile.NbrErrors);
-            Assert.AreEqual(181, parseFile.NbrItemsParsed);
+            Assert.AreEqual(180, parseFile.NbrItemsParsed);
             Assert.AreEqual(DSEDiagnosticFileParser.DiagnosticFile.CatagoryTypes.LogFile, parseFile.Catagory);
             Assert.AreEqual(this._cluster, parseFile.Cluster);
             Assert.AreEqual(this._node1, parseFile.Node);
             Assert.AreEqual(9, parseFile.Result.Results.Count());
+
+            var logException = parseFile.Result.Results.ElementAt(0) as LogCassandraEvent;
+
+            Assert.AreEqual("java.io.IOException", logException.Exception);
+            Assert.AreEqual(2, logException.ExceptionPath.Count());
+            Assert.AreEqual("Info(Unexpected exception during request; channel = [id: 0x40c292ba, /10.0.0.2:XXXX :> /10.0.0.1:XXXX])", logException.ExceptionPath.ElementAt(0));
+            Assert.AreEqual("java.io.IOException(Error while read(...): Connection reset by peer)", logException.ExceptionPath.ElementAt(1));
+            Assert.AreEqual(1, logException.AssociatedNodes.Count());
+            Assert.AreEqual(this._node2, logException.AssociatedNodes.First());
+            Assert.AreEqual(1, logException.LogProperties.Count);
+            Assert.AreEqual(0, logException.SSTables.Count());
+
+            logException = parseFile.Result.Results.ElementAt(1) as LogCassandraEvent;
+
+            Assert.AreEqual("org.apache.cassandra.exceptions.ReadTimeoutException", logException.Exception);
+
+            Assert.AreEqual(2, logException.ExceptionPath.Count());
+            Assert.AreEqual("Error(Unexpected exception during request; channel = [id: 0xd30bc260, /10.0.0.2:XXXX => /10.0.0.1:XXXX])", logException.ExceptionPath.ElementAt(0));
+            Assert.AreEqual("org.apache.cassandra.exceptions.ReadTimeoutException(Operation timed out - received only 0 responses.)", logException.ExceptionPath.ElementAt(1));
+            Assert.AreEqual(1, logException.AssociatedNodes.Count());
+            Assert.AreEqual(this._node2, logException.AssociatedNodes.First());
+            Assert.AreEqual(1, logException.LogProperties.Count);
+            Assert.AreEqual(0, logException.SSTables.Count());
+
+            logException = parseFile.Result.Results.ElementAt(2) as LogCassandraEvent;
+
+            Assert.AreEqual("org.apache.cassandra.exceptions.UnavailableException", logException.Exception);
+
+            Assert.AreEqual(2, logException.ExceptionPath.Count());
+            Assert.AreEqual("Error(Unexpected exception during request; channel = [id: 0x16977ddb, /10.0.0.2:XXXX => /10.0.0.1:XXXX])", logException.ExceptionPath.ElementAt(0));
+            Assert.AreEqual("org.apache.cassandra.exceptions.UnavailableException(Cannot achieve consistency level LOCAL_ONE)", logException.ExceptionPath.ElementAt(1));            
+            Assert.AreEqual(1, logException.AssociatedNodes.Count());           
+            Assert.AreEqual(this._node2, logException.AssociatedNodes.First());
+            Assert.AreEqual(2, logException.LogProperties.Count);
+            Assert.AreEqual("LOCAL_ONE", logException.LogProperties["consistencylevel"]);
+            Assert.AreEqual(0, logException.SSTables.Count());
+
+            logException = parseFile.Result.Results.ElementAt(3) as LogCassandraEvent;
+
+            Assert.AreEqual("java.lang.InterruptedException", logException.Exception);
+
+            Assert.AreEqual(2, logException.ExceptionPath.Count());
+            Assert.AreEqual("Error(Exception in thread Thread[RepairJobTask:4,5,RMI Runtime])", logException.ExceptionPath.ElementAt(0));
+            Assert.AreEqual("java.lang.InterruptedException(Test String)", logException.ExceptionPath.ElementAt(1));
+            Assert.AreEqual(0, logException.AssociatedNodes.Count());
+            //Assert.AreEqual(this._node2, logException.AssociatedNodes.First());
+            Assert.AreEqual(0, logException.LogProperties.Count);
+            //Assert.AreEqual("LOCAL_ONE", logException.LogProperties["consistencylevel"]);
+            Assert.AreEqual(0, logException.SSTables.Count());
+
+            logException = parseFile.Result.Results.ElementAt(4) as LogCassandraEvent;
+
+            Assert.AreEqual("java.lang.AssertionError", logException.Exception);
+
+            Assert.AreEqual(2, logException.ExceptionPath.Count());
+            Assert.AreEqual("Error(Exception in thread Thread[AntiEntropyStage:1,5,main])", logException.ExceptionPath.ElementAt(0));
+            Assert.AreEqual("java.lang.AssertionError(null)", logException.ExceptionPath.ElementAt(1));
+            Assert.AreEqual(0, logException.AssociatedNodes.Count());
+            //Assert.AreEqual(this._node2, logException.AssociatedNodes.First());
+            Assert.AreEqual(0, logException.LogProperties.Count);
+            //Assert.AreEqual("LOCAL_ONE", logException.LogProperties["consistencylevel"]);
+            Assert.AreEqual(0, logException.SSTables.Count());
+
+            logException = parseFile.Result.Results.ElementAt(5) as LogCassandraEvent;
+
+            Assert.AreEqual("java.lang.AssertionError", logException.Exception);
+
+            Assert.AreEqual(2, logException.ExceptionPath.Count());
+            Assert.AreEqual("Error(Error in ThreadPoolExecutor)", logException.ExceptionPath.ElementAt(0));
+            Assert.AreEqual("java.lang.AssertionError(Data component is missing for sstable/apps/cassandra/data/data2/system/local-7ad54392bcdd35a684174e047860b377/system-local-ka-11048)", logException.ExceptionPath.ElementAt(1));
+            Assert.AreEqual(0, logException.AssociatedNodes.Count());
+            //Assert.AreEqual(this._node2, logException.AssociatedNodes.First());
+            Assert.AreEqual(1, logException.LogProperties.Count);
+            //Assert.AreEqual("LOCAL_ONE", logException.LogProperties["consistencylevel"]);
+            Assert.AreEqual(1, logException.SSTables.Count());
+            Assert.AreEqual("/apps/cassandra/data/data2/system/local-7ad54392bcdd35a684174e047860b377/system-local-ka-11048", logException.SSTables.ElementAt(0));
+
+            logException = parseFile.Result.Results.ElementAt(6) as LogCassandraEvent;
+
+            Assert.AreEqual("org.apache.cassandra.exceptions.ReadTimeoutException", logException.Exception);
+
+            Assert.AreEqual(2, logException.ExceptionPath.Count());
+            Assert.AreEqual("Warn(Error attempting to check lease for periodic update task)", logException.ExceptionPath.ElementAt(0));
+            Assert.AreEqual("org.apache.cassandra.exceptions.ReadTimeoutException(Operation timed out - received only 7 responses.)", logException.ExceptionPath.ElementAt(1));
+            Assert.AreEqual(0, logException.AssociatedNodes.Count());
+            //Assert.AreEqual(this._node2, logException.AssociatedNodes.First());
+            Assert.AreEqual(0, logException.LogProperties.Count);
+            //Assert.AreEqual("LOCAL_ONE", logException.LogProperties["consistencylevel"]);
+            Assert.AreEqual(0, logException.SSTables.Count());
+            //Assert.AreEqual("/apps/cassandra/data/data2/system/local-7ad54392bcdd35a684174e047860b377/system-local-ka-11048", logException.SSTables.ElementAt(0));
+
+            logException = parseFile.Result.Results.ElementAt(7) as LogCassandraEvent;
+
+            Assert.AreEqual("java.io.IOException", logException.Exception);
+
+            Assert.AreEqual(2, logException.ExceptionPath.Count());
+            Assert.AreEqual("Error(Repair session 9fc39482-d353-11e6-9940-7d76bd094de7 for range [(-5041742244861454083,-5031228534686663405], (-5031228534686663405,-5027634690056969021], (-4998749603121144073,-4997554617625990702], (4801964342755268407,4821940070161401515], (-5484640490263850666,-5482659095377290339], (-4992832937061935230,-4983094210752029477], (6080817576420974861,6085344121835895255], (-5631687778475504058,-5628789915215383820], (-8239902477410357537,-8234601316997007237], (-4997554617625990702,-4992832937061935230]] failed with error Endpoint /10.0.0.2 died)", logException.ExceptionPath.ElementAt(0));
+            Assert.AreEqual("java.io.IOException(Endpoint /10.0.0.2 died)", logException.ExceptionPath.ElementAt(1));
+            Assert.AreEqual(1, logException.AssociatedNodes.Count());
+            Assert.AreEqual(this._node2, logException.AssociatedNodes.First());
+            Assert.AreEqual(3, logException.LogProperties.Count);
+            //Assert.AreEqual("LOCAL_ONE", logException.LogProperties["consistencylevel"]);
+            Assert.AreEqual(0, logException.SSTables.Count());
+            //Assert.AreEqual("/apps/cassandra/data/data2/system/local-7ad54392bcdd35a684174e047860b377/system-local-ka-11048", logException.SSTables.ElementAt(0));
+            Assert.AreEqual(10, logException.TokenRanges.Count());
+            Assert.AreEqual("(-5041742244861454083,-5031228534686663405]", logException.TokenRanges.First().Range);
+            Assert.AreEqual("9fc39482-d353-11e6-9940-7d76bd094de7", logException.Id.ToString());
+
+            logException = parseFile.Result.Results.ElementAt(8) as LogCassandraEvent;
+
+            Assert.AreEqual("java.io.IOException", logException.Exception);
+
+            Assert.AreEqual(2, logException.ExceptionPath.Count());
+            Assert.AreEqual("Error([repair #9fefd4a1-d353-11e6-9940-7d76bd094de7] session completed with the following error)", logException.ExceptionPath.ElementAt(0));
+            Assert.AreEqual("java.io.IOException(Endpoint /10.0.0.2 died)", logException.ExceptionPath.ElementAt(1));
+            Assert.AreEqual(1, logException.AssociatedNodes.Count());
+            Assert.AreEqual(this._node2, logException.AssociatedNodes.First());
+            Assert.AreEqual(2, logException.LogProperties.Count);
+            //Assert.AreEqual("LOCAL_ONE", logException.LogProperties["consistencylevel"]);
+            Assert.AreEqual(0, logException.SSTables.Count());
+            //Assert.AreEqual("/apps/cassandra/data/data2/system/local-7ad54392bcdd35a684174e047860b377/system-local-ka-11048", logException.SSTables.ElementAt(0));
+            Assert.AreEqual(0, logException.TokenRanges.Count());
+            //Assert.AreEqual("(-5041742244861454083,-5031228534686663405]", logException.TokenRanges.First().Range);
+            Assert.AreEqual("9fefd4a1-d353-11e6-9940-7d76bd094de7", logException.Id.ToString());
         }
     }
 }

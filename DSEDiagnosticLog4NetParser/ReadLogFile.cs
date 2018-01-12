@@ -203,7 +203,7 @@ namespace DSEDiagnosticLog4NetParser
                         }
                         else if(lastLogMessage != null
                                     && lastLogMessage.ExtraMessages.HasAtLeastOneElement()
-                                    && ReferenceEquals(logMessages.Messages.LastOrDefault(), lastLogMessage))
+                                    && ReferenceEquals(logMessages.Messages.TakeLast(2).First(), lastLogMessage))
                         {
                             eventAction?.Invoke(this, logMessages, lastLogMessage);
                         }
