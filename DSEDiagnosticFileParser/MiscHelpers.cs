@@ -23,12 +23,22 @@ namespace DSEDiagnosticFileParser
         /// </summary>
         /// <param name="filePath"></param>
         /// <param name="extractedFolder"></param>
-        /// <param name="forceExtraction"></param>
-        /// <param name="extractToParentFolder"></param>
+        /// <param name="forceExtraction">
+        /// Only applies when extractToParentFolder is false.       
+        /// </param>
+        /// <param name="extractToParentFolder">
+        /// If false (default), a sub-directory is created based on the compressed file&apos;s name and all uncompressed files will be placed into this directory. Note that if the directory already exists, the compressed file is NOT decompressed. To override this forceExtraction must be true.
+        /// If true, all uncompressed files will be placed into this file&apos;s directory.
+        /// </param>
         /// <param name="allowRecursiveUnZipping"></param>
-        /// <param name="renameOnceFileExtracted"></param>
+        /// <param name="renameOnceFileExtracted">
+        /// If true (default), an &quot;extracted&quot; file extension is appended onto the compressed file&apos; name.
+        /// </param>
         /// <param name="cancellationToken"></param>
-        /// <param name="runFileExtractionInParallel"></param>
+        /// <param name="runFileExtractionInParallel">
+        /// If true and allowRecursiveUnZipping is true, extractToParentFolder will be always be false to eliminate a race condition and each unzipped file occurs on separate threads.
+        /// If false (default) and allowRecursiveUnZipping is true, extractToParentFolder is always set to true and recursive unzipping is due on the entering thread. 
+        /// </param>
         /// <returns></returns>
         public static int UnZipFileToFolder(this IFilePath filePath, out IDirectoryPath extractedFolder,
                                                 bool forceExtraction = false,
@@ -36,38 +46,39 @@ namespace DSEDiagnosticFileParser
                                                 bool allowRecursiveUnZipping = true,
                                                 bool renameOnceFileExtracted = true,
                                                 CancellationToken? cancellationToken = null,
-                                                bool runNestedFileExtractionInParallel = true)
+                                                bool runNestedFileExtractionInParallel = false)
         {
             var extractFileInfo = LibrarySettings.ExtractFilesWithExtensions.FirstOrDefault(i => i.Item1.ToLower() == filePath.FileExtension.ToLower());
             int nbrExtractedFiles = 0;
 
-            extractedFolder = filePath.ParentDirectoryPath;
+            extractedFolder = extractToParentFolder
+                                ? filePath.ParentDirectoryPath
+                                : (IDirectoryPath) filePath.ParentDirectoryPath.MakeChild(filePath.FileNameWithoutExtension);
 
             if (extractFileInfo != null && filePath.Exist())
             {
-                var newExtractedFolder = extractToParentFolder ? extractedFolder : (IDirectoryPath) extractedFolder.MakeChild(filePath.FileNameWithoutExtension);
                 var fileAttrs = filePath.GetAttributes();
 
-                if (forceExtraction || extractToParentFolder || !newExtractedFolder.Exist())
+                if (forceExtraction || extractToParentFolder || !extractedFolder.Exist())
                 {
                     var extractType = extractFileInfo.Item2.ToLower();
                     List<IPath> childrenInFolder;
 
                     cancellationToken?.ThrowIfCancellationRequested();
 
-                    if (!newExtractedFolder.Exist())
+                    if (extractedFolder.Exist())
                     {
-                        newExtractedFolder.Create();
-                        childrenInFolder = new List<IPath>(0);
+                        childrenInFolder = extractedFolder.Children();
                     }
                     else
                     {
-                        childrenInFolder = newExtractedFolder.Children();
-                    }
+                        extractedFolder.Create();
+                        childrenInFolder = new List<IPath>(0);
+                    }                   
 
                    if(!UnZipFileToFolder(extractType,
                                             filePath,
-                                            newExtractedFolder,
+                                            extractedFolder,
                                             cancellationToken))
                     {
                         return 0;
@@ -81,62 +92,66 @@ namespace DSEDiagnosticFileParser
 
                         if (filePath.Move(newName))
                         {
-                            Logger.Instance.WarnFormat("Renamed Extraction file from \"{0}\" to file \"{1}\"",
+                            if (Logger.Instance.IsDebugEnabled)
+                            {
+                                Logger.Instance.DebugFormat("Renamed Extraction file from \"{0}\" to file \"{1}\"",
                                                             filePath.PathResolved,
                                                             newName.PathResolved);
+                            }
                         }
                         else
                         {
-                            Logger.Instance.ErrorFormat("Renamed Extraction file from \"{0}\" to file \"{1}\" Failed...",
+                            Logger.Instance.ErrorFormat("Renaming Extraction file from \"{0}\" to file \"{1}\" Failed...",
                                                             filePath.PathResolved,
                                                             newName.PathResolved);
                         }
                     }
 
                     cancellationToken?.ThrowIfCancellationRequested();
-                    nbrExtractedFiles = ((IDirectoryPath)newExtractedFolder).Children().Count - childrenInFolder.Count;
+                    nbrExtractedFiles = ((IDirectoryPath)extractedFolder).Children().Count - childrenInFolder.Count;
 
                     Logger.Instance.InfoFormat("Extracted into folder \"{0}\" {1} files...",
-                                                    newExtractedFolder.PathResolved,
+                                                    extractedFolder.PathResolved,
                                                     nbrExtractedFiles);
 
                     if (allowRecursiveUnZipping)
                     {
                         cancellationToken?.ThrowIfCancellationRequested();
 
-                        var additionalExtractionFiles = GetAllChildrenExtractFiles((IDirectoryPath)newExtractedFolder)
-                                                        .Where(f => !childrenInFolder.Contains(f) && f.Exist());
+                        var additionalExtractionFiles = GetAllChildrenExtractFiles((IDirectoryPath)extractedFolder)
+                                                        .Where(f => !childrenInFolder.Contains(f));
 
                         RunParallelForEach.ForEach(runNestedFileExtractionInParallel, additionalExtractionFiles, compressedFile =>
                         //foreach (var compressedFile in compressedFiles)
                         {
                             cancellationToken?.ThrowIfCancellationRequested();
 
-                            IDirectoryPath tempExtractedFolder;
-                            var subNbrFiles = UnZipFileToFolder(compressedFile,
-                                                                    out tempExtractedFolder,
-                                                                    true,
-                                                                    true,
-                                                                    false,
-                                                                    renameOnceFileExtracted,
-                                                                    cancellationToken,
-                                                                    false);
+                            if (compressedFile.Exist())
+                            {
+                                IDirectoryPath tempExtractedFolder;
+                                var subNbrFiles = UnZipFileToFolder(compressedFile,
+                                                                        out tempExtractedFolder,
+                                                                        true,
+                                                                        !runNestedFileExtractionInParallel,
+                                                                        true,
+                                                                        renameOnceFileExtracted,
+                                                                        cancellationToken,
+                                                                        false);
 
-                            if (subNbrFiles == 0)
-                            {
-                                Logger.Instance.ErrorFormat("Extraction of Sub-File \"{0}\" to directory \"{1}\" failed...",
-                                                                compressedFile.PathResolved,
-                                                                tempExtractedFolder.PathResolved);
-                            }
-                            else
-                            {
-                                nbrExtractedFiles += subNbrFiles;
+                                if (subNbrFiles == 0)
+                                {
+                                    Logger.Instance.ErrorFormat("Extraction of Sub-File \"{0}\" to directory \"{1}\" failed...",
+                                                                    compressedFile.PathResolved,
+                                                                    tempExtractedFolder.PathResolved);
+                                }
+                                else
+                                {
+                                    nbrExtractedFiles += subNbrFiles;
+                                }
                             }
                         });
                     }
-                }
-
-                extractedFolder = (IDirectoryPath)newExtractedFolder;
+                }                
             }
 
             return nbrExtractedFiles;

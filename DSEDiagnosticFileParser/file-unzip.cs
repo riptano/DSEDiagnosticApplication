@@ -64,7 +64,7 @@ namespace DSEDiagnosticFileParser
             var extractToParentFolder = !NodeIdentifier.DetermineIfNameHasIPAddressOrHostName(this.File.FileNameWithoutExtension);
             
 
-            nbrFilesExtracted = MiscHelpers.UnZipFileToFolder(this.File, out newDirectory, false, extractToParentFolder, true, true, this.CancellationToken);
+            nbrFilesExtracted = MiscHelpers.UnZipFileToFolder(this.File, out newDirectory, false, extractToParentFolder, true, true, this.CancellationToken, false);
             
             this._result = new ExtractionResult(newDirectory, nbrFilesExtracted, nbrFilesExtracted > 0);
 
