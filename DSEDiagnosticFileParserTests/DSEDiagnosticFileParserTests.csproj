@@ -130,6 +130,9 @@
     <None Include="LogFiles\NodeConfig.log">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <Content Include="LogFiles\SchemaChangesShardingEvts.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <None Include="packages.config" />
     <None Include="ResultFiles\cassandrayaml.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
