@@ -520,5 +520,101 @@ namespace DSEDiagnosticFileParser.Tests
             //Assert.AreEqual("(-5041742244861454083,-5031228534686663405]", logException.TokenRanges.First().Range);
             Assert.AreEqual("9fefd4a1-d353-11e6-9940-7d76bd094de7", logException.Id.ToString());
         }
+
+
+        [TestMethod()]
+        public void ProcessFileTest_SchemaChangingShardingEvts()
+        {
+            this.CreateClusterDCNodeDDL();
+
+            Assert.AreEqual(this._cluster, DSEDiagnosticLibrary.Cluster.GetCurrentOrMaster());
+            Assert.IsNotNull(this._node1);
+
+            var testLogFile = Common.Path.PathUtils.BuildFilePath(@".\LogFiles\SchemaChangesShardingEvts.log");
+
+            var parseFile = new file_cassandra_log4net(DiagnosticFile.CatagoryTypes.LogFile, testLogFile.ParentDirectoryPath, testLogFile, this._node1, null, null, null);
+
+            var nbrLinesParsed = parseFile.ProcessFile();
+
+            Assert.AreEqual((uint)1, nbrLinesParsed);
+            Assert.AreEqual(0, parseFile.NbrErrors);
+            Assert.AreEqual(1, parseFile.NbrItemsParsed);
+            Assert.AreEqual(DSEDiagnosticFileParser.DiagnosticFile.CatagoryTypes.LogFile, parseFile.Catagory);
+            Assert.AreEqual(this._cluster, parseFile.Cluster);
+            Assert.AreEqual(this._node1, parseFile.Node);
+
+            Assert.AreEqual(1, ((file_cassandra_log4net.LogResults)parseFile.Result).Results.Count());
+            Assert.IsNotNull(((file_cassandra_log4net.LogResults)parseFile.Result).ResultsTask.Result.First().Value.LogProperties);
+            Assert.AreEqual(155, ((file_cassandra_log4net.LogResults)parseFile.Result).ResultsTask.Result.First().Value.LogProperties.Count);
+
+           
+
+        }
+
+        [TestMethod()]
+        public void ProcessFileTest_UnhandledLogEvts()
+        {
+            this.CreateClusterDCNodeDDL();
+
+            Assert.AreEqual(this._cluster, DSEDiagnosticLibrary.Cluster.GetCurrentOrMaster());
+            Assert.IsNotNull(this._node1);
+
+            var testLogFile = Common.Path.PathUtils.BuildFilePath(@".\LogFiles\UnHandledLogEvents.log");
+
+            var parseFile = new file_cassandra_log4net(DiagnosticFile.CatagoryTypes.LogFile, testLogFile.ParentDirectoryPath, testLogFile, this._node1, null, null, null);
+
+            var nbrLinesParsed = parseFile.ProcessFile();
+
+            Assert.AreEqual((uint)4, nbrLinesParsed);
+            Assert.AreEqual(0, parseFile.NbrErrors);
+            Assert.AreEqual(7, parseFile.NbrItemsParsed);
+            Assert.AreEqual(DSEDiagnosticFileParser.DiagnosticFile.CatagoryTypes.LogFile, parseFile.Catagory);
+            Assert.AreEqual(this._cluster, parseFile.Cluster);
+            Assert.AreEqual(this._node1, parseFile.Node);
+           
+            Assert.AreEqual(4, ((file_cassandra_log4net.LogResults)parseFile.Result).Results.Count());
+            
+            var logEvent = ((file_cassandra_log4net.LogResults)parseFile.Result).ResultsTask.Result.ElementAt(0).Value;
+            Assert.IsNotNull(logEvent.LogProperties);
+            Assert.AreEqual(1, logEvent.LogProperties.Count);
+            Assert.AreEqual(DSEDiagnosticLibrary.EventClasses.NotHandled, logEvent.Class);
+            Assert.AreEqual(1, logEvent.ExceptionPath.Count());
+            Assert.AreEqual("Warn(Live sstable /data/cassandra/data/usprodsec/session_3-ca531e218ed211e6ab872748a53d9d02/snapshots/c42b15b1-f0df-11e6-aac6-57cd9ce61adc/usprodsec-session_3-ka-29379-Data.db from level 0 is not on corresponding level in the leveled manifest. This is not a problem per se, but may indicate an orphaned sstable due to a failed compaction not cleaned up properly.)", logEvent.ExceptionPath.First());
+
+            logEvent = ((file_cassandra_log4net.LogResults)parseFile.Result).ResultsTask.Result.ElementAt(1).Value;
+            Assert.IsNotNull(logEvent.LogProperties);
+            Assert.AreEqual(0, logEvent.LogProperties.Count);
+            Assert.AreEqual(DSEDiagnosticLibrary.EventClasses.NotHandled, logEvent.Class);
+            Assert.AreEqual(1, logEvent.ExceptionPath.Count());
+            Assert.AreEqual("Warn(Warn Message)", logEvent.ExceptionPath.First());
+
+            logEvent = ((file_cassandra_log4net.LogResults)parseFile.Result).ResultsTask.Result.ElementAt(2).Value;
+            Assert.IsNotNull(logEvent.LogProperties);
+            Assert.AreEqual(1, logEvent.LogProperties.Count);
+            Assert.AreEqual(DSEDiagnosticLibrary.EventClasses.NotHandled, logEvent.Class);
+            Assert.AreEqual(1, logEvent.ExceptionPath.Count());
+            Assert.AreEqual("Error(Error Message sstable /data/cassandra/data/usprodsec/session_3-ca531e218ed211e6ab872748a53d9d02/snapshots/c42b15b1-f0df-11e6-aac6-57cd9ce61adc/usprodsec-session_3-ka-29379-Data.db)", logEvent.ExceptionPath.First());
+
+            logEvent = ((file_cassandra_log4net.LogResults)parseFile.Result).ResultsTask.Result.ElementAt(3).Value;
+            Assert.IsNotNull(logEvent.LogProperties);
+            Assert.AreEqual(0, logEvent.LogProperties.Count);
+            Assert.AreEqual(DSEDiagnosticLibrary.EventClasses.NotHandled, logEvent.Class);
+            Assert.AreEqual(1, logEvent.ExceptionPath.Count());
+            Assert.AreEqual("Fatal(Fatal Message)", logEvent.ExceptionPath.First());
+
+            parseFile = new file_cassandra_log4net(DiagnosticFile.CatagoryTypes.LogFile, testLogFile.ParentDirectoryPath, testLogFile, this._node1, null, null, null);
+
+            file_cassandra_log4net.DefaultLogLevelHandling = file_cassandra_log4net.DefaultLogLevelHandlers.Disabled;
+            nbrLinesParsed = parseFile.ProcessFile();
+
+            Assert.AreEqual((uint)0, nbrLinesParsed);
+            Assert.AreEqual(0, parseFile.NbrErrors);
+            Assert.AreEqual(7, parseFile.NbrItemsParsed);
+            Assert.AreEqual(DSEDiagnosticFileParser.DiagnosticFile.CatagoryTypes.LogFile, parseFile.Catagory);
+            Assert.AreEqual(this._cluster, parseFile.Cluster);
+            Assert.AreEqual(this._node1, parseFile.Node);
+        }
     }
+
+
 }

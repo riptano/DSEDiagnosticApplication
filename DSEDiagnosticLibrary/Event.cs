@@ -89,6 +89,7 @@ namespace DSEDiagnosticLibrary
         TableViewIndex = 0x80000,
         Config = 0x100000,
         Detection = 0x200000,
+        NotHandled = 0x400000,
         GCStats = GC | Stats,
         NodeStats = Node | Stats,
         KeyspaceStats = Keyspace | Stats,

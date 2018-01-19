@@ -754,5 +754,14 @@ public static class {0}
                 return ((string)(this["LogExceptionRegExMatches"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Warning, Error, Fatal, Exception")]
+        public string DefaultLogLevelHandling {
+            get {
+                return ((string)(this["DefaultLogLevelHandling"]));
+            }
+        }
     }
 }

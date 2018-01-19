@@ -17,6 +17,21 @@ namespace DSEDiagnosticFileParser
     [JsonObject(MemberSerialization.OptOut)]
     public sealed class file_cassandra_log4net : DiagnosticFile
     {
+
+        [Flags]
+        public enum DefaultLogLevelHandlers
+        {
+            Disabled = 0,
+            Debug = 0x0001,
+            Informational = 0x0002,
+            Warning = 0x0004,
+            Error = 0x0008,
+            Fatal = 0x0010,
+            Exception = 0x0020,
+            Default = Warning | Error | Fatal | Exception,
+            All = Debug | Informational | Warning | Error | Fatal | Exception
+        }
+        public static DefaultLogLevelHandlers DefaultLogLevelHandling = LibrarySettings.DefaultLogLevelHandlingInit;
         public static DateTimeOffsetRange LogTimeRange = null;
 
         struct CurrentSessionLineTick
@@ -174,26 +189,14 @@ namespace DSEDiagnosticFileParser
                 LogCassandraEvent logEvent;
                 bool firstLine = true;
                 bool ignoreLogEvent = false;
+                bool handleExceptions = DefaultLogLevelHandling.HasFlag(DefaultLogLevelHandlers.Exception);
+                bool disableLogLevelHandling = DefaultLogLevelHandling == DefaultLogLevelHandlers.Disabled
+                                                || DefaultLogLevelHandling == DefaultLogLevelHandlers.Exception;
+
 
                 logFileInstance.ProcessedLogLineAction += (IReadLogFile readLogFileInstance, ILogMessages alreadyParsedLines, ILogMessage logMessage) =>
                 {
                     readLogFileInstance.CancellationToken.ThrowIfCancellationRequested();
-
-                    //Exception messages will be invoked twice. Once on the original log event (no exception info) and than with the exception information for the original logMessage instance. 
-                    if (!ignoreLogEvent && logMessage.ExtraMessages.HasAtLeastOneElement())
-                    {
-                        logEvent = this.PorcessException(logMessage);
-
-                        if (logEvent != null && !ReferenceEquals(logEvent, this._logEvents.LastOrDefault()))
-                            this._logEvents.Add(logEvent);
-
-                        return;
-                    }
-
-                    if (this.DuplicateLogEventFound(logMessage))
-                    {
-                        return;
-                    }
 
                     if (firstLine)
                     {
@@ -205,28 +208,53 @@ namespace DSEDiagnosticFileParser
                                                                             .SelectMany(f => f.OrphanedEvents)
                                                                             .OrderBy(o => o.EventTimeLocal);
 
-                        possibleOpenSessions.ForEach(o => this._openSessions[o.SessionTieOutId] = (LogCassandraEvent) o);
+                        possibleOpenSessions.ForEach(o => this._openSessions[o.SessionTieOutId] = (LogCassandraEvent)o);
                     }
+
+                    //Exception messages will be invoked twice. Once on the original log event (no exception info) and than with the exception information for the original logMessage instance. 
+                    if (logMessage.ExtraMessages.HasAtLeastOneElement())
+                    {
+                        if (handleExceptions && !ignoreLogEvent)
+                        {
+                            logEvent = this.PorcessException(logMessage, this._logEvents.LastOrDefault());
+
+                            if (logEvent != null && !ReferenceEquals(logEvent, this._logEvents.LastOrDefault()))
+                                this._logEvents.Add(logEvent);
+                        }
+
+                        return;
+                    }
+
+                    if (this.DuplicateLogEventFound(logMessage))
+                    {
+                        return;
+                    }                    
                     
                     matchItem = CLogTypeParser.FindMatch(this._parser, logMessage);
 
                     logEvent = null;
                     ignoreLogEvent = false;
+
                     if (matchItem == null)
                     {
-                        if (logMessage.Level == LogLevels.Error)
+                        if (!disableLogLevelHandling)
                         {
-                            logEvent = this.PorcessUnhandledError();
+                            if ((logMessage.Level == LogLevels.Fatal
+                                        && (DefaultLogLevelHandling & DefaultLogLevelHandlers.Fatal) == DefaultLogLevelHandlers.Fatal)
+                                    || (logMessage.Level == LogLevels.Error
+                                        && (DefaultLogLevelHandling & DefaultLogLevelHandlers.Error) == DefaultLogLevelHandlers.Error)
+                                    || (logMessage.Level == LogLevels.Warn
+                                        && (DefaultLogLevelHandling & DefaultLogLevelHandlers.Warning) == DefaultLogLevelHandlers.Warning)
+                                    || (logMessage.Level == LogLevels.Info
+                                        && (DefaultLogLevelHandling & DefaultLogLevelHandlers.Informational) == DefaultLogLevelHandlers.Informational)
+                                    || (logMessage.Level == LogLevels.Debug
+                                        && (DefaultLogLevelHandling & DefaultLogLevelHandlers.Debug) == DefaultLogLevelHandlers.Debug))
+                            {
+                                logEvent = this.PorcessUnHandledEventLevel(logMessage);
 
-                            if (logEvent != null)
-                                this._logEvents.Add(logEvent);
-                        }
-                        else if (logMessage.Level == LogLevels.Warn)
-                        {
-                            logEvent = this.PorcessUnhandledWarning();
-
-                            if (logEvent != null)
-                                this._logEvents.Add(logEvent);
+                                if (logEvent != null)
+                                    this._logEvents.Add(logEvent);
+                            }
                         }
                     }
                     else if (matchItem.Item5.IgnoreEvent)
@@ -289,14 +317,68 @@ namespace DSEDiagnosticFileParser
             return (uint) this._result.RunLogResultsTask(this.Node, this._logEvents);
         }
 
-        private LogCassandraEvent PorcessUnhandledError()
+        private LogCassandraEvent PorcessUnHandledEventLevel(ILogMessage logMessage)
         {
-            return null;
-        }
+            var logProperties = new Dictionary<string, object>();
+            string topLevelException;
+            var exceptionPaths = new List<string>();
 
-        private LogCassandraEvent PorcessUnhandledWarning()
-        {
-            return null;
+            topLevelException = this.DetermineExceptionInfo(logMessage, logProperties, exceptionPaths, false);
+
+            UnitOfMeasure duration;
+            DateTime? eventDurationTime;
+            string logId;
+            List<string> sstableFilePaths;
+            IKeyspace primaryKS;
+            IDDLStmt primaryDDL;
+            List<IDDLStmt> ddlInstances;
+            IEnumerable<INode> assocatedNodes;
+            IEnumerable<DSEInfo.TokenRangeInfo> tokenRanges;
+            LateDDLResolution? lateDDLresolution;
+            string subClass;
+
+            this.DetermineProperties(logMessage,
+                                        logProperties,
+                                        out lateDDLresolution,
+                                        out logId,
+                                        out subClass,
+                                        out primaryKS,
+                                        out primaryDDL,
+                                        out duration,
+                                        out eventDurationTime,
+                                        out sstableFilePaths,
+                                        out ddlInstances,
+                                        out assocatedNodes,
+                                        out tokenRanges);
+
+            var logEvent = new LogCassandraEvent(this.File,
+                                                    this.Node,
+                                                    (uint)logMessage.FileLine,
+                                                    EventClasses.NotHandled, //If changed, update PorcessException method
+                                                    logMessage.LogDateTime,
+                                                    logMessage.LogDateTimewTZOffset,
+                                                    logMessage.Message,
+                                                    EventTypes.SingleInstance,
+                                                    logId,
+                                                    subClass,
+                                                    null, //parentEvents,
+                                                    this.Node.Machine.TimeZone,
+                                                    primaryKS,
+                                                    primaryDDL,
+                                                    duration.NaN
+                                                        ? (TimeSpan?)(eventDurationTime.HasValue ? eventDurationTime.Value - logMessage.LogDateTime : (TimeSpan?)null)
+                                                        : (TimeSpan?)duration,
+                                                    logProperties.Count == 0 ? (IReadOnlyDictionary<string, object>)null : logProperties,
+                                                    sstableFilePaths,
+                                                    ddlInstances,
+                                                    assocatedNodes,
+                                                    tokenRanges,
+                                                    null //sessionId,
+                                                    );
+
+            logEvent.SetException(topLevelException, exceptionPaths.Count == 0 ? null : exceptionPaths, false);
+
+            return logEvent;
         }
 
         /*
@@ -328,7 +410,7 @@ namespace DSEDiagnosticFileParser
          org.apache.cassandra.exceptions.UnavailableException: Cannot achieve consistency level ONE
         */
 
-        private LogCassandraEvent PorcessException(ILogMessage logMessage)
+        private LogCassandraEvent PorcessException(ILogMessage logMessage, LogCassandraEvent lastLogEvent)
         {
             var logProperties = new Dictionary<string, object>();           
             string topLevelException;
@@ -347,7 +429,7 @@ namespace DSEDiagnosticFileParser
             IEnumerable<DSEInfo.TokenRangeInfo> tokenRanges;
             LateDDLResolution? lateDDLresolution;
             string subClass;
-
+            
             this.DetermineProperties(logMessage,
                                         logProperties,
                                         out lateDDLresolution,
@@ -362,12 +444,25 @@ namespace DSEDiagnosticFileParser
                                         out assocatedNodes,
                                         out tokenRanges);
 
-            var logEvent = new LogCassandraEvent(this.File,
+            if(lastLogEvent != null && lastLogEvent.Class == EventClasses.NotHandled)
+            {
+                lastLogEvent = null;
+                this._logEvents.RemoveAt(this._logEvents.Count - 1);
+            }
+
+            LogCassandraEvent logEvent = lastLogEvent != null
+                                                && lastLogEvent.LineNbr == (uint)logMessage.FileLine
+                                            ? lastLogEvent
+                                            : null;
+
+            if (logEvent == null)
+            {
+                logEvent = new LogCassandraEvent(this.File,
                                                     this.Node,
                                                     (uint)logMessage.FileLine,
                                                     EventClasses.Exception,
                                                     logMessage.LogDateTime,
-                                                    logMessage.LogDateTimewTZOffset,                                                    
+                                                    logMessage.LogDateTimewTZOffset,
                                                     logMessage.Message,
                                                     EventTypes.SingleInstance,
                                                     logId,
@@ -375,11 +470,11 @@ namespace DSEDiagnosticFileParser
                                                     null, //parentEvents,
                                                     this.Node.Machine.TimeZone,
                                                     primaryKS,
-                                                    primaryDDL,   
+                                                    primaryDDL,
                                                     duration.NaN
-                                                        ? (TimeSpan?) (eventDurationTime.HasValue ? eventDurationTime.Value - logMessage.LogDateTime : (TimeSpan?) null)
-                                                        : (TimeSpan?) duration,
-                                                    logProperties.Count == 0 ? (IReadOnlyDictionary<string,object>) null : logProperties,
+                                                        ? (TimeSpan?)(eventDurationTime.HasValue ? eventDurationTime.Value - logMessage.LogDateTime : (TimeSpan?)null)
+                                                        : (TimeSpan?)duration,
+                                                    logProperties.Count == 0 ? (IReadOnlyDictionary<string, object>)null : logProperties,
                                                     sstableFilePaths,
                                                     ddlInstances,
                                                     assocatedNodes,
@@ -387,12 +482,20 @@ namespace DSEDiagnosticFileParser
                                                     null //sessionId,
                                                     );
 
-            logEvent.SetException(topLevelException, exceptionPaths.Count == 0 ? null : exceptionPaths);
+                logEvent.SetException(topLevelException, exceptionPaths.Count == 0 ? null : exceptionPaths);
+            }
+            else
+            {
+                logEvent.SetException(topLevelException,
+                                        exceptionPaths.Count == 0 ? null : exceptionPaths,
+                                        logProperties.Count == 0 ? (IReadOnlyDictionary<string, object>)null : logProperties);
+                //logEvent = null;
+            }
 
             return logEvent;
         }
 
-        private string DetermineExceptionInfo(ILogMessage logMessage, Dictionary<string, object> logProperties, List<string> exceptionPaths)
+        private string DetermineExceptionInfo(ILogMessage logMessage, Dictionary<string, object> logProperties, List<string> exceptionPaths, bool processExceptionString = true)
         {
             string topLefvelException = null;
             var msgList = new List<string>() { logMessage.Message };
@@ -405,9 +508,20 @@ namespace DSEDiagnosticFileParser
                         || exceptionLine.TrimStart().StartsWith("..."))
                     continue;
                
-                var exceptionDesc = ParseExceptionString(exceptionLine);
-                var exceptClass = exceptionDesc.Item1;
-                var exceptDescription = exceptionDesc.Item2;
+                string exceptClass;
+                string exceptDescription;
+
+                if(processExceptionString)
+                {
+                    var exceptionDesc = ParseExceptionString(exceptionLine);
+                    exceptClass = exceptionDesc.Item1;
+                    exceptDescription = exceptionDesc.Item2;
+                }
+                else
+                {
+                    exceptClass = null;
+                    exceptDescription = exceptionLine.Trim();
+                }
 
                 if (topLefvelException == null && !string.IsNullOrEmpty(exceptClass))
                     topLefvelException = exceptClass;
@@ -516,7 +630,7 @@ namespace DSEDiagnosticFileParser
                                                             && !i.EndsWith("assertion", StringComparison.OrdinalIgnoreCase));
 
             return validDescIndex <= 0
-                        ? (exceptionInfo.Count > 1 ? new Tuple<string, string>(exceptionInfo.Last(), string.Empty) : new Tuple<string, string>(null, exceptionLine.Trim()))
+                        ? (exceptionInfo.Count > 1 ? new Tuple<string, string>(exceptionInfo.Last(), string.Empty) : new Tuple<string, string>(null, exceptionLine.Trim()))                        
                         : new Tuple<string, string>(exceptionInfo[validDescIndex - 1], string.Join(": ", exceptionInfo.Skip(validDescIndex)));
         }
 
@@ -543,7 +657,6 @@ namespace DSEDiagnosticFileParser
             INFO  [MemtableFlushWriter:2165] 2017-02-11 23:59:52,790  Memtable.java:347 - Writing Memtable-compactions_in_progress@561831731(0.173KiB serialized bytes, 9 ops, 0%/0% of on/off-heap limit)
 
         */
-
 
         private LogCassandraEvent PorcessMatch(ILogMessage logMessage, Tuple<Regex, Match, Regex, Match, CLogLineTypeParser> matchItem)
         {

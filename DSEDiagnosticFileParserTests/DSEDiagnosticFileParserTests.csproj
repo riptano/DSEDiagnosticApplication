@@ -130,9 +130,9 @@
     <None Include="LogFiles\NodeConfig.log">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <Content Include="LogFiles\SchemaChangesShardingEvts.txt">
+    <None Include="LogFiles\SchemaChangesShardingEvts.log">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    </None>
     <None Include="packages.config" />
     <None Include="ResultFiles\cassandrayaml.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -160,6 +160,16 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="DDL\Simple_DDL">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="LogFiles\UnHandledLogEvents.log">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="LogFiles\FullLog50.log">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

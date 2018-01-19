@@ -428,7 +428,7 @@ namespace DSEDiagnosticLibrary
 
         public string SessionTieOutId { get; private set; }
         
-        public IReadOnlyDictionary<string, object> LogProperties { get; }
+        public IReadOnlyDictionary<string, object> LogProperties { get; private set; }
         public string LogMessage { get; }
         public IEnumerable<string> SSTables { get; private set; }
         public IEnumerable<IDDLStmt> DDLItems { get; private set; }
@@ -627,11 +627,86 @@ namespace DSEDiagnosticLibrary
             this.Class |= EventClasses.Orphaned;
         }
 
-        public void SetException(string topLevelException, IEnumerable<string> exceptionPath)
+        public void SetException(string topLevelException, IEnumerable<string> exceptionPath, bool markAsException = true)
         {
-            this.Exception = topLevelException;
-            this.ExceptionPath = exceptionPath;
+            if(markAsException)
+                this.Class |= EventClasses.Exception;
+            if(!string.IsNullOrEmpty(topLevelException))
+                this.Exception = topLevelException;
+            if(exceptionPath != null && exceptionPath.HasAtLeastOneElement())
+                this.ExceptionPath = exceptionPath;
         }
+
+        public void SetException(string topLevelException, IEnumerable<string> exceptionPath, IReadOnlyDictionary<string, object> additionalProperties, bool markAsException = true)
+        {
+            this.SetException(topLevelException, exceptionPath, markAsException);
+
+            if(additionalProperties != null && additionalProperties.HasAtLeastOneElement())
+            {
+                if(this.LogProperties == null || this.LogProperties.IsEmpty())
+                {
+                    this.LogProperties = additionalProperties;
+                }
+                else
+                {
+                    var newLogProperties = new Dictionary<string, object>(this.LogProperties.ToDictionary(k => k.Key, v => v.Value));
+                    var elementsAdded = false;
+
+                    foreach(var kv in additionalProperties)
+                    {
+                        if(newLogProperties.ContainsKey(kv.Key))
+                        {
+                            if(kv.Value is IEnumerable<object>)
+                            {
+                                var currentValue = newLogProperties[kv.Key];
+                                var valueList = currentValue is IEnumerable<object>
+                                                    ? new List<object>((IEnumerable<object>)currentValue)
+                                                    : new List<object>() { currentValue };
+                                var newElement = false;
+
+                                foreach (var item in (IEnumerable<object>)kv.Value)
+                                {
+                                    if (!valueList.Contains(item))
+                                    {
+                                        valueList.Add(item);
+                                        newElement = true;
+                                    }              
+                                }
+
+                                if (newElement)
+                                {
+                                    newLogProperties[kv.Key] = valueList;
+                                    elementsAdded = true;
+                                }
+                            }
+                            else
+                            {
+                                var currentValue = newLogProperties[kv.Key];
+                                var valueList = currentValue is IEnumerable<object>
+                                                    ? new List<object>((IEnumerable<object>)currentValue)
+                                                    : new List<object>() { currentValue };
+
+                                if (!valueList.Contains(kv.Value))
+                                {
+                                    valueList.Add(kv.Value);
+                                    newLogProperties[kv.Key] = valueList;
+                                    elementsAdded = true;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            newLogProperties.Add(kv.Key, kv.Value);
+                            elementsAdded = true;
+                        }
+                    }                   
+                    if(elementsAdded)
+                        this.LogProperties = newLogProperties;
+                }
+            }            
+        }
+
+
 
         #region IEquatable
         public bool Equals(Guid other)
