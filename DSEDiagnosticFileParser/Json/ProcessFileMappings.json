@@ -324,6 +324,14 @@
     "ProcessPriorityLevel": 80
   },
   {
+    "Catagory": "SystemOutputFile",
+    "FilePatterns": [ ".\\nodes\\*\\solr\\index_size.json" ],
+    "FileParsingClass": "DSEDiagnosticFileParser.json_solr_index_size",
+    "NodeIdPos": -1,
+    "ProcessingTaskOption": "ScanForNode,ParallelProcessing,ParallelProcessFiles",
+    "ProcessPriorityLevel": 80
+  },
+  {
     "Catagory": "LogFile",
     "FilePatterns": [ ".\\nodes\\10.1.36.100\\logs\\cassandra\\system.log" ],
     "FileParsingClass": "DSEDiagnosticFileParser.file_cassandra_log4net",
