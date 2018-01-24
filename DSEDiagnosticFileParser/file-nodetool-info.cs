@@ -12,7 +12,7 @@ using DSEDiagnosticLogger;
 namespace DSEDiagnosticFileParser
 {
     [JsonObject(MemberSerialization.OptOut)]
-    class file_nodetool_info : DiagnosticFile
+    public class file_nodetool_info : DiagnosticFile
     {
         public file_nodetool_info(CatagoryTypes catagory,
                                     IDirectoryPath diagnosticDirectory,

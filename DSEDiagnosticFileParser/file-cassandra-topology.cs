@@ -11,7 +11,7 @@ using DSEDiagnosticLogger;
 namespace DSEDiagnosticFileParser
 {
     [JsonObject(MemberSerialization.OptOut)]
-    internal sealed class file_cassandra_topology : file_yaml
+    public sealed class file_cassandra_topology : file_yaml
     {
         public file_cassandra_topology(CatagoryTypes catagory,
                                         IDirectoryPath diagnosticDirectory,

@@ -18,7 +18,8 @@ namespace DSEDiagnosticLibrary
         OpsCenterRepairSession,
         Yaml,
         EnvFile,
-        CQL
+        CQL,
+        JSON
     }
 
     public interface IParsed

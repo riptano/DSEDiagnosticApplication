@@ -536,14 +536,14 @@ namespace DSEDiagnosticFileParser.Tests
 
             var nbrLinesParsed = parseFile.ProcessFile();
 
-            Assert.AreEqual((uint)1, nbrLinesParsed);
+            Assert.AreEqual((uint)20, nbrLinesParsed);
             Assert.AreEqual(0, parseFile.NbrErrors);
-            Assert.AreEqual(1, parseFile.NbrItemsParsed);
+            Assert.AreEqual(33, parseFile.NbrItemsParsed);
             Assert.AreEqual(DSEDiagnosticFileParser.DiagnosticFile.CatagoryTypes.LogFile, parseFile.Catagory);
             Assert.AreEqual(this._cluster, parseFile.Cluster);
             Assert.AreEqual(this._node1, parseFile.Node);
 
-            Assert.AreEqual(1, ((file_cassandra_log4net.LogResults)parseFile.Result).Results.Count());
+            Assert.AreEqual(20, ((file_cassandra_log4net.LogResults)parseFile.Result).Results.Count());
             Assert.IsNotNull(((file_cassandra_log4net.LogResults)parseFile.Result).ResultsTask.Result.First().Value.LogProperties);
             Assert.AreEqual(155, ((file_cassandra_log4net.LogResults)parseFile.Result).ResultsTask.Result.First().Value.LogProperties.Count);
 
@@ -614,6 +614,55 @@ namespace DSEDiagnosticFileParser.Tests
             Assert.AreEqual(this._cluster, parseFile.Cluster);
             Assert.AreEqual(this._node1, parseFile.Node);
         }
+
+        [TestMethod()]
+        public void ProcessFileTest_json_solr_index()
+        {
+            this.CreateClusterDCNodeDDL();
+
+            Assert.AreEqual(this._cluster, DSEDiagnosticLibrary.Cluster.GetCurrentOrMaster());
+            Assert.IsNotNull(this._node1);
+
+            var testLogFile = Common.Path.PathUtils.BuildFilePath(@".\Json\solr_index_size.json");
+
+            var parseFile = new json_solr_index_size(DiagnosticFile.CatagoryTypes.SystemOutputFile, testLogFile.ParentDirectoryPath, testLogFile, this._node1, null, null, null);
+
+            var nbrLinesParsed = parseFile.ProcessFile();
+
+            Assert.AreEqual((uint)2, nbrLinesParsed);
+            Assert.AreEqual(0, parseFile.NbrErrors);
+            Assert.AreEqual(1, parseFile.NbrWarnings);
+            Assert.AreEqual(3, parseFile.NbrItemsParsed);
+            Assert.AreEqual(DSEDiagnosticFileParser.DiagnosticFile.CatagoryTypes.SystemOutputFile, parseFile.Catagory);
+            Assert.AreEqual(this._cluster, parseFile.Node.Cluster);
+            Assert.AreEqual(this._node1, parseFile.Node);
+
+            Assert.AreEqual(2, ((json_solr_index_size.StatResults)parseFile.Result).Results.Count());
+            Assert.AreEqual(1, ((json_solr_index_size.StatResults)parseFile.Result).UnDefinedCQLObjects.Count());
+            Assert.AreEqual(((json_solr_index_size.StatResults)parseFile.Result).Results.Count(), parseFile.Node.AggregatedStats.Count());
+
+            var undefinedCQL = ((json_solr_index_size.StatResults)parseFile.Result).UnDefinedCQLObjects;
+            Assert.AreEqual("noks.notbl", undefinedCQL.ElementAt(0));
+
+            var stats = ((json_solr_index_size.StatResults)parseFile.Result).Results;
+
+            Assert.AreEqual(1, stats.ElementAt(0).Items);
+            Assert.IsNotNull(((IAggregatedStats)stats.ElementAt(0)).TableViewIndex);
+            Assert.AreEqual(Cluster.TryGetTableIndexViewbyString("coafstatim.application", parseFile.Node.Cluster), ((IAggregatedStats)stats.ElementAt(0)).TableViewIndex);
+            Assert.AreEqual("solr index storage size", ((IAggregatedStats)stats.ElementAt(0)).Data.ElementAt(0).Key);
+            Assert.IsInstanceOfType(((IAggregatedStats)stats.ElementAt(0)).Data.ElementAt(0).Value, typeof(UnitOfMeasure));
+            Assert.AreEqual(54269877m, ((UnitOfMeasure) ((IAggregatedStats)stats.ElementAt(0)).Data.ElementAt(0).Value).Value);
+            Assert.AreEqual(51.755787849m, ((UnitOfMeasure)((IAggregatedStats)stats.ElementAt(0)).Data.ElementAt(0).Value).ConvertTo(UnitOfMeasure.Types.MiB | UnitOfMeasure.Types.Storage));
+
+            Assert.AreEqual(1, stats.ElementAt(1).Items);
+            Assert.IsNotNull(((IAggregatedStats)stats.ElementAt(1)).TableViewIndex);
+            Assert.AreEqual(Cluster.TryGetTableIndexViewbyString("usprodcfg.nodehealth_3_0_0", parseFile.Node.Cluster), ((IAggregatedStats)stats.ElementAt(1)).TableViewIndex);
+            Assert.AreEqual("solr index storage size", ((IAggregatedStats)stats.ElementAt(1)).Data.ElementAt(0).Key);
+            Assert.IsInstanceOfType(((IAggregatedStats)stats.ElementAt(1)).Data.ElementAt(0).Value, typeof(UnitOfMeasure));
+            Assert.AreEqual(515723686841m, ((UnitOfMeasure)((IAggregatedStats)stats.ElementAt(1)).Data.ElementAt(0).Value).Value);
+            Assert.AreEqual(491832.434502602m, ((UnitOfMeasure)((IAggregatedStats)stats.ElementAt(1)).Data.ElementAt(0).Value).ConvertTo(UnitOfMeasure.Types.MiB | UnitOfMeasure.Types.Storage));
+        }
+
     }
 
 

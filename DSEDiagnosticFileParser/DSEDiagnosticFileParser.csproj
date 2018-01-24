@@ -120,6 +120,7 @@
     <Compile Include="json-node_info.cs" />
     <Compile Include="json-os-info.cs" />
     <Compile Include="json-repair_service.cs" />
+    <Compile Include="json-solr_index_size.cs" />
     <Compile Include="LibrarySettings.cs" />
     <Compile Include="MiscHelpers.cs" />
     <Compile Include="ProcessJsonFile.cs" />

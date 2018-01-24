@@ -18,7 +18,7 @@ namespace DSEDiagnosticFileParser.Tests
         static readonly string DC2 = "DC2";
         static readonly string NodeName1 = "10.0.0.1";
         static readonly string NodeName2 = "10.0.0.2";       
-        static readonly string TimeZoneName = "UTC";
+        //static readonly string TimeZoneName = "UTC";
 
         private DSEDiagnosticLibrary.Cluster _cluster;
         private DSEDiagnosticLibrary.IDataCenter _datacenter1;

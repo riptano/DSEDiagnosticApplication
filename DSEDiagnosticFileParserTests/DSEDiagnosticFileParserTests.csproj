@@ -112,6 +112,12 @@
     <None Include="Files\DSE5-ring">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="JSon\solr_index_size.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="JSon\solr_index_size_empty.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="LogFiles\CompactionFlush.log">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

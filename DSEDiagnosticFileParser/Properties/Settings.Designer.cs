@@ -763,5 +763,14 @@ public static class {0}
                 return ((string)(this["DefaultLogLevelHandling"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("solr index storage size")]
+        public string SolrIndexStorageSizeStatAttribute {
+            get {
+                return ((string)(this["SolrIndexStorageSizeStatAttribute"]));
+            }
+        }
     }
 }

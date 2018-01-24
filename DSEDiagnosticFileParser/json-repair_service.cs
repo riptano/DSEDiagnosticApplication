@@ -11,7 +11,7 @@ using Newtonsoft.Json;
 namespace DSEDiagnosticFileParser
 {
     [JsonObject(MemberSerialization.OptOut)]
-    class json_repair_service : DiagnosticFile
+    public class json_repair_service : DiagnosticFile
     {
         public json_repair_service(CatagoryTypes catagory,
                                     IDirectoryPath diagnosticDirectory,

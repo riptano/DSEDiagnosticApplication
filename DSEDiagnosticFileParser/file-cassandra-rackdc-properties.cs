@@ -10,7 +10,7 @@ using DSEDiagnosticLibrary;
 namespace DSEDiagnosticFileParser
 {
     [JsonObject(MemberSerialization.OptOut)]
-    internal sealed class file_cassandra_rackdc_properties : file_DSE_env
+    public sealed class file_cassandra_rackdc_properties : file_DSE_env
     {
         public file_cassandra_rackdc_properties(CatagoryTypes catagory,
                                                 IDirectoryPath diagnosticDirectory,

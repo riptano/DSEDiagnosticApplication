@@ -11,7 +11,7 @@ using Newtonsoft.Json;
 namespace DSEDiagnosticFileParser
 {
     [JsonObject(MemberSerialization.OptOut)]
-    internal sealed class json_machine_info : ProcessJsonFile
+    public sealed class json_machine_info : ProcessJsonFile
     {
         public json_machine_info(CatagoryTypes catagory,
                                     IDirectoryPath diagnosticDirectory,

@@ -10,7 +10,7 @@ using DSEDiagnosticLibrary;
 namespace DSEDiagnosticFileParser
 {
     [JsonObject(MemberSerialization.OptOut)]
-    internal class file_DSE_env : file_yaml
+    public class file_DSE_env : file_yaml
     {
         public file_DSE_env(CatagoryTypes catagory,
                                 IDirectoryPath diagnosticDirectory,

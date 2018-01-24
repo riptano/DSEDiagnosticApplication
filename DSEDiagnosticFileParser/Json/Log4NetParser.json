@@ -511,9 +511,7 @@
           "^ColumnFamilyStore.java$"
         ]
       },
-      "FileLineMatch": {
-        "RegExStrings": null
-      },
+      "FileLineMatch": null,
       "MessageMatch": {
         "RegExStrings": [
           "^Flushing\\s+largest\\s+\\w+\\s*\\("
@@ -555,9 +553,7 @@
           "^ColumnFamilyStore.java$"
         ]
       },
-      "FileLineMatch": {
-        "RegExStrings": null
-      },
+      "FileLineMatch": null,
       "MessageMatch": {
         "RegExStrings": [
           "^Enqueuing\\s+flush\\s"
@@ -621,9 +617,7 @@
           "^Memtable.java$"
         ]
       },
-      "FileLineMatch": {
-        "RegExStrings": null
-      },
+      "FileLineMatch": null,
       "MessageMatch": {
         "RegExStrings": [
           "^Writing\\s+Memtable-"
@@ -680,9 +674,7 @@
           "^Memtable.java$"
         ]
       },
-      "FileLineMatch": {
-        "RegExStrings": null
-      },
+      "FileLineMatch": null,
       "MessageMatch": {
         "RegExStrings": [
           "^Completed\\s+flushing\\s"
@@ -863,9 +855,7 @@
           "^Gossiper.java$"
         ]
       },
-      "FileLineMatch": {
-        "RegExStrings": null
-      },
+      "FileLineMatch": null,
       "MessageMatch": {
         "RegExStrings": [
           "^(InetAddress|Node) "
@@ -906,9 +896,7 @@
           "^Gossiper.java$"
         ]
       },
-      "FileLineMatch": {
-        "RegExStrings": null
-      },
+      "FileLineMatch": null,
       "MessageMatch": {
         "RegExStrings": [
           "^InetAdress "
@@ -946,9 +934,7 @@
           "^DseDaemon.java$"
         ]
       },
-      "FileLineMatch": {
-        "RegExStrings": null
-      },
+     "FileLineMatch": null,
       "MessageMatch": {
         "RegExStrings": [
           "^DSE shutdown "
@@ -987,9 +973,7 @@
           "^DseDaemon.java$"
         ]
       },
-      "FileLineMatch": {
-        "RegExStrings": null
-      },
+      "FileLineMatch": null,
       "MessageMatch": {
         "RegExStrings": [
           "^DSE startup "
@@ -1027,9 +1011,7 @@
           "^Config.java$"
         ]
       },
-      "FileLineMatch": {
-        "RegExStrings": null
-      },
+      "FileLineMatch": null,
       "MessageMatch": {
         "RegExStrings": [
           "^Node configuration\\:"
@@ -1068,9 +1050,7 @@
           "^ColumnFamilyStore.java$"
         ]
       },
-      "FileLineMatch": {
-        "RegExStrings": null
-      },
+      "FileLineMatch": null,
       "MessageMatch": {
         "RegExStrings": [
           "^Flushing\\s+SecondaryIndex\\s"
@@ -1116,9 +1096,7 @@
           "^AbstractSolrSecondaryIndex.java$"
         ]
       },
-      "FileLineMatch": {
-        "RegExStrings": null
-      },
+      "FileLineMatch": null,
       "MessageMatch": {
         "RegExStrings": [
           "^Executing\\s+hard\\s+commit\\s"
@@ -1164,9 +1142,7 @@
           "^IndexWriter.java$"
         ]
       },
-      "FileLineMatch": {
-        "RegExStrings": null
-      },
+      "FileLineMatch": null,
       "MessageMatch": {
         "RegExStrings": [
           "^commitInternalStart\\s"
@@ -1213,9 +1189,7 @@
           "^IndexWriter.java$"
         ]
       },
-      "FileLineMatch": {
-        "RegExStrings": null
-      },
+      "FileLineMatch": null,
       "MessageMatch": {
         "RegExStrings": [
           "^commitInternalComplete\\s"
@@ -1261,7 +1235,7 @@
       },
       "ParseMessage": {
         "RegExStrings": [
-          "^updating shards[a-z ]+/?\\s*(?<NODE>[^ ]+)\\s+\\w+\\s\\w+\\sstatus=(?<status>\\w+)\\,?(?<TOKENSTART>\\s?\\-?[0-9]+\\,?)*",
+          "^updating shards[a-z ]+/?\\s*(?<NODE>[^ ]+)\\s+\\w+\\s\\w+\\sstatus=(?<status>\\w+)\\,?(?<token>\\s?\\-?[0-9]+\\,?)*",
           "^updating shards[a-z ]+/?\\s*(?<NODE>[^ ]+)\\s+\\w+\\s\\w+\\s(?<status>schema)=?(?<schemaid>[0-9a-f\\-]+)?$",
           "^updating shards[a-z ]+/?\\s*(?<NODE>[^ ]+)\\s+\\w+\\s(?<status>dead)$"
         ]
@@ -1273,7 +1247,7 @@
       "Product": "Cassandra",
       "SessionKey": "'shardEvent' + NODE",
       "SessionKeyAction": "Add",
-      "SessionLookup": "'shardEvent' + NODE + TOKENSTART",
+      "SessionLookup": "'shardEvent' + NODE + token",
       "SessionLookupAction": "DefineSession",
       "Examples": [
         "=>INFO  [SharedPool-Worker-1] 2018-01-07 22:53:49,522  ShardRouter.java:605 - Updating shards state due to endpoint /10.0.0.2 changing state STATUS=NORMAL,-1051573540106914992",
@@ -1299,9 +1273,7 @@
           "^StorageService.java$"
         ]
       },
-      "FileLineMatch": {
-        "RegExStrings": null
-      },
+      "FileLineMatch": null,
       "MessageMatch": {
         "RegExStrings": [
           "^Nodes\\s/?[^ ]+\\sand\\s/?[^ ]+\\shave the same token "
@@ -1309,7 +1281,7 @@
       },
       "ParseMessage": {
         "RegExStrings": [
-          "^nodes/?\\s*[^ ]+\\s+and\\s+[^ ]+\\s+\\w+\\s+\\w+\\s+\\w+\\s+token\\s+(?<TOKENSTART>\\s?\\-?[0-9]+\\,?)*\\.?\\s+/?\\s*(?<NODE>[^ ]+)\\s"
+          "^nodes/?\\s*[^ ]+\\s+and\\s+[^ ]+\\s+\\w+\\s+\\w+\\s+\\w+\\s+token\\s+(?<token>\\s?\\-?[0-9]+\\,?)*\\.?\\s+/?\\s*(?<NODE>[^ ]+)\\s"
         ]
       },
       "ParseThreadId": null,
@@ -1317,7 +1289,7 @@
       "EventClass": "Detection",
       "SubClass": null,
       "Product": "Cassandra",
-      "SessionLookup": "'shardEvent' + NODE + TOKENSTART",
+      "SessionLookup": "'shardEvent' + NODE + token",
       "SessionLookupAction": "ReadSession",
       "Examples": [
         "INFO  [SharedPool-Worker-1] 2018-01-07 22:53:49,522  ShardRouter.java:605 - Updating shards state due to endpoint /10.0.0.2 changing state STATUS=NORMAL,-1051573540106914992",
@@ -1343,9 +1315,7 @@
           "^TokenMetadata.java$"
         ]
       },
-      "FileLineMatch": {
-        "RegExStrings": null
-      },
+      "FileLineMatch": null,
       "MessageMatch": {
         "RegExStrings": [
           "^Token \\-?[0-9]+ changing ownership "
@@ -1353,7 +1323,7 @@
       },
       "ParseMessage": {
         "RegExStrings": [
-          "^Token\\s+(?<TOKENSTART>\\s?\\-?[0-9]+\\,?)\\s+\\w+\\s+\\w+\\s+\\w+\\s+/?\\s*[^ ]+\\sto\\s+(?<NODE>[^ ]+)$"
+          "^Token\\s+(?<token>\\s?\\-?[0-9]+\\,?)\\s+\\w+\\s+\\w+\\s+\\w+\\s+/?\\s*[^ ]+\\sto\\s+(?<NODE>[^ ]+)$"
         ]
       },
       "ParseThreadId": null,
@@ -1361,7 +1331,7 @@
       "EventClass": "Detection",
       "SubClass": null,
       "Product": "Cassandra",
-      "SessionLookup": "'shardEvent' + NODE + TOKENSTART",
+      "SessionLookup": "'shardEvent' + NODE + token",
       "SessionLookupAction": "ReadSession",
       "Examples": [
         "INFO  [SharedPool-Worker-1] 2018-01-07 22:53:49,522  ShardRouter.java:605 - Updating shards state due to endpoint /10.0.0.2 changing state STATUS=NORMAL,-1051573540106914992",
@@ -1387,9 +1357,7 @@
           "^TokenMetadata.java$"
         ]
       },
-      "FileLineMatch": {
-        "RegExStrings": null
-      },
+      "FileLineMatch": null,
       "MessageMatch": {
         "RegExStrings": [
           "^Updating topology for "
@@ -1432,9 +1400,7 @@
           "^MigrationManager.java$"
         ]
       },
-      "FileLineMatch": {
-        "RegExStrings": null
-      },
+      "FileLineMatch": null,
       "MessageMatch": {
         "RegExStrings": [
           "^Create new (table|columnfamily|view)"
@@ -1442,8 +1408,8 @@
       },
       "ParseMessage": {
         "RegExStrings": [
-          "^Create new\\s+(?<type>table|columnfamily)\\s*:\\s+org.apache.cassandra.config.CFMetaData@[0-9a-f]+\\[cfid=(?<cfid>[a-f0-9\\-]+),ksname=(?<KEYSPACE>[a-z0-9'\\-_$%+=!?<>^*&@]+),cfname=(?<DDLITEMNAME>[a-z0-9'\\-_$%+=!?<>^*&@]+)",
-          "^Create new\\s+(?<type>view)\\s*:\\s+org.apache.cassandra.config.ViewDefinition@[0-9a-f]+\\[ksname=(?<KEYSPACE>[a-z0-9'\\-_$%+=!?<>^*&@]+),viewname=(?<DDLITEMNAME>[a-z0-9'\\-_$%+=!?<>^*&@]+),basetableid=(?<basetaleid>[a-f0-9\\-]+),baseTableName=(?<TABLEVIEWNAME>[a-z0-9'\\-_$%+=!?<>^*&@]+),.+cfid=(?<cfid>[a-f0-9\\-]+),"
+          "^(?<action>Create) new\\s+(?<type>table|columnfamily)\\s*:\\s+org.apache.cassandra.config.CFMetaData@[0-9a-f]+\\[cfid=(?<cfid>[a-f0-9\\-]+),ksname=(?<KEYSPACE>[a-z0-9'\\-_$%+=!?<>^*&@]+),cfname=(?<DDLITEMNAME>[a-z0-9'\\-_$%+=!?<>^*&@]+)",
+          "^(?<action>Create) new\\s+(?<type>view)\\s*:\\s+org.apache.cassandra.config.ViewDefinition@[0-9a-f]+\\[ksname=(?<KEYSPACE>[a-z0-9'\\-_$%+=!?<>^*&@]+),viewname=(?<DDLITEMNAME>[a-z0-9'\\-_$%+=!?<>^*&@]+),basetableid=(?<basetaleid>[a-f0-9\\-]+),baseTableName=(?<TABLEVIEWNAME>[a-z0-9'\\-_$%+=!?<>^*&@]+),.+cfid=(?<cfid>[a-f0-9\\-]+),"
         ]
       },
       "ParseThreadId": null,
@@ -1472,9 +1438,7 @@
           "^MigrationManager.java$"
         ]
       },
-      "FileLineMatch": {
-        "RegExStrings": null
-      },
+     "FileLineMatch": null,
       "MessageMatch": {
         "RegExStrings": [
           "^Create new Keyspace"
@@ -1482,7 +1446,7 @@
       },
       "ParseMessage": {
         "RegExStrings": [
-          "^Create new\\s+(?<type>Keyspace)\\s*:\\s+KeyspaceMetadata\\{name=(?<KEYSPACE>[a-z0-9'\\-_$%+=!?<>^*&@]+),"
+          "^(?<action>Create) new\\s+(?<type>Keyspace)\\s*:\\s+KeyspaceMetadata\\{name=(?<KEYSPACE>[a-z0-9'\\-_$%+=!?<>^*&@]+),"
         ]
       },
       "ParseThreadId": null,
@@ -1508,9 +1472,7 @@
           "^MigrationManager.java$"
         ]
       },
-      "FileLineMatch": {
-        "RegExStrings": null
-      },
+      "FileLineMatch": null,
       "MessageMatch": {
         "RegExStrings": [
           "^Update (ColumnFamily|table|view|keyspace) "
@@ -1518,8 +1480,8 @@
       },
       "ParseMessage": {
         "RegExStrings": [
-          "^Update\\s+(?<type>ColumnFamily|table|view)\\s+(?<DDLITEMNAME>[a-z0-9'\\-_$%+=!?<>^*&@/]+)\\s",
-          "^Update\\s+(?<type>Keyspace)\\s+(?<KEYSPACE>[a-z0-9'\\-_$%+=!?<>^*&@/]+)\\s"
+          "^(?<action>Update)\\s+(?<type>ColumnFamily|table|view)\\s+(?<DDLITEMNAME>[a-z0-9'\\-_$%+=!?<>^*&@/]+)\\s",
+          "^(?<action>Update)\\s+(?<type>Keyspace)\\s+(?<KEYSPACE>[a-z0-9'\\-_$%+=!?<>^*&@/]+)\\s"
         ]
       },
       "ParseThreadId": null,
@@ -1548,9 +1510,7 @@
           "^MigrationManager.java$"
         ]
       },
-      "FileLineMatch": {
-        "RegExStrings": null
-      },
+      "FileLineMatch": null,
       "MessageMatch": {
         "RegExStrings": [
           "^Drop (ColumnFamily|table|view|keyspace) "
@@ -1558,8 +1518,8 @@
       },
       "ParseMessage": {
         "RegExStrings": [
-          "^Drop\\s+(?<type>ColumnFamily|table|view)\\s+(?<DDLITEMNAME>[a-z0-9'\\-_$%+=!?<>^*&@/]+)\\s?",
-          "^Drop\\s+(?<type>Keyspace)\\s+(?<KEYSPACE>[a-z0-9'\\-_$%+=!?<>^*&@/]+)\\s?"
+          "^(?<action>Drop)\\s+(?<type>ColumnFamily|table|view)\\s+(?<DDLITEMNAME>[a-z0-9'\\-_$%+=!?<>^*&@/]+)\\s?",
+          "^(?<action>Drop)\\s+(?<type>Keyspace)\\s+(?<KEYSPACE>[a-z0-9'\\-_$%+=!?<>^*&@/]+)\\s?"
         ]
       },
       "ParseThreadId": null,
