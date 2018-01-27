@@ -210,6 +210,8 @@ namespace DSEDiagnosticApplication
             {
                 DSEDiagnosticLibrary.Cluster.Clear();
                 this.ultraGrid1.DataSource = this._currentDiagnosticFiles = null;
+                this._progressionMsgs.Clear();
+                this.SetLoggingStatus("Cleared");
             }
         }
 

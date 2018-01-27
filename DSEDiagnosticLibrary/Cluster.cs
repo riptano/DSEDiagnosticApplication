@@ -930,10 +930,29 @@ namespace DSEDiagnosticLibrary
 
         public static void Clear()
         {
-            Clusters.Clear();
-            UnAssociatedNodes.Clear();
-            MasterCluster._keySpaces.Clear();
-            MasterCluster._dataCenters.Clear();
+            lock (MasterCluster)
+            {
+                bool locked = false;
+
+                Clusters.Lock(ref locked);
+
+                try
+                {
+                    Clusters.UnSafe.Clear();
+                    Clusters.UnSafe.Add(MasterCluster);
+                    UnAssociatedNodes.Clear();
+                    MasterCluster._keySpaces.Clear();
+                    MasterCluster._dataCenters.Clear();
+                    MasterCluster._aggregatedStats.Clear();
+                }
+                finally
+                {
+                    if(locked) Clusters.UnLock();
+                }
+
+                MasterCluster.OpsCenter.RepairServiceEnabled = null;
+                MasterCluster.OpsCenter.Version = null;                              
+            }
         }
 
         internal static INode FindNodeInUnAssocaitedNodes(string nodeId)
