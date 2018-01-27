@@ -140,7 +140,7 @@ namespace DSEDiagnosticFileParser.Tests
             var currentCluster = readNode.Cluster;
             var dcCnt = currentCluster.DataCenters.Count();
             var nodeCnt = currentCluster.Nodes.Count();
-
+            
             Assert.IsNotNull(readNode);
             Assert.IsNull(readNode.DataCenter);            
             Assert.AreEqual(1, Cluster.GetUnAssocaitedNodes().Count());
@@ -149,7 +149,7 @@ namespace DSEDiagnosticFileParser.Tests
                                                     testLogFile.ParentDirectoryPath,
                                                     testLogFile,
                                                     readNode, null, null, null);
-
+            var nbrEveryWhereKS = currentCluster.Keyspaces.Count(ks => ks.IsPreLoaded);
             var nbrLinesParsed = parseFile.ProcessFile();
 
             Assert.AreEqual(0, parseFile.NbrErrors);
@@ -188,13 +188,15 @@ namespace DSEDiagnosticFileParser.Tests
             Assert.IsNotNull(dc1Instance);
             Assert.AreEqual(readNode, dc1Instance.TryGetNode(NodeName11));
             Assert.IsTrue(ReferenceEquals(readNode, Cluster.TryGetAddNode(NodeName11)));
-
+            
             var cluster = Cluster.NameClusterAssociatewItem(readNode, ClusterName1);
 
             Assert.IsNotNull(cluster.TryGetNode(NodeName11));
             Assert.AreEqual(readNode, dc1Instance.TryGetNode(NodeName11));
             Assert.AreEqual(readNode, cluster.TryGetNode(NodeName11));
             Assert.AreEqual(cluster, readNode.Cluster);
+            Assert.AreEqual(nbrEveryWhereKS, cluster.Keyspaces.Count(ks => ks.IsPreLoaded));
+            Assert.AreEqual(0, cluster.Keyspaces.Count() - nbrEveryWhereKS);
 
             Assert.IsNull(cluster.TryGetNode(NodeName21));
 

@@ -123,7 +123,7 @@ namespace DSEDiagnosticLibrary
             {
                 if(this.IsMaster)
                 {
-                    return this.UnderlyingCluster.SelectMany(c => c.Keyspaces);
+                    return Clusters.UnSafe.Count == 1 && ReferenceEquals(this, Clusters.UnSafe[0]) ? this._keySpaces : this.UnderlyingCluster.SelectMany(c => c.Keyspaces);
                 }
                 return this._keySpaces;
             }
@@ -209,7 +209,7 @@ namespace DSEDiagnosticLibrary
             this._keySpaces.Lock();
             try
             {
-                var existingKS = this._keySpaces.UnSafe.FirstOrDefault(ks => ks.Equals(ksItem));
+                var existingKS = this._keySpaces.UnSafe.FirstOrDefault(ks => ks.Name == ksItem.Name);
 
                 if (existingKS == null)
                 {

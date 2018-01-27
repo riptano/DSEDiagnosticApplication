@@ -22,6 +22,16 @@ namespace DSEDiagnosticFileParser
         volatile static bool SystemDDLInitialized = false;
         static object syncLock = new object();
 
+        static cql_ddl()
+        {
+            var systemDDL = new cql_ddl(Cluster.MasterCluster,
+                                            Properties.Settings.Default.DSESystemDDL,
+                                            null,
+                                            null,
+                                            true,
+                                            true);
+        }
+
         private void InitializeInstance()
         {
             if (this.Node != null)
@@ -59,16 +69,11 @@ namespace DSEDiagnosticFileParser
                     if (!SystemDDLInitialized)
                     {
                         SystemDDLInitialized = true;
-                        this._isPreLoaded = true;
 
+                        var systemDDL = new cql_ddl(Cluster.MasterCluster, null, null, null, true, true);
                         var ddlLines = Properties.Settings.Default.DSESystemDDL.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
 
-                        this.ProcessFile(ddlLines);
-                        this._isPreLoaded = false;
-                        this._localKS.Clear();
-                        this._ddlList.Clear();
-                        this._usingKeySpace = null;
-                        this.NbrItemsParsed = 0;
+                        systemDDL.ProcessFile(ddlLines);                        
                     }
                 }
             }
@@ -94,6 +99,48 @@ namespace DSEDiagnosticFileParser
         {
             this.InitializeInstance();
             this._result = new DDLResult(this);
+        }
+
+        public cql_ddl(Cluster cluster,
+                        string cqlString,
+                            IDataCenter dataCenter = null,
+                            Version targetDSEVersion = null,
+                            bool preLoaded = false,
+                            bool systemDDLInitialization = false)
+            : base(CatagoryTypes.CQLFile, null, cluster?.Name, dataCenter?.Name, targetDSEVersion)
+        {           
+            this.Cluster = cluster;
+            this.DataCenter = dataCenter;
+
+            this._result = new DDLResult(this);
+
+            this._isPreLoaded = preLoaded;
+
+            if (!string.IsNullOrEmpty(cqlString))
+            {
+                var convertString = cqlString.Replace(";", ";" + Environment.NewLine);
+                var ddlLines = cqlString.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
+
+                if (systemDDLInitialization)
+                {
+                    if (!SystemDDLInitialized)
+                    {
+                        lock (syncLock)
+                        {
+                            if (!SystemDDLInitialized)
+                            {
+                                SystemDDLInitialized = true;
+
+                                this.ProcessFile(ddlLines);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    this.ProcessFile(ddlLines);
+                }
+            }
         }
 
         public sealed class DDLResult : IResult

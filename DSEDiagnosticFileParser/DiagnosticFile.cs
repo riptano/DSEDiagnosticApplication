@@ -146,7 +146,16 @@ namespace DSEDiagnosticFileParser
             }
         }
 
-        static DiagnosticFile() { }
+        volatile static bool SystemDDLInitialized = false;
+
+        static DiagnosticFile()
+        {
+            if (!SystemDDLInitialized)
+            {
+                SystemDDLInitialized = true;
+                System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(cql_ddl).TypeHandle);
+            }
+        }
 
         protected DiagnosticFile(CatagoryTypes catagory,
 									IDirectoryPath diagnosticDirectory,
@@ -198,7 +207,7 @@ namespace DSEDiagnosticFileParser
             }
 
             this.Catagory = catagory;
-            this.DiagnosticDirectory = file.ParentDirectoryPath;
+            this.DiagnosticDirectory = file?.ParentDirectoryPath;
             this.File = file;
             this.Node = Cluster.TryGetAddNode(DetermineNodeIdentifier(file, -1), defaultDCName, defaultClusterName);
             this.ParsedTimeRange = new DateTimeRange();
@@ -296,6 +305,8 @@ namespace DSEDiagnosticFileParser
 		public static NodeIdentifier DetermineNodeIdentifier(IFilePath filePath, int nodeIdPos)
 		{
 			NodeIdentifier nodeId = null;
+
+            if (filePath == null) return null;
 
 			if(nodeIdPos <= 0)
 			{
