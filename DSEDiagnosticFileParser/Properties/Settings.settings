@@ -1056,7 +1056,400 @@ CREATE TABLE dse_system.leases (
     AND memtable_flush_period_in_ms = 3600000
     AND min_index_interval = 128
     AND read_repair_chance = 0.0
-    AND speculative_retry = '99PERCENTILE';</Value>
+    AND speculative_retry = '99PERCENTILE';
+    
+CREATE TABLE dse_system.spark_1_5_master_recovery (
+    dc text,
+    id text,
+    data blob,
+    PRIMARY KEY (dc, id)
+) WITH read_repair_chance = 0.0
+   AND dclocal_read_repair_chance = 0.0
+   AND gc_grace_seconds = 1209600
+   AND bloom_filter_fp_chance = 0.01
+   AND caching = { 'keys' : 'ALL', 'rows_per_partition' : 'NONE' }
+   AND comment = ''
+   AND compaction = { 'class' : 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy', 'max_threshold' : 32, 'min_threshold' : 4 }
+   AND compression = { 'chunk_length_in_kb' : 64, 'class' : 'org.apache.cassandra.io.compress.LZ4Compressor' }
+   AND default_time_to_live = 0
+   AND speculative_retry = '99PERCENTILE'
+   AND min_index_interval = 128
+   AND max_index_interval = 2048
+   AND crc_check_chance = 1.0;
+
+CREATE KEYSPACE "HiveMetaStore" WITH replication = {'class': 'EverywhereStrategy'}  AND durable_writes = true AND PreLoaded = true;
+
+CREATE TABLE "HiveMetaStore"."MetaStore" (
+    key text,
+    entity text,
+    value blob,
+    PRIMARY KEY (key, entity)
+) WITH COMPACT STORAGE
+   AND read_repair_chance = 0.0
+   AND dclocal_read_repair_chance = 0.0
+   AND gc_grace_seconds = 1209600
+   AND bloom_filter_fp_chance = 0.01
+   AND caching = { 'keys' : 'ALL', 'rows_per_partition' : 'NONE' }
+   AND comment = ''
+   AND compaction = { 'class' : 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy', 'max_threshold' : 32, 'min_threshold' : 4 }
+   AND compression = { 'chunk_length_in_kb' : 64, 'class' : 'org.apache.cassandra.io.compress.LZ4Compressor' }
+   AND default_time_to_live = 0
+   AND speculative_retry = '99PERCENTILE'
+   AND min_index_interval = 128
+   AND max_index_interval = 2048
+   AND crc_check_chance = 1.0;
+
+CREATE TABLE "HiveMetaStore".sparkmetastore (
+    key text,
+    entity text,
+    value blob,
+    PRIMARY KEY (key, entity)
+) WITH COMPACT STORAGE
+   AND read_repair_chance = 0.0
+   AND dclocal_read_repair_chance = 0.0
+   AND gc_grace_seconds = 1209600
+   AND bloom_filter_fp_chance = 0.01
+   AND caching = { 'keys' : 'ALL', 'rows_per_partition' : 'NONE' }
+   AND comment = ''
+   AND compaction = { 'class' : 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy', 'max_threshold' : 32, 'min_threshold' : 4 }
+   AND compression = { 'chunk_length_in_kb' : 64, 'class' : 'org.apache.cassandra.io.compress.LZ4Compressor' }
+   AND default_time_to_live = 0
+   AND speculative_retry = '99PERCENTILE'
+   AND min_index_interval = 128
+   AND max_index_interval = 2048
+   AND crc_check_chance = 1.0;
+
+CREATE KEYSPACE cfs_archive WITH replication = {'class': 'EverywhereStrategy'}  AND durable_writes = true AND PreLoaded = true;
+
+CREATE TABLE cfs_archive.inode (
+    key blob,
+    "b@706172656e745f70617468" blob,
+    "b@70617468" blob,
+    "b@73656e74696e656c" blob,
+    PRIMARY KEY (key)
+) WITH COMPACT STORAGE
+   AND read_repair_chance = 0.0
+   AND dclocal_read_repair_chance = 0.1
+   AND gc_grace_seconds = 864000
+   AND bloom_filter_fp_chance = 0.01
+   AND caching = { 'keys' : 'ALL', 'rows_per_partition' : 'NONE' }
+   AND comment = 'Stores file meta data'
+   AND compaction = { 'class' : 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy', 'max_threshold' : 32, 'min_threshold' : 4 }
+   AND compression = { 'chunk_length_in_kb' : 64, 'class' : 'org.apache.cassandra.io.compress.LZ4Compressor' }
+   AND default_time_to_live = 0
+   AND speculative_retry = 'NONE'
+   AND min_index_interval = 128
+   AND max_index_interval = 2048
+   AND crc_check_chance = 1.0;
+CREATE INDEX cfs_archive_parent_path ON cfs_archive.inode ("b@706172656e745f70617468");
+CREATE INDEX cfs_archive_path ON cfs_archive.inode ("b@70617468");
+CREATE INDEX cfs_archive_sentinel ON cfs_archive.inode ("b@73656e74696e656c");
+
+CREATE TABLE cfs_archive.sblocks (
+    key blob,
+    column1 blob,
+    value blob,
+    PRIMARY KEY (key, column1)
+) WITH COMPACT STORAGE
+   AND read_repair_chance = 0.0
+   AND dclocal_read_repair_chance = 0.1
+   AND gc_grace_seconds = 864000
+   AND bloom_filter_fp_chance = 6.8E-5
+   AND caching = { 'keys' : 'ALL', 'rows_per_partition' : 'NONE' }
+   AND comment = 'Stores blocks of information associated with a inode'
+   AND compaction = { 'class' : 'com.datastax.bdp.hadoop.cfs.compaction.CFSCompactionStrategy', 'max_threshold' : 64, 'min_threshold' : 2 }
+   AND compression = { 'enabled' : 'false' }
+   AND default_time_to_live = 0
+   AND speculative_retry = 'NONE'
+   AND min_index_interval = 128
+   AND max_index_interval = 2048
+   AND crc_check_chance = 1.0;
+
+CREATE TABLE cfs_archive.cleanup (
+    key blob,
+    column1 blob,
+    value blob,
+    PRIMARY KEY (key, column1)
+) WITH COMPACT STORAGE
+   AND read_repair_chance = 0.0
+   AND dclocal_read_repair_chance = 0.1
+   AND gc_grace_seconds = 864000
+   AND bloom_filter_fp_chance = 0.01
+   AND caching = { 'keys' : 'ALL', 'rows_per_partition' : 'NONE' }
+   AND comment = 'Stores blocks row key to perform a cleanup for when jobs fail'
+   AND compaction = { 'class' : 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy', 'max_threshold' : 32, 'min_threshold' : 4 }
+   AND compression = { 'chunk_length_in_kb' : 64, 'class' : 'org.apache.cassandra.io.compress.LZ4Compressor' }
+   AND default_time_to_live = 0
+   AND speculative_retry = 'NONE'
+   AND min_index_interval = 128
+   AND max_index_interval = 2048
+   AND crc_check_chance = 1.0;
+
+CREATE TABLE cfs_archive.rules (
+    key text,
+    compression boolean,
+    priority int,
+    PRIMARY KEY (key)
+) WITH COMPACT STORAGE
+   AND read_repair_chance = 0.0
+   AND dclocal_read_repair_chance = 0.1
+   AND gc_grace_seconds = 864000
+   AND bloom_filter_fp_chance = 0.01
+   AND caching = { 'keys' : 'ALL', 'rows_per_partition' : 'NONE' }
+   AND comment = 'Stores properties associated with groups of files and directories selected by path patterns'
+   AND compaction = { 'class' : 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy', 'max_threshold' : 32, 'min_threshold' : 4 }
+   AND compression = { 'chunk_length_in_kb' : 64, 'class' : 'org.apache.cassandra.io.compress.LZ4Compressor' }
+   AND default_time_to_live = 0
+   AND speculative_retry = 'NONE'
+   AND min_index_interval = 128
+   AND max_index_interval = 2048
+   AND crc_check_chance = 1.0;
+    
+CREATE KEYSPACE "OpsCenter" WITH replication = {'class': 'EverywhereStrategy'}  AND durable_writes = true AND PreLoaded = true;
+
+CREATE TABLE "OpsCenter".bestpractice_results (
+    key text,
+    column1 varint,
+    value blob,
+    PRIMARY KEY (key, column1)
+) WITH COMPACT STORAGE
+   AND CLUSTERING ORDER BY (column1 DESC)
+   AND read_repair_chance = 0.25
+   AND dclocal_read_repair_chance = 0.1
+   AND gc_grace_seconds = 0
+   AND bloom_filter_fp_chance = 0.01
+   AND caching = { 'keys' : 'ALL', 'rows_per_partition' : 'NONE' }
+   AND comment = '{"version": [6, 1, 4], "info": "OpsCenter management data."}'
+   AND compaction = { 'class' : 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy', 'max_threshold' : 32, 'min_threshold' : 4 }
+   AND compression = { 'chunk_length_in_kb' : 64, 'class' : 'org.apache.cassandra.io.compress.LZ4Compressor' }
+   AND default_time_to_live = 0
+   AND speculative_retry = '99PERCENTILE'
+   AND min_index_interval = 128
+   AND max_index_interval = 2048
+   AND crc_check_chance = 1.0;
+
+CREATE TABLE "OpsCenter".rollup_state (
+    node text,
+    name text,
+    res int,
+    avg float,
+    histogram blob,
+    max float,
+    min float,
+    ts timestamp,
+    type int,
+    value float,
+    weight float,
+    PRIMARY KEY (node, name, res)
+) WITH read_repair_chance = 0.0
+   AND dclocal_read_repair_chance = 0.0
+   AND gc_grace_seconds = 0
+   AND bloom_filter_fp_chance = 0.1
+   AND caching = { 'keys' : 'ALL', 'rows_per_partition' : 'NONE' }
+   AND comment = '{"version": [6, 1, 4], "info": "OpsCenter management data."}'
+   AND compaction = { 'class' : 'org.apache.cassandra.db.compaction.LeveledCompactionStrategy' }
+   AND compression = { 'chunk_length_in_kb' : 64, 'class' : 'org.apache.cassandra.io.compress.LZ4Compressor' }
+   AND default_time_to_live = 0
+   AND speculative_retry = '99PERCENTILE'
+   AND min_index_interval = 128
+   AND max_index_interval = 2048
+   AND crc_check_chance = 1.0;
+
+CREATE TABLE "OpsCenter".settings (
+    key blob,
+    column1 blob,
+    value blob,
+    PRIMARY KEY (key, column1)
+) WITH COMPACT STORAGE
+   AND read_repair_chance = 1.0
+   AND dclocal_read_repair_chance = 0.1
+   AND gc_grace_seconds = 864000
+   AND bloom_filter_fp_chance = 0.01
+   AND caching = { 'keys' : 'ALL', 'rows_per_partition' : 'NONE' }
+   AND comment = '{"version": [6, 1, 4], "info": "OpsCenter management data."}'
+   AND compaction = { 'class' : 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy', 'max_threshold' : 12, 'min_threshold' : 8 }
+   AND compression = { 'chunk_length_in_kb' : 64, 'class' : 'org.apache.cassandra.io.compress.LZ4Compressor' }
+   AND default_time_to_live = 0
+   AND speculative_retry = '99PERCENTILE'
+   AND min_index_interval = 128
+   AND max_index_interval = 2048
+   AND crc_check_chance = 1.0;
+
+CREATE TABLE "OpsCenter".pdps (
+    key text,
+    column1 text,
+    value blob,
+    PRIMARY KEY (key, column1)
+) WITH COMPACT STORAGE
+   AND read_repair_chance = 0.25
+   AND dclocal_read_repair_chance = 0.1
+   AND gc_grace_seconds = 0
+   AND bloom_filter_fp_chance = 0.01
+   AND caching = { 'keys' : 'ALL', 'rows_per_partition' : 'NONE' }
+   AND comment = '{"version": [6, 1, 4], "info": "OpsCenter management data."}'
+   AND compaction = { 'class' : 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy', 'max_threshold' : 32, 'min_threshold' : 4 }
+   AND compression = { 'chunk_length_in_kb' : 64, 'class' : 'org.apache.cassandra.io.compress.LZ4Compressor' }
+   AND default_time_to_live = 0
+   AND speculative_retry = '99PERCENTILE'
+   AND min_index_interval = 128
+   AND max_index_interval = 2048
+   AND crc_check_chance = 1.0;
+
+CREATE TABLE "OpsCenter".rollups7200 (
+    key text,
+    timestamp varint,
+    value blob,
+    PRIMARY KEY (key, timestamp)
+) WITH COMPACT STORAGE
+   AND read_repair_chance = 0.25
+   AND dclocal_read_repair_chance = 0.1
+   AND gc_grace_seconds = 0
+   AND bloom_filter_fp_chance = 0.01
+   AND caching = { 'keys' : 'ALL', 'rows_per_partition' : 'NONE' }
+   AND comment = '{"version": [6, 1, 4], "info": "OpsCenter management data."}'
+   AND compaction = { 'class' : 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy', 'max_threshold' : 8, 'min_threshold' : 2 }
+   AND compression = { 'chunk_length_in_kb' : 64, 'class' : 'org.apache.cassandra.io.compress.LZ4Compressor' }
+   AND default_time_to_live = 0
+   AND speculative_retry = '99PERCENTILE'
+   AND min_index_interval = 128
+   AND max_index_interval = 2048
+   AND crc_check_chance = 1.0;
+
+CREATE TABLE "OpsCenter".rollups86400 (
+    key text,
+    timestamp varint,
+    value blob,
+    PRIMARY KEY (key, timestamp)
+) WITH COMPACT STORAGE
+   AND read_repair_chance = 0.25
+   AND dclocal_read_repair_chance = 0.1
+   AND gc_grace_seconds = 0
+   AND bloom_filter_fp_chance = 0.01
+   AND caching = { 'keys' : 'ALL', 'rows_per_partition' : 'NONE' }
+   AND comment = '{"version": [6, 1, 4], "info": "OpsCenter management data."}'
+   AND compaction = { 'class' : 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy', 'max_threshold' : 8, 'min_threshold' : 2 }
+   AND compression = { 'chunk_length_in_kb' : 64, 'class' : 'org.apache.cassandra.io.compress.LZ4Compressor' }
+   AND default_time_to_live = 0
+   AND speculative_retry = '99PERCENTILE'
+   AND min_index_interval = 128
+   AND max_index_interval = 2048
+   AND crc_check_chance = 1.0;
+
+CREATE TABLE "OpsCenter".backup_reports (
+    week text,
+    event_time timestamp,
+    backup_id text,
+    type text,
+    destination text,
+    deleted_at timestamp,
+    full_status text,
+    "keyspaces" text,
+    status text,
+    PRIMARY KEY (week, event_time, backup_id, type, destination)
+) WITH CLUSTERING ORDER BY (event_time DESC, backup_id ASC, type ASC, destination ASC)
+   AND read_repair_chance = 0.0
+   AND dclocal_read_repair_chance = 0.1
+   AND gc_grace_seconds = 864000
+   AND bloom_filter_fp_chance = 0.01
+   AND caching = { 'keys' : 'ALL', 'rows_per_partition' : 'NONE' }
+   AND comment = '{"version": [6, 1, 4], "info": "OpsCenter management data."}'
+   AND compaction = { 'class' : 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy', 'max_threshold' : 32, 'min_threshold' : 4 }
+   AND compression = { 'chunk_length_in_kb' : 64, 'class' : 'org.apache.cassandra.io.compress.LZ4Compressor' }
+   AND default_time_to_live = 0
+   AND speculative_retry = '99PERCENTILE'
+   AND min_index_interval = 128
+   AND max_index_interval = 2048
+   AND crc_check_chance = 1.0;
+
+CREATE TABLE "OpsCenter".events_timeline (
+    key text,
+    column1 bigint,
+    value blob,
+    PRIMARY KEY (key, column1)
+) WITH COMPACT STORAGE
+   AND read_repair_chance = 0.25
+   AND dclocal_read_repair_chance = 0.1
+   AND gc_grace_seconds = 864000
+   AND bloom_filter_fp_chance = 0.01
+   AND caching = { 'keys' : 'ALL', 'rows_per_partition' : 'NONE' }
+   AND comment = '{"version": [6, 1, 4], "info": "OpsCenter management data."}'
+   AND compaction = { 'class' : 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy', 'max_threshold' : 8, 'min_threshold' : 4 }
+   AND compression = { 'chunk_length_in_kb' : 64, 'class' : 'org.apache.cassandra.io.compress.LZ4Compressor' }
+   AND default_time_to_live = 0
+   AND speculative_retry = '99PERCENTILE'
+   AND min_index_interval = 128
+   AND max_index_interval = 2048
+   AND crc_check_chance = 1.0;
+
+CREATE TABLE "OpsCenter".rollups60 (
+    key text,
+    timestamp varint,
+    value blob,
+    PRIMARY KEY (key, timestamp)
+) WITH COMPACT STORAGE
+   AND read_repair_chance = 0.25
+   AND dclocal_read_repair_chance = 0.1
+   AND gc_grace_seconds = 0
+   AND bloom_filter_fp_chance = 0.01
+   AND caching = { 'keys' : 'ALL', 'rows_per_partition' : 'NONE' }
+   AND comment = '{"version": [6, 1, 4], "info": "OpsCenter management data."}'
+   AND compaction = { 'class' : 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy', 'max_threshold' : 32, 'min_threshold' : 4 }
+   AND compression = { 'chunk_length_in_kb' : 64, 'class' : 'org.apache.cassandra.io.compress.LZ4Compressor' }
+   AND default_time_to_live = 0
+   AND speculative_retry = '99PERCENTILE'
+   AND min_index_interval = 128
+   AND max_index_interval = 2048
+   AND crc_check_chance = 1.0;
+
+CREATE TABLE "OpsCenter".events (
+    key text,
+    action bigint,
+    api_source_ip text,
+    column_family text,
+    event_source text,
+    "keyspace" text,
+    level bigint,
+    message text,
+    source_node text,
+    success boolean,
+    target_node text,
+    time bigint,
+    user text,
+    PRIMARY KEY (key)
+) WITH COMPACT STORAGE
+   AND read_repair_chance = 0.25
+   AND dclocal_read_repair_chance = 0.1
+   AND gc_grace_seconds = 864000
+   AND bloom_filter_fp_chance = 0.01
+   AND caching = { 'keys' : 'ALL', 'rows_per_partition' : 'NONE' }
+   AND comment = '{"version": [6, 1, 4], "info": "OpsCenter management data."}'
+   AND compaction = { 'class' : 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy', 'max_threshold' : 12, 'min_threshold' : 8 }
+   AND compression = { 'chunk_length_in_kb' : 64, 'class' : 'org.apache.cassandra.io.compress.LZ4Compressor' }
+   AND default_time_to_live = 0
+   AND speculative_retry = '99PERCENTILE'
+   AND min_index_interval = 128
+   AND max_index_interval = 2048
+   AND crc_check_chance = 1.0;
+
+CREATE TABLE "OpsCenter".rollups300 (
+    key text,
+    timestamp varint,
+    value blob,
+    PRIMARY KEY (key, timestamp)
+) WITH COMPACT STORAGE
+   AND read_repair_chance = 0.25
+   AND dclocal_read_repair_chance = 0.1
+   AND gc_grace_seconds = 0
+   AND bloom_filter_fp_chance = 0.01
+   AND caching = { 'keys' : 'ALL', 'rows_per_partition' : 'NONE' }
+   AND comment = '{"version": [6, 1, 4], "info": "OpsCenter management data."}'
+   AND compaction = { 'class' : 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy', 'max_threshold' : 16, 'min_threshold' : 4 }
+   AND compression = { 'chunk_length_in_kb' : 64, 'class' : 'org.apache.cassandra.io.compress.LZ4Compressor' }
+   AND default_time_to_live = 0
+   AND speculative_retry = '99PERCENTILE'
+   AND min_index_interval = 128
+   AND max_index_interval = 2048
+   AND crc_check_chance = 1.0;</Value>
     </Setting>
     <Setting Name="CFStatsDetectWriteActivityAttr" Type="System.String" Scope="Application">
       <Value Profile="(Default)">Local write count</Value>
