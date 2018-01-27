@@ -112,6 +112,9 @@
     <None Include="Files\DSE5-ring">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Files\DSE5-ring1">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="JSon\solr_index_size.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

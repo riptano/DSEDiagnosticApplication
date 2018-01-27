@@ -78,6 +78,9 @@
   ///     "DDLITEMNAME"                             -- this will map the capture group's value to property "DDLItems" of the LogCassandraEvent class.
   ///                                                             This can be table, view, or index qualifier with optional keyspace qualifier. The separator can be a period or slash.
   ///                                                             This should be considered the "primary" DDL item for the event.
+  ///     "DDLSCHEMAID"                             -- this will map the capture group's value to property "DDLItems" of the LogCassandraEvent class, if found.
+  ///                                                             This is the GUID of the schema.
+  ///                                                             This should be considered the "primary" DDL item for the event.
   ///     "TABLEVIEWNAME"                           -- Similar to DDLITEMNAME except that only a table or view name is defined. e.g., tablea.indexa DDLITEMNAME would be "indexa" but TABLEVIEWNAME would be "tablea"
   ///                                                             If TABLEVIEWNAME is not found DDLITEMNAME is used.
   ///     "SOLRINDEXNAME"                           -- Translate a Solr index name into a quified DDL name. e.g., coafstatim_application_appownrtxt_index => coafstatim.application_appownrtxt_index
@@ -899,7 +902,7 @@
       "FileLineMatch": null,
       "MessageMatch": {
         "RegExStrings": [
-          "^InetAdress "
+          "^InetAddress "
         ]
       },
       "ParseMessage": {
@@ -934,7 +937,7 @@
           "^DseDaemon.java$"
         ]
       },
-     "FileLineMatch": null,
+      "FileLineMatch": null,
       "MessageMatch": {
         "RegExStrings": [
           "^DSE shutdown "
@@ -1236,7 +1239,7 @@
       "ParseMessage": {
         "RegExStrings": [
           "^updating shards[a-z ]+/?\\s*(?<NODE>[^ ]+)\\s+\\w+\\s\\w+\\sstatus=(?<status>\\w+)\\,?(?<token>\\s?\\-?[0-9]+\\,?)*",
-          "^updating shards[a-z ]+/?\\s*(?<NODE>[^ ]+)\\s+\\w+\\s\\w+\\s(?<status>schema)=?(?<schemaid>[0-9a-f\\-]+)?$",
+          "^updating shards[a-z ]+/?\\s*(?<NODE>[^ ]+)\\s+\\w+\\s\\w+\\s(?<status>schema)=?(?<DDLSCHEMAID>[0-9a-f\\-]+)?$",
           "^updating shards[a-z ]+/?\\s*(?<NODE>[^ ]+)\\s+\\w+\\s(?<status>dead)$"
         ]
       },
@@ -1245,16 +1248,16 @@
       "EventClass": "Detection",
       "SubClass": null,
       "Product": "Cassandra",
-      "SessionKey": "'shardEvent' + NODE",
+      "SessionKey": "'shardEvent' + NODE + token",
       "SessionKeyAction": "Add",
-      "SessionLookup": "'shardEvent' + NODE + token",
-      "SessionLookupAction": "DefineSession",
+      "SessionLookup": "'shardEvent' + NODE",
+      "SessionLookupAction": "DefineLabel, Stack",
       "Examples": [
         "=>INFO  [SharedPool-Worker-1] 2018-01-07 22:53:49,522  ShardRouter.java:605 - Updating shards state due to endpoint /10.0.0.2 changing state STATUS=NORMAL,-1051573540106914992",
         "=>INFO  [GossipStage:1] 2018-01-07 22:56:01,123  ShardRouter.java:645 - Updating shards state due to endpoint /10.0.0.2 changing state SCHEMA=541fdec0-47c9-33fd-b79c-4a37acd21019",
         "=>INFO  [GossipStage:1] 2018-01-07 22:56:02,345  ShardRouter.java:645 - Updating shards state due to endpoint /10.0.0.2 being dead",
         "INFO  [GossipStage:1] 2018-01-07 22:53:49,525  StorageService.java:1790 - Nodes /10.0.0.2 and /10.0.0.1 have the same token -1051573540106914992.  /10.0.0.2 is the new owner",
-        "WARN  [GossipStage:1] 2018-01-07 22:53:49,905  TokenMetadata.java:196 - Token 887656048495882619 changing ownership from /10.0.0.1 to /10.0.0.2",
+        "WARN  [GossipStage:1] 2018-01-07 22:53:49,905  TokenMetadata.java:196 - Token -1051573540106914992 changing ownership from /10.0.0.1 to /10.0.0.2",
         "NFO  [GossipStage:1] 2018-01-07 22:53:49,918  TokenMetadata.java:414 - Updating topology for /10.0.0.2"
       ]
     },
@@ -1289,14 +1292,14 @@
       "EventClass": "Detection",
       "SubClass": null,
       "Product": "Cassandra",
-      "SessionLookup": "'shardEvent' + NODE + token",
-      "SessionLookupAction": "ReadSession",
+      "SessionKey": "'shardEvent' + NODE + token",
+      "SessionKeyAction": "Read",
       "Examples": [
         "INFO  [SharedPool-Worker-1] 2018-01-07 22:53:49,522  ShardRouter.java:605 - Updating shards state due to endpoint /10.0.0.2 changing state STATUS=NORMAL,-1051573540106914992",
         "INFO  [GossipStage:1] 2018-01-07 22:56:01,123  ShardRouter.java:645 - Updating shards state due to endpoint /10.0.0.2 changing state SCHEMA=541fdec0-47c9-33fd-b79c-4a37acd21019",
         "INFO  [GossipStage:1] 2018-01-07 22:56:02,345  ShardRouter.java:645 - Updating shards state due to endpoint /10.0.0.2 being dead",
         "=>INFO  [GossipStage:1] 2018-01-07 22:53:49,525  StorageService.java:1790 - Nodes /10.0.0.2 and /10.0.0.1 have the same token -1051573540106914992.  /10.0.0.2 is the new owner",
-        "WARN  [GossipStage:1] 2018-01-07 22:53:49,905  TokenMetadata.java:196 - Token 887656048495882619 changing ownership from /10.0.0.1 to /10.0.0.2",
+        "WARN  [GossipStage:1] 2018-01-07 22:53:49,905  TokenMetadata.java:196 - Token -1051573540106914992 changing ownership from /10.0.0.1 to /10.0.0.2",
         "NFO  [GossipStage:1] 2018-01-07 22:53:49,918  TokenMetadata.java:414 - Updating topology for /10.0.0.2"
       ]
     },
@@ -1327,18 +1330,18 @@
         ]
       },
       "ParseThreadId": null,
-      "EventType": "SessionIgnore",
+      "EventType": "SessionItem, SingleInstance",
       "EventClass": "Detection",
       "SubClass": null,
       "Product": "Cassandra",
-      "SessionLookup": "'shardEvent' + NODE + token",
-      "SessionLookupAction": "ReadSession",
+      "SessionKey": "'shardEvent' + NODE + token",
+      "SessionKeyAction": "Read",
       "Examples": [
         "INFO  [SharedPool-Worker-1] 2018-01-07 22:53:49,522  ShardRouter.java:605 - Updating shards state due to endpoint /10.0.0.2 changing state STATUS=NORMAL,-1051573540106914992",
         "INFO  [GossipStage:1] 2018-01-07 22:56:01,123  ShardRouter.java:645 - Updating shards state due to endpoint /10.0.0.2 changing state SCHEMA=541fdec0-47c9-33fd-b79c-4a37acd21019",
         "INFO  [GossipStage:1] 2018-01-07 22:56:02,345  ShardRouter.java:645 - Updating shards state due to endpoint /10.0.0.2 being dead",
         "INFO  [GossipStage:1] 2018-01-07 22:53:49,525  StorageService.java:1790 - Nodes /10.0.0.2 and /10.0.0.1 have the same token -1051573540106914992.  /10.0.0.2 is the new owner",
-        "=>WARN  [GossipStage:1] 2018-01-07 22:53:49,905  TokenMetadata.java:196 - Token 887656048495882619 changing ownership from /10.0.0.1 to /10.0.0.2",
+        "=>WARN  [GossipStage:1] 2018-01-07 22:53:49,905  TokenMetadata.java:196 - Token -1051573540106914992 changing ownership from /10.0.0.1 to /10.0.0.2",
         "NFO  [GossipStage:1] 2018-01-07 22:53:49,918  TokenMetadata.java:414 - Updating topology for /10.0.0.2"
       ]
     },
@@ -1373,17 +1376,15 @@
       "EventClass": "Detection",
       "SubClass": null,
       "Product": "Cassandra",
-      "SessionKey": "'shardEvent' + NODE",
-      "SessionKeyAction": "ReadRemove",
       "SessionLookup": "'shardEvent' + NODE",
-      "SessionLookupAction": "DeleteSession",
+      "SessionLookupAction": "ReadRemoveLabel",
       "Examples": [
         "INFO  [SharedPool-Worker-1] 2018-01-07 22:53:49,522  ShardRouter.java:605 - Updating shards state due to endpoint /10.0.0.2 changing state STATUS=NORMAL,-1051573540106914992",
         "INFO  [GossipStage:1] 2018-01-07 22:56:01,123  ShardRouter.java:645 - Updating shards state due to endpoint /10.0.0.2 changing state SCHEMA=541fdec0-47c9-33fd-b79c-4a37acd21019",
         "INFO  [GossipStage:1] 2018-01-07 22:56:02,345  ShardRouter.java:645 - Updating shards state due to endpoint /10.0.0.2 being dead",
         "INFO  [GossipStage:1] 2018-01-07 22:53:49,525  StorageService.java:1790 - Nodes /10.0.0.2 and /10.0.0.1 have the same token -1051573540106914992.  /10.0.0.2 is the new owner",
         "WARN  [GossipStage:1] 2018-01-07 22:53:49,905  TokenMetadata.java:196 - Token 887656048495882619 changing ownership from /10.0.0.1 to /10.0.0.2",
-        "=>NFO  [GossipStage:1] 2018-01-07 22:53:49,918  TokenMetadata.java:414 - Updating topology for /10.0.0.2"
+        "=>INFO  [GossipStage:1] 2018-01-07 22:53:49,918  TokenMetadata.java:414 - Updating topology for /10.0.0.2"
       ]
     },
     {
@@ -1408,8 +1409,8 @@
       },
       "ParseMessage": {
         "RegExStrings": [
-          "^(?<action>Create) new\\s+(?<type>table|columnfamily)\\s*:\\s+org.apache.cassandra.config.CFMetaData@[0-9a-f]+\\[cfid=(?<cfid>[a-f0-9\\-]+),ksname=(?<KEYSPACE>[a-z0-9'\\-_$%+=!?<>^*&@]+),cfname=(?<DDLITEMNAME>[a-z0-9'\\-_$%+=!?<>^*&@]+)",
-          "^(?<action>Create) new\\s+(?<type>view)\\s*:\\s+org.apache.cassandra.config.ViewDefinition@[0-9a-f]+\\[ksname=(?<KEYSPACE>[a-z0-9'\\-_$%+=!?<>^*&@]+),viewname=(?<DDLITEMNAME>[a-z0-9'\\-_$%+=!?<>^*&@]+),basetableid=(?<basetaleid>[a-f0-9\\-]+),baseTableName=(?<TABLEVIEWNAME>[a-z0-9'\\-_$%+=!?<>^*&@]+),.+cfid=(?<cfid>[a-f0-9\\-]+),"
+          "^(?<action>Create) new\\s+(?<type>table|columnfamily)\\s*:\\s+org.apache.cassandra.config.CFMetaData@[0-9a-f]+\\[cfid=(?<DDLSCHEMAID>[a-f0-9\\-]+),ksname=(?<KEYSPACE>[a-z0-9'\\-_$%+=!?<>^*&@]+),cfname=(?<DDLITEMNAME>[a-z0-9'\\-_$%+=!?<>^*&@]+)",
+          "^(?<action>Create) new\\s+(?<type>view)\\s*:\\s+org.apache.cassandra.config.ViewDefinition@[0-9a-f]+\\[ksname=(?<KEYSPACE>[a-z0-9'\\-_$%+=!?<>^*&@]+),viewname=(?<DDLITEMNAME>[a-z0-9'\\-_$%+=!?<>^*&@]+),basetableid=(?<basetaleid>[a-f0-9\\-]+),baseTableName=(?<basetablename>[a-z0-9'\\-_$%+=!?<>^*&@]+),.+cfid=(?<DDLSCHEMAID>[a-f0-9\\-]+),"
         ]
       },
       "ParseThreadId": null,
@@ -1438,7 +1439,7 @@
           "^MigrationManager.java$"
         ]
       },
-     "FileLineMatch": null,
+      "FileLineMatch": null,
       "MessageMatch": {
         "RegExStrings": [
           "^Create new Keyspace"

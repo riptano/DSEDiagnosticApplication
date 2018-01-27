@@ -664,10 +664,13 @@ namespace DSEDiagnosticLibrary
                 {
                     if (cluster != null && node.Cluster.Name != clusterName)
                     {
-                        if (node.DataCenter != null && !cluster.IsMaster && node.DataCenter.Cluster.IsMaster)
+                        if (node.DataCenter != null && !cluster.IsMaster && node.DataCenter.Cluster.Name != clusterName)
                         {
+                            var removeNodeFromUnAssocList = node.DataCenter.Cluster.IsMaster;
+
                             NameClusterAssociatewItem(node.DataCenter, cluster);
-                            RemoveNodeFromUnAssociatedList(node.Id);
+                            if(removeNodeFromUnAssocList)
+                                RemoveNodeFromUnAssociatedList(node.Id);
                         }
                         else
                         {

@@ -41,7 +41,7 @@ namespace DSEDiagnosticFileParser.Tests
             this._cluster = DSEDiagnosticLibrary.Cluster.TryGetAddCluster(ClusterName);
 
             Assert.AreEqual(ClusterName, this._cluster?.Name);
-            Assert.AreEqual(this._cluster, DSEDiagnosticLibrary.Cluster.GetCurrentOrMaster());
+            Assert.AreEqual(this._cluster, DSEDiagnosticLibrary.Cluster.TryGetCluster(ClusterName));
 
             this._datacenter1 = DSEDiagnosticLibrary.Cluster.TryGetAddDataCenter(DC1, this._cluster);
             Assert.AreEqual(DC1, this._datacenter1?.Name);
@@ -69,7 +69,7 @@ namespace DSEDiagnosticFileParser.Tests
         {
             this.CreateClusterDCNodeDDL();
 
-            Assert.AreEqual(this._cluster, DSEDiagnosticLibrary.Cluster.GetCurrentOrMaster());
+            Assert.AreEqual(this._cluster, DSEDiagnosticLibrary.Cluster.TryGetCluster(ClusterName));
             Assert.IsNotNull(this._node1);
             Assert.IsNotNull(this._node2);
             Assert.IsNotNull(this._node3);

@@ -933,6 +933,11 @@ namespace DSEDiagnosticFileParser
                         var propName = propertyvalue.Substring(0, propvalueSplitPos).Trim().ToLower();
                         var propValue = propertyvalue.Substring(propvalueSplitPos + 1).Trim();
 
+                        if(propValue.Last() == ';')
+                        {
+                            propValue = propValue.TrimEnd(';');
+                        }
+
                         if (propValue[0] == '{')
                         {
                             properties.Add(propName, JsonConvert.DeserializeObject<Dictionary<string, object>>(propValue));

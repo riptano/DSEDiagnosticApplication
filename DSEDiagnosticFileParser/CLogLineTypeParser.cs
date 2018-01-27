@@ -266,6 +266,9 @@ namespace DSEDiagnosticFileParser
         ///                                                             This should be considered the &quot;primary&quot; DDL item for the event.
         ///     &quot;TABLEVIEWNAME&quot;                           -- Similar to DDLITEMNAME except that only a table or view name is defined. e.g., tablea.indexa DDLITEMNAME would be &quot;indexa&quot; but TABLEVIEWNAME would be &quot;tablea&quot;
         ///                                                             If TABLEVIEWNAME is not found DDLITEMNAME is used.
+        ///     &quot;DDLSCHEMAID&quot;                             -- this will map the capture group&apos;s value to property &quot;DDLItems&quot; of the LogCassandraEvent class, if found.
+        ///                                                             This is the GUID of the schema.
+        ///                                                             This should be considered the &quot;primary&quot; DDL item for the event.
         ///     &quot;SOLRINDEXNAME&quot                            -- Translate a Solr index name into a quified DDL name. e.g., coafstatim_application_appownrtxt_index => coafstatim.application_appownrtxt_index
         ///     &quot;SSTABLEPATH&quot;                             -- this will be used to obtain the keyspace and DDL item plus map to the capture group&apos;s value to property &quot;SSTables&quot; of the LogCassandraEvent class
         ///                                                             This should be considered the &quot;primary&quot; keyspace and DDL item for the event. This will overide the KEYSPACE and DDLITEMNAME for primary. If this is not the case use SSTABLEPATHS.
@@ -1032,11 +1035,11 @@ namespace DSEDiagnosticFileParser
                                                                                                     (!SessionKeywords.Contains(i)).ToString().ToLower(),
                                                                                                     cacheIdx);
                                     });
-                cacheInfo.KeyMethodInfo = MiscHelpers.CompileMethod(string.Format("{0}_{1}_{2}_Get{3}",
-                                                                                    logLineParser.Product.ToString(),
-                                                                                    logLineParser.EventClass.ToString(),
-                                                                                    logLineParser.EventType.ToString(),
-                                                                                    logLineParser.CacheInfoVarName(cacheIdx)),
+                cacheInfo.KeyMethodInfo = MiscHelpers.CompileMethod(GenerateMethodName(logLineParser.Product,
+                                                                                        logLineParser.EventClass,
+                                                                                        logLineParser.EventType,
+                                                                                        logLineParser.CacheInfoVarName(cacheIdx),
+                                                                                        true),
                                                                                     typeof(string),
                                                                                     new Tuple<Type, string>[]
                                                                                     {
@@ -1079,11 +1082,11 @@ namespace DSEDiagnosticFileParser
             else if (propValue[0] == '{')
             {
                 cacheInfo.KeyMethodInfoIsMethod = false;
-                cacheInfo.KeyMethodInfo = MiscHelpers.CompileMethod(string.Format("{0}_{1}_{2}_Determine{3}",
-                                                                                        logLineParser.Product.ToString(),
-                                                                                        logLineParser.EventClass.ToString(),
-                                                                                        logLineParser.EventType.ToString(),
-                                                                                        logLineParser.CacheInfoVarName(cacheIdx)),
+                cacheInfo.KeyMethodInfo = MiscHelpers.CompileMethod(GenerateMethodName(logLineParser.Product,
+                                                                                        logLineParser.EventClass,
+                                                                                        logLineParser.EventType,
+                                                                                        logLineParser.CacheInfoVarName(cacheIdx),
+                                                                                        false),
                                                                                     typeof(string),
                                                                                     new Tuple<Type, string>[]
                                                                                     {
@@ -1103,6 +1106,24 @@ namespace DSEDiagnosticFileParser
             }
         }
 
+        private static string GenerateMethodName(DSEInfo.InstanceTypes instanceType, EventClasses eventClass, EventTypes eventType, string varName, bool getMethod)
+        {
+            return string.Format("{0}_{1}_{2}_{4}{3}",
+                                    string.Join("_", Enum.GetValues(typeof(DSEInfo.InstanceTypes))
+                                                .Cast<int>()
+                                                .Where(f => f != 0 && (f & ((int)instanceType)) == f)
+                                                .Cast<DSEInfo.InstanceTypes>()),
+                                    string.Join("_", Enum.GetValues(typeof(EventClasses))
+                                                .Cast<int>()
+                                                .Where(f => f != 0 && (f & ((int)eventClass)) == f)
+                                                 .Cast<EventClasses>()),
+                                    string.Join("_", Enum.GetValues(typeof(EventTypes))
+                                                .Cast<int>()
+                                                .Where(f => f != 0 && (f & ((int)eventType)) == f)
+                                                 .Cast<EventTypes>()),
+                                    varName,
+                                    getMethod ? "Get" : "Determine");
+        }
 
         private static bool GenerateSessionKey(CLogLineTypeParser logLineParser,
                                                     int cacheIdx,

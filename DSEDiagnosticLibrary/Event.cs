@@ -44,7 +44,7 @@ namespace DSEDiagnosticLibrary
         /// <summary>
         /// If not within a session the log entry will be ignored
         /// </summary>
-        SessionIgnore = SessionElement | 0x0100,
+        SessionIgnore = SessionItem | 0x0100,
         /// <summary>
         /// Defines a session based on the ending event&apos;s duration. A Session Begin is generated based on this event&apos;s timestamp minus the duration.
         /// </summary>

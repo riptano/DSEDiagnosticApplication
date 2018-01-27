@@ -323,6 +323,7 @@ namespace DSEDiagnosticFileParser.Tests
         [TestMethod()]
         public void ProcessFileTest_LogFile()
         {
+            /*
             this.CreateClusterDCNodeDDL();
 
             Assert.AreEqual(this._cluster, DSEDiagnosticLibrary.Cluster.GetCurrentOrMaster());
@@ -372,6 +373,7 @@ namespace DSEDiagnosticFileParser.Tests
                                                     .Count();
             var totalExceptionEvents = logeventResults.Where(re => (re.GetValue(Common.Patterns.Collections.MemoryMapperElementCreationTypes.SearchView).Class & EventClasses.Exception) == EventClasses.Exception)
                                                     .Count();
+                                                    */
         }
 
         [TestMethod()]
@@ -536,19 +538,733 @@ namespace DSEDiagnosticFileParser.Tests
 
             var nbrLinesParsed = parseFile.ProcessFile();
 
-            Assert.AreEqual((uint)20, nbrLinesParsed);
+            Assert.AreEqual((uint)25, nbrLinesParsed);
             Assert.AreEqual(0, parseFile.NbrErrors);
-            Assert.AreEqual(33, parseFile.NbrItemsParsed);
+            Assert.AreEqual(36, parseFile.NbrItemsParsed);
             Assert.AreEqual(DSEDiagnosticFileParser.DiagnosticFile.CatagoryTypes.LogFile, parseFile.Catagory);
             Assert.AreEqual(this._cluster, parseFile.Cluster);
             Assert.AreEqual(this._node1, parseFile.Node);
 
-            Assert.AreEqual(20, ((file_cassandra_log4net.LogResults)parseFile.Result).Results.Count());
-            Assert.IsNotNull(((file_cassandra_log4net.LogResults)parseFile.Result).ResultsTask.Result.First().Value.LogProperties);
-            Assert.AreEqual(155, ((file_cassandra_log4net.LogResults)parseFile.Result).ResultsTask.Result.First().Value.LogProperties.Count);
+            Assert.AreEqual(25, ((file_cassandra_log4net.LogResults)parseFile.Result).Results.Count());
+            Assert.AreEqual(0, ((file_cassandra_log4net.LogResults)parseFile.Result).OrphanedSessionEvents.Count());
 
-           
+            var logEvents = ((file_cassandra_log4net.LogResults)parseFile.Result).Results.Cast<LogCassandraEvent>();
+            LogCassandraEvent logParentEvent = null;
+            int nIdx = 0;
 
+            Assert.AreEqual(0, logEvents.ElementAt(nIdx).ParentEvents.Count());
+            Assert.AreEqual(EventClasses.NodeDetection | EventClasses.Information, logEvents.ElementAt(nIdx).Class);
+            Assert.AreEqual(SourceTypes.CassandraLog, logEvents.ElementAt(nIdx).Source);
+            Assert.AreEqual(EventTypes.SessionBegin, logEvents.ElementAt(nIdx).Type);
+            Assert.AreEqual(DateTimeOffset.Parse("2018-01-07 22:53:49.521+00"), logEvents.ElementAt(nIdx).EventTime);
+            Assert.IsTrue(logEvents.ElementAt(nIdx).EventTimeBegin.HasValue);
+            Assert.AreEqual(DateTimeOffset.Parse("2018-01-07 22:53:49.521+00"), logEvents.ElementAt(nIdx).EventTimeBegin);
+            Assert.IsTrue(logEvents.ElementAt(nIdx).EventTimeEnd.HasValue);
+            Assert.AreEqual(DateTimeOffset.Parse("2018-01-07 22:53:49.522+00"), logEvents.ElementAt(nIdx).EventTimeEnd);
+            Assert.IsTrue(logEvents.ElementAt(nIdx).Duration.HasValue);
+            Assert.AreEqual(1, logEvents.ElementAt(nIdx).Duration.Value.TotalMilliseconds);
+            Assert.AreEqual(2, logEvents.ElementAt(nIdx).LogProperties.Count);
+            Assert.AreEqual("NODE", logEvents.ElementAt(nIdx).LogProperties.ElementAt(0).Key);
+            Assert.AreEqual("10.0.0.2", logEvents.ElementAt(nIdx).LogProperties.ElementAt(0).Value.ToString());
+            Assert.AreEqual("status", logEvents.ElementAt(nIdx).LogProperties.ElementAt(1).Key);
+            Assert.AreEqual("cluster", logEvents.ElementAt(nIdx).LogProperties.ElementAt(1).Value.ToString());
+            Assert.AreEqual(this._node1, logEvents.ElementAt(nIdx).Node);
+            Assert.AreEqual(1, logEvents.ElementAt(nIdx).AssociatedNodes.Count());
+            Assert.AreEqual(this._node2, logEvents.ElementAt(nIdx).AssociatedNodes.First());
+            Assert.IsNull(logEvents.ElementAt(nIdx).TableViewIndex);
+            Assert.IsNull(logEvents.ElementAt(nIdx).Keyspace);
+            logParentEvent = logEvents.ElementAt(nIdx);
+
+            nIdx = 1;
+
+            Assert.AreEqual(1, logEvents.ElementAt(nIdx).ParentEvents.Count());
+            Assert.AreEqual(EventClasses.NodeDetection | EventClasses.Information, logEvents.ElementAt(nIdx).Class);
+            Assert.AreEqual(SourceTypes.CassandraLog, logEvents.ElementAt(nIdx).Source);
+            Assert.AreEqual(EventTypes.SessionEnd, logEvents.ElementAt(nIdx).Type);
+            Assert.AreEqual(DateTimeOffset.Parse("2018-01-07 22:53:49.522+00"), logEvents.ElementAt(nIdx).EventTime);
+            Assert.IsTrue(logEvents.ElementAt(nIdx).EventTimeBegin.HasValue);
+            Assert.AreEqual(DateTimeOffset.Parse("2018-01-07 22:53:49.521+00"), logEvents.ElementAt(nIdx).EventTimeBegin);
+            Assert.IsTrue(logEvents.ElementAt(nIdx).EventTimeEnd.HasValue);
+            Assert.AreEqual(DateTimeOffset.Parse("2018-01-07 22:53:49.522+00"), logEvents.ElementAt(nIdx).EventTimeEnd);
+            Assert.IsTrue(logEvents.ElementAt(nIdx).Duration.HasValue);
+            Assert.AreEqual(1, logEvents.ElementAt(nIdx).Duration.Value.TotalMilliseconds);
+            Assert.AreEqual(2, logEvents.ElementAt(nIdx).LogProperties.Count);
+            Assert.AreEqual("NODE", logEvents.ElementAt(nIdx).LogProperties.ElementAt(0).Key);
+            Assert.AreEqual("10.0.0.2", logEvents.ElementAt(nIdx).LogProperties.ElementAt(0).Value.ToString());
+            Assert.AreEqual("status", logEvents.ElementAt(nIdx).LogProperties.ElementAt(1).Key);
+            Assert.AreEqual("UP", logEvents.ElementAt(nIdx).LogProperties.ElementAt(1).Value.ToString());
+            Assert.AreEqual(this._node1, logEvents.ElementAt(nIdx).Node);
+            Assert.AreEqual(1, logEvents.ElementAt(nIdx).AssociatedNodes.Count());
+            Assert.AreEqual(this._node2, logEvents.ElementAt(nIdx).AssociatedNodes.First());
+            Assert.IsNull(logEvents.ElementAt(nIdx).TableViewIndex);
+            Assert.IsNull(logEvents.ElementAt(nIdx).Keyspace);
+
+            Assert.AreEqual(logParentEvent.GetHashCode(), logEvents.ElementAt(nIdx).ParentEvents.First().GetHashCode());
+            Assert.AreEqual(logParentEvent.Id, logEvents.ElementAt(nIdx).Id);
+            Assert.AreEqual(logParentEvent.EventTime, logEvents.ElementAt(nIdx).EventTimeBegin);
+
+            nIdx = 2; //Begin Session
+
+            Assert.AreEqual(0, logEvents.ElementAt(nIdx).ParentEvents.Count());
+            Assert.AreEqual(EventClasses.Detection | EventClasses.Information, logEvents.ElementAt(nIdx).Class);
+            Assert.AreEqual(SourceTypes.CassandraLog, logEvents.ElementAt(nIdx).Source);
+            Assert.AreEqual(EventTypes.SessionBegin, logEvents.ElementAt(nIdx).Type);
+            Assert.AreEqual(DateTimeOffset.Parse("2018-01-07 22:53:49.522+00"), logEvents.ElementAt(nIdx).EventTime);
+            Assert.IsTrue(logEvents.ElementAt(nIdx).EventTimeBegin.HasValue);
+            Assert.AreEqual(DateTimeOffset.Parse("2018-01-07 22:53:49.522+00"), logEvents.ElementAt(nIdx).EventTimeBegin);
+            Assert.IsTrue(logEvents.ElementAt(nIdx).EventTimeEnd.HasValue);
+            Assert.AreEqual(DateTimeOffset.Parse("2018-01-07 22:53:49.918+00"), logEvents.ElementAt(nIdx).EventTimeEnd);
+            Assert.IsTrue(logEvents.ElementAt(nIdx).Duration.HasValue);
+            Assert.AreEqual(396, logEvents.ElementAt(nIdx).Duration.Value.TotalMilliseconds);
+            Assert.AreEqual(3, logEvents.ElementAt(nIdx).LogProperties.Count);
+            Assert.AreEqual("NODE", logEvents.ElementAt(nIdx).LogProperties.ElementAt(0).Key);
+            Assert.AreEqual("10.0.0.2", logEvents.ElementAt(nIdx).LogProperties.ElementAt(0).Value.ToString());
+            Assert.AreEqual("status", logEvents.ElementAt(nIdx).LogProperties.ElementAt(1).Key);
+            Assert.AreEqual("NORMAL", logEvents.ElementAt(nIdx).LogProperties.ElementAt(1).Value.ToString());
+            Assert.AreEqual("token", logEvents.ElementAt(nIdx).LogProperties.ElementAt(2).Key);
+            Assert.AreEqual(-1051573540106914992, logEvents.ElementAt(nIdx).LogProperties.ElementAt(2).Value);
+            Assert.AreEqual(this._node1, logEvents.ElementAt(nIdx).Node);
+            Assert.AreEqual(1, logEvents.ElementAt(nIdx).AssociatedNodes.Count());
+            Assert.AreEqual(this._node2, logEvents.ElementAt(nIdx).AssociatedNodes.First());
+            Assert.IsNull(logEvents.ElementAt(nIdx).TableViewIndex);
+            Assert.IsNull(logEvents.ElementAt(nIdx).Keyspace);
+            logParentEvent = logEvents.ElementAt(nIdx);
+
+            nIdx = 3;
+
+            Assert.AreEqual(1, logEvents.ElementAt(nIdx).ParentEvents.Count());
+            Assert.AreEqual(EventClasses.Detection | EventClasses.Information, logEvents.ElementAt(nIdx).Class);
+            Assert.AreEqual(SourceTypes.CassandraLog, logEvents.ElementAt(nIdx).Source);
+            Assert.AreEqual(EventTypes.SessionItem, logEvents.ElementAt(nIdx).Type);
+            Assert.AreEqual(DateTimeOffset.Parse("2018-01-07 22:53:49.525+00"), logEvents.ElementAt(nIdx).EventTime);
+            Assert.IsFalse(logEvents.ElementAt(nIdx).EventTimeBegin.HasValue);
+            //Assert.AreEqual(DateTimeOffset.Parse("2018-01-07 22:53:49.522+00"), logEvents.ElementAt(nIdx).EventTimeBegin);
+            Assert.IsFalse(logEvents.ElementAt(nIdx).EventTimeEnd.HasValue);
+            //Assert.AreEqual(DateTimeOffset.Parse("2018-01-07 22:53:49.918+00"), logEvents.ElementAt(nIdx).EventTimeEnd);
+            Assert.IsFalse(logEvents.ElementAt(nIdx).Duration.HasValue);
+            //Assert.AreEqual(396, logEvents.ElementAt(nIdx).Duration.Value.TotalMilliseconds);
+            Assert.AreEqual(2, logEvents.ElementAt(nIdx).LogProperties.Count);
+            Assert.AreEqual("NODE", logEvents.ElementAt(nIdx).LogProperties.ElementAt(1).Key);
+            Assert.AreEqual("10.0.0.2", logEvents.ElementAt(nIdx).LogProperties.ElementAt(1).Value.ToString());
+            Assert.AreEqual("token", logEvents.ElementAt(nIdx).LogProperties.ElementAt(0).Key);
+            Assert.AreEqual(-1051573540106914992, logEvents.ElementAt(nIdx).LogProperties.ElementAt(0).Value);
+            Assert.AreEqual(this._node1, logEvents.ElementAt(nIdx).Node);
+            Assert.AreEqual(1, logEvents.ElementAt(nIdx).AssociatedNodes.Count());
+            Assert.AreEqual(this._node2, logEvents.ElementAt(nIdx).AssociatedNodes.First());
+            Assert.IsNull(logEvents.ElementAt(nIdx).TableViewIndex);
+            Assert.IsNull(logEvents.ElementAt(nIdx).Keyspace);
+
+            Assert.AreEqual(logParentEvent.GetHashCode(), logEvents.ElementAt(nIdx).ParentEvents.First().GetHashCode());
+            Assert.AreEqual(logParentEvent.Id, logEvents.ElementAt(nIdx).Id);
+            //Assert.AreEqual(logParentEvent.EventTime, logEvents.ElementAt(nIdx).EventTimeBegin);
+
+            nIdx = 4;
+
+            Assert.AreEqual(1, logEvents.ElementAt(nIdx).ParentEvents.Count());
+            Assert.AreEqual(EventClasses.Detection | EventClasses.Warning, logEvents.ElementAt(nIdx).Class);
+            Assert.AreEqual(SourceTypes.CassandraLog, logEvents.ElementAt(nIdx).Source);
+            Assert.AreEqual(EventTypes.SessionItem, logEvents.ElementAt(nIdx).Type);
+            Assert.AreEqual(DateTimeOffset.Parse("2018-01-07 22:53:49.905+00"), logEvents.ElementAt(nIdx).EventTime);
+            Assert.IsFalse(logEvents.ElementAt(nIdx).EventTimeBegin.HasValue);
+            //Assert.AreEqual(DateTimeOffset.Parse("2018-01-07 22:53:49.522+00"), logEvents.ElementAt(nIdx).EventTimeBegin);
+            Assert.IsFalse(logEvents.ElementAt(nIdx).EventTimeEnd.HasValue);
+            //Assert.AreEqual(DateTimeOffset.Parse("2018-01-07 22:53:49.918+00"), logEvents.ElementAt(nIdx).EventTimeEnd);
+            Assert.IsFalse(logEvents.ElementAt(nIdx).Duration.HasValue);
+            //Assert.AreEqual(396, logEvents.ElementAt(nIdx).Duration.Value.TotalMilliseconds);
+            Assert.AreEqual(2, logEvents.ElementAt(nIdx).LogProperties.Count);
+            Assert.AreEqual("NODE", logEvents.ElementAt(nIdx).LogProperties.ElementAt(1).Key);
+            Assert.AreEqual("10.0.0.2", logEvents.ElementAt(nIdx).LogProperties.ElementAt(1).Value.ToString());
+            Assert.AreEqual("token", logEvents.ElementAt(nIdx).LogProperties.ElementAt(0).Key);
+            Assert.AreEqual(-1051573540106914992, logEvents.ElementAt(nIdx).LogProperties.ElementAt(0).Value);
+            Assert.AreEqual(this._node1, logEvents.ElementAt(nIdx).Node);
+            Assert.AreEqual(1, logEvents.ElementAt(nIdx).AssociatedNodes.Count());
+            Assert.AreEqual(this._node2, logEvents.ElementAt(nIdx).AssociatedNodes.First());
+            Assert.IsNull(logEvents.ElementAt(nIdx).TableViewIndex);
+            Assert.IsNull(logEvents.ElementAt(nIdx).Keyspace);
+
+            Assert.AreEqual(logParentEvent.GetHashCode(), logEvents.ElementAt(nIdx).ParentEvents.First().GetHashCode());
+            Assert.AreEqual(logParentEvent.Id, logEvents.ElementAt(nIdx).Id);
+            //Assert.AreEqual(logParentEvent.EventTime, logEvents.ElementAt(nIdx).EventTimeBegin);
+
+            nIdx = 5;
+
+            Assert.AreEqual(1, logEvents.ElementAt(nIdx).ParentEvents.Count());
+            Assert.AreEqual(EventClasses.Detection | EventClasses.Information, logEvents.ElementAt(nIdx).Class);
+            Assert.AreEqual(SourceTypes.CassandraLog, logEvents.ElementAt(nIdx).Source);
+            Assert.AreEqual(EventTypes.SessionEnd, logEvents.ElementAt(nIdx).Type);
+            Assert.AreEqual(DateTimeOffset.Parse("2018-01-07 22:53:49.918+00"), logEvents.ElementAt(nIdx).EventTime);
+            Assert.IsTrue(logEvents.ElementAt(nIdx).EventTimeBegin.HasValue);
+            Assert.AreEqual(DateTimeOffset.Parse("2018-01-07 22:53:49.522+00"), logEvents.ElementAt(nIdx).EventTimeBegin);
+            Assert.IsTrue(logEvents.ElementAt(nIdx).EventTimeEnd.HasValue);
+            Assert.AreEqual(DateTimeOffset.Parse("2018-01-07 22:53:49.918+00"), logEvents.ElementAt(nIdx).EventTimeEnd);
+            Assert.IsTrue(logEvents.ElementAt(nIdx).Duration.HasValue);
+            Assert.AreEqual(396, logEvents.ElementAt(nIdx).Duration.Value.TotalMilliseconds);
+            Assert.AreEqual(1, logEvents.ElementAt(nIdx).LogProperties.Count);
+            Assert.AreEqual("NODE", logEvents.ElementAt(nIdx).LogProperties.ElementAt(0).Key);
+            Assert.AreEqual("10.0.0.2", logEvents.ElementAt(nIdx).LogProperties.ElementAt(0).Value.ToString());
+            Assert.AreEqual(this._node1, logEvents.ElementAt(nIdx).Node);
+            Assert.AreEqual(1, logEvents.ElementAt(nIdx).AssociatedNodes.Count());
+            Assert.AreEqual(this._node2, logEvents.ElementAt(nIdx).AssociatedNodes.First());
+            Assert.IsNull(logEvents.ElementAt(nIdx).TableViewIndex);
+            Assert.IsNull(logEvents.ElementAt(nIdx).Keyspace);
+
+            Assert.AreEqual(logParentEvent.GetHashCode(), logEvents.ElementAt(nIdx).ParentEvents.First().GetHashCode());
+            Assert.AreEqual(logParentEvent.Id, logEvents.ElementAt(nIdx).Id);
+            Assert.AreEqual(logParentEvent.EventTime, logEvents.ElementAt(nIdx).EventTimeBegin);
+
+            nIdx = 6; //Begin
+
+            Assert.AreEqual(0, logEvents.ElementAt(nIdx).ParentEvents.Count());
+            Assert.AreEqual(EventClasses.Detection | EventClasses.Information, logEvents.ElementAt(nIdx).Class);
+            Assert.AreEqual(SourceTypes.CassandraLog, logEvents.ElementAt(nIdx).Source);
+            Assert.AreEqual(EventTypes.SessionBegin, logEvents.ElementAt(nIdx).Type);
+            Assert.AreEqual(DateTimeOffset.Parse("2018-01-07 22:53:49.919+00"), logEvents.ElementAt(nIdx).EventTime);
+            Assert.IsTrue(logEvents.ElementAt(nIdx).EventTimeBegin.HasValue);
+            Assert.AreEqual(DateTimeOffset.Parse("2018-01-07 22:53:49.919+00"), logEvents.ElementAt(nIdx).EventTimeBegin);
+            Assert.IsTrue(logEvents.ElementAt(nIdx).EventTimeEnd.HasValue);
+            Assert.AreEqual(DateTimeOffset.Parse("2018-01-07 22:53:55.704+00"), logEvents.ElementAt(nIdx).EventTimeEnd);
+            Assert.IsTrue(logEvents.ElementAt(nIdx).Duration.HasValue);
+            Assert.AreEqual(logEvents.ElementAt(nIdx).EventTimeEnd - logEvents.ElementAt(nIdx).EventTimeBegin, logEvents.ElementAt(nIdx).Duration.Value);
+            Assert.AreEqual(3, logEvents.ElementAt(nIdx).LogProperties.Count);
+            Assert.AreEqual("NODE", logEvents.ElementAt(nIdx).LogProperties.ElementAt(0).Key);
+            Assert.AreEqual("10.0.0.2", logEvents.ElementAt(nIdx).LogProperties.ElementAt(0).Value.ToString());
+            Assert.AreEqual("status", logEvents.ElementAt(nIdx).LogProperties.ElementAt(1).Key);
+            Assert.AreEqual("TEST", logEvents.ElementAt(nIdx).LogProperties.ElementAt(1).Value.ToString());
+            Assert.AreEqual("token", logEvents.ElementAt(nIdx).LogProperties.ElementAt(2).Key);
+            Assert.AreEqual(1051573540106914992, logEvents.ElementAt(nIdx).LogProperties.ElementAt(2).Value);
+            Assert.AreEqual(this._node1, logEvents.ElementAt(nIdx).Node);
+            Assert.AreEqual(1, logEvents.ElementAt(nIdx).AssociatedNodes.Count());
+            Assert.AreEqual(this._node2, logEvents.ElementAt(nIdx).AssociatedNodes.First());
+            Assert.IsNull(logEvents.ElementAt(nIdx).TableViewIndex);
+            Assert.IsNull(logEvents.ElementAt(nIdx).Keyspace);
+            logParentEvent = logEvents.ElementAt(nIdx);
+
+            //Assert.AreEqual(logParentEvent.GetHashCode(), logEvents.ElementAt(nIdx).ParentEvents.First().GetHashCode());
+            //Assert.AreEqual(logParentEvent.Id, logEvents.ElementAt(nIdx).Id);
+            //Assert.AreEqual(logParentEvent.EventTime, logEvents.ElementAt(nIdx).EventTimeBegin);
+
+            nIdx = 7; 
+
+            Assert.AreEqual(1, logEvents.ElementAt(nIdx).ParentEvents.Count());
+            Assert.AreEqual(EventClasses.Detection | EventClasses.Information, logEvents.ElementAt(nIdx).Class);
+            Assert.AreEqual(SourceTypes.CassandraLog, logEvents.ElementAt(nIdx).Source);
+            Assert.AreEqual(EventTypes.SessionEnd, logEvents.ElementAt(nIdx).Type);
+            Assert.AreEqual(DateTimeOffset.Parse("2018-01-07 22:53:55.704+00"), logEvents.ElementAt(nIdx).EventTime);
+            Assert.IsTrue(logEvents.ElementAt(nIdx).EventTimeBegin.HasValue);
+            Assert.AreEqual(DateTimeOffset.Parse("2018-01-07 22:53:49.919+00"), logEvents.ElementAt(nIdx).EventTimeBegin);
+            Assert.IsTrue(logEvents.ElementAt(nIdx).EventTimeEnd.HasValue);
+            Assert.AreEqual(DateTimeOffset.Parse("2018-01-07 22:53:55.704+00"), logEvents.ElementAt(nIdx).EventTimeEnd);
+            Assert.IsTrue(logEvents.ElementAt(nIdx).Duration.HasValue);
+            Assert.AreEqual(logEvents.ElementAt(nIdx).EventTimeEnd - logEvents.ElementAt(nIdx).EventTimeBegin, logEvents.ElementAt(nIdx).Duration.Value);
+            Assert.AreEqual(1, logEvents.ElementAt(nIdx).LogProperties.Count);
+            Assert.AreEqual("NODE", logEvents.ElementAt(nIdx).LogProperties.ElementAt(0).Key);
+            Assert.AreEqual("10.0.0.2", logEvents.ElementAt(nIdx).LogProperties.ElementAt(0).Value.ToString());
+            //Assert.AreEqual("status", logEvents.ElementAt(nIdx).LogProperties.ElementAt(1).Key);
+            //Assert.AreEqual("TEST", logEvents.ElementAt(nIdx).LogProperties.ElementAt(1).Value.ToString());
+            //Assert.AreEqual("token", logEvents.ElementAt(nIdx).LogProperties.ElementAt(2).Key);
+            //Assert.AreEqual(1051573540106914992, logEvents.ElementAt(nIdx).LogProperties.ElementAt(2).Value);
+            Assert.AreEqual(this._node1, logEvents.ElementAt(nIdx).Node);
+            Assert.AreEqual(1, logEvents.ElementAt(nIdx).AssociatedNodes.Count());
+            Assert.AreEqual(this._node2, logEvents.ElementAt(nIdx).AssociatedNodes.First());
+            Assert.IsNull(logEvents.ElementAt(nIdx).TableViewIndex);
+            Assert.IsNull(logEvents.ElementAt(nIdx).Keyspace);
+            //logParentEvent = logEvents.ElementAt(nIdx);
+
+            Assert.AreEqual(logParentEvent.GetHashCode(), logEvents.ElementAt(nIdx).ParentEvents.First().GetHashCode());
+            Assert.AreEqual(logParentEvent.Id, logEvents.ElementAt(nIdx).Id);
+            Assert.AreEqual(logParentEvent.EventTime, logEvents.ElementAt(nIdx).EventTimeBegin);
+
+            nIdx = 8; //begin
+
+            Assert.AreEqual(0, logEvents.ElementAt(nIdx).ParentEvents.Count());
+            Assert.AreEqual(EventClasses.Detection | EventClasses.Information, logEvents.ElementAt(nIdx).Class);
+            Assert.AreEqual(SourceTypes.CassandraLog, logEvents.ElementAt(nIdx).Source);
+            Assert.AreEqual(EventTypes.SessionBegin, logEvents.ElementAt(nIdx).Type);
+            Assert.AreEqual(DateTimeOffset.Parse("2018-01-07 22:56:01.123+00"), logEvents.ElementAt(nIdx).EventTime);
+            Assert.IsTrue(logEvents.ElementAt(nIdx).EventTimeBegin.HasValue);
+            Assert.AreEqual(DateTimeOffset.Parse("2018-01-07 22:56:01.123+00"), logEvents.ElementAt(nIdx).EventTimeBegin);
+            Assert.IsTrue(logEvents.ElementAt(nIdx).EventTimeEnd.HasValue);
+            Assert.AreEqual(DateTimeOffset.Parse("2018-01-07 22:56:01.704+00"), logEvents.ElementAt(nIdx).EventTimeEnd);
+            Assert.IsTrue(logEvents.ElementAt(nIdx).Duration.HasValue);
+            Assert.AreEqual(logEvents.ElementAt(nIdx).EventTimeEnd - logEvents.ElementAt(nIdx).EventTimeBegin, logEvents.ElementAt(nIdx).Duration.Value);
+            Assert.AreEqual(3, logEvents.ElementAt(nIdx).LogProperties.Count);
+            Assert.AreEqual("NODE", logEvents.ElementAt(nIdx).LogProperties.ElementAt(0).Key);
+            Assert.AreEqual("10.0.0.2", logEvents.ElementAt(nIdx).LogProperties.ElementAt(0).Value.ToString());
+            Assert.AreEqual("status", logEvents.ElementAt(nIdx).LogProperties.ElementAt(1).Key);
+            Assert.AreEqual("SCHEMA", logEvents.ElementAt(nIdx).LogProperties.ElementAt(1).Value.ToString());
+            Assert.AreEqual("DDLSCHEMAID", logEvents.ElementAt(nIdx).LogProperties.ElementAt(2).Key);
+            Assert.AreEqual("541fdec0-47c9-33fd-b79c-4a37acd21019", logEvents.ElementAt(nIdx).LogProperties.ElementAt(2).Value);
+            Assert.AreEqual(this._node1, logEvents.ElementAt(nIdx).Node);
+            Assert.AreEqual(1, logEvents.ElementAt(nIdx).AssociatedNodes.Count());
+            Assert.AreEqual(this._node2, logEvents.ElementAt(nIdx).AssociatedNodes.First());
+            Assert.IsNotNull(logEvents.ElementAt(nIdx).TableViewIndex);
+            Assert.IsNotNull(logEvents.ElementAt(nIdx).Keyspace);
+            Assert.AreEqual("coafstatim.application", logEvents.ElementAt(nIdx).TableViewIndex.FullName);
+            Assert.AreEqual("coafstatim", logEvents.ElementAt(nIdx).Keyspace.Name);
+            Assert.AreEqual(1, logEvents.ElementAt(nIdx).DDLItems.Count());
+
+            logParentEvent = logEvents.ElementAt(nIdx);
+
+            //Assert.AreEqual(logParentEvent.GetHashCode(), logEvents.ElementAt(nIdx).ParentEvents.First().GetHashCode());
+            //Assert.AreEqual(logParentEvent.Id, logEvents.ElementAt(nIdx).Id);
+            //Assert.AreEqual(logParentEvent.EventTime, logEvents.ElementAt(nIdx).EventTimeBegin);
+
+            nIdx = 9;
+
+            Assert.AreEqual(1, logEvents.ElementAt(nIdx).ParentEvents.Count());
+            Assert.AreEqual(EventClasses.Detection | EventClasses.Information, logEvents.ElementAt(nIdx).Class);
+            Assert.AreEqual(SourceTypes.CassandraLog, logEvents.ElementAt(nIdx).Source);
+            Assert.AreEqual(EventTypes.SessionEnd, logEvents.ElementAt(nIdx).Type);
+            Assert.AreEqual(DateTimeOffset.Parse("2018-01-07 22:56:01.704+00"), logEvents.ElementAt(nIdx).EventTime);
+            Assert.IsTrue(logEvents.ElementAt(nIdx).EventTimeBegin.HasValue);
+            Assert.AreEqual(DateTimeOffset.Parse("2018-01-07 22:56:01.123+00"), logEvents.ElementAt(nIdx).EventTimeBegin);
+            Assert.IsTrue(logEvents.ElementAt(nIdx).EventTimeEnd.HasValue);
+            Assert.AreEqual(DateTimeOffset.Parse("2018-01-07 22:56:01.704+00"), logEvents.ElementAt(nIdx).EventTimeEnd);
+            Assert.IsTrue(logEvents.ElementAt(nIdx).Duration.HasValue);
+            Assert.AreEqual(logEvents.ElementAt(nIdx).EventTimeEnd - logEvents.ElementAt(nIdx).EventTimeBegin, logEvents.ElementAt(nIdx).Duration.Value);
+            Assert.AreEqual(1, logEvents.ElementAt(nIdx).LogProperties.Count);
+            Assert.AreEqual("NODE", logEvents.ElementAt(nIdx).LogProperties.ElementAt(0).Key);
+            Assert.AreEqual("10.0.0.2", logEvents.ElementAt(nIdx).LogProperties.ElementAt(0).Value.ToString());
+            //Assert.AreEqual("status", logEvents.ElementAt(nIdx).LogProperties.ElementAt(1).Key);
+            //Assert.AreEqual("TEST", logEvents.ElementAt(nIdx).LogProperties.ElementAt(1).Value.ToString());
+            //Assert.AreEqual("token", logEvents.ElementAt(nIdx).LogProperties.ElementAt(2).Key);
+            //Assert.AreEqual(1051573540106914992, logEvents.ElementAt(nIdx).LogProperties.ElementAt(2).Value);
+            Assert.AreEqual(this._node1, logEvents.ElementAt(nIdx).Node);
+            Assert.AreEqual(1, logEvents.ElementAt(nIdx).AssociatedNodes.Count());
+            Assert.AreEqual(this._node2, logEvents.ElementAt(nIdx).AssociatedNodes.First());
+            Assert.IsNull(logEvents.ElementAt(nIdx).TableViewIndex);
+            Assert.IsNull(logEvents.ElementAt(nIdx).Keyspace);
+            //logParentEvent = logEvents.ElementAt(nIdx);
+
+            Assert.AreEqual(logParentEvent.GetHashCode(), logEvents.ElementAt(nIdx).ParentEvents.First().GetHashCode());
+            Assert.AreEqual(logParentEvent.Id, logEvents.ElementAt(nIdx).Id);
+            Assert.AreEqual(logParentEvent.EventTime, logEvents.ElementAt(nIdx).EventTimeBegin);
+
+            nIdx = 10; //begin
+
+            Assert.AreEqual(0, logEvents.ElementAt(nIdx).ParentEvents.Count());
+            Assert.AreEqual(EventClasses.Detection | EventClasses.Information, logEvents.ElementAt(nIdx).Class);
+            Assert.AreEqual(SourceTypes.CassandraLog, logEvents.ElementAt(nIdx).Source);
+            Assert.AreEqual(EventTypes.SessionBegin, logEvents.ElementAt(nIdx).Type);
+            Assert.AreEqual(DateTimeOffset.Parse("2018-01-07 22:56:02.345+00"), logEvents.ElementAt(nIdx).EventTime);
+            Assert.IsTrue(logEvents.ElementAt(nIdx).EventTimeBegin.HasValue);
+            Assert.AreEqual(DateTimeOffset.Parse("2018-01-07 22:56:02.345+00"), logEvents.ElementAt(nIdx).EventTimeBegin);
+            Assert.IsTrue(logEvents.ElementAt(nIdx).EventTimeEnd.HasValue);
+            Assert.AreEqual(DateTimeOffset.Parse("2018-01-07 22:56:02.704+00"), logEvents.ElementAt(nIdx).EventTimeEnd);
+            Assert.IsTrue(logEvents.ElementAt(nIdx).Duration.HasValue);
+            Assert.AreEqual(logEvents.ElementAt(nIdx).EventTimeEnd - logEvents.ElementAt(nIdx).EventTimeBegin, logEvents.ElementAt(nIdx).Duration.Value);
+            Assert.AreEqual(2, logEvents.ElementAt(nIdx).LogProperties.Count);
+            Assert.AreEqual("NODE", logEvents.ElementAt(nIdx).LogProperties.ElementAt(0).Key);
+            Assert.AreEqual("10.0.0.2", logEvents.ElementAt(nIdx).LogProperties.ElementAt(0).Value.ToString());
+            Assert.AreEqual("status", logEvents.ElementAt(nIdx).LogProperties.ElementAt(1).Key);
+            Assert.AreEqual("dead", logEvents.ElementAt(nIdx).LogProperties.ElementAt(1).Value.ToString());           
+            Assert.AreEqual(this._node1, logEvents.ElementAt(nIdx).Node);
+            Assert.AreEqual(1, logEvents.ElementAt(nIdx).AssociatedNodes.Count());
+            Assert.AreEqual(this._node2, logEvents.ElementAt(nIdx).AssociatedNodes.First());
+            Assert.IsNull(logEvents.ElementAt(nIdx).TableViewIndex);
+            Assert.IsNull(logEvents.ElementAt(nIdx).Keyspace);            
+            logParentEvent = logEvents.ElementAt(nIdx);
+
+            //Assert.AreEqual(logParentEvent.GetHashCode(), logEvents.ElementAt(nIdx).ParentEvents.First().GetHashCode());
+            //Assert.AreEqual(logParentEvent.Id, logEvents.ElementAt(nIdx).Id);
+            //Assert.AreEqual(logParentEvent.EventTime, logEvents.ElementAt(nIdx).EventTimeBegin);
+
+            nIdx = 11;
+
+            Assert.AreEqual(1, logEvents.ElementAt(nIdx).ParentEvents.Count());
+            Assert.AreEqual(EventClasses.Detection | EventClasses.Information, logEvents.ElementAt(nIdx).Class);
+            Assert.AreEqual(SourceTypes.CassandraLog, logEvents.ElementAt(nIdx).Source);
+            Assert.AreEqual(EventTypes.SessionEnd, logEvents.ElementAt(nIdx).Type);
+            Assert.AreEqual(DateTimeOffset.Parse("2018-01-07 22:56:02.704+00"), logEvents.ElementAt(nIdx).EventTime);
+            Assert.IsTrue(logEvents.ElementAt(nIdx).EventTimeBegin.HasValue);
+            Assert.AreEqual(DateTimeOffset.Parse("2018-01-07 22:56:02.345+00"), logEvents.ElementAt(nIdx).EventTimeBegin);
+            Assert.IsTrue(logEvents.ElementAt(nIdx).EventTimeEnd.HasValue);
+            Assert.AreEqual(DateTimeOffset.Parse("2018-01-07 22:56:02.704+00"), logEvents.ElementAt(nIdx).EventTimeEnd);
+            Assert.IsTrue(logEvents.ElementAt(nIdx).Duration.HasValue);
+            Assert.AreEqual(logEvents.ElementAt(nIdx).EventTimeEnd - logEvents.ElementAt(nIdx).EventTimeBegin, logEvents.ElementAt(nIdx).Duration.Value);
+            Assert.AreEqual(1, logEvents.ElementAt(nIdx).LogProperties.Count);
+            Assert.AreEqual("NODE", logEvents.ElementAt(nIdx).LogProperties.ElementAt(0).Key);
+            Assert.AreEqual("10.0.0.2", logEvents.ElementAt(nIdx).LogProperties.ElementAt(0).Value.ToString());
+            //Assert.AreEqual("status", logEvents.ElementAt(nIdx).LogProperties.ElementAt(1).Key);
+            //Assert.AreEqual("TEST", logEvents.ElementAt(nIdx).LogProperties.ElementAt(1).Value.ToString());
+            //Assert.AreEqual("token", logEvents.ElementAt(nIdx).LogProperties.ElementAt(2).Key);
+            //Assert.AreEqual(1051573540106914992, logEvents.ElementAt(nIdx).LogProperties.ElementAt(2).Value);
+            Assert.AreEqual(this._node1, logEvents.ElementAt(nIdx).Node);
+            Assert.AreEqual(1, logEvents.ElementAt(nIdx).AssociatedNodes.Count());
+            Assert.AreEqual(this._node2, logEvents.ElementAt(nIdx).AssociatedNodes.First());
+            Assert.IsNull(logEvents.ElementAt(nIdx).TableViewIndex);
+            Assert.IsNull(logEvents.ElementAt(nIdx).Keyspace);
+            //logParentEvent = logEvents.ElementAt(nIdx);
+
+            Assert.AreEqual(logParentEvent.GetHashCode(), logEvents.ElementAt(nIdx).ParentEvents.First().GetHashCode());
+            Assert.AreEqual(logParentEvent.Id, logEvents.ElementAt(nIdx).Id);
+            Assert.AreEqual(logParentEvent.EventTime, logEvents.ElementAt(nIdx).EventTimeBegin);
+
+            //Single Instance
+            nIdx = 12;
+            var singleItem = logEvents.ElementAt(nIdx) as LogCassandraEvent;
+
+            Assert.AreEqual(0, singleItem.ParentEvents.Count());
+            Assert.AreEqual(EventClasses.Detection | EventClasses.Information, singleItem.Class);
+            Assert.AreEqual(SourceTypes.CassandraLog, singleItem.Source);
+            Assert.AreEqual(EventTypes.SingleInstance, singleItem.Type);
+            Assert.AreEqual(DateTimeOffset.Parse("2018-01-07 22:58:01.123+00"), singleItem.EventTime);
+            Assert.IsFalse(singleItem.EventTimeBegin.HasValue);
+            Assert.IsFalse(singleItem.EventTimeEnd.HasValue);
+            Assert.IsFalse(singleItem.Duration.HasValue);
+            Assert.AreEqual(3, singleItem.LogProperties.Count);
+            Assert.AreEqual("action", singleItem.LogProperties.ElementAt(0).Key);
+            Assert.AreEqual("Update", singleItem.LogProperties.ElementAt(0).Value.ToString());
+            Assert.AreEqual("type", singleItem.LogProperties.ElementAt(1).Key);
+            Assert.AreEqual("Keyspace", singleItem.LogProperties.ElementAt(1).Value.ToString());            
+            Assert.AreEqual("KEYSPACE", singleItem.LogProperties.ElementAt(2).Key);
+            Assert.AreEqual("OpsCenter", singleItem.LogProperties.ElementAt(2).Value.ToString());
+
+            Assert.AreEqual(this._node1, singleItem.Node);
+            Assert.AreEqual(0, singleItem.AssociatedNodes.Count());
+            Assert.AreEqual(0, singleItem.DDLItems.Count());
+            Assert.IsNull(singleItem.TableViewIndex);
+            Assert.IsNotNull(singleItem.Keyspace);
+            Assert.AreEqual("OpsCenter", singleItem.Keyspace.Name);
+
+            nIdx = 13;
+            singleItem = logEvents.ElementAt(nIdx) as LogCassandraEvent;
+
+            Assert.AreEqual(0, singleItem.ParentEvents.Count());
+            Assert.AreEqual(EventClasses.Detection | EventClasses.Information, singleItem.Class);
+            Assert.AreEqual(SourceTypes.CassandraLog, singleItem.Source);
+            Assert.AreEqual(EventTypes.SingleInstance, singleItem.Type);
+            Assert.AreEqual(DateTimeOffset.Parse("2018-01-07 22:58:02.456+00"), singleItem.EventTime);
+            Assert.IsFalse(singleItem.EventTimeBegin.HasValue);
+            Assert.IsFalse(singleItem.EventTimeEnd.HasValue);
+            Assert.IsFalse(singleItem.Duration.HasValue);
+            Assert.AreEqual(5, singleItem.LogProperties.Count);
+            Assert.AreEqual("action", singleItem.LogProperties.ElementAt(0).Key);
+            Assert.AreEqual("Create", singleItem.LogProperties.ElementAt(0).Value.ToString());
+            Assert.AreEqual("type", singleItem.LogProperties.ElementAt(1).Key);
+            Assert.AreEqual("ColumnFamily", singleItem.LogProperties.ElementAt(1).Value.ToString());            
+            Assert.AreEqual("DDLSCHEMAID", singleItem.LogProperties.ElementAt(2).Key);
+            Assert.AreEqual("541fdec0-47c9-33fd-b79c-4a37acd21019", singleItem.LogProperties.ElementAt(2).Value.ToString());
+            Assert.AreEqual("KEYSPACE", singleItem.LogProperties.ElementAt(3).Key);
+            Assert.AreEqual("coafstatim", singleItem.LogProperties.ElementAt(3).Value.ToString());
+            Assert.AreEqual("DDLITEMNAME", singleItem.LogProperties.ElementAt(4).Key);
+            Assert.AreEqual("application", singleItem.LogProperties.ElementAt(4).Value.ToString());
+
+            Assert.AreEqual(this._node1, singleItem.Node);
+            Assert.AreEqual(0, singleItem.AssociatedNodes.Count());
+            Assert.AreEqual(1, singleItem.DDLItems.Count());
+            Assert.IsNotNull(singleItem.TableViewIndex);
+            Assert.IsNotNull(singleItem.Keyspace);
+            Assert.AreEqual("coafstatim.application", singleItem.TableViewIndex.FullName);
+            Assert.AreEqual("coafstatim", singleItem.Keyspace.Name);
+
+            nIdx = 14;
+            singleItem = logEvents.ElementAt(nIdx) as LogCassandraEvent;
+
+            Assert.AreEqual(0, singleItem.ParentEvents.Count());
+            Assert.AreEqual(EventClasses.Detection | EventClasses.Information, singleItem.Class);
+            Assert.AreEqual(SourceTypes.CassandraLog, singleItem.Source);
+            Assert.AreEqual(EventTypes.SingleInstance, singleItem.Type);
+            Assert.AreEqual(DateTimeOffset.Parse("2018-01-07 22:58:03.789+00"), singleItem.EventTime);
+            Assert.IsFalse(singleItem.EventTimeBegin.HasValue);
+            Assert.IsFalse(singleItem.EventTimeEnd.HasValue);
+            Assert.IsFalse(singleItem.Duration.HasValue);
+            Assert.AreEqual(3, singleItem.LogProperties.Count);
+            Assert.AreEqual("action", singleItem.LogProperties.ElementAt(0).Key);
+            Assert.AreEqual("Update", singleItem.LogProperties.ElementAt(0).Value.ToString());
+            Assert.AreEqual("type", singleItem.LogProperties.ElementAt(1).Key);
+            Assert.AreEqual("ColumnFamily", singleItem.LogProperties.ElementAt(1).Value.ToString());
+            Assert.AreEqual("DDLITEMNAME", singleItem.LogProperties.ElementAt(2).Key);
+            Assert.AreEqual("coafstatim/application", singleItem.LogProperties.ElementAt(2).Value.ToString());
+
+            Assert.AreEqual(this._node1, singleItem.Node);
+            Assert.AreEqual(0, singleItem.AssociatedNodes.Count());
+            Assert.AreEqual(1, singleItem.DDLItems.Count());
+            Assert.IsNotNull(singleItem.TableViewIndex);
+            Assert.IsNotNull(singleItem.Keyspace);
+            Assert.AreEqual("coafstatim.application", singleItem.TableViewIndex.FullName);
+            Assert.AreEqual("coafstatim", singleItem.Keyspace.Name);
+
+            nIdx = 15;
+            singleItem = logEvents.ElementAt(nIdx) as LogCassandraEvent;
+
+            Assert.AreEqual(0, singleItem.ParentEvents.Count());
+            Assert.AreEqual(EventClasses.Detection | EventClasses.Information, singleItem.Class);
+            Assert.AreEqual(SourceTypes.CassandraLog, singleItem.Source);
+            Assert.AreEqual(EventTypes.SingleInstance, singleItem.Type);
+            Assert.AreEqual(DateTimeOffset.Parse("2018-01-07 22:58:04.012+00"), singleItem.EventTime);
+            Assert.IsFalse(singleItem.EventTimeBegin.HasValue);
+            Assert.IsFalse(singleItem.EventTimeEnd.HasValue);
+            Assert.IsFalse(singleItem.Duration.HasValue);
+            Assert.AreEqual(3, singleItem.LogProperties.Count);
+            Assert.AreEqual("action", singleItem.LogProperties.ElementAt(0).Key);
+            Assert.AreEqual("Drop", singleItem.LogProperties.ElementAt(0).Value.ToString());
+            Assert.AreEqual("type", singleItem.LogProperties.ElementAt(1).Key);
+            Assert.AreEqual("Keyspace", singleItem.LogProperties.ElementAt(1).Value.ToString());
+            Assert.AreEqual("KEYSPACE", singleItem.LogProperties.ElementAt(2).Key);
+            Assert.AreEqual("coafstatim", singleItem.LogProperties.ElementAt(2).Value.ToString());
+
+            Assert.AreEqual(this._node1, singleItem.Node);
+            Assert.AreEqual(0, singleItem.AssociatedNodes.Count());
+            Assert.AreEqual(0, singleItem.DDLItems.Count());
+            Assert.IsNull(singleItem.TableViewIndex);
+            Assert.IsNotNull(singleItem.Keyspace);
+            //Assert.AreEqual("coafstatim.application", singleItem.TableViewIndex.FullName);
+            Assert.AreEqual("coafstatim", singleItem.Keyspace.Name);
+
+            nIdx = 16;
+            singleItem = logEvents.ElementAt(nIdx) as LogCassandraEvent;
+
+            Assert.AreEqual(0, singleItem.ParentEvents.Count());
+            Assert.AreEqual(EventClasses.Detection | EventClasses.Information, singleItem.Class);
+            Assert.AreEqual(SourceTypes.CassandraLog, singleItem.Source);
+            Assert.AreEqual(EventTypes.SingleInstance, singleItem.Type);
+            Assert.AreEqual(DateTimeOffset.Parse("2018-01-18 21:49:08.725+00"), singleItem.EventTime);
+            Assert.IsFalse(singleItem.EventTimeBegin.HasValue);
+            Assert.IsFalse(singleItem.EventTimeEnd.HasValue);
+            Assert.IsFalse(singleItem.Duration.HasValue);
+            Assert.AreEqual(3, singleItem.LogProperties.Count);
+            Assert.AreEqual("action", singleItem.LogProperties.ElementAt(0).Key);
+            Assert.AreEqual("Update", singleItem.LogProperties.ElementAt(0).Value.ToString());
+            Assert.AreEqual("type", singleItem.LogProperties.ElementAt(1).Key);
+            Assert.AreEqual("table", singleItem.LogProperties.ElementAt(1).Value.ToString());
+            Assert.AreEqual("DDLITEMNAME", singleItem.LogProperties.ElementAt(2).Key);
+            Assert.AreEqual("coafstatim/application", singleItem.LogProperties.ElementAt(2).Value.ToString());
+
+            Assert.AreEqual(this._node1, singleItem.Node);
+            Assert.AreEqual(0, singleItem.AssociatedNodes.Count());
+            Assert.AreEqual(1, singleItem.DDLItems.Count());
+            Assert.IsNotNull(singleItem.TableViewIndex);
+            Assert.IsNotNull(singleItem.Keyspace);
+            Assert.AreEqual("coafstatim.application", singleItem.TableViewIndex.FullName);
+            Assert.AreEqual("coafstatim", singleItem.Keyspace.Name);
+
+            nIdx = 17;
+            singleItem = logEvents.ElementAt(nIdx) as LogCassandraEvent;
+
+            Assert.AreEqual(0, singleItem.ParentEvents.Count());
+            Assert.AreEqual(EventClasses.Detection | EventClasses.Information, singleItem.Class);
+            Assert.AreEqual(SourceTypes.CassandraLog, singleItem.Source);
+            Assert.AreEqual(EventTypes.SingleInstance, singleItem.Type);
+            Assert.AreEqual(DateTimeOffset.Parse("2018-01-18 21:56:17.200+00"), singleItem.EventTime);
+            Assert.IsFalse(singleItem.EventTimeBegin.HasValue);
+            Assert.IsFalse(singleItem.EventTimeEnd.HasValue);
+            Assert.IsFalse(singleItem.Duration.HasValue);
+            Assert.AreEqual(5, singleItem.LogProperties.Count);
+            Assert.AreEqual("action", singleItem.LogProperties.ElementAt(0).Key);
+            Assert.AreEqual("Create", singleItem.LogProperties.ElementAt(0).Value.ToString());
+            Assert.AreEqual("type", singleItem.LogProperties.ElementAt(1).Key);
+            Assert.AreEqual("table", singleItem.LogProperties.ElementAt(1).Value.ToString());
+            Assert.AreEqual("DDLSCHEMAID", singleItem.LogProperties.ElementAt(2).Key);
+            Assert.AreEqual("541fdec0-47c9-33fd-b79c-4a37acd21019", singleItem.LogProperties.ElementAt(2).Value.ToString());
+            Assert.AreEqual("KEYSPACE", singleItem.LogProperties.ElementAt(3).Key);
+            Assert.AreEqual("coafstatim", singleItem.LogProperties.ElementAt(3).Value.ToString());
+            Assert.AreEqual("DDLITEMNAME", singleItem.LogProperties.ElementAt(4).Key);
+            Assert.AreEqual("application", singleItem.LogProperties.ElementAt(4).Value.ToString());
+
+            Assert.AreEqual(this._node1, singleItem.Node);
+            Assert.AreEqual(0, singleItem.AssociatedNodes.Count());
+            Assert.AreEqual(1, singleItem.DDLItems.Count());
+            Assert.IsNotNull(singleItem.TableViewIndex);
+            Assert.IsNotNull(singleItem.Keyspace);
+            Assert.AreEqual("coafstatim.application", singleItem.TableViewIndex.FullName);
+            Assert.AreEqual("coafstatim", singleItem.Keyspace.Name);
+
+            nIdx = 18;
+            singleItem = logEvents.ElementAt(nIdx) as LogCassandraEvent;
+
+            Assert.AreEqual(0, singleItem.ParentEvents.Count());
+            Assert.AreEqual(EventClasses.Detection | EventClasses.Information, singleItem.Class);
+            Assert.AreEqual(SourceTypes.CassandraLog, singleItem.Source);
+            Assert.AreEqual(EventTypes.SingleInstance, singleItem.Type);
+            Assert.AreEqual(DateTimeOffset.Parse("2018-01-18 21:55:04.410+00"), singleItem.EventTime);
+            Assert.IsFalse(singleItem.EventTimeBegin.HasValue);
+            Assert.IsFalse(singleItem.EventTimeEnd.HasValue);
+            Assert.IsFalse(singleItem.Duration.HasValue);
+            Assert.AreEqual(3, singleItem.LogProperties.Count);
+            Assert.AreEqual("action", singleItem.LogProperties.ElementAt(0).Key);
+            Assert.AreEqual("Drop", singleItem.LogProperties.ElementAt(0).Value.ToString());
+            Assert.AreEqual("type", singleItem.LogProperties.ElementAt(1).Key);
+            Assert.AreEqual("table", singleItem.LogProperties.ElementAt(1).Value.ToString());           
+            Assert.AreEqual("DDLITEMNAME", singleItem.LogProperties.ElementAt(2).Key);
+            Assert.AreEqual("coafstatim/application", singleItem.LogProperties.ElementAt(2).Value.ToString());
+
+            Assert.AreEqual(this._node1, singleItem.Node);
+            Assert.AreEqual(0, singleItem.AssociatedNodes.Count());
+            Assert.AreEqual(1, singleItem.DDLItems.Count());
+            Assert.IsNotNull(singleItem.TableViewIndex);
+            Assert.IsNotNull(singleItem.Keyspace);
+            Assert.AreEqual("coafstatim.application", singleItem.TableViewIndex.FullName);
+            Assert.IsInstanceOfType(singleItem.TableViewIndex, typeof(ICQLTable));
+            Assert.AreEqual("coafstatim", singleItem.Keyspace.Name);
+
+            nIdx = 19;
+            singleItem = logEvents.ElementAt(nIdx) as LogCassandraEvent;
+
+            Assert.AreEqual(0, singleItem.ParentEvents.Count());
+            Assert.AreEqual(EventClasses.Detection | EventClasses.Information, singleItem.Class);
+            Assert.AreEqual(SourceTypes.CassandraLog, singleItem.Source);
+            Assert.AreEqual(EventTypes.SingleInstance, singleItem.Type);
+            Assert.AreEqual(DateTimeOffset.Parse("2018-01-18 21:59:14.423+00"), singleItem.EventTime);
+            Assert.IsFalse(singleItem.EventTimeBegin.HasValue);
+            Assert.IsFalse(singleItem.EventTimeEnd.HasValue);
+            Assert.IsFalse(singleItem.Duration.HasValue);
+            Assert.AreEqual(7, singleItem.LogProperties.Count);
+            Assert.AreEqual("action", singleItem.LogProperties.ElementAt(0).Key);
+            Assert.AreEqual("Create", singleItem.LogProperties.ElementAt(0).Value.ToString());
+            Assert.AreEqual("type", singleItem.LogProperties.ElementAt(1).Key);
+            Assert.AreEqual("view", singleItem.LogProperties.ElementAt(1).Value.ToString());            
+            Assert.AreEqual("KEYSPACE", singleItem.LogProperties.ElementAt(2).Key);
+            Assert.AreEqual("TestKS", singleItem.LogProperties.ElementAt(2).Value.ToString());
+            Assert.AreEqual("DDLITEMNAME", singleItem.LogProperties.ElementAt(3).Key);
+            Assert.AreEqual("cyclist_by_age", singleItem.LogProperties.ElementAt(3).Value.ToString());
+            Assert.AreEqual("basetaleid", singleItem.LogProperties.ElementAt(4).Key);
+            Assert.AreEqual("08bdd2d2-126e-11e7-8866-d792efac3044", singleItem.LogProperties.ElementAt(4).Value.ToString());
+            Assert.AreEqual("basetablename", singleItem.LogProperties.ElementAt(5).Key);
+            Assert.AreEqual("cyclist_mv", singleItem.LogProperties.ElementAt(5).Value.ToString());
+            Assert.AreEqual("DDLSCHEMAID", singleItem.LogProperties.ElementAt(6).Key);
+            Assert.AreEqual("1d109250-fccd-11e7-83c7-9fe59a0dddc1", singleItem.LogProperties.ElementAt(6).Value.ToString());
+
+            Assert.AreEqual(this._node1, singleItem.Node);
+            Assert.AreEqual(0, singleItem.AssociatedNodes.Count());
+            Assert.AreEqual(1, singleItem.DDLItems.Count());
+            Assert.IsNotNull(singleItem.TableViewIndex);
+            Assert.IsNotNull(singleItem.Keyspace);
+            Assert.AreEqual("TestKS.cyclist_by_age", singleItem.TableViewIndex.FullName);
+            Assert.IsInstanceOfType(singleItem.TableViewIndex, typeof(ICQLMaterializedView));
+            Assert.IsNotNull(((ICQLMaterializedView)singleItem.TableViewIndex).Table);
+            Assert.AreEqual("TestKS.cyclist_mv", ((ICQLMaterializedView)singleItem.TableViewIndex).Table.FullName);
+            Assert.AreEqual("TestKS", singleItem.Keyspace.Name);
+
+            nIdx = 20;
+            singleItem = logEvents.ElementAt(nIdx) as LogCassandraEvent;
+
+            Assert.AreEqual(0, singleItem.ParentEvents.Count());
+            Assert.AreEqual(EventClasses.Detection | EventClasses.Information, singleItem.Class);
+            Assert.AreEqual(SourceTypes.CassandraLog, singleItem.Source);
+            Assert.AreEqual(EventTypes.SingleInstance, singleItem.Type);
+            Assert.AreEqual(DateTimeOffset.Parse("2018-01-18 21:58:33.418+00"), singleItem.EventTime);
+            Assert.IsFalse(singleItem.EventTimeBegin.HasValue);
+            Assert.IsFalse(singleItem.EventTimeEnd.HasValue);
+            Assert.IsFalse(singleItem.Duration.HasValue);
+            Assert.AreEqual(3, singleItem.LogProperties.Count);
+            Assert.AreEqual("action", singleItem.LogProperties.ElementAt(0).Key);
+            Assert.AreEqual("Drop", singleItem.LogProperties.ElementAt(0).Value.ToString());
+            Assert.AreEqual("type", singleItem.LogProperties.ElementAt(1).Key);
+            Assert.AreEqual("table", singleItem.LogProperties.ElementAt(1).Value.ToString());
+            Assert.AreEqual("DDLITEMNAME", singleItem.LogProperties.ElementAt(2).Key);
+            Assert.AreEqual("TestKS/cyclist_by_age", singleItem.LogProperties.ElementAt(2).Value.ToString());
+
+            Assert.AreEqual(this._node1, singleItem.Node);
+            Assert.AreEqual(0, singleItem.AssociatedNodes.Count());
+            Assert.AreEqual(1, singleItem.DDLItems.Count());
+            Assert.IsNotNull(singleItem.TableViewIndex);
+            Assert.IsNotNull(singleItem.Keyspace);
+            Assert.AreEqual("TestKS.cyclist_by_age", singleItem.TableViewIndex.FullName);
+            Assert.IsInstanceOfType(singleItem.TableViewIndex, typeof(ICQLMaterializedView));
+            Assert.AreEqual("TestKS", singleItem.Keyspace.Name);
+
+            nIdx = 21;
+            singleItem = logEvents.ElementAt(nIdx) as LogCassandraEvent;
+
+            Assert.AreEqual(0, singleItem.ParentEvents.Count());
+            Assert.AreEqual(EventClasses.Detection | EventClasses.Information, singleItem.Class);
+            Assert.AreEqual(SourceTypes.CassandraLog, singleItem.Source);
+            Assert.AreEqual(EventTypes.SingleInstance, singleItem.Type);
+            Assert.AreEqual(DateTimeOffset.Parse("2018-01-18 22:02:20.249+00"), singleItem.EventTime);
+            Assert.IsFalse(singleItem.EventTimeBegin.HasValue);
+            Assert.IsFalse(singleItem.EventTimeEnd.HasValue);
+            Assert.IsFalse(singleItem.Duration.HasValue);
+            Assert.AreEqual(3, singleItem.LogProperties.Count);
+            Assert.AreEqual("action", singleItem.LogProperties.ElementAt(0).Key);
+            Assert.AreEqual("Create", singleItem.LogProperties.ElementAt(0).Value.ToString());
+            Assert.AreEqual("type", singleItem.LogProperties.ElementAt(1).Key);
+            Assert.AreEqual("Keyspace", singleItem.LogProperties.ElementAt(1).Value.ToString());
+            Assert.AreEqual("KEYSPACE", singleItem.LogProperties.ElementAt(2).Key);
+            Assert.AreEqual("coafstatim", singleItem.LogProperties.ElementAt(2).Value.ToString());
+            
+            Assert.AreEqual(this._node1, singleItem.Node);
+            Assert.AreEqual(0, singleItem.AssociatedNodes.Count());
+            Assert.AreEqual(0, singleItem.DDLItems.Count());
+            Assert.IsNull(singleItem.TableViewIndex);
+            Assert.IsNotNull(singleItem.Keyspace);           
+            Assert.AreEqual("coafstatim", singleItem.Keyspace.Name);
+
+            nIdx = 22;
+            singleItem = logEvents.ElementAt(nIdx) as LogCassandraEvent;
+
+            Assert.AreEqual(0, singleItem.ParentEvents.Count());
+            Assert.AreEqual(EventClasses.Detection | EventClasses.Information, singleItem.Class);
+            Assert.AreEqual(SourceTypes.CassandraLog, singleItem.Source);
+            Assert.AreEqual(EventTypes.SingleInstance, singleItem.Type);
+            Assert.AreEqual(DateTimeOffset.Parse("2018-01-18 22:01:07.689+00"), singleItem.EventTime);
+            Assert.IsFalse(singleItem.EventTimeBegin.HasValue);
+            Assert.IsFalse(singleItem.EventTimeEnd.HasValue);
+            Assert.IsFalse(singleItem.Duration.HasValue);
+            Assert.AreEqual(3, singleItem.LogProperties.Count);
+            Assert.AreEqual("action", singleItem.LogProperties.ElementAt(0).Key);
+            Assert.AreEqual("Drop", singleItem.LogProperties.ElementAt(0).Value.ToString());
+            Assert.AreEqual("type", singleItem.LogProperties.ElementAt(1).Key);
+            Assert.AreEqual("Keyspace", singleItem.LogProperties.ElementAt(1).Value.ToString());
+            Assert.AreEqual("KEYSPACE", singleItem.LogProperties.ElementAt(2).Key);
+            Assert.AreEqual("coafstatim", singleItem.LogProperties.ElementAt(2).Value.ToString());
+
+            Assert.AreEqual(this._node1, singleItem.Node);
+            Assert.AreEqual(0, singleItem.AssociatedNodes.Count());
+            Assert.AreEqual(0, singleItem.DDLItems.Count());
+            Assert.IsNull(singleItem.TableViewIndex);
+            Assert.IsNotNull(singleItem.Keyspace);            
+            Assert.AreEqual("coafstatim", singleItem.Keyspace.Name);
+
+            nIdx = 23;
+            singleItem = logEvents.ElementAt(nIdx) as LogCassandraEvent;
+
+            Assert.AreEqual(0, singleItem.ParentEvents.Count());
+            Assert.AreEqual(EventClasses.Detection | EventClasses.Information, singleItem.Class);
+            Assert.AreEqual(SourceTypes.CassandraLog, singleItem.Source);
+            Assert.AreEqual(EventTypes.SingleInstance, singleItem.Type);
+            Assert.AreEqual(DateTimeOffset.Parse("2018-01-18 22:01:07.689+00"), singleItem.EventTime);
+            Assert.IsFalse(singleItem.EventTimeBegin.HasValue);
+            Assert.IsFalse(singleItem.EventTimeEnd.HasValue);
+            Assert.IsFalse(singleItem.Duration.HasValue);
+            Assert.AreEqual(3, singleItem.LogProperties.Count);
+            Assert.AreEqual("action", singleItem.LogProperties.ElementAt(0).Key);
+            Assert.AreEqual("Drop", singleItem.LogProperties.ElementAt(0).Value.ToString());
+            Assert.AreEqual("type", singleItem.LogProperties.ElementAt(1).Key);
+            Assert.AreEqual("Keyspace", singleItem.LogProperties.ElementAt(1).Value.ToString());
+            Assert.AreEqual("KEYSPACE", singleItem.LogProperties.ElementAt(2).Key);
+            Assert.AreEqual("noks", singleItem.LogProperties.ElementAt(2).Value.ToString());
+
+            Assert.AreEqual(this._node1, singleItem.Node);
+            Assert.AreEqual(0, singleItem.AssociatedNodes.Count());
+            Assert.AreEqual(0, singleItem.DDLItems.Count());
+            Assert.IsNull(singleItem.TableViewIndex);
+            Assert.IsNull(singleItem.Keyspace);
+            
+            nIdx = 24;
+            singleItem = logEvents.ElementAt(nIdx) as LogCassandraEvent;
+
+            Assert.AreEqual(0, singleItem.ParentEvents.Count());
+            Assert.AreEqual(EventClasses.Detection | EventClasses.Information, singleItem.Class);
+            Assert.AreEqual(SourceTypes.CassandraLog, singleItem.Source);
+            Assert.AreEqual(EventTypes.SingleInstance, singleItem.Type);
+            Assert.AreEqual(DateTimeOffset.Parse("2018-01-18 22:01:07.689+00"), singleItem.EventTime);
+            Assert.IsFalse(singleItem.EventTimeBegin.HasValue);
+            Assert.IsFalse(singleItem.EventTimeEnd.HasValue);
+            Assert.IsFalse(singleItem.Duration.HasValue);
+            Assert.AreEqual(3, singleItem.LogProperties.Count);
+            Assert.AreEqual("action", singleItem.LogProperties.ElementAt(0).Key);
+            Assert.AreEqual("Drop", singleItem.LogProperties.ElementAt(0).Value.ToString());
+            Assert.AreEqual("type", singleItem.LogProperties.ElementAt(1).Key);
+            Assert.AreEqual("table", singleItem.LogProperties.ElementAt(1).Value.ToString());
+            Assert.AreEqual("DDLITEMNAME", singleItem.LogProperties.ElementAt(2).Key);
+            Assert.AreEqual("noks/application", singleItem.LogProperties.ElementAt(2).Value.ToString());
+
+            Assert.AreEqual(this._node1, singleItem.Node);
+            Assert.AreEqual(0, singleItem.AssociatedNodes.Count());
+            Assert.AreEqual(0, singleItem.DDLItems.Count());
+            Assert.IsNull(singleItem.TableViewIndex);
+            Assert.IsNull(singleItem.Keyspace);            
         }
 
         [TestMethod()]

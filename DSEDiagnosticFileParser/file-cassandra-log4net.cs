@@ -759,17 +759,39 @@ namespace DSEDiagnosticFileParser
                             return null;
                         }
 
-                        orphanedSession = true;
-                        eventClass |= EventClasses.Orphaned;
+                        if ((eventType & EventTypes.SingleInstance) == EventTypes.SingleInstance)
+                        {
+                            eventType = EventTypes.SingleInstance;
+                        }
+                        else
+                        {
+                            orphanedSession = true;
+                            eventClass |= EventClasses.Orphaned;
+                        }                        
                     }
                 }
                 else
                 {
+                    if ((eventType & EventTypes.SingleInstance) == EventTypes.SingleInstance)
+                    {
+                        eventType &= ~EventTypes.SingleInstance;
+
+                        if (eventType == EventTypes.Unkown)
+                            eventType = EventTypes.SessionItem;
+                    }
+
+                    if ((eventType & EventTypes.SessionIgnore) == EventTypes.SessionIgnore)
+                    {
+                        eventType &= ~EventTypes.SessionIgnore;
+
+                        eventType |= EventTypes.SessionItem; //Need to re-add Session Item since it is removed on the ignore
+                    }
+
                     if ((eventType & EventTypes.SessionBeginOrItem) == EventTypes.SessionBeginOrItem)
                     {
                         eventType &= ~EventTypes.SessionBeginOrItem;
                         eventType |= EventTypes.SessionItem;
-                    }
+                    }                    
 
                     logId = sessionEvent.Id.ToString();
 
@@ -1107,6 +1129,7 @@ namespace DSEDiagnosticFileParser
         {            
             var keyspaceName = StringHelpers.RemoveQuotes((string)logProperties.TryGetValue("KEYSPACE"));
             var ddlName = StringHelpers.RemoveQuotes((string)logProperties.TryGetValue("DDLITEMNAME") ?? (string)logProperties.TryGetValue("TABLEVIEWNAME"));
+            var ddlSchemaId = (string)logProperties.TryGetValue("DDLSCHEMAID");
             var sstableFilePath = StringHelpers.RemoveQuotes((string)logProperties.TryGetValue("SSTABLEPATH"));
             var keyspaceNames = TurnPropertyIntoCollection(logProperties, "KEYSPACES");
             var ddlNames = TurnPropertyIntoCollection(logProperties, "DDLITEMNAMES");
@@ -1236,6 +1259,23 @@ namespace DSEDiagnosticFileParser
                             ddlInstances.AddRange(ddlItems);
 
                             ddlInstances = ddlInstances.DuplicatesRemoved(d => d.FullName).ToList();
+                        }
+                    }
+                }
+
+                if(!string.IsNullOrEmpty(ddlSchemaId))
+                {
+                    var ddlItem = this.Cluster.Keyspaces.SelectMany(k => k.DDLs).FirstOrDefault(ddl => ddl is ICQLTable && ((ICQLTable)ddl).Id.ToString() == ddlSchemaId) as IDDLStmt;
+
+                    if(ddlItem != null)
+                    {
+                        if (ddlInstances == null || ddlInstances.IsEmpty())
+                        {
+                            ddlInstances = new List<IDDLStmt>() { ddlItem };
+                        }
+                        else if(!ddlInstances.Exists(ddl => ddl.FullName == ddlItem.FullName))
+                        {
+                            ddlInstances.Add(ddlItem);                            
                         }
                     }
                 }

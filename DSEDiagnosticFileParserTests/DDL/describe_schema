@@ -109,6 +109,7 @@ CREATE TABLE coafstatim.application (
     AND comment = 'Application table that has task, notes, assignment audit and audit details'
     AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
     AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+	AND id = '541fdec0-47c9-33fd-b79c-4a37acd21019'
     AND dclocal_read_repair_chance = 0.1
     AND default_time_to_live = 0
     AND gc_grace_seconds = 172800
@@ -4985,13 +4986,14 @@ CREATE TYPE card_details (
    phone set<int>
    );
   
-CREATE TABLE cyclist_mv (cid UUID PRIMARY KEY, name text, age int, birthday date, country text, card card_details);
+CREATE TABLE cyclist_mv (cid UUID PRIMARY KEY, name text, age int, birthday date, country text, card card_details) WITH id = '08bdd2d2-126e-11e7-8866-d792efac3044';
 
 CREATE MATERIALIZED VIEW cyclist_by_age 
 AS SELECT age, birthday, name, country 
 	FROM cyclist_mv 
 	WHERE age IS NOT NULL AND cid IS NOT NULL 
-	PRIMARY KEY (age, cid);
+	PRIMARY KEY (age, cid)
+WITH id = '1d109250-fccd-11e7-83c7-9fe59a0dddc1';
 
 CREATE MATERIALIZED VIEW cyclist_by_country 
 AS SELECT age,birthday, name, country, card 

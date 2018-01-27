@@ -14,7 +14,7 @@ namespace DSEDiagnosticFileParser.Tests
     public class file_system_hostsTests
     {
         static readonly string FilePath = @".\Files\hosts";
-        static readonly string ClusterName = "TstCluster";
+        static readonly string ClusterName = "TstClusterHost";
         static readonly string DC1 = "DC1";
         static readonly string DC2 = "DC1_SPARK";
         static readonly string NodeName1 = "10.20.70.52";

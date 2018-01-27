@@ -756,7 +756,7 @@ namespace DSEDiagnosticLibrary
 
         public override string ToString()
         {
-            return string.Format("{0}{{{1}, {2}, {3}, {4}, {5}, {6:yyyy-MM-dd HH\\:mm\\:ss.fffzz}, {7:yyyy-MM-dd HH\\:mm\\:ss.fffzz}, {8}}}",
+            return string.Format("{0}{{{1}, {2}, {3}, {4}, {5}, {6:yyyy-MM-dd HH\\:mm\\:ss.fffzz}, {7:yyyy-MM-dd HH\\:mm\\:ss.fffzz}, {8}, {9}}}",
                                     this.Source,
                                     this.Node.Id,
                                     this.Id,
@@ -765,7 +765,8 @@ namespace DSEDiagnosticLibrary
                                     this.TableViewIndex?.FullName ?? this.Keyspace?.FullName,
                                     this.EventTimeBegin.HasValue ? this.EventTimeBegin.Value : this.EventTime,
                                     this.EventTimeEnd,
-                                    this.Items);
+                                    this.Items,
+                                    this.ParentEvents?.Count());
         }
 
         #endregion
