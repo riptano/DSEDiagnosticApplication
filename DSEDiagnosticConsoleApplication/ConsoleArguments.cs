@@ -195,6 +195,12 @@ namespace DSEDiagnosticConsoleApplication
                 Example = @"10.0.0.1, America/Chicago"
             });
 
+            this._cmdLineParser.Arguments.Add(new SwitchArgument("DisableLogEventMemoryMapping", false)
+            {
+                Optional = true,
+                Description = "If defined the Log Events are NOT mapped into virtual memory (uses physical memory with better performance but can OOM). The default is to map events into virtual memory resulting in smaller physical memory utilizations on the cost of performance."
+            });
+
             this._cmdLineParser.Arguments.Add(new SwitchArgument("Debug", false)
             {
                 Description = "Debug Mode"
@@ -440,6 +446,14 @@ namespace DSEDiagnosticConsoleApplication
                                                                             return new DSEDiagnosticLibrary.DefaultAssocItemToTimeZone() { Item = nodetz[0].Trim(), IANATZName = nodetz[1].Trim() };
                                                                         });
                             DSEDiagnosticLibrary.Node.DefaultTimeZones = items.ToArray();
+                        }
+                        break;
+                    case "DisableLogEventMemoryMapping":
+                        {
+                            if (((SwitchArgument)item).Value)
+                            {
+                                DSEDiagnosticLibrary.LibrarySettings.LogEventsAreMemoryMapped = false;
+                            }
                         }
                         break;
                     case "Debug":

@@ -383,6 +383,12 @@ namespace DSEDiagnosticApplication
                 DSEDiagnosticFileParser.DiagnosticFile.OnException += DiagnosticFile_OnException;
                 DSEDiagnosticFileParser.DiagnosticFile.OnProgression += DiagnosticFile_OnProgression;
                 DSEDiagnosticFileParser.DiagnosticFile.DisableParallelProcessing = this.ultraCheckEditorDisableParallelProcessing.Checked;
+                DSEDiagnosticLibrary.LibrarySettings.LogEventsAreMemoryMapped = !this.ultraCheckEditorDisableParallelProcessing.Checked;
+
+                if(this.ultraCheckEditorDisableSysDSEDDL.Checked)
+                {
+                    DSEDiagnosticFileParser.cql_ddl.DisabledSystemDSEDefaultKeyspacesInitialLoading();
+                }
 
                 if (this.ultraDateTimeEditorStartLog.Value == null
                         || this.ultraDateTimeEditorEndLog.Value == null
@@ -857,6 +863,7 @@ namespace DSEDiagnosticApplication
         int _currentTimerIdx = 0;
         private void timerProgress_Tick(object sender, EventArgs e)
         {
+
             this._progressionMsgs.Lock();
 
             if (this._currentTimerIdx < this._progressionMsgs.UnSafe.Count)

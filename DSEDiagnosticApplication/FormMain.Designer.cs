@@ -88,6 +88,8 @@
             this.ultraTextEditorAdditionalDDLFiles = new Infragistics.Win.UltraWinEditors.UltraTextEditor();
             this.ultraGroupBox9 = new Infragistics.Win.Misc.UltraGroupBox();
             this.ultraTextEditorAltCompFiles = new Infragistics.Win.UltraWinEditors.UltraTextEditor();
+            this.ultraCheckEditorLogDisableMryMap = new Infragistics.Win.UltraWinEditors.UltraCheckEditor();
+            this.ultraCheckEditorDisableSysDSEDDL = new Infragistics.Win.UltraWinEditors.UltraCheckEditor();
             ((System.ComponentModel.ISupportInitialize)(this.ultraGrid1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.ultraGroupBox1)).BeginInit();
             this.ultraGroupBox1.SuspendLayout();
@@ -118,6 +120,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.ultraGroupBox9)).BeginInit();
             this.ultraGroupBox9.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.ultraTextEditorAltCompFiles)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.ultraCheckEditorLogDisableMryMap)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.ultraCheckEditorDisableSysDSEDDL)).BeginInit();
             this.SuspendLayout();
             // 
             // buttonAsyncExcute
@@ -264,7 +268,7 @@
             // ultraGroupBox1
             // 
             this.ultraGroupBox1.Controls.Add(this.ultraTextEditorCluster);
-            this.ultraGroupBox1.Location = new System.Drawing.Point(218, 22);
+            this.ultraGroupBox1.Location = new System.Drawing.Point(218, 10);
             this.ultraGroupBox1.Name = "ultraGroupBox1";
             this.ultraGroupBox1.Size = new System.Drawing.Size(200, 44);
             this.ultraGroupBox1.TabIndex = 4;
@@ -282,7 +286,7 @@
             // ultraGroupBox2
             // 
             this.ultraGroupBox2.Controls.Add(this.ultraTextEditorDC);
-            this.ultraGroupBox2.Location = new System.Drawing.Point(442, 22);
+            this.ultraGroupBox2.Location = new System.Drawing.Point(442, 10);
             this.ultraGroupBox2.Name = "ultraGroupBox2";
             this.ultraGroupBox2.Size = new System.Drawing.Size(200, 44);
             this.ultraGroupBox2.TabIndex = 5;
@@ -343,7 +347,7 @@
             this.ultraGroupBox4.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.ultraGroupBox4.Controls.Add(this.ultraTextEditorProcessMapperJSONFile);
-            this.ultraGroupBox4.Location = new System.Drawing.Point(23, 135);
+            this.ultraGroupBox4.Location = new System.Drawing.Point(23, 150);
             this.ultraGroupBox4.Name = "ultraGroupBox4";
             this.ultraGroupBox4.Size = new System.Drawing.Size(625, 44);
             this.ultraGroupBox4.TabIndex = 7;
@@ -351,9 +355,9 @@
             // 
             // ultraCheckEditorDisableParallelProcessing
             // 
-            this.ultraCheckEditorDisableParallelProcessing.Location = new System.Drawing.Point(118, 81);
+            this.ultraCheckEditorDisableParallelProcessing.Location = new System.Drawing.Point(118, 100);
             this.ultraCheckEditorDisableParallelProcessing.Name = "ultraCheckEditorDisableParallelProcessing";
-            this.ultraCheckEditorDisableParallelProcessing.Size = new System.Drawing.Size(95, 48);
+            this.ultraCheckEditorDisableParallelProcessing.Size = new System.Drawing.Size(108, 48);
             this.ultraCheckEditorDisableParallelProcessing.TabIndex = 8;
             this.ultraCheckEditorDisableParallelProcessing.Text = "Disable Parallel Processing";
             // 
@@ -415,7 +419,7 @@
             // ultraGroupBox5
             // 
             this.ultraGroupBox5.Controls.Add(this.ultraDateTimeEditorStartLog);
-            this.ultraGroupBox5.Location = new System.Drawing.Point(215, 81);
+            this.ultraGroupBox5.Location = new System.Drawing.Point(215, 56);
             this.ultraGroupBox5.Name = "ultraGroupBox5";
             this.ultraGroupBox5.Size = new System.Drawing.Size(200, 44);
             this.ultraGroupBox5.TabIndex = 5;
@@ -436,7 +440,7 @@
             // ultraGroupBox6
             // 
             this.ultraGroupBox6.Controls.Add(this.ultraDateTimeEditorEndLog);
-            this.ultraGroupBox6.Location = new System.Drawing.Point(439, 81);
+            this.ultraGroupBox6.Location = new System.Drawing.Point(439, 56);
             this.ultraGroupBox6.Name = "ultraGroupBox6";
             this.ultraGroupBox6.Size = new System.Drawing.Size(200, 44);
             this.ultraGroupBox6.TabIndex = 6;
@@ -475,7 +479,7 @@
             this.ultraTextEditorAdditionalLogs.Multiline = true;
             this.ultraTextEditorAdditionalLogs.Name = "ultraTextEditorAdditionalLogs";
             this.ultraTextEditorAdditionalLogs.ShowOverflowIndicator = true;
-            this.ultraTextEditorAdditionalLogs.Size = new System.Drawing.Size(617, 21);
+            this.ultraTextEditorAdditionalLogs.Size = new System.Drawing.Size(617, 25);
             this.ultraTextEditorAdditionalLogs.TabIndex = 0;
             this.ultraTextEditorAdditionalLogs.WordWrap = false;
             this.ultraTextEditorAdditionalLogs.EditorButtonClick += new Infragistics.Win.UltraWinEditors.EditorButtonEventHandler(this.ultraTextEditorAdditionalLogs_EditorButtonClick);
@@ -501,7 +505,7 @@
             this.ultraTextEditorAdditionalDDLFiles.Multiline = true;
             this.ultraTextEditorAdditionalDDLFiles.Name = "ultraTextEditorAdditionalDDLFiles";
             this.ultraTextEditorAdditionalDDLFiles.ShowOverflowIndicator = true;
-            this.ultraTextEditorAdditionalDDLFiles.Size = new System.Drawing.Size(617, 21);
+            this.ultraTextEditorAdditionalDDLFiles.Size = new System.Drawing.Size(617, 25);
             this.ultraTextEditorAdditionalDDLFiles.TabIndex = 0;
             this.ultraTextEditorAdditionalDDLFiles.WordWrap = false;
             this.ultraTextEditorAdditionalDDLFiles.EditorButtonClick += new Infragistics.Win.UltraWinEditors.EditorButtonEventHandler(this.ultraTextEditorAdditionalDDLFiles_EditorButtonClick);
@@ -532,11 +536,29 @@
             this.ultraTextEditorAltCompFiles.WordWrap = false;
             this.ultraTextEditorAltCompFiles.EditorButtonClick += new Infragistics.Win.UltraWinEditors.EditorButtonEventHandler(this.ultraTextEditorAltCompFiles_EditorButtonClick);
             // 
+            // ultraCheckEditorLogDisableMryMap
+            // 
+            this.ultraCheckEditorLogDisableMryMap.Location = new System.Drawing.Point(233, 100);
+            this.ultraCheckEditorLogDisableMryMap.Name = "ultraCheckEditorLogDisableMryMap";
+            this.ultraCheckEditorLogDisableMryMap.Size = new System.Drawing.Size(123, 48);
+            this.ultraCheckEditorLogDisableMryMap.TabIndex = 14;
+            this.ultraCheckEditorLogDisableMryMap.Text = "Disable Log Evt Memory Mapping";
+            // 
+            // ultraCheckEditorDisableSysDSEDDL
+            // 
+            this.ultraCheckEditorDisableSysDSEDDL.Location = new System.Drawing.Point(362, 100);
+            this.ultraCheckEditorDisableSysDSEDDL.Name = "ultraCheckEditorDisableSysDSEDDL";
+            this.ultraCheckEditorDisableSysDSEDDL.Size = new System.Drawing.Size(123, 48);
+            this.ultraCheckEditorDisableSysDSEDDL.TabIndex = 15;
+            this.ultraCheckEditorDisableSysDSEDDL.Text = "Disable System/DSE DDL Preloading";
+            // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1296, 644);
+            this.Controls.Add(this.ultraCheckEditorDisableSysDSEDDL);
+            this.Controls.Add(this.ultraCheckEditorLogDisableMryMap);
             this.Controls.Add(this.ultraGroupBox9);
             this.Controls.Add(this.ultraGroupBox8);
             this.Controls.Add(this.ultraGroupBox7);
@@ -596,6 +618,8 @@
             this.ultraGroupBox9.ResumeLayout(false);
             this.ultraGroupBox9.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.ultraTextEditorAltCompFiles)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.ultraCheckEditorLogDisableMryMap)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.ultraCheckEditorDisableSysDSEDDL)).EndInit();
             this.ResumeLayout(false);
 
 		}
@@ -629,6 +653,8 @@
         private Infragistics.Win.UltraWinEditors.UltraTextEditor ultraTextEditorAdditionalDDLFiles;
         private Infragistics.Win.Misc.UltraGroupBox ultraGroupBox9;
         private Infragistics.Win.UltraWinEditors.UltraTextEditor ultraTextEditorAltCompFiles;
+        private Infragistics.Win.UltraWinEditors.UltraCheckEditor ultraCheckEditorLogDisableMryMap;
+        private Infragistics.Win.UltraWinEditors.UltraCheckEditor ultraCheckEditorDisableSysDSEDDL;
     }
 }
 

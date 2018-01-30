@@ -28,9 +28,13 @@ namespace DSEDiagnosticFileParser.Tests
         private DSEDiagnosticLibrary.INode _node1;
         private DSEDiagnosticLibrary.INode _node2;
 
+        const bool LogEventsAreMemoryMapped = true;
+
         [TestMethod()]
         public void CreateClusterDCNodeDDL()
         {
+            DSEDiagnosticLibrary.LibrarySettings.LogEventsAreMemoryMapped = LogEventsAreMemoryMapped;
+
             this._cluster = DSEDiagnosticLibrary.Cluster.TryGetAddCluster(ClusterName);
 
             Assert.AreEqual(ClusterName, this._cluster?.Name);

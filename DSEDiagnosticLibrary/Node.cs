@@ -1126,7 +1126,7 @@ namespace DSEDiagnosticLibrary
         /// An array of nodes that are associated to a IANA time zone name.
         /// </summary>
         public static DefaultAssocItemToTimeZone[] DefaultTimeZones = null;
-
+        
         static Node()
 		{
 		}
@@ -1135,14 +1135,23 @@ namespace DSEDiagnosticLibrary
 		{
             this.DSE = new DSEInfo();
             this.Machine = new MachineInfo(this);
+
+            if (LibrarySettings.LogEventsAreMemoryMapped)
+            {
+                this._eventsCMM = new CMM.List<LogCassandraEvent, ILogEvent>();
+            }
+            else
+            {
+                this._eventsCTS = new CTS.List<IMMLogValue>();
+            }        
         }
 
 		public Node(IDataCenter dataCenter, string nodeId)
             : this()
 		{
 			this.DataCenter = dataCenter;
-			this.Id = NodeIdentifier.Create(nodeId);
-		}
+			this.Id = NodeIdentifier.Create(nodeId);            
+        }
 
 		public Node(IDataCenter dataCenter, NodeIdentifier nodeId)
             : this()
@@ -1272,19 +1281,32 @@ namespace DSEDiagnosticLibrary
             set { this._events = new CTS.List<LogCassandraEvent>(value); }
         }*/
 
-        private CMM.List<LogCassandraEvent,ILogEvent> _events = new CMM.List<LogCassandraEvent,ILogEvent>();
+        private CMM.List<LogCassandraEvent,ILogEvent> _eventsCMM;
+        private CTS.List<IMMLogValue> _eventsCTS;
+
         [JsonIgnore]
-        public IEnumerable<IMMLogValue> LogEvents { get { return this._events.ToEnumerable(); } }
+        public IEnumerable<IMMLogValue> LogEvents { get { return this._eventsCMM?.ToEnumerable() ?? (IEnumerable<IMMLogValue>) this._eventsCTS; } }
 
         public INode AssociateItem(IMMLogValue eventItems)
         {
-            this._events.Add(eventItems);
+            if (this._eventsCMM == null)
+                this._eventsCTS.Add(eventItems);
+            else
+                this._eventsCMM.Add(eventItems);
+
             return this;
         }
 
         public IMMLogValue AssociateItem(ILogEvent eventItems)
         {
-            return this._events.AddElement((LogCassandraEvent) eventItems);
+            if (this._eventsCMM == null)
+            {
+                var mmValue = new CMM.MMValue<ILogEvent>(eventItems);
+                this._eventsCTS.Add(mmValue);
+                return mmValue;
+            }
+
+            return this._eventsCMM.AddElement((LogCassandraEvent) eventItems);
         }
 
         [JsonProperty(PropertyName = "AggregatedStats")]

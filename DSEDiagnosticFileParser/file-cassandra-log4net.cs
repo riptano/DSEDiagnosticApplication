@@ -1443,6 +1443,28 @@ namespace DSEDiagnosticFileParser
             }
             #endregion
 
+            if(Logger.Instance.IsDebugEnabled)
+            {
+                if(primaryDDL == null && (ddlName != null || sstableFilePath != null || ddlSchemaId != null))
+                {
+                    Logger.Instance.ErrorFormat("Log Event could not determine the primary DDL since DDLITEMNAME/TABLEVIEWNAME ({0}), SSTABLEPATH ({1}), or DDLSCHEMAID ({2}) was not found. File: {3}\r\nLog Message: {4}",
+                                                    ddlName,
+                                                    sstableFilePath,
+                                                    ddlSchemaId,
+                                                    this.File,
+                                                    logMessage);
+                    this.NbrErrors++;
+                }
+
+                if (primaryKS == null && keyspaceName != null)
+                {
+                    Logger.Instance.ErrorFormat("Log Event could not determine the primary Keyspace since KEYSPACE ({0}) was not found. File: {1}\r\nLog Message: {2}",
+                                                    keyspaceName,
+                                                    this.File,
+                                                    logMessage);
+                    this.NbrErrors++;
+                }
+            }
         }
 
         private static void UpdateMatchProperties(Regex matchRegEx, Match matchItem, Dictionary<string, object> logProperties, bool appendToPropertyValueOnDupKey = false)

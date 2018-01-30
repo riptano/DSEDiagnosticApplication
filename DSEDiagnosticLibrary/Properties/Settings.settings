@@ -148,5 +148,8 @@
     <Setting Name="DefaultClusterTZ" Type="System.String" Scope="Application">
       <Value Profile="(Default)">UTC</Value>
     </Setting>
+    <Setting Name="LogEventsAreMemoryMapped" Type="System.Boolean" Scope="Application">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
