@@ -30,7 +30,7 @@ namespace DSEDiagnosticFileParser
             /// </summary>
             AllNodesInCluster = 0x0004,
             /// <summary>
-            /// If defined, the mapping class will be required to determine the proper node
+            /// If defined, the file is process regardless if a node can be determined. 
             /// </summary>
             IgnoreNode = 0x0008,
             /// <summary>
@@ -57,10 +57,21 @@ namespace DSEDiagnosticFileParser
             /// </summary>
             ParallelProcessFiles = 0x0040,
             /// <summary>
+            /// If defined, nodes' files are parallel process. ScanForNode is also defined.
+            /// Note this option is ignored if OnlyOnce is defined.
+            /// </summary>
+            ParallelProcessNode = 0x0080 | ScanForNode,
+            /// <summary>
             /// As soon as the first file is successfully processed, all reminding file to be process are canceled.
             /// Warning: ParallelProcessFiles is ignored (all files are processed synchronous).
             /// </summary>
-            OnlyOnce = 0x0080,
+            OnlyOnce = 0x0200,
+            /// <summary>
+            /// If defined files are sorted by the file's timestamp where the oldest files are first, the default is most current file is first.
+            /// Note: in cases where the same path name is detected, the sort order will determine which file is actually selected. If SortFilesByOldest is used the oldest file is selected.
+            /// If the default sort order is used the most current file is used.
+            /// </summary>
+            SortFilesByOldest = 0x0400,
 
             Default = ScanForNode | ParallelProcessingWithinPriorityLevel | ParallelProcessFiles
         }

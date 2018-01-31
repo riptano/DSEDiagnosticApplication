@@ -531,7 +531,7 @@ namespace DSEDiagnosticFileParser
             int mapperId = 0;
             var parallelOptions = new ParallelOptions();
 
-            //if(cancellationSource != null) parallelOptions.CancellationToken = cancellationSource.Token;
+            //if(cancellationSource != null) parallelOptions.CancellationToken = cancellationSource.Token; //Do not set since this will throw and NOT properly caught resulting in the consumer getting the throw
             parallelOptions.MaxDegreeOfParallelism = System.Environment.ProcessorCount;
 
             foreach (var mapperGroup in mappers)
@@ -747,11 +747,20 @@ namespace DSEDiagnosticFileParser
                                                             && f is IFilePath
                                                             && f.Exist())
                                             .Cast<IFilePath>()
-                                            .Where(f => LibrarySettings.IgnoreFileWExtensions.All(i => f.FileExtension.ToLower() != i))
-                                            .OrderByDescending(f => f.GetLastWriteTimeUtc())
-                                            .DuplicatesRemoved(f => f); //If there are duplicates, keep the most current...
+                                            .Where(f => LibrarySettings.IgnoreFileWExtensions.All(i => f.FileExtension.ToLower() != i));
 			var diagnosticInstances = new List<DiagnosticFile>();
 			var instanceType = fileMappings.GetFileParsingType();
+
+            if(fileMappings.ProcessingTaskOption.HasFlag(FileMapper.ProcessingTaskOptions.SortFilesByOldest))
+            {
+                targetFiles = targetFiles.OrderBy(f => f.GetLastWriteTimeUtc());
+            }
+            else
+            {
+                targetFiles = targetFiles.OrderByDescending(f => f.GetLastWriteTimeUtc());
+            }
+
+            targetFiles = targetFiles.DuplicatesRemoved(f => f);
 
             Logger.Instance.InfoFormat("FileMapper<{5}>\t<NoNodeId>\t{0}\tFile Mapper File Parsing Class \"{1}\" Category {2} Translated to Patterns {{{3}}} which resulted in {4} files",
                                             diagnosticDirectory.PathResolved,
@@ -782,14 +791,7 @@ namespace DSEDiagnosticFileParser
             }
 
             if (cancellationToken.HasValue) cancellationToken.Value.ThrowIfCancellationRequested();
-
-            if (Logger.Instance.IsDebugEnabled)
-            {
-                resultingFiles.Complement(targetFiles)
-                            .ForEach(i => Logger.Instance.DebugFormat("<NoNodeId>\t{0}\tFile was skipped for processing because it either doesn't exist, is a file folder, or was an explicit ignore/skipped file.",
-                                                                        i.PathResolved));
-            }
-
+            
             if(!string.IsNullOrEmpty(fileMappings.DefaultCluster))
             {
                 clusterName = fileMappings.DefaultCluster;
@@ -856,16 +858,15 @@ namespace DSEDiagnosticFileParser
             List<DiagnosticFile> localDFList = new List<DiagnosticFile>();
             bool onlyOnceProcessing = fileMappings.ProcessingTaskOption.HasFlag(FileMapper.ProcessingTaskOptions.OnlyOnce);
 
-            //targetFiles
-            foreach (var targetFile in targetFiles)
-			{
+            var action = (Action<IFilePath, NodeIdentifier>) ((targetFile, useThisNode) =>
+            {
                 localDFList.Clear();
 
                 if (cancellationToken.HasValue) cancellationToken.Value.ThrowIfCancellationRequested();
 
                 if (onlyOnceProcessing && resultInstance != null && resultInstance.Processed)
                 {
-                    break;
+                    return;
                 }
 
                 InvokeProgressionEvent(fileMappings,
@@ -883,9 +884,9 @@ namespace DSEDiagnosticFileParser
                 {
                     if (fileMappings.ProcessingTaskOption.HasFlag(FileMapper.ProcessingTaskOptions.ScanForNode))
                     {
-                        var nodeId = DetermineNodeIdentifier(targetFile, fileMappings.NodeIdPos);
+                        var nodeId = useThisNode ?? DetermineNodeIdentifier(targetFile, fileMappings.NodeIdPos);
 
-                        if (nodeId == null && !fileMappings.ProcessingTaskOption.HasFlag(FileMapper.ProcessingTaskOptions.ScanForNode))
+                        if (nodeId == null && !fileMappings.ProcessingTaskOption.HasFlag(FileMapper.ProcessingTaskOptions.IgnoreNode))
                         {
                             Logger.Instance.ErrorFormat("FileMapper<{1}>\t<NoNodeId>\t{0}\tCouldn't detect node identity (IPAdress or host name) for this file path. This file will be skipped.",
                                                             targetFile.PathResolved,
@@ -982,6 +983,51 @@ namespace DSEDiagnosticFileParser
                                         2,
                                         null,
                                        targetFile.PathResolved);
+            });
+
+            if (!onlyOnceProcessing && fileMappings.ProcessingTaskOption.HasFlag(FileMapper.ProcessingTaskOptions.ParallelProcessNode))
+            {
+                var nodefileAssocates = targetFiles.Select(f => new { File = f, Node = DetermineNodeIdentifier(f, fileMappings.NodeIdPos) })
+                                                    .GroupBy(fna => fna.Node, fna => fna.File);
+               
+                if(DisableParallelProcessing)
+                {
+                    foreach(var nodefiles in nodefileAssocates)
+                    {
+                        foreach (var targetFile in nodefiles)
+                        {
+                            action(targetFile, nodefiles.Key);
+                        }
+                    }
+                }
+                else
+                {
+                    var parallelOptions = new ParallelOptions();
+
+                    if (cancellationToken.HasValue) parallelOptions.CancellationToken = cancellationToken.Value;
+                    parallelOptions.MaxDegreeOfParallelism = System.Environment.ProcessorCount;
+
+                    Parallel.ForEach(nodefileAssocates, parallelOptions, (nodefiles, loopState) =>
+                    {
+                        foreach (var targetFile in nodefiles)
+                        {
+                            action(targetFile, nodefiles.Key);
+                        }
+                    });
+                }               
+            }
+            else
+            {
+                //targetFiles
+                foreach (var targetFile in targetFiles)
+                {
+                    action(targetFile, null);
+
+                    if (onlyOnceProcessing && resultInstance != null && resultInstance.Processed)
+                    {
+                        break;
+                    }
+                }
             }
 
             InvokeProgressionEvent(diagnosticInstances,

@@ -61,6 +61,8 @@ namespace DSEDiagnosticApplication
             this.ultraTextEditorProcessMapperJSONFile.Enabled = false;
             this.ultraTextEditorDiagnosticsFolder.Enabled = false;
             this.ultraCheckEditorDisableParallelProcessing.Enabled = false;
+            this.ultraCheckEditorDisableSysDSEDDL.Enabled = false;
+            this.ultraCheckEditorLogDisableMryMap.Enabled = false;
             this.ultraTextEditorCluster.Enabled = false;
             this.ultraTextEditorDC.Enabled = false;
             this.ultraTextEditorAdditionalDDLFiles.Enabled = false;
@@ -98,6 +100,8 @@ namespace DSEDiagnosticApplication
             this.ultraTextEditorProcessMapperJSONFile.Enabled = false;
             this.ultraTextEditorDiagnosticsFolder.Enabled = false;
             this.ultraCheckEditorDisableParallelProcessing.Enabled = false;
+            this.ultraCheckEditorDisableSysDSEDDL.Enabled = false;
+            this.ultraCheckEditorLogDisableMryMap.Enabled = false;
             this.ultraTextEditorCluster.Enabled = false;
             this.ultraTextEditorDC.Enabled = false;
             this.ultraTextEditorAdditionalDDLFiles.Enabled = false;
@@ -211,6 +215,7 @@ namespace DSEDiagnosticApplication
                 DSEDiagnosticLibrary.Cluster.Clear();
                 this.ultraGrid1.DataSource = this._currentDiagnosticFiles = null;
                 this._progressionMsgs.Clear();
+                this._currentOperations = 0;
                 this.SetLoggingStatus("Cleared");
             }
         }
@@ -314,6 +319,8 @@ namespace DSEDiagnosticApplication
             this.ultraTextEditorProcessMapperJSONFile.Enabled = true;
             this.ultraTextEditorDiagnosticsFolder.Enabled = true;
             this.ultraCheckEditorDisableParallelProcessing.Enabled = true;
+            this.ultraCheckEditorDisableSysDSEDDL.Enabled = true;
+            this.ultraCheckEditorLogDisableMryMap.Enabled = true;
             this.ultraTextEditorCluster.Enabled = true;
             this.ultraTextEditorDC.Enabled = true;
             this.ultraTextEditorAdditionalDDLFiles.Enabled = true;
@@ -334,6 +341,7 @@ namespace DSEDiagnosticApplication
             }
 
             this.ultraStatusBar1.Panels["LoggingStatus"].Text = newValue;
+            this.ultraStatusBar1.Panels["Operations"].Text = this._currentOperations.ToString("#,###,##0");
         }
 
         private string _lastLogMsg = string.Empty;
@@ -502,6 +510,7 @@ namespace DSEDiagnosticApplication
 
 
         private Common.Patterns.Collections.ThreadSafe.List<Tuple<int, string>> _progressionMsgs = new Common.Patterns.Collections.ThreadSafe.List<Tuple<int, string>>();
+        private long _currentOperations = 0;
 
         private void DiagnosticFile_OnProgression(object sender, DSEDiagnosticFileParser.ProgressionEventArgs eventArgs)
         {
@@ -520,13 +529,20 @@ namespace DSEDiagnosticApplication
                                                             : string.Empty),
                                                 eventArgs.Message());
                     this._progressionMsgs.Add(new Tuple<int, string>(key, msg));
+
+                    if(eventArgs.Step.HasValue && eventArgs.NbrSteps.HasValue && eventArgs.Step.Value == 1)
+                        System.Threading.Interlocked.Add(ref this._currentOperations, (long) eventArgs.NbrSteps.Value);
                 }
             }
             else if ((eventArgs.Category & DSEDiagnosticFileParser.ProgressionEventArgs.Categories.End) != 0 || (eventArgs.Category & DSEDiagnosticFileParser.ProgressionEventArgs.Categories.Cancel) != 0)
             {
                 var key = (eventArgs.StepName + eventArgs.ThreadId.ToString()).GetHashCode();
 
-                this._progressionMsgs.RemoveAll(i => i.Item1 == key);
+                if(this._progressionMsgs.RemoveAll(i => i.Item1 == key) > 0)
+                {
+                    if (eventArgs.Step.HasValue && eventArgs.NbrSteps.HasValue && eventArgs.Step.Value == eventArgs.NbrSteps.Value)
+                        System.Threading.Interlocked.Add(ref this._currentOperations, ((long)eventArgs.NbrSteps.Value) * -1);
+                }               
             }
         }
 

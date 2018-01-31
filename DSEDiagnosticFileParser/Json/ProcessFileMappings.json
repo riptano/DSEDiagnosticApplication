@@ -336,7 +336,7 @@
     "FilePatterns": [ ".\\nodes\\*\\logs\\cassandra\\system.log", ".\\nodes\\*\\logs\\cassandra\\system.log.*", ".\\nodes\\*\\logs\\cassandra\\*\\system.log", ".\\nodes\\*\\logs\\cassandra\\*\\system.log.*", ".\\nodes\\*\\logs\\cassandra\\debug.log", ".\\nodes\\*\\logs\\cassandra\\debug.log.*", ".\\nodes\\*\\logs\\cassandra\\*\\debug.log", ".\\nodes\\*\\logs\\cassandra\\*\\debug.log.*" ],
     "FileParsingClass": "DSEDiagnosticFileParser.file_cassandra_log4net",
     "NodeIdPos": -1,
-    "ProcessingTaskOption": "ScanForNode,ParallelProcessing,ParallelProcessFiles",
+    "ProcessingTaskOption": "ScanForNode,ParallelProcessing,ParallelProcessNode,SortFilesByOldest",
     "ProcessPriorityLevel": 10
   }
 ]

@@ -56,6 +56,7 @@
             Infragistics.Win.UltraWinEditors.EditorButton editorButton3 = new Infragistics.Win.UltraWinEditors.EditorButton("StringEditor");
             Infragistics.Win.UltraWinStatusBar.UltraStatusPanel ultraStatusPanel1 = new Infragistics.Win.UltraWinStatusBar.UltraStatusPanel();
             Infragistics.Win.UltraWinStatusBar.UltraStatusPanel ultraStatusPanel2 = new Infragistics.Win.UltraWinStatusBar.UltraStatusPanel();
+            Infragistics.Win.UltraWinStatusBar.UltraStatusPanel ultraStatusPanel3 = new Infragistics.Win.UltraWinStatusBar.UltraStatusPanel();
             Infragistics.Win.UltraWinEditors.StateEditorButton stateEditorButton1 = new Infragistics.Win.UltraWinEditors.StateEditorButton("UTCStart");
             Infragistics.Win.UltraWinEditors.StateEditorButton stateEditorButton2 = new Infragistics.Win.UltraWinEditors.StateEditorButton("UTCEnd");
             Infragistics.Win.UltraWinEditors.EditorButton editorButton4 = new Infragistics.Win.UltraWinEditors.EditorButton("FileEditor");
@@ -365,17 +366,23 @@
             // 
             this.ultraStatusBar1.Location = new System.Drawing.Point(0, 619);
             this.ultraStatusBar1.Name = "ultraStatusBar1";
-            ultraStatusPanel1.Key = "Progress";
-            ultraStatusPanel1.MinWidth = 100;
-            ultraStatusPanel1.SizingMode = Infragistics.Win.UltraWinStatusBar.PanelSizingMode.Spring;
-            ultraStatusPanel1.Style = Infragistics.Win.UltraWinStatusBar.PanelStyle.AutoStatusText;
-            ultraStatusPanel1.Width = 300;
-            ultraStatusPanel2.Key = "LoggingStatus";
-            ultraStatusPanel2.SizingMode = Infragistics.Win.UltraWinStatusBar.PanelSizingMode.Automatic;
-            ultraStatusPanel2.ToolTipText = "Logging Status";
+            ultraStatusPanel1.Key = "Operations";
+            ultraStatusPanel1.SizingMode = Infragistics.Win.UltraWinStatusBar.PanelSizingMode.Automatic;
+            ultraStatusPanel1.ToolTipText = "Current Operations";
+            ultraStatusPanel1.Width = 15;
+            ultraStatusPanel1.WrapText = Infragistics.Win.DefaultableBoolean.False;
+            ultraStatusPanel2.Key = "Progress";
+            ultraStatusPanel2.MinWidth = 100;
+            ultraStatusPanel2.SizingMode = Infragistics.Win.UltraWinStatusBar.PanelSizingMode.Spring;
+            ultraStatusPanel2.Style = Infragistics.Win.UltraWinStatusBar.PanelStyle.AutoStatusText;
+            ultraStatusPanel2.Width = 300;
+            ultraStatusPanel3.Key = "LoggingStatus";
+            ultraStatusPanel3.SizingMode = Infragistics.Win.UltraWinStatusBar.PanelSizingMode.Automatic;
+            ultraStatusPanel3.ToolTipText = "Logging Status";
             this.ultraStatusBar1.Panels.AddRange(new Infragistics.Win.UltraWinStatusBar.UltraStatusPanel[] {
             ultraStatusPanel1,
-            ultraStatusPanel2});
+            ultraStatusPanel2,
+            ultraStatusPanel3});
             this.ultraStatusBar1.Size = new System.Drawing.Size(1296, 25);
             this.ultraStatusBar1.TabIndex = 9;
             this.ultraStatusBar1.Text = "ultraStatusBar1";
