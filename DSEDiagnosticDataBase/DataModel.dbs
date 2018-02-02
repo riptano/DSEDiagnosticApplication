@@ -258,6 +258,9 @@ No actual DDL will be stored due to security/proprietary concerns by customers.]
 			<column name="IsActive" type="bit" jt="-7" />
 			<column name="NbrProperties" type="tinyint" jt="-6" />
 			<column name="Storage_Used_MB" type="decimal" length="9" decimal="4" jt="3" />
+			<column name="DDLStrCheckSum" type="int" jt="4" >
+				<comment><![CDATA[The checksum of the DDL string as a fast check to see if different session has different values.]]></comment>
+			</column>
 			<index name="Pk_DDLObjectsSessionInfo_TableId" unique="PRIMARY_KEY" >
 				<column name="DDLSessionId" />
 			</index>
@@ -544,6 +547,9 @@ NotHandled]]></comment>
 			<column name="NbrActiveObjects" type="smallint" jt="5" />
 			<column name="Storage_Used_MB" type="decimal" length="19" decimal="4" jt="3" />
 			<column name="DetectedShardingSchemaChanges" type="bit" jt="-7" />
+			<column name="DDLStrCheckSum" type="int" jt="4" >
+				<comment><![CDATA[The checksum of the DDL string as a fast check to see if different session has different values.]]></comment>
+			</column>
 			<index name="Pk_KeyspaceSessionInfo_KeyspaceId" unique="PRIMARY_KEY" >
 				<column name="KeyspaceSessionId" />
 			</index>
@@ -889,14 +895,14 @@ Note: There should be a "system" session that is used for "global" objects like 
 		<entity schema="DSEDiagnosticApplication" name="Customers" color="cc33ff" x="735" y="465" />
 		<entity schema="DSEDiagnosticApplication" name="Nodes" color="33ff33" x="1320" y="435" />
 		<entity schema="DSEDiagnosticApplication" name="NodeSessionInfo" color="bfd4f5" x="1440" y="1500" />
-		<entity schema="DSEDiagnosticApplication" name="KeyspaceSessionInfo" color="c8f5bf" x="510" y="1485" />
-		<entity schema="DSEDiagnosticApplication" name="DDLObjectsSessionInfo" color="c8f5bf" x="795" y="1485" />
 		<entity schema="DSEDiagnosticApplication" name="ClusterDDLObjects" color="66ff66" x="945" y="600" />
 		<entity schema="DSEDiagnosticApplication" name="DataCenters" color="33ff33" x="1140" y="450" />
 		<entity schema="DSEDiagnosticApplication" name="RunSessionInfo" color="ffff33" x="1245" y="870" />
 		<entity schema="DSEDiagnosticApplication" name="DataCenterSessionInfo" color="bfd4f5" x="1155" y="1500" />
 		<entity schema="DSEDiagnosticApplication" name="EventStatsSessionInfo" color="009999" x="645" y="915" />
 		<entity schema="DSEDiagnosticApplication" name="AggregatedStatsSessionInfo" color="009999" x="855" y="870" />
+		<entity schema="DSEDiagnosticApplication" name="DDLObjectsSessionInfo" color="c8f5bf" x="795" y="1485" />
+		<entity schema="DSEDiagnosticApplication" name="KeyspaceSessionInfo" color="c8f5bf" x="510" y="1485" />
 		<callout x="525" y="75" pointer="Round" >
 			<comment><![CDATA[Logical data model for the new health assessment application. The health assessment application parses and analysis DSE diagnostic files (i.e., OpsCenter Diagonstic tar-ball) into collections of artifacts 
 (DDL, config, etc.), events (logs/nodetool) and/or statistical (DDL, Config, logs, nodetool) information. This event/statistical data  is aggreaged into timeframe based information. Other types (e.g., DDL,
