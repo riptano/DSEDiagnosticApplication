@@ -1,0 +1,956 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<project name="DSEDiagnosticApplication" id="Project_42e155f" template="Default" database="SqlServer" >
+	<schema name="DSEDiagnosticApplication" schemaname="DSEDiagnosticApplication" >
+		<comment><![CDATA[Logical data model for the new health assessment application. 
+
+The new application will now update a centeral database and from that reporistory Excel will be used to generate the graphs and worksheets.
+Also non-excel applications can be used to report or mine this information. 
+
+This data model is based on the health assessment analysis application running and extracting cricital information from different DSE disagistic  files.
+This information is agregated and written to the database.  This includes the cluster's data model (no actuall DDL is captured to elimiate any issues with security/owership concerns).
+
+This data model is based on a concept of a run session (snap-shot of the cluster at that timeframe). One run session represents one analysis application execution.
+In this manner sessions can be compared between different runs (sessions) looking for differences.
+
+Goals:
+1) Drive a new generation of MS-Excel workbooks and graphs so that this information can e easier interpreted by us and our customers in the health assessment process
+2) Allow multiple ways to analysis/mine this information for hisotry and comparison purposes
+3) Allow "global" access to other DataStax orginizations (QA, marketing, sales, erc.)]]></comment>
+		<table name="AggregatedStatsSessionInfo" >
+			<comment><![CDATA[Contains Aggregated Data from Nodetool and log based information for a run session]]></comment>
+			<column name="AggStatId" type="bigint" jt="-5" mandatory="y" autoincrement="y" />
+			<column name="RunSessionId" type="bigint" jt="-5" mandatory="y" />
+			<column name="Source" type="varchar" length="25" jt="12" mandatory="y" >
+				<comment><![CDATA[CassandraLog,
+CFStats,
+TPStats,
+Histogram,
+OpsCenterRepairSession,
+CQL,
+etc.]]></comment>
+			</column>
+			<column name="Attribute" type="varchar" length="100" jt="12" mandatory="y" >
+				<comment><![CDATA[e.g., Local Read Latency, Space used (total), MutationStage, Compacted partition, Compaction Rate, MemTable OPS, etc.]]></comment>
+			</column>
+			<column name="SubAttribute" type="varchar" length="25" jt="12" >
+				<comment><![CDATA[e.g., Completed (e.g., Attr: MutationStage, ReadStage), Dropped (e.g., Attr: MUTATION, READ), Eden Space Change (e.g., Attr: GC), etc.]]></comment>
+			</column>
+			<column name="ReferenceDateTime" type="datetimeoffset" length="4" jt="1111" mandatory="y" >
+				<comment><![CDATA[If from a log souece this would be the starting timestamp within the log for node tool data this would be the node's beginning uptime.]]></comment>
+			</column>
+			<column name="DataCenterId" type="bigint" jt="-5" />
+			<column name="NodeId" type="bigint" jt="-5" />
+			<column name="KeyspaceId" type="bigint" jt="-5" />
+			<column name="DDLId" type="bigint" jt="-5" />
+			<column name="AggStatGroup" type="uniqueidentifier" jt="1" >
+				<comment><![CDATA[Used to group related stats. for instance the Local Read data (count, latency)]]></comment>
+			</column>
+			<column name="EventClass" type="varchar" length="50" jt="12" >
+				<comment><![CDATA[Compaction
+AntiCompaction
+MemtableFlush
+GC
+Pause
+Repair
+Drops
+Performance
+etc.]]></comment>
+			</column>
+			<column name="AggregatePeriod_MIN" type="int" jt="4" >
+				<comment><![CDATA[The period of time (minutes) that makes up this aggregate. For node tool data this would be the node's uptime]]></comment>
+			</column>
+			<column name="UnitOfMeasure" type="varchar" length="25" jt="12" >
+				<comment><![CDATA[The UOM of the Value, Maximum, Minimum, Mean, etc. fields. This should be a standardized across different types. Time will be in milliseconds, memory/storage should be MB, rates should be MB/second, etc.]]></comment>
+			</column>
+			<column name="Value" type="decimal" length="28" decimal="6" jt="3" >
+				<comment><![CDATA[For node tool data the actual value (e.g., local read latency) for aggrated period data (freom logs), this would be the average value.]]></comment>
+			</column>
+			<column name="Maximum" type="decimal" length="28" decimal="6" jt="3" >
+				<comment><![CDATA[Null for Nodetool data, otherwise the maximum value from aggrate period from log stat]]></comment>
+			</column>
+			<column name="Minimum" type="decimal" length="28" decimal="6" jt="3" >
+				<comment><![CDATA[Null for Nodetool data, otherwise the minimum value from aggrate period from log stat]]></comment>
+			</column>
+			<column name="Mean" type="decimal" length="28" decimal="6" jt="3" >
+				<comment><![CDATA[Null for Nodetool data, otherwise the Mena value from aggrate period from log stat]]></comment>
+			</column>
+			<column name="StandardDeviation" type="decimal" length="28" decimal="6" jt="3" >
+				<comment><![CDATA[Null for Nodetool data, otherwise the StdDevp value from aggrate period from log stat]]></comment>
+			</column>
+			<column name="NbrOccurrences" type="int" jt="4" mandatory="y" >
+				<defo>1</defo>
+				<comment><![CDATA[Number of Instances that make up Aggregate. For events the number of event instances that make up the Maximum, Minimum, Mean values.
+
+For nodetool data this would be the assocated count. For example, Local Read Latency, this would be the Local Read Count.]]></comment>
+			</column>
+			<column name="ReferencedEventSessionId" type="bigint" jt="-5" >
+				<comment><![CDATA[Reference back to orginal event that generated this aggrated stats]]></comment>
+			</column>
+			<index name="Idx_AggregatedStatsSessionInfo_SessionRunId" unique="NORMAL" >
+				<column name="RunSessionId" />
+			</index>
+			<index name="Idx_AggregatedStatsSessionInfo_DataCenterId" unique="NORMAL" >
+				<column name="DataCenterId" />
+			</index>
+			<index name="Idx_AggregatedStatsSessionInfo_NodeId" unique="NORMAL" >
+				<column name="NodeId" />
+			</index>
+			<index name="Pk_AggregatedStatsSessionInfo_AggStatId" unique="PRIMARY_KEY" >
+				<column name="AggStatId" />
+			</index>
+			<index name="Idx_AggregatedStatsSessionInfo_DDLId" unique="NORMAL" >
+				<column name="DDLId" />
+			</index>
+			<index name="Idx_AggregatedStatsSessionInfo_KeyspaceId" unique="NORMAL" >
+				<column name="KeyspaceId" />
+			</index>
+			<fk name="fk_aggregatedstatssessioninfo_RunSessionId" to_schema="DSEDiagnosticApplication" to_table="RunSessionInfo" delete_action="cascade" update_action="cascade" >
+				<fk_column name="RunSessionId" pk="RunSessionId" />
+			</fk>
+			<fk name="fk_aggregatedstatssessioninfo_DataCenterId" to_schema="DSEDiagnosticApplication" to_table="DataCenters" delete_action="cascade" update_action="cascade" >
+				<fk_column name="DataCenterId" pk="DataCenterId" />
+			</fk>
+			<fk name="fk_aggregatedstatssessioninfo_NodeId" to_schema="DSEDiagnosticApplication" to_table="Nodes" delete_action="cascade" update_action="cascade" >
+				<fk_column name="NodeId" pk="NodeId" />
+			</fk>
+			<fk name="fk_aggregatedstatssessioninfo_Event" to_schema="DSEDiagnosticApplication" to_table="EventStatsSessionInfo" delete_action="cascade" update_action="cascade" >
+				<fk_column name="ReferencedEventSessionId" pk="EventSessionId" />
+				<fk_column name="RunSessionId" pk="RunSessionId" />
+			</fk>
+			<fk name="fk_aggregatedstatssessioninfo_DDL" to_schema="DSEDiagnosticApplication" to_table="ClusterDDLObjects" delete_action="cascade" update_action="cascade" >
+				<fk_column name="DDLId" pk="DDLId" />
+			</fk>
+			<fk name="fk_aggregatedstatssessioninfo_Keyspace" to_schema="DSEDiagnosticApplication" to_table="ClusterDDLObjects" delete_action="cascade" update_action="cascade" >
+				<fk_column name="KeyspaceId" pk="DDLId" />
+			</fk>
+		</table>
+		<table name="ClusterDDLObjects" >
+			<comment><![CDATA[Contents DDL objects associated with this cluster]]></comment>
+			<column name="DDLId" type="bigint" jt="-5" mandatory="y" autoincrement="y" />
+			<column name="ClusterId" type="bigint" jt="-5" mandatory="y" />
+			<column name="Type" type="varchar" length="25" jt="12" mandatory="y" >
+				<comment><![CDATA[e.g., Keyspace, Table, Index, SolrIndex, Materialized View, UUID, etc.]]></comment>
+			</column>
+			<column name="Name" type="varchar" length="100" jt="12" mandatory="y" >
+				<comment><![CDATA[For objects within a keyspace the keyspace name shouuld be included (e.g., keyspac1.tableA).]]></comment>
+			</column>
+			<column name="RelatedDDLItem" type="bigint" jt="-5" >
+				<comment><![CDATA[e.g., for a table points to the keyspce item]]></comment>
+			</column>
+			<column name="Active" type="bit" jt="-7" mandatory="y" >
+				<defo>1</defo>
+			</column>
+			<index name="UIdx_ClusterDDLObjects" unique="UNIQUE" >
+				<column name="ClusterId" />
+				<column name="Type" />
+				<column name="Name" />
+			</index>
+			<index name="Pk_ClusterDDLObjects_DDLId" unique="PRIMARY_KEY" >
+				<column name="DDLId" />
+			</index>
+			<index name="Idx_ClusterDDLObjects_RelatedDDLItem" unique="NORMAL" >
+				<column name="RelatedDDLItem" />
+			</index>
+			<fk name="fk_clusterddlobjects_clusters" to_schema="DSEDiagnosticApplication" to_table="Clusters" delete_action="cascade" update_action="cascade" >
+				<fk_column name="ClusterId" pk="ClusterId" />
+			</fk>
+			<fk name="fk_clusterddlobjects" to_schema="DSEDiagnosticApplication" to_table="ClusterDDLObjects" delete_action="cascade" update_action="cascade" >
+				<fk_column name="RelatedDDLItem" pk="DDLId" />
+			</fk>
+		</table>
+		<table name="Clusters" >
+			<comment><![CDATA[The name of the cluster assocated with the custome.]]></comment>
+			<column name="ClusterId" type="bigint" jt="-5" mandatory="y" autoincrement="y" />
+			<column name="CustId" type="bigint" jt="-5" mandatory="y" />
+			<column name="ClusterName" type="varchar" length="100" jt="12" mandatory="y" />
+			<column name="LastCompletedRunSessionId" type="bigint" jt="-5" >
+				<comment><![CDATA[The last completed run session for this cluster]]></comment>
+			</column>
+			<index name="ClusterName_CustId_Unique_Key" unique="UNIQUE" >
+				<column name="ClusterName" />
+				<column name="CustId" />
+			</index>
+			<index name="PK_ClusterId" unique="PRIMARY_KEY" modifier="y" >
+				<column name="ClusterId" />
+			</index>
+			<fk name="fk_clusters_customers" to_schema="DSEDiagnosticApplication" to_table="Customers" delete_action="cascade" update_action="cascade" >
+				<fk_column name="CustId" pk="CustId" />
+			</fk>
+		</table>
+		<table name="Customers" >
+			<comment><![CDATA[Customer information.]]></comment>
+			<column name="CustId" type="bigint" jt="-5" mandatory="y" autoincrement="y" />
+			<column name="Company" type="varchar" length="100" jt="12" mandatory="y" >
+				<comment><![CDATA[Customer Name]]></comment>
+			</column>
+			<column name="Organization" type="varchar" length="100" jt="12" mandatory="y" />
+			<index name="PK_CustId" unique="PRIMARY_KEY" >
+				<column name="CustId" />
+			</index>
+			<index name="CustCompanyOrg_Unique_Key" unique="UNIQUE" >
+				<column name="Company" />
+				<column name="Organization" />
+			</index>
+		</table>
+		<table name="DDLObjectProperties" >
+			<comment><![CDATA[Additioinal Properties assocated to the referenced DDL object for a session. For example this would be the "with" properties of a table.]]></comment>
+			<column name="DDLSessionId" type="bigint" jt="-5" mandatory="y" />
+			<column name="PropertyName" type="varchar" length="100" jt="12" mandatory="y" />
+			<column name="PropertyValue" type="varchar" length="250" jt="12" mandatory="y" />
+			<index name="CUIdx_DDLObjectProperties_Id_Name" unique="UNIQUE" >
+				<column name="DDLSessionId" />
+				<column name="PropertyName" />
+			</index>
+			<index name="Idx_DDLObjectProperties_DDLObjectId" unique="NORMAL" >
+				<column name="DDLSessionId" />
+			</index>
+			<fk name="fk_ddlobjectproperties" to_schema="DSEDiagnosticApplication" to_table="DDLObjectsSessionInfo" delete_action="cascade" update_action="cascade" >
+				<fk_column name="DDLSessionId" pk="DDLSessionId" />
+			</fk>
+		</table>
+		<table name="DDLObjectsSessionInfo" >
+			<comment><![CDATA[This is the DDL that defines the data model used for this run session. 
+
+No actual DDL will be stored due to security/proprietary concerns by customers.]]></comment>
+			<column name="DDLSessionId" type="bigint" jt="-5" mandatory="y" autoincrement="y" />
+			<column name="RunSessionId" type="bigint" jt="-5" mandatory="y" />
+			<column name="KeyspaceSessionId" type="bigint" jt="-5" mandatory="y" />
+			<column name="DDLId" type="bigint" jt="-5" mandatory="y" />
+			<column name="Name" type="varchar" length="100" jt="12" />
+			<column name="DDLType" type="varchar" length="25" jt="12" mandatory="y" >
+				<comment><![CDATA[e.g., Table, solrindex, materizedview, user type, etc.]]></comment>
+			</column>
+			<column name="NbrPartitionKeys" type="smallint" jt="5" mandatory="y" />
+			<column name="PartitionKeyHasCollection" type="bit" jt="-7" />
+			<column name="PartitionKeyHasBlob" type="bit" jt="-7" />
+			<column name="PartitionKeyHasUDT" type="bit" jt="-7" />
+			<column name="PartitionKeyHasTuple" type="bit" jt="-7" />
+			<column name="NbrClusterColumns" type="tinyint" jt="-6" />
+			<column name="ClusterColHasCollection" type="bit" jt="-7" />
+			<column name="ClusterColHasBlob" type="bit" jt="-7" />
+			<column name="ClusterColHasUDT" type="bit" jt="-7" />
+			<column name="ClusterColHasTuple" type="bit" jt="-7" />
+			<column name="CompactionStrategy" type="varchar" length="50" jt="12" />
+			<column name="Compression" type="varchar" length="25" jt="12" />
+			<column name="ReadRepairChance" type="decimal" length="5" decimal="2" jt="3" />
+			<column name="ReadRepairDCChance" type="decimal" length="5" decimal="2" jt="3" />
+			<column name="ReadRepairPolicy" type="varchar" length="25" jt="12" />
+			<column name="GCGracePeriod_SEC" type="bigint" jt="-5" />
+			<column name="TTL_SEC" type="bigint" jt="-5" />
+			<column name="AssociatedTableId" type="bigint" jt="-5" >
+				<comment><![CDATA[Reference back to this table in cases of indexes, views, etc. Otherwise this is null]]></comment>
+			</column>
+			<column name="NbrCollections" type="tinyint" jt="-6" />
+			<column name="NbrCounters" type="tinyint" jt="-6" />
+			<column name="NbrBobs" type="tinyint" jt="-6" />
+			<column name="NbrStatic" type="tinyint" jt="-6" />
+			<column name="NbrFrozen" type="tinyint" jt="-6" />
+			<column name="NbrTuples" type="tinyint" jt="-6" />
+			<column name="NbrUDTs" type="tinyint" jt="-6" />
+			<column name="NbrOfAssociatedObjcts" type="tinyint" jt="-6" >
+				<comment><![CDATA[The number of assocated objects (e.g., indexes)]]></comment>
+			</column>
+			<column name="NbrOrderByCols" type="tinyint" jt="-6" />
+			<column name="OrderByHasCollection" type="bit" jt="-7" />
+			<column name="OrderByHasUDT" type="bit" jt="-7" />
+			<column name="OrderByHasTuple" type="bit" jt="-7" />
+			<column name="OrderByHasBlob" type="bit" jt="-7" />
+			<column name="IsActive" type="bit" jt="-7" />
+			<column name="NbrProperties" type="tinyint" jt="-6" />
+			<column name="Storage_Used_MB" type="decimal" length="9" decimal="4" jt="3" />
+			<index name="Pk_DDLObjectsSessionInfo_TableId" unique="PRIMARY_KEY" >
+				<column name="DDLSessionId" />
+			</index>
+			<index name="Idx_DDLObjectsSessionInfo_RunSessionId" unique="NORMAL" >
+				<column name="RunSessionId" />
+			</index>
+			<index name="Idx_DDLObjectsSessionInfo_DDLId" unique="NORMAL" >
+				<column name="DDLId" />
+			</index>
+			<index name="UIdx_DDLObjectsSessionInfo_KeyspaceSession_Name" unique="UNIQUE" >
+				<column name="KeyspaceSessionId" />
+				<column name="Name" />
+			</index>
+			<fk name="fk_ddlobjectssessioninfo_KeyspaceId" to_schema="DSEDiagnosticApplication" to_table="KeyspaceSessionInfo" delete_action="cascade" update_action="cascade" >
+				<fk_column name="KeyspaceSessionId" pk="KeyspaceSessionId" />
+				<fk_column name="RunSessionId" pk="RunSessionId" />
+			</fk>
+			<fk name="fk_ddlobjectssessioninfo_RunSessionId" to_schema="DSEDiagnosticApplication" to_table="RunSessionInfo" delete_action="cascade" update_action="cascade" >
+				<fk_column name="RunSessionId" pk="RunSessionId" />
+			</fk>
+			<fk name="fk_ddlobjectssessioninfo" to_schema="DSEDiagnosticApplication" to_table="ClusterDDLObjects" delete_action="cascade" update_action="cascade" >
+				<fk_column name="DDLId" pk="DDLId" />
+			</fk>
+		</table>
+		<table name="DSEConfigSessionInfo" >
+			<comment><![CDATA[Contains DSE node configuration information for a run session. This information can come from env, yaml, and event log files (Nodes config that is dumped upon start up), and cassandra topology (racks).]]></comment>
+			<column name="DataCenterSessionId" type="bigint" jt="-5" mandatory="y" />
+			<column name="IsMajorityValue" type="bit" jt="-7" mandatory="y" >
+				<defo>0</defo>
+				<comment><![CDATA[If true major of nodes in the data center have the same value. IsCommon may or may not be true.]]></comment>
+			</column>
+			<column name="IsCommon" type="bit" jt="-7" mandatory="y" >
+				<defo>0</defo>
+				<comment><![CDATA[If true, all nodes in the DC have this value (implies IsMajorityValue is also true). If false, One or more nodes in the DC do NOT have this value.]]></comment>
+			</column>
+			<column name="NodeSessionId" type="bigint" jt="-5" >
+				<comment><![CDATA[If not null, this node's property value is different from the common value (based on the majority of the nodes in the DC) for this data center. In this case IsCommon and IsMajorityValue will be false.]]></comment>
+			</column>
+			<column name="Source" type="varchar" length="25" jt="12" mandatory="y" >
+				<comment><![CDATA[The source of the config information. Examples are Cassandra, DSE, Hadoop, Solr, Spark, Snitch, OpsCenter. There is also a sub-source (e.g., yaml, env, log, etc.). Example of a complete source is Cassandra.yaml.
+
+Note this value can come from the log!]]></comment>
+			</column>
+			<column name="Property" type="varchar" length="250" jt="12" mandatory="y" >
+				<comment><![CDATA[The config property. Examples are seed_provider[1].class_name, seed_provider[1].parameters[1].seeds, etc.]]></comment>
+			</column>
+			<column name="Value" type="varchar" length="250" jt="12" >
+				<comment><![CDATA[Config Value]]></comment>
+			</column>
+			<index name="CUI_DSEConfigSessionInfo_DC_Sess_Prop" unique="UNIQUE" modifier="y" >
+				<column name="DataCenterSessionId" />
+				<column name="IsMajorityValue" />
+				<column name="IsCommon" />
+				<column name="NodeSessionId" />
+				<column name="Source" />
+				<column name="Property" />
+			</index>
+			<index name="Idx_DSEConfigSessionInfo_NodeSessionId" unique="NORMAL" >
+				<column name="NodeSessionId" />
+			</index>
+			<fk name="fk_dseconfigsessioninfo" to_schema="DSEDiagnosticApplication" to_table="DataCenterSessionInfo" delete_action="cascade" update_action="cascade" >
+				<fk_column name="DataCenterSessionId" pk="DataCenterSessionId" />
+			</fk>
+			<fk name="fk_dseconfigsessioninfo_NodeSession" to_schema="DSEDiagnosticApplication" to_table="NodeSessionInfo" delete_action="cascade" update_action="cascade" >
+				<fk_column name="NodeSessionId" pk="NodeSessionId" />
+			</fk>
+		</table>
+		<table name="DataCenterSessionInfo" >
+			<comment><![CDATA[This consist of data center information assocated with a run session.]]></comment>
+			<column name="DataCenterSessionId" type="bigint" jt="-5" mandatory="y" autoincrement="y" />
+			<column name="RunSessionId" type="bigint" jt="-5" mandatory="y" />
+			<column name="DataCenterId" type="bigint" jt="-5" mandatory="y" />
+			<column name="NbrNodesCassandra" type="smallint" jt="5" mandatory="y" />
+			<column name="NbrNodesSearch" type="smallint" jt="5" />
+			<column name="NbrNodesAnalytics" type="smallint" jt="5" />
+			<column name="NbrNodesGraph" type="smallint" jt="5" />
+			<column name="NbrRacks" type="smallint" jt="5" />
+			<column name="RacksBalanced" type="bit" jt="-7" />
+			<column name="NbrApplicationKeyspaces" type="smallint" jt="5" mandatory="y" />
+			<column name="NbrTables" type="smallint" jt="5" mandatory="y" />
+			<column name="NbrViews" type="smallint" jt="5" />
+			<column name="NbrSecondaryIndexes" type="smallint" jt="5" />
+			<column name="NbrSolrIndexes" type="smallint" jt="5" />
+			<column name="NbrSASIndexes" type="smallint" jt="5" />
+			<column name="NbrCustomIndexes" type="smallint" jt="5" />
+			<column name="NbrTriggers" type="smallint" jt="5" />
+			<column name="NbrSTCS" type="smallint" jt="5" />
+			<column name="NbrLCS" type="smallint" jt="5" />
+			<column name="NbrDTCS" type="smallint" jt="5" />
+			<column name="NbrTCS" type="smallint" jt="5" />
+			<column name="NbrTWCS" type="smallint" jt="5" />
+			<column name="NbrOtherStrategies" type="smallint" jt="5" />
+			<column name="NbrActiveObjects" type="smallint" jt="5" >
+				<comment><![CDATA[Total Nbr of CQL Objects that have been detected as activite]]></comment>
+			</column>
+			<column name="LogDateTimeMin" type="datetimeoffset" length="4" jt="1111" mandatory="y" />
+			<column name="LogDateTimeMax" type="datetimeoffset" length="4" jt="1111" mandatory="y" />
+			<column name="LogGapDuration_SEC" type="int" jt="4" mandatory="y" >
+				<comment><![CDATA[Number of seconds of log gaps that were detected during processing.]]></comment>
+			</column>
+			<column name="NbrLogFiles" type="smallint" jt="5" />
+			<column name="NodeupTimeMin" type="datetimeoffset" length="2" jt="1111" mandatory="y" />
+			<column name="NodeUpTimeDurationMax_SEC" type="int" jt="4" mandatory="y" />
+			<column name="NodeUpTimeDurationMin_SEC" type="int" jt="4" mandatory="y" />
+			<column name="NodeUpTimeAverage_SEC" type="int" jt="4" mandatory="y" />
+			<column name="NodeUpTimeStdDev_SEC" type="int" jt="4" mandatory="y" />
+			<column name="StorageUsed_MB" type="decimal" length="19" decimal="4" jt="3" />
+			<index name="Idx_DataCenterSessionInfo_DataCenterId" unique="NORMAL" >
+				<column name="DataCenterId" />
+			</index>
+			<index name="Unq_DataCenterSessionInfo_RunSessionId" unique="UNIQUE" >
+				<column name="RunSessionId" />
+				<column name="DataCenterId" />
+			</index>
+			<index name="Pk_DataCenterSessionInfo_DataCenterSessionId" unique="PRIMARY_KEY" >
+				<column name="DataCenterSessionId" />
+			</index>
+			<fk name="fk_datacentersessioninfo_DataCenterId" to_schema="DSEDiagnosticApplication" to_table="DataCenters" delete_action="cascade" update_action="cascade" >
+				<fk_column name="DataCenterId" pk="DataCenterId" />
+			</fk>
+			<fk name="fk_datacentersessioninfo_RunSessionId" to_schema="DSEDiagnosticApplication" to_table="RunSessionInfo" delete_action="cascade" update_action="cascade" >
+				<fk_column name="RunSessionId" pk="RunSessionId" />
+			</fk>
+		</table>
+		<table name="DataCenters" >
+			<comment><![CDATA[The data center associated to a cluster.]]></comment>
+			<column name="DataCenterId" type="bigint" jt="-5" mandatory="y" />
+			<column name="ClusterId" type="bigint" jt="-5" mandatory="y" />
+			<column name="Name" type="varchar" length="100" jt="12" mandatory="y" />
+			<column name="Active" type="bit" jt="-7" >
+				<defo>1</defo>
+				<comment><![CDATA[If false, this data center is no longer active (removed from the cluster)]]></comment>
+			</column>
+			<index name="Pk_DataCenterId_DataCenterId" unique="PRIMARY_KEY" >
+				<column name="DataCenterId" />
+			</index>
+			<index name="Idx_DataCenterId_ClusterId" unique="NORMAL" >
+				<column name="ClusterId" />
+			</index>
+			<fk name="fk_datacenterid_clusters" to_schema="DSEDiagnosticApplication" to_table="Clusters" >
+				<fk_column name="ClusterId" pk="ClusterId" />
+			</fk>
+		</table>
+		<table name="EventStatsSessionInfo" >
+			<comment><![CDATA[This consist of information usually obtained from the log files but can come from generated events from nodetool data. This information is an aggregate of occurrences of an event within the aggregated time period. This information may generate aggregate stat information.
+
+Example:
+
+An specific exception occured 10 times starting at 2018-01-01 22:45 for10 minutes (up to 22:55)
+15 GC occurred at 2018-01-01 22:45 for 10 minutes (note this would generate aggrate stat data like latency)]]></comment>
+			<column name="EventSessionId" type="bigint" jt="-5" mandatory="y" autoincrement="y" />
+			<column name="RunSessionId" type="bigint" jt="-5" mandatory="y" />
+			<column name="EventDateTimeBegin" type="datetimeoffset" length="4" jt="1111" mandatory="y" />
+			<column name="Source" type="varchar" length="25" jt="12" mandatory="y" />
+			<column name="EventGroup" type="uniqueidentifier" jt="1" >
+				<comment><![CDATA[Used to group related events together]]></comment>
+			</column>
+			<column name="DataCenterId" type="bigint" jt="-5" mandatory="y" />
+			<column name="Nodeid" type="bigint" jt="-5" />
+			<column name="AssociatedNode" type="bigint" length="100" jt="-5" >
+				<comment><![CDATA[Node that is somehow associated to this event (e.g., downed node)]]></comment>
+			</column>
+			<column name="KeyspaceId" type="bigint" jt="-5" />
+			<column name="DDLId" type="bigint" jt="-5" />
+			<column name="Event" type="varchar" length="250" jt="12" />
+			<column name="Exception" type="varchar" length="250" jt="12" />
+			<column name="ExceptionPath" type="varchar" length="250" jt="12" />
+			<column name="EventType" type="varchar" length="25" jt="12" mandatory="y" />
+			<column name="EventClass" type="varchar" length="50" jt="12" >
+				<comment><![CDATA[Exception
+Fatal
+Compaction
+AntiCompaction
+MemtableFlush
+GC
+Pause
+Repair
+Drops
+Performance
+Orphaned
+HintHandOff
+DataCenter
+Node
+Keyspace
+TableViewIndex
+Config
+Detection
+NotHandled]]></comment>
+			</column>
+			<column name="AggregatePeriod_MIN" type="smallint" jt="5" mandatory="y" >
+				<comment><![CDATA[in ninutes]]></comment>
+			</column>
+			<column name="Occurrences" type="int" jt="4" mandatory="y" >
+				<defo>1</defo>
+				<comment><![CDATA[Number of events within the aggregated time period]]></comment>
+			</column>
+			<column name="LastOccurrence" type="datetimeoffset" jt="1111" >
+				<comment><![CDATA[Last time the event occurred within the aggrated period.]]></comment>
+			</column>
+			<index name="Pk_LogStatsSessionInfo_EventSessionId" unique="PRIMARY_KEY" >
+				<column name="EventSessionId" />
+			</index>
+			<index name="Idx_LogStatsSessionInfo_RunSessionId" unique="UNIQUE" >
+				<column name="RunSessionId" />
+			</index>
+			<index name="Idx_LogStatsSessionInfo_DataCenterId" unique="NORMAL" >
+				<column name="DataCenterId" />
+			</index>
+			<index name="Idx_LogStatsSessionInfo_DDLId" unique="NORMAL" >
+				<column name="DDLId" />
+			</index>
+			<index name="Idx_LogStatsSessionInfo_KeyspaceId" unique="NORMAL" >
+				<column name="KeyspaceId" />
+			</index>
+			<index name="Idx_LogStatsSessionInfo_Nodeid" unique="NORMAL" >
+				<column name="Nodeid" />
+			</index>
+			<index name="Idx_EventStatsSessionInfo_AssociatedNode" unique="NORMAL" >
+				<column name="AssociatedNode" />
+			</index>
+			<fk name="fk_logstatssessioninfo" to_schema="DSEDiagnosticApplication" to_table="RunSessionInfo" delete_action="cascade" update_action="cascade" >
+				<fk_column name="RunSessionId" pk="RunSessionId" />
+			</fk>
+			<fk name="fk_logstatssessioninfo_DataCenterId" to_schema="DSEDiagnosticApplication" to_table="DataCenters" delete_action="cascade" update_action="cascade" >
+				<fk_column name="DataCenterId" pk="DataCenterId" />
+			</fk>
+			<fk name="fk_logstatssessioninfo_NodeId" to_schema="DSEDiagnosticApplication" to_table="Nodes" delete_action="cascade" update_action="cascade" >
+				<fk_column name="Nodeid" pk="NodeId" />
+			</fk>
+			<fk name="fk_eventstatssessioninfo_AssocNodeId" to_schema="DSEDiagnosticApplication" to_table="Nodes" >
+				<fk_column name="AssociatedNode" pk="NodeId" />
+			</fk>
+			<fk name="fk_logstatssessioninfo_KeyspaceId" to_schema="DSEDiagnosticApplication" to_table="ClusterDDLObjects" delete_action="cascade" update_action="cascade" >
+				<fk_column name="KeyspaceId" pk="DDLId" />
+			</fk>
+			<fk name="fk_eventstatssessioninfo" to_schema="DSEDiagnosticApplication" to_table="ClusterDDLObjects" delete_action="cascade" update_action="cascade" >
+				<fk_column name="DDLId" pk="DDLId" />
+			</fk>
+		</table>
+		<table name="KeyspaceReplicationSessionInfo" >
+			<comment><![CDATA[Contents information for a run session that assocates the keyspace to a data center with replication factor]]></comment>
+			<column name="KeyspaceSessionId" type="bigint" jt="-5" mandatory="y" />
+			<column name="DataCenterId" type="bigint" jt="-5" mandatory="y" />
+			<column name="ReplicationFactor" type="smallint" jt="5" mandatory="y" />
+			<index name="UIdx_KeyspaceReplicationSessionInfo_KeyspaceId" unique="UNIQUE" >
+				<column name="KeyspaceSessionId" />
+				<column name="DataCenterId" />
+			</index>
+			<index name="Idx_KeyspaceReplicationSessionInfo_DataCenterId" unique="NORMAL" >
+				<column name="DataCenterId" />
+			</index>
+			<fk name="fk_keyspacereplicationsessioninfo_KeyspaceId" to_schema="DSEDiagnosticApplication" to_table="KeyspaceSessionInfo" delete_action="cascade" update_action="cascade" >
+				<fk_column name="KeyspaceSessionId" pk="KeyspaceSessionId" />
+			</fk>
+			<fk name="fk_keyspacereplicationsessioninfo_DataCenterId" to_schema="DSEDiagnosticApplication" to_table="DataCenters" delete_action="cascade" update_action="cascade" >
+				<fk_column name="DataCenterId" pk="DataCenterId" />
+			</fk>
+		</table>
+		<table name="KeyspaceSessionInfo" >
+			<comment><![CDATA[Consists of run session information about the keyspace (data model at the time of the run)]]></comment>
+			<column name="KeyspaceSessionId" type="bigint" jt="-5" mandatory="y" autoincrement="y" >
+				<comment><![CDATA[For system and DSE keyspaces this should be 0 and RunSessionId should be 0]]></comment>
+			</column>
+			<column name="RunSessionId" type="bigint" jt="-5" mandatory="y" >
+				<comment><![CDATA[For System and DSE keyspaces this should be the default system session (e.g., 0)]]></comment>
+			</column>
+			<column name="DDLId" type="bigint" jt="-5" mandatory="y" />
+			<column name="Name" type="varchar" length="100" jt="12" mandatory="y" />
+			<column name="ReplicationStrategy" type="varchar" length="100" jt="12" mandatory="y" />
+			<column name="DurableWrites" type="bit" jt="-7" />
+			<column name="NbrTables" type="smallint" jt="5" />
+			<column name="NbrViews" type="smallint" jt="5" />
+			<column name="NbrSecondaryIndexes" type="smallint" jt="5" />
+			<column name="NbrSolrIndexes" type="smallint" jt="5" />
+			<column name="NbrCustomIndexes" type="smallint" jt="5" />
+			<column name="NbrTriggers" type="smallint" jt="5" />
+			<column name="NbrSTCS" type="smallint" jt="5" />
+			<column name="NbrLCS" type="smallint" jt="5" />
+			<column name="NbrDTCS" type="smallint" jt="5" />
+			<column name="NbrTCS" type="smallint" jt="5" />
+			<column name="NbrTWCS" type="smallint" jt="5" />
+			<column name="NbrSASIndexes" type="smallint" jt="5" />
+			<column name="NbrOtherStrategies" type="smallint" jt="5" />
+			<column name="NbrActiveObjects" type="smallint" jt="5" />
+			<column name="Storage_Used_MB" type="decimal" length="19" decimal="4" jt="3" />
+			<column name="DetectedShardingSchemaChanges" type="bit" jt="-7" />
+			<index name="Pk_KeyspaceSessionInfo_KeyspaceId" unique="PRIMARY_KEY" >
+				<column name="KeyspaceSessionId" />
+			</index>
+			<index name="Idx_KeyspaceSessionInfo_DDLId" unique="NORMAL" >
+				<column name="DDLId" />
+			</index>
+			<index name="UIdx_KeyspaceSessionInfo_DDL_RunSession" unique="UNIQUE" >
+				<column name="DDLId" />
+				<column name="RunSessionId" />
+			</index>
+			<fk name="fk_keyspacesessioninfo_RunSessionId" to_schema="DSEDiagnosticApplication" to_table="RunSessionInfo" delete_action="cascade" update_action="cascade" >
+				<fk_column name="RunSessionId" pk="RunSessionId" />
+			</fk>
+			<fk name="fk_keyspacesessioninfo" to_schema="DSEDiagnosticApplication" to_table="ClusterDDLObjects" delete_action="cascade" update_action="cascade" >
+				<fk_column name="DDLId" pk="DDLId" />
+				<fk_column name="Name" pk="Name" />
+			</fk>
+		</table>
+		<table name="LogFileSessionInfo" >
+			<comment><![CDATA[Log file run session information used for the analysis.]]></comment>
+			<column name="NodeSessionId" type="bigint" jt="-5" />
+			<column name="Sequence" type="tinyint" jt="-6" mandatory="y" >
+				<comment><![CDATA[The order of log files from a time sequence for a node. 0 is the eariest logs.]]></comment>
+			</column>
+			<column name="NodeTimezone" type="varchar" length="15" jt="12" />
+			<column name="TimezoneOffset" type="tinyint" jt="-6" mandatory="y" />
+			<column name="LogTimeMin" type="datetimeoffset" length="4" jt="1111" mandatory="y" />
+			<column name="LogTimeMax" type="datetimeoffset" length="4" jt="1111" mandatory="y" />
+			<column name="LocalLogTimeMin" type="datetime2" length="4" jt="93" mandatory="y" />
+			<column name="LocalLogTimeMax" type="datetime2" length="4" jt="93" />
+			<column name="LogDuration_SEC" type="bigint" jt="-5" mandatory="y" />
+			<column name="LogGapDuration_SEC" type="int" jt="4" mandatory="y" />
+			<column name="FileSize_MB" type="decimal" length="9" decimal="4" jt="3" mandatory="y" />
+			<column name="NbrEvents" type="int" jt="4" />
+			<column name="ExceptionIndicator" type="varchar" length="50" jt="12" >
+				<comment><![CDATA[Tags log file if it is a duplicate, if there a gap from the previous log file, if the series mets min log duration threshold, etc.]]></comment>
+			</column>
+			<column name="LogFile" type="varchar" length="2089" jt="12" mandatory="y" />
+			<column name="IsDebugLog" type="bit" jt="-7" mandatory="y" >
+				<defo>0</defo>
+			</column>
+			<index name="CUIdx_LogFileSessionInfo_RunId_NodeId_Sequence" unique="UNIQUE" >
+				<column name="NodeSessionId" />
+				<column name="Sequence" />
+			</index>
+			<fk name="fk_logfilesessioninfo" to_schema="DSEDiagnosticApplication" to_table="NodeSessionInfo" delete_action="cascade" update_action="cascade" >
+				<fk_column name="NodeSessionId" pk="NodeSessionId" />
+			</fk>
+		</table>
+		<table name="MachineSessionInfo" >
+			<comment><![CDATA[Machine, OS, NTP data for a run session.]]></comment>
+			<column name="NodeSessionId" type="bigint" jt="-5" mandatory="y" />
+			<column name="CPUArchitecture" type="varchar" length="25" jt="12" />
+			<column name="Cores" type="int" jt="4" />
+			<column name="PhysicalMemory_MB" type="decimal" length="9" decimal="4" jt="3" />
+			<column name="OS" type="varchar" length="25" jt="12" />
+			<column name="OSVersion" type="varchar" length="25" jt="12" />
+			<column name="Kernel" type="varchar" length="25" jt="12" />
+			<column name="TimeZone" type="varchar" length="25" jt="12" mandatory="y" />
+			<column name="TimeZoneOffset" type="smallint" jt="5" mandatory="y" />
+			<column name="CPU_Average" type="decimal" length="5" decimal="2" jt="3" />
+			<column name="CPU_Idle" type="decimal" length="5" decimal="2" jt="3" />
+			<column name="CPU_System" type="decimal" length="5" decimal="2" jt="3" />
+			<column name="CPU_User" type="decimal" length="5" decimal="2" jt="3" />
+			<column name="Memory_Available_MB" type="decimal" length="9" decimal="4" jt="3" />
+			<column name="Memory_Cache_MB" type="decimal" length="9" decimal="4" jt="3" />
+			<column name="Memory_Buffer_MB" type="decimal" length="9" decimal="4" jt="3" />
+			<column name="Memory_Shared_MB" type="decimal" length="9" decimal="4" jt="3" />
+			<column name="Memory_Free_MB" type="decimal" length="9" decimal="4" jt="3" />
+			<column name="Memory_Used_MB" type="decimal" length="9" decimal="4" jt="3" />
+			<column name="Java_Vendor" type="varchar" length="50" jt="12" />
+			<column name="Java_Model" type="varchar" length="10" jt="12" />
+			<column name="Java_RunTime" type="varchar" length="50" jt="12" />
+			<column name="Java_RunTime_Version" type="varchar" length="25" jt="12" />
+			<column name="Java_NonHeap_Init_MB" type="decimal" length="9" decimal="4" jt="3" />
+			<column name="Java_NonHeap_Max_MB" type="decimal" length="9" decimal="4" jt="3" />
+			<column name="Java_NonHeap_Committed_MB" type="decimal" length="9" decimal="4" jt="3" />
+			<column name="Java_NonHeap_Used_MB" type="decimal" length="9" decimal="4" jt="3" />
+			<column name="Java_Heap_Committed_MB" type="decimal" length="9" decimal="4" jt="3" />
+			<column name="Java_GC" type="varchar" length="25" jt="12" />
+			<column name="Java_Heap_Init_MB" type="decimal" length="9" decimal="4" jt="3" />
+			<column name="Java_Heap_Max_MB" type="decimal" length="9" decimal="4" jt="3" />
+			<column name="Java_Heap_Used_MB" type="decimal" length="9" decimal="4" jt="3" />
+			<column name="NTP_Correction_MS" type="bigint" jt="-5" />
+			<column name="NTP_Polling_SEC" type="bigint" jt="-5" />
+			<column name="NTP_Max_Error_US" type="bigint" jt="-5" />
+			<column name="NTP_Estimated_Error_US" type="bigint" jt="-5" />
+			<column name="NTP_Time_Constant" type="bigint" jt="-5" />
+			<column name="NTP_Precrision_US" type="bigint" length="9" decimal="4" jt="-5" />
+			<column name="NTP_Frequency_PPM" type="bigint" length="9" decimal="2" jt="-5" />
+			<column name="NTP_Tolerance_PPM" type="bigint" length="9" decimal="2" jt="-5" />
+			<index name="Idx_MachineSessionInfo_NodeSessionId" unique="NORMAL" >
+				<column name="NodeSessionId" />
+			</index>
+			<fk name="fk_machinesessioninfo" to_schema="DSEDiagnosticApplication" to_table="NodeSessionInfo" delete_action="cascade" update_action="cascade" >
+				<fk_column name="NodeSessionId" pk="NodeSessionId" />
+			</fk>
+		</table>
+		<table name="NodeCaches" >
+			<comment><![CDATA[Need to break out cache attributes]]></comment>
+			<column name="NodeSessionId" type="int" jt="4" mandatory="y" />
+			<column name="Property" type="varchar" length="10" jt="12" >
+				<comment><![CDATA[e.g., Key, Counter, Row]]></comment>
+			</column>
+			<column name="Value" type="varchar" length="100" jt="12" />
+			<index name="UCI_NodeCaches_NodeSess_Prop" unique="UNIQUE" >
+				<column name="NodeSessionId" />
+				<column name="Property" />
+			</index>
+			<fk name="fk_nodecaches_nodesessioninfo" to_schema="DSEDiagnosticApplication" to_table="NodeSessionInfo" delete_action="cascade" update_action="cascade" >
+				<fk_column name="NodeSessionId" pk="NodeSessionId" />
+			</fk>
+		</table>
+		<table name="NodeFileDirLocations" >
+			<column name="NodeSessionId" type="bigint" jt="-5" mandatory="y" />
+			<column name="Sequence" type="tinyint" jt="-6" mandatory="y" >
+				<defo>0</defo>
+				<comment><![CDATA[Used in cases when more then one file/dir is used for a property. e.g., DataDir]]></comment>
+			</column>
+			<column name="Property" type="varchar" length="25" jt="12" mandatory="y" >
+				<comment><![CDATA[e.g., Cassandra.yaml, DSE.yaml, CommitDir, DataDir, etc.]]></comment>
+			</column>
+			<column name="IsFile" type="bit" jt="-7" mandatory="y" >
+				<comment><![CDATA[If true, the location is a file, False it is a directory]]></comment>
+			</column>
+			<column name="Value" type="varchar" length="2089" jt="12" mandatory="y" >
+				<comment><![CDATA[The file or directory path]]></comment>
+			</column>
+			<index name="UCI_NodeFileDirLocations_NodeSess_Seq_Prop" unique="UNIQUE" >
+				<column name="NodeSessionId" />
+				<column name="Sequence" />
+				<column name="Property" />
+			</index>
+			<index name="Idx_NodeFileDirLocations_NodeSessionId" unique="NORMAL" >
+				<column name="NodeSessionId" />
+			</index>
+			<fk name="fk_nodefiledirlocations" to_schema="DSEDiagnosticApplication" to_table="NodeSessionInfo" delete_action="cascade" update_action="cascade" >
+				<fk_column name="NodeSessionId" pk="NodeSessionId" />
+			</fk>
+		</table>
+		<table name="NodeSessionInfo" >
+			<comment><![CDATA[Node information assocated with a node for a run session]]></comment>
+			<column name="NodeSessionId" type="bigint" jt="-5" mandatory="y" autoincrement="y" />
+			<column name="RunSessionId" type="bigint" jt="-5" mandatory="y" />
+			<column name="NodeId" type="bigint" jt="-5" mandatory="y" />
+			<column name="DataCenterSessionId" type="bigint" jt="-5" mandatory="y" />
+			<column name="DSEHostId" type="uniqueidentifier" jt="1" />
+			<column name="PhysicalHostId" type="varchar" length="100" jt="12" />
+			<column name="RackSessionId" type="bigint" length="25" jt="-5" >
+				<comment><![CDATA[Rack info can be obtained from the DSEConfigSessionInfo Table]]></comment>
+			</column>
+			<column name="WorkloadType" type="varchar" length="50" jt="12" />
+			<column name="NodeStatus" type="varchar" length="8" jt="12" />
+			<column name="StorageUsed_MB" type="decimal" length="9" decimal="4" jt="3" />
+			<column name="StorageUtilization_PCT" type="decimal" length="5" decimal="2" jt="3" />
+			<column name="HealthRating" type="varchar" length="25" jt="12" />
+			<column name="NbrVNodes" type="smallint" jt="5" />
+			<column name="IsSeedNode" type="bit" jt="-7" />
+			<column name="NbrExceptions" type="smallint" jt="5" />
+			<column name="NativeTransportEnabled" type="bit" jt="-7" />
+			<column name="DSEVersion" type="varchar" length="25" jt="12" />
+			<column name="CassandraVersion" type="varchar" length="25" jt="12" />
+			<column name="SolrVersion" type="varchar" length="25" jt="12" />
+			<column name="SparkVersion" type="varchar" length="25" jt="12" />
+			<column name="OpsCenterAgentVersion" type="varchar" length="25" jt="12" />
+			<column name="EndPointSnitch" type="varchar" length="100" jt="12" />
+			<column name="RepaiServicesEnabled" type="bit" jt="-7" />
+			<column name="GossipEnabled" type="bit" jt="-7" />
+			<column name="ThriftEnabled" type="bit" jt="-7" />
+			<column name="NodeStartDateTime" type="datetimeoffset" length="2" jt="1111" mandatory="y" >
+				<comment><![CDATA[The datetime of when the noded started]]></comment>
+			</column>
+			<column name="NodeUptimeDuration_SEC" type="bigint" jt="-5" mandatory="y" >
+				<comment><![CDATA[Amount of time node is up]]></comment>
+			</column>
+			<column name="LogDateTimeMin" type="datetimeoffset" length="4" jt="1111" mandatory="y" />
+			<column name="LogDateTimeMax" type="datetimeoffset" length="4" jt="1111" mandatory="y" />
+			<column name="LogGapDuration_SEC" type="int" jt="4" mandatory="y" />
+			<index name="CUI_NodeSessionInfo_RunSessionId_NodeId" unique="UNIQUE" >
+				<column name="RunSessionId" />
+				<column name="NodeId" />
+			</index>
+			<index name="Idx_NodeSessionInfo_DataCenterId" unique="NORMAL" >
+				<column name="DataCenterSessionId" />
+			</index>
+			<index name="Idx_NodeSessionInfo_RunSessionId" unique="NORMAL" >
+				<column name="RunSessionId" />
+			</index>
+			<index name="Idx_NodeSessionInfo_NodeId" unique="NORMAL" >
+				<column name="NodeId" />
+			</index>
+			<index name="Pk_NodeSessionInfo_NodeSessionId" unique="PRIMARY_KEY" >
+				<column name="NodeSessionId" />
+			</index>
+			<fk name="fk_nodesessioninfo_RunSessionId" to_schema="DSEDiagnosticApplication" to_table="RunSessionInfo" >
+				<fk_column name="RunSessionId" pk="RunSessionId" />
+			</fk>
+			<fk name="fk_nodesessioninfo_nodes" to_schema="DSEDiagnosticApplication" to_table="Nodes" delete_action="cascade" update_action="cascade" >
+				<fk_column name="NodeId" pk="NodeId" />
+			</fk>
+			<fk name="fk_nodesessioninfo_RackSession" to_schema="DSEDiagnosticApplication" to_table="RackSessionInfo" >
+				<fk_column name="RackSessionId" pk="RackSessionId" />
+			</fk>
+			<fk name="fk_nodesessioninfo_DataCenterId" to_schema="DSEDiagnosticApplication" to_table="DataCenterSessionInfo" delete_action="cascade" update_action="cascade" >
+				<fk_column name="DataCenterSessionId" pk="DataCenterSessionId" />
+			</fk>
+		</table>
+		<table name="Nodes" >
+			<comment><![CDATA[IP address or Host Name information assocated to a node.]]></comment>
+			<column name="NodeId" type="bigint" jt="-5" mandatory="y" autoincrement="y" />
+			<column name="DataCenterId" type="bigint" jt="-5" mandatory="y" />
+			<column name="ClusterId" type="bigint" jt="-5" mandatory="y" />
+			<column name="IP4Address" type="varchar" length="12" jt="12" />
+			<column name="IP6Address" type="varchar" length="45" jt="12" />
+			<column name="HostName" type="varchar" length="100" jt="12" />
+			<column name="Active" type="bit" jt="-7" >
+				<defo>1</defo>
+				<comment><![CDATA[If false, this node is no longer active (been removed from the cluster)]]></comment>
+			</column>
+			<index name="PK_NodeId" unique="PRIMARY_KEY" >
+				<column name="NodeId" />
+			</index>
+			<index name="Idx_NodeCluster_ClusterId" unique="UNIQUE" >
+				<column name="NodeId" />
+				<column name="ClusterId" />
+			</index>
+			<index name="Idx_Nodes_DataCenterId" unique="NORMAL" >
+				<column name="DataCenterId" />
+			</index>
+			<constraint name="Cns_NodeCluster" >
+				<string>IP4Address is not null or IP6Address is not null or HostName is not null</string>
+			</constraint>
+			<fk name="fk_nodecluster_clusters" to_schema="DSEDiagnosticApplication" to_table="Clusters" >
+				<fk_column name="ClusterId" pk="ClusterId" />
+			</fk>
+			<fk name="fk_nodes_datacenters" to_schema="DSEDiagnosticApplication" to_table="DataCenters" delete_action="cascade" update_action="cascade" >
+				<fk_column name="DataCenterId" pk="DataCenterId" />
+			</fk>
+		</table>
+		<table name="RackSessionInfo" >
+			<column name="RackSessionId" type="bigint" jt="-5" mandatory="y" autoincrement="y" />
+			<column name="DataCenterSessionId" type="bigint" jt="-5" mandatory="y" />
+			<column name="Name" type="varchar" length="25" jt="12" mandatory="y" />
+			<column name="NbrNodes" type="smallint" jt="5" mandatory="y" >
+				<defo>0</defo>
+			</column>
+			<column name="DCSuffix" type="varchar" length="25" jt="12" />
+			<column name="PreferLocal" type="bit" jt="-7" />
+			<column name="IsDefault" type="bit" jt="-7" />
+			<index name="CUI_RackSessionInfo_RunSess_DCId_Name" unique="UNIQUE" >
+				<column name="DataCenterSessionId" />
+				<column name="Name" />
+			</index>
+			<index name="Idx_RackSessionInfo_DataCenterSessionId" unique="NORMAL" >
+				<column name="DataCenterSessionId" />
+			</index>
+			<index name="Unq_RackSessionInfo_RackSessionId" unique="UNIQUE" >
+				<column name="RackSessionId" />
+			</index>
+			<fk name="fk_racksessioninfo" to_schema="DSEDiagnosticApplication" to_table="DataCenterSessionInfo" delete_action="cascade" update_action="cascade" >
+				<fk_column name="DataCenterSessionId" pk="DataCenterSessionId" />
+			</fk>
+		</table>
+		<table name="RunSessionInfo" >
+			<comment><![CDATA[A Run Session is one analysis review of diagnostic files for a cluster. You can think of this as a "snapshot" of the cluster's enviroment at the analysis timeframe.
+
+Note: There should be a "system" session that is used for "global" objects like system keyspaces, etc. RunSessionId value should be 0...]]></comment>
+			<column name="RunSessionId" type="bigint" jt="-5" mandatory="y" autoincrement="y" />
+			<column name="ClusterId" type="bigint" jt="-5" mandatory="y" />
+			<column name="RunDateTimeStart" type="datetimeoffset" length="2" jt="1111" mandatory="y" >
+				<comment><![CDATA[Start time of the analysis, this will not be the same as the log timeframes or node up timeframes.]]></comment>
+			</column>
+			<column name="RunDateTimeFinsh" type="datetimeoffset" length="2" jt="1111" />
+			<column name="RunCompleted" type="bit" jt="-7" mandatory="y" >
+				<defo>0</defo>
+				<comment><![CDATA[True if analysis completed]]></comment>
+			</column>
+			<column name="LogDateTimeMin" type="datetimeoffset" length="4" jt="1111" mandatory="y" >
+				<comment><![CDATA[The overall minimual date time across all nodes reviewed for this run session]]></comment>
+			</column>
+			<column name="LogDateTimeMax" type="datetimeoffset" length="4" jt="1111" mandatory="y" >
+				<comment><![CDATA[The overall maximum date time across all nodes reviewed for this run session]]></comment>
+			</column>
+			<column name="LogGapDuration_SEC" type="int" jt="4" >
+				<comment><![CDATA[The total number of seconds for all gaps that where detected in the logs during processing across all nodes]]></comment>
+			</column>
+			<column name="NbrLogFiles" type="smallint" jt="5" />
+			<column name="AnalysisBeginDateTime" type="datetimeoffset" jt="1111" mandatory="y" >
+				<comment><![CDATA[The actual beginning timeframe of the analysis for this run session]]></comment>
+			</column>
+			<column name="AnalysisEndDateTime" type="datetimeoffset" jt="1111" mandatory="y" >
+				<comment><![CDATA[The actual ending timeframe of the analysis for this run session]]></comment>
+			</column>
+			<column name="NodeUpTimeMin" type="datetimeoffset" length="2" jt="1111" mandatory="y" >
+				<comment><![CDATA[Mimumal node begin timeframe across all nodes.]]></comment>
+			</column>
+			<column name="NodeUpTimeDurationMax_SEC" type="int" jt="4" mandatory="y" >
+				<comment><![CDATA[Maximal node Uptime across all nodes]]></comment>
+			</column>
+			<column name="NodeUpTimeDurationMin_SEC" type="int" jt="4" mandatory="y" />
+			<column name="NodeUpTimeAverage_SEC" type="int" jt="4" mandatory="y" />
+			<column name="NodeUpTimeStdDev_SEC" type="int" jt="4" mandatory="y" />
+			<column name="NbrDataCenters" type="smallint" jt="5" />
+			<column name="NbrNodesCassandra" type="smallint" jt="5" />
+			<column name="NbrNodesSearch" type="smallint" jt="5" />
+			<column name="NbrNodesAnalytics" type="smallint" jt="5" />
+			<column name="NbrNodesGraph" type="smallint" jt="5" />
+			<column name="NbrKeyspaces" type="smallint" jt="5" />
+			<column name="NbrTables" type="smallint" jt="5" />
+			<column name="StorageUsed_MB" type="decimal" length="19" decimal="4" jt="3" >
+				<comment><![CDATA[Total storage used by this cluster at this analysis timeframe]]></comment>
+			</column>
+			<column name="DetectedShardingSchemaChanges" type="bit" jt="-7" >
+				<comment><![CDATA[True if there are any detected sharding or schema changed events. Review the event session table for details.]]></comment>
+			</column>
+			<column name="HealthAssessmentSurveyURL" type="nvarchar" length="2083" jt="12" />
+			<column name="HealthAssessmentExcelWorkURL" type="nvarchar" length="2083" jt="12" />
+			<column name="ClusterDiagnosicDirectoryURL" type="nvarchar" length="2083" jt="12" />
+			<column name="ApplicationAnalysisParams" type="varchar(max)" jt="12" />
+			<index name="Idx_RunSessionInfo_ClusterId" unique="NORMAL" >
+				<column name="ClusterId" />
+			</index>
+			<index name="PK_RunSessionId" unique="PRIMARY_KEY" modifier="y" >
+				<column name="RunSessionId" />
+			</index>
+			<fk name="fk_runsessioninfo_clusters" to_schema="DSEDiagnosticApplication" to_table="Clusters" delete_action="cascade" update_action="cascade" >
+				<fk_column name="ClusterId" pk="ClusterId" />
+			</fk>
+		</table>
+	</schema>
+	<connector name="SqlServer" database="SqlServer" driver_class="com.microsoft.sqlserver.jdbc.SQLServerDriver" driver_jar="sqljdbc42.jar" driver_desc="Native Driver - Windows Authentication, Current User" host="localhost" port="1433" instance="DSECustomerClusterInfo" />
+	<layout name="Default Layout" id="Layout_69d360" show_relation="columns" >
+		<comment><![CDATA[Logical Data Model]]></comment>
+		<entity schema="DSEDiagnosticApplication" name="RackSessionInfo" color="c1d8ee" x="1140" y="2160" />
+		<entity schema="DSEDiagnosticApplication" name="MachineSessionInfo" color="0099ff" x="1725" y="1500" />
+		<entity schema="DSEDiagnosticApplication" name="LogFileSessionInfo" color="f5ddbf" x="1635" y="2160" />
+		<entity schema="DSEDiagnosticApplication" name="NodeFileDirLocations" color="c1d8ee" x="1500" y="2160" />
+		<entity schema="DSEDiagnosticApplication" name="NodeCaches" color="c1d8ee" x="1380" y="2160" />
+		<entity schema="DSEDiagnosticApplication" name="DSEConfigSessionInfo" color="bfd4f5" x="1290" y="2310" />
+		<entity schema="DSEDiagnosticApplication" name="DDLObjectProperties" color="c8f5bf" x="645" y="2025" />
+		<entity schema="DSEDiagnosticApplication" name="KeyspaceReplicationSessionInfo" color="c8f5bf" x="585" y="1890" />
+		<entity schema="DSEDiagnosticApplication" name="Clusters" color="33ff33" x="900" y="450" />
+		<entity schema="DSEDiagnosticApplication" name="Customers" color="cc33ff" x="735" y="465" />
+		<entity schema="DSEDiagnosticApplication" name="Nodes" color="33ff33" x="1320" y="435" />
+		<entity schema="DSEDiagnosticApplication" name="NodeSessionInfo" color="bfd4f5" x="1440" y="1500" />
+		<entity schema="DSEDiagnosticApplication" name="KeyspaceSessionInfo" color="c8f5bf" x="510" y="1485" />
+		<entity schema="DSEDiagnosticApplication" name="DDLObjectsSessionInfo" color="c8f5bf" x="795" y="1485" />
+		<entity schema="DSEDiagnosticApplication" name="ClusterDDLObjects" color="66ff66" x="945" y="600" />
+		<entity schema="DSEDiagnosticApplication" name="DataCenters" color="33ff33" x="1140" y="450" />
+		<entity schema="DSEDiagnosticApplication" name="RunSessionInfo" color="ffff33" x="1245" y="870" />
+		<entity schema="DSEDiagnosticApplication" name="DataCenterSessionInfo" color="bfd4f5" x="1155" y="1500" />
+		<entity schema="DSEDiagnosticApplication" name="EventStatsSessionInfo" color="009999" x="645" y="915" />
+		<entity schema="DSEDiagnosticApplication" name="AggregatedStatsSessionInfo" color="009999" x="855" y="870" />
+		<callout x="525" y="75" pointer="Round" >
+			<comment><![CDATA[Logical data model for the new health assessment application. The health assessment application parses and analysis DSE diagnostic files (i.e., OpsCenter Diagonstic tar-ball) into collections of artifacts 
+(DDL, config, etc.), events (logs/nodetool) and/or statistical (DDL, Config, logs, nodetool) information. This event/statistical data  is aggreaged into timeframe based information. Other types (e.g., DDL,
+configuration, etc.) of information is stored to allow representation, run session (snapshot) comparison and insights.
+
+This data model is based on a concept of a run session (snap-shot of the cluster at that timeframe). One run session represents one analysis application execution.
+In this manner sessions can be compared between different runs (sessions) looking for differences.
+
+Goals:
+1) Drive a new generation of MS-Excel workbooks and graphs so that this information can be easily interpreted by us and our customers in the health assessment process using advance Excel features
+2) Allow multiple ways to analysis/mine this information for historic, time comparison, and research purposes
+3) Allow "global" access to other DataStax orginizations (QA, marketing, sales, etc.)]]></comment>
+		</callout>
+		<group name="Global Group (not session dependent)" color="33ff33" >
+			<comment><![CDATA[Tables in this group can be seen as a global "Table of Content". It allows for "slicing" through a run session, finding an object, etc. For example, looking for changes to a table DDL over time.]]></comment>
+			<entity schema="DSEDiagnosticApplication" name="Clusters" />
+			<entity schema="DSEDiagnosticApplication" name="Customers" />
+			<entity schema="DSEDiagnosticApplication" name="DataCenters" />
+			<entity schema="DSEDiagnosticApplication" name="Nodes" />
+			<entity schema="DSEDiagnosticApplication" name="ClusterDDLObjects" />
+			<callout x="735" y="345" pointer="SV" />
+		</group>
+		<group name="Group DataCenters/Nodes Run Session" color="c4e0f9" >
+			<comment><![CDATA[This group consist of run session (snapshot) information related to datacenters, nodes, configuration, etc.
+Note that no password values are captured.]]></comment>
+			<entity schema="DSEDiagnosticApplication" name="DataCenterSessionInfo" />
+			<entity schema="DSEDiagnosticApplication" name="LogFileSessionInfo" />
+			<entity schema="DSEDiagnosticApplication" name="MachineSessionInfo" />
+			<entity schema="DSEDiagnosticApplication" name="NodeSessionInfo" />
+			<entity schema="DSEDiagnosticApplication" name="DSEConfigSessionInfo" />
+			<entity schema="DSEDiagnosticApplication" name="RackSessionInfo" />
+			<entity schema="DSEDiagnosticApplication" name="NodeFileDirLocations" />
+			<entity schema="DSEDiagnosticApplication" name="NodeCaches" />
+			<callout x="1245" y="2505" pointer="NE" />
+		</group>
+		<group name="Group Event/Stats Run Session" color="009999" >
+			<comment><![CDATA[This group contents tables used for Event or Statistical aggregated data assocated with a run session (snapshot).]]></comment>
+			<entity schema="DSEDiagnosticApplication" name="AggregatedStatsSessionInfo" />
+			<entity schema="DSEDiagnosticApplication" name="EventStatsSessionInfo" />
+			<callout x="45" y="795" pointer="SE" />
+		</group>
+		<group name="Group Run Session" color="ffff33" >
+			<comment><![CDATA[This group consist of run session information used for snapshots.]]></comment>
+			<entity schema="DSEDiagnosticApplication" name="RunSessionInfo" />
+			<callout x="1290" y="795" pointer="SV" />
+		</group>
+		<group name="Group DDL Run Session" color="c4e0f9" >
+			<comment><![CDATA[This group consist of run session (sanpshot) DDL information.
+Note that the actuall DDL is not captured due to customers' concerns around security/proprietary information]]></comment>
+			<entity schema="DSEDiagnosticApplication" name="DDLObjectProperties" />
+			<entity schema="DSEDiagnosticApplication" name="DDLObjectsSessionInfo" />
+			<entity schema="DSEDiagnosticApplication" name="KeyspaceReplicationSessionInfo" />
+			<entity schema="DSEDiagnosticApplication" name="KeyspaceSessionInfo" />
+			<callout x="480" y="2175" pointer="NV" />
+		</group>
+	</layout>
+</project>
