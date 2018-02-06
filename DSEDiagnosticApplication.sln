@@ -38,6 +38,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSEDiagnosticAnalytics", "D
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSEDiagnosticFileParserTests", "DSEDiagnosticFileParserTests\DSEDiagnosticFileParserTests.csproj", "{38ADDB75-7F29-4B0B-82FD-37D4BCC53D62}"
 EndProject
+Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "DSEDiagnosticDatabase", "DSEDiagnosticDatabase\DSEDiagnosticDatabase.sqlproj", "{C5D5A09E-C23F-42C5-AA4B-E58ADD7ED41A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -166,6 +168,18 @@ Global
 		{38ADDB75-7F29-4B0B-82FD-37D4BCC53D62}.Release|Any CPU.Build.0 = Release|Any CPU
 		{38ADDB75-7F29-4B0B-82FD-37D4BCC53D62}.ReleaseMono|Any CPU.ActiveCfg = Release|Any CPU
 		{38ADDB75-7F29-4B0B-82FD-37D4BCC53D62}.ReleaseMono|Any CPU.Build.0 = Release|Any CPU
+		{C5D5A09E-C23F-42C5-AA4B-E58ADD7ED41A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C5D5A09E-C23F-42C5-AA4B-E58ADD7ED41A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C5D5A09E-C23F-42C5-AA4B-E58ADD7ED41A}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{C5D5A09E-C23F-42C5-AA4B-E58ADD7ED41A}.DebugMono|Any CPU.ActiveCfg = Debug|Any CPU
+		{C5D5A09E-C23F-42C5-AA4B-E58ADD7ED41A}.DebugMono|Any CPU.Build.0 = Debug|Any CPU
+		{C5D5A09E-C23F-42C5-AA4B-E58ADD7ED41A}.DebugMono|Any CPU.Deploy.0 = Debug|Any CPU
+		{C5D5A09E-C23F-42C5-AA4B-E58ADD7ED41A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C5D5A09E-C23F-42C5-AA4B-E58ADD7ED41A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C5D5A09E-C23F-42C5-AA4B-E58ADD7ED41A}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{C5D5A09E-C23F-42C5-AA4B-E58ADD7ED41A}.ReleaseMono|Any CPU.ActiveCfg = Release|Any CPU
+		{C5D5A09E-C23F-42C5-AA4B-E58ADD7ED41A}.ReleaseMono|Any CPU.Build.0 = Release|Any CPU
+		{C5D5A09E-C23F-42C5-AA4B-E58ADD7ED41A}.ReleaseMono|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

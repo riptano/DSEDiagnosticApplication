@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<project name="DSEDiagnosticApplication" id="Project_42e155f" template="Default" database="SqlServer" >
-	<schema name="DSEDiagnosticApplication" schemaname="DSEDiagnosticApplication" >
+<project name="DSEDiagnosticDatabase" id="Project_42e155f" template="Default" database="SqlServer" >
+	<schema name="DSEDiagnostic" schemaname="DSEDiagnostic" >
 		<comment><![CDATA[Logical data model for the new health assessment application. 
 
 The new application will now update a centeral database and from that reporistory Excel will be used to generate the graphs and worksheets.
@@ -104,24 +104,26 @@ For nodetool data this would be the assocated count. For example, Local Read Lat
 			<index name="Idx_AggregatedStatsSessionInfo_KeyspaceId" unique="NORMAL" >
 				<column name="KeyspaceId" />
 			</index>
-			<fk name="fk_aggregatedstatssessioninfo_RunSessionId" to_schema="DSEDiagnosticApplication" to_table="RunSessionInfo" delete_action="cascade" update_action="cascade" >
+			<index name="Idx_AggregatedStatsSessionInfo_ReferencedEventSessionId" unique="NORMAL" >
+				<column name="ReferencedEventSessionId" />
+			</index>
+			<fk name="fk_aggregatedstatssessioninfo_RunSessionId" to_schema="DSEDiagnostic" to_table="RunSessionInfo" delete_action="cascade" update_action="cascade" >
 				<fk_column name="RunSessionId" pk="RunSessionId" />
 			</fk>
-			<fk name="fk_aggregatedstatssessioninfo_DataCenterId" to_schema="DSEDiagnosticApplication" to_table="DataCenters" delete_action="cascade" update_action="cascade" >
+			<fk name="fk_aggregatedstatssessioninfo_DataCenterId" to_schema="DSEDiagnostic" to_table="DataCenters" delete_action="cascade" update_action="cascade" >
 				<fk_column name="DataCenterId" pk="DataCenterId" />
 			</fk>
-			<fk name="fk_aggregatedstatssessioninfo_NodeId" to_schema="DSEDiagnosticApplication" to_table="Nodes" delete_action="cascade" update_action="cascade" >
+			<fk name="fk_aggregatedstatssessioninfo_NodeId" to_schema="DSEDiagnostic" to_table="Nodes" delete_action="cascade" update_action="cascade" >
 				<fk_column name="NodeId" pk="NodeId" />
 			</fk>
-			<fk name="fk_aggregatedstatssessioninfo_Event" to_schema="DSEDiagnosticApplication" to_table="EventStatsSessionInfo" delete_action="cascade" update_action="cascade" >
-				<fk_column name="ReferencedEventSessionId" pk="EventSessionId" />
-				<fk_column name="RunSessionId" pk="RunSessionId" />
-			</fk>
-			<fk name="fk_aggregatedstatssessioninfo_DDL" to_schema="DSEDiagnosticApplication" to_table="ClusterDDLObjects" delete_action="cascade" update_action="cascade" >
+			<fk name="fk_aggregatedstatssessioninfo_DDL" to_schema="DSEDiagnostic" to_table="ClusterDDLObjects" >
 				<fk_column name="DDLId" pk="DDLId" />
 			</fk>
-			<fk name="fk_aggregatedstatssessioninfo_Keyspace" to_schema="DSEDiagnosticApplication" to_table="ClusterDDLObjects" delete_action="cascade" update_action="cascade" >
+			<fk name="fk_aggregatedstatssessioninfo_Keyspace" to_schema="DSEDiagnostic" to_table="ClusterDDLObjects" >
 				<fk_column name="KeyspaceId" pk="DDLId" />
+			</fk>
+			<fk name="fk_aggregatedstatssessioninfo_EventSessionId" to_schema="DSEDiagnostic" to_table="EventStatsSessionInfo" >
+				<fk_column name="ReferencedEventSessionId" pk="EventSessionId" />
 			</fk>
 		</table>
 		<table name="ClusterDDLObjects" >
@@ -151,10 +153,14 @@ For nodetool data this would be the assocated count. For example, Local Read Lat
 			<index name="Idx_ClusterDDLObjects_RelatedDDLItem" unique="NORMAL" >
 				<column name="RelatedDDLItem" />
 			</index>
-			<fk name="fk_clusterddlobjects_clusters" to_schema="DSEDiagnosticApplication" to_table="Clusters" delete_action="cascade" update_action="cascade" >
+			<index name="UIdx_ClusterDDLObjects_Id_Name" unique="UNIQUE" >
+				<column name="Name" />
+				<column name="DDLId" />
+			</index>
+			<fk name="fk_clusterddlobjects_clusters" to_schema="DSEDiagnostic" to_table="Clusters" delete_action="cascade" update_action="cascade" >
 				<fk_column name="ClusterId" pk="ClusterId" />
 			</fk>
-			<fk name="fk_clusterddlobjects" to_schema="DSEDiagnosticApplication" to_table="ClusterDDLObjects" delete_action="cascade" update_action="cascade" >
+			<fk name="fk_clusterddlobjects" to_schema="DSEDiagnostic" to_table="ClusterDDLObjects" >
 				<fk_column name="RelatedDDLItem" pk="DDLId" />
 			</fk>
 		</table>
@@ -173,7 +179,7 @@ For nodetool data this would be the assocated count. For example, Local Read Lat
 			<index name="PK_ClusterId" unique="PRIMARY_KEY" modifier="y" >
 				<column name="ClusterId" />
 			</index>
-			<fk name="fk_clusters_customers" to_schema="DSEDiagnosticApplication" to_table="Customers" delete_action="cascade" update_action="cascade" >
+			<fk name="fk_clusters_customers" to_schema="DSEDiagnostic" to_table="Customers" delete_action="cascade" update_action="cascade" >
 				<fk_column name="CustId" pk="CustId" />
 			</fk>
 		</table>
@@ -201,10 +207,7 @@ For nodetool data this would be the assocated count. For example, Local Read Lat
 				<column name="DDLSessionId" />
 				<column name="PropertyName" />
 			</index>
-			<index name="Idx_DDLObjectProperties_DDLObjectId" unique="NORMAL" >
-				<column name="DDLSessionId" />
-			</index>
-			<fk name="fk_ddlobjectproperties" to_schema="DSEDiagnosticApplication" to_table="DDLObjectsSessionInfo" delete_action="cascade" update_action="cascade" >
+			<fk name="fk_ddlobjectproperties" to_schema="DSEDiagnostic" to_table="DDLObjectsSessionInfo" delete_action="cascade" update_action="cascade" >
 				<fk_column name="DDLSessionId" pk="DDLSessionId" />
 			</fk>
 		</table>
@@ -274,14 +277,14 @@ No actual DDL will be stored due to security/proprietary concerns by customers.]
 				<column name="KeyspaceSessionId" />
 				<column name="Name" />
 			</index>
-			<fk name="fk_ddlobjectssessioninfo_KeyspaceId" to_schema="DSEDiagnosticApplication" to_table="KeyspaceSessionInfo" delete_action="cascade" update_action="cascade" >
+			<fk name="fk_ddlobjectssessioninfo_KeyspaceId" to_schema="DSEDiagnostic" to_table="KeyspaceSessionInfo" delete_action="cascade" update_action="cascade" >
 				<fk_column name="KeyspaceSessionId" pk="KeyspaceSessionId" />
+			</fk>
+			<fk name="fk_ddlobjectssessioninfo_RunSessionId" to_schema="DSEDiagnostic" to_table="RunSessionInfo" >
 				<fk_column name="RunSessionId" pk="RunSessionId" />
 			</fk>
-			<fk name="fk_ddlobjectssessioninfo_RunSessionId" to_schema="DSEDiagnosticApplication" to_table="RunSessionInfo" delete_action="cascade" update_action="cascade" >
-				<fk_column name="RunSessionId" pk="RunSessionId" />
-			</fk>
-			<fk name="fk_ddlobjectssessioninfo" to_schema="DSEDiagnosticApplication" to_table="ClusterDDLObjects" delete_action="cascade" update_action="cascade" >
+			<fk name="fk_ddlobjectssessioninfo" to_schema="DSEDiagnostic" to_table="ClusterDDLObjects" delete_action="cascade" update_action="cascade" >
+				<fk_column name="Name" pk="Name" />
 				<fk_column name="DDLId" pk="DDLId" />
 			</fk>
 		</table>
@@ -304,27 +307,31 @@ No actual DDL will be stored due to security/proprietary concerns by customers.]
 
 Note this value can come from the log!]]></comment>
 			</column>
+			<column name="LogTimestamp" type="datetimeoffset" length="4" jt="1111" >
+				<comment><![CDATA[If source is from a log, this is the event's timestamp occurrence.]]></comment>
+			</column>
 			<column name="Property" type="varchar" length="250" jt="12" mandatory="y" >
 				<comment><![CDATA[The config property. Examples are seed_provider[1].class_name, seed_provider[1].parameters[1].seeds, etc.]]></comment>
 			</column>
 			<column name="Value" type="varchar" length="250" jt="12" >
 				<comment><![CDATA[Config Value]]></comment>
 			</column>
+			<index name="Idx_DSEConfigSessionInfo_NodeSessionId" unique="NORMAL" >
+				<column name="NodeSessionId" />
+			</index>
 			<index name="CUI_DSEConfigSessionInfo_DC_Sess_Prop" unique="UNIQUE" modifier="y" >
 				<column name="DataCenterSessionId" />
 				<column name="IsMajorityValue" />
 				<column name="IsCommon" />
 				<column name="NodeSessionId" />
 				<column name="Source" />
+				<column name="LogTimestamp" />
 				<column name="Property" />
 			</index>
-			<index name="Idx_DSEConfigSessionInfo_NodeSessionId" unique="NORMAL" >
-				<column name="NodeSessionId" />
-			</index>
-			<fk name="fk_dseconfigsessioninfo" to_schema="DSEDiagnosticApplication" to_table="DataCenterSessionInfo" delete_action="cascade" update_action="cascade" >
+			<fk name="fk_dseconfigsessioninfo" to_schema="DSEDiagnostic" to_table="DataCenterSessionInfo" delete_action="cascade" update_action="cascade" >
 				<fk_column name="DataCenterSessionId" pk="DataCenterSessionId" />
 			</fk>
-			<fk name="fk_dseconfigsessioninfo_NodeSession" to_schema="DSEDiagnosticApplication" to_table="NodeSessionInfo" delete_action="cascade" update_action="cascade" >
+			<fk name="fk_dseconfigsessioninfo_NodeSession" to_schema="DSEDiagnostic" to_table="NodeSessionInfo" >
 				<fk_column name="NodeSessionId" pk="NodeSessionId" />
 			</fk>
 		</table>
@@ -378,10 +385,10 @@ Note this value can come from the log!]]></comment>
 			<index name="Pk_DataCenterSessionInfo_DataCenterSessionId" unique="PRIMARY_KEY" >
 				<column name="DataCenterSessionId" />
 			</index>
-			<fk name="fk_datacentersessioninfo_DataCenterId" to_schema="DSEDiagnosticApplication" to_table="DataCenters" delete_action="cascade" update_action="cascade" >
+			<fk name="fk_datacentersessioninfo_DataCenterId" to_schema="DSEDiagnostic" to_table="DataCenters" delete_action="cascade" update_action="cascade" >
 				<fk_column name="DataCenterId" pk="DataCenterId" />
 			</fk>
-			<fk name="fk_datacentersessioninfo_RunSessionId" to_schema="DSEDiagnosticApplication" to_table="RunSessionInfo" delete_action="cascade" update_action="cascade" >
+			<fk name="fk_datacentersessioninfo_RunSessionId" to_schema="DSEDiagnostic" to_table="RunSessionInfo" delete_action="cascade" update_action="cascade" >
 				<fk_column name="RunSessionId" pk="RunSessionId" />
 			</fk>
 		</table>
@@ -400,7 +407,7 @@ Note this value can come from the log!]]></comment>
 			<index name="Idx_DataCenterId_ClusterId" unique="NORMAL" >
 				<column name="ClusterId" />
 			</index>
-			<fk name="fk_datacenterid_clusters" to_schema="DSEDiagnosticApplication" to_table="Clusters" >
+			<fk name="fk_datacenterid_clusters" to_schema="DSEDiagnostic" to_table="Clusters" >
 				<fk_column name="ClusterId" pk="ClusterId" />
 			</fk>
 		</table>
@@ -481,22 +488,22 @@ NotHandled]]></comment>
 			<index name="Idx_EventStatsSessionInfo_AssociatedNode" unique="NORMAL" >
 				<column name="AssociatedNode" />
 			</index>
-			<fk name="fk_logstatssessioninfo" to_schema="DSEDiagnosticApplication" to_table="RunSessionInfo" delete_action="cascade" update_action="cascade" >
+			<fk name="fk_logstatssessioninfo" to_schema="DSEDiagnostic" to_table="RunSessionInfo" delete_action="cascade" update_action="cascade" >
 				<fk_column name="RunSessionId" pk="RunSessionId" />
 			</fk>
-			<fk name="fk_logstatssessioninfo_DataCenterId" to_schema="DSEDiagnosticApplication" to_table="DataCenters" delete_action="cascade" update_action="cascade" >
+			<fk name="fk_logstatssessioninfo_DataCenterId" to_schema="DSEDiagnostic" to_table="DataCenters" delete_action="cascade" update_action="cascade" >
 				<fk_column name="DataCenterId" pk="DataCenterId" />
 			</fk>
-			<fk name="fk_logstatssessioninfo_NodeId" to_schema="DSEDiagnosticApplication" to_table="Nodes" delete_action="cascade" update_action="cascade" >
+			<fk name="fk_logstatssessioninfo_NodeId" to_schema="DSEDiagnostic" to_table="Nodes" delete_action="cascade" update_action="cascade" >
 				<fk_column name="Nodeid" pk="NodeId" />
 			</fk>
-			<fk name="fk_eventstatssessioninfo_AssocNodeId" to_schema="DSEDiagnosticApplication" to_table="Nodes" >
+			<fk name="fk_eventstatssessioninfo_AssocNodeId" to_schema="DSEDiagnostic" to_table="Nodes" >
 				<fk_column name="AssociatedNode" pk="NodeId" />
 			</fk>
-			<fk name="fk_logstatssessioninfo_KeyspaceId" to_schema="DSEDiagnosticApplication" to_table="ClusterDDLObjects" delete_action="cascade" update_action="cascade" >
+			<fk name="fk_logstatssessioninfo_KeyspaceId" to_schema="DSEDiagnostic" to_table="ClusterDDLObjects" delete_action="cascade" update_action="cascade" >
 				<fk_column name="KeyspaceId" pk="DDLId" />
 			</fk>
-			<fk name="fk_eventstatssessioninfo" to_schema="DSEDiagnosticApplication" to_table="ClusterDDLObjects" delete_action="cascade" update_action="cascade" >
+			<fk name="fk_eventstatssessioninfo_DDLId" to_schema="DSEDiagnostic" to_table="ClusterDDLObjects" >
 				<fk_column name="DDLId" pk="DDLId" />
 			</fk>
 		</table>
@@ -512,10 +519,10 @@ NotHandled]]></comment>
 			<index name="Idx_KeyspaceReplicationSessionInfo_DataCenterId" unique="NORMAL" >
 				<column name="DataCenterId" />
 			</index>
-			<fk name="fk_keyspacereplicationsessioninfo_KeyspaceId" to_schema="DSEDiagnosticApplication" to_table="KeyspaceSessionInfo" delete_action="cascade" update_action="cascade" >
+			<fk name="fk_keyspacereplicationsessioninfo_KeyspaceId" to_schema="DSEDiagnostic" to_table="KeyspaceSessionInfo" delete_action="cascade" update_action="cascade" >
 				<fk_column name="KeyspaceSessionId" pk="KeyspaceSessionId" />
 			</fk>
-			<fk name="fk_keyspacereplicationsessioninfo_DataCenterId" to_schema="DSEDiagnosticApplication" to_table="DataCenters" delete_action="cascade" update_action="cascade" >
+			<fk name="fk_keyspacereplicationsessioninfo_DataCenterId" to_schema="DSEDiagnostic" to_table="DataCenters" delete_action="cascade" update_action="cascade" >
 				<fk_column name="DataCenterId" pk="DataCenterId" />
 			</fk>
 		</table>
@@ -560,12 +567,12 @@ NotHandled]]></comment>
 				<column name="DDLId" />
 				<column name="RunSessionId" />
 			</index>
-			<fk name="fk_keyspacesessioninfo_RunSessionId" to_schema="DSEDiagnosticApplication" to_table="RunSessionInfo" delete_action="cascade" update_action="cascade" >
+			<fk name="fk_keyspacesessioninfo_RunSessionId" to_schema="DSEDiagnostic" to_table="RunSessionInfo" delete_action="cascade" update_action="cascade" >
 				<fk_column name="RunSessionId" pk="RunSessionId" />
 			</fk>
-			<fk name="fk_keyspacesessioninfo" to_schema="DSEDiagnosticApplication" to_table="ClusterDDLObjects" delete_action="cascade" update_action="cascade" >
-				<fk_column name="DDLId" pk="DDLId" />
+			<fk name="fk_keyspacesessioninfo" to_schema="DSEDiagnostic" to_table="ClusterDDLObjects" >
 				<fk_column name="Name" pk="Name" />
+				<fk_column name="DDLId" pk="DDLId" />
 			</fk>
 		</table>
 		<table name="LogFileSessionInfo" >
@@ -595,7 +602,7 @@ NotHandled]]></comment>
 				<column name="NodeSessionId" />
 				<column name="Sequence" />
 			</index>
-			<fk name="fk_logfilesessioninfo" to_schema="DSEDiagnosticApplication" to_table="NodeSessionInfo" delete_action="cascade" update_action="cascade" >
+			<fk name="fk_logfilesessioninfo" to_schema="DSEDiagnostic" to_table="NodeSessionInfo" delete_action="cascade" update_action="cascade" >
 				<fk_column name="NodeSessionId" pk="NodeSessionId" />
 			</fk>
 		</table>
@@ -644,13 +651,13 @@ NotHandled]]></comment>
 			<index name="Idx_MachineSessionInfo_NodeSessionId" unique="NORMAL" >
 				<column name="NodeSessionId" />
 			</index>
-			<fk name="fk_machinesessioninfo" to_schema="DSEDiagnosticApplication" to_table="NodeSessionInfo" delete_action="cascade" update_action="cascade" >
+			<fk name="fk_machinesessioninfo" to_schema="DSEDiagnostic" to_table="NodeSessionInfo" delete_action="cascade" update_action="cascade" >
 				<fk_column name="NodeSessionId" pk="NodeSessionId" />
 			</fk>
 		</table>
 		<table name="NodeCaches" >
 			<comment><![CDATA[Need to break out cache attributes]]></comment>
-			<column name="NodeSessionId" type="int" jt="4" mandatory="y" />
+			<column name="NodeSessionId" type="bigint" jt="-5" mandatory="y" />
 			<column name="Property" type="varchar" length="10" jt="12" >
 				<comment><![CDATA[e.g., Key, Counter, Row]]></comment>
 			</column>
@@ -659,7 +666,7 @@ NotHandled]]></comment>
 				<column name="NodeSessionId" />
 				<column name="Property" />
 			</index>
-			<fk name="fk_nodecaches_nodesessioninfo" to_schema="DSEDiagnosticApplication" to_table="NodeSessionInfo" delete_action="cascade" update_action="cascade" >
+			<fk name="fk_nodecaches_nodesessioninfo" to_schema="DSEDiagnostic" to_table="NodeSessionInfo" delete_action="cascade" update_action="cascade" >
 				<fk_column name="NodeSessionId" pk="NodeSessionId" />
 			</fk>
 		</table>
@@ -686,7 +693,7 @@ NotHandled]]></comment>
 			<index name="Idx_NodeFileDirLocations_NodeSessionId" unique="NORMAL" >
 				<column name="NodeSessionId" />
 			</index>
-			<fk name="fk_nodefiledirlocations" to_schema="DSEDiagnosticApplication" to_table="NodeSessionInfo" delete_action="cascade" update_action="cascade" >
+			<fk name="fk_nodefiledirlocations" to_schema="DSEDiagnostic" to_table="NodeSessionInfo" delete_action="cascade" update_action="cascade" >
 				<fk_column name="NodeSessionId" pk="NodeSessionId" />
 			</fk>
 		</table>
@@ -744,16 +751,16 @@ NotHandled]]></comment>
 			<index name="Pk_NodeSessionInfo_NodeSessionId" unique="PRIMARY_KEY" >
 				<column name="NodeSessionId" />
 			</index>
-			<fk name="fk_nodesessioninfo_RunSessionId" to_schema="DSEDiagnosticApplication" to_table="RunSessionInfo" >
+			<fk name="fk_nodesessioninfo_RunSessionId" to_schema="DSEDiagnostic" to_table="RunSessionInfo" >
 				<fk_column name="RunSessionId" pk="RunSessionId" />
 			</fk>
-			<fk name="fk_nodesessioninfo_nodes" to_schema="DSEDiagnosticApplication" to_table="Nodes" delete_action="cascade" update_action="cascade" >
+			<fk name="fk_nodesessioninfo_nodes" to_schema="DSEDiagnostic" to_table="Nodes" delete_action="cascade" update_action="cascade" >
 				<fk_column name="NodeId" pk="NodeId" />
 			</fk>
-			<fk name="fk_nodesessioninfo_RackSession" to_schema="DSEDiagnosticApplication" to_table="RackSessionInfo" >
+			<fk name="fk_nodesessioninfo_RackSession" to_schema="DSEDiagnostic" to_table="RackSessionInfo" >
 				<fk_column name="RackSessionId" pk="RackSessionId" />
 			</fk>
-			<fk name="fk_nodesessioninfo_DataCenterId" to_schema="DSEDiagnosticApplication" to_table="DataCenterSessionInfo" delete_action="cascade" update_action="cascade" >
+			<fk name="fk_nodesessioninfo_DataCenterId" to_schema="DSEDiagnostic" to_table="DataCenterSessionInfo" delete_action="cascade" update_action="cascade" >
 				<fk_column name="DataCenterSessionId" pk="DataCenterSessionId" />
 			</fk>
 		</table>
@@ -782,10 +789,10 @@ NotHandled]]></comment>
 			<constraint name="Cns_NodeCluster" >
 				<string>IP4Address is not null or IP6Address is not null or HostName is not null</string>
 			</constraint>
-			<fk name="fk_nodecluster_clusters" to_schema="DSEDiagnosticApplication" to_table="Clusters" >
+			<fk name="fk_nodecluster_clusters" to_schema="DSEDiagnostic" to_table="Clusters" >
 				<fk_column name="ClusterId" pk="ClusterId" />
 			</fk>
-			<fk name="fk_nodes_datacenters" to_schema="DSEDiagnosticApplication" to_table="DataCenters" delete_action="cascade" update_action="cascade" >
+			<fk name="fk_nodes_datacenters" to_schema="DSEDiagnostic" to_table="DataCenters" >
 				<fk_column name="DataCenterId" pk="DataCenterId" />
 			</fk>
 		</table>
@@ -809,7 +816,7 @@ NotHandled]]></comment>
 			<index name="Unq_RackSessionInfo_RackSessionId" unique="UNIQUE" >
 				<column name="RackSessionId" />
 			</index>
-			<fk name="fk_racksessioninfo" to_schema="DSEDiagnosticApplication" to_table="DataCenterSessionInfo" delete_action="cascade" update_action="cascade" >
+			<fk name="fk_racksessioninfo" to_schema="DSEDiagnostic" to_table="DataCenterSessionInfo" delete_action="cascade" update_action="cascade" >
 				<fk_column name="DataCenterSessionId" pk="DataCenterSessionId" />
 			</fk>
 		</table>
@@ -875,34 +882,34 @@ Note: There should be a "system" session that is used for "global" objects like 
 			<index name="PK_RunSessionId" unique="PRIMARY_KEY" modifier="y" >
 				<column name="RunSessionId" />
 			</index>
-			<fk name="fk_runsessioninfo_clusters" to_schema="DSEDiagnosticApplication" to_table="Clusters" delete_action="cascade" update_action="cascade" >
+			<fk name="fk_runsessioninfo_clusters" to_schema="DSEDiagnostic" to_table="Clusters" >
 				<fk_column name="ClusterId" pk="ClusterId" />
 			</fk>
 		</table>
 	</schema>
-	<connector name="SqlServer" database="SqlServer" driver_class="com.microsoft.sqlserver.jdbc.SQLServerDriver" driver_jar="sqljdbc42.jar" driver_desc="Native Driver - Windows Authentication, Current User" host="localhost" port="1433" instance="DSECustomerClusterInfo" />
+	<connector name="SqlServer" database="SqlServer" driver_class="com.microsoft.sqlserver.jdbc.SQLServerDriver" driver_jar="sqljdbc42.jar" driver_desc="Native Driver - Windows Authentication, Current User" host="localhost" port="1433" instance="DSEDiagnostic" />
 	<layout name="Default Layout" id="Layout_69d360" show_relation="columns" >
 		<comment><![CDATA[Logical Data Model]]></comment>
-		<entity schema="DSEDiagnosticApplication" name="RackSessionInfo" color="c1d8ee" x="1140" y="2160" />
-		<entity schema="DSEDiagnosticApplication" name="MachineSessionInfo" color="0099ff" x="1725" y="1500" />
-		<entity schema="DSEDiagnosticApplication" name="LogFileSessionInfo" color="f5ddbf" x="1635" y="2160" />
-		<entity schema="DSEDiagnosticApplication" name="NodeFileDirLocations" color="c1d8ee" x="1500" y="2160" />
-		<entity schema="DSEDiagnosticApplication" name="NodeCaches" color="c1d8ee" x="1380" y="2160" />
-		<entity schema="DSEDiagnosticApplication" name="DSEConfigSessionInfo" color="bfd4f5" x="1290" y="2310" />
-		<entity schema="DSEDiagnosticApplication" name="DDLObjectProperties" color="c8f5bf" x="645" y="2025" />
-		<entity schema="DSEDiagnosticApplication" name="KeyspaceReplicationSessionInfo" color="c8f5bf" x="585" y="1890" />
-		<entity schema="DSEDiagnosticApplication" name="Clusters" color="33ff33" x="900" y="450" />
-		<entity schema="DSEDiagnosticApplication" name="Customers" color="cc33ff" x="735" y="465" />
-		<entity schema="DSEDiagnosticApplication" name="Nodes" color="33ff33" x="1320" y="435" />
-		<entity schema="DSEDiagnosticApplication" name="NodeSessionInfo" color="bfd4f5" x="1440" y="1500" />
-		<entity schema="DSEDiagnosticApplication" name="ClusterDDLObjects" color="66ff66" x="945" y="600" />
-		<entity schema="DSEDiagnosticApplication" name="DataCenters" color="33ff33" x="1140" y="450" />
-		<entity schema="DSEDiagnosticApplication" name="RunSessionInfo" color="ffff33" x="1245" y="870" />
-		<entity schema="DSEDiagnosticApplication" name="DataCenterSessionInfo" color="bfd4f5" x="1155" y="1500" />
-		<entity schema="DSEDiagnosticApplication" name="EventStatsSessionInfo" color="009999" x="645" y="915" />
-		<entity schema="DSEDiagnosticApplication" name="AggregatedStatsSessionInfo" color="009999" x="855" y="870" />
-		<entity schema="DSEDiagnosticApplication" name="DDLObjectsSessionInfo" color="c8f5bf" x="795" y="1485" />
-		<entity schema="DSEDiagnosticApplication" name="KeyspaceSessionInfo" color="c8f5bf" x="510" y="1485" />
+		<entity schema="DSEDiagnostic" name="RackSessionInfo" color="c1d8ee" x="1140" y="2160" />
+		<entity schema="DSEDiagnostic" name="MachineSessionInfo" color="0099ff" x="1725" y="1500" />
+		<entity schema="DSEDiagnostic" name="LogFileSessionInfo" color="f5ddbf" x="1635" y="2160" />
+		<entity schema="DSEDiagnostic" name="NodeFileDirLocations" color="c1d8ee" x="1500" y="2160" />
+		<entity schema="DSEDiagnostic" name="KeyspaceReplicationSessionInfo" color="c8f5bf" x="585" y="1890" />
+		<entity schema="DSEDiagnostic" name="Clusters" color="33ff33" x="900" y="450" />
+		<entity schema="DSEDiagnostic" name="Customers" color="cc33ff" x="735" y="465" />
+		<entity schema="DSEDiagnostic" name="NodeSessionInfo" color="bfd4f5" x="1440" y="1500" />
+		<entity schema="DSEDiagnostic" name="DataCenters" color="33ff33" x="1140" y="450" />
+		<entity schema="DSEDiagnostic" name="DataCenterSessionInfo" color="bfd4f5" x="1155" y="1500" />
+		<entity schema="DSEDiagnostic" name="EventStatsSessionInfo" color="009999" x="645" y="915" />
+		<entity schema="DSEDiagnostic" name="Nodes" color="33ff33" x="1320" y="435" />
+		<entity schema="DSEDiagnostic" name="RunSessionInfo" color="ffff33" x="1245" y="870" />
+		<entity schema="DSEDiagnostic" name="DSEConfigSessionInfo" color="bfd4f5" x="1290" y="2310" />
+		<entity schema="DSEDiagnostic" name="AggregatedStatsSessionInfo" color="009999" x="855" y="870" />
+		<entity schema="DSEDiagnostic" name="NodeCaches" color="c1d8ee" x="1380" y="2160" />
+		<entity schema="DSEDiagnostic" name="DDLObjectsSessionInfo" color="c8f5bf" x="795" y="1485" />
+		<entity schema="DSEDiagnostic" name="ClusterDDLObjects" color="66ff66" x="945" y="600" />
+		<entity schema="DSEDiagnostic" name="KeyspaceSessionInfo" color="c8f5bf" x="510" y="1485" />
+		<entity schema="DSEDiagnostic" name="DDLObjectProperties" color="c8f5bf" x="645" y="2025" />
 		<callout x="525" y="75" pointer="Round" >
 			<comment><![CDATA[Logical data model for the new health assessment application. The health assessment application parses and analysis DSE diagnostic files (i.e., OpsCenter Diagonstic tar-ball) into collections of artifacts 
 (DDL, config, etc.), events (logs/nodetool) and/or statistical (DDL, Config, logs, nodetool) information. This event/statistical data  is aggreaged into timeframe based information. Other types (e.g., DDL,
@@ -918,44 +925,44 @@ Goals:
 		</callout>
 		<group name="Global Group (not session dependent)" color="33ff33" >
 			<comment><![CDATA[Tables in this group can be seen as a global "Table of Content". It allows for "slicing" through a run session, finding an object, etc. For example, looking for changes to a table DDL over time.]]></comment>
-			<entity schema="DSEDiagnosticApplication" name="Clusters" />
-			<entity schema="DSEDiagnosticApplication" name="Customers" />
-			<entity schema="DSEDiagnosticApplication" name="DataCenters" />
-			<entity schema="DSEDiagnosticApplication" name="Nodes" />
-			<entity schema="DSEDiagnosticApplication" name="ClusterDDLObjects" />
+			<entity schema="DSEDiagnostic" name="Clusters" />
+			<entity schema="DSEDiagnostic" name="Customers" />
+			<entity schema="DSEDiagnostic" name="DataCenters" />
+			<entity schema="DSEDiagnostic" name="Nodes" />
+			<entity schema="DSEDiagnostic" name="ClusterDDLObjects" />
 			<callout x="735" y="345" pointer="SV" />
 		</group>
 		<group name="Group DataCenters/Nodes Run Session" color="c4e0f9" >
 			<comment><![CDATA[This group consist of run session (snapshot) information related to datacenters, nodes, configuration, etc.
 Note that no password values are captured.]]></comment>
-			<entity schema="DSEDiagnosticApplication" name="DataCenterSessionInfo" />
-			<entity schema="DSEDiagnosticApplication" name="LogFileSessionInfo" />
-			<entity schema="DSEDiagnosticApplication" name="MachineSessionInfo" />
-			<entity schema="DSEDiagnosticApplication" name="NodeSessionInfo" />
-			<entity schema="DSEDiagnosticApplication" name="DSEConfigSessionInfo" />
-			<entity schema="DSEDiagnosticApplication" name="RackSessionInfo" />
-			<entity schema="DSEDiagnosticApplication" name="NodeFileDirLocations" />
-			<entity schema="DSEDiagnosticApplication" name="NodeCaches" />
+			<entity schema="DSEDiagnostic" name="DataCenterSessionInfo" />
+			<entity schema="DSEDiagnostic" name="LogFileSessionInfo" />
+			<entity schema="DSEDiagnostic" name="MachineSessionInfo" />
+			<entity schema="DSEDiagnostic" name="NodeSessionInfo" />
+			<entity schema="DSEDiagnostic" name="DSEConfigSessionInfo" />
+			<entity schema="DSEDiagnostic" name="RackSessionInfo" />
+			<entity schema="DSEDiagnostic" name="NodeFileDirLocations" />
+			<entity schema="DSEDiagnostic" name="NodeCaches" />
 			<callout x="1245" y="2505" pointer="NE" />
 		</group>
 		<group name="Group Event/Stats Run Session" color="009999" >
 			<comment><![CDATA[This group contents tables used for Event or Statistical aggregated data assocated with a run session (snapshot).]]></comment>
-			<entity schema="DSEDiagnosticApplication" name="AggregatedStatsSessionInfo" />
-			<entity schema="DSEDiagnosticApplication" name="EventStatsSessionInfo" />
+			<entity schema="DSEDiagnostic" name="AggregatedStatsSessionInfo" />
+			<entity schema="DSEDiagnostic" name="EventStatsSessionInfo" />
 			<callout x="45" y="795" pointer="SE" />
 		</group>
 		<group name="Group Run Session" color="ffff33" >
 			<comment><![CDATA[This group consist of run session information used for snapshots.]]></comment>
-			<entity schema="DSEDiagnosticApplication" name="RunSessionInfo" />
+			<entity schema="DSEDiagnostic" name="RunSessionInfo" />
 			<callout x="1290" y="795" pointer="SV" />
 		</group>
 		<group name="Group DDL Run Session" color="c4e0f9" >
 			<comment><![CDATA[This group consist of run session (sanpshot) DDL information.
 Note that the actuall DDL is not captured due to customers' concerns around security/proprietary information]]></comment>
-			<entity schema="DSEDiagnosticApplication" name="DDLObjectProperties" />
-			<entity schema="DSEDiagnosticApplication" name="DDLObjectsSessionInfo" />
-			<entity schema="DSEDiagnosticApplication" name="KeyspaceReplicationSessionInfo" />
-			<entity schema="DSEDiagnosticApplication" name="KeyspaceSessionInfo" />
+			<entity schema="DSEDiagnostic" name="DDLObjectProperties" />
+			<entity schema="DSEDiagnostic" name="DDLObjectsSessionInfo" />
+			<entity schema="DSEDiagnostic" name="KeyspaceReplicationSessionInfo" />
+			<entity schema="DSEDiagnostic" name="KeyspaceSessionInfo" />
 			<callout x="480" y="2175" pointer="NV" />
 		</group>
 	</layout>

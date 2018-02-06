@@ -225,10 +225,6 @@ body {
      <stop offset='0%' stop-color='#f8ede0' /> 
      <stop offset='100%' stop-color='#eedac1' /> 
   </linearGradient>
-  <linearGradient id='tbg_bfd4f5' x1='0%' y1='0%' x2='0%' y2='100%' >
-     <stop offset='0%' stop-color='#e0e9f8' /> 
-     <stop offset='100%' stop-color='#c1d3ee' /> 
-  </linearGradient>
   <linearGradient id='tbg_c8f5bf' x1='0%' y1='0%' x2='0%' y2='100%' >
      <stop offset='0%' stop-color='#e4f8e0' /> 
      <stop offset='100%' stop-color='#c9eec1' /> 
@@ -240,6 +236,10 @@ body {
   <linearGradient id='tbg_cc33ff' x1='0%' y1='0%' x2='0%' y2='100%' >
      <stop offset='0%' stop-color='#f2e0f8' /> 
      <stop offset='100%' stop-color='#e3c1ee' /> 
+  </linearGradient>
+  <linearGradient id='tbg_bfd4f5' x1='0%' y1='0%' x2='0%' y2='100%' >
+     <stop offset='0%' stop-color='#e0e9f8' /> 
+     <stop offset='100%' stop-color='#c1d3ee' /> 
   </linearGradient>
   <linearGradient id='tbg_66ff66' x1='0%' y1='0%' x2='0%' y2='100%' >
      <stop offset='0%' stop-color='#e0f8e0' /> 
@@ -274,7 +274,7 @@ body {
 <rect style='fill:url(#groupUnderTitleLine); stroke-width:2;' x='730' y='418' width='700' height='2' />
 
 <!-- == Group 'Group DataCenters/Nodes Run Session' == -->
-<rect class='grp' style='fill:#c4e0f9;stroke:#ced8e0' x='1124' y='1465' width='812' height='1010' />
+<rect class='grp' style='fill:#c4e0f9;stroke:#ced8e0' x='1124' y='1465' width='812' height='1025' />
 <text x='1135' y='1480'>Group DataCenters/Nodes Run Session</text>
 <rect style='fill:url(#groupUnderTitleLine); stroke-width:2;' x='1135' y='1483' width='790' height='2' />
 
@@ -333,22 +333,6 @@ NodeCaches ref NodeSessionInfo ( NodeSessionId )</title>
 <path transform='translate(7,0)' marker-start='url(#foot1p)' marker-end='url(#arrow1)'    d='M 1455 2145 L 1455,1995' ></path>
 <text x='1457' y='2140' transform='rotate(270 1457,2140)' title='Fk fk_nodecaches_nodesessioninfo
 NodeCaches ref NodeSessionInfo ( NodeSessionId )' class='relName' style='fill:#748ea7'>NodeSessionId</text>
-<!-- == Fk 'DSEConfigSessionInfo_fk_dseconfigsessioninfo' == -->
-<path id='DSEConfigSessionInfo_fk_dseconfigsessioninfo'  onmouseover="hghl(['DSEConfigSessionInfo_fk_dseconfigsessioninfo','DSEDiagnosticApplication.DSEConfigSessionInfo.DataCenterSessionId','DSEDiagnosticApplication.DataCenterSessionInfo.DataCenterSessionId'])" onmouseout="uhghl(['DSEConfigSessionInfo_fk_dseconfigsessioninfo','DSEDiagnosticApplication.DSEConfigSessionInfo.DataCenterSessionId','DSEDiagnosticApplication.DataCenterSessionInfo.DataCenterSessionId'])" transform='translate(7,0)' class='scene' d='M 1305 2295 L 1305,2055' >
-	<title>Fk fk_dseconfigsessioninfo
-DSEConfigSessionInfo ref DataCenterSessionInfo ( DataCenterSessionId )</title>
-</path>
-<path transform='translate(7,0)' marker-start='url(#foot1p)' marker-end='url(#arrow1)'    d='M 1305 2295 L 1305,2055' ></path>
-<text x='1307' y='2290' transform='rotate(270 1307,2290)' title='Fk fk_dseconfigsessioninfo
-DSEConfigSessionInfo ref DataCenterSessionInfo ( DataCenterSessionId )' class='relName' style='fill:#7488a7'>DataCenterSessionId</text>
-<!-- == Fk 'DSEConfigSessionInfo_fk_dseconfigsessioninfo_NodeSession' == -->
-<path id='DSEConfigSessionInfo_fk_dseconfigsessioninfo_NodeSession'  onmouseover="hghl(['DSEConfigSessionInfo_fk_dseconfigsessioninfo_NodeSession','DSEDiagnosticApplication.DSEConfigSessionInfo.NodeSessionId','DSEDiagnosticApplication.NodeSessionInfo.NodeSessionId'])" onmouseout="uhghl(['DSEConfigSessionInfo_fk_dseconfigsessioninfo_NodeSession','DSEDiagnosticApplication.DSEConfigSessionInfo.NodeSessionId','DSEDiagnosticApplication.NodeSessionInfo.NodeSessionId'])" transform='translate(7,0)' class='scene' d='M 1350 2295 L 1350,1972 Q 1350,1965 1357,1965 L 1425,1965' >
-	<title>Fk fk_dseconfigsessioninfo_NodeSession
-DSEConfigSessionInfo ref NodeSessionInfo ( NodeSessionId )</title>
-</path>
-<path transform='translate(7,0)' marker-start='url(#foot0p)' marker-end='url(#arrow1)'    d='M 1350 2295 L 1350,1972 Q 1350,1965 1357,1965 L 1425,1965' ></path>
-<text x='1352' y='2290' transform='rotate(270 1352,2290)' title='Fk fk_dseconfigsessioninfo_NodeSession
-DSEConfigSessionInfo ref NodeSessionInfo ( NodeSessionId )' class='relName' style='fill:#7488a7'>NodeSessionId</text>
 <!-- == Fk 'DDLObjectProperties_fk_ddlobjectproperties' == -->
 <path id='DDLObjectProperties_fk_ddlobjectproperties'  onmouseover="hghl(['DDLObjectProperties_fk_ddlobjectproperties','DSEDiagnosticApplication.DDLObjectProperties.DDLSessionId','DSEDiagnosticApplication.DDLObjectsSessionInfo.DDLSessionId'])" onmouseout="uhghl(['DDLObjectProperties_fk_ddlobjectproperties','DSEDiagnosticApplication.DDLObjectProperties.DDLSessionId','DSEDiagnosticApplication.DDLObjectsSessionInfo.DDLSessionId'])" transform='translate(7,0)' class='scene' d='M 765 2040 L 780,2040' >
 	<title>Fk fk_ddlobjectproperties
@@ -613,6 +597,22 @@ KeyspaceSessionInfo ref ClusterDDLObjects ( DDLId, Name )</title>
 <path transform='translate(7,0)' marker-start='url(#foot1p)' marker-end='url(#arrow1)'    d='M 615 1470 L 615,682 Q 615,675 622,675 L 930,675' ></path>
 <text x='617' y='1465' transform='rotate(270 617,1465)' title='Fk fk_keyspacesessioninfo
 KeyspaceSessionInfo ref ClusterDDLObjects ( DDLId, Name )' class='relName' style='fill:#7da774'>DDLId,Name</text>
+<!-- == Fk 'DSEConfigSessionInfo_fk_dseconfigsessioninfo' == -->
+<path id='DSEConfigSessionInfo_fk_dseconfigsessioninfo'  onmouseover="hghl(['DSEConfigSessionInfo_fk_dseconfigsessioninfo','DSEDiagnosticApplication.DSEConfigSessionInfo.DataCenterSessionId','DSEDiagnosticApplication.DataCenterSessionInfo.DataCenterSessionId'])" onmouseout="uhghl(['DSEConfigSessionInfo_fk_dseconfigsessioninfo','DSEDiagnosticApplication.DSEConfigSessionInfo.DataCenterSessionId','DSEDiagnosticApplication.DataCenterSessionInfo.DataCenterSessionId'])" transform='translate(7,0)' class='scene' d='M 1305 2295 L 1305,2055' >
+	<title>Fk fk_dseconfigsessioninfo
+DSEConfigSessionInfo ref DataCenterSessionInfo ( DataCenterSessionId )</title>
+</path>
+<path transform='translate(7,0)' marker-start='url(#foot1p)' marker-end='url(#arrow1)'    d='M 1305 2295 L 1305,2055' ></path>
+<text x='1307' y='2290' transform='rotate(270 1307,2290)' title='Fk fk_dseconfigsessioninfo
+DSEConfigSessionInfo ref DataCenterSessionInfo ( DataCenterSessionId )' class='relName' style='fill:#7488a7'>DataCenterSessionId</text>
+<!-- == Fk 'DSEConfigSessionInfo_fk_dseconfigsessioninfo_NodeSession' == -->
+<path id='DSEConfigSessionInfo_fk_dseconfigsessioninfo_NodeSession'  onmouseover="hghl(['DSEConfigSessionInfo_fk_dseconfigsessioninfo_NodeSession','DSEDiagnosticApplication.DSEConfigSessionInfo.NodeSessionId','DSEDiagnosticApplication.NodeSessionInfo.NodeSessionId'])" onmouseout="uhghl(['DSEConfigSessionInfo_fk_dseconfigsessioninfo_NodeSession','DSEDiagnosticApplication.DSEConfigSessionInfo.NodeSessionId','DSEDiagnosticApplication.NodeSessionInfo.NodeSessionId'])" transform='translate(7,0)' class='scene' d='M 1350 2295 L 1350,1972 Q 1350,1965 1357,1965 L 1425,1965' >
+	<title>Fk fk_dseconfigsessioninfo_NodeSession
+DSEConfigSessionInfo ref NodeSessionInfo ( NodeSessionId )</title>
+</path>
+<path transform='translate(7,0)' marker-start='url(#foot0p)' marker-end='url(#arrow1)'    d='M 1350 2295 L 1350,1972 Q 1350,1965 1357,1965 L 1425,1965' ></path>
+<text x='1352' y='2290' transform='rotate(270 1352,2290)' title='Fk fk_dseconfigsessioninfo_NodeSession
+DSEConfigSessionInfo ref NodeSessionInfo ( NodeSessionId )' class='relName' style='fill:#7488a7'>NodeSessionId</text>
 <!-- == Table 'RackSessionInfo' == -->
 <rect class='entity' x='1140' y='2153' width='135' height='150' rx='7' ry='7' style='stroke:none'/>
 <path d='M 1140 2179 L 1140 2160 Q 1140 2153 1147 2153 L 1268 2153 Q 1275 2153 1275 2160 L 1275 2179 L1140 2179 ' style='fill:url(#tbg_c1d8ee);stroke:1;stroke-opacity:0.1;' />
@@ -825,46 +825,6 @@ e.g., Key, Counter, Row</title></a>
 <text x='1482' y='2208' text-anchor='end' class='colType'>t</text>  <a xlink:href='#NodeCaches.Value'><text id='DSEDiagnosticApplication.NodeCaches.Value' x='1398' y='2226'>Value</text><title>Value
 varchar(100)</title></a>
 <text x='1482' y='2223' text-anchor='end' class='colType'>t</text>
-<!-- == Table 'DSEConfigSessionInfo' == -->
-<rect class='entity' x='1290' y='2303' width='135' height='150' rx='7' ry='7' style='stroke:none'/>
-<path d='M 1290 2329 L 1290 2310 Q 1290 2303 1297 2303 L 1418 2303 Q 1425 2303 1425 2310 L 1425 2329 L1290 2329 ' style='fill:url(#tbg_bfd4f5);stroke:1;stroke-opacity:0.1;' />
-<rect class='entity' x='1290' y='2303' width='135' height='150' rx='7' ry='7' style='fill:none;stroke:#aeb5bf'/>
-<line class='delim' x1='1290' y1='2329' x2='1425' y2='2329' style='stroke:#aeb5bf'/>
-<line class='delim' x1='1305' y1='2329' x2='1305' y2='2453' style='stroke:#aeb5bf'/>
-<line class='delim' x1='1414' y1='2329' x2='1414' y2='2453' style='stroke:#aeb5bf'/>
-<a xlink:href='#DSEConfigSessionInfo'><text x='1301' y='2321'>DSEConfigSessionInfo</text><title>Table DSEDiagnosticApplication.DSEConfigSessionInfo
-Contains DSE node configuration information for a run session. This information can come from env, yaml, and event log files (Nodes config that is dumped upon start up), and cassandra topology (racks).</title></a>
-  <use id='nn' x='1292' y='2337' xlink:href='#nn'/><a xlink:href='#DSEConfigSessionInfo.DataCenterSessionId'><use id='unq' x='1292' y='2336' xlink:href='#unq'/><title>Unq CUI_DSEConfigSessionInfo_DC_Sess_Prop ( DataCenterSessionId, IsMajorityValue, IsCommon, NodeSessionId, Source, Property ) </title></a>
-<a xlink:href='#DSEConfigSessionInfo.DataCenterSessionId'><text id='DSEDiagnosticApplication.DSEConfigSessionInfo.DataCenterSessionId' x='1308' y='2346' onmouseover="hghl(['DSEConfigSessionInfo_fk_dseconfigsessioninfo','DSEDiagnosticApplication.DataCenterSessionInfo.DataCenterSessionId'])" onmouseout="uhghl(['DSEConfigSessionInfo_fk_dseconfigsessioninfo','DSEDiagnosticApplication.DataCenterSessionInfo.DataCenterSessionId'])">DataCenterSessionId</text><title>DataCenterSessionId
-* bigint</title></a>
-<a xlink:href='#DSEConfigSessionInfo.DataCenterSessionId'><use id='fk' x='1414' y='2336' xlink:href='#fk'/><title>References DataCenterSessionInfo ( DataCenterSessionId ) </title></a>
-  <use id='nn' x='1292' y='2352' xlink:href='#nn'/><a xlink:href='#DSEConfigSessionInfo.IsMajorityValue'><use id='unq' x='1292' y='2351' xlink:href='#unq'/><title>Unq CUI_DSEConfigSessionInfo_DC_Sess_Prop ( DataCenterSessionId, IsMajorityValue, IsCommon, NodeSessionId, Source, Property ) </title></a>
-<a xlink:href='#DSEConfigSessionInfo.IsMajorityValue'><text id='DSEDiagnosticApplication.DSEConfigSessionInfo.IsMajorityValue' x='1308' y='2361'>IsMajorityValue</text><title>IsMajorityValue
-* bit default 0
-If true major of nodes in the data center have the same value. IsCommon may or may not be true.</title></a>
-<text x='1422' y='2358' text-anchor='end' class='colType'>b</text>  <use id='nn' x='1292' y='2367' xlink:href='#nn'/><a xlink:href='#DSEConfigSessionInfo.IsCommon'><use id='unq' x='1292' y='2366' xlink:href='#unq'/><title>Unq CUI_DSEConfigSessionInfo_DC_Sess_Prop ( DataCenterSessionId, IsMajorityValue, IsCommon, NodeSessionId, Source, Property ) </title></a>
-<a xlink:href='#DSEConfigSessionInfo.IsCommon'><text id='DSEDiagnosticApplication.DSEConfigSessionInfo.IsCommon' x='1308' y='2376'>IsCommon</text><title>IsCommon
-* bit default 0
-If true, all nodes in the DC have this value (implies IsMajorityValue is also true). If false, One or more nodes in the DC do NOT have this value.</title></a>
-<text x='1422' y='2373' text-anchor='end' class='colType'>b</text>  <a xlink:href='#DSEConfigSessionInfo.NodeSessionId'><use id='unq' x='1292' y='2381' xlink:href='#unq'/><title>Unq CUI_DSEConfigSessionInfo_DC_Sess_Prop ( DataCenterSessionId, IsMajorityValue, IsCommon, NodeSessionId, Source, Property ) Idx_DSEConfigSessionInfo_NodeSessionId ( NodeSessionId ) </title></a>
-<a xlink:href='#DSEConfigSessionInfo.NodeSessionId'><text id='DSEDiagnosticApplication.DSEConfigSessionInfo.NodeSessionId' x='1308' y='2391' onmouseover="hghl(['DSEConfigSessionInfo_fk_dseconfigsessioninfo_NodeSession','DSEDiagnosticApplication.NodeSessionInfo.NodeSessionId'])" onmouseout="uhghl(['DSEConfigSessionInfo_fk_dseconfigsessioninfo_NodeSession','DSEDiagnosticApplication.NodeSessionInfo.NodeSessionId'])">NodeSessionId</text><title>NodeSessionId
-bigint
-If not null, this node's property value is different from the common value (based on the majority of the nodes in the DC) for this data center. In this case IsCommon and IsMajorityValue will be false.</title></a>
-<a xlink:href='#DSEConfigSessionInfo.NodeSessionId'><use id='fk' x='1414' y='2381' xlink:href='#fk'/><title>References NodeSessionInfo ( NodeSessionId ) </title></a>
-  <use id='nn' x='1292' y='2397' xlink:href='#nn'/><a xlink:href='#DSEConfigSessionInfo.Source'><use id='unq' x='1292' y='2396' xlink:href='#unq'/><title>Unq CUI_DSEConfigSessionInfo_DC_Sess_Prop ( DataCenterSessionId, IsMajorityValue, IsCommon, NodeSessionId, Source, Property ) </title></a>
-<a xlink:href='#DSEConfigSessionInfo.Source'><text id='DSEDiagnosticApplication.DSEConfigSessionInfo.Source' x='1308' y='2406'>Source</text><title>Source
-* varchar(25)
-The source of the config information. Examples are Cassandra, DSE, Hadoop, Solr, Spark, Snitch, OpsCenter. There is also a sub-source (e.g., yaml, env, log, etc.). Example of a complete source is Cassandra.yaml.
-
-Note this value can come from the log!</title></a>
-<text x='1422' y='2403' text-anchor='end' class='colType'>t</text>  <use id='nn' x='1292' y='2412' xlink:href='#nn'/><a xlink:href='#DSEConfigSessionInfo.Property'><use id='unq' x='1292' y='2411' xlink:href='#unq'/><title>Unq CUI_DSEConfigSessionInfo_DC_Sess_Prop ( DataCenterSessionId, IsMajorityValue, IsCommon, NodeSessionId, Source, Property ) </title></a>
-<a xlink:href='#DSEConfigSessionInfo.Property'><text id='DSEDiagnosticApplication.DSEConfigSessionInfo.Property' x='1308' y='2421'>Property</text><title>Property
-* varchar(250)
-The config property. Examples are seed_provider[1].class_name, seed_provider[1].parameters[1].seeds, etc.</title></a>
-<text x='1422' y='2418' text-anchor='end' class='colType'>t</text>  <a xlink:href='#DSEConfigSessionInfo.Value'><text id='DSEDiagnosticApplication.DSEConfigSessionInfo.Value' x='1308' y='2436'>Value</text><title>Value
-varchar(250)
-Config Value</title></a>
-<text x='1422' y='2433' text-anchor='end' class='colType'>t</text>
 <!-- == Table 'DDLObjectProperties' == -->
 <rect class='entity' x='645' y='2018' width='120' height='90' rx='7' ry='7' style='stroke:none'/>
 <path d='M 645 2044 L 645 2025 Q 645 2018 652 2018 L 758 2018 Q 765 2018 765 2025 L 765 2044 L645 2044 ' style='fill:url(#tbg_c8f5bf);stroke:1;stroke-opacity:0.1;' />
@@ -1679,6 +1639,50 @@ bit</title></a>
 int
 The checksum of the DDL string as a fast check to see if different session has different values.</title></a>
 <text x='717' y='1848' text-anchor='end' class='colType'>#</text>
+<!-- == Table 'DSEConfigSessionInfo' == -->
+<rect class='entity' x='1290' y='2303' width='135' height='165' rx='7' ry='7' style='stroke:none'/>
+<path d='M 1290 2329 L 1290 2310 Q 1290 2303 1297 2303 L 1418 2303 Q 1425 2303 1425 2310 L 1425 2329 L1290 2329 ' style='fill:url(#tbg_bfd4f5);stroke:1;stroke-opacity:0.1;' />
+<rect class='entity' x='1290' y='2303' width='135' height='165' rx='7' ry='7' style='fill:none;stroke:#aeb5bf'/>
+<line class='delim' x1='1290' y1='2329' x2='1425' y2='2329' style='stroke:#aeb5bf'/>
+<line class='delim' x1='1305' y1='2329' x2='1305' y2='2468' style='stroke:#aeb5bf'/>
+<line class='delim' x1='1414' y1='2329' x2='1414' y2='2468' style='stroke:#aeb5bf'/>
+<a xlink:href='#DSEConfigSessionInfo'><text x='1301' y='2321'>DSEConfigSessionInfo</text><title>Table DSEDiagnosticApplication.DSEConfigSessionInfo
+Contains DSE node configuration information for a run session. This information can come from env, yaml, and event log files (Nodes config that is dumped upon start up), and cassandra topology (racks).</title></a>
+  <use id='nn' x='1292' y='2337' xlink:href='#nn'/><a xlink:href='#DSEConfigSessionInfo.DataCenterSessionId'><use id='unq' x='1292' y='2336' xlink:href='#unq'/><title>Unq CUI_DSEConfigSessionInfo_DC_Sess_Prop ( DataCenterSessionId, IsMajorityValue, IsCommon, NodeSessionId, Source, LogTimestamp, Property ) </title></a>
+<a xlink:href='#DSEConfigSessionInfo.DataCenterSessionId'><text id='DSEDiagnosticApplication.DSEConfigSessionInfo.DataCenterSessionId' x='1308' y='2346' onmouseover="hghl(['DSEConfigSessionInfo_fk_dseconfigsessioninfo','DSEDiagnosticApplication.DataCenterSessionInfo.DataCenterSessionId'])" onmouseout="uhghl(['DSEConfigSessionInfo_fk_dseconfigsessioninfo','DSEDiagnosticApplication.DataCenterSessionInfo.DataCenterSessionId'])">DataCenterSessionId</text><title>DataCenterSessionId
+* bigint</title></a>
+<a xlink:href='#DSEConfigSessionInfo.DataCenterSessionId'><use id='fk' x='1414' y='2336' xlink:href='#fk'/><title>References DataCenterSessionInfo ( DataCenterSessionId ) </title></a>
+  <use id='nn' x='1292' y='2352' xlink:href='#nn'/><a xlink:href='#DSEConfigSessionInfo.IsMajorityValue'><use id='unq' x='1292' y='2351' xlink:href='#unq'/><title>Unq CUI_DSEConfigSessionInfo_DC_Sess_Prop ( DataCenterSessionId, IsMajorityValue, IsCommon, NodeSessionId, Source, LogTimestamp, Property ) </title></a>
+<a xlink:href='#DSEConfigSessionInfo.IsMajorityValue'><text id='DSEDiagnosticApplication.DSEConfigSessionInfo.IsMajorityValue' x='1308' y='2361'>IsMajorityValue</text><title>IsMajorityValue
+* bit default 0
+If true major of nodes in the data center have the same value. IsCommon may or may not be true.</title></a>
+<text x='1422' y='2358' text-anchor='end' class='colType'>b</text>  <use id='nn' x='1292' y='2367' xlink:href='#nn'/><a xlink:href='#DSEConfigSessionInfo.IsCommon'><use id='unq' x='1292' y='2366' xlink:href='#unq'/><title>Unq CUI_DSEConfigSessionInfo_DC_Sess_Prop ( DataCenterSessionId, IsMajorityValue, IsCommon, NodeSessionId, Source, LogTimestamp, Property ) </title></a>
+<a xlink:href='#DSEConfigSessionInfo.IsCommon'><text id='DSEDiagnosticApplication.DSEConfigSessionInfo.IsCommon' x='1308' y='2376'>IsCommon</text><title>IsCommon
+* bit default 0
+If true, all nodes in the DC have this value (implies IsMajorityValue is also true). If false, One or more nodes in the DC do NOT have this value.</title></a>
+<text x='1422' y='2373' text-anchor='end' class='colType'>b</text>  <a xlink:href='#DSEConfigSessionInfo.NodeSessionId'><use id='unq' x='1292' y='2381' xlink:href='#unq'/><title>Idx_DSEConfigSessionInfo_NodeSessionId ( NodeSessionId ) Unq CUI_DSEConfigSessionInfo_DC_Sess_Prop ( DataCenterSessionId, IsMajorityValue, IsCommon, NodeSessionId, Source, LogTimestamp, Property ) </title></a>
+<a xlink:href='#DSEConfigSessionInfo.NodeSessionId'><text id='DSEDiagnosticApplication.DSEConfigSessionInfo.NodeSessionId' x='1308' y='2391' onmouseover="hghl(['DSEConfigSessionInfo_fk_dseconfigsessioninfo_NodeSession','DSEDiagnosticApplication.NodeSessionInfo.NodeSessionId'])" onmouseout="uhghl(['DSEConfigSessionInfo_fk_dseconfigsessioninfo_NodeSession','DSEDiagnosticApplication.NodeSessionInfo.NodeSessionId'])">NodeSessionId</text><title>NodeSessionId
+bigint
+If not null, this node's property value is different from the common value (based on the majority of the nodes in the DC) for this data center. In this case IsCommon and IsMajorityValue will be false.</title></a>
+<a xlink:href='#DSEConfigSessionInfo.NodeSessionId'><use id='fk' x='1414' y='2381' xlink:href='#fk'/><title>References NodeSessionInfo ( NodeSessionId ) </title></a>
+  <use id='nn' x='1292' y='2397' xlink:href='#nn'/><a xlink:href='#DSEConfigSessionInfo.Source'><use id='unq' x='1292' y='2396' xlink:href='#unq'/><title>Unq CUI_DSEConfigSessionInfo_DC_Sess_Prop ( DataCenterSessionId, IsMajorityValue, IsCommon, NodeSessionId, Source, LogTimestamp, Property ) </title></a>
+<a xlink:href='#DSEConfigSessionInfo.Source'><text id='DSEDiagnosticApplication.DSEConfigSessionInfo.Source' x='1308' y='2406'>Source</text><title>Source
+* varchar(25)
+The source of the config information. Examples are Cassandra, DSE, Hadoop, Solr, Spark, Snitch, OpsCenter. There is also a sub-source (e.g., yaml, env, log, etc.). Example of a complete source is Cassandra.yaml.
+
+Note this value can come from the log!</title></a>
+<text x='1422' y='2403' text-anchor='end' class='colType'>t</text>  <a xlink:href='#DSEConfigSessionInfo.LogTimestamp'><use id='unq' x='1292' y='2411' xlink:href='#unq'/><title>Unq CUI_DSEConfigSessionInfo_DC_Sess_Prop ( DataCenterSessionId, IsMajorityValue, IsCommon, NodeSessionId, Source, LogTimestamp, Property ) </title></a>
+<a xlink:href='#DSEConfigSessionInfo.LogTimestamp'><text id='DSEDiagnosticApplication.DSEConfigSessionInfo.LogTimestamp' x='1308' y='2421'>LogTimestamp</text><title>LogTimestamp
+datetimeoffset(4)
+If source is from a log, this is the event's timestamp occurrence.</title></a>
+  <use id='nn' x='1292' y='2427' xlink:href='#nn'/><a xlink:href='#DSEConfigSessionInfo.Property'><use id='unq' x='1292' y='2426' xlink:href='#unq'/><title>Unq CUI_DSEConfigSessionInfo_DC_Sess_Prop ( DataCenterSessionId, IsMajorityValue, IsCommon, NodeSessionId, Source, LogTimestamp, Property ) </title></a>
+<a xlink:href='#DSEConfigSessionInfo.Property'><text id='DSEDiagnosticApplication.DSEConfigSessionInfo.Property' x='1308' y='2436'>Property</text><title>Property
+* varchar(250)
+The config property. Examples are seed_provider[1].class_name, seed_provider[1].parameters[1].seeds, etc.</title></a>
+<text x='1422' y='2433' text-anchor='end' class='colType'>t</text>  <a xlink:href='#DSEConfigSessionInfo.Value'><text id='DSEDiagnosticApplication.DSEConfigSessionInfo.Value' x='1308' y='2451'>Value</text><title>Value
+varchar(250)
+Config Value</title></a>
+<text x='1422' y='2448' text-anchor='end' class='colType'>t</text>
 <!-- == Callout == -->
 <rect class='callout' x='525' y='60' width='1125' height='200' rx='15' ry='15'  />
 <text x='547' y='60' class='callout'>
@@ -2472,6 +2476,12 @@ No actual DDL will be stored due to security/proprietary concerns by customers.<
 Note this value can come from the log&#33; </td>
 	</tr>
 	<tr>
+		<td><svg width='14' height='14'><use xlink:href='#unq'/></svg></td>
+		<td><a name='DSEConfigSessionInfo.LogTimestamp'>LogTimestamp</a></td>
+		<td> datetimeoffset&#40; 4 &#41;   </td>
+		<td> If source is from a log&#44; this is the event&#39;s timestamp occurrence&#46; </td>
+	</tr>
+	<tr>
 		<td>*<svg width='14' height='14'><use xlink:href='#unq'/></svg></td>
 		<td><a name='DSEConfigSessionInfo.Property'>Property</a></td>
 		<td> varchar&#40; 250 &#41;   </td>
@@ -2484,12 +2494,12 @@ Note this value can come from the log&#33; </td>
 		<td> Config Value </td>
 	</tr>
 <tr><th colspan='4'>Indexes</th></tr>
-	<tr>		<td><svg width='14' height='14'><use xlink:href='#unq'/></svg></td><td>CUI&#95;DSEConfigSessionInfo&#95;DC&#95;Sess&#95;Prop</td>
-		<td> ON DataCenterSessionId&#44; IsMajorityValue&#44; IsCommon&#44; NodeSessionId&#44; Source&#44; Property</td>
-		<td>  </td>
-	</tr>
 	<tr>		<td><svg width='14' height='14'><use xlink:href='#idx'/></svg></td><td>Idx&#95;DSEConfigSessionInfo&#95;NodeSessionId</td>
 		<td> ON NodeSessionId</td>
+		<td>  </td>
+	</tr>
+	<tr>		<td><svg width='14' height='14'><use xlink:href='#unq'/></svg></td><td>CUI&#95;DSEConfigSessionInfo&#95;DC&#95;Sess&#95;Prop</td>
+		<td> ON DataCenterSessionId&#44; IsMajorityValue&#44; IsCommon&#44; NodeSessionId&#44; Source&#44; LogTimestamp&#44; Property</td>
 		<td>  </td>
 	</tr>
 <tr><th colspan='4'>Foreign Keys</th></tr>
