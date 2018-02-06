@@ -166,7 +166,7 @@ namespace DSEDiagnosticLibrary
                 if (this._hashcode != 0) return this._hashcode;
                 if (this.Keyspace.Cluster.IsMaster) return this.FullName.GetHashCode();
 
-                return this._hashcode = this.Keyspace.GetHashCode() * 31 + this.Name.GetHashCode();
+                return this._hashcode = this.Table.GetHashCode() * 31 + (this.JavaClass + '.' + this.Name).GetHashCode();
             }
         }
 

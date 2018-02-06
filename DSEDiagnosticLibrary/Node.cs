@@ -552,10 +552,10 @@ namespace DSEDiagnosticLibrary
 			{
                 if (this._addresses.Count == 0) return 0;
 
-                return this._hashCode = this._addresses.First().GetHashCode();
+                return this._hashCode = this._addresses.Select(a => a.GetHashCode()).Min();
 			}
 
-			return this._hashCode = this.HostName.GetHashCode();
+			return this.HostName.GetHashCode();
 		}
 
         public object ToDump()
@@ -1453,7 +1453,7 @@ namespace DSEDiagnosticLibrary
                 if (this.Id == null) return 0;
                 if (this.Cluster.IsMaster) return this.Id.GetHashCode();
 
-                return this._hashcode = (589 + this.Cluster.GetHashCode()) * 31 + this.Id.GetHashCode();
+                return this._hashcode = this.DataCenter.GetHashCode() * 31 + this.Id.GetHashCode();
             }
 		}
 
