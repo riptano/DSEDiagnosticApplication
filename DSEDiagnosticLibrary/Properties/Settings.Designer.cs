@@ -214,6 +214,8 @@ namespace DSEDiagnosticLibrary.Properties {
   <string>dse_leases</string>
   <string>dse_perf</string>
   <string>OpsCenter</string>
+  <string>HiveMetaStore</string>
+  <string>cfs_archive</string>
 </ArrayOfString>")]
         public global::System.Collections.Specialized.StringCollection DSEKeyspaces {
             get {

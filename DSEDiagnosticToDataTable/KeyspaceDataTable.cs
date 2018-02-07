@@ -84,14 +84,23 @@ namespace DSEDiagnosticToDataTable
                     }
 
                     if (keySpace.LocalStrategy || keySpace.EverywhereStrategy)
-                    {
-                        if (!this.Table.Rows.Contains(new object[] { keySpace.Name, keySpace.DataCenter.Name }))
+                    {                       
+                        if(keySpace.IsPreLoaded
+                            && (keySpace.IsDSEKeyspace || keySpace.IsSystemKeyspace))                           
+                        {
+                            var hasActiveMember = keySpace.HasActiveMember;
+
+                            if(!hasActiveMember.HasValue || !hasActiveMember.Value)
+                                continue;
+                        }
+
+                        if (!this.Table.Rows.Contains(new object[] { keySpace.Name, keySpace.DataCenter?.Name ?? "<NA>" }))
                         {
                             dataRow = this.Table.NewRow();
                             if (this.SessionId.HasValue) dataRow.SetField(ColumnNames.SessionId, this.SessionId.Value);
                             dataRow["Name"] = keySpace.Name;
                             dataRow["Replication Strategy"] = keySpace.ReplicationStrategy;
-                            dataRow[ColumnNames.DataCenter] = keySpace.DataCenter.Name;
+                            dataRow[ColumnNames.DataCenter] = keySpace.DataCenter?.Name ?? "<NA>";
                             dataRow["Replication Factor"] = 0;
                             dataRow.SetFieldStringLimit("DDL", keySpace.DDL);
                             this.SetKeyspaceStats(keySpace, dataRow);

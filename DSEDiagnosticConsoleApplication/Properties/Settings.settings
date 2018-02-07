@@ -22,6 +22,8 @@
   &lt;string&gt;dse_leases&lt;/string&gt;
   &lt;string&gt;system_traces&lt;/string&gt;
   &lt;string&gt;dse_perf&lt;/string&gt;
+  &lt;string&gt;HiveMetaStore&lt;/string&gt;
+  &lt;string&gt;cfs_archive&lt;/string&gt;
 &lt;/ArrayOfString&gt;</Value>
     </Setting>
     <Setting Name="ExcelFilePath" Type="System.String" Scope="Application">

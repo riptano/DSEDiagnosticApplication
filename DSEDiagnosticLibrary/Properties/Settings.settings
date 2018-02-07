@@ -94,6 +94,8 @@
   &lt;string&gt;dse_leases&lt;/string&gt;
   &lt;string&gt;dse_perf&lt;/string&gt;
   &lt;string&gt;OpsCenter&lt;/string&gt;
+  &lt;string&gt;HiveMetaStore&lt;/string&gt;
+  &lt;string&gt;cfs_archive&lt;/string&gt;
 &lt;/ArrayOfString&gt;</Value>
     </Setting>
     <Setting Name="PerformanceKeyspaces" Type="System.Collections.Specialized.StringCollection" Scope="Application">
