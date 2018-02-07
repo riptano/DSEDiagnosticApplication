@@ -65,6 +65,7 @@ namespace DSEDiagnosticApplication
             this.ultraCheckEditorLogDisableMryMap.Enabled = false;
             this.ultraTextEditorCluster.Enabled = false;
             this.ultraTextEditorDC.Enabled = false;
+            this.ultraNumericEditorClusterHashcode.Enabled = false;
             this.ultraTextEditorAdditionalDDLFiles.Enabled = false;
             this.ultraTextEditorAdditionalLogs.Enabled = false;
             this.ultraTextEditorAltCompFiles.Enabled = false;
@@ -103,6 +104,7 @@ namespace DSEDiagnosticApplication
             this.ultraCheckEditorDisableSysDSEDDL.Enabled = false;
             this.ultraCheckEditorLogDisableMryMap.Enabled = false;
             this.ultraTextEditorCluster.Enabled = false;
+            this.ultraNumericEditorClusterHashcode.Enabled = false;
             this.ultraTextEditorDC.Enabled = false;
             this.ultraTextEditorAdditionalDDLFiles.Enabled = false;
             this.ultraTextEditorAdditionalLogs.Enabled = false;
@@ -321,6 +323,7 @@ namespace DSEDiagnosticApplication
             this.ultraCheckEditorDisableParallelProcessing.Enabled = true;
             this.ultraCheckEditorDisableSysDSEDDL.Enabled = true;
             this.ultraCheckEditorLogDisableMryMap.Enabled = true;
+            this.ultraNumericEditorClusterHashcode.Enabled = true;
             this.ultraTextEditorCluster.Enabled = true;
             this.ultraTextEditorDC.Enabled = true;
             this.ultraTextEditorAdditionalDDLFiles.Enabled = true;
@@ -429,6 +432,7 @@ namespace DSEDiagnosticApplication
                 var task = await DSEDiagnosticFileParser.DiagnosticFile.ProcessFileWaitable(diagPath,
                                                                                             this.ultraTextEditorDC.Text,
                                                                                             this.ultraTextEditorCluster.Text,
+                                                                                            (int?)this.ultraNumericEditorClusterHashcode.Value,
                                                                                             null,
                                                                                             this._cancellationSource,
                                                                                             this.ProcessAdditionalFiles());
@@ -487,6 +491,7 @@ namespace DSEDiagnosticApplication
                 var task = DSEDiagnosticFileParser.DiagnosticFile.ProcessFile(diagPath,
                                                                                 this.ultraTextEditorDC.Text,
                                                                                 this.ultraTextEditorCluster.Text,
+                                                                                (int?) this.ultraNumericEditorClusterHashcode.Value,
                                                                                 null,
                                                                                 null,
                                                                                 this.ProcessAdditionalFiles()).Result;

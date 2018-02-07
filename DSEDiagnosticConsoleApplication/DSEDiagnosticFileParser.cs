@@ -65,7 +65,8 @@ namespace DSEDiagnosticConsoleApplication
             }
             
             var diagParserTask = DSEDiagnosticFileParser.DiagnosticFile.ProcessFile(ParserSettings.DiagnosticPath,
-                                                                                     clusterName: defaultCluster,
+                                                                                     clusterName: ParserSettings.ClusterName ?? defaultCluster,
+                                                                                     clusterHashCode: ParserSettings.ClusterHashCode,
                                                                                      dseVersion: ParserSettings.DSEVersion,
                                                                                      cancellationSource: cancellationSource,
                                                                                      additionalFilesForClass: ParserSettings.AdditionalFilesForParsingClass,

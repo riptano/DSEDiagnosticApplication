@@ -347,6 +347,7 @@ namespace DSEDiagnosticFileParser
         public static async Task<IEnumerable<DiagnosticFile>> ProcessFileWaitable(IDirectoryPath diagnosticDirectory,
                                                                                     string dataCenterName = null,
                                                                                     string clusterName = null,
+                                                                                    int? clusterHashCode = null,
                                                                                     Version dseVersion = null,
                                                                                     CancellationTokenSource cancellationSource = null,
                                                                                     IEnumerable<KeyValuePair<string,IFilePath>> additionalFilesForClass = null,
@@ -357,6 +358,7 @@ namespace DSEDiagnosticFileParser
             return await System.Threading.Tasks.Task.Factory.StartNew(() => DSEDiagnosticFileParser.DiagnosticFile.ProcessFile(diagnosticDirectory,
                                                                                                                                 dataCenterName,
                                                                                                                                 clusterName,
+                                                                                                                                clusterHashCode,
                                                                                                                                 dseVersion,
                                                                                                                                 cancellationSource,
                                                                                                                                 additionalFilesForClass,
@@ -517,11 +519,27 @@ namespace DSEDiagnosticFileParser
         public static Task<IEnumerable<DiagnosticFile>> ProcessFile(IDirectoryPath diagnosticDirectory,
                                                                         string dataCenterName = null,
                                                                         string clusterName = null,
+                                                                        int? clusterHashCode = null,
                                                                         Version dseVersion = null,
                                                                         CancellationTokenSource cancellationSource = null,
                                                                         IEnumerable<KeyValuePair<string, IFilePath>> additionalFilesForClass = null,
                                                                         IEnumerable<NodeIdentifier> onlyNodes = null)
         {
+            if(!string.IsNullOrEmpty(clusterName))
+            {
+                if (Logger.Instance.IsInfoEnabled)
+                {
+                    Logger.Instance.InfoFormat("Using Cluster \"{0}\"{1}", clusterName, clusterHashCode.HasValue ? string.Format(" with Hash code {0}", clusterHashCode.Value) : string.Empty);
+                }
+
+                var cluster = Cluster.TryGetAddCluster(clusterName, clusterHashCode);
+
+                if(Logger.Instance.IsDebugEnabled && cluster != null)
+                {
+                    Logger.Instance.DebugFormat("Found Cluster \"{0}\" with Hash code {1}", cluster.Name, cluster.GetHashCode());
+                }
+            }
+
             var diagFilesList = new Common.Patterns.Collections.ThreadSafe.List<DiagnosticFile>();
             var mappers = DSEDiagnosticFileParser.LibrarySettings.ProcessFileMappings
                             .Where(f => f.Enabled)

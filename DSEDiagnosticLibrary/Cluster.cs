@@ -50,11 +50,19 @@ namespace DSEDiagnosticLibrary
             }
 		}
 
-		public Cluster(string clusterName)
+		public Cluster(string clusterName, int? hashCode = null)
 			: this()
 		{
 			this.Name = StringHelpers.RemoveQuotes(clusterName);
+            if (hashCode.HasValue)
+                this._hashcode = hashCode.Value;
 		}
+
+        public Cluster(int hashCode)
+            : this()
+        {
+           this._hashcode = hashCode;
+        }
 
         #endregion
 
@@ -291,7 +299,7 @@ namespace DSEDiagnosticLibrary
             return Clusters.Last();            
         }
 
-        public static Cluster TryGetAddCluster(string clusterName)
+        public static Cluster TryGetAddCluster(string clusterName, int? hashCode = null)
 		{
             Clusters.Lock();
             try
@@ -302,7 +310,7 @@ namespace DSEDiagnosticLibrary
 
                 if (cluster == null)
                 {
-                    cluster = new Cluster(clusterName);
+                    cluster = new Cluster(clusterName, hashCode);
                 }
 
                 return cluster;
@@ -1024,7 +1032,7 @@ namespace DSEDiagnosticLibrary
 
 			return string.IsNullOrEmpty(this.Name) ? 0 : this._hashcode = this.Name.GetHashCode();
 		}
-
+       
 		#endregion
 	}
 }

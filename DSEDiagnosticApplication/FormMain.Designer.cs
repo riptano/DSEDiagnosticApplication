@@ -91,6 +91,8 @@
             this.ultraTextEditorAltCompFiles = new Infragistics.Win.UltraWinEditors.UltraTextEditor();
             this.ultraCheckEditorLogDisableMryMap = new Infragistics.Win.UltraWinEditors.UltraCheckEditor();
             this.ultraCheckEditorDisableSysDSEDDL = new Infragistics.Win.UltraWinEditors.UltraCheckEditor();
+            this.ultraGroupBox10 = new Infragistics.Win.Misc.UltraGroupBox();
+            this.ultraNumericEditorClusterHashcode = new Infragistics.Win.UltraWinEditors.UltraNumericEditor();
             ((System.ComponentModel.ISupportInitialize)(this.ultraGrid1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.ultraGroupBox1)).BeginInit();
             this.ultraGroupBox1.SuspendLayout();
@@ -123,6 +125,9 @@
             ((System.ComponentModel.ISupportInitialize)(this.ultraTextEditorAltCompFiles)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.ultraCheckEditorLogDisableMryMap)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.ultraCheckEditorDisableSysDSEDDL)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.ultraGroupBox10)).BeginInit();
+            this.ultraGroupBox10.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.ultraNumericEditorClusterHashcode)).BeginInit();
             this.SuspendLayout();
             // 
             // buttonAsyncExcute
@@ -271,7 +276,7 @@
             this.ultraGroupBox1.Controls.Add(this.ultraTextEditorCluster);
             this.ultraGroupBox1.Location = new System.Drawing.Point(218, 10);
             this.ultraGroupBox1.Name = "ultraGroupBox1";
-            this.ultraGroupBox1.Size = new System.Drawing.Size(200, 44);
+            this.ultraGroupBox1.Size = new System.Drawing.Size(206, 44);
             this.ultraGroupBox1.TabIndex = 4;
             this.ultraGroupBox1.Text = "Default Cluster";
             // 
@@ -281,15 +286,15 @@
             this.ultraTextEditorCluster.Location = new System.Drawing.Point(3, 16);
             this.ultraTextEditorCluster.Name = "ultraTextEditorCluster";
             this.ultraTextEditorCluster.ShowOverflowIndicator = true;
-            this.ultraTextEditorCluster.Size = new System.Drawing.Size(194, 21);
+            this.ultraTextEditorCluster.Size = new System.Drawing.Size(200, 21);
             this.ultraTextEditorCluster.TabIndex = 0;
             // 
             // ultraGroupBox2
             // 
             this.ultraGroupBox2.Controls.Add(this.ultraTextEditorDC);
-            this.ultraGroupBox2.Location = new System.Drawing.Point(442, 10);
+            this.ultraGroupBox2.Location = new System.Drawing.Point(523, 10);
             this.ultraGroupBox2.Name = "ultraGroupBox2";
-            this.ultraGroupBox2.Size = new System.Drawing.Size(200, 44);
+            this.ultraGroupBox2.Size = new System.Drawing.Size(129, 44);
             this.ultraGroupBox2.TabIndex = 5;
             this.ultraGroupBox2.Text = "Default DC";
             // 
@@ -299,7 +304,7 @@
             this.ultraTextEditorDC.Location = new System.Drawing.Point(3, 16);
             this.ultraTextEditorDC.Name = "ultraTextEditorDC";
             this.ultraTextEditorDC.ShowOverflowIndicator = true;
-            this.ultraTextEditorDC.Size = new System.Drawing.Size(194, 21);
+            this.ultraTextEditorDC.Size = new System.Drawing.Size(123, 21);
             this.ultraTextEditorDC.TabIndex = 0;
             // 
             // ultraGroupBox3
@@ -559,11 +564,32 @@
             this.ultraCheckEditorDisableSysDSEDDL.TabIndex = 15;
             this.ultraCheckEditorDisableSysDSEDDL.Text = "Disable System/DSE DDL Preloading";
             // 
+            // ultraGroupBox10
+            // 
+            this.ultraGroupBox10.Controls.Add(this.ultraNumericEditorClusterHashcode);
+            this.ultraGroupBox10.Location = new System.Drawing.Point(430, 10);
+            this.ultraGroupBox10.Name = "ultraGroupBox10";
+            this.ultraGroupBox10.Size = new System.Drawing.Size(87, 44);
+            this.ultraGroupBox10.TabIndex = 16;
+            this.ultraGroupBox10.Text = "Hashcode";
+            // 
+            // ultraNumericEditorClusterHashcode
+            // 
+            this.ultraNumericEditorClusterHashcode.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.ultraNumericEditorClusterHashcode.Location = new System.Drawing.Point(3, 16);
+            this.ultraNumericEditorClusterHashcode.Name = "ultraNumericEditorClusterHashcode";
+            this.ultraNumericEditorClusterHashcode.Nullable = true;
+            this.ultraNumericEditorClusterHashcode.NullText = "None";
+            this.ultraNumericEditorClusterHashcode.Size = new System.Drawing.Size(81, 21);
+            this.ultraNumericEditorClusterHashcode.TabIndex = 0;
+            this.ultraNumericEditorClusterHashcode.Value = null;
+            // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1296, 644);
+            this.Controls.Add(this.ultraGroupBox10);
             this.Controls.Add(this.ultraCheckEditorDisableSysDSEDDL);
             this.Controls.Add(this.ultraCheckEditorLogDisableMryMap);
             this.Controls.Add(this.ultraGroupBox9);
@@ -627,6 +653,10 @@
             ((System.ComponentModel.ISupportInitialize)(this.ultraTextEditorAltCompFiles)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.ultraCheckEditorLogDisableMryMap)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.ultraCheckEditorDisableSysDSEDDL)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.ultraGroupBox10)).EndInit();
+            this.ultraGroupBox10.ResumeLayout(false);
+            this.ultraGroupBox10.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.ultraNumericEditorClusterHashcode)).EndInit();
             this.ResumeLayout(false);
 
 		}
@@ -662,6 +692,8 @@
         private Infragistics.Win.UltraWinEditors.UltraTextEditor ultraTextEditorAltCompFiles;
         private Infragistics.Win.UltraWinEditors.UltraCheckEditor ultraCheckEditorLogDisableMryMap;
         private Infragistics.Win.UltraWinEditors.UltraCheckEditor ultraCheckEditorDisableSysDSEDDL;
+        private Infragistics.Win.Misc.UltraGroupBox ultraGroupBox10;
+        private Infragistics.Win.UltraWinEditors.UltraNumericEditor ultraNumericEditorClusterHashcode;
     }
 }
 

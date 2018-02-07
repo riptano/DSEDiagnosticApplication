@@ -195,6 +195,18 @@ namespace DSEDiagnosticConsoleApplication
                 Example = @"10.0.0.1, America/Chicago"
             });
 
+            this._cmdLineParser.Arguments.Add(new ValueArgument<string>("ClusterName")
+            {
+                Optional = true,               
+                Description = "The name of the cluster"                
+            });
+
+            this._cmdLineParser.Arguments.Add(new ValueArgument<int>("ClusterHashCode")
+            {
+                Optional = true,
+                Description = "The cluster's hash code."
+            });
+
             this._cmdLineParser.Arguments.Add(new SwitchArgument("DisableLogEventMemoryMapping", false)
             {
                 Optional = true,
@@ -420,6 +432,18 @@ namespace DSEDiagnosticConsoleApplication
                         {
                             var value = ((ValueArgument<string>)item).Value;
                             DSEDiagnosticLibrary.LibrarySettings.DefaultClusterTZ = value;
+                            break;
+                        }
+                    case "ClusterName":
+                        {
+                            var value = ((ValueArgument<string>)item).Value;
+                            DSEDiagnosticConsoleApplication.ParserSettings.ClusterName = value;
+                            break;
+                        }
+                    case "ClusterHashCode":
+                        {
+                            var value = ((ValueArgument<int>)item).Value;
+                            DSEDiagnosticConsoleApplication.ParserSettings.ClusterHashCode = value;
                             break;
                         }
                     case "DefaultDCTimeZone":

@@ -222,6 +222,9 @@ namespace DSEDiagnosticConsoleApplication
         public static List<KeyValuePair<string, IFilePath>> AdditionalFilesForParsingClass = new List<KeyValuePair<string, IFilePath>>();
         public static List<string> WarnWhenKSTblIsDetected = Properties.Settings.Default.WarnWhenKSTblIsDetected.ToList(false);
         public static IFilePath ExcelFileTemplatePath = MakeFilePath(Properties.Settings.Default.ExcelFileTemplatePath, ExcelFilePath?.ParentDirectoryPath);
+        public static string ClusterName = null;
+        public static int? ClusterHashCode = null;
+
         public static DateTimeOffsetRange LogTimeRange
         {
             get { return DSEDiagnosticFileParser.LibrarySettings.LogTimeRange; }
