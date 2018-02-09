@@ -1,0 +1,34 @@
+﻿INFO  [Service Thread] 2017-01-16 13:51:39,296  StatusLogger.java:51 - Pool Name                    Active   Pending      Completed   Blocked  All Time Blocked
+INFO  [Service Thread] 2017-01-16 13:51:39,296  StatusLogger.java:66 - MutationStage                     0         0      144664687         0                 0
+INFO  [Service Thread] 2017-01-16 13:51:39,297  StatusLogger.java:66 - ReadStage                         0         0       10320546         0                 0
+INFO  [Service Thread] 2017-01-16 13:51:39,297  StatusLogger.java:66 - RequestResponseStage              0         0       64807674         0                 0
+INFO  [Service Thread] 2017-01-16 13:51:39,297  StatusLogger.java:66 - ReadRepairStage                   0         0          83328         0                 0
+INFO  [Service Thread] 2017-01-16 13:51:39,298  StatusLogger.java:66 - CounterMutationStage              1         2              3         4                 5
+INFO  [Service Thread] 2017-01-16 13:51:39,298  StatusLogger.java:66 - MiscStage                         0         0              0         0                 0
+INFO  [Service Thread] 2017-01-16 13:51:39,298  StatusLogger.java:66 - AntiEntropySessions               0         0           1353         0                 0
+INFO  [Service Thread] 2017-01-16 13:51:39,298  StatusLogger.java:66 - HintedHandoff                     0         0             36         0                 0
+INFO  [Service Thread] 2017-01-16 13:51:39,299  StatusLogger.java:66 - GossipStage                       0         0        1971739         0                 0
+INFO  [Service Thread] 2017-01-16 13:51:39,299  StatusLogger.java:66 - CacheCleanupExecutor              0         0              0         0                 0
+INFO  [Service Thread] 2017-01-16 13:51:39,299  StatusLogger.java:66 - InternalResponseStage             0         0         161902         0                 0
+INFO  [Service Thread] 2017-01-16 13:51:39,299  StatusLogger.java:66 - CommitLogArchiver                 0         0              0         0                 0
+INFO  [Service Thread] 2017-01-16 13:51:39,300  StatusLogger.java:66 - ValidationExecutor                0         0          16697         0                 0
+INFO  [Service Thread] 2017-01-16 13:51:39,300  StatusLogger.java:66 - MigrationStage                    0         0         161900         0                 0
+INFO  [Service Thread] 2017-01-16 13:51:39,300  StatusLogger.java:66 - CompactionExecutor                0         0         852524         0                 0
+INFO  [Service Thread] 2017-01-16 13:51:39,301  StatusLogger.java:66 - AntiEntropyStage                  0         0          73188         0                 0
+INFO  [Service Thread] 2017-01-16 13:51:39,301  StatusLogger.java:66 - PendingRangeCalculator            0         0             30         0                 0
+INFO  [Service Thread] 2017-01-16 13:51:39,301  StatusLogger.java:66 - Sampler                           0         0              0         0                 0
+INFO  [Service Thread] 2017-01-16 13:51:39,301  StatusLogger.java:66 - MemtableFlushWriter               0         0          49178         0                 0
+INFO  [Service Thread] 2017-01-16 13:51:39,301  StatusLogger.java:66 - MemtablePostFlush                 0         0          64922         0                 0
+INFO  [Service Thread] 2017-01-16 13:51:39,302  StatusLogger.java:66 - MemtableReclaimMemory             0         0          49178         0                 0
+INFO  [Service Thread] 2017-01-16 13:51:39,302  StatusLogger.java:75 - CompactionManager                 0         0
+INFO  [Service Thread] 2017-01-16 13:51:39,302  StatusLogger.java:87 - MessagingService                n/a       0/0
+INFO  [Service Thread] 2017-01-16 13:51:39,302  StatusLogger.java:97 - Cache Type                     Size                 Capacity               KeysToSave
+INFO  [Service Thread] 2017-01-16 13:51:39,303  StatusLogger.java:99 - KeyCache                  104720385                104857600                      all
+INFO  [Service Thread] 2017-01-16 13:51:39,303  StatusLogger.java:105 - RowCache                          0                        0                      all
+INFO  [Service Thread] 2017-01-16 13:51:39,303  StatusLogger.java:112 - ColumnFamily                Memtable ops,data
+INFO  [Service Thread] 2017-01-16 13:51:39,303  StatusLogger.java:115 - push.push_device                18369,3612697
+INFO  [Service Thread] 2017-01-16 13:51:39,303  StatusLogger.java:115 - dse_perf.node_slow_log                40,7682
+INFO  [Service Thread] 2017-01-16 13:51:39,304  StatusLogger.java:115 - solr_admin.solr_resources                 0,0
+INFO  [Service Thread] 2017-01-16 13:51:39,304  StatusLogger.java:115 - HiveMetaStore.MetaStore                   0,0
+INFO  [Service Thread] 2017-01-16 13:51:39,304  StatusLogger.java:115 - dse_security.tokens                       0,0
+INFO  [Service Thread] 2017-01-16 13:51:39,304  StatusLogger.java:115 - system.compaction_history         2765,426871

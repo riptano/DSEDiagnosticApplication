@@ -1,0 +1,3 @@
+﻿INFO [ScheduledTasks:1] 2017-01-12 19:11:57,055 GCInspector.java:116 - GC for ParNew: 215 ms for 1 collections, 2617040800 used; max is 4187619328
+INFO  [Service Thread] 2017-01-16 13:51:39,295  GCInspector.java:258 - ConcurrentMarkSweep GC in 491ms.  CMS Old Gen: 3201269976 -> 1128616640; Par Eden Space: 1145856 -> 824106248;
+INFO  [Service Thread] 2017-05-01 01:34:24,475  GCInspector.java:258 - G1 Young Generation GC in 265ms.  G1 Eden Space: 16307453952 -> 0; G1 Survivor Space: 436207616 -> 444596224;
