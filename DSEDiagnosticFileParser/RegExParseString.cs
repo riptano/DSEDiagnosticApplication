@@ -18,7 +18,9 @@ namespace DSEDiagnosticFileParser
             this.RegExStrings = regExStrings;
             if (this._compiledRegEx == null || this._compiledRegEx.Length != this.RegExStrings.Length)
             {
-                this._compiledRegEx = this.RegExStrings.Select(s => new Regex(s, RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.Compiled))
+                this._compiledRegEx = this.RegExStrings
+                                                        .Select(s => LibrarySettings.RegExLexiconValues.FindReplaceRegEx(s))
+                                                        .Select(s => new Regex(s, RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.Compiled))
                                                         .ToArray();
             }
         }

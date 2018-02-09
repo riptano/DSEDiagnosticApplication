@@ -46,9 +46,9 @@ namespace DSEDiagnosticLibrary
         /// </summary>
         SessionIgnore = SessionItem | 0x0100,
         /// <summary>
-        /// Defines a session based on the ending event&apos;s duration. A Session Begin is generated based on this event&apos;s timestamp minus the duration.
+        /// Defines a session based on the ending event&apos;s duration. A Session Begin Timestamp is generated based on this event&apos;s timestamp minus the duration.
         /// </summary>
-        SessionDefinedByDuration = SessionEnd | 0x0200,
+        SessionDefinedByDuration = SessionItem | 0x0008 | 0x0010 | 0x0200,
         /// <summary>
         ///  Statistical data that is typically aggregated over some time period (e.g., node uptime, Log Period, etc.)
         /// </summary>
@@ -90,6 +90,8 @@ namespace DSEDiagnosticLibrary
         Config = 0x100000,
         Detection = 0x200000,
         NotHandled = 0x400000,
+        Pools = 0x800000,
+        Caches = 0x1000000,
         GCStats = GC | Stats,
         NodeStats = Node | Stats,
         KeyspaceStats = Keyspace | Stats,

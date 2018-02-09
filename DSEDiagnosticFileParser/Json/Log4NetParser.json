@@ -438,7 +438,7 @@
       },
       "ParseMessage": {
         "RegExStrings": [
-          "^Compacted\\s(?<sstables>\\d+)\\ssstables\\s+to\\s*\\[(?<SSTABLEPATHS>[a-z0-9\\-_@#/.,\\ +%]*)\\]\\.\\s+(?<size>[0-9.,]+\\s+[a-z]+)\\s+to\\s+(?<newsize__size>[0-9.,]+)\\s\\([0-9a-z\\ %~,.]+\\)+\\sin\\s+(?<DURATION>[0-9.,]+\\s*[a-z/]+)\\s*\\=\\s*(?<iorate>[0-9.,]+\\s*[a-z/]+)\\.\\s+(?<totalpartions>[0-9,]+)\\s+total\\s+partitions\\s+merged\\s+to\\s+(?<mergedpartitions>[0-9,]+)\\.\\s+Partition\\s+merge\\s+counts\\s+were\\s+\\{(?<mergecounts>[0-9:\\ ,]+)\\s*\\}$"
+          "^Compacted\\s(?<sstables>\\d+)\\ssstables\\s+to\\s*\\[(?$<SSTABLEPATHS>)\\]\\.\\s+(?<size>[0-9.,]+\\s+[a-z]+)\\s+to\\s+(?<newsize__size>[0-9.,]+)\\s\\([0-9a-z\\ %~,.]+\\)+\\sin\\s+(?$<DURATION>\\s*[a-z/]+)\\s*\\=\\s*(?<iorate>[0-9.,]+\\s*[a-z/]+)\\.\\s+(?<totalpartions>[0-9,]+)\\s+total\\s+partitions\\s+merged\\s+to\\s+(?<mergedpartitions>[0-9,]+)\\.\\s+Partition\\s+merge\\s+counts\\s+were\\s+\\{(?<mergecounts>[0-9:\\ ,]+)\\s*\\}$"
         ]
       },
       "ParseThreadId": null,
@@ -480,7 +480,7 @@
       },
       "ParseMessage": {
         "RegExStrings": [
-          "^Compacting\\s+\\[(?:SSTableReader\\s*\\(\\s*path\\s*=\\s*'\\s*(?<SSTABLEPATHS>[a-z0-9\\-_@#/.,\\ +%]+)\\s*'\\s*\\),?\\s*)+\\s*\\]$"
+          "^Compacting\\s+\\[(?:SSTableReader\\s*\\(\\s*path\\s*=\\s*'\\s*(?$<SSTABLEPATHS>)\\s*'\\s*\\),?\\s*)+\\s*\\]$"
         ]
       },
       "ParseThreadId": null,
@@ -522,7 +522,7 @@
       },
       "ParseMessage": {
         "RegExStrings": [
-          "^Flushing\\s+largest\\s+\\w+\\s*\\(\\s*Keyspace\\s*=\\s*'?(?<KEYSPACE>[a-z0-9\\\\-_$%+=!?<>^*&@]+)'?,\\s+\\w+\\s*=\\s*'?(?<DDLITEMNAME>[a-z0-9\\\\-_$%+=!?<>^*&@]+)'?\\)\\s+to\\s+(?<reason>[^.]+)\\.\\s+Used\\s+total:\\s+(?<totalthresholdonheap>[0-9,.]+)\\s*/\\s*(?<totalthresholdoffheap>[0-9.,]+)\\s*,\\s*live:\\s+(?<livethresholdonheap>[0-9,9,.]+)\\s*/\\s*(?<livethresholdoffheap>[0-9,.]+)\\s*,\\s+flushing:\\s+(?<flushthresholdonheap>[0-9,.]+)\\s*/\\s*(?<flushthresholdoffheap>[0-9.,]+)\\s*,\\s+this:\\s+(?<thisthresholdonheap>[0-9,.]+)\\s*/\\s*(?<thisthresholdoffheap>[0-9,.]+)$"
+          "^Flushing\\s+largest\\s+\\w+\\s*\\(\\s*Keyspace\\s*=\\s*(?$<KEYSPACE>),\\s+\\w+\\s*=\\s*(?$<DDLITEMNAME>)\\)\\s+to\\s+(?<reason>[^.]+)\\.\\s+Used\\s+total:\\s+(?<totalthresholdonheap>[0-9,.]+)\\s*/\\s*(?<totalthresholdoffheap>[0-9.,]+)\\s*,\\s*live:\\s+(?<livethresholdonheap>[0-9,9,.]+)\\s*/\\s*(?<livethresholdoffheap>[0-9,.]+)\\s*,\\s+flushing:\\s+(?<flushthresholdonheap>[0-9,.]+)\\s*/\\s*(?<flushthresholdoffheap>[0-9.,]+)\\s*,\\s+this:\\s+(?<thisthresholdonheap>[0-9,.]+)\\s*/\\s*(?<thisthresholdoffheap>[0-9,.]+)$"
         ]
       },
       "ParseThreadId": null,
@@ -564,8 +564,8 @@
       },
       "ParseMessage": {
         "RegExStrings": [
-          "^Enqueuing\\s+flush\\s+of\\s+Memtable\\-(?<KEYSPACE>[a-z0-9'\\-_$%+=!?<>^*&@]+)\\.(?<DDLITEMNAME>[a-z0-9'\\-_$%+=!?<>^*&@]+)\\@\\d+\\((?<onheapserialized_bytes>\\d+)\\/(?<onheap_bytes>[0-9.,]+)\\s+\\w+\\/\\w+\\s+\\w+,\\s+(?<operationspersec>[0-9,]+\\s+[a-z]+)\\s*\\)",
-          "^Enqueuing\\s+flush\\s+of\\s+(?<DDLITEMNAME>[a-z0-9'\\-_$%+=@!?<>^*&]+)\\s*\\:\\s+(?<onheap_bytes>[0-9,.]+)\\s+\\((?<onheappercent>[0-9,.]+\\%)\\)\\s+on-heap,\\s+(?<offheap_bytes>[0-9,.]+)\\s+\\((?<offheappercent>[0-9,.]+\\s*[a-z/%]+)\\)\\s"
+          "^Enqueuing\\s+flush\\s+of\\s+Memtable\\-(?$<KEYSPACE>)\\.(?$<DDLITEMNAME>)\\@\\d+\\((?<onheapserialized_bytes>\\d+)\\/(?<onheap_bytes>[0-9.,]+)\\s+\\w+\\/\\w+\\s+\\w+,\\s+(?<operationspersec>[0-9,]+\\s+[a-z]+)\\s*\\)",
+          "^Enqueuing\\s+flush\\s+of\\s+(?$<DDLITEMNAME>)\\s*\\:\\s+(?<onheap_bytes>[0-9,.]+)\\s+\\((?<onheappercent>[0-9,.]+\\%)\\)\\s+on-heap,\\s+(?<offheap_bytes>[0-9,.]+)\\s+\\((?<offheappercent>[0-9,.]+\\s*[a-z/%]+)\\)\\s"
         ]
       },
       "ParseThreadId": null,
@@ -628,7 +628,7 @@
       },
       "ParseMessage": {
         "RegExStrings": [
-          "^Writing\\s+Memtable-\\s*(?:(?<TABLEVIEWNAME>[a-z0-9'\\-_$%+=!?<>^*&@]+)\\.(?<DDLITEMNAME>[a-z0-9'\\-_$%+=!?<>^*&@]+)|(?<DDLITEMNAME>[a-z0-9'\\-_$%+=!?<>^*&@]+))?@\\d+\\((?<serializedheap>[0-9.]+\\s*\\w+)\\s+serialized\\s+bytes,\\s+(?<operationspersec_ops>[0-9,]+)\\s+ops,\\s+(?<onheapthresholdpercent>[0-9.,]+\\s*[a-z/%]+)\\s*/\\s*(?<offheapthresholdpercent>[0-9.,]+\\s*[a-z/%]+)\\s"
+          "^Writing\\s+Memtable-\\s*(?:(?$<TABLEVIEWNAME>)\\.(?$<DDLITEMNAME>)|(?$<DDLITEMNAME>))?@\\d+\\((?<serializedheap>[0-9.]+\\s*\\w+)\\s+serialized\\s+bytes,\\s+(?<operationspersec_ops>[0-9,]+)\\s+ops,\\s+(?<onheapthresholdpercent>[0-9.,]+\\s*[a-z/%]+)\\s*/\\s*(?<offheapthresholdpercent>[0-9.,]+\\s*[a-z/%]+)\\s"
         ]
       },
       "ParseThreadId": null,
@@ -685,8 +685,8 @@
       },
       "ParseMessage": {
         "RegExStrings": [
-          "^Completed\\s+flushing\\s+(?<SSTABLEPATH>[a-z0-9\\-_@#/.,\\ +%]+)\\s+\\((?<flushedstorage>[0-9.,]+\\s*\\w+)\\)\\s+for\\s+[a-z ]+\\(segmentId\\s*=\\s*(?<replaysegmentid>[0-9,]+)\\s*,\\s+position\\s*=\\s*(?<replayposition>[0-9,]+)\\)$",
-          "^Completed\\s+flushing\\s+(?<SSTABLEPATH>[a-z0-9\\-_@#/.,\\ +%]+)\\s*;[a-z .]+\\s+commitlog\\s+[a-z ]+\\(segmentId\\s*=\\s*(?<replaysegmentid>[0-9,]+)\\s*,\\s+position\\s*=\\s*(?<replayposition>[0-9,]+)\\)$"
+          "^Completed\\s+flushing\\s+(?$<SSTABLEPATH>)\\s+\\((?<flushedstorage>[0-9.,]+\\s*\\w+)\\)\\s+for\\s+[a-z ]+\\(segmentId\\s*=\\s*(?<replaysegmentid>[0-9,]+)\\s*,\\s+position\\s*=\\s*(?<replayposition>[0-9,]+)\\)$",
+          "^Completed\\s+flushing\\s+(?$<SSTABLEPATH>)\\s*;[a-z .]+\\s+commitlog\\s+[a-z ]+\\(segmentId\\s*=\\s*(?<replaysegmentid>[0-9,]+)\\s*,\\s+position\\s*=\\s*(?<replayposition>[0-9,]+)\\)$"
         ]
       },
       "ParseThreadId": null,
@@ -731,7 +731,7 @@
       },
       "ParseMessage": {
         "RegExStrings": [
-          "^started\\s+hinted\\s+handoff\\s+\\w+\\s+host:\\s+(?<hostid>[0-9a-f]{8}\\-[0-9a-f]{4}\\-[0-9a-f]{4}\\-[0-9a-f]{4}\\-[0-9a-f]{12})\\s+\\w+\\s+ip:\\s+/?\\s*(?<NODE>[^ ]+)$"
+          "^started\\s+hinted\\s+handoff\\s+\\w+\\s+host:\\s+(?<hostid>[0-9a-f]{8}\\-[0-9a-f]{4}\\-[0-9a-f]{4}\\-[0-9a-f]{4}\\-[0-9a-f]{12})\\s+\\w+\\s+ip:\\s+/?\\s*(?$<NODE>)$"
         ]
       },
       "ParseThreadId": null,
@@ -777,7 +777,7 @@
       },
       "ParseMessage": {
         "RegExStrings": [
-          "^Handshaking\\s+\\w+\\s+\\w+\\s+/?\\s*(?<NODE>[^ ]+)$"
+          "^Handshaking\\s+\\w+\\s+\\w+\\s+/?\\s*(?$<NODE>)$"
         ]
       },
       "ParseThreadId": null,
@@ -821,7 +821,7 @@
       },
       "ParseMessage": {
         "RegExStrings": [
-          "^Finished\\s+hinted\\s+handoff\\s+of\\s+(?<rowshandedoff>[0-9,]+)\\s+rows\\s+\\w+\\s+endpoint\\s+/?\\s*(?<NODE>[^ ]+)$"
+          "^Finished\\s+hinted\\s+handoff\\s+of\\s+(?<rowshandedoff>[0-9,]+)\\s+rows\\s+\\w+\\s+endpoint\\s+/?\\s*(?$<NODE>)$"
         ]
       },
       "ParseThreadId": null,
@@ -907,7 +907,7 @@
       },
       "ParseMessage": {
         "RegExStrings": [
-          "^InetAddress\\s+/?\\s*(?<NODE>[^ ]+)\\s+\\w+\\s+\\w+\\s+(?<status>UP)$"
+          "^InetAddress\\s+/?\\s*(?$<NODE>)\\s+\\w+\\s+\\w+\\s+(?<status>UP)$"
         ]
       },
       "ParseThreadId": null,
@@ -1107,7 +1107,7 @@
       },
       "ParseMessage": {
         "RegExStrings": [
-          "^Executing\\s+hard\\s+commit\\s+on\\s+index\\s+(?<DDLITEM>[^ ]+)$"
+          "^Executing\\s+hard\\s+commit\\s+on\\s+index\\s+(?$<DDLITEM>)$"
         ]
       },
       "ParseThreadId": null,
@@ -1200,7 +1200,7 @@
       },
       "ParseMessage": {
         "RegExStrings": [
-          "^commitInternalComplete\\s+duration\\s*=\\s*(?<DURATION>[0-9,.]+\\s*\\w*)\\s+startTime\\s*=\\s*(?<CommitStart>[0-9,\\-]+)$"
+          "^commitInternalComplete\\s+duration\\s*=\\s*(?$<DURATION>\\s*\\w*)\\s+startTime\\s*=\\s*(?<CommitStart>[0-9,\\-]+)$"
         ]
       },
       "ParseThreadId": null,
@@ -1238,9 +1238,9 @@
       },
       "ParseMessage": {
         "RegExStrings": [
-          "^updating shards[a-z ]+/?\\s*(?<NODE>[^ ]+)\\s+\\w+\\s\\w+\\sstatus=(?<status>\\w+)\\,?(?<token>\\s?\\-?[0-9]+\\,?)*",
-          "^updating shards[a-z ]+/?\\s*(?<NODE>[^ ]+)\\s+\\w+\\s\\w+\\s(?<status>schema)=?(?<DDLSCHEMAID>[0-9a-f\\-]+)?$",
-          "^updating shards[a-z ]+/?\\s*(?<NODE>[^ ]+)\\s+\\w+\\s(?<status>dead)$"
+          "^updating shards[a-z ]+/?\\s*(?$<NODE>)\\s+\\w+\\s\\w+\\sstatus=(?<status>\\w+)\\,?(?<token>\\s?\\-?[0-9]+\\,?)*",
+          "^updating shards[a-z ]+/?\\s*(?$<NODE>)\\s+\\w+\\s\\w+\\s(?<status>schema)=?(?$<DDLSCHEMAID>)?$",
+          "^updating shards[a-z ]+/?\\s*(?$<NODE>)\\s+\\w+\\s(?<status>dead)$"
         ]
       },
       "ParseThreadId": null,
@@ -1284,7 +1284,7 @@
       },
       "ParseMessage": {
         "RegExStrings": [
-          "^nodes/?\\s*[^ ]+\\s+and\\s+[^ ]+\\s+\\w+\\s+\\w+\\s+\\w+\\s+token\\s+(?<token>\\s?\\-?[0-9]+\\,?)*\\.?\\s+/?\\s*(?<NODE>[^ ]+)\\s"
+          "^nodes/?\\s*[^ ]+\\s+and\\s+[^ ]+\\s+\\w+\\s+\\w+\\s+\\w+\\s+token\\s+(?<token>\\s?\\-?[0-9]+\\,?)*\\.?\\s+/?\\s*(?$<NODE>)\\s"
         ]
       },
       "ParseThreadId": null,
@@ -1326,7 +1326,7 @@
       },
       "ParseMessage": {
         "RegExStrings": [
-          "^Token\\s+(?<token>\\s?\\-?[0-9]+\\,?)\\s+\\w+\\s+\\w+\\s+\\w+\\s+/?\\s*[^ ]+\\sto\\s+(?<NODE>[^ ]+)$"
+          "^Token\\s+(?<token>\\s?\\-?[0-9]+\\,?)\\s+\\w+\\s+\\w+\\s+\\w+\\s+/?\\s*[^ ]+\\sto\\s+(?$<NODE>)$"
         ]
       },
       "ParseThreadId": null,
@@ -1368,7 +1368,7 @@
       },
       "ParseMessage": {
         "RegExStrings": [
-          "^Updating\\s+\\w+\\s+\\w+\\s+/?\\s*(?<NODE>[^ ]+)"
+          "^Updating\\s+\\w+\\s+\\w+\\s+/?\\s*(?$<NODE>)"
         ]
       },
       "ParseThreadId": null,
@@ -1409,8 +1409,8 @@
       },
       "ParseMessage": {
         "RegExStrings": [
-          "^(?<action>Create) new\\s+(?<type>table|columnfamily)\\s*:\\s+org.apache.cassandra.config.CFMetaData@[0-9a-f]+\\[cfid=(?<DDLSCHEMAID>[a-f0-9\\-]+),ksname=(?<KEYSPACE>[a-z0-9'\\-_$%+=!?<>^*&@]+),cfname=(?<DDLITEMNAME>[a-z0-9'\\-_$%+=!?<>^*&@]+)",
-          "^(?<action>Create) new\\s+(?<type>view)\\s*:\\s+org.apache.cassandra.config.ViewDefinition@[0-9a-f]+\\[ksname=(?<KEYSPACE>[a-z0-9'\\-_$%+=!?<>^*&@]+),viewname=(?<DDLITEMNAME>[a-z0-9'\\-_$%+=!?<>^*&@]+),basetableid=(?<basetaleid>[a-f0-9\\-]+),baseTableName=(?<basetablename>[a-z0-9'\\-_$%+=!?<>^*&@]+),.+cfid=(?<DDLSCHEMAID>[a-f0-9\\-]+),"
+          "^(?<action>Create) new\\s+(?<type>table|columnfamily)\\s*:\\s+org.apache.cassandra.config.CFMetaData@[0-9a-f]+\\[cfid=(?$<DDLSCHEMAID>),ksname=(?$<KEYSPACE>),cfname=(?$<DDLITEMNAME>)",
+          "^(?<action>Create) new\\s+(?<type>view)\\s*:\\s+org.apache.cassandra.config.ViewDefinition@[0-9a-f]+\\[ksname=(?<KEYSPACE>[a-z0-9'\\-_$%+=!?<>^*&@]+),viewname=(?$<DDLITEMNAME>),basetableid=(?<basetaleid>[a-f0-9\\-]+),baseTableName=(?<basetablename>[a-z0-9'\\-_$%+=!?<>^*&@]+),.+cfid=(?$<DDLSCHEMAID>),"
         ]
       },
       "ParseThreadId": null,
@@ -1447,7 +1447,7 @@
       },
       "ParseMessage": {
         "RegExStrings": [
-          "^(?<action>Create) new\\s+(?<type>Keyspace)\\s*:\\s+KeyspaceMetadata\\{name=(?<KEYSPACE>[a-z0-9'\\-_$%+=!?<>^*&@]+),"
+          "^(?<action>Create) new\\s+(?<type>Keyspace)\\s*:\\s+KeyspaceMetadata\\{name=(?$<KEYSPACE>),"
         ]
       },
       "ParseThreadId": null,
@@ -1481,8 +1481,8 @@
       },
       "ParseMessage": {
         "RegExStrings": [
-          "^(?<action>Update)\\s+(?<type>ColumnFamily|table|view)\\s+(?<DDLITEMNAME>[a-z0-9'\\-_$%+=!?<>^*&@/]+)\\s",
-          "^(?<action>Update)\\s+(?<type>Keyspace)\\s+(?<KEYSPACE>[a-z0-9'\\-_$%+=!?<>^*&@/]+)\\s"
+          "^(?<action>Update)\\s+(?<type>ColumnFamily|table|view)\\s+(?$<DDLITEMNAME>)\\s",
+          "^(?<action>Update)\\s+(?<type>Keyspace)\\s+(?$<KEYSPACE>)\\s"
         ]
       },
       "ParseThreadId": null,
@@ -1519,8 +1519,8 @@
       },
       "ParseMessage": {
         "RegExStrings": [
-          "^(?<action>Drop)\\s+(?<type>ColumnFamily|table|view)\\s+(?<DDLITEMNAME>[a-z0-9'\\-_$%+=!?<>^*&@/]+)\\s?",
-          "^(?<action>Drop)\\s+(?<type>Keyspace)\\s+(?<KEYSPACE>[a-z0-9'\\-_$%+=!?<>^*&@/]+)\\s?"
+          "^(?<action>Drop)\\s+(?<type>ColumnFamily|table|view)\\s+(?$<DDLITEMNAME>)\\s?",
+          "^(?<action>Drop)\\s+(?<type>Keyspace)\\s+(?$<KEYSPACE>)\\s?"
         ]
       },
       "ParseThreadId": null,
@@ -1533,6 +1533,178 @@
         "=> INFO  [SharedPool-Worker-1] 2018-01-18 21:55:04,410  MigrationManager.java:464 - Drop table 'keyspace1/digitalasset_3_0_2'",
         "=> INFO  [SharedPool-Worker-1] 2018-01-18 21:58:33,418  MigrationManager.java:475 - Drop table 'keyspace1/view1'",
         "Note that when indexes are dropped thay are updates on the base table"
+      ]
+    },
+    {
+      "Description": "GC",
+      "TagId": 13.0,
+      "MatchVersion": null,
+      "LevelMatch": {
+        "RegExStrings": [
+          "INFO"
+        ]
+      },
+      "FileNameMatch": {
+        "RegExStrings": [
+          "^GCInspector.java$"
+        ]
+      },
+      "FileLineMatch": null,
+      "MessageMatch": {
+        "RegExStrings": [
+          "^(GC for ParNew:|ConcurrentMarkSweep GC|G1 Young Generation GC) "
+        ]
+      },
+      "ParseMessage": {
+        "RegExStrings": [
+          "^GC\\s+for\\s+(?<GC>ParNew):\\s+(?$<DURATION>\\s*\\w+)\\s+\\w+\\s+(?<nbrcollections>[0-9]+)\\s+collections\\,\\s+(?<usedmemory_bytes>[0-9]+)\\s+used;\\s+max\\s+\\w+\\s(?<maxmemory_bytes>[0-9]+)",
+          "^ConcurrentMarkSweep\\s+GC\\s+\\w+\\s+(?$<DURATION>\\s*\\w+)\\.\\s+(?<GC>CMS)\\s+Old\\s+Gen:\\s+(?<oldgenfrom_bytes>[0-9]+)\\s+\\->\\s+(?<oldgento_bytes>[0-9]+);\\s+Par\\s+Eden\\s+Space:\\s+(?<paredenspacefrom_bytes>[0-9]+)\\s+\\->\\s+(?<paredenspaceto_bytes>[0-9]+)",
+          "^G1\\s+Young\\s+\\w+\\s+GC\\s+\\w+\\s+(?$<DURATION>\\s*\\w+)\\.\\s+(?<GC>G1)\\s+Eden\\s+Space:\\s+(?<edenspacefrom_bytes>[0-9]+)\\s+\\->\\s+(?<edenspaceto_bytes>[0-9]+);\\s+G1\\s+Survivor\\s+Space:\\s+(?<survivorspacefrom_bytes>[0-9]+)\\s+\\->\\s+(?<survivorspaceto_bytes>[0-9]+)"
+        ]
+      },
+      "ParseThreadId": null,
+      "EventType": "SessionDefinedByDuration",
+      "EventClass": "GC",
+      "SubClass": null,
+      "Product": "Cassandra",
+      "Examples": [
+        "=> INFO [ScheduledTasks:1] 2017-01-22 19:11:57,055 GCInspector.java:116 - GC for ParNew: 215 ms for 1 collections, 2617040800 used; max is 4187619328",
+        "=> INFO  [Service Thread] 2017-01-16 13:51:39,295  GCInspector.java:258 - ConcurrentMarkSweep GC in 491ms.  CMS Old Gen: 3201269976 -> 1128616640; Par Eden Space: 1145856 -> 824106248;",
+        "=> INFO  [Service Thread] 2017-05-01 01:34:24,475  GCInspector.java:258 - G1 Young Generation GC in 265ms.  G1 Eden Space: 16307453952 -> 0; G1 Survivor Space: 436207616 -> 444596224;"
+      ]
+    },
+    {
+      "Description": "Pool Status",
+      "TagId": 14.0,
+      "MatchVersion": null,
+      "LevelMatch": {
+        "RegExStrings": [
+          "INFO"
+        ]
+      },
+      "FileNameMatch": {
+        "RegExStrings": [
+          "^StatusLogger.java$"
+        ]
+      },
+      "FileLineMatch": null,
+      "ThreadIdMatch": {
+        "RegExStrings": [
+          "^Service Thread$"
+        ]
+      },
+      "ParseMessage": {
+        "RegExStrings": [
+          "(?<poolname>[a-z]+)\\s+(?<nbractive>[0-9,]+)\\s+(?<nbrpending>[0-9,]+)\\s+(?<nbrcompleted>[0-9,]+)\\s+(?<nbrblocked>[0-9,]+)\\s+(?<nbralltimeblocked>[0-9,]+)",
+          "(?<poolname>(CompactionManager|MessagingService))\\s+(?<nbractive>[0-9,/na]+)\\s+(?<nbrpending>[0-9,/na]+)"
+        ]
+      },
+      "ParseThreadId": null,
+      "EventType": "SingleInstance",
+      "EventClass": "Pools,Stats",
+      "SubClass": null,
+      "Product": "Cassandra",
+      "Examples": [
+        "INFO  [Service Thread] 2017-01-16 13:51:39,296  StatusLogger.java:51 - Pool Name                    Active   Pending      Completed   Blocked  All Time Blocked",
+        "INFO  [Service Thread] 2017-01-16 13:51:39,296  StatusLogger.java:66 - MutationStage                     0         0      144664687         0                 0",
+        "INFO  [Service Thread] 2017-01-16 13:51:39,297  StatusLogger.java:66 - ReadStage                         0         0       10320546         0                 0",
+        "INFO  [Service Thread] 2017-01-16 13:51:39,297  StatusLogger.java:66 - RequestResponseStage              0         0       64807674         0                 0",
+        "INFO  [Service Thread] 2017-01-16 13:51:39,297  StatusLogger.java:66 - ReadRepairStage                   0         0          83328         0                 0",
+        "INFO  [Service Thread] 2017-01-16 13:51:39,298  StatusLogger.java:66 - CounterMutationStage              1         2              0         3                 4",
+        "INFO  [Service Thread] 2017-01-16 13:51:39,298  StatusLogger.java:66 - MiscStage                         0         0              0         0                 0",
+        "INFO  [Service Thread] 2017-01-16 13:51:39,298  StatusLogger.java:66 - AntiEntropySessions               0         0           1353         0                 0",
+        "INFO  [Service Thread] 2017-01-16 13:51:39,298  StatusLogger.java:66 - HintedHandoff                     0         0             36         0                 0",
+        "INFO  [Service Thread] 2017-01-16 13:51:39,299  StatusLogger.java:66 - GossipStage                       0         0        1971739         0                 0",
+        "INFO  [Service Thread] 2017-01-16 13:51:39,299  StatusLogger.java:66 - CacheCleanupExecutor              0         0              0         0                 0",
+        "INFO  [Service Thread] 2017-01-16 13:51:39,299  StatusLogger.java:66 - InternalResponseStage             0         0         161902         0                 0",
+        "INFO  [Service Thread] 2017-01-16 13:51:39,299  StatusLogger.java:66 - CommitLogArchiver                 0         0              0         0                 0",
+        "INFO  [Service Thread] 2017-01-16 13:51:39,300  StatusLogger.java:66 - ValidationExecutor                0         0          16697         0                 0",
+        "INFO  [Service Thread] 2017-01-16 13:51:39,300  StatusLogger.java:66 - MigrationStage                    0         0         161900         0                 0",
+        "INFO  [Service Thread] 2017-01-16 13:51:39,300  StatusLogger.java:66 - CompactionExecutor                0         0         852524         0                 0",
+        "INFO  [Service Thread] 2017-01-16 13:51:39,301  StatusLogger.java:66 - AntiEntropyStage                  0         0          73188         0                 0",
+        "INFO  [Service Thread] 2017-01-16 13:51:39,301  StatusLogger.java:66 - PendingRangeCalculator            0         0             30         0                 0",
+        "INFO  [Service Thread] 2017-01-16 13:51:39,301  StatusLogger.java:66 - Sampler                           0         0              0         0                 0",
+        "INFO  [Service Thread] 2017-01-16 13:51:39,301  StatusLogger.java:66 - MemtableFlushWriter               0         0          49178         0                 0",
+        "INFO  [Service Thread] 2017-01-16 13:51:39,301  StatusLogger.java:66 - MemtablePostFlush                 0         0          64922         0                 0",
+        "INFO  [Service Thread] 2017-01-16 13:51:39,302  StatusLogger.java:66 - MemtableReclaimMemory             0         0          49178         0                 0",
+        "INFO  [Service Thread] 2017-01-16 13:51:39,302  StatusLogger.java:75 - CompactionManager                 0         0",
+        "INFO  [Service Thread] 2017-01-16 13:51:39,302  StatusLogger.java:87 - MessagingService                n/a       0/0"
+      ]
+    },
+    {
+      "Description": "Cache Status",
+      "TagId": 15.0,
+      "MatchVersion": null,
+      "LevelMatch": {
+        "RegExStrings": [
+          "INFO"
+        ]
+      },
+      "FileNameMatch": {
+        "RegExStrings": [
+          "^StatusLogger.java$"
+        ]
+      },
+      "FileLineMatch": null,
+      "ThreadIdMatch": {
+        "RegExStrings": [
+          "^Service Thread$"
+        ]
+      },
+      "ParseMessage": {
+        "RegExStrings": [
+          "(?<cachetype>[a-z]+Cache)\\s+(?<size_bytes>[0-9,]+)\\s+(?<capacity_bytes>[0-9,]+)\\s+(?<keystosave>[a-z]+)"
+        ]
+      },
+      "ParseThreadId": null,
+      "EventType": "SingleInstance",
+      "EventClass": "Caches,Stats",
+      "SubClass": null,
+      "Product": "Cassandra",
+      "Examples": [
+        "INFO  [Service Thread] 2017-01-16 13:51:39,302  StatusLogger.java:97 - Cache Type                     Size                 Capacity               KeysToSave",
+        "INFO  [Service Thread] 2017-01-16 13:51:39,303  StatusLogger.java:99 - KeyCache                  104720385                104857600                      all",
+        "INFO  [Service Thread] 2017-01-16 13:51:39,303  StatusLogger.java:105 - RowCache                          0                        0                      all"
+      ]
+    },
+    {
+      "Description": "Memtable OPS",
+      "TagId": 16.0,
+      "MatchVersion": null,
+      "LevelMatch": {
+        "RegExStrings": [
+          "INFO"
+        ]
+      },
+      "FileNameMatch": {
+        "RegExStrings": [
+          "^StatusLogger.java$"
+        ]
+      },
+      "FileLineMatch": null,
+      "ThreadIdMatch": {
+        "RegExStrings": [
+          "^Service Thread$"
+        ]
+      },
+      "ParseMessage": {
+        "RegExStrings": [
+          "(?$<DDLITEMNAME>)\\s+(?<memtable_ops>[0-9]+)\\s*,\\s*(?<datasize_bytes>[0-9]+)"
+        ]
+      },
+      "ParseThreadId": null,
+      "EventType": "SingleInstance",
+      "EventClass": "MemtableFlush,Stats",
+      "SubClass": null,
+      "Product": "Cassandra",
+      "Examples": [
+        "INFO  [Service Thread] 2017-01-16 13:51:39,303  StatusLogger.java:112 - ColumnFamily                Memtable ops,data",
+        "INFO  [Service Thread] 2017-01-16 13:51:39,303  StatusLogger.java:115 - push.push_device                18369,3612697",
+        "INFO  [Service Thread] 2017-01-16 13:51:39,303  StatusLogger.java:115 - dse_perf.node_slow_log                40,7682",
+        "INFO  [Service Thread] 2017-01-16 13:51:39,304  StatusLogger.java:115 - solr_admin.solr_resources                 0,0",
+        "INFO  [Service Thread] 2017-01-16 13:51:39,304  StatusLogger.java:115 - HiveMetaStore.MetaStore                   0,0",
+        "INFO  [Service Thread] 2017-01-16 13:51:39,304  StatusLogger.java:115 - dse_security.tokens                       0,0",
+        "INFO  [Service Thread] 2017-01-16 13:51:39,304  StatusLogger.java:115 - system.compaction_history         2765,426871"
       ]
     }
   ]

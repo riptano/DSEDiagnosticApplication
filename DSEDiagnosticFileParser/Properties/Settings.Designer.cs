@@ -1063,5 +1063,25 @@ public static class {0}
                 return ((string)(this["SolrIndexStorageSizeStatAttribute"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute(@"[
+{""Key"":""ID"",""Value"":""[0-9a-f\\-]+""},
+{""Key"":""DURATION"",""Value"":""[0-9,.]+""},
+{""Key"":""KEYSPACE"",""Value"":""[a-z0-9'\\-_$%+=!?<>^*&@]+""},
+{""Key"":""DDLITEMNAME"",""Value"":""[a-z0-9'\\-_$%+=!?<>^*&@/.]+""},
+{""Key"":""TABLEVIEWNAME"",""Value"":""[a-z0-9'\\-_$%+=!?<>^*&@/.]+""},
+{""Key"":""DDLITEM"",""Value"":""[^ ]+""},
+{""Key"":""DDLSCHEMAID"",""Value"":""[0-9a-f\\-]+""},
+{""Key"":""SSTABLEPATH"",""Value"":""[a-z0-9\\-_@#/.\\ +%]+""},
+{""Key"":""SSTABLEPATHS"",""Value"":""[a-z0-9\\-_@#/.,\\ +%]*""},
+{""Key"":""NODE"",""Value"":""[^ ]+""}
+]")]
+        public string RegExLexiconValues {
+            get {
+                return ((string)(this["RegExLexiconValues"]));
+            }
+        }
     }
 }

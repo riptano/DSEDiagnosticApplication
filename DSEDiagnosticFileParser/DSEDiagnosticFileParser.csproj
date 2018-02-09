@@ -131,6 +131,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <Compile Include="RegExLexicon.cs" />
     <Compile Include="RegExParseString.cs" />
   </ItemGroup>
   <ItemGroup>

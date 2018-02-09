@@ -154,7 +154,7 @@ namespace DSEDiagnosticLibrary
                                    EventClasses logEventClass,
                                    DateTime logLocalTime,
                                    DateTimeOffset logLocalTimewOffset,
-                                   DateTimeOffset logLocalBeginTime,
+                                   DateTimeOffset logBeginTime,
                                    string logMessage,
                                    EventTypes eventType,
                                    string logId = null,
@@ -195,7 +195,59 @@ namespace DSEDiagnosticLibrary
                         product,
                         assocateToNode)
         {
-            this.EventTimeBegin = logLocalBeginTime;
+            this.EventTimeBegin = logBeginTime;
+            this.EventTimeEnd = this.EventTime;
+            this.Duration = this.EventTimeEnd.Value - this.EventTimeBegin.Value;
+        }
+
+        public LogCassandraEvent(IFilePath logFile,
+                                   INode node,
+                                   uint lineNbr,
+                                   EventClasses logEventClass,
+                                   DateTime logLocalTime,
+                                   DateTimeOffset logLocalTimewOffset,
+                                   DateTime logLocalBeginTime,
+                                   string logMessage,
+                                   EventTypes eventType,
+                                   string logId = null,
+                                   string subClass = null,
+                                   IEnumerable<ILogEvent> parentEvents = null,
+                                   IZone timeZone = null,
+                                   IKeyspace keyspace = null,
+                                   IDDLStmt tableviewindexItem = null,
+                                   IReadOnlyDictionary<string, object> logProperties = null,
+                                   IEnumerable<string> ssTables = null,
+                                   IEnumerable<IDDLStmt> ddlItems = null,
+                                   IEnumerable<INode> assocatedNodes = null,
+                                   IEnumerable<DSEInfo.TokenRangeInfo> tokenRanges = null,
+                                   string sessionTieOutId = null,
+                                   DSEInfo.InstanceTypes product = DSEInfo.InstanceTypes.Cassandra,
+                                   bool assocateToNode = false)
+            : this(logFile,
+                        node,
+                        lineNbr,
+                        logEventClass,
+                        logLocalTime,
+                        logLocalTimewOffset,
+                        logMessage,
+                        eventType,
+                        logId,
+                        subClass,
+                        parentEvents,
+                        timeZone,
+                        keyspace,
+                        tableviewindexItem,
+                        null,
+                        logProperties,
+                        ssTables,
+                        ddlItems,
+                        assocatedNodes,
+                        tokenRanges,
+                        sessionTieOutId,
+                        product,
+                        assocateToNode)
+        {
+            this.EventTimeBegin = new DateTimeOffset(logLocalBeginTime, this.EventTime.Offset);
             this.EventTimeEnd = this.EventTime;
             this.Duration = this.EventTimeEnd.Value - this.EventTimeBegin.Value;
         }

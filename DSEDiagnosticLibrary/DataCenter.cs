@@ -270,7 +270,7 @@ namespace DSEDiagnosticLibrary
             {
                 if (this.Cluster.IsMaster) return this._name.GetHashCode();
 
-                return this._hashcode = (589 + this.Cluster.GetHashCode()) * 31 + this._name.GetHashCode() ;
+                return this._hashcode = (589 + this.Cluster.GetHashCode()) * 31 + this.Name.GetHashCode() ;
             }
         }
 

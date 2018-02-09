@@ -13,6 +13,7 @@ namespace DSEDiagnosticFileParser
     {
         static LibrarySettings() { }
 
+        public static RegExLexicon RegExLexiconValues = RegExLexicon.Instance;
         public static bool DetectDuplicatedLogEvents = Properties.Settings.Default.DetectDuplicatedLogEvents;
         public static Tuple<string, string>[] ExtractFilesWithExtensions = JsonConvert.DeserializeObject<Tuple<string, string>[]>(Properties.Settings.Default.ExtractFilesWithExtensions);
         public static FileMapper[] ProcessFileMappings = ReadJsonFileIntoObject<FileMapper[]>(Properties.Settings.Default.ProcessFileMappings);
@@ -26,6 +27,7 @@ namespace DSEDiagnosticFileParser
         public static string[] IgnoreFileWExtensions = Properties.Settings.Default.IgnoreFileWExtensions.ToArray().Select(i => i.Trim().ToLower()).ToArray();
         public static System.Text.RegularExpressions.Regex LogExceptionRegExMatches = new System.Text.RegularExpressions.Regex(Properties.Settings.Default.LogExceptionRegExMatches, System.Text.RegularExpressions.RegexOptions.Compiled | System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.Singleline);
         public static file_cassandra_log4net.DefaultLogLevelHandlers DefaultLogLevelHandlingInit = DSEDiagnosticLibrary.LibrarySettings.ParseEnum<file_cassandra_log4net.DefaultLogLevelHandlers>(Properties.Settings.Default.DefaultLogLevelHandling);
+        
         public static file_cassandra_log4net.DefaultLogLevelHandlers DefaultLogLevelHandling
         {
             get { return file_cassandra_log4net.DefaultLogLevelHandling; }
@@ -96,7 +98,7 @@ namespace DSEDiagnosticFileParser
             try
             {
 
-                if (jsonStringOrFile[0] == '{' || jsonStringOrFile.IndexOf('{') > 0)
+                if (jsonStringOrFile[0] == '{' || jsonStringOrFile[0] == '[' || jsonStringOrFile.IndexOf('{') > 0)
                 {
                     string removeComments;
                     DSEDiagnosticLibrary.StringHelpers.RemoveInLineComment(jsonStringOrFile, out removeComments);

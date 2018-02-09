@@ -267,7 +267,17 @@ namespace DSEDiagnosticFileParser
                         logEvent = this.PorcessMatch(logMessage, matchItem);
 
                         if (logEvent != null)
+                        {
                             this._logEvents.Add(logEvent);
+
+                            if((logEvent.Class & EventClasses.GC) == EventClasses.GC && this.Node.Machine.Java.GCType == null)
+                            {
+                                object gcType;
+
+                                if (logEvent.LogProperties.TryGetValue("GC", out gcType))
+                                    this.Node.Machine.Java.GCType = gcType as string;
+                            }
+                        }
                     }                    
                 };
 
@@ -747,7 +757,7 @@ namespace DSEDiagnosticFileParser
                         eventType &= ~EventTypes.SessionBeginOrItem;
                         eventType |= EventTypes.SessionBegin;
                     }
-
+                    
                     if ((eventType & EventTypes.SessionBegin) == EventTypes.SessionBegin)
                     {
                         sessionId = sessionInfo.SessionId ?? sessionInfo.SessionLookup;
@@ -904,6 +914,31 @@ namespace DSEDiagnosticFileParser
                                                         logMessage.LogDateTime,
                                                         logMessage.LogDateTimewTZOffset,
                                                         duration,
+                                                        logMessage.Message,
+                                                        eventType,
+                                                        logId,
+                                                        subClass,
+                                                        parentEvents,
+                                                        this.Node.Machine.TimeZone,
+                                                        primaryKS,
+                                                        primaryDDL,
+                                                        logProperties,
+                                                        sstableFilePaths,
+                                                        ddlInstances,
+                                                        assocatedNodes,
+                                                        tokenRanges,
+                                                        sessionId,
+                                                        matchItem.Item5.Product);
+                }
+                else if ((eventType & EventTypes.SessionDefinedByDuration) == EventTypes.SessionDefinedByDuration && (!duration.NaN || eventDurationTime.HasValue))
+                {
+                    logEvent = new LogCassandraEvent(this.File,
+                                                        this.Node,
+                                                        (uint)logMessage.FileLine,
+                                                        eventClass,
+                                                        logMessage.LogDateTime,
+                                                        logMessage.LogDateTimewTZOffset,
+                                                        eventDurationTime.HasValue ? eventDurationTime.Value : (logMessage.LogDateTime - (TimeSpan) duration),
                                                         logMessage.Message,
                                                         eventType,
                                                         logId,

@@ -38,7 +38,7 @@ namespace DSEDiagnosticFileParser.Tests
             this._cluster = DSEDiagnosticLibrary.Cluster.TryGetAddCluster(ClusterName);
 
             Assert.AreEqual(ClusterName, this._cluster?.Name);
-            Assert.AreEqual(this._cluster, DSEDiagnosticLibrary.Cluster.GetCurrentOrMaster());
+            Assert.AreEqual(this._cluster, DSEDiagnosticLibrary.Cluster.TryGetCluster(ClusterName));
 
             this._datacenter1 = DSEDiagnosticLibrary.Cluster.TryGetAddDataCenter(DC1, this._cluster);
             Assert.AreEqual(DC1, this._datacenter1?.Name);
@@ -1383,6 +1383,176 @@ namespace DSEDiagnosticFileParser.Tests
             Assert.AreEqual(491832.434502602m, ((UnitOfMeasure)((IAggregatedStats)stats.ElementAt(1)).Data.ElementAt(0).Value).ConvertTo(UnitOfMeasure.Types.MiB | UnitOfMeasure.Types.Storage));
         }
 
+
+        [TestMethod()]
+        public void ProcessFileTest_GC()
+        {
+            this.CreateClusterDCNodeDDL();
+
+            Assert.AreEqual(this._cluster, DSEDiagnosticLibrary.Cluster.TryGetCluster(ClusterName));
+            Assert.IsNotNull(this._node1);
+
+            var testLogFile = Common.Path.PathUtils.BuildFilePath(@".\LogFiles\GC.log");
+
+            var parseFile = new file_cassandra_log4net(DiagnosticFile.CatagoryTypes.LogFile, testLogFile.ParentDirectoryPath, testLogFile, this._node1, null, null, null);
+
+            var nbrLinesParsed = parseFile.ProcessFile();
+
+            Assert.AreEqual((uint)3, nbrLinesParsed);
+            Assert.AreEqual(0, parseFile.NbrErrors);
+            Assert.AreEqual(3, parseFile.NbrItemsParsed);
+            Assert.AreEqual(DSEDiagnosticFileParser.DiagnosticFile.CatagoryTypes.LogFile, parseFile.Catagory);
+            Assert.AreEqual(this._cluster, parseFile.Cluster);
+            Assert.AreEqual(this._node1, parseFile.Node);
+
+            var result = parseFile.Result as DSEDiagnosticFileParser.file_cassandra_log4net.LogResults;
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(this._node1, result.Node);
+            Assert.AreEqual(3, result.Results.Count());
+            Assert.AreEqual(0, result.OrphanedSessionEvents.Count());
+
+            var nIdx = 0;
+            var logEvent = result.Results.ElementAt(nIdx) as LogCassandraEvent;
+
+            Assert.AreEqual(EventClasses.GC | EventClasses.Information, logEvent.Class);
+            Assert.AreEqual(DateTime.Parse("2017-01-12 19:11:57.055"), logEvent.EventTimeLocal);
+            Assert.AreEqual(DateTimeOffset.Parse("2017-01-12 19:11:57.055 +00"), logEvent.EventTime);
+            Assert.AreEqual(logEvent.EventTime, logEvent.EventTimeEnd);
+            Assert.AreEqual(new TimeSpan(0, 0, 0, 0, 215), logEvent.Duration);
+            Assert.AreEqual(logEvent.EventTime - new TimeSpan(0, 0, 0, 0, 215), logEvent.EventTimeBegin);
+            Assert.AreEqual("ParNew", this._node1.Machine.Java.GCType);
+            Assert.AreEqual(5, logEvent.LogProperties.Count());
+            Assert.AreEqual("ParNew", logEvent.LogProperties["GC"]);
+
+            nIdx = 1;
+            logEvent = result.Results.ElementAt(nIdx) as LogCassandraEvent;
+
+            Assert.AreEqual(EventClasses.GC | EventClasses.Information, logEvent.Class);
+            Assert.AreEqual(DateTime.Parse("2017-01-16 13:51:39.295"), logEvent.EventTimeLocal);
+            Assert.AreEqual(DateTimeOffset.Parse("2017-01-16 13:51:39.295 +00"), logEvent.EventTime);
+            Assert.AreEqual(logEvent.EventTime, logEvent.EventTimeEnd);
+            Assert.AreEqual(new TimeSpan(0, 0, 0, 0, 491), logEvent.Duration);
+            Assert.AreEqual(logEvent.EventTime - new TimeSpan(0, 0, 0, 0, 491), logEvent.EventTimeBegin);
+            Assert.AreEqual("ParNew", this._node1.Machine.Java.GCType);
+            Assert.AreEqual(6, logEvent.LogProperties.Count());
+            Assert.AreEqual("CMS", logEvent.LogProperties["GC"]);
+
+            nIdx = 2;
+            logEvent = result.Results.ElementAt(nIdx) as LogCassandraEvent;
+
+            Assert.AreEqual(EventClasses.GC | EventClasses.Information, logEvent.Class);
+            Assert.AreEqual(DateTime.Parse("2017-05-01 01:34:24.475"), logEvent.EventTimeLocal);
+            Assert.AreEqual(DateTimeOffset.Parse("2017-05-01 01:34:24.475 +00"), logEvent.EventTime);
+            Assert.AreEqual(logEvent.EventTime, logEvent.EventTimeEnd);
+            Assert.AreEqual(new TimeSpan(0, 0, 0, 0, 265), logEvent.Duration);
+            Assert.AreEqual(logEvent.EventTime - new TimeSpan(0, 0, 0, 0, 265), logEvent.EventTimeBegin);
+            Assert.AreEqual("ParNew", this._node1.Machine.Java.GCType);
+            Assert.AreEqual(6, logEvent.LogProperties.Count());
+            Assert.AreEqual("G1", logEvent.LogProperties["GC"]);
+        }
+
+        [TestMethod()]
+        public void ProcessFileTest_PoolStatus()
+        {
+            this.CreateClusterDCNodeDDL();
+
+            Assert.AreEqual(this._cluster, DSEDiagnosticLibrary.Cluster.TryGetCluster(ClusterName));
+            Assert.IsNotNull(this._node1);
+
+            var testLogFile = Common.Path.PathUtils.BuildFilePath(@".\LogFiles\PoolGC.log");
+
+            var parseFile = new file_cassandra_log4net(DiagnosticFile.CatagoryTypes.LogFile, testLogFile.ParentDirectoryPath, testLogFile, this._node1, null, null, null);
+
+            var nbrLinesParsed = parseFile.ProcessFile();
+
+            Assert.AreEqual((uint)31, nbrLinesParsed);
+            Assert.AreEqual(0, parseFile.NbrErrors);
+            Assert.AreEqual(34, parseFile.NbrItemsParsed);
+            Assert.AreEqual(DSEDiagnosticFileParser.DiagnosticFile.CatagoryTypes.LogFile, parseFile.Catagory);
+            Assert.AreEqual(this._cluster, parseFile.Cluster);
+            Assert.AreEqual(this._node1, parseFile.Node);
+
+            var result = parseFile.Result as DSEDiagnosticFileParser.file_cassandra_log4net.LogResults;
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(this._node1, result.Node);
+            Assert.AreEqual(31, result.Results.Count());
+            Assert.AreEqual(0, result.OrphanedSessionEvents.Count());
+
+            var nIdx = 0;
+            var logEvent = result.Results.ElementAt(nIdx) as LogCassandraEvent;
+
+            Assert.AreEqual(EventClasses.Pools | EventClasses.Stats | EventClasses.Information, logEvent.Class);
+            Assert.AreEqual(DateTime.Parse("2017-01-16 13:51:39.296"), logEvent.EventTimeLocal);
+            Assert.AreEqual(DateTimeOffset.Parse("2017-01-16 13:51:39.296 +00"), logEvent.EventTime);
+            Assert.IsFalse(logEvent.EventTimeEnd.HasValue);
+            Assert.IsFalse(logEvent.Duration.HasValue);
+            Assert.IsFalse(logEvent.EventTimeBegin.HasValue);           
+            Assert.AreEqual(6, logEvent.LogProperties.Count());
+            Assert.AreEqual("MutationStage", logEvent.LogProperties["poolname"]);
+            Assert.AreEqual(0L, logEvent.LogProperties["nbractive"]);
+            Assert.AreEqual(0L, logEvent.LogProperties["nbrpending"]);
+            Assert.AreEqual(144664687L, logEvent.LogProperties["nbrcompleted"]);
+            Assert.AreEqual(0L, logEvent.LogProperties["nbrblocked"]);
+            Assert.AreEqual(0L, logEvent.LogProperties["nbralltimeblocked"]);
+            Assert.IsNull(logEvent.Keyspace);
+            Assert.IsNull(logEvent.TableViewIndex);
+
+            nIdx = 4;
+            logEvent = result.Results.ElementAt(nIdx) as LogCassandraEvent;
+
+            Assert.AreEqual(EventClasses.Pools | EventClasses.Stats | EventClasses.Information, logEvent.Class);
+            Assert.AreEqual(DateTime.Parse("2017-01-16 13:51:39.298"), logEvent.EventTimeLocal);
+            Assert.AreEqual(DateTimeOffset.Parse("2017-01-16 13:51:39.298 +00"), logEvent.EventTime);
+            Assert.IsFalse(logEvent.EventTimeEnd.HasValue);
+            Assert.IsFalse(logEvent.Duration.HasValue);
+            Assert.IsFalse(logEvent.EventTimeBegin.HasValue);
+            Assert.AreEqual(6, logEvent.LogProperties.Count());
+            Assert.AreEqual("CounterMutationStage", logEvent.LogProperties["poolname"]);
+            Assert.AreEqual(1L, logEvent.LogProperties["nbractive"]);
+            Assert.AreEqual(2L, logEvent.LogProperties["nbrpending"]);
+            Assert.AreEqual(3L, logEvent.LogProperties["nbrcompleted"]);
+            Assert.AreEqual(4L, logEvent.LogProperties["nbrblocked"]);
+            Assert.AreEqual(5L, logEvent.LogProperties["nbralltimeblocked"]);
+            Assert.IsNull(logEvent.Keyspace);
+            Assert.IsNull(logEvent.TableViewIndex);
+
+            nIdx = 23;
+            logEvent = result.Results.ElementAt(nIdx) as LogCassandraEvent;
+
+            Assert.AreEqual(EventClasses.Caches | EventClasses.Stats | EventClasses.Information, logEvent.Class);
+            Assert.AreEqual(DateTime.Parse("2017-01-16 13:51:39.303"), logEvent.EventTimeLocal);
+            Assert.AreEqual(DateTimeOffset.Parse("2017-01-16 13:51:39.303 +00"), logEvent.EventTime);
+            Assert.IsFalse(logEvent.EventTimeEnd.HasValue);
+            Assert.IsFalse(logEvent.Duration.HasValue);
+            Assert.IsFalse(logEvent.EventTimeBegin.HasValue);
+            Assert.AreEqual(4, logEvent.LogProperties.Count());
+            Assert.AreEqual("KeyCache", logEvent.LogProperties["cachetype"]);
+            Assert.AreEqual(new UnitOfMeasure(104720385, UnitOfMeasure.Types.Byte), logEvent.LogProperties["size"]);
+            Assert.AreEqual(new UnitOfMeasure(104857600, UnitOfMeasure.Types.Byte), logEvent.LogProperties["capacity"]);
+            Assert.AreEqual("all", logEvent.LogProperties["keystosave"]);            
+            Assert.IsNull(logEvent.Keyspace);
+            Assert.IsNull(logEvent.TableViewIndex);
+
+            nIdx = 25;
+            logEvent = result.Results.ElementAt(nIdx) as LogCassandraEvent;
+
+            Assert.AreEqual(EventClasses.MemtableFlush | EventClasses.Stats | EventClasses.Information, logEvent.Class);
+            Assert.AreEqual(DateTime.Parse("2017-01-16 13:51:39.303"), logEvent.EventTimeLocal);
+            Assert.AreEqual(DateTimeOffset.Parse("2017-01-16 13:51:39.303 +00"), logEvent.EventTime);
+            Assert.IsFalse(logEvent.EventTimeEnd.HasValue);
+            Assert.IsFalse(logEvent.Duration.HasValue);
+            Assert.IsFalse(logEvent.EventTimeBegin.HasValue);
+            Assert.AreEqual(3, logEvent.LogProperties.Count());
+            Assert.AreEqual("push.push_device", logEvent.LogProperties["DDLITEMNAME"]);
+            Assert.AreEqual(new UnitOfMeasure(18369, UnitOfMeasure.Types.Operations | UnitOfMeasure.Types.Rate | UnitOfMeasure.Types.SEC), logEvent.LogProperties["memtable"]);
+            Assert.AreEqual(new UnitOfMeasure(3612697, UnitOfMeasure.Types.Byte), logEvent.LogProperties["datasize"]);            
+            Assert.IsNotNull(logEvent.Keyspace);
+            Assert.IsNotNull(logEvent.TableViewIndex);
+            Assert.AreEqual("push", logEvent.Keyspace.Name);
+            Assert.AreEqual("push_device", logEvent.TableViewIndex.Name);
+        }
     }
 
 

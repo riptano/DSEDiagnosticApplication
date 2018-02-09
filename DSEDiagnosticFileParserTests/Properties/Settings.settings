@@ -1,0 +1,20 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="DSEDiagnosticFileParserTests.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="test" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">[
+{"Key":"ID","Value":"[0-9a-f\\-]+"},
+{"Key":"DURATION","Value":"[0-9,.]+"},
+{"Key":"KEYSPACE","Value":"[a-z0-9'\\-_$%+=!?&lt;&gt;^*&amp;@]+"},
+{"Key":"DDLITEMNAME","Value":"[a-z0-9'\\-_$%+=!?&lt;&gt;^*&amp;@]+"},
+{"Key":"TABLEVIEWNAME","Value":"[a-z0-9'\\-_$%+=!?&lt;&gt;^*&amp;@]+"},
+{"Key":"DDLITEM","Value":"[^ ]+"},
+{"Key":"DDLSCHEMAID","Value":"[0-9a-f\\-]+"},
+{"Key":"SSTABLEPATH","Value":"[a-z0-9\\-_@#/.\\ +%]+"},
+{"Key":"SSTABLEPATHS","Value":"[a-z0-9\\-_@#/.,\\ +%]*"},
+{"Key":"NODE","Value":"[^ ]+"}
+]</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>
