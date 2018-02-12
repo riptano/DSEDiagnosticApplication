@@ -74,14 +74,26 @@ namespace DSEDiagnosticFileParser
         {
             Default = 0,
             Label = 0x0001,
+            /// <summary>
+            /// If defined, the Session Lookup value is used to perform the action (e.g., read, remove, define, etc.) on the Session Key cache (If Label or Stack defined and value not found in session; lookup action cache is used)
+            /// </summary>
             Session = 0x0002,
             Read = 0x0004,
             Define = 0x0008,
             Delete = 0x0010,
             /// <summary>
-            /// When defining a label instead of creating it, it is pushed onto a stack that upon delete it is poped off.
+            /// When defining a label instead of creating it, it is pushed onto a stack that upon delete it is popped off.
             /// </summary>
             Stack = 0x0020,
+            /// <summary>
+            /// If defined the lookup value is used as the primary Session tie-out Id. If not defined and Session Key defined, the session key is used.
+            /// </summary>
+            TieOutId = 0x0040,
+            /// <summary>
+            /// If defined the lookup value is appended before the session id (if defined) when a tie-out id is created.
+            /// Typically this is done to allow one session end item to match multiple session begins.
+            /// </summary>
+            AppendTieOutId = 0x0080, 
             ReadSession = Read | Session,
             ReadLabel = Read | Label,
             DefineLabel = Define | Label,
@@ -516,7 +528,27 @@ namespace DSEDiagnosticFileParser
                                 || this.SessionAction == SessionKeyActions.ReadRemove))
                 {
                     logEvent = openSessions.TryGetValue(this.SessionId);
-                    sessionKey = this.SessionId;
+                    
+                    if(this.SessionLookup == null)
+                    {
+                        sessionKey = this.SessionId;
+                    }
+                    else
+                    {
+                        if ((this.SessionLookupAction & CLogLineTypeParser.SessionLookupActions.AppendTieOutId) == CLogLineTypeParser.SessionLookupActions.AppendTieOutId
+                                        && this.SessionId != null)
+                        {
+                            sessionKey = this.SessionLookup + ',' + this.SessionId;
+                        }
+                        else if ((this.SessionLookupAction & CLogLineTypeParser.SessionLookupActions.TieOutId) == CLogLineTypeParser.SessionLookupActions.TieOutId)
+                        {
+                            sessionKey = this.SessionLookup;
+                        }
+                        else
+                        {
+                            sessionKey = this.SessionId;
+                        }
+                    }                    
                 }
 
                 if (logEvent == null
@@ -548,8 +580,21 @@ namespace DSEDiagnosticFileParser
                             if (this.SessionLookup != null)
                             {
                                 logEvent = lookupSessionLabels.TryGetValue(this.SessionLookup);
-                                sessionKey = this.SessionId ?? this.SessionLookup;
-                            }
+
+                               if ((this.SessionLookupAction & CLogLineTypeParser.SessionLookupActions.AppendTieOutId) == CLogLineTypeParser.SessionLookupActions.AppendTieOutId
+                                        && this.SessionId != null)
+                                {
+                                    sessionKey = this.SessionLookup + ',' + this.SessionId;
+                                }
+                                else if ((this.SessionLookupAction & CLogLineTypeParser.SessionLookupActions.TieOutId) == CLogLineTypeParser.SessionLookupActions.TieOutId)
+                                {
+                                    sessionKey = this.SessionLookup;
+                                }
+                                else
+                                {
+                                    sessionKey = this.SessionId ?? this.SessionLookup;
+                                }
+                            }                            
                         }
                         else
                         {
@@ -557,7 +602,25 @@ namespace DSEDiagnosticFileParser
                             var refThis = this;
                             var stackItem = lookupSessionLabels.FirstOrDefault(kv => refThis.IsLookupMatch(possibleSessionLookup = kv.Key)).Value;
                             logEvent = stackItem == null ? null : (stackItem.Count == 0 ? null : stackItem.Peek());
-                            sessionKey = this.SessionId ?? possibleSessionLookup;
+
+                            if(possibleSessionLookup == null)
+                            {
+                                sessionKey = this.SessionId;
+                            }
+                            else
+                            if ((this.SessionLookupAction & CLogLineTypeParser.SessionLookupActions.AppendTieOutId) == CLogLineTypeParser.SessionLookupActions.AppendTieOutId
+                                        && this.SessionId != null)
+                            {
+                                sessionKey = this.SessionLookup + ',' + this.SessionId;
+                            }
+                            else if ((this.SessionLookupAction & CLogLineTypeParser.SessionLookupActions.TieOutId) == CLogLineTypeParser.SessionLookupActions.TieOutId)
+                            {
+                                sessionKey = possibleSessionLookup;
+                            }
+                            else
+                            {
+                                sessionKey = this.SessionId ?? possibleSessionLookup;
+                            }
                         }
                     }
                 }
@@ -748,7 +811,8 @@ namespace DSEDiagnosticFileParser
                                         node,
                                         keyspace,
                                         logLineProperties,
-                                        logLineMessage);
+                                        logLineMessage,
+                                        false);
         }
 
         public string DetermineSessionLookup(Cluster cluster,
@@ -1255,7 +1319,8 @@ namespace DSEDiagnosticFileParser
                                                 INode node,
                                                 IKeyspace keyspace,
                                                 IDictionary<string, object> logLineProperties,
-                                                ILogMessage logLineMessage)
+                                                ILogMessage logLineMessage,
+                                                bool throwWhenKeyNotFnd = true)
         {
             if (logLineParser.EventType == EventTypes.SingleInstance)
             {
@@ -1296,7 +1361,7 @@ namespace DSEDiagnosticFileParser
                                         logLineMessage,
                                         out sessionKey))
                 {
-                    if (sessionKey == null)
+                    if (sessionKey == null && throwWhenKeyNotFnd)
                     {
                         throw new ArgumentException(string.Format("{0} \"{1}\" was not valid for \"{2}\".",
                                                                     logLineParser.CacheInfoVarName(cacheIdx),

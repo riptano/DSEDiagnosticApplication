@@ -1008,8 +1008,18 @@ namespace DSEDiagnosticFileParser
                                                         sessionId,
                                                         matchItem.Item5.Product);
 
-                    ((LogCassandraEvent) (logEvent.ParentEvents.LastOrDefault(p => p.GetValue().SessionTieOutId == logEvent.SessionTieOutId))?.GetValue())?.UpdateEndingTimeStamp(logEvent.EventTimeLocal);
-                    ((LogCassandraEvent) (logEvent.ParentEvents.FirstOrDefault())?.GetValue())?.UpdateEndingTimeStamp(logEvent.EventTimeLocal);
+                    if (logEvent.ParentEvents.Count() > 1)
+                    {
+                        ((LogCassandraEvent)(logEvent.ParentEvents
+                                            .LastOrDefault(p => p.GetValue().SessionTieOutId == logEvent.SessionTieOutId
+                                                                    || (logEvent.SessionTieOutId != null && p.GetValue().SessionTieOutId.StartsWith(logEvent.SessionTieOutId + ','))))
+                                            ?.GetValue())
+                                            ?.UpdateEndingTimeStamp(logEvent.EventTimeLocal);
+                    }
+                    ((LogCassandraEvent) (logEvent.ParentEvents
+                                                .FirstOrDefault())
+                                                ?.GetValue())
+                                                ?.UpdateEndingTimeStamp(logEvent.EventTimeLocal);
                 }
                 else
                 {
@@ -1276,6 +1286,23 @@ namespace DSEDiagnosticFileParser
                             ddlInstances = ddlInstances.DuplicatesRemoved(d => d.FullName).ToList();
                         }
                     }
+
+                    if (ddlItems.Count() == 1
+                            && (primaryDDL == null || primaryDDL.Equals(((ICQLIndex)ddlItems.First()).Table)))
+                    {
+                        primaryDDL = ddlItems.First();
+                        primaryKS = primaryDDL.Keyspace;
+                    }
+                    else if (primaryDDL == null)
+                    {
+                       var commonTbl = ((ICQLIndex)ddlInstances.First()).Table;
+
+                        if (ddlInstances.Select(i => ((ICQLIndex)i).Table).All(t => t.Equals(commonTbl)))
+                        {
+                            primaryDDL = commonTbl;
+                            primaryKS = commonTbl.Keyspace;
+                        }                        
+                    }
                 }
 
                 if (ddlNames != null && ddlNames.HasAtLeastOneElement())
@@ -1298,23 +1325,23 @@ namespace DSEDiagnosticFileParser
                     }
                 }
 
-                if(!string.IsNullOrEmpty(ddlSchemaId))
+                if (!string.IsNullOrEmpty(ddlSchemaId))
                 {
                     var ddlItem = this.Cluster.Keyspaces.SelectMany(k => k.DDLs).FirstOrDefault(ddl => ddl is ICQLTable && ((ICQLTable)ddl).Id.ToString() == ddlSchemaId) as IDDLStmt;
 
-                    if(ddlItem != null)
+                    if (ddlItem != null)
                     {
                         if (ddlInstances == null || ddlInstances.IsEmpty())
                         {
                             ddlInstances = new List<IDDLStmt>() { ddlItem };
                         }
-                        else if(!ddlInstances.Exists(ddl => ddl.FullName == ddlItem.FullName))
+                        else if (!ddlInstances.Exists(ddl => ddl.FullName == ddlItem.FullName))
                         {
-                            ddlInstances.Add(ddlItem);                            
+                            ddlInstances.Add(ddlItem);
                         }
                     }
                 }
-
+                
                 if (primaryKS == null
                         && ddlInstances != null
                         && ddlInstances.HasAtLeastOneElement())

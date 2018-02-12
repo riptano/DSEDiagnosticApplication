@@ -1076,7 +1076,8 @@ public static class {0}
 {""Key"":""DDLSCHEMAID"",""Value"":""[0-9a-f\\-]+""},
 {""Key"":""SSTABLEPATH"",""Value"":""[a-z0-9\\-_@#/.\\ +%]+""},
 {""Key"":""SSTABLEPATHS"",""Value"":""[a-z0-9\\-_@#/.,\\ +%]*""},
-{""Key"":""NODE"",""Value"":""[^ ]+""}
+{""Key"":""NODE"",""Value"":""[^ ]+""},
+{""Key"":""SOLRINDEXNAME"",""Value"":""[a-z0-9'\\-_$%+=!?<>^*&@/.]+""}
 ]")]
         public string RegExLexiconValues {
             get {

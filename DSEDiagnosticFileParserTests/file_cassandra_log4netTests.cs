@@ -1553,6 +1553,276 @@ namespace DSEDiagnosticFileParser.Tests
             Assert.AreEqual("push", logEvent.Keyspace.Name);
             Assert.AreEqual("push_device", logEvent.TableViewIndex.Name);
         }
+
+        [TestMethod()]
+        public void ProcessFileTest_SolrHardCommit()
+        {
+            this.CreateClusterDCNodeDDL();
+
+            Assert.AreEqual(this._cluster, DSEDiagnosticLibrary.Cluster.TryGetCluster(ClusterName));
+            Assert.IsNotNull(this._node1);
+
+            var testLogFile = Common.Path.PathUtils.BuildFilePath(@".\LogFiles\SolrHardCommit.log");
+
+            var parseFile = new file_cassandra_log4net(DiagnosticFile.CatagoryTypes.LogFile, testLogFile.ParentDirectoryPath, testLogFile, this._node1, null, null, null);
+
+            var nbrLinesParsed = parseFile.ProcessFile();
+
+            Assert.AreEqual((uint)9, nbrLinesParsed);
+            Assert.AreEqual(0, parseFile.NbrErrors);
+            Assert.AreEqual(9, parseFile.NbrItemsParsed);
+            Assert.AreEqual(DSEDiagnosticFileParser.DiagnosticFile.CatagoryTypes.LogFile, parseFile.Catagory);
+            Assert.AreEqual(this._cluster, parseFile.Cluster);
+            Assert.AreEqual(this._node1, parseFile.Node);
+
+            var result = parseFile.Result as DSEDiagnosticFileParser.file_cassandra_log4net.LogResults;
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(this._node1, result.Node);
+            Assert.AreEqual(9, result.Results.Count());
+            Assert.AreEqual(0, result.OrphanedSessionEvents.Count());
+
+            var nIdx = 0;
+            var logEvent = result.Results.ElementAt(nIdx) as LogCassandraEvent;
+            LogCassandraEvent parentSession;
+            LogCassandraEvent currentParrent;
+
+            Assert.AreEqual(EventClasses.SolrHardCommit | EventClasses.Information, logEvent.Class);
+            Assert.AreEqual(EventTypes.SessionBegin, logEvent.Type);
+            Assert.IsNotNull(logEvent.Id);           
+            Assert.AreEqual(DateTime.Parse("2017-05-12 23:20:01.570"), logEvent.EventTimeLocal);
+            Assert.AreEqual(DateTimeOffset.Parse("2017-05-12 23:20:01.570 +00"), logEvent.EventTime);
+            Assert.IsTrue(logEvent.EventTimeEnd.HasValue);
+            Assert.IsTrue(logEvent.Duration.HasValue);
+            Assert.IsTrue(logEvent.EventTimeBegin.HasValue);
+            Assert.AreEqual(new TimeSpan(0, 0, 0, 55, 193), logEvent.Duration);
+            Assert.AreEqual(logEvent.EventTime, logEvent.EventTimeBegin);
+            Assert.AreEqual(logEvent.EventTime + logEvent.Duration.Value, logEvent.EventTimeEnd);
+
+            Assert.AreEqual(0, logEvent.ParentEvents.Count());
+            Assert.AreEqual(3, logEvent.LogProperties.Count());           
+            Assert.IsNotNull(logEvent.Keyspace);
+            Assert.IsNotNull(logEvent.TableViewIndex);
+            Assert.AreEqual("coafstatim", logEvent.Keyspace.Name);
+            Assert.AreEqual("coafstatim.application", logEvent.TableViewIndex.FullName);
+            Assert.AreEqual(21, logEvent.DDLItems.Count());
+            parentSession = logEvent;
+            currentParrent = logEvent;
+
+            nIdx = 1;
+            logEvent = result.Results.ElementAt(nIdx) as LogCassandraEvent;
+
+            Assert.AreEqual(EventClasses.SolrHardCommit | EventClasses.Information, logEvent.Class);
+            Assert.AreEqual(EventTypes.SessionItem, logEvent.Type);
+            Assert.IsNotNull(logEvent.Id);
+            Assert.AreEqual(parentSession.Id, logEvent.Id);
+            Assert.AreEqual(DateTime.Parse("2017-05-12 23:20:23.571"), logEvent.EventTimeLocal);
+            Assert.AreEqual(DateTimeOffset.Parse("2017-05-12 23:20:23.571 +00"), logEvent.EventTime);
+            Assert.IsFalse(logEvent.EventTimeEnd.HasValue);
+            Assert.IsFalse(logEvent.Duration.HasValue);
+            Assert.IsFalse(logEvent.EventTimeBegin.HasValue);
+            //Assert.AreEqual(new TimeSpan(0, 0, 0, 55, 193), logEvent.Duration);
+            //Assert.AreEqual(logEvent.EventTime, logEvent.EventTimeBegin);
+            //Assert.AreEqual(logEvent.EventTime + logEvent.Duration.Value, logEvent.EventTimeEnd);
+
+            Assert.AreEqual(1, logEvent.ParentEvents.Count());
+            Assert.AreEqual(1, logEvent.LogProperties.Count());
+            Assert.IsNotNull(logEvent.Keyspace);
+            Assert.IsNotNull(logEvent.TableViewIndex);
+            Assert.AreEqual("coafstatim", logEvent.Keyspace.Name);
+            Assert.AreEqual("coafstatim.application", logEvent.TableViewIndex.FullName);
+            Assert.AreEqual(1, logEvent.DDLItems.Count());
+
+            nIdx = 2;
+            logEvent = result.Results.ElementAt(nIdx) as LogCassandraEvent;
+
+            Assert.AreEqual(EventClasses.SolrHardCommit | EventClasses.Information, logEvent.Class);
+            Assert.AreEqual(EventTypes.SessionBegin, logEvent.Type);
+            Assert.IsNotNull(logEvent.Id);
+            Assert.AreEqual(parentSession.Id, logEvent.Id);
+            Assert.AreEqual(DateTime.Parse("2017-05-12 23:20:34.571"), logEvent.EventTimeLocal);
+            Assert.AreEqual(DateTimeOffset.Parse("2017-05-12 23:20:34.571 +00"), logEvent.EventTime);
+            Assert.IsTrue(logEvent.EventTimeEnd.HasValue);            
+            Assert.IsTrue(logEvent.Duration.HasValue);
+            Assert.IsTrue(logEvent.EventTimeBegin.HasValue);
+            Assert.AreEqual(new TimeSpan(0, 0, 0, 22, 192), logEvent.Duration);
+            Assert.AreEqual(logEvent.EventTime, logEvent.EventTimeBegin);
+            Assert.AreEqual(logEvent.EventTime + logEvent.Duration.Value, logEvent.EventTimeEnd);
+
+            Assert.AreEqual(1, logEvent.ParentEvents.Count());
+            Assert.AreEqual(1, logEvent.LogProperties.Count());
+            Assert.IsNull(logEvent.Keyspace);
+            Assert.IsNull(logEvent.TableViewIndex);
+            //Assert.AreEqual("coafstatim", logEvent.Keyspace.Name);
+            //Assert.AreEqual("coafstatim.application", logEvent.TableViewIndex.FullName);
+            Assert.AreEqual(0, logEvent.DDLItems.Count());
+            currentParrent = logEvent;
+
+            nIdx = 3;
+            logEvent = result.Results.ElementAt(nIdx) as LogCassandraEvent;
+
+            Assert.AreEqual(EventClasses.SolrHardCommit | EventClasses.Information, logEvent.Class);
+            Assert.AreEqual(EventTypes.SessionEnd, logEvent.Type);
+            Assert.IsNotNull(logEvent.Id);
+            Assert.AreEqual(parentSession.Id, logEvent.Id);
+            Assert.AreEqual(DateTime.Parse("2017-05-12 23:20:56.763"), logEvent.EventTimeLocal);
+            Assert.AreEqual(DateTimeOffset.Parse("2017-05-12 23:20:56.763 +00"), logEvent.EventTime);
+            Assert.IsTrue(logEvent.EventTimeEnd.HasValue);
+            Assert.IsTrue(logEvent.Duration.HasValue);
+            Assert.IsTrue(logEvent.EventTimeBegin.HasValue);
+            Assert.AreEqual(new TimeSpan(0, 0, 0, 22, 192), logEvent.Duration);
+
+            Assert.AreEqual(currentParrent.EventTime, logEvent.EventTimeBegin);
+            Assert.AreEqual(logEvent.EventTime - logEvent.Duration.Value, logEvent.EventTimeBegin);
+            Assert.AreEqual(logEvent.EventTime, logEvent.EventTimeEnd);
+
+            Assert.AreEqual(2, logEvent.ParentEvents.Count());
+            Assert.AreEqual(currentParrent.GetHashCode(), logEvent.ParentEvents.Last().GetHashCode());
+            Assert.AreEqual(parentSession.Id, logEvent.ParentEvents.First().GetValue().Id);
+            Assert.AreEqual(currentParrent.EventTimeEnd.Value, logEvent.EventTime);
+            Assert.AreEqual(parentSession.EventTimeEnd.Value, logEvent.EventTime);
+            Assert.AreEqual(2, logEvent.LogProperties.Count());
+            Assert.IsNull(logEvent.Keyspace);
+            Assert.IsNull(logEvent.TableViewIndex);
+            //Assert.AreEqual("coafstatim", logEvent.Keyspace.Name);
+            //Assert.AreEqual("coafstatim.application", logEvent.TableViewIndex.FullName);
+            Assert.AreEqual(0, logEvent.DDLItems.Count());
+
+
+            nIdx = 4;
+            logEvent = result.Results.ElementAt(nIdx) as LogCassandraEvent;
+           
+            Assert.AreEqual(EventClasses.SolrHardCommit | EventClasses.Information, logEvent.Class);
+            Assert.AreEqual(EventTypes.SessionBegin, logEvent.Type);
+            Assert.IsNotNull(logEvent.Id);
+            Assert.AreEqual(DateTime.Parse("2017-09-23 16:32:01.763"), logEvent.EventTimeLocal);
+            Assert.AreEqual(DateTimeOffset.Parse("2017-09-23 16:32:01.763 +00"), logEvent.EventTime);
+            Assert.IsTrue(logEvent.EventTimeEnd.HasValue);
+            Assert.IsTrue(logEvent.Duration.HasValue);
+            Assert.IsTrue(logEvent.EventTimeBegin.HasValue);
+            Assert.AreEqual(new TimeSpan(0, 0, 0, 55, 036), logEvent.Duration);
+            Assert.AreEqual(logEvent.EventTime, logEvent.EventTimeBegin);
+            Assert.AreEqual(logEvent.EventTime + logEvent.Duration.Value, logEvent.EventTimeEnd);
+
+            Assert.AreEqual(0, logEvent.ParentEvents.Count());
+            Assert.AreEqual(2, logEvent.LogProperties.Count());
+            Assert.IsNotNull(logEvent.Keyspace);
+            Assert.IsNotNull(logEvent.TableViewIndex);
+            Assert.AreEqual("coafstatim", logEvent.Keyspace.Name);
+            Assert.AreEqual("coafstatim.application.coafstatim_application_appcretddt_index", logEvent.TableViewIndex.FullName);
+            Assert.AreEqual(2, logEvent.DDLItems.Count());
+            parentSession = logEvent;
+            currentParrent = logEvent;
+
+            nIdx = 5;
+            logEvent = result.Results.ElementAt(nIdx) as LogCassandraEvent;
+
+            Assert.AreEqual(EventClasses.SolrHardCommit | EventClasses.Information, logEvent.Class);
+            Assert.AreEqual(EventTypes.SessionItem, logEvent.Type);
+            Assert.IsNotNull(logEvent.Id);
+            Assert.AreEqual(parentSession.Id, logEvent.Id);
+            Assert.AreEqual(DateTime.Parse("2017-09-23 16:32:23.775"), logEvent.EventTimeLocal);
+            Assert.AreEqual(DateTimeOffset.Parse("2017-09-23 16:32:23.775 +00"), logEvent.EventTime);
+            Assert.IsFalse(logEvent.EventTimeEnd.HasValue);
+            Assert.IsFalse(logEvent.Duration.HasValue);
+            Assert.IsFalse(logEvent.EventTimeBegin.HasValue);
+            //Assert.AreEqual(new TimeSpan(0, 0, 0, 55, 193), logEvent.Duration);
+            //Assert.AreEqual(logEvent.EventTime, logEvent.EventTimeBegin);
+            //Assert.AreEqual(logEvent.EventTime + logEvent.Duration.Value, logEvent.EventTimeEnd);
+
+            Assert.AreEqual(1, logEvent.ParentEvents.Count());
+            Assert.AreEqual(1, logEvent.LogProperties.Count());
+            Assert.IsNotNull(logEvent.Keyspace);
+            Assert.IsNotNull(logEvent.TableViewIndex);
+            Assert.AreEqual("coafstatim", logEvent.Keyspace.Name);
+            Assert.AreEqual("coafstatim.application", logEvent.TableViewIndex.FullName);
+            Assert.AreEqual(1, logEvent.DDLItems.Count());
+
+            nIdx = 6;
+            logEvent = result.Results.ElementAt(nIdx) as LogCassandraEvent;
+
+            Assert.AreEqual(EventClasses.SolrHardCommit | EventClasses.Information, logEvent.Class);
+            Assert.AreEqual(EventTypes.SessionBegin, logEvent.Type);
+            Assert.IsNotNull(logEvent.Id);
+            Assert.AreEqual(parentSession.Id, logEvent.Id);
+            Assert.AreEqual(DateTime.Parse("2017-09-23 16:32:34.784"), logEvent.EventTimeLocal);
+            Assert.AreEqual(DateTimeOffset.Parse("2017-09-23 16:32:34.784 +00"), logEvent.EventTime);
+            Assert.IsTrue(logEvent.EventTimeEnd.HasValue);
+            Assert.IsTrue(logEvent.Duration.HasValue);
+            Assert.IsTrue(logEvent.EventTimeBegin.HasValue);
+            Assert.AreEqual(new TimeSpan(0, 0, 0, 11, 015), logEvent.Duration);
+            Assert.AreEqual(logEvent.EventTime, logEvent.EventTimeBegin);
+            Assert.AreEqual(logEvent.EventTime + logEvent.Duration.Value, logEvent.EventTimeEnd);
+
+            Assert.AreEqual(1, logEvent.ParentEvents.Count());
+            Assert.AreEqual(1, logEvent.LogProperties.Count());
+            Assert.IsNull(logEvent.Keyspace);
+            Assert.IsNull(logEvent.TableViewIndex);
+            //Assert.AreEqual("coafstatim", logEvent.Keyspace.Name);
+            //Assert.AreEqual("coafstatim.application", logEvent.TableViewIndex.FullName);
+            Assert.AreEqual(0, logEvent.DDLItems.Count());
+            currentParrent = logEvent;
+
+            nIdx = 7;
+            logEvent = result.Results.ElementAt(nIdx) as LogCassandraEvent;
+
+            Assert.AreEqual(EventClasses.SolrHardCommit | EventClasses.Information, logEvent.Class);
+            Assert.AreEqual(EventTypes.SessionEnd, logEvent.Type);
+            Assert.IsNotNull(logEvent.Id);
+            Assert.AreEqual(parentSession.Id, logEvent.Id);
+            Assert.AreEqual(DateTime.Parse("2017-09-23 16:32:45.799"), logEvent.EventTimeLocal);
+            Assert.AreEqual(DateTimeOffset.Parse("2017-09-23 16:32:45.799 +00"), logEvent.EventTime);
+            Assert.IsTrue(logEvent.EventTimeEnd.HasValue);
+            Assert.IsTrue(logEvent.Duration.HasValue);
+            Assert.IsTrue(logEvent.EventTimeBegin.HasValue);
+            Assert.AreEqual(new TimeSpan(0, 0, 0, 11, 015), logEvent.Duration);
+
+            Assert.AreEqual(currentParrent.EventTime, logEvent.EventTimeBegin);
+            Assert.AreEqual(logEvent.EventTime - logEvent.Duration.Value, logEvent.EventTimeBegin);
+            Assert.AreEqual(logEvent.EventTime, logEvent.EventTimeEnd);
+
+            Assert.AreEqual(2, logEvent.ParentEvents.Count());
+            Assert.AreEqual(currentParrent.GetHashCode(), logEvent.ParentEvents.Last().GetHashCode());
+            Assert.AreEqual(parentSession.Id, logEvent.ParentEvents.First().GetValue().Id);
+            Assert.AreEqual(currentParrent.EventTimeEnd.Value, logEvent.EventTime);
+            Assert.AreNotEqual(parentSession.EventTimeEnd.Value, logEvent.EventTime);
+            Assert.AreEqual(2, logEvent.LogProperties.Count());
+            Assert.IsNull(logEvent.Keyspace);
+            Assert.IsNull(logEvent.TableViewIndex);
+            //Assert.AreEqual("coafstatim", logEvent.Keyspace.Name);
+            //Assert.AreEqual("coafstatim.application", logEvent.TableViewIndex.FullName);
+            Assert.AreEqual(0, logEvent.DDLItems.Count());
+
+            nIdx = 8;
+            logEvent = result.Results.ElementAt(nIdx) as LogCassandraEvent;
+
+            Assert.AreEqual(EventClasses.SolrHardCommit | EventClasses.Information, logEvent.Class);
+            Assert.AreEqual(EventTypes.SessionEnd, logEvent.Type);
+            Assert.IsNotNull(logEvent.Id);
+            Assert.AreEqual(parentSession.Id, logEvent.Id);
+            Assert.AreEqual(DateTime.Parse("2017-09-23 16:32:56.799"), logEvent.EventTimeLocal);
+            Assert.AreEqual(DateTimeOffset.Parse("2017-09-23 16:32:56.799 +00"), logEvent.EventTime);
+            Assert.IsTrue(logEvent.EventTimeEnd.HasValue);
+            Assert.IsTrue(logEvent.Duration.HasValue);
+            Assert.IsTrue(logEvent.EventTimeBegin.HasValue);
+            Assert.AreEqual(new TimeSpan(0, 0, 0, 55, 036), logEvent.Duration);
+
+            Assert.AreEqual(parentSession.EventTime, logEvent.EventTimeBegin);
+            Assert.AreEqual(logEvent.EventTime - logEvent.Duration.Value, logEvent.EventTimeBegin);
+            Assert.AreEqual(logEvent.EventTime, logEvent.EventTimeEnd);
+
+            Assert.AreEqual(1, logEvent.ParentEvents.Count());
+           //Assert.AreEqual(currentParrent.GetHashCode(), logEvent.ParentEvents.Last().GetHashCode());
+            Assert.AreEqual(parentSession.Id, logEvent.ParentEvents.First().GetValue().Id);
+            //Assert.AreEqual(currentParrent.EventTimeEnd.Value, logEvent.EventTime);
+            Assert.AreEqual(parentSession.EventTimeEnd.Value, logEvent.EventTime);
+            Assert.AreEqual(2, logEvent.LogProperties.Count());
+            Assert.IsNotNull(logEvent.Keyspace);
+            Assert.IsNotNull(logEvent.TableViewIndex);
+            Assert.AreEqual("coafstatim", logEvent.Keyspace.Name);
+            Assert.AreEqual("coafstatim.application.coafstatim_application_appcretddt_index", logEvent.TableViewIndex.FullName);
+            Assert.AreEqual(1, logEvent.DDLItems.Count());
+        }
     }
 
 
