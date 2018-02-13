@@ -5,10 +5,39 @@ using System.Text;
 using System.Threading.Tasks;
 using Common;
 using Common.Path;
+using Common.Patterns.TimeZoneInfo;
 using CommandLineParser.Arguments;
 
 namespace DSEDiagnosticConsoleApplication
 {
+    public class DirectoryArgument : CommandLineParser.Arguments.DirectoryArgument
+    {
+        public DirectoryArgument(char shortName) : base(shortName) { }
+        public DirectoryArgument(string longName) : base(longName) { }
+        public DirectoryArgument(char shortName, string longName) : base(shortName, longName) { }
+        public DirectoryArgument(char shortName, string longName, string description) : base(shortName, longName, description) { }
+
+        public override System.IO.DirectoryInfo Convert(string stringValue)
+        {
+            return Common.Path.PathUtils.BuildDirectoryPath(stringValue)?.DirectoryInfo();
+        }
+
+    }
+
+    public class FileArgument : CommandLineParser.Arguments.FileArgument
+    {
+        public FileArgument(char shortName) : base(shortName) { }
+        public FileArgument(string longName) : base(longName) { }
+        public FileArgument(char shortName, string longName) : base(shortName, longName) { }
+        public FileArgument(char shortName, string longName, string description) : base(shortName, longName, description) { }
+
+        public override System.IO.FileInfo Convert(string stringValue)
+        {
+            return Common.Path.PathUtils.BuildFilePath(stringValue)?.FileInfo();
+        }
+        
+    }
+
     internal sealed class ConsoleArguments
     {
         private CommandLineParser.CommandLineParser _cmdLineParser = new CommandLineParser.CommandLineParser();
@@ -287,12 +316,13 @@ namespace DSEDiagnosticConsoleApplication
                                         DateTime startDT = string.IsNullOrEmpty(startTR) ? DateTime.MinValue : DateTime.Parse(startTR);
                                         DateTime endDT = string.IsNullOrEmpty(endTR) ? DateTime.MaxValue : DateTime.Parse(endTR);
 
+
                                         ParserSettings.LogTimeRange = new DateTimeOffsetRange(string.IsNullOrEmpty(startTZ)
                                                                                                     ? startDT == DateTime.MinValue ? DateTimeOffset.MinValue : startDT.ConvertToOffSet()
-                                                                                                    : startDT.ConvertToOffSet(startTZ),
+                                                                                                    : startDT.ConvertToOffset(startTZ, ZoneNameTypes.Default),
                                                                                                 string.IsNullOrEmpty(endTZ)
                                                                                                     ? endDT == DateTime.MaxValue ? DateTimeOffset.MaxValue : endDT.ConvertToOffSet()
-                                                                                                    : endDT.ConvertToOffSet(endTZ));
+                                                                                                    : endDT.ConvertToOffset(endTZ, ZoneNameTypes.Default));
                                     }
                                     catch (System.Exception ex)
                                     {

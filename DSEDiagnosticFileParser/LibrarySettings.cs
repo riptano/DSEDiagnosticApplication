@@ -98,7 +98,7 @@ namespace DSEDiagnosticFileParser
             try
             {
 
-                if (jsonStringOrFile[0] == '{' || jsonStringOrFile[0] == '[' || jsonStringOrFile.IndexOf('{') > 0)
+                if (jsonStringOrFile[0] == '{' || jsonStringOrFile.IndexOf('{') > 0)
                 {
                     string removeComments;
                     DSEDiagnosticLibrary.StringHelpers.RemoveInLineComment(jsonStringOrFile, out removeComments);
