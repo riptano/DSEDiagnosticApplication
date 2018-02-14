@@ -179,7 +179,7 @@ namespace DSEDiagnosticToDataTable
                             dataRow.SetField("Debug Log Nbr Files", fileCnt = debugLogEntries.Count());
                             totalFiles += fileCnt;
 
-                            if (fileCnt > 0)
+                            if (totalFiles > 0)
                             {
                                 dataRow.SetFieldToTZOffset("Time Zone Offset", minTzOffset, maxTZOffset);
                             }
