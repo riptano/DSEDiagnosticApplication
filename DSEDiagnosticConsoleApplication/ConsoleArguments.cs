@@ -121,7 +121,7 @@ namespace DSEDiagnosticConsoleApplication
             {
                 DefaultValue = ParserSettings.NodeToolCaptureTimestamp,
                 Optional = true,
-                Description = "This machine's local Date/Time when either the OpsCenter Diagnostic TarBall was created or when the \"nodetool\" statical (e.g., cfstats) capture occurred. Null will use the Date embedded in the OpsCenter tar ball directory."
+                Description = "When the OpsCenter Diagnostic TarBall was created or when the \"nodetool\" statical (e.g., cfstats) capture occurred. Null will use the Date embedded in the OpsCenter tar ball directory. Syntax should be that of a date time offset (+|-HH[:MM] and no IANA name accepted). If time zone offset not given, current machine's offset is used."
             });
 
             this._cmdLineParser.Arguments.Add(new ValueArgument<int>("LogRangeBasedOnPrevHrs")
@@ -135,7 +135,8 @@ namespace DSEDiagnosticConsoleApplication
             {
                 Optional = true,
                 DefaultValue = ParserSettings.LogTimeRange == null ? null : string.Format("{0}, {1}", ParserSettings.LogTimeRange.Min, ParserSettings.LogTimeRange.Max),
-                Description = "Only import log entries from/to this date/time range. Empty string will parse all entries. Syntax: \"<FromDateTimeOnly> [IANA TimeZone Name]\", \", <ToDateTimeOnly> [IANA TimeZone Name]\", or \"<FromDateTime> [IANA TimeZone Name],<ToDateTime> [IANA TimeZone Name]\". If [IANA TimeZone Name] is not given the local machine's TZ is used. Ignored if LogRangeBasedOnPrevHrs is defined."
+                Description = "Only import log entries from/to this date/time range. Empty string will parse all entries. Syntax: \"<FromDateTimeOnly> [+|-HH[:MM]]|[IANA TimeZone Name]\", \", <ToDateTimeOnly> [+|-HH[:MM]]|[IANA TimeZone Name]\", or \"<FromDateTime> [+|-HH[:MM]]|[IANA TimeZone Name],<ToDateTime> [+|-HH[:MM]]|[IANA TimeZone Name]\". If [IANA TimeZone Name] or [+|-HH[:MM]] (timezone offset) is not given the local machine's TZ is used. Ignored if LogRangeBasedOnPrevHrs is defined.",
+                Example = "\"2018-02-01 00:00:00 +00:00, 2018-02-21 00:00:00 UDT\" only logs between Feb01 to Feb21 2018 UDT -or- \",2018-02-21 00:00:00 UDT\" All logs up to Feb21 2018 UDT -or- \"2018-02-01 00:00:00 UDT\" only logs from Feb01 2018 UDT to last log entries"
             });
 
             this._cmdLineParser.Arguments.Add(new ValueArgument<string>("IgnoreKeySpaces")
@@ -200,7 +201,7 @@ namespace DSEDiagnosticConsoleApplication
                 Description = "The DSE Version to use for processing"
             });
 
-            this._cmdLineParser.Arguments.Add(new ValueArgument<string>("DefauClusterTimeZone")
+            this._cmdLineParser.Arguments.Add(new ValueArgument<string>("DefaultClusterTimeZone")
             {
                 Optional = true,
                 DefaultValue = DSEDiagnosticLibrary.LibrarySettings.DefaultClusterTZ,
@@ -250,7 +251,7 @@ namespace DSEDiagnosticConsoleApplication
             this._cmdLineParser.Arguments.Add(new SwitchArgument("DisableParallelProcessing", false)
             {
                 Description = "Disable Parallel Processing"
-            });
+            });            
         }
 
         public bool ParseSetArguments(string[] args)
@@ -313,16 +314,44 @@ namespace DSEDiagnosticConsoleApplication
                                         var startTZ = match.Groups["STARTTZ"].Value;
                                         var endTR = match.Groups["ENDTS"].Value;
                                         var endTZ = match.Groups["ENDTZ"].Value;
-                                        DateTime startDT = string.IsNullOrEmpty(startTR) ? DateTime.MinValue : DateTime.Parse(startTR);
-                                        DateTime endDT = string.IsNullOrEmpty(endTR) ? DateTime.MaxValue : DateTime.Parse(endTR);
+                                        DateTimeOffset startDTOS;
+                                        DateTimeOffset endDTOS;
 
+                                        if(string.IsNullOrEmpty(startTZ))
+                                        {
+                                            if(string.IsNullOrEmpty(startTR))
+                                            {
+                                                startDTOS = DateTimeOffset.MinValue;
+                                            }
+                                            else
+                                            {
+                                                startDTOS = DateTimeOffset.Parse(startTR);
+                                            }
+                                        }
+                                        else
+                                        {
+                                            DateTime startDT = string.IsNullOrEmpty(startTR) ? DateTime.MinValue : DateTime.Parse(startTR);
+                                            startDTOS = DetermineDateTimeFromTZ(startDT, startTZ);
+                                        }
 
-                                        ParserSettings.LogTimeRange = new DateTimeOffsetRange(string.IsNullOrEmpty(startTZ)
-                                                                                                    ? startDT == DateTime.MinValue ? DateTimeOffset.MinValue : startDT.ConvertToOffSet()
-                                                                                                    : startDT.ConvertToOffset(startTZ, ZoneNameTypes.Default),
-                                                                                                string.IsNullOrEmpty(endTZ)
-                                                                                                    ? endDT == DateTime.MaxValue ? DateTimeOffset.MaxValue : endDT.ConvertToOffSet()
-                                                                                                    : endDT.ConvertToOffset(endTZ, ZoneNameTypes.Default));
+                                        if (string.IsNullOrEmpty(endTZ))
+                                        {
+                                            if (string.IsNullOrEmpty(endTR))
+                                            {
+                                                endDTOS = DateTimeOffset.MaxValue;
+                                            }
+                                            else
+                                            {
+                                                endDTOS = DateTimeOffset.Parse(endTR);
+                                            }
+                                        }
+                                        else
+                                        {
+                                            DateTime endDT = string.IsNullOrEmpty(endTR) ? DateTime.MaxValue : DateTime.Parse(endTR);
+                                            endDTOS = DetermineDateTimeFromTZ(endDT, endTZ);
+                                        }
+
+                                        ParserSettings.LogTimeRange = new DateTimeOffsetRange(startDTOS, endDTOS);
                                     }
                                     catch (System.Exception ex)
                                     {
@@ -458,9 +487,16 @@ namespace DSEDiagnosticConsoleApplication
                             }
                         }
                         break;
-                    case "DefauClusterTimeZone":
+                    case "DefaultClusterTimeZone":
                         {
                             var value = ((ValueArgument<string>)item).Value;
+
+                            if(!string.IsNullOrEmpty(value) 
+                                    && Common.TimeZones.Find(value, ZoneNameTypes.IANATZName) == null)
+                            {
+                                throw new CommandLineParser.Exceptions.CommandLineFormatException(string.Format("DefaultClusterTimeZone IANA name was not found. Value given is \"{0}\"", value));
+                            }
+
                             DSEDiagnosticLibrary.LibrarySettings.DefaultClusterTZ = value;
                             break;
                         }
@@ -486,6 +522,17 @@ namespace DSEDiagnosticConsoleApplication
 
                                                                             return new DSEDiagnosticLibrary.DefaultAssocItemToTimeZone() { Item = dctz[0].Trim(), IANATZName = dctz[1].Trim() };
                                                                         });
+
+                            foreach(var kvp in items)
+                            {
+                                if (!string.IsNullOrEmpty(kvp.IANATZName)
+                                    && Common.TimeZones.Find(kvp.IANATZName, ZoneNameTypes.IANATZName) == null)
+                                {
+                                    throw new CommandLineParser.Exceptions.CommandLineFormatException(string.Format("DefaultDCTimeZone IANA name was not found for DC \"{0}\" with IANA name \"{1}\"",
+                                                                                                                        kvp.Item, kvp.IANATZName));
+                                }
+                            }
+
                             DSEDiagnosticLibrary.DataCenter.DefaultTimeZones = items.ToArray();
                         }
                         break;
@@ -499,6 +546,17 @@ namespace DSEDiagnosticConsoleApplication
 
                                                                             return new DSEDiagnosticLibrary.DefaultAssocItemToTimeZone() { Item = nodetz[0].Trim(), IANATZName = nodetz[1].Trim() };
                                                                         });
+
+                            foreach (var kvp in items)
+                            {
+                                if (!string.IsNullOrEmpty(kvp.IANATZName)
+                                    && Common.TimeZones.Find(kvp.IANATZName, ZoneNameTypes.IANATZName) == null)
+                                {
+                                    throw new CommandLineParser.Exceptions.CommandLineFormatException(string.Format("DefaultNodeTimeZone IANA name was not found for Node \"{0}\" with IANA name \"{1}\"",
+                                                                                                                        kvp.Item, kvp.IANATZName));
+                                }
+                            }
+
                             DSEDiagnosticLibrary.Node.DefaultTimeZones = items.ToArray();
                         }
                         break;
@@ -537,6 +595,19 @@ namespace DSEDiagnosticConsoleApplication
         {
             get;
             set;
+        }
+
+        public DateTimeOffset DetermineDateTimeFromTZ(DateTime dateTime, string tzName)
+        {
+            if(string.IsNullOrEmpty(tzName))
+            {
+                if (dateTime == DateTime.MinValue) return DateTimeOffset.MinValue;
+                if (dateTime == DateTime.MaxValue) return DateTimeOffset.MaxValue;
+
+                return dateTime.ConvertToOffSet();
+            }
+
+            return Common.TimeZones.ConvertToOffset(dateTime, tzName, ZoneNameTypes.IANATZName);
         }
     }
 }

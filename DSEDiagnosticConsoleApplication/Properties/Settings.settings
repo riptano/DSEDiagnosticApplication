@@ -36,7 +36,7 @@
       <Value Profile="(Default)">yyyy_MM_dd_HH_mm_ss</Value>
     </Setting>
     <Setting Name="CLParserLogTimeRangeRegEx" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">^(?&lt;STARTTS&gt;[0-9 \-:./]+)?\s*(?&lt;STARTTZ&gt;[A-Z0-9_//]+)?\s*,?\s*(?&lt;ENDTS&gt;[0-9 \-:./]+)?\s*(?&lt;ENDTZ&gt;[A-Z0-9_+\-:]+)?$</Value>
+      <Value Profile="(Default)">^(?&lt;STARTTS&gt;[0-9 \-:./+]+)?\s*(?&lt;STARTTZ&gt;[A-Z0-9_/]+)?\s*,?\s*(?&lt;ENDTS&gt;[0-9 \-:./+]+)?\s*(?&lt;ENDTZ&gt;[A-Z0-9_/]+)?$</Value>
     </Setting>
     <Setting Name="OnlyIncludeXHrsofLogsFromDiagCaptureTime" Type="System.Int32" Scope="Application">
       <Value Profile="(Default)">-1</Value>
