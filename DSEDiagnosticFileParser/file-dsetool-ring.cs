@@ -72,6 +72,23 @@ namespace DSEDiagnosticFileParser
                 10.20.70.83      Cassandra    rack1        Cassandra        Up      Normal   315.75 GB        16.67%               3074457345618258602                         
 
             */
+            /*
+             Address          DC                   Rack         Workload             Graph  Status  State    Load             Owns                 VNodes                                       Health [0,1] 
+            10.146.90.29     potomac              rack1        Analytics(SW)        no     Up      Normal   90.29 GiB        ?                    256                                          0.20         
+            10.146.90.30     potomac              rack1        Analytics(SM)        no     Up      Normal   89.77 GiB        ?                    256                                          0.90         
+            10.146.90.31     potomac              rack1        Analytics(SW)        no     Up      Normal   86.84 GiB        ?                    256                                          0.90         
+            10.146.90.32     potomac              rack1        Analytics(SW)        no     Up      Normal   88.55 GiB        ?                    256                                          0.90         
+            10.146.90.33     potomac              rack1        Analytics(SW)        no     Up      Normal   86 GiB           ?                    256                                          0.90         
+            10.146.90.34     potomac              rack1        Analytics(SW)        no     Up      Normal   97.08 GiB        ?                    256                                          0.90         
+            10.146.90.35     potomac              rack1        Analytics(SW)        no     Up      Normal   91.53 GiB        ?                    256                                          0.90         
+            10.146.90.36     potomac              rack1        Analytics(SW)        no     Up      Normal   91.19 GiB        ?                    256                                          0.90         
+            10.146.90.37     potomac              rack1        Analytics(SW)        no     Up      Normal   90.88 GiB        ?                    256                                          0.90         
+            10.146.90.38     potomac              rack1        Analytics(SW)        no     Up      Normal   88.3 GiB         ?                    256                                          0.90         
+            10.146.90.39     potomac              rack1        Analytics(SW)        no     Up      Normal   86.32 GiB        ?                    256                                          0.90         
+            10.146.90.40     potomac              rack1        Analytics(SW)        no     Up      Normal   87.33 GiB        ?                    256                                          0.90         
+            Note: you must specify a keyspace to get ownership information.
+
+             */
 
             string line = null;
             string[] regExSplit = null;

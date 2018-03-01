@@ -64,6 +64,19 @@ namespace DSEDiagnosticFileParser
             Note: Non-system keyspaces don't have the same replication settings, effective ownership information is meaningless
 
             */
+            /*
+             Datacenter: potomac
+                ==========
+                Address       Rack        Status State   Load            Owns                Token                                       
+                                                                                             9214846091632560624                         
+                10.146.90.39  rack1       Up     Normal  86.32 GiB       ?                   -9216643853967258348
+
+             Warning: "nodetool ring" is used to output all the tokens of a node.
+                To view status related info of a node use "nodetool status" instead.
+
+
+            Note: Non-system keyspaces don't have the same replication settings, effective ownership information is meaningless
+             */
 
             string line = null;
             string[] regExSplit = null;

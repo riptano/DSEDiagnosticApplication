@@ -768,8 +768,12 @@ namespace DSEDiagnosticLibrary
             AdvancedReplication = 0x0040,
             Hadoop = 0x0080,
             CFS = 0x0100,
+            SW = 0x0200,
+            SM = 0x0400,
             Analytics_TT = Analytics | TT,
             Analytics_JT = Analytics | JT,
+            Analytics_SM = Analytics | SM,
+            Analytics_SW = Analytics | SW,
             Cassandra_JT = Cassandra | JT
         }
 
