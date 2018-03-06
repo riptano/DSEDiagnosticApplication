@@ -89,10 +89,19 @@ namespace DSEDiagnosticFileParser
             Note: you must specify a keyspace to get ownership information.
 
              */
+            /*
+             Server ID          Address          DC                   Rack         Workload             Graph  Status  State    Load             Owns                 VNodes                                       Health [0,1] 
+             3C-A8-2A-17-08-08  172.26.2.132     Chicago              rack1        Cassandra            yes    Up      Normal   211.37 GB        ?                    32                                           0.90         
+             3C-A8-2A-17-C4-48  172.26.2.133     Chicago              rack1        Cassandra            yes    Up      Normal   267.1 GB         ?                    32                                           0.90         
+             3C-A8-2A-17-05-F8  172.26.2.134     Chicago              rack1        Cassandra            yes    Up      Normal   278.56 GB        ?                    32                                           0.90         
+             3C-A8-2A-17-87-28  172.26.2.135     Chicago              rack1        Cassandra            yes    Up      Normal   218.99 GB        ?                    32                                           0.90         
+             3C-A8-2A-17-57-D8  172.26.2.136     Chicago              rack1        Cassandra(JT)        yes    Up      Normal   270.87 GB        ?                    32                                           0.90         
+            */
 
             string line = null;
-            string[] regExSplit = null;
-            bool graphStatusCol = true;
+            Match matchesLine = null;
+            Group nodeGroup = null;
+            Group dcGroup = null;
             bool usesTokens = false;
 
             foreach (var element in fileLines)
@@ -104,6 +113,7 @@ namespace DSEDiagnosticFileParser
 
                 if(string.Empty == line
                     || line.StartsWith("Address")
+                    || line.StartsWith("Server ID")
                     || line.StartsWith("Note:"))
                 {
                     usesTokens = line.EndsWith("Token");
@@ -119,129 +129,165 @@ namespace DSEDiagnosticFileParser
                     }
                 }
 
-                //null,10.14.149.207,Ejby,RAC1,Cassandra,no,Up,Normal,24.23 GB,?,256
-                regExSplit = this.RegExParser.Split(line);
 
-                if(regExSplit.Length != 12)
+                matchesLine = this.RegExParser.Match(line);
+
+                if(matchesLine.Success)
                 {
-                    regExSplit = this.RegExParser.Split(line, 1);
-                    graphStatusCol = false;
+                    nodeGroup = matchesLine.Groups["ADDRESS"];
+                    dcGroup = matchesLine.Groups["DC"];
 
-                    if (regExSplit.Length != 11)
+                    if(nodeGroup.Success && dcGroup.Success)
+                    {
+                        var node = Cluster.TryGetAddNode(nodeGroup.Value, dcGroup.Value, this.DefaultClusterName);
+
+                        if(node == null)
+                        {
+                            Logger.Instance.ErrorFormat("FileMapper<{2}>\t<NoNodeId>\t{0}\tNode creation failed for Line \"{1}\" found in DSETool Ring File.",
+                                                            this.File,
+                                                            line,
+                                                            this.MapperId);
+                        }
+                        else
+                        {
+                            DSEInfo.InstanceTypes type;
+                            uint vNodes;
+                            Group grpItem;
+
+                            if (string.IsNullOrEmpty(node.DSE.Rack) && (grpItem = matchesLine.Groups["RACK"]).Success)
+                            {
+                                node.DSE.Rack = grpItem.Value;
+                            }
+
+                            if ((grpItem = matchesLine.Groups["SERVERID"]).Success)
+                            {
+                                Guid nodeId;
+                                if (Guid.TryParse(grpItem.Value, out nodeId))
+                                {
+                                    node.DSE.HostId = nodeId;
+                                }
+                            }
+
+                            if ((grpItem = matchesLine.Groups["WORKLOAD"]).Success)
+                            {
+                                if (Enum.TryParse<DSEInfo.InstanceTypes>(grpItem.Value, true, out type))
+                                {
+                                    node.DSE.InstanceType |= type;
+                                }
+                                else
+                                {
+                                    bool updated = false;
+
+                                    if (grpItem.Value[grpItem.Value.Length - 1] == ')')
+                                    {
+                                        var newName = grpItem.Value.Replace('(', '_').Substring(0, grpItem.Value.Length - 1);
+
+                                        if (updated = Enum.TryParse<DSEInfo.InstanceTypes>(newName, true, out type))
+                                        {
+                                            node.DSE.InstanceType |= type;
+                                        }
+                                    }
+
+                                    if (!updated)
+                                    {
+                                        {
+                                            var indexPos = grpItem.Value.IndexOf('(');
+                                            if (indexPos < 0)
+                                            {
+                                                var instanceType = grpItem.Value.Substring(0, indexPos);
+                                                var subType = grpItem.Value.Substring(indexPos + 1, grpItem.Value.Length - indexPos - 2);
+
+                                                if (updated = Enum.TryParse<DSEInfo.InstanceTypes>(instanceType, true, out type))
+                                                {
+                                                    node.DSE.InstanceType |= type;
+                                                }
+
+                                                if (!string.IsNullOrEmpty(subType))
+                                                {
+                                                    if (updated = Enum.TryParse<DSEInfo.InstanceTypes>(subType, true, out type))
+                                                    {
+                                                        node.DSE.InstanceType |= type;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        if (!updated)
+                                        {
+                                            Logger.Instance.WarnFormat("FileMapper<{2}>\t<NoNodeId>\t{0}\tInvalid DSE Instance Type of \"{1}\" found in DSETool Ring File. Type Ignored",
+                                                                        this.File,
+                                                                        grpItem.Value,
+                                                                        this.MapperId);
+                                            ++this.NbrWarnings;
+                                        }
+                                    }
+                                }
+                            }
+
+                            if ((grpItem = matchesLine.Groups["GRAPH"]).Success
+                                    && grpItem.Value.ToLower() == "yes")
+                            {
+                                node.DSE.InstanceType |= DSEInfo.InstanceTypes.Graph;
+                            }
+                                
+                            if ((grpItem = matchesLine.Groups["STATUS"]).Success
+                                    && grpItem.Value.ToLower() == "up")
+                            {
+                                node.DSE.Statuses = DSEInfo.DSEStatuses.Up;
+                            }
+
+                            if ((grpItem = matchesLine.Groups["LOAD"]).Success)
+                            {
+                                node.DSE.StorageUsed = new UnitOfMeasure(matchesLine.Value);
+                            }
+
+                            if ((grpItem = matchesLine.Groups["OWNS"]).Success
+                                && grpItem.Value != "?")
+                            {
+                                node.DSE.StorageUtilization = new UnitOfMeasure(grpItem.Value, UnitOfMeasure.Types.Utilization | UnitOfMeasure.Types.Storage | UnitOfMeasure.Types.Percent);
+                            }
+
+                            if ((grpItem = matchesLine.Groups["VNODES"]).Success)
+                            {
+                                if (!usesTokens
+                                        && uint.TryParse(grpItem.Value, out vNodes))
+                                {
+                                    node.DSE.NbrTokens = vNodes;
+                                    node.DSE.VNodesEnabled = vNodes > 1;
+                                }
+                                else
+                                {
+                                    node.DSE.VNodesEnabled = false;
+                                }
+                            }
+                            else
+                            {
+                                node.DSE.VNodesEnabled = false;
+                            }
+
+                            if ((grpItem = matchesLine.Groups["HEALTH"]).Success)
+                            {
+                                node.DSE.HealthRating = grpItem.Value;
+                            }
+                            
+                            ++nbrGenerated;
+                        }
+                    }
+                    else
                     {
                         Logger.Instance.ErrorFormat("FileMapper<{2}>\t<NoNodeId>\t{0}\tInvalid Line \"{1}\" found in DSETool Ring File.",
                                                     this.File,
                                                     line,
                                                     this.MapperId);
-                        ++this.NbrErrors;
-                        regExSplit = null;
                     }
                 }
-
-                if(regExSplit != null)
+                else
                 {
-                    var node = Cluster.TryGetAddNode(regExSplit[1], regExSplit[2], this.DefaultClusterName);
-
-                    if (node != null)
-                    {
-                        DSEInfo.InstanceTypes type;
-                        uint vNodes;
-
-                        if (string.IsNullOrEmpty(node.DSE.Rack))
-                        {
-                            node.DSE.Rack = regExSplit[3];
-                        }
-
-                        if (Enum.TryParse<DSEInfo.InstanceTypes>(regExSplit[4], true, out type))
-                        {
-                            node.DSE.InstanceType |= type;
-                        }
-                        else
-                        {
-                            bool updated = false;
-
-                            if (regExSplit[4][regExSplit[4].Length - 1] == ')')
-                            {
-                                var newName = regExSplit[4].Replace('(', '_').Substring(0, regExSplit[4].Length - 1);
-
-                                if (updated = Enum.TryParse<DSEInfo.InstanceTypes>(newName, true, out type))
-                                {
-                                    node.DSE.InstanceType |= type;
-                                }
-                            }
-
-                            if(!updated)
-                            {
-                                {
-                                    var indexPos = regExSplit[4].IndexOf('(');
-                                    if (indexPos < 0)
-                                    {
-                                        var instanceType = regExSplit[4].Substring(0, indexPos);
-                                        var subType = regExSplit[4].Substring(indexPos + 1, regExSplit[4].Length - indexPos - 2);
-
-                                        if (updated = Enum.TryParse<DSEInfo.InstanceTypes>(instanceType, true, out type))
-                                        {
-                                            node.DSE.InstanceType |= type;
-                                        }
-
-                                        if (!string.IsNullOrEmpty(subType))
-                                        {
-                                            if (updated = Enum.TryParse<DSEInfo.InstanceTypes>(subType, true, out type))
-                                            {
-                                                node.DSE.InstanceType |= type;
-                                            }
-                                        }
-                                    }
-                                }
-                                if (!updated)
-                                {
-                                    Logger.Instance.WarnFormat("FileMapper<{2}>\t<NoNodeId>\t{0}\tInvalid DSE Instance Type of \"{1}\" found in DSETool Ring File. Type Ignored",
-                                                                this.File,
-                                                                regExSplit[4],
-                                                                this.MapperId);
-                                    ++this.NbrWarnings;
-                                }
-                            }
-                        }
-
-                        var offset = graphStatusCol ? 0 : -1;
-
-                        if(graphStatusCol && regExSplit[5].ToLower() == "yes")
-                        {
-                            node.DSE.InstanceType |= DSEInfo.InstanceTypes.Graph;
-                        }
-                        
-                        if (regExSplit[6 + offset].ToLower() == "up")
-                        {
-                            node.DSE.Statuses = DSEInfo.DSEStatuses.Up;
-                        }
-
-                        node.DSE.StorageUsed = new UnitOfMeasure(regExSplit[8 + offset]);
-
-                        if (regExSplit[9 + offset][0] != '?')
-                        {
-                            node.DSE.StorageUtilization = new UnitOfMeasure(regExSplit[9 + offset], UnitOfMeasure.Types.Utilization | UnitOfMeasure.Types.Storage | UnitOfMeasure.Types.Percent);
-                        }
-
-                        if (!usesTokens && uint.TryParse(regExSplit[10 + offset], out vNodes))
-                        {
-                            node.DSE.NbrTokens = vNodes;
-                            node.DSE.VNodesEnabled = vNodes > 1;
-                        }
-                        else if(!string.IsNullOrEmpty(regExSplit[10 + offset]))
-                        {
-                            node.DSE.VNodesEnabled = false;
-                        }
-
-                        if(graphStatusCol && regExSplit[11][0] != '?' && regExSplit[11][0] != ' ')
-                        {
-                            node.DSE.HealthRating = regExSplit[11];
-                        }
-
-                        ++nbrGenerated;
-                    }
-                }
-
+                    Logger.Instance.ErrorFormat("FileMapper<{2}>\t<NoNodeId>\t{0}\tInvalid Line \"{1}\" found in DSETool Ring File.",
+                                                    this.File,
+                                                    line,
+                                                    this.MapperId);
+                    continue;
+                }                
             }
 
             this.Processed = true;

@@ -689,7 +689,9 @@ namespace DSEDiagnosticFileParser
                 var strPrimaryKeys = viewMatch.Groups[5].Success ? viewMatch.Groups[5].Value.Trim() : viewMatch.Groups[7].Value.Trim();
                 var strWithClause = viewMatch.Groups[6].Success ? viewMatch.Groups[6].Value.Trim() : null;
                 var strWhereClause = viewMatch.Groups[4].Value.Trim();
-                var columnsSplit = strColumns.Split(',');
+                var columnsSplit = strColumns == "*"
+                                    ? null
+                                    : strColumns.Split(',');
                 IEnumerable<ICQLColumn> columns;
                 var pkList = new List<ICQLColumn>();
                 var ckList = new List<ICQLColumn>();
@@ -727,12 +729,18 @@ namespace DSEDiagnosticFileParser
                         ckList.Add(cqlColumn);
                     }
 
-                    columns = pkList.Concat(ckList.ToArray())
-                                .Concat(tblInstance.TryGetColumns(columnsSplit)
+                    if (columnsSplit == null)
+                    {
+                        columns = tblInstance.Columns.Select(c => c.Copy()).ToArray();
+                    }
+                    else
+                    {
+                        columns = pkList.Concat(ckList.ToArray())
+                                        .Concat(tblInstance.TryGetColumns(columnsSplit)
                                                         .Where(c => !(pkList.Any(p => p.Name == c.Name)
                                                                             || ckList.Any(k => k.Name == c.Name)))
                                                         .Select(c => c.Copy()).ToArray());
-
+                    }
                 }
 
                 var properties = new Dictionary<string, object>();

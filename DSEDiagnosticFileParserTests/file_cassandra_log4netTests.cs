@@ -57,7 +57,7 @@ namespace DSEDiagnosticFileParser.Tests
             Assert.AreEqual(this._node2, this._datacenter2.TryGetNode(NodeName2));
 
             var ddlPath = Common.Path.PathUtils.BuildFilePath(DDLPath);
-            var ddlParsing = new DSEDiagnosticFileParser.cql_ddl(ddlPath, null, null);
+            var ddlParsing = new DSEDiagnosticFileParser.cql_ddl(ddlPath, ClusterName, null);
 
             ddlParsing.ProcessFile();
 
@@ -385,8 +385,9 @@ namespace DSEDiagnosticFileParser.Tests
         {
             this.CreateClusterDCNodeDDL();
 
-            Assert.AreEqual(this._cluster, DSEDiagnosticLibrary.Cluster.GetCurrentOrMaster());
+            Assert.AreEqual(this._cluster.Name, ClusterName);
             Assert.IsNotNull(this._node1);
+            Assert.AreEqual(this._node1.Cluster, this._cluster);
 
             var testLogFile = Common.Path.PathUtils.BuildFilePath(@".\LogFiles\ExceptionSimple.log");
 
@@ -533,8 +534,9 @@ namespace DSEDiagnosticFileParser.Tests
         {
             this.CreateClusterDCNodeDDL();
 
-            Assert.AreEqual(this._cluster, DSEDiagnosticLibrary.Cluster.GetCurrentOrMaster());
+            Assert.AreEqual(this._cluster.Name, ClusterName);
             Assert.IsNotNull(this._node1);
+            Assert.AreEqual(this._node1.Cluster, this._cluster);
 
             var testLogFile = Common.Path.PathUtils.BuildFilePath(@".\LogFiles\SchemaChangesShardingEvts.log");
 
@@ -1276,8 +1278,9 @@ namespace DSEDiagnosticFileParser.Tests
         {
             this.CreateClusterDCNodeDDL();
 
-            Assert.AreEqual(this._cluster, DSEDiagnosticLibrary.Cluster.GetCurrentOrMaster());
+            Assert.AreEqual(this._cluster.Name, ClusterName);
             Assert.IsNotNull(this._node1);
+            Assert.AreEqual(this._node1.Cluster, this._cluster);
 
             var testLogFile = Common.Path.PathUtils.BuildFilePath(@".\LogFiles\UnHandledLogEvents.log");
 
@@ -1340,7 +1343,7 @@ namespace DSEDiagnosticFileParser.Tests
         {
             this.CreateClusterDCNodeDDL();
 
-            Assert.AreEqual(this._cluster, DSEDiagnosticLibrary.Cluster.GetCurrentOrMaster());
+            Assert.AreEqual(this._cluster.Name, ClusterName);
             Assert.IsNotNull(this._node1);
 
             var testLogFile = Common.Path.PathUtils.BuildFilePath(@".\Json\solr_index_size.json");
