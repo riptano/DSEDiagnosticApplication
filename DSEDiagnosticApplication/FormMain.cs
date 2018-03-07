@@ -76,6 +76,7 @@ namespace DSEDiagnosticApplication
             this.ultraTextEditorAltCompFiles.Enabled = false;
             this.ultraDateTimeEditorEndLog.Enabled = false;
             this.ultraDateTimeEditorStartLog.Enabled = false;
+            this.buttonGenJSON.Enabled = false;
 
             var items = await this.RunProcessFile().ConfigureAwait(false);
 
@@ -116,6 +117,7 @@ namespace DSEDiagnosticApplication
             this.ultraTextEditorAltCompFiles.Enabled = false;
             this.ultraDateTimeEditorEndLog.Enabled = false;
             this.ultraDateTimeEditorStartLog.Enabled = false;
+            this.buttonGenJSON.Enabled = false;
 
             var items = this.RunSyncProcessFile();
 
@@ -291,6 +293,37 @@ namespace DSEDiagnosticApplication
             }
         }
 
+        private void buttonGenJSON_Click(object sender, EventArgs e)
+        {
+            var diagPath = PathUtils.BuildDirectoryPath(this.ultraTextEditorDiagnosticsFolder.Text);
+            var nbrCluster = DSEDiagnosticLibrary.Cluster.Clusters.Count;
+
+            foreach (var cluster in DSEDiagnosticLibrary.Cluster.Clusters)
+            {
+                if (nbrCluster > 1 && cluster.IsMaster) continue;
+
+                IFilePath jsonFile;
+
+                if(diagPath.MakeFile(cluster.Name, "json", out jsonFile))
+                {
+                    var json = Newtonsoft.Json.JsonConvert.SerializeObject(cluster,
+                                                                            Newtonsoft.Json.Formatting.Indented,
+                                                                            new Newtonsoft.Json.JsonSerializerSettings
+                                                                            {
+                                                                                ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore,
+                                                                                PreserveReferencesHandling = Newtonsoft.Json.PreserveReferencesHandling.Objects,
+                                                                                Formatting = Newtonsoft.Json.Formatting.Indented
+
+                                                                            });
+
+                    if(!string.IsNullOrEmpty(json))
+                    {
+                        jsonFile.WriteAllText(json);
+                    }
+                }
+            }
+        }
+
         #endregion
 
         #region Execution/Operation Methods
@@ -331,6 +364,7 @@ namespace DSEDiagnosticApplication
             this.ultraTextEditorAltCompFiles.Enabled = true;
             this.ultraDateTimeEditorEndLog.Enabled = true;
             this.ultraDateTimeEditorStartLog.Enabled = true;
+            this.buttonGenJSON.Enabled = true;
         }
 
         delegate void SetLabelDelegate(string newvalue);
@@ -555,6 +589,8 @@ namespace DSEDiagnosticApplication
         {
             this._progressionMsgs.Add(new Tuple<int, string>(eventArgs.Exception.GetHashCode(), string.Format("Exception: {0}", eventArgs.Exception.Message)));
         }
+
+         
 
         #endregion
 
@@ -901,8 +937,8 @@ namespace DSEDiagnosticApplication
 
             this.SetLoggingStatus(this._lastLogMsg);
         }
+
         #endregion
-
-
+        
     }
 }
