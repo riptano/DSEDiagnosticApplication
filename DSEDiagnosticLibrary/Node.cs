@@ -770,6 +770,7 @@ namespace DSEDiagnosticLibrary
             CFS = 0x0100,
             SW = 0x0200,
             SM = 0x0400,
+            MultiInstance = 0x0800,
             Analytics_TT = Analytics | TT,
             Analytics_JT = Analytics | JT,
             Analytics_SM = Analytics | SM,
@@ -1053,7 +1054,8 @@ namespace DSEDiagnosticLibrary
                             DateTimeOffsetRange logfileDateRange,
                             int logItems,
                             IEnumerable<ILogEvent> orphanedEvents = null,
-                            DateTimeOffsetRange logDateRange = null)
+                            DateTimeOffsetRange logDateRange = null,
+                            IEnumerable<DateTimeOffsetRange> nodeRestarts = null)
         {
             this.LogFile = logFile;
             this.LogFileDateRange = logfileDateRange;
@@ -1063,6 +1065,11 @@ namespace DSEDiagnosticLibrary
             if(orphanedEvents != null)
             {
                 this._orphanedEvents.AddRange(orphanedEvents);
+            }
+
+            if(nodeRestarts != null)
+            {
+                this._restarts.AddRange(nodeRestarts);
             }
         }
 
@@ -1088,6 +1095,10 @@ namespace DSEDiagnosticLibrary
         private CTS.List<ILogEvent> _orphanedEvents = new CTS.List<ILogEvent>();
         [JsonIgnore]
         public IList<ILogEvent> OrphanedEvents { get { return this._orphanedEvents; } }
+
+        private CTS.List<DateTimeOffsetRange> _restarts = new CTS.List<DateTimeOffsetRange>();
+        [JsonIgnore]
+        public IList<DateTimeOffsetRange> Restarts { get { return this._restarts; } }
 
         public override string ToString()
         {

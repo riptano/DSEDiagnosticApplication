@@ -56,7 +56,7 @@ namespace DSEDiagtnosticToExcel
 
         public event OnActionEventHandler OnAction;
 
-        static IEnumerable<System.Reflection.FieldInfo> DataTableNsmeFieldInfo = System.Reflection.Assembly.GetAssembly(typeof(LoadToExcel))
+        static IEnumerable<System.Reflection.FieldInfo> DataTableNameFieldInfo = System.Reflection.Assembly.GetAssembly(typeof(LoadToExcel))
                                                                                     .GetTypes()
                                                                                     .Where(t => t.IsClass
                                                                                                 && t != typeof(LoadToExcel)
@@ -115,7 +115,7 @@ namespace DSEDiagtnosticToExcel
                     {
                         this.CancellationToken.ThrowIfCancellationRequested();
 
-                        foreach (var fieldInfo in DataTableNsmeFieldInfo)
+                        foreach (var fieldInfo in DataTableNameFieldInfo)
                         {
                             if (fieldInfo.GetValue(null) as string == dataTable.TableName)
                             {

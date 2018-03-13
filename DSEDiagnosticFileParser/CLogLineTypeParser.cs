@@ -1513,7 +1513,7 @@ namespace DSEDiagnosticFileParser
                     }
                     else
                     {
-                        Logger.Instance.WarnFormat("\t\tParsing of Log line \"{0}\" was matched but parsing failed for \"{1}\". Log Line parsing for this line will be skipped.",
+                        Logger.Instance.WarnFormat("Parsing of Log line \"{0}\" was matched but parsing failed for \"{1}\". Log Line parsing for this line will be skipped.",
                                                      logEvent.ToString(),
                                                      parserItem.ToString());
                         continue;

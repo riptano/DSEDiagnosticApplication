@@ -617,7 +617,11 @@ namespace DSEDiagnosticFileParser
                     this.Node.DSE.Partitioner = propvaluePair.Item2;
                     break;
                 case "server_id":
-                    this.Node.DSE.PhysicalServerId = propvaluePair.Item2;
+                    if (string.IsNullOrEmpty(this.Node.DSE.PhysicalServerId))
+                    {
+                        this.Node.DSE.PhysicalServerId = propvaluePair.Item2;
+                        this.Node.DSE.InstanceType |= DSEInfo.InstanceTypes.MultiInstance;
+                    }
                     break;
                 default:
                     break;

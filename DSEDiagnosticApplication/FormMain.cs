@@ -428,7 +428,7 @@ namespace DSEDiagnosticApplication
                 DSEDiagnosticFileParser.DiagnosticFile.OnException += DiagnosticFile_OnException;
                 DSEDiagnosticFileParser.DiagnosticFile.OnProgression += DiagnosticFile_OnProgression;
                 DSEDiagnosticFileParser.DiagnosticFile.DisableParallelProcessing = this.ultraCheckEditorDisableParallelProcessing.Checked;
-                DSEDiagnosticLibrary.LibrarySettings.LogEventsAreMemoryMapped = !this.ultraCheckEditorDisableParallelProcessing.Checked;
+                DSEDiagnosticLibrary.LibrarySettings.LogEventsAreMemoryMapped = !this.ultraCheckEditorLogDisableMryMap.Checked;
 
                 if(this.ultraCheckEditorDisableSysDSEDDL.Checked)
                 {
@@ -493,8 +493,9 @@ namespace DSEDiagnosticApplication
                 DSEDiagnosticFileParser.DiagnosticFile.OnException += DiagnosticFile_OnException;
                 DSEDiagnosticFileParser.DiagnosticFile.OnProgression += DiagnosticFile_OnProgression;
                 DSEDiagnosticFileParser.DiagnosticFile.DisableParallelProcessing = this.ultraCheckEditorDisableParallelProcessing.Checked;
+                DSEDiagnosticLibrary.LibrarySettings.LogEventsAreMemoryMapped = !this.ultraCheckEditorLogDisableMryMap.Checked;
 
-                if(this.ultraDateTimeEditorStartLog.Value == null
+                if (this.ultraDateTimeEditorStartLog.Value == null
                         || this.ultraDateTimeEditorEndLog.Value == null
                         || (DateTime)this.ultraDateTimeEditorStartLog.Value >= (DateTime)this.ultraDateTimeEditorEndLog.Value)
                 {

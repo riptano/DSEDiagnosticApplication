@@ -76,7 +76,7 @@ namespace DSEDiagnosticLibrary
             SizeUnits = Bit | Byte | KiB | MiB | GiB | TiB | PiB,
             TimeUnits = NS | MS | SEC | MIN | HR | Day | us,
             WholeNumber = Bit | Byte | NS | us,
-            Attrs = NaN | Memory | Rate | Load | Percent | Time | Frequency | Utilization | Operations
+            Attrs = NaN | Storage | Memory | Rate | Load | Percent | Time | Frequency | Utilization | Operations
         }
 
         readonly static Regex RegExValueUOF = new Regex(@"^(\-?[0-9,]*(?:\.[0-9]+)?)\s*([a-z%,_/\ .\-]*)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
@@ -1285,12 +1285,7 @@ namespace DSEDiagnosticLibrary
             var thisN = this.NormalizedValue;
             var otherN = other.NormalizedValue;
 
-            if(thisN.UnitType == otherN.UnitType)
-            {
-                return thisN.Value == otherN.Value;
-            }
-
-            return false;
+            return thisN.UnitType == otherN.UnitType && thisN.Value == otherN.Value;
         }
 
         public bool Equals(decimal other)

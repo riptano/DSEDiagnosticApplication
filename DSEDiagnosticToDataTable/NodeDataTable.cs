@@ -69,6 +69,7 @@ namespace DSEDiagnosticToDataTable
             dtNodeInfo.Columns.Add("Key Cache Information", typeof(string)).AllowDBNull = true;//ah
             dtNodeInfo.Columns.Add("Row Cache Information", typeof(string)).AllowDBNull = true;//ai
             dtNodeInfo.Columns.Add("Counter Cache Information", typeof(string)).AllowDBNull = true;//aj
+            dtNodeInfo.Columns.Add("Multi-Instance Server Id", typeof(string)).AllowDBNull = true;//ak
 
             dtNodeInfo.DefaultView.ApplyDefaultSort = false;
             dtNodeInfo.DefaultView.AllowDelete = false;

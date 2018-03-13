@@ -38,6 +38,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\CommonPatterns\Release\Common.Path.dll</HintPath>
     </Reference>
+    <Reference Include="Common.Patterns.Collections, Version=4.0.5.0, Culture=neutral, PublicKeyToken=75d1a63e21e859f1, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\CommonPatterns\Release\Common.Patterns.Collections.dll</HintPath>
+    </Reference>
     <Reference Include="Common.Patterns.TimeZoneInfo, Version=4.0.5.0, Culture=neutral, PublicKeyToken=75d1a63e21e859f1, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\CommonPatterns\Release\Common.Patterns.TimeZoneInfo.dll</HintPath>
@@ -57,6 +61,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="LogInformationDataTable.cs" />
+    <Compile Include="MultiInstanceDataTable.cs" />
+    <Compile Include="NodeConfigChanges.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>

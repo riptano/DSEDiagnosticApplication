@@ -147,5 +147,27 @@ namespace DSEDiagnosticConsoleApplication.Properties {
                 return ((string)(this["ExcelFileNameGeneratedStringFormat"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Validate")]
+        public string DefaultProfile {
+            get {
+                return ((string)(this["DefaultProfile"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute(@"[
+{""ProfileName"":""AllFilesLogs"",""Log4NetParser"":"".\\Json\\Log4NetParser.json"",""ProcessFileMappings"":"".\\Json\\ProcessFileMappings.json"",""EnableVirtualMemory"":true, ""DefaultLogLevelHandling"":""Warning, Error, Fatal, Exception""},
+{""ProfileName"":""NoLogs"",""Log4NetParser"":"".\\Json\\Log4NetParser.json"",""ProcessFileMappings"":"".\\Json\\ProcessFileMappingsNoLogs.json"",""EnableVirtualMemory"":true, ""DefaultLogLevelHandling"":null},
+{""ProfileName"":""Validate"",""Log4NetParser"":"".\\Json\\Log4NetParserValidateLogs.json"",""ProcessFileMappings"":"".\\Json\\ProcessFileMappings.json"",""EnableVirtualMemory"":true, ""DefaultLogLevelHandling"":""Fatal, Exception""}
+]")]
+        public string Profiles {
+            get {
+                return ((string)(this["Profiles"]));
+            }
+        }
     }
 }

@@ -47,6 +47,7 @@ namespace DSEDiagnosticToDataTable
             dtLogFile.Columns.Add("OverLapping", typeof(string)).AllowDBNull = true;//q
             dtLogFile.Columns.Add("Start Range (UTC)", typeof(DateTime)).AllowDBNull = true;
             dtLogFile.Columns.Add("End Range (UTC)", typeof(DateTime)).AllowDBNull = true; //s
+            dtLogFile.Columns.Add("Detected Restart", typeof(bool)).AllowDBNull = true; //t
 
             dtLogFile.DefaultView.ApplyDefaultSort = false;
             dtLogFile.DefaultView.AllowDelete = false;
@@ -98,6 +99,9 @@ namespace DSEDiagnosticToDataTable
                     dataRow.SetField("Start Range (UTC)", logInfo.LogRange.Min.ToUniversalTime().DateTime);
                     dataRow.SetField("End Range (UTC)", logInfo.LogRange.Max.ToUniversalTime().DateTime);
                     dataRow.SetField("Events", logInfo.LogItems);
+
+                    if(logInfo.NodeRestart.HasValue)
+                        dataRow.SetField("Detected Restart", logInfo.NodeRestart.Value);
 
                     if (!logInfo.OverlappingType.HasFlag(DSEDiagnosticAnalytics.LogFileStats.LogInfoStat.OverLappingTypes.Continuous)
                             && !logInfo.OverlappingType.HasFlag(DSEDiagnosticAnalytics.LogFileStats.LogInfoStat.OverLappingTypes.DurationThresholdMet))

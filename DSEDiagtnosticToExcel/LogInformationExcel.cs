@@ -93,9 +93,9 @@ namespace DSEDiagtnosticToExcel
                                                                 workSheet.Column(12).OutlineLevel = 1;
                                                                 workSheet.Column(12).Collapsed = true;
 
-                                                                workSheet.Cells["A1:S1"].AutoFilter = true;
+                                                                workSheet.Cells["A1:T1"].AutoFilter = true;
                                                                 
-                                                                workSheet.AutoFitColumn(workSheet.Cells["A:L"], workSheet.Cells["N:S"]);
+                                                                workSheet.AutoFitColumn(workSheet.Cells["A:L"], workSheet.Cells["N:T"]);
                                                                 workSheet.Column(13).Width = 27; //M
                                                              },
                                                              -1,

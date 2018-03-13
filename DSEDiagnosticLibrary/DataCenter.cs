@@ -17,7 +17,7 @@ namespace DSEDiagnosticLibrary
         Cluster Cluster { get; }
         string Name { get; }
 
-        IConfigurationLine ConfigurationMatch(string property, string value, ConfigTypes type, SourceTypes source);
+        IConfigurationLine ConfigurationMatch(string property, string value, ConfigTypes type);
 
         IEnumerable<INode> Nodes { get; }
         IEnumerable<IKeyspace> Keyspaces { get; }
@@ -78,10 +78,9 @@ namespace DSEDiagnosticLibrary
 
         virtual public IConfigurationLine ConfigurationMatch(string property,
                                                                 string value,
-                                                                ConfigTypes type,
-                                                                SourceTypes source)
+                                                                ConfigTypes type)
         {
-            return ((DataCenter)this.Nodes.First().DataCenter).ConfigurationMatch(property, value, type, source);
+            return ((DataCenter)this.Nodes.First().DataCenter).ConfigurationMatch(property, value, type);
         }
 
         public object ToDump()
@@ -444,12 +443,11 @@ namespace DSEDiagnosticLibrary
 
         override public IConfigurationLine ConfigurationMatch(string property,
                                                                 string value,
-                                                                ConfigTypes type,
-                                                                SourceTypes source)
+                                                                ConfigTypes type)
         {
             lock (this._configurations)
             {
-                return this._configurations.FirstOrDefault(c => c.Match(this, property, value, type, source));
+                return this._configurations.FirstOrDefault(c => c.Match(this, property, value, type));
             }
         }
 

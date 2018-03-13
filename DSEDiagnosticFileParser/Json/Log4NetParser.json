@@ -890,7 +890,7 @@
       "FileLineMatch": null,
       "MessageMatch": {
         "RegExStrings": [
-          "^(InetAddress|Node) "
+          "^(InetAddress|Node)\\s.+\\s(down|cluster)"
         ]
       },
       "ParseMessage": {
@@ -901,7 +901,7 @@
       },
       "ParseThreadId": null,
       "EventType": "SessionBegin",
-      "EventClass": "NodeDetection",
+      "EventClass": "NodeDetection, Change",
       "SubClass": null,
       "Product": "Cassandra",
       "SessionKey": "EventClass + NODE",
@@ -931,7 +931,7 @@
       "FileLineMatch": null,
       "MessageMatch": {
         "RegExStrings": [
-          "^InetAddress "
+          "^InetAddress\\s.+\\sup"
         ]
       },
       "ParseMessage": {
@@ -941,7 +941,7 @@
       },
       "ParseThreadId": null,
       "EventType": "SessionEnd, SessionIgnore",
-      "EventClass": "NodeDetection",
+      "EventClass": "NodeDetection, Change",
       "SubClass": null,
       "Product": "Cassandra",
       "SessionKey": "EventClass + NODE",
@@ -979,7 +979,7 @@
       },
       "ParseThreadId": null,
       "EventType": "SessionBegin",
-      "EventClass": "NodeDetection",
+      "EventClass": "NodeDetection, Change",
       "SubClass": null,
       "Product": "Cassandra",
       "SessionKey": "EventClass + 'Shutdown'",
@@ -1018,7 +1018,7 @@
       },
       "ParseThreadId": null,
       "EventType": "SessionEnd",
-      "EventClass": "NodeDetection",
+      "EventClass": "NodeDetection, Change",
       "SubClass": null,
       "Product": "Cassandra",
       "SessionKey": "EventClass + 'Shutdown'",
@@ -1056,7 +1056,7 @@
       },
       "ParseThreadId": null,
       "EventType": "SingleInstance",
-      "EventClass": "Config",
+      "EventClass": "Config, NodeDetection",
       "SubClass": null,
       "Product": "Cassandra",
       "Examples": [
@@ -1332,7 +1332,7 @@
       },
       "ParseThreadId": null,
       "EventType": "SessionBegin",
-      "EventClass": "Detection",
+      "EventClass": "Detection, Node, Shard",
       "SubClass": null,
       "Product": "Cassandra",
       "SessionKey": "'shardEvent' + NODE + token",
@@ -1376,7 +1376,7 @@
       },
       "ParseThreadId": null,
       "EventType": "SessionIgnore",
-      "EventClass": "Detection",
+      "EventClass": "Detection, Node, Shard",
       "SubClass": null,
       "Product": "Cassandra",
       "SessionKey": "'shardEvent' + NODE + token",
@@ -1418,7 +1418,7 @@
       },
       "ParseThreadId": null,
       "EventType": "SessionItem, SingleInstance",
-      "EventClass": "Detection",
+      "EventClass": "Detection, Node, Shard",
       "SubClass": null,
       "Product": "Cassandra",
       "SessionKey": "'shardEvent' + NODE + token",
@@ -1460,7 +1460,7 @@
       },
       "ParseThreadId": null,
       "EventType": "SessionEnd",
-      "EventClass": "Detection",
+      "EventClass": "Detection, Node, Shard",
       "SubClass": null,
       "Product": "Cassandra",
       "SessionLookup": "'shardEvent' + NODE",
@@ -1502,7 +1502,7 @@
       },
       "ParseThreadId": null,
       "EventType": "SingleInstance",
-      "EventClass": "Detection",
+      "EventClass": "Detection, Schema, Change",
       "SubClass": null,
       "Product": "Cassandra",
       "Examples": [
@@ -1539,7 +1539,7 @@
       },
       "ParseThreadId": null,
       "EventType": "SingleInstance",
-      "EventClass": "Detection",
+      "EventClass": "Detection, Schema, Change",
       "SubClass": null,
       "Product": "Cassandra",
       "Examples": [
@@ -1574,7 +1574,7 @@
       },
       "ParseThreadId": null,
       "EventType": "SingleInstance",
-      "EventClass": "Detection",
+      "EventClass": "Detection, Schema, Change",
       "SubClass": null,
       "Product": "Cassandra",
       "Examples": [
@@ -1612,7 +1612,7 @@
       },
       "ParseThreadId": null,
       "EventType": "SingleInstance",
-      "EventClass": "Detection",
+      "EventClass": "Detection, Schema, Change",
       "SubClass": null,
       "Product": "Cassandra",
       "Examples": [
@@ -1628,7 +1628,7 @@
       "MatchVersion": null,
       "LevelMatch": {
         "RegExStrings": [
-          "INFO"
+          "INFO|WARN"
         ]
       },
       "FileNameMatch": {
@@ -1646,7 +1646,8 @@
         "RegExStrings": [
           "^GC\\s+for\\s+(?<GC>ParNew):\\s+(?$<DURATION>\\s*\\w+)\\s+\\w+\\s+(?<nbrcollections>[0-9]+)\\s+collections\\,\\s+(?<usedmemory_bytes>[0-9]+)\\s+used;\\s+max\\s+\\w+\\s(?<maxmemory_bytes>[0-9]+)",
           "^ConcurrentMarkSweep\\s+GC\\s+\\w+\\s+(?$<DURATION>\\s*\\w+)\\.\\s+(?<GC>CMS)\\s+Old\\s+Gen:\\s+(?<oldgenfrom_bytes>[0-9]+)\\s+\\->\\s+(?<oldgento_bytes>[0-9]+);\\s+Par\\s+Eden\\s+Space:\\s+(?<paredenspacefrom_bytes>[0-9]+)\\s+\\->\\s+(?<paredenspaceto_bytes>[0-9]+)",
-          "^G1\\s+Young\\s+\\w+\\s+GC\\s+\\w+\\s+(?$<DURATION>\\s*\\w+)\\.\\s+(?<GC>G1)\\s+Eden\\s+Space:\\s+(?<edenspacefrom_bytes>[0-9]+)\\s+\\->\\s+(?<edenspaceto_bytes>[0-9]+);\\s+G1\\s+Survivor\\s+Space:\\s+(?<survivorspacefrom_bytes>[0-9]+)\\s+\\->\\s+(?<survivorspaceto_bytes>[0-9]+)"
+          "^G1\\s+Young\\s+\\w+\\s+GC\\s+\\w+\\s+(?$<DURATION>\\s*\\w+)\\.\\s+(?<GC>G1)\\s+Eden\\s+Space:\\s+(?<edenspacefrom_bytes>[0-9]+)\\s+\\->\\s+(?<edenspaceto_bytes>[0-9]+);\\s+G1\\s+Survivor\\s+Space:\\s+(?<survivorspacefrom_bytes>[0-9]+)\\s+\\->\\s+(?<survivorspaceto_bytes>[0-9]+)",
+          "^G1\\s+Young\\s+\\w+\\s+GC\\s+\\w+\\s+(?<DURATION>[0-9,.]+\\s*\\w+)\\.\\s+(?<GC>G1)\\s+Eden\\s+Space:\\s+(?<edenspacefrom_bytes>[0-9]+)\\s+\\->\\s+(?<edenspaceto_bytes>[0-9]+);\\s+G1\\s+Old\\s+Gen:\\s+(?<oldgenfrom_bytes>[0-9]+)\\s+\\->\\s+(?<oldgento_bytes>[0-9]+);\\s+G1\\s+Survivor\\s+Space:\\s+(?<survivorspacefrom_bytes>[0-9]+)\\s+\\->\\s+(?<survivorspaceto_bytes>[0-9]+)"
         ]
       },
       "ParseThreadId": null,
@@ -1657,7 +1658,8 @@
       "Examples": [
         "=> INFO [ScheduledTasks:1] 2017-01-22 19:11:57,055 GCInspector.java:116 - GC for ParNew: 215 ms for 1 collections, 2617040800 used; max is 4187619328",
         "=> INFO  [Service Thread] 2017-01-16 13:51:39,295  GCInspector.java:258 - ConcurrentMarkSweep GC in 491ms.  CMS Old Gen: 3201269976 -> 1128616640; Par Eden Space: 1145856 -> 824106248;",
-        "=> INFO  [Service Thread] 2017-05-01 01:34:24,475  GCInspector.java:258 - G1 Young Generation GC in 265ms.  G1 Eden Space: 16307453952 -> 0; G1 Survivor Space: 436207616 -> 444596224;"
+        "=> INFO  [Service Thread] 2017-05-01 01:34:24,475  GCInspector.java:258 - G1 Young Generation GC in 265ms.  G1 Eden Space: 16307453952 -> 0; G1 Survivor Space: 436207616 -> 444596224;",
+        "=> WARN  [Service Thread] 2018-03-02 04:23:15,916  GCInspector.java:282 - G1 Young Generation GC in 1558ms.  G1 Eden Space: 3053453312 -> 0; G1 Old Gen: 18404605968 -> 15753805840; G1 Survivor Space: 369098752 -> 436207616;"
       ]
     },
     {
@@ -1674,7 +1676,11 @@
           "^StatusLogger.java$"
         ]
       },
-      "FileLineMatch": null,
+      "FileLineMatch": {
+        "RegExStrings": [
+          "66|56|75|87|78"
+        ]
+      },
       "ThreadIdMatch": {
         "RegExStrings": [
           "^Service Thread$"
@@ -1732,7 +1738,11 @@
           "^StatusLogger.java$"
         ]
       },
-      "FileLineMatch": null,
+      "FileLineMatch": {
+        "RegExStrings": [
+          "99|105|90|96"
+        ]
+      },
       "ThreadIdMatch": {
         "RegExStrings": [
           "^Service Thread$"
@@ -1768,7 +1778,11 @@
           "^StatusLogger.java$"
         ]
       },
-      "FileLineMatch": null,
+      "FileLineMatch": {
+        "RegExStrings": [
+          "115|106"
+        ]
+      },
       "ThreadIdMatch": {
         "RegExStrings": [
           "^Service Thread$"

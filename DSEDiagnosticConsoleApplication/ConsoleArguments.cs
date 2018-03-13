@@ -44,6 +44,8 @@ namespace DSEDiagnosticConsoleApplication
 
         public ConsoleArguments()
         {
+            Profiles.SetProfile();
+
             this._cmdLineParser.Arguments.Add(new DirectoryArgument('D', "DiagnosticPath")
             {
                 Optional = false,
@@ -157,7 +159,7 @@ namespace DSEDiagnosticConsoleApplication
             {
                 Optional = true,
                 FileMustExist = true,
-                DefaultValue = null,
+                DefaultValue = Common.Path.PathUtils.BuildFilePath(DSEDiagnosticFileParser.LibrarySettings.ProcessFileMappingValue)?.FileInfo(),
                 Description = "File Mapper Json file used to define which and how files are processed."
             });
 
@@ -241,6 +243,13 @@ namespace DSEDiagnosticConsoleApplication
             {
                 Optional = true,
                 Description = "If defined the Log Events are NOT mapped into virtual memory (uses physical memory with better performance but can OOM). The default is to map events into virtual memory resulting in smaller physical memory utilizations on the cost of performance."
+            });
+
+            this._cmdLineParser.Arguments.Add(new ValueArgument<string>("Profile")
+            {
+                DefaultValue = Profiles.CurrentProfile?.ProfileName,
+                Optional = true,
+                Description = "The Profile used to parse, transform, and analysis the data."
             });
 
             this._cmdLineParser.Arguments.Add(new SwitchArgument("Debug", false)
@@ -565,6 +574,29 @@ namespace DSEDiagnosticConsoleApplication
                             if (((SwitchArgument)item).Value)
                             {
                                 DSEDiagnosticLibrary.LibrarySettings.LogEventsAreMemoryMapped = false;
+                            }
+                        }
+                        break;
+                    case "Profile":
+                        {
+                            var profile = Profiles.SetProfile(((ValueArgument<string>)item).Value, false);
+
+                            if(profile == null)
+                            {
+                                throw new ArgumentException(string.Format("Profile name \"{0}\" was not defined.",
+                                                                    ((ValueArgument<string>)item).Value));
+                            }
+
+                            DSEDiagnosticFileParser.LibrarySettings.DefaultLogLevelHandling = DSEDiagnosticLibrary.LibrarySettings.ParseEnum<DSEDiagnosticFileParser.file_cassandra_log4net.DefaultLogLevelHandlers>(profile.DefaultLogLevelHandling);
+                            DSEDiagnosticFileParser.LibrarySettings.Log4NetParser = DSEDiagnosticFileParser.LibrarySettings.ReadJsonFileIntoObject<DSEDiagnosticFileParser.CLogTypeParser>(profile.Log4NetParser);
+
+                            if (!results.Any(i => i.LongName == "ProcessFileMappingPath"))
+                            {
+                                DSEDiagnosticFileParser.LibrarySettings.ProcessFileMappingValue = profile.ProcessFileMappings;
+                            }                            
+                            if (!results.Any(i => i.LongName == "DisableLogEventMemoryMapping"))
+                            {
+                                DSEDiagnosticLibrary.LibrarySettings.LogEventsAreMemoryMapped = profile.EnableVirtualMemory;
                             }
                         }
                         break;

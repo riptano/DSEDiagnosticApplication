@@ -27,7 +27,7 @@ namespace DSEDiagnosticFileParser
 
         public override IResult GetResult()
         {
-            return new EmptyResult(this.File, null, null, this.Node);
+            return new EmptyResult(this.File, this.Node?.Cluster, this.Node?.DataCenter, this.Node);
         }
 
         public override uint ProcessFile()
@@ -161,10 +161,10 @@ namespace DSEDiagnosticFileParser
 
                             if ((grpItem = matchesLine.Groups["SERVERID"]).Success)
                             {
-                                Guid nodeId;
-                                if (Guid.TryParse(grpItem.Value, out nodeId))
+                                if (!string.IsNullOrEmpty(grpItem.Value))
                                 {
-                                    node.DSE.HostId = nodeId;
+                                    node.DSE.PhysicalServerId = grpItem.Value;
+                                    node.DSE.InstanceType |= DSEInfo.InstanceTypes.MultiInstance;
                                 }
                             }
 
@@ -237,7 +237,7 @@ namespace DSEDiagnosticFileParser
 
                             if ((grpItem = matchesLine.Groups["LOAD"]).Success)
                             {
-                                node.DSE.StorageUsed = new UnitOfMeasure(matchesLine.Value);
+                                node.DSE.StorageUsed = new UnitOfMeasure(grpItem.Value, UnitOfMeasure.Types.Storage);
                             }
 
                             if ((grpItem = matchesLine.Groups["OWNS"]).Success

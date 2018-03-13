@@ -64,9 +64,22 @@ namespace DSEDiagnosticLog4NetParser
         /// <returns></returns>
         public string ToString(int maxMessageLength)
         {
-            return string.Format("{0}\t{1:d\\.hh\\:mm\\:ss\\.fff}\t{2:yyyy-MM-dd hh\\:mm\\:ss\\.fff K}\t{3}\t{4}\t{5}.{6}\t{7}{8}",
+            if(this.LogTimeSpan == TimeSpan.Zero)
+            {
+                return string.Format("{0}\t{1:d\\.hh\\:mm\\:ss\\.fff}\t{2:yyyy-MM-dd hh\\:mm\\:ss\\.fff K}\t{3}\t{4}\t{5}.{6}\t{7}{8}",
                                     this.LogLinePosition,
                                     this.LogTimeSpan,
+                                    this.LogDateTimewTZOffset,
+                                    this.Level,
+                                    this.ThreadId,
+                                    this.FileName,
+                                    this.FileLine,
+                                    maxMessageLength >= 0 && this.Message.Length > maxMessageLength ? this.Message.Substring(0, maxMessageLength) + "..." : this.Message,
+                                    this._extraMessages.Count > 0 ? string.Format("\t<{0} Additional Messages>", this._extraMessages.Count) : string.Empty);
+            }
+
+            return string.Format("{0}\t{1:yyyy-MM-dd hh\\:mm\\:ss\\.fff K}\t{2}\t{3}\t{4}.{5}\t{6}{7}",
+                                    this.LogLinePosition,
                                     this.LogDateTimewTZOffset,
                                     this.Level,
                                     this.ThreadId,

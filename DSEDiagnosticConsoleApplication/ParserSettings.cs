@@ -267,7 +267,7 @@ namespace DSEDiagnosticConsoleApplication
         public static List<string> OnlyNodes = new List<string>();
 
         public static Version DSEVersion = null;
-
+        
         #endregion
     }
 }

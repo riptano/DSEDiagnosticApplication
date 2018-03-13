@@ -52,11 +52,11 @@ namespace DSEDiagnosticAnalytics
                 /// <summary>
                 /// This entry represents a log files that meets or exceeds LogFileInfoAnalysisContinousEventInDays property for a node
                 /// </summary>
-                DurationThresholdMet = 0x10,
+                DurationThresholdMet = 0x10,                
                 /// <summary>
                 /// This entry represents a series of continuous log files that meets or exceeds LogFileInfoAnalysisContinousEventInDays property for a node (no gaps between log files)
                 /// </summary>
-                ContinuousThresholdMet = Continuous | DurationThresholdMet                
+                ContinuousThresholdMet = Continuous | DurationThresholdMet
             }
 
             public LogInfoStat(INode node,
@@ -66,8 +66,9 @@ namespace DSEDiagnosticAnalytics
                                 UnitOfMeasure logFileSize,
                                 OverLappingTypes overlappingType,
                                 bool isDebugFile,
-                                long logItems,
-                                TimeSpan? gapLogDuration = null)
+                                long logItems,                               
+                                TimeSpan? gapLogDuration = null,
+                                bool? nodeRestart = null)
             {
                 this.Node = node;
                 this.Path = logFilePath;
@@ -78,6 +79,7 @@ namespace DSEDiagnosticAnalytics
                 this.IsDebugFile = isDebugFile;
                 this.Gap = gapLogDuration;
                 this.LogItems = logItems;
+                this.NodeRestart = nodeRestart;
             }
 
             #region IParsed Members
@@ -204,12 +206,77 @@ namespace DSEDiagnosticAnalytics
             public TimeSpan? Gap { get; }
 
             public long LogItems { get; }
+
+            public bool? NodeRestart { get; }
     }
 
     #endregion
 
 
     #region Members
+
+        struct LogDTInfo
+        {
+            public DateTimeOffsetRange LogDateRange;
+            public UnitOfMeasure LogFileSize;
+            public int LogItems;
+            public DateTimeOffsetRange LogFileDateRange;
+            public IFilePath LogFile;
+            public bool Restart;
+        }
+
+        static IEnumerable<LogDTInfo> DetermineLogRange(IEnumerable<LogFileInfo> logItems)
+        {
+            var logRanges = new List<LogDTInfo>();
+
+            foreach(var logItem in logItems)
+            {
+                if(logItem.Restarts.IsEmpty())
+                {
+                    logRanges.Add(new LogDTInfo()
+                                    {
+                                        LogDateRange = logItem.LogDateRange,
+                                        LogFile = logItem.LogFile,
+                                        LogFileDateRange = logItem.LogFileDateRange,
+                                        LogFileSize = logItem.LogFileSize,
+                                        LogItems = logItem.LogItems
+                                    });
+                    continue;
+                }
+
+                var dtStart = logItem.LogDateRange.Min;
+                //var dtFileStart = logItem.LogFileDateRange.Min;
+                DateTimeOffsetRange currentDT;
+
+                for(int nIdx = 0; nIdx < logItem.Restarts.Count; nIdx++)
+                {
+                    currentDT = logItem.Restarts[nIdx];
+
+                    logRanges.Add(new LogDTInfo()
+                                    {
+                                        LogDateRange = new DateTimeOffsetRange(dtStart, currentDT.Min),
+                                        LogFile = logItem.LogFile,
+                                        LogFileDateRange = logItem.LogFileDateRange,
+                                        LogFileSize = UnitOfMeasure.ZeroValue,
+                                        LogItems = 0,
+                                        Restart = true
+                                    });
+                    dtStart = currentDT.Max;
+                }
+
+                logRanges.Add(new LogDTInfo()
+                {
+                    LogDateRange = new DateTimeOffsetRange(dtStart, logItem.LogDateRange.Max),
+                    LogFile = logItem.LogFile,
+                    LogFileDateRange = logItem.LogFileDateRange,
+                    LogFileSize = logItem.LogFileSize,
+                    LogItems = logItem.LogItems,
+                    Restart = true
+                });
+            }
+
+            return logRanges;
+        }
 
         public override IEnumerable<IAggregatedStats> ComputeStats()
         {
@@ -235,7 +302,7 @@ namespace DSEDiagnosticAnalytics
                     var logItems = from item in node.LogFiles
                                    let isDebugFile = item.LogFile.Name.IndexOf("debug", StringComparison.OrdinalIgnoreCase) >= 0
                                    group item by isDebugFile into g
-                                   select new { IsDebugFile = g.Key, LogInfos = g.OrderBy(l => l.LogDateRange).ToList() };
+                                   select new { IsDebugFile = g.Key, LogInfos = DetermineLogRange(g).OrderBy(l => l.LogDateRange).ToList() };
 
                     foreach (var fileType in logItems)
                     {
@@ -319,7 +386,8 @@ namespace DSEDiagnosticAnalytics
                                                             overlappingType,
                                                             fileType.IsDebugFile,
                                                             logInfo.LogItems,
-                                                            gaptimeSpan));
+                                                            gaptimeSpan,
+                                                            logInfo.Restart ? (bool?) true : null));
                             ++nbrItems;
                         }
 

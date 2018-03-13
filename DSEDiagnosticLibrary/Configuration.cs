@@ -8,18 +8,19 @@ using Newtonsoft.Json;
 
 namespace DSEDiagnosticLibrary
 {
-
+    [Flags]
     public enum ConfigTypes
     {
 
         Unkown = 0,
-        Cassandra,
-        DSE,
-        Hadoop,
-        Solr,
-        Spark,
-        Snitch,
-        OpsCenter
+        Cassandra = 0x0001,
+        DSE = 0x0002,
+        Hadoop = 0x0004,
+        Solr = 0x0008,
+        Spark = 0x0010,
+        Snitch = 0x0020,
+        OpsCenter = 0x0040,
+        Log = 0x0080 | Cassandra
     }
 
     public interface IConfigurationLine : IParsed
@@ -36,8 +37,12 @@ namespace DSEDiagnosticLibrary
         bool Match(IDataCenter dataCenter,
                     string property,
                     string value,
+                    ConfigTypes type);
+        bool Match(string property,
+                    string value,
                     ConfigTypes type,
-                    SourceTypes source);
+                    bool detectedJson = true,
+                    bool propertyNameExactMatch = true);
 
         object ToDump();
 	}
@@ -306,7 +311,7 @@ namespace DSEDiagnosticLibrary
         public bool Match(IConfigurationLine configItem)
         {
             return configItem != null
-                    && this.Type == configItem.Type
+                    && (this.Type & configItem.Type) != 0
                     && this.Node.DataCenter != null
                     && configItem.DataCenter != null
                     && this.DataCenter.Equals(configItem.DataCenter)
@@ -317,15 +322,30 @@ namespace DSEDiagnosticLibrary
         public bool Match(IDataCenter dataCenter,
                             string property,
                             string value,
-                            ConfigTypes type,
-                            SourceTypes source)
+                            ConfigTypes type)
         {
             return dataCenter != null
                     && this.DataCenter != null
-                    && this.Type == type
+                    && (this.Type & type) != 0
                     && this.DataCenter.Equals(dataCenter)
                     && this.NormalizeProperty() == NormalizeProperty(property)
                     && this.NormalizeValue() == NormalizeValue(value);
+        }
+
+        public bool Match(string property,
+                            string value,
+                            ConfigTypes type,
+                            bool detectedJson = true,
+                            bool propertyNameExactMatch = true)
+        {
+            var normPropPassName = NormalizeProperty(property);
+            var normPropName = this.NormalizeProperty();
+
+            return (this.Type & type) != 0
+                    && (normPropName == normPropPassName
+                            || (!propertyNameExactMatch
+                                    && (normPropName.StartsWith(normPropPassName) || normPropName.EndsWith(normPropName))))
+                    && this.NormalizeValue() == NormalizeValue(value, detectedJson);
         }
 
         public object ToDump()
@@ -366,7 +386,7 @@ namespace DSEDiagnosticLibrary
                 type = ConfigTypeMapper.FindConfigType(configFile);
             }
 
-            var currentConfig = node?.DataCenter.ConfigurationMatch(property, value, type, source);
+            var currentConfig = node?.DataCenter.ConfigurationMatch(property, value, type);
 
             if(currentConfig == null)
             {
@@ -397,11 +417,11 @@ namespace DSEDiagnosticLibrary
             return currentConfig;
         }
 
-        static string NormalizeValue(string value)
+        public static string NormalizeValue(string value, bool detectedJson = true)
         {
             if (string.IsNullOrEmpty(value)) return value;
 
-            if(value.Contains(','))
+            if(detectedJson && value.Contains(','))
             {
                 if (value.Last() == '}'
                         && value.IndexOf('{') > 0)
@@ -420,7 +440,7 @@ namespace DSEDiagnosticLibrary
             return StringHelpers.DetermineProperFormat(value);
         }
 
-        static string NormalizeProperty(string property)
+        public static string NormalizeProperty(string property)
         {
             return NormalizePropIndexRegEx.Replace(property, NormalizePropRegexReplace);
         }

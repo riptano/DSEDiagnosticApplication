@@ -559,7 +559,7 @@ namespace DSEDiagnosticFileParser.Tests
             int nIdx = 0;
 
             Assert.AreEqual(0, logEvents.ElementAt(nIdx).ParentEvents.Count());
-            Assert.AreEqual(EventClasses.NodeDetection | EventClasses.Information, logEvents.ElementAt(nIdx).Class);
+            Assert.AreEqual(EventClasses.NodeDetection | EventClasses.Information | EventClasses.Change, logEvents.ElementAt(nIdx).Class);
             Assert.AreEqual(SourceTypes.CassandraLog, logEvents.ElementAt(nIdx).Source);
             Assert.AreEqual(EventTypes.SessionBegin, logEvents.ElementAt(nIdx).Type);
             Assert.AreEqual(DateTimeOffset.Parse("2018-01-07 22:53:49.521+00"), logEvents.ElementAt(nIdx).EventTime);
@@ -584,7 +584,7 @@ namespace DSEDiagnosticFileParser.Tests
             nIdx = 1;
 
             Assert.AreEqual(1, logEvents.ElementAt(nIdx).ParentEvents.Count());
-            Assert.AreEqual(EventClasses.NodeDetection | EventClasses.Information, logEvents.ElementAt(nIdx).Class);
+            Assert.AreEqual(EventClasses.NodeDetection | EventClasses.Information| EventClasses.Change, logEvents.ElementAt(nIdx).Class);
             Assert.AreEqual(SourceTypes.CassandraLog, logEvents.ElementAt(nIdx).Source);
             Assert.AreEqual(EventTypes.SessionEnd, logEvents.ElementAt(nIdx).Type);
             Assert.AreEqual(DateTimeOffset.Parse("2018-01-07 22:53:49.522+00"), logEvents.ElementAt(nIdx).EventTime);
@@ -612,7 +612,7 @@ namespace DSEDiagnosticFileParser.Tests
             nIdx = 2; //Begin Session
 
             Assert.AreEqual(0, logEvents.ElementAt(nIdx).ParentEvents.Count());
-            Assert.AreEqual(EventClasses.Detection | EventClasses.Information, logEvents.ElementAt(nIdx).Class);
+            Assert.AreEqual(EventClasses.NodeDetection | EventClasses.Information | EventClasses.Shard, logEvents.ElementAt(nIdx).Class);
             Assert.AreEqual(SourceTypes.CassandraLog, logEvents.ElementAt(nIdx).Source);
             Assert.AreEqual(EventTypes.SessionBegin, logEvents.ElementAt(nIdx).Type);
             Assert.AreEqual(DateTimeOffset.Parse("2018-01-07 22:53:49.522+00"), logEvents.ElementAt(nIdx).EventTime);
@@ -639,7 +639,7 @@ namespace DSEDiagnosticFileParser.Tests
             nIdx = 3;
 
             Assert.AreEqual(1, logEvents.ElementAt(nIdx).ParentEvents.Count());
-            Assert.AreEqual(EventClasses.Detection | EventClasses.Information, logEvents.ElementAt(nIdx).Class);
+            Assert.AreEqual(EventClasses.NodeDetection | EventClasses.Information | EventClasses.Shard, logEvents.ElementAt(nIdx).Class);
             Assert.AreEqual(SourceTypes.CassandraLog, logEvents.ElementAt(nIdx).Source);
             Assert.AreEqual(EventTypes.SessionItem, logEvents.ElementAt(nIdx).Type);
             Assert.AreEqual(DateTimeOffset.Parse("2018-01-07 22:53:49.525+00"), logEvents.ElementAt(nIdx).EventTime);
@@ -667,7 +667,7 @@ namespace DSEDiagnosticFileParser.Tests
             nIdx = 4;
 
             Assert.AreEqual(1, logEvents.ElementAt(nIdx).ParentEvents.Count());
-            Assert.AreEqual(EventClasses.Detection | EventClasses.Warning, logEvents.ElementAt(nIdx).Class);
+            Assert.AreEqual(EventClasses.NodeDetection | EventClasses.Shard | EventClasses.Warning, logEvents.ElementAt(nIdx).Class);
             Assert.AreEqual(SourceTypes.CassandraLog, logEvents.ElementAt(nIdx).Source);
             Assert.AreEqual(EventTypes.SessionItem, logEvents.ElementAt(nIdx).Type);
             Assert.AreEqual(DateTimeOffset.Parse("2018-01-07 22:53:49.905+00"), logEvents.ElementAt(nIdx).EventTime);
@@ -695,7 +695,7 @@ namespace DSEDiagnosticFileParser.Tests
             nIdx = 5;
 
             Assert.AreEqual(1, logEvents.ElementAt(nIdx).ParentEvents.Count());
-            Assert.AreEqual(EventClasses.Detection | EventClasses.Information, logEvents.ElementAt(nIdx).Class);
+            Assert.AreEqual(EventClasses.NodeDetection | EventClasses.Shard | EventClasses.Information, logEvents.ElementAt(nIdx).Class);
             Assert.AreEqual(SourceTypes.CassandraLog, logEvents.ElementAt(nIdx).Source);
             Assert.AreEqual(EventTypes.SessionEnd, logEvents.ElementAt(nIdx).Type);
             Assert.AreEqual(DateTimeOffset.Parse("2018-01-07 22:53:49.918+00"), logEvents.ElementAt(nIdx).EventTime);
@@ -721,7 +721,7 @@ namespace DSEDiagnosticFileParser.Tests
             nIdx = 6; //Begin
 
             Assert.AreEqual(0, logEvents.ElementAt(nIdx).ParentEvents.Count());
-            Assert.AreEqual(EventClasses.Detection | EventClasses.Information, logEvents.ElementAt(nIdx).Class);
+            Assert.AreEqual(EventClasses.NodeDetection | EventClasses.Shard | EventClasses.Information, logEvents.ElementAt(nIdx).Class);
             Assert.AreEqual(SourceTypes.CassandraLog, logEvents.ElementAt(nIdx).Source);
             Assert.AreEqual(EventTypes.SessionBegin, logEvents.ElementAt(nIdx).Type);
             Assert.AreEqual(DateTimeOffset.Parse("2018-01-07 22:53:49.919+00"), logEvents.ElementAt(nIdx).EventTime);
@@ -752,7 +752,7 @@ namespace DSEDiagnosticFileParser.Tests
             nIdx = 7; 
 
             Assert.AreEqual(1, logEvents.ElementAt(nIdx).ParentEvents.Count());
-            Assert.AreEqual(EventClasses.Detection | EventClasses.Information, logEvents.ElementAt(nIdx).Class);
+            Assert.AreEqual(EventClasses.NodeDetection | EventClasses.Shard | EventClasses.Information, logEvents.ElementAt(nIdx).Class);
             Assert.AreEqual(SourceTypes.CassandraLog, logEvents.ElementAt(nIdx).Source);
             Assert.AreEqual(EventTypes.SessionEnd, logEvents.ElementAt(nIdx).Type);
             Assert.AreEqual(DateTimeOffset.Parse("2018-01-07 22:53:55.704+00"), logEvents.ElementAt(nIdx).EventTime);
@@ -783,7 +783,7 @@ namespace DSEDiagnosticFileParser.Tests
             nIdx = 8; //begin
 
             Assert.AreEqual(0, logEvents.ElementAt(nIdx).ParentEvents.Count());
-            Assert.AreEqual(EventClasses.Detection | EventClasses.Information, logEvents.ElementAt(nIdx).Class);
+            Assert.AreEqual(EventClasses.NodeDetection | EventClasses.Shard | EventClasses.Information, logEvents.ElementAt(nIdx).Class);
             Assert.AreEqual(SourceTypes.CassandraLog, logEvents.ElementAt(nIdx).Source);
             Assert.AreEqual(EventTypes.SessionBegin, logEvents.ElementAt(nIdx).Type);
             Assert.AreEqual(DateTimeOffset.Parse("2018-01-07 22:56:01.123+00"), logEvents.ElementAt(nIdx).EventTime);
@@ -818,7 +818,7 @@ namespace DSEDiagnosticFileParser.Tests
             nIdx = 9;
 
             Assert.AreEqual(1, logEvents.ElementAt(nIdx).ParentEvents.Count());
-            Assert.AreEqual(EventClasses.Detection | EventClasses.Information, logEvents.ElementAt(nIdx).Class);
+            Assert.AreEqual(EventClasses.NodeDetection | EventClasses.Shard | EventClasses.Information, logEvents.ElementAt(nIdx).Class);
             Assert.AreEqual(SourceTypes.CassandraLog, logEvents.ElementAt(nIdx).Source);
             Assert.AreEqual(EventTypes.SessionEnd, logEvents.ElementAt(nIdx).Type);
             Assert.AreEqual(DateTimeOffset.Parse("2018-01-07 22:56:01.704+00"), logEvents.ElementAt(nIdx).EventTime);
@@ -849,7 +849,7 @@ namespace DSEDiagnosticFileParser.Tests
             nIdx = 10; //begin
 
             Assert.AreEqual(0, logEvents.ElementAt(nIdx).ParentEvents.Count());
-            Assert.AreEqual(EventClasses.Detection | EventClasses.Information, logEvents.ElementAt(nIdx).Class);
+            Assert.AreEqual(EventClasses.NodeDetection | EventClasses.Shard | EventClasses.Information, logEvents.ElementAt(nIdx).Class);
             Assert.AreEqual(SourceTypes.CassandraLog, logEvents.ElementAt(nIdx).Source);
             Assert.AreEqual(EventTypes.SessionBegin, logEvents.ElementAt(nIdx).Type);
             Assert.AreEqual(DateTimeOffset.Parse("2018-01-07 22:56:02.345+00"), logEvents.ElementAt(nIdx).EventTime);
@@ -878,7 +878,7 @@ namespace DSEDiagnosticFileParser.Tests
             nIdx = 11;
 
             Assert.AreEqual(1, logEvents.ElementAt(nIdx).ParentEvents.Count());
-            Assert.AreEqual(EventClasses.Detection | EventClasses.Information, logEvents.ElementAt(nIdx).Class);
+            Assert.AreEqual(EventClasses.NodeDetection | EventClasses.Shard | EventClasses.Information, logEvents.ElementAt(nIdx).Class);
             Assert.AreEqual(SourceTypes.CassandraLog, logEvents.ElementAt(nIdx).Source);
             Assert.AreEqual(EventTypes.SessionEnd, logEvents.ElementAt(nIdx).Type);
             Assert.AreEqual(DateTimeOffset.Parse("2018-01-07 22:56:02.704+00"), logEvents.ElementAt(nIdx).EventTime);
@@ -911,7 +911,7 @@ namespace DSEDiagnosticFileParser.Tests
             var singleItem = logEvents.ElementAt(nIdx) as LogCassandraEvent;
 
             Assert.AreEqual(0, singleItem.ParentEvents.Count());
-            Assert.AreEqual(EventClasses.Detection | EventClasses.Information, singleItem.Class);
+            Assert.AreEqual(EventClasses.Detection | EventClasses.Schema | EventClasses.Change | EventClasses.Information, singleItem.Class);
             Assert.AreEqual(SourceTypes.CassandraLog, singleItem.Source);
             Assert.AreEqual(EventTypes.SingleInstance, singleItem.Type);
             Assert.AreEqual(DateTimeOffset.Parse("2018-01-07 22:58:01.123+00"), singleItem.EventTime);
@@ -937,7 +937,7 @@ namespace DSEDiagnosticFileParser.Tests
             singleItem = logEvents.ElementAt(nIdx) as LogCassandraEvent;
 
             Assert.AreEqual(0, singleItem.ParentEvents.Count());
-            Assert.AreEqual(EventClasses.Detection | EventClasses.Information, singleItem.Class);
+            Assert.AreEqual(EventClasses.Detection | EventClasses.Change | EventClasses.Schema| EventClasses.Information, singleItem.Class);
             Assert.AreEqual(SourceTypes.CassandraLog, singleItem.Source);
             Assert.AreEqual(EventTypes.SingleInstance, singleItem.Type);
             Assert.AreEqual(DateTimeOffset.Parse("2018-01-07 22:58:02.456+00"), singleItem.EventTime);
@@ -968,7 +968,7 @@ namespace DSEDiagnosticFileParser.Tests
             singleItem = logEvents.ElementAt(nIdx) as LogCassandraEvent;
 
             Assert.AreEqual(0, singleItem.ParentEvents.Count());
-            Assert.AreEqual(EventClasses.Detection | EventClasses.Information, singleItem.Class);
+            Assert.AreEqual(EventClasses.Detection| EventClasses.Schema | EventClasses.Change | EventClasses.Information, singleItem.Class);
             Assert.AreEqual(SourceTypes.CassandraLog, singleItem.Source);
             Assert.AreEqual(EventTypes.SingleInstance, singleItem.Type);
             Assert.AreEqual(DateTimeOffset.Parse("2018-01-07 22:58:03.789+00"), singleItem.EventTime);
@@ -995,7 +995,7 @@ namespace DSEDiagnosticFileParser.Tests
             singleItem = logEvents.ElementAt(nIdx) as LogCassandraEvent;
 
             Assert.AreEqual(0, singleItem.ParentEvents.Count());
-            Assert.AreEqual(EventClasses.Detection | EventClasses.Information, singleItem.Class);
+            Assert.AreEqual(EventClasses.Detection| EventClasses.Change | EventClasses.Schema | EventClasses.Information, singleItem.Class);
             Assert.AreEqual(SourceTypes.CassandraLog, singleItem.Source);
             Assert.AreEqual(EventTypes.SingleInstance, singleItem.Type);
             Assert.AreEqual(DateTimeOffset.Parse("2018-01-07 22:58:04.012+00"), singleItem.EventTime);
@@ -1022,7 +1022,7 @@ namespace DSEDiagnosticFileParser.Tests
             singleItem = logEvents.ElementAt(nIdx) as LogCassandraEvent;
 
             Assert.AreEqual(0, singleItem.ParentEvents.Count());
-            Assert.AreEqual(EventClasses.Detection | EventClasses.Information, singleItem.Class);
+            Assert.AreEqual(EventClasses.Detection| EventClasses.Schema | EventClasses.Change | EventClasses.Information, singleItem.Class);
             Assert.AreEqual(SourceTypes.CassandraLog, singleItem.Source);
             Assert.AreEqual(EventTypes.SingleInstance, singleItem.Type);
             Assert.AreEqual(DateTimeOffset.Parse("2018-01-18 21:49:08.725+00"), singleItem.EventTime);
@@ -1049,7 +1049,7 @@ namespace DSEDiagnosticFileParser.Tests
             singleItem = logEvents.ElementAt(nIdx) as LogCassandraEvent;
 
             Assert.AreEqual(0, singleItem.ParentEvents.Count());
-            Assert.AreEqual(EventClasses.Detection | EventClasses.Information, singleItem.Class);
+            Assert.AreEqual(EventClasses.Detection| EventClasses.Change | EventClasses.Schema | EventClasses.Information, singleItem.Class);
             Assert.AreEqual(SourceTypes.CassandraLog, singleItem.Source);
             Assert.AreEqual(EventTypes.SingleInstance, singleItem.Type);
             Assert.AreEqual(DateTimeOffset.Parse("2018-01-18 21:56:17.200+00"), singleItem.EventTime);
@@ -1080,7 +1080,7 @@ namespace DSEDiagnosticFileParser.Tests
             singleItem = logEvents.ElementAt(nIdx) as LogCassandraEvent;
 
             Assert.AreEqual(0, singleItem.ParentEvents.Count());
-            Assert.AreEqual(EventClasses.Detection | EventClasses.Information, singleItem.Class);
+            Assert.AreEqual(EventClasses.Detection| EventClasses.Schema | EventClasses.Change | EventClasses.Information, singleItem.Class);
             Assert.AreEqual(SourceTypes.CassandraLog, singleItem.Source);
             Assert.AreEqual(EventTypes.SingleInstance, singleItem.Type);
             Assert.AreEqual(DateTimeOffset.Parse("2018-01-18 21:55:04.410+00"), singleItem.EventTime);
@@ -1108,7 +1108,7 @@ namespace DSEDiagnosticFileParser.Tests
             singleItem = logEvents.ElementAt(nIdx) as LogCassandraEvent;
 
             Assert.AreEqual(0, singleItem.ParentEvents.Count());
-            Assert.AreEqual(EventClasses.Detection | EventClasses.Information, singleItem.Class);
+            Assert.AreEqual(EventClasses.Detection| EventClasses.Change | EventClasses.Schema | EventClasses.Information, singleItem.Class);
             Assert.AreEqual(SourceTypes.CassandraLog, singleItem.Source);
             Assert.AreEqual(EventTypes.SingleInstance, singleItem.Type);
             Assert.AreEqual(DateTimeOffset.Parse("2018-01-18 21:59:14.423+00"), singleItem.EventTime);
@@ -1146,7 +1146,7 @@ namespace DSEDiagnosticFileParser.Tests
             singleItem = logEvents.ElementAt(nIdx) as LogCassandraEvent;
 
             Assert.AreEqual(0, singleItem.ParentEvents.Count());
-            Assert.AreEqual(EventClasses.Detection | EventClasses.Information, singleItem.Class);
+            Assert.AreEqual(EventClasses.Detection | EventClasses.Schema | EventClasses.Change| EventClasses.Information, singleItem.Class);
             Assert.AreEqual(SourceTypes.CassandraLog, singleItem.Source);
             Assert.AreEqual(EventTypes.SingleInstance, singleItem.Type);
             Assert.AreEqual(DateTimeOffset.Parse("2018-01-18 21:58:33.418+00"), singleItem.EventTime);
@@ -1174,7 +1174,7 @@ namespace DSEDiagnosticFileParser.Tests
             singleItem = logEvents.ElementAt(nIdx) as LogCassandraEvent;
 
             Assert.AreEqual(0, singleItem.ParentEvents.Count());
-            Assert.AreEqual(EventClasses.Detection | EventClasses.Information, singleItem.Class);
+            Assert.AreEqual(EventClasses.Detection| EventClasses.Change | EventClasses.Schema | EventClasses.Information, singleItem.Class);
             Assert.AreEqual(SourceTypes.CassandraLog, singleItem.Source);
             Assert.AreEqual(EventTypes.SingleInstance, singleItem.Type);
             Assert.AreEqual(DateTimeOffset.Parse("2018-01-18 22:02:20.249+00"), singleItem.EventTime);
@@ -1200,7 +1200,7 @@ namespace DSEDiagnosticFileParser.Tests
             singleItem = logEvents.ElementAt(nIdx) as LogCassandraEvent;
 
             Assert.AreEqual(0, singleItem.ParentEvents.Count());
-            Assert.AreEqual(EventClasses.Detection | EventClasses.Information, singleItem.Class);
+            Assert.AreEqual(EventClasses.Detection | EventClasses.Schema | EventClasses.Change | EventClasses.Information, singleItem.Class);
             Assert.AreEqual(SourceTypes.CassandraLog, singleItem.Source);
             Assert.AreEqual(EventTypes.SingleInstance, singleItem.Type);
             Assert.AreEqual(DateTimeOffset.Parse("2018-01-18 22:01:07.689+00"), singleItem.EventTime);
@@ -1226,7 +1226,7 @@ namespace DSEDiagnosticFileParser.Tests
             singleItem = logEvents.ElementAt(nIdx) as LogCassandraEvent;
 
             Assert.AreEqual(0, singleItem.ParentEvents.Count());
-            Assert.AreEqual(EventClasses.Detection | EventClasses.Information, singleItem.Class);
+            Assert.AreEqual(EventClasses.Detection | EventClasses.Schema | EventClasses.Change | EventClasses.Information, singleItem.Class);
             Assert.AreEqual(SourceTypes.CassandraLog, singleItem.Source);
             Assert.AreEqual(EventTypes.SingleInstance, singleItem.Type);
             Assert.AreEqual(DateTimeOffset.Parse("2018-01-18 22:01:07.689+00"), singleItem.EventTime);
@@ -1251,7 +1251,7 @@ namespace DSEDiagnosticFileParser.Tests
             singleItem = logEvents.ElementAt(nIdx) as LogCassandraEvent;
 
             Assert.AreEqual(0, singleItem.ParentEvents.Count());
-            Assert.AreEqual(EventClasses.Detection | EventClasses.Information, singleItem.Class);
+            Assert.AreEqual(EventClasses.Detection | EventClasses.Schema | EventClasses.Change | EventClasses.Information, singleItem.Class);
             Assert.AreEqual(SourceTypes.CassandraLog, singleItem.Source);
             Assert.AreEqual(EventTypes.SingleInstance, singleItem.Type);
             Assert.AreEqual(DateTimeOffset.Parse("2018-01-18 22:01:07.689+00"), singleItem.EventTime);

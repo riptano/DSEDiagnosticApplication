@@ -45,7 +45,7 @@
   &lt;string&gt;Microsoft.CSharp.dll&lt;/string&gt;
   &lt;string&gt;System.dll&lt;/string&gt;
   &lt;string&gt;System.Core.dll&lt;/string&gt;
-  &lt;string&gt;System.Xm.dlll&lt;/string&gt;
+  &lt;string&gt;System.Xml.dll&lt;/string&gt;
   &lt;string&gt;System.Xml.Linq.dll&lt;/string&gt;
   &lt;string&gt;--[Search([AssemblyDir];[WorkingDir];[AppRunTimeDir],DSEDiagnosticLibrary.dll)]&lt;/string&gt;
   &lt;string&gt;--[Search([AssemblyDir];[WorkingDir];[AppRunTimeDir],DSEDiagnosticLog4NetParser.dll)]&lt;/string&gt;

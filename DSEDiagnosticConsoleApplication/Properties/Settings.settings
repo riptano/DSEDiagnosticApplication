@@ -59,5 +59,15 @@
     <Setting Name="ExcelFileNameGeneratedStringFormat" Type="System.String" Scope="Application">
       <Value Profile="(Default)">{0}\{1}-{2:yyyy-MM-dd-HH-mm-ss}{3}</Value>
     </Setting>
+    <Setting Name="DefaultProfile" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Validate</Value>
+    </Setting>
+    <Setting Name="Profiles" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">[
+{"ProfileName":"AllFilesLogs","Log4NetParser":".\\Json\\Log4NetParser.json","ProcessFileMappings":".\\Json\\ProcessFileMappings.json","EnableVirtualMemory":true, "DefaultLogLevelHandling":"Warning, Error, Fatal, Exception"},
+{"ProfileName":"NoLogs","Log4NetParser":".\\Json\\Log4NetParser.json","ProcessFileMappings":".\\Json\\ProcessFileMappingsNoLogs.json","EnableVirtualMemory":true, "DefaultLogLevelHandling":null},
+{"ProfileName":"Validate","Log4NetParser":".\\Json\\Log4NetParserValidateLogs.json","ProcessFileMappings":".\\Json\\ProcessFileMappings.json","EnableVirtualMemory":true, "DefaultLogLevelHandling":"Fatal, Exception"}
+]</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

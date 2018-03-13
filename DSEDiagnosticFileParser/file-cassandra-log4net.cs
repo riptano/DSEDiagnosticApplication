@@ -182,6 +182,8 @@ namespace DSEDiagnosticFileParser
         {
             this.CancellationToken.ThrowIfCancellationRequested();
             DateTimeOffsetRange logFileDateRange = null;
+            DateTimeOffset? lastShutdown = null;
+            var nodeRestarts = new List<DateTimeOffsetRange>();
 
             using (var logFileInstance = new ReadLogFile(this.File, LibrarySettings.Log4NetConversionPattern, this.CancellationToken, this.Node, LogTimeRange))
             {
@@ -192,8 +194,7 @@ namespace DSEDiagnosticFileParser
                 bool handleExceptions = DefaultLogLevelHandling.HasFlag(DefaultLogLevelHandlers.Exception);
                 bool disableLogLevelHandling = DefaultLogLevelHandling == DefaultLogLevelHandlers.Disabled
                                                 || DefaultLogLevelHandling == DefaultLogLevelHandlers.Exception;
-
-
+                
                 logFileInstance.ProcessedLogLineAction += (IReadLogFile readLogFileInstance, ILogMessages alreadyParsedLines, ILogMessage logMessage) =>
                 {
                     readLogFileInstance.CancellationToken.ThrowIfCancellationRequested();
@@ -277,6 +278,21 @@ namespace DSEDiagnosticFileParser
                                 if (logEvent.LogProperties.TryGetValue("GC", out gcType))
                                     this.Node.Machine.Java.GCType = gcType as string;
                             }
+                            else if((logEvent.Class & EventClasses.NodeDetection) == EventClasses.NodeDetection && logEvent.SubClass != null)
+                            {
+                                if(logEvent.SubClass.StartsWith("shutdown"))
+                                {
+                                    lastShutdown = logEvent.EventTime;
+                                }
+                                else if (logEvent.SubClass.StartsWith("startup"))
+                                {
+                                    if(lastShutdown.HasValue)
+                                    {
+                                        nodeRestarts.Add(new DateTimeOffsetRange(lastShutdown.Value, logEvent.EventTime));
+                                    }
+                                    lastShutdown = null;
+                                }
+                            }
                         }
                     }                    
                 };
@@ -303,7 +319,8 @@ namespace DSEDiagnosticFileParser
                                                     logFileDateRange,
                                                     this._logEvents.Count,
                                                     this._orphanedSessionEvents.Count == 0 ? null : this._orphanedSessionEvents,
-                                                    this._logEvents.Count == 0 ? null : new DateTimeOffsetRange(this._logEvents.First().EventTime, this._logEvents.Last().EventTime));
+                                                    this._logEvents.Count == 0 ? null : new DateTimeOffsetRange(this._logEvents.First().EventTime, this._logEvents.Last().EventTime),
+                                                    nodeRestarts.Count == 0 ? null : nodeRestarts);
 
                 var fndOverlapppingLogs = this.Node.LogFiles.Where(l => l.LogDateRange.IsBetween(logFileInfo.LogDateRange));
 

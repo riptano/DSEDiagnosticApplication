@@ -96,6 +96,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
     <Compile Include="RegExLexiconTests.cs" />
+    <Compile Include="LogParsingTest_GCStatusLogger_Graph.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\DSEDiagnosticFileParser\Json\Log4NetParser.json">
@@ -108,6 +109,9 @@
     </None>
     <None Include="app.config" />
     <None Include="DDL\describe_schema">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="DDL\graph_ddl.cql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Files\cassandra.yaml">
@@ -144,6 +148,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="LogFiles\GC.log">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="LogFiles\GCStatusLogger.log">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="LogFiles\NodeConfig.log">
@@ -199,6 +206,11 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="LogFiles\FullLog50.log">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Files\DSE5-Graph-dsering">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
