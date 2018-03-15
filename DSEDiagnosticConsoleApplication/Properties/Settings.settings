@@ -69,5 +69,8 @@
 {"ProfileName":"Validate","Log4NetParser":".\\Json\\Log4NetParserValidateLogs.json","ProcessFileMappings":".\\Json\\ProcessFileMappings.json","EnableVirtualMemory":true, "DefaultLogLevelHandling":"Fatal, Exception"}
 ]</Value>
     </Setting>
+    <Setting Name="LogAggregationPeriod" Type="System.TimeSpan" Scope="Application">
+      <Value Profile="(Default)">00:30:00</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

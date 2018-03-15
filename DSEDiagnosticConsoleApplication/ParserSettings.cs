@@ -224,6 +224,7 @@ namespace DSEDiagnosticConsoleApplication
         public static IFilePath ExcelFileTemplatePath = MakeFilePath(Properties.Settings.Default.ExcelFileTemplatePath, ExcelFilePath?.ParentDirectoryPath);
         public static string ClusterName = null;
         public static int? ClusterHashCode = null;
+        public static TimeSpan LogAggregationPeriod = Properties.Settings.Default.LogAggregationPeriod;
 
         public static DateTimeOffsetRange LogTimeRange
         {

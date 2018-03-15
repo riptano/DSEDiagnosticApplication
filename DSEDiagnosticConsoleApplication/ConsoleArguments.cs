@@ -252,6 +252,13 @@ namespace DSEDiagnosticConsoleApplication
                 Description = "The Profile used to parse, transform, and analysis the data."
             });
 
+            this._cmdLineParser.Arguments.Add(new ValueArgument<TimeSpan>("LogAggrPeriod")
+            {
+                DefaultValue = ParserSettings.LogAggregationPeriod,
+                Optional = true,
+                Description = "Log Aggregation Period in DD:HH:MM format"
+            });
+
             this._cmdLineParser.Arguments.Add(new SwitchArgument("Debug", false)
             {
                 Description = "Debug Mode"
@@ -598,6 +605,12 @@ namespace DSEDiagnosticConsoleApplication
                             {
                                 DSEDiagnosticLibrary.LibrarySettings.LogEventsAreMemoryMapped = profile.EnableVirtualMemory;
                             }
+                        }
+                        break;
+                    case "LogAggrPeriod":
+                        {
+                            var value = ((ValueArgument<TimeSpan>)item).Value;
+                            ParserSettings.LogAggregationPeriod = value;
                         }
                         break;
                     case "Debug":
