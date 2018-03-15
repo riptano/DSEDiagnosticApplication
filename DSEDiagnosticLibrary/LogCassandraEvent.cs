@@ -352,7 +352,9 @@ namespace DSEDiagnosticLibrary
             //     Only fields required to identify an instance used for searches, finds, where,
             //     etc.
             SearchView = 8,
-            SessionTieOutIdOnly = 9
+            SessionTieOutIdOnly = 9,
+            EventTypeOnly = 10,
+            AggregationPeriodOnly = 11
         }
 
         public LogCassandraEvent(MemoryMapper.ReadElement readView, MemoryMapperElementCreationTypes instanceType)
@@ -374,6 +376,18 @@ namespace DSEDiagnosticLibrary
                 readView.SkipInt();
                 readView.SkipInt();
                 this.SessionTieOutId = readView.GetStringValue();
+                return;
+            }
+
+            if (creationType == ElementCreationTypes.EventTypeOnly)
+            {
+                readView.SkipInt();
+                this.EventTime = readView.GetStructValue<DateTimeOffset>();
+                readView.SkipInt();
+                readView.SkipInt();
+                readView.SkipString();
+                readView.SkipInt(); //Source
+                this.Type = (EventTypes)readView.GetIntValue();                
                 return;
             }
 
@@ -406,7 +420,36 @@ namespace DSEDiagnosticLibrary
                                                                                                                                                                                 .Find(f => f.ElementHashCode == e)));
             }
 
-            if (creationType == ElementCreationTypes.FullView)
+            if (creationType == ElementCreationTypes.AggregationPeriodOnly)
+            {
+                this.Source = (SourceTypes)readView.GetIntValue();
+                this.Type = (EventTypes)readView.GetIntValue();
+                this.Class = (EventClasses)readView.GetIntValue();
+                readView.SkipString();
+                readView.SkipStructEnumerable();
+                // IParsed Members
+                readView.SkipString();
+                readView.SkipInt();
+                readView.SkipUInt();
+                //IEvents members
+                this.SubClass = readView.GetStringValue();
+                readView.SkipString();
+                this.EventTimeLocal = readView.GetStructValue<DateTime>();
+                this.EventTimeBegin = readView.GetNullableValue<DateTimeOffset>();
+                this.EventTimeEnd = readView.GetNullableValue<DateTimeOffset>();
+                this.Duration = readView.GetNullableValue<TimeSpan>();
+                this.Product = (DSEInfo.InstanceTypes)readView.GetIntValue();
+                //Log Members
+                readView.SkipMMElementKVPStrObj();
+                readView.SkipString();
+                readView.SkipStringEnumerable();
+                readView.SkipStructEnumerable();
+                readView.SkipStructEnumerable();
+                readView.SkipMMTokenRangeEnum();
+                this.Exception = readView.GetStringValue();
+                this.ExceptionPath = readView.GetEnumerableString();
+            }
+            else if (creationType == ElementCreationTypes.FullView)
             {
                 //IParsed Members
                 strValue = readView.GetStringValue();

@@ -14,7 +14,10 @@ namespace DSEDiagnosticToDataTable
         public const string KeySpace = "Keyspace Name";
         public const string Table = "Table Name";
         public const string ReconciliationRef = "Reconciliation Reference";
-        public const string Source = "Source";        
+        public const string Source = "Source";
+        public const string LogLocalTimeStamp = "Log Local Timestamp";
+        public const string LogLocalTZOffset = "Log Time Zone Offset";
+        public const string UTCTimeStamp = "UTC Timestamp";
     }
 
     public static class TableNames
@@ -31,5 +34,6 @@ namespace DSEDiagnosticToDataTable
         public const string NodeStats = "NodeStats";
         public const string LogInfo = "LogInformation";
         public const string MultiInstanceInfo = "MultiInstanceNodes";
+        public const string LogAggregation = "LogAggregation";
     }
 }

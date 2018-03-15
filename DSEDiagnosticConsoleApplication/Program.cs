@@ -17,7 +17,7 @@ namespace DSEDiagnosticConsoleApplication
         #region Console
 
         static public ConsoleDisplay ConsoleDeCompressFiles = null;
-        static public ConsoleDisplay ConsoleNonLogReadFiles = null;
+        static public ConsoleDisplay ConsoleTasksReadFiles = null;
         static public ConsoleDisplay ConsoleLogReadFiles = null;
         static public ConsoleDisplay ConsoleAnalyze = null;
         static public ConsoleDisplay ConsoleParsingDataTable = null;
@@ -107,12 +107,12 @@ namespace DSEDiagnosticConsoleApplication
                     {
                         if (eventArgs.Category.HasFlag(DSEDiagnosticFileParser.ProgressionEventArgs.Categories.Start))
                         {
-                            ConsoleNonLogReadFiles.Increment(diagFile.File);
+                            ConsoleTasksReadFiles.Increment(diagFile.File);
                         }
                         else if (eventArgs.Category.HasFlag(DSEDiagnosticFileParser.ProgressionEventArgs.Categories.End)
                                     || eventArgs.Category.HasFlag(DSEDiagnosticFileParser.ProgressionEventArgs.Categories.Cancel))
                         {
-                            ConsoleNonLogReadFiles.TaskEnd(diagFile.File);
+                            ConsoleTasksReadFiles.TaskEnd(diagFile.File);
                         }
                     }
 
@@ -129,12 +129,12 @@ namespace DSEDiagnosticConsoleApplication
                 {
                     if (eventArgs.Category.HasFlag(DSEDiagnosticFileParser.ProgressionEventArgs.Categories.Start))
                     {
-                        ConsoleNonLogReadFiles.Increment(eventArgs.Message());
+                        ConsoleTasksReadFiles.Increment(eventArgs.Message());
                     }
                     else if (eventArgs.Category.HasFlag(DSEDiagnosticFileParser.ProgressionEventArgs.Categories.Cancel)
                                 || eventArgs.Category.HasFlag(DSEDiagnosticFileParser.ProgressionEventArgs.Categories.End))
                     {
-                        ConsoleNonLogReadFiles.TaskEnd(eventArgs.Message());
+                        ConsoleTasksReadFiles.TaskEnd(eventArgs.Message());
                     }
 
                     if (eventArgs.Category.HasFlag(DSEDiagnosticFileParser.ProgressionEventArgs.Categories.Cancel))
@@ -274,8 +274,8 @@ namespace DSEDiagnosticConsoleApplication
 
             ConsoleDisplay.Console.WriteLine(" ");
 
+            ConsoleTasksReadFiles = new ConsoleDisplay("File Tasks Completed: {0} Working: {1} Task: {2}");
             ConsoleDeCompressFiles = new ConsoleDisplay("Decompression Completed: {0} Working: {1} Task: {2}");
-            ConsoleNonLogReadFiles = new ConsoleDisplay("Non-Log Completed: {0} Working: {1} Task: {2}");
             ConsoleLogReadFiles = new ConsoleDisplay("Log Completed: {0}  Working: {1} Task: {2}");
             ConsoleAnalyze = new ConsoleDisplay("Analyze Processing: {0}  Working: {1} Task: {2}");
             ConsoleParsingDataTable = new ConsoleDisplay("DataTable Processing: {0}  Working: {1} Task: {2}");

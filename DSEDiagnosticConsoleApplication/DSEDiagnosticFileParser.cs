@@ -75,7 +75,7 @@ namespace DSEDiagnosticConsoleApplication
                                                                                                     : ParserSettings.OnlyNodes
                                                                                                         .Select(n => DSEDiagnosticLibrary.NodeIdentifier.Create(n)));
 
-            diagParserTask.Then(ignore => { ConsoleNonLogReadFiles.Terminate(); ConsoleLogReadFiles.Terminate(); ConsoleDeCompressFiles.Terminate(); });
+            diagParserTask.Then(ignore => { ConsoleTasksReadFiles.Terminate(); ConsoleLogReadFiles.Terminate(); ConsoleDeCompressFiles.Terminate(); });
             diagParserTask.Then(ignore =>
             {
                 foreach (var uaNode in DSEDiagnosticLibrary.Cluster.GetUnAssocaitedNodes())

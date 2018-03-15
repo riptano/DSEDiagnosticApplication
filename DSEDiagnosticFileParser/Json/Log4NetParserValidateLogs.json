@@ -24,8 +24,8 @@
       },
       "ParseMessage": {
         "RegExStrings": [
-          "^InetAddress\\s+/?\\s*(?<NODE>[^ ]+)\\s+\\w+\\s+\\w+\\s+(?<status>DOWN)$",
-          "^Node\\s+/?\\s*(?<NODE>[^ ]+)\\s+is now part of the (?<status>cluster)$"
+          "^InetAddress\\s+/?\\s*(?<NODE>[^ ]+)\\s+\\w+\\s+\\w+\\s+(?<SUBCLASS>DOWN)$",
+          "^Node\\s+/?\\s*(?<NODE>[^ ]+)\\s+is now part of the (?<SUBCLASS>cluster)$"
         ]
       },
       "ParseThreadId": null,
@@ -65,7 +65,7 @@
       },
       "ParseMessage": {
         "RegExStrings": [
-          "^InetAddress\\s+/?\\s*(?$<NODE>)\\s+\\w+\\s+\\w+\\s+(?<status>UP)$"
+          "^InetAddress\\s+/?\\s*(?$<NODE>)\\s+\\w+\\s+\\w+\\s+(?<SUBCLASS>UP)$"
         ]
       },
       "ParseThreadId": null,
@@ -213,9 +213,9 @@
       },
       "ParseMessage": {
         "RegExStrings": [
-          "^updating shards[a-z ]+/?\\s*(?$<NODE>)\\s+\\w+\\s\\w+\\sstatus=(?<status>\\w+)\\,?(?<token>\\s?\\-?[0-9]+\\,?)*",
-          "^updating shards[a-z ]+/?\\s*(?$<NODE>)\\s+\\w+\\s\\w+\\s(?<status>schema)=?(?$<DDLSCHEMAID>)?$",
-          "^updating shards[a-z ]+/?\\s*(?$<NODE>)\\s+\\w+\\s(?<status>dead)$"
+          "^updating shards[a-z ]+/?\\s*(?$<NODE>)\\s+\\w+\\s\\w+\\sstatus=(?<SUBCLASS>\\w+)\\,?(?<token>\\s?\\-?[0-9]+\\,?)*",
+          "^updating shards[a-z ]+/?\\s*(?$<NODE>)\\s+\\w+\\s\\w+\\s(?<SUBCLASS>schema)=?(?$<DDLSCHEMAID>)?$",
+          "^updating shards[a-z ]+/?\\s*(?$<NODE>)\\s+\\w+\\s(?<SUBCLASS>dead)$"
         ]
       },
       "ParseThreadId": null,
@@ -265,7 +265,7 @@
       "ParseThreadId": null,
       "EventType": "SessionIgnore",
       "EventClass": "Detection, Node, Shard",
-      "SubClass": null,
+      "SubClass": "'New Ownership'",
       "Product": "Cassandra",
       "SessionKey": "'shardEvent' + NODE + token",
       "SessionKeyAction": "Read",
@@ -307,7 +307,7 @@
       "ParseThreadId": null,
       "EventType": "SessionItem, SingleInstance",
       "EventClass": "Detection, Node, Shard",
-      "SubClass": null,
+      "SubClass": "'Owership Changed'",
       "Product": "Cassandra",
       "SessionKey": "'shardEvent' + NODE + token",
       "SessionKeyAction": "Read",
@@ -349,7 +349,7 @@
       "ParseThreadId": null,
       "EventType": "SessionEnd",
       "EventClass": "Detection, Node, Shard",
-      "SubClass": null,
+      "SubClass": "'Topology Updating'",
       "Product": "Cassandra",
       "SessionLookup": "'shardEvent' + NODE",
       "SessionLookupAction": "ReadRemoveLabel",
@@ -391,7 +391,7 @@
       "ParseThreadId": null,
       "EventType": "SingleInstance",
       "EventClass": "Detection, Schema, Change",
-      "SubClass": null,
+      "SubClass": "'New Table|View'",
       "Product": "Cassandra",
       "Examples": [
         "=> INFO  [SharedPool-Worker-1] 2018-01-07 22:58:02,456  MigrationManager.java:249 - Create new ColumnFamily: org.apache.cassandra.config.CFMetaData@6d3c6562[cfId=ed1b46c1-3a72-11e7-9ff5-a12e162c4992,ksName=loan_servicing,cfName=bh_skillset_look_up,cfType=Standard,comparator=org.apache.cassandra.db.marshal.CompositeType(org.apache.cassandra.db.marshal.UTF8Type,org.apache.cassandra.db.marshal.UTF8Type,org.apache.cassandra.db.marshal.UTF8Type),comment=,readRepairChance=0.0,dcLocalReadRepairChance=0.1,gcGraceSeconds=172800,defaultValidator=org.apache.cassandra.db.marshal.BytesType,keyValidator=org.apache.cassandra.db.marshal.Int32Type,minCompactionThreshold=4,maxCompactionThreshold=32,columnMetadata=[ColumnDefinition{name=workgroup, type=org.apache.cassandra.db.marshal.UTF8Type, kind=REGULAR, componentIndex=2, indexName=null, indexType=null}, ColumnDefinition{name=substrm, type=org.apache.cassandra.db.marshal.UTF8Type, kind=REGULAR, componentIndex=2, indexName=null, indexType=null}, ColumnDefinition{name=end_dt_txt, type=org.apache.cassandra.db.marshal.UTF8Type, kind=REGULAR, componentIndex=2, indexName=null, indexType=null}, ColumnDefinition{name=skillset_name, type=org.apache.cassandra.db.marshal.UTF8Type, kind=CLUSTERING_COLUMN, componentIndex=0, indexName=null, indexType=null}, ColumnDefinition{name=id, type=org.apache.cassandra.db.marshal.Int32Type, kind=PARTITION_KEY, componentIndex=null, indexName=null, indexType=null}, ColumnDefinition{name=start_dt_txt, type=org.apache.cassandra.db.marshal.UTF8Type, kind=CLUSTERING_COLUMN, componentIndex=1, indexName=null, indexType=null}],compactionStrategyClass=class org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy,compactionStrategyOptions={},compressionParameters={sstable_compression=org.apache.cassandra.io.compress.LZ4Compressor},bloomFilterFpChance=0.01,memtableFlushPeriod=0,caching={\"keys\":\"ALL\", \"rows_per_partition\":\"NONE\"},defaultTimeToLive=0,minIndexInterval=128,maxIndexInterval=2048,speculativeRetry=99.0PERCENTILE,droppedColumns={},triggers=[],isDense=false]",
@@ -428,7 +428,7 @@
       "ParseThreadId": null,
       "EventType": "SingleInstance",
       "EventClass": "Detection, Schema, Change",
-      "SubClass": null,
+      "SubClass": "'New Keyspace'",
       "Product": "Cassandra",
       "Examples": [
         "=> INFO  [SharedPool-Worker-1] 2018-01-18 22:02:20,249  MigrationManager.java:302 - Create new Keyspace: KeyspaceMetadata{name=keyspace1, params=KeyspaceParams{durable_writes=true, replication=ReplicationParams{class=org.apache.cassandra.locator.SimpleStrategy, replication_factor=1}}, tables=[], views=[], functions=[], types=[]}"
@@ -463,7 +463,7 @@
       "ParseThreadId": null,
       "EventType": "SingleInstance",
       "EventClass": "Detection, Schema, Change",
-      "SubClass": null,
+      "SubClass": "'Updating CQL Item'",
       "Product": "Cassandra",
       "Examples": [
         "=> INFO  [SharedPool-Worker-2] 2018-01-07 22:58:03,789  MigrationManager.java:298 - Update ColumnFamily 'loan_servicing/ewfm' From org.apache.cassandra.config.CFMetaData@1988c474[cfId=017d9860-3f84-11e6-9023-2da642d6c5be,ksName=loan_servicing,cfName=ewfm,cfType=Standard,comparator=org.apache.cassandra.db.marshal.CompositeType(org.apache.cassandra.db.marshal.UTF8Type,org.apache.cassandra.db.marshal.UTF8Type)",
@@ -501,7 +501,7 @@
       "ParseThreadId": null,
       "EventType": "SingleInstance",
       "EventClass": "Detection, Schema, Change",
-      "SubClass": null,
+      "SubClass": "'Drop CQL Item'",
       "Product": "Cassandra",
       "Examples": [
         "=> INFO  [SharedPool-Worker-4] 2018-01-07 22:58:04,012  MigrationManager.java:326 - Drop Keyspace 'validation'",

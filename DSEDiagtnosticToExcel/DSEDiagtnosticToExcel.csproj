@@ -59,6 +59,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApplicationInfoExcel.cs" />
+    <Compile Include="LogAggregationExcel.cs" />
     <Compile Include="LogInformationExcel.cs" />
     <Compile Include="MultiInstanceExcel.cs" />
     <Compile Include="NodeConfigChangesExcel.cs" />

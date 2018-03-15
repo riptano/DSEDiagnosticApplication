@@ -45,7 +45,8 @@ namespace DSEDiagnosticConsoleApplication
                     new DSEDiagnosticToDataTable.CFStatsDataTable(cluster, cancellationSource, ParserSettings.IgnoreKeySpaces.ToArray(), ParserSettings.WarnWhenKSTblIsDetected.ToArray(), sessionGuid),
                     new DSEDiagnosticToDataTable.TPStatsDataTable(cluster, cancellationSource, sessionGuid),
                     new DSEDiagnosticToDataTable.MultiInstanceDataTable(cluster, cancellationSource, sessionGuid),
-                    new DSEDiagnosticToDataTable.NodeConfigChanges(cluster, cancellationSource, sessionGuid)
+                    new DSEDiagnosticToDataTable.NodeConfigChanges(cluster, cancellationSource, sessionGuid),
+                    new DSEDiagnosticToDataTable.LogAggregationDataTable(cluster, cancellationSource, ParserSettings.IgnoreKeySpaces.ToArray(), null, sessionGuid)
                 };
 
                 loadDataTables.ForEach(ldtInstance =>

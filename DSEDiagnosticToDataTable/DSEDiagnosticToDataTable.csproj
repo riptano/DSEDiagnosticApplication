@@ -60,6 +60,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="LogAggregationDataTable.cs" />
     <Compile Include="LogInformationDataTable.cs" />
     <Compile Include="MultiInstanceDataTable.cs" />
     <Compile Include="NodeConfigChanges.cs" />

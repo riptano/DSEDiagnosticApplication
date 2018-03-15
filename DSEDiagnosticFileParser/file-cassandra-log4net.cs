@@ -651,6 +651,11 @@ namespace DSEDiagnosticFileParser
                                                         StringFunctions.IgnoreWithinDelimiterFlag.All,
                                                         StringFunctions.SplitBehaviorOptions.RemoveEmptyEntries | StringFunctions.SplitBehaviorOptions.StringTrimEachElement | StringFunctions.SplitBehaviorOptions.MismatchedWithinDelimitersTreatAsSingleElement);
 
+            if(exceptionInfo.Last() == "{}")
+            {
+                exceptionInfo = new List<string>(exceptionInfo.Take(exceptionInfo.Count - 1));
+            }
+
             //Find first exception with a "valid" description 
             var validDescIndex = exceptionInfo.IndexOf(i => !i.EndsWith("exception", StringComparison.OrdinalIgnoreCase)
                                                             && !i.EndsWith("error", StringComparison.OrdinalIgnoreCase)

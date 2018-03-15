@@ -23,9 +23,9 @@ namespace DSEDiagnosticToDataTable
             
             dtConfig.Columns.Add(ColumnNames.DataCenter, typeof(string));
             dtConfig.Columns.Add(ColumnNames.NodeIPAddress, typeof(string));
-            dtConfig.Columns.Add("UTC Timestamp", typeof(DateTime));
-            dtConfig.Columns.Add("Log Local Timestamp", typeof(DateTime)).AllowDBNull = true;
-            dtConfig.Columns.Add("Log Time Zone Offset", typeof(string)).AllowDBNull = true;
+            dtConfig.Columns.Add(ColumnNames.UTCTimeStamp, typeof(DateTime));
+            dtConfig.Columns.Add(ColumnNames.LogLocalTimeStamp, typeof(DateTime)).AllowDBNull = true;
+            dtConfig.Columns.Add(ColumnNames.LogLocalTZOffset, typeof(string)).AllowDBNull = true;
             dtConfig.Columns.Add("Type", typeof(string));
             dtConfig.Columns.Add("Property", typeof(string));
             dtConfig.Columns.Add("Value", typeof(string));
