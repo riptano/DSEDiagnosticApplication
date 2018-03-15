@@ -24,14 +24,14 @@
       },
       "ParseMessage": {
         "RegExStrings": [
-          "^InetAddress\\s+/?\\s*(?$<NODE>)\\s+\\w+\\s+\\w+\\s+(?<SUBCLASS>DOWN)$",
-          "^Node\\s+/?\\s*(?$<NODE>)\\s+is (?<SUBCLASS>now part of the cluster)$"
+          "^InetAddress\\s+/?\\s*(?$<NODE>)\\s+\\w+\\s+\\w+\\s+(?<action>DOWN)$",
+          "^Node\\s+/?\\s*(?$<NODE>)\\s+is\\s+(?<action>now part of the cluster)$"
         ]
       },
       "ParseThreadId": null,
       "EventType": "SessionBegin",
       "EventClass": "NodeDetection, Change",
-      "SubClass": null,
+      "SubClass": "NODE + ' ' + action",
       "Product": "Cassandra",
       "SessionKey": "EventClass + NODE",
       "SessionKeyAction": "Add",
@@ -71,7 +71,7 @@
       "ParseThreadId": null,
       "EventType": "SessionEnd, SessionIgnore",
       "EventClass": "NodeDetection, Change",
-      "SubClass": null,
+      "SubClass": "NODE + ' UP'",
       "Product": "Cassandra",
       "SessionKey": "EventClass + NODE",
       "Examples": [
@@ -508,6 +508,77 @@
         "=> INFO  [SharedPool-Worker-1] 2018-01-18 21:55:04,410  MigrationManager.java:464 - Drop table 'keyspace1/digitalasset_3_0_2'",
         "=> INFO  [SharedPool-Worker-1] 2018-01-18 21:58:33,418  MigrationManager.java:475 - Drop table 'keyspace1/view1'",
         "Note that when indexes are dropped thay are updates on the base table"
+      ]
+    },
+    {
+      "Description": "Not Mark Node Down (pause)",
+      "TagId": 18.0,
+      "MatchVersion": null,
+      "LevelMatch": {
+        "RegExStrings": [
+          "WARN"
+        ]
+      },
+      "ThreadIdMatch": null,
+      "FileNameMatch": {
+        "RegExStrings": [
+          "^FailureDetector.java$"
+        ]
+      },
+      "FileLineMatch": null,
+      "MessageMatch": {
+        "RegExStrings": [
+          "^Not\\s+marking\\s+nodes\\s+down"
+        ]
+      },
+      "ParseMessage": {
+        "RegExStrings": [
+          "^Not\\s+marking\\s+nodes\\s+down\\s+due\\s+to\\s+local\\s+pause\\s+of\\s+(?<GCPause>[0-9,]+)\\s*>\\s*(?<GCPauseThreshold>[0-9,]+)$"
+        ]
+      },
+      "ParseThreadId": null,
+      "EventType": "SingleInstance",
+      "EventClass": "NodeDetection, Change",
+      "SubClass": "'Not marking Node down due to pause'",
+      "Product": "Cassandra",
+      "SessionKey": null,
+      "Examples": [
+        "=> WARN  [GossipTasks:1] 2018-02-06 14:42:58,283  FailureDetector.java:258 - Not marking nodes down due to local pause of 71168044088 > 5000000000"
+      ]
+    },
+    {
+      "Description": "Hint Handoff (dropped hints node down)",
+      "TagId": 19.0,
+      "MatchVersion": null,
+      "LevelMatch": {
+        "RegExStrings": [
+          "WARN"
+        ]
+      },
+      "ThreadIdMatch": null,
+      "FileNameMatch": {
+        "RegExStrings": [
+          "^HintedHandoffMetrics.java$"
+        ]
+      },
+      "FileLineMatch": null,
+      "MessageMatch": {
+        "RegExStrings": [
+          "^/*[^ ]+\\s+has\\s+[0-9,]+\\s+dropped\\s+hints"
+        ]
+      },
+      "ParseMessage": {
+        "RegExStrings": [
+          "^/*(?<NODE>[^ ]+)\\s+has\\s+(?<droppedhints>[0-9,]+)\\s+dropped\\s+hints"
+        ]
+      },
+      "ParseThreadId": null,
+      "EventType": "SingleInstance",
+      "EventClass": "HintHandOff, NodeDetection, Change",
+      "SubClass": "'Dropped Hints due to Node Down ' + NODE",
+      "Product": "Cassandra",      
+      "Examples": [
+        "=> WARN  [HintedHandoffManager:1] 2017-12-19 16:45:41,561  HintedHandoffMetrics.java:79 - /10.141.88.35 has 433 dropped hints, because node is down past configured hint window."
       ]
     }
   ]
