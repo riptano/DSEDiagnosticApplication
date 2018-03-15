@@ -80,7 +80,7 @@ namespace DSEDiagnosticToDataTable
                     
                     this.Cluster.Nodes.SelectMany(n => n.LogFiles).ForEach(logFile => logDateRange.SetMinMax(logFile.LogDateRange));
 
-                    var beginAggDateTime = logDateRange.Min.UtcDateTime.Round(this.AggregationPeriod);
+                    var beginAggDateTime = logDateRange.Min.UtcDateTime.RoundUp(this.AggregationPeriod) - this.AggregationPeriod;
                     var endingAggDateTime = logDateRange.Max.UtcDateTime.RoundUp(this.AggregationPeriod);
 
                     for (DateTime beginDateTime = beginAggDateTime, endDateTime = beginAggDateTime + this.AggregationPeriod;

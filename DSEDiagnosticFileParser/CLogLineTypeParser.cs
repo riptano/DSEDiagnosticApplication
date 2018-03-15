@@ -377,7 +377,7 @@ namespace DSEDiagnosticFileParser
                 if(value != this._subclass)
                 {
                     this._subclass = value;
-                    CacheSessionKey(this, ref this._subclass, SubClassIdx);
+                    CacheSessionKey(this, ref this._subclass, SubClassIdx, true);
                 }
             }
         }
@@ -812,7 +812,8 @@ namespace DSEDiagnosticFileParser
                                         keyspace,
                                         logLineProperties,
                                         logLineMessage,
-                                        false);
+                                        false,
+                                        true);
         }
 
         public string DetermineSessionLookup(Cluster cluster,
@@ -1019,11 +1020,12 @@ namespace DSEDiagnosticFileParser
         #region Private Methods
         private static void CacheSessionKey(CLogLineTypeParser logLineParser,
                                             ref string propValue,
-                                            int cacheIdx)
+                                            int cacheIdx,
+                                            bool forceUpdate = false)
         {
             var cacheInfo = logLineParser.GetCacheInfo(cacheIdx);
 
-            if (logLineParser.EventType == EventTypes.SingleInstance)
+            if (logLineParser.EventType == EventTypes.SingleInstance && !forceUpdate)
             {
                 cacheInfo.KeyMethodInfo = null;
                 cacheInfo.KeyMethodInfoIsMethod = false;
@@ -1320,9 +1322,11 @@ namespace DSEDiagnosticFileParser
                                                 IKeyspace keyspace,
                                                 IDictionary<string, object> logLineProperties,
                                                 ILogMessage logLineMessage,
-                                                bool throwWhenKeyNotFnd = true)
+                                                bool throwWhenKeyNotFnd = true,
+                                                bool forceLookup = false)
         {
-            if (logLineParser.EventType == EventTypes.SingleInstance)
+            if (logLineParser.EventType == EventTypes.SingleInstance
+                    && !forceLookup)
             {
                 return null;
             }

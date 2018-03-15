@@ -19,13 +19,13 @@
       "FileLineMatch": null,
       "MessageMatch": {
         "RegExStrings": [
-          "^(InetAddress|Node) "
+          "^(InetAddress|Node)\\s.+\\s(down|cluster)"
         ]
       },
       "ParseMessage": {
         "RegExStrings": [
-          "^InetAddress\\s+/?\\s*(?<NODE>[^ ]+)\\s+\\w+\\s+\\w+\\s+(?<SUBCLASS>DOWN)$",
-          "^Node\\s+/?\\s*(?<NODE>[^ ]+)\\s+is now part of the (?<SUBCLASS>cluster)$"
+          "^InetAddress\\s+/?\\s*(?$<NODE>)\\s+\\w+\\s+\\w+\\s+(?<SUBCLASS>DOWN)$",
+          "^Node\\s+/?\\s*(?$<NODE>)\\s+is (?<SUBCLASS>now part of the cluster)$"
         ]
       },
       "ParseThreadId": null,
@@ -60,7 +60,7 @@
       "FileLineMatch": null,
       "MessageMatch": {
         "RegExStrings": [
-          "^InetAddress "
+          "^InetAddress\\s.+\\sup"
         ]
       },
       "ParseMessage": {

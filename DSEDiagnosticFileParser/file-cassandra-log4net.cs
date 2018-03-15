@@ -750,12 +750,12 @@ namespace DSEDiagnosticFileParser
                                         out assocatedNodes,
                                         out tokenRanges);
             
-            subClass = matchItem.Item5.DetermineSubClass(this.Cluster,
-                                                            this.Node,
-                                                            primaryKS,
-                                                            logProperties,
-                                                            logMessage)
-                        ?? subClass;
+            subClass = subClass
+                        ?? matchItem.Item5.DetermineSubClass(this.Cluster,
+                                                                this.Node,
+                                                                primaryKS,
+                                                                logProperties,
+                                                                logMessage);
 
             #region Session Instance
 

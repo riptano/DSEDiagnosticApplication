@@ -895,8 +895,8 @@
       },
       "ParseMessage": {
         "RegExStrings": [
-          "^InetAddress\\s+/?\\s*(?<NODE>[^ ]+)\\s+\\w+\\s+\\w+\\s+(?<SUBCLASS>DOWN)$",
-          "^Node\\s+/?\\s*(?<NODE>[^ ]+)\\s+is now part of the (?<SUBCLASS>cluster)$"
+          "^InetAddress\\s+/?\\s*(?$<NODE>)\\s+\\w+\\s+\\w+\\s+(?<SUBCLASS>DOWN)$",
+          "^Node\\s+/?\\s*(?$<NODE>)\\s+is now part of the (?<SUBCLASS>cluster)$"
         ]
       },
       "ParseThreadId": null,
