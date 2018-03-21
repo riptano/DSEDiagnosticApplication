@@ -73,13 +73,9 @@ namespace DSEDiagnosticFileParser
                     {
                         if (hostName.ToLower() == "localhost") continue;
 
-                        if(Logger.Instance.IsDebugEnabled)
-                        {
-                            Logger.Instance.DebugFormat("Added Host Name \"{0}\" to node \"{1}\"", hostName, node);
-                        }
-                        node.Id.SetIPAddressOrHostName(hostName);
-                        ++nbrGenerated;
-                    }                    
+                        this.Node.Id.SetIPAddressOrHostName(hostName);
+                        ++nbrGenerated;               
+                    }
                 }
              }
 

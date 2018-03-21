@@ -165,6 +165,83 @@ namespace DSEDiagnosticFileParser
         [JsonProperty(PropertyName="Keyspaces")]
         private IEnumerable<IKeyspace> _dcKeyspaces;
 
+        #region Event Handlers/Class
+
+        [System.Diagnostics.DebuggerNonUserCode]
+        public sealed class LogEventArgs : System.EventArgs
+        {
+            #region Properties
+
+            /// <summary>
+            /// Actual Log4 parsed message
+            /// </summary>
+            public ILogMessage LogMessage { get; }
+
+            /// <summary>
+            /// The generated Log Event based on the LogMessage.
+            /// </summary>
+            public LogCassandraEvent LogEvent { get; }
+
+            public IEnumerable<LogCassandraEvent> OrphanedLogEvents { get; }
+
+            /// <summary>
+            /// If true the event is associated to the node (default). If false it is not (log event is ignored).
+            /// </summary>
+            public bool AllowNodeAssocation { get; set; }
+
+            #endregion //end of Properties
+
+            public delegate void EventHandler(file_cassandra_log4net sender, LogEventArgs eventArgs);
+
+            #region Constructors
+            private LogEventArgs()
+            {
+            }
+
+            public LogEventArgs(ILogMessage logMessage, LogCassandraEvent logEvent, IEnumerable<LogCassandraEvent> orphanedLogEvents)
+
+            {
+                this.LogEvent = logEvent;
+                this.LogMessage = logMessage;
+                this.OrphanedLogEvents = orphanedLogEvents;
+                this.AllowNodeAssocation = true;
+            }
+
+            #endregion //end of Constructors
+           
+            #region Invoke Event Static Methods
+
+            public static bool InvokeEvent(file_cassandra_log4net sender,
+                                            ILogMessage logMessage,
+                                            LogCassandraEvent logEvent,
+                                            IEnumerable<LogCassandraEvent> orphanedLogEvents,
+                                            EventHandler invokeDelegate)
+            {
+                if (invokeDelegate != null)
+                {
+                    var eventArgs = new LogEventArgs(logMessage, logEvent, orphanedLogEvents);
+
+                    invokeDelegate(sender, eventArgs);
+                    return eventArgs.AllowNodeAssocation;
+                }
+
+                return true;
+            }
+           
+            public static bool HasAssignedEvent(EventHandler invokeDelegate)
+            {
+                return invokeDelegate != null;
+            }
+            #endregion //end of Invoke Event Static Methods
+        } //end of Event Argument Class LogEventArgs
+
+        /// <summary>
+        ///     Called before the event is associated to the node. If the AllowLogging property is set to false the event is not saved (ignored). The default is to associated to the node (true).
+        /// </summary>
+        public event LogEventArgs.EventHandler OnLogEvent;
+        
+        #endregion
+
         public override IResult GetResult()
         {
             return this._result;
@@ -184,6 +261,7 @@ namespace DSEDiagnosticFileParser
             DateTimeOffsetRange logFileDateRange = null;
             DateTimeOffset? lastShutdown = null;
             var nodeRestarts = new List<DateTimeOffsetRange>();
+            var onLogEventHandler = this.OnLogEvent;
 
             using (var logFileInstance = new ReadLogFile(this.File, LibrarySettings.Log4NetConversionPattern, this.CancellationToken, this.Node, LogTimeRange))
             {
@@ -220,7 +298,11 @@ namespace DSEDiagnosticFileParser
                             logEvent = this.PorcessException(logMessage, this._logEvents.LastOrDefault());
 
                             if (logEvent != null && !ReferenceEquals(logEvent, this._logEvents.LastOrDefault()))
-                                this._logEvents.Add(logEvent);
+                            {
+                                if(onLogEventHandler == null
+                                        || LogEventArgs.InvokeEvent(this, logMessage, logEvent, this._orphanedSessionEvents, onLogEventHandler))
+                                    this._logEvents.Add(logEvent);                                
+                            }
                         }
 
                         return;
@@ -231,7 +313,7 @@ namespace DSEDiagnosticFileParser
                         return;
                     }                    
                     
-                    matchItem = CLogTypeParser.FindMatch(this._parser, logMessage);
+                    matchItem = CLogTypeParser.FindMatch(this._parser, logMessage, this.CancellationToken);
 
                     logEvent = null;
                     ignoreLogEvent = false;
@@ -253,7 +335,9 @@ namespace DSEDiagnosticFileParser
                             {
                                 logEvent = this.PorcessUnHandledEventLevel(logMessage);
 
-                                if (logEvent != null)
+                                if (logEvent != null
+                                        && (onLogEventHandler == null
+                                                || LogEventArgs.InvokeEvent(this, logMessage, logEvent, this._orphanedSessionEvents, onLogEventHandler)))
                                     this._logEvents.Add(logEvent);
                             }
                         }
@@ -267,7 +351,9 @@ namespace DSEDiagnosticFileParser
                     {
                         logEvent = this.PorcessMatch(logMessage, matchItem);
 
-                        if (logEvent != null)
+                        if (logEvent != null
+                                && (onLogEventHandler == null
+                                        || LogEventArgs.InvokeEvent(this, logMessage, logEvent, this._orphanedSessionEvents, onLogEventHandler)))
                         {
                             this._logEvents.Add(logEvent);
 
@@ -304,6 +390,8 @@ namespace DSEDiagnosticFileParser
                     logFileDateRange = logMessages.LogTimeRange;
                 }
             }
+
+            this.CancellationToken.ThrowIfCancellationRequested();
 
             this._orphanedSessionEvents.AddRange(this._unsedOpenSessionEvents.Where(s => !s.EventTimeEnd.HasValue).Select(s => { s.MarkAsOrphaned(); return s; }));
             this._orphanedSessionEvents.AddRange(this._openSessions.Where(s => !s.Value.EventTimeEnd.HasValue).Select(s => { s.Value.MarkAsOrphaned(); return s.Value; }));

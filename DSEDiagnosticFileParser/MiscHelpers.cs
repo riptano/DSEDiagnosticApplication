@@ -654,6 +654,33 @@ namespace DSEDiagnosticFileParser
             return stringList;
         }
 
+        public static bool SetNodeHostName(DSEDiagnosticLibrary.INode node, string hostName, bool tryParseAsIPAdress = false)
+        {
+            var setHostName = node.DataCenter?.SetNodeHostName(node, hostName, tryParseAsIPAdress);
+
+            if (setHostName == null)
+            {
+                node.Id.SetIPAddressOrHostName(hostName, tryParseAsIPAdress);               
+            }
+            else
+            {
+                if (setHostName.Item1)
+                {
+                    if (Logger.Instance.IsDebugEnabled)
+                    {
+                        Logger.Instance.DebugFormat("Added Host Name \"{0}\" to node \"{1}\"", hostName, node);
+                    }                    
+                }
+                else
+                {
+                    Logger.Instance.WarnFormat("Node \"{0}\" with host name \"{1}\" was found to be duplicated (exists for node \"{2}\"). Host name not set.",
+                                                node, hostName, setHostName.Item2);
+                }
+            }
+
+            return setHostName != null && setHostName.Item1;
+        }
+
         #region JSON
 
         public static Dictionary<string, JObject> TryGetValues(this JObject jsonObj)

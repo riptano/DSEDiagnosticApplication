@@ -162,7 +162,7 @@ namespace DSEDiagnosticConsoleApplication.Properties {
         [global::System.Configuration.DefaultSettingValueAttribute(@"[
 {""ProfileName"":""AllFilesLogs"",""Log4NetParser"":"".\\Json\\Log4NetParser.json"",""ProcessFileMappings"":"".\\Json\\ProcessFileMappings.json"",""EnableVirtualMemory"":true, ""DefaultLogLevelHandling"":""Warning, Error, Fatal, Exception""},
 {""ProfileName"":""NoLogs"",""Log4NetParser"":"".\\Json\\Log4NetParser.json"",""ProcessFileMappings"":"".\\Json\\ProcessFileMappingsNoLogs.json"",""EnableVirtualMemory"":true, ""DefaultLogLevelHandling"":null},
-{""ProfileName"":""Validate"",""Log4NetParser"":"".\\Json\\Log4NetParserValidateLogs.json"",""ProcessFileMappings"":"".\\Json\\ProcessFileMappings.json"",""EnableVirtualMemory"":true, ""DefaultLogLevelHandling"":""Fatal, Exception""}
+{""ProfileName"":""Validate"",""Log4NetParser"":"".\\Json\\Log4NetParserValidateLogs.json"",""ProcessFileMappings"":"".\\Json\\ProcessFileMappingsValidate.json"",""EnableVirtualMemory"":false, ""DefaultLogLevelHandling"":""Fatal, Exception""}
 ]")]
         public string Profiles {
             get {

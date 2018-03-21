@@ -101,7 +101,7 @@ namespace DSEDiagtnosticToExcel
                                                                  workSheet.Cells["1:1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
                                                                  //workSheet.Cells["1:1"].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
                                                                  workSheet.View.FreezePanes(2, 1);
-                                                                 workSheet.Cells["A1:E1"].AutoFilter = true;
+                                                                 workSheet.Cells["A1:F1"].AutoFilter = true;
                                                                  
                                                                  workSheet.AutoFitColumn();
                                                              },

@@ -23,15 +23,37 @@ namespace DSEDiagnosticLibrary
         Log = 0x0080 | Cassandra
     }
 
+    public enum CommonToDataCenterState
+    {
+        /// <summary>
+        /// only local to node (does not match at least two nodes)
+        /// </summary>
+        None = 0,
+        /// <summary>
+        /// At least two nodes in the DC but not all nodes
+        /// </summary>
+        Partial,
+        /// <summary>
+        /// All nodes in the DC
+        /// </summary>
+        All
+    }
+
     public interface IConfigurationLine : IParsed
 	{
-        bool IsCommonToDataCenter { get; }
+        CommonToDataCenterState IsCommonToDataCenter { get; }
         ConfigTypes Type { get; }
         string Property { get; }
         string Value { get; }
         string NormalizeValue();
         string NormalizeProperty();
         object ParsedValue();
+
+        /// <summary>
+        /// Returns only the property name (no index reference or named structured)
+        /// </summary>
+        /// <returns></returns>
+        string PropertyName();
 
         bool Match(IConfigurationLine configItem);
         bool Match(IDataCenter dataCenter,
@@ -238,19 +260,21 @@ namespace DSEDiagnosticLibrary
         #endregion
 
         #region IConfigurationLine
-
+        
         [JsonIgnore]
-        public bool IsCommonToDataCenter
+        public CommonToDataCenterState IsCommonToDataCenter
         {
             get
             {
-                var nbrNodes = this.DataCenter?.Nodes.Count() ?? 0;
+                if(this.DataCenter is DataCenter)
+                {
+                    return CommonToDataCenterState.None;
+                }
 
-                if (nbrNodes <= 1) return true;
-
-                var nbrMatches = this.DataCenter.Nodes.Count(n => n.Configurations.Any(c => c.NormalizeProperty() == this.NormalizeProperty() && c.NormalizeValue() == this.NormalizeValue()));
-
-                return nbrMatches == nbrNodes;
+                var nbrNodes = this.DataCenter.Nodes.First().DataCenter.Nodes.Count();
+                var nbrMatches = this.DataCenter.Nodes.Count();
+               
+                return nbrMatches == nbrNodes ? CommonToDataCenterState.All : CommonToDataCenterState.Partial;
             }
         }
 
@@ -270,6 +294,30 @@ namespace DSEDiagnosticLibrary
             return this._normalizedProperty == null
                         ? this._normalizedProperty = NormalizeProperty(this.Property)
                         : this._normalizedProperty;
+        }
+
+        /// <summary>
+        /// Returns only the property name (no index reference or named structured)
+        /// </summary>
+        /// <returns></returns>
+        public string PropertyName()
+        {
+            var propertyName = this.Property;
+            var itemPos = propertyName.LastIndexOf('.');
+
+            if(itemPos > 0)
+            {
+                propertyName = propertyName.Substring(itemPos + 1);
+            }
+
+            itemPos = propertyName.IndexOf('[');
+
+            if (itemPos > 0)
+            {
+                propertyName = propertyName.Substring(0, itemPos);
+            }
+
+            return propertyName;
         }
 
         public string Value { get; private set; }
@@ -398,18 +446,26 @@ namespace DSEDiagnosticLibrary
                 {
                     if(currentConfig.DataCenter is DataCenter)
                     {
-                        var placeHolderDC = new PlaceholderDataCenter(currentConfig.Node, currentConfig.DataCenter.Name, "CommonConfig");
-                        var configNode = new Node(currentConfig.Cluster, currentConfig.Node.Id.Clone());
+                        var placeHolderDC = new PlaceholderDataCenter((DataCenter)currentConfig.DataCenter, currentConfig.DataCenter.Name, "CommonConfig");
+                        var configNode = new Node(placeHolderDC, currentConfig.Node.Id.Clone(true, true));
 
-                        configNode.Id.AddIPAddress(node.Id);
-                        configNode.SetNodeToDataCenter(placeHolderDC);
+                        if (node.Id.Addresses.HasAtLeastOneElement())
+                            configNode.Id.AddIPAddress(node.Id.Addresses.First());
+                        else
+                            configNode.Id.SetIPAddressOrHostName(node.Id.HostName, false);
+
                         placeHolderDC.AddNode(node);
+                        placeHolderDC.AddNode(currentConfig.Node);
                         ((YamlConfigurationLine)currentConfig).Node = configNode;
                     }
                     else
                     {
                         ((PlaceholderDataCenter)currentConfig.DataCenter).AddNode(node);
-                        currentConfig.Node.Id.AddIPAddress(node.Id);
+
+                        if (node.Id.Addresses.HasAtLeastOneElement())
+                            currentConfig.Node.Id.AddIPAddress(node.Id.Addresses.First());
+                        else
+                            currentConfig.Node.Id.SetIPAddressOrHostName(node.Id.HostName, false);
                     }
                 }
             }

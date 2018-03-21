@@ -29,6 +29,18 @@ namespace DSEDiagnosticLibrary
         INode TryGetNode(int nodeHashCode);
         INode TryGetAddNode(INode node);
 
+        /// <summary>
+        /// Set the host name to the node only if the name doesn't already exist within the within the DC in a different node.
+        /// </summary>
+        /// <param name="nodeSettingName"></param>
+        /// <param name="hostName"></param>  
+        /// <param name="tryParseAsIPAddress"></param>
+        /// <returns>
+        /// First  -- true to indicate the name was set or false that the name already exists within the DC
+        /// Second -- if true the node that was set, if false the node that contained the host name.
+        /// </returns>
+        Tuple<bool,INode> SetNodeHostName(INode nodeSettingName, string hostName, bool tryParseAsIPAddress = false);
+
         IEnumerable<IMMLogValue> LogEvents { get; }
 		IEnumerable<IConfigurationLine> Configurations { get; }
         IEnumerable<IConfigurationLine> GetConfigurations(INode node);
@@ -53,16 +65,18 @@ namespace DSEDiagnosticLibrary
     [JsonObject(MemberSerialization.OptOut)]
     public class PlaceholderDataCenter : IDataCenter
     {
+        private DataCenter _assocDC;
+
         protected PlaceholderDataCenter()
         { }
 
-        internal PlaceholderDataCenter(INode node, string name, string className)
+        internal PlaceholderDataCenter(DataCenter assocatedDC, string name, string className)
         {
             this._name = name;
             this._className = className;
-            this._nodes.Add(node);
+            this._assocDC = assocatedDC;
         }
-
+        
         internal INode AddNode(INode node)
         {
             if (node == null)
@@ -80,7 +94,7 @@ namespace DSEDiagnosticLibrary
                                                                 string value,
                                                                 ConfigTypes type)
         {
-            return ((DataCenter)this.Nodes.First().DataCenter).ConfigurationMatch(property, value, type);
+            return this._assocDC.ConfigurationMatch(property, value, type);
         }
 
         public object ToDump()
@@ -97,7 +111,7 @@ namespace DSEDiagnosticLibrary
         #region IDataCenter
         virtual public Cluster Cluster
         {
-            get { return this._nodes.First().Cluster; }
+            get { return this._assocDC.Cluster; }
             protected set { throw new NotImplementedException(); }
         }
 
@@ -161,13 +175,26 @@ namespace DSEDiagnosticLibrary
 
         virtual public IEnumerable<IConfigurationLine> GetConfigurations(INode node)
         {
-            throw new NotImplementedException();
+            return this._assocDC.GetConfigurations(node);
+        }
+
+        public Tuple<bool,INode> SetNodeHostName(INode nodeSettingName, string hostName, bool tryParseAsIPAddress = false)
+        {
+            var existNode = this._nodes.Where(n => !n.Equals(nodeSettingName)).FirstOrDefault(n => n.Id.HostNameExists(hostName));
+
+            if (existNode == null)
+            {
+                nodeSettingName.Id.SetIPAddressOrHostName(hostName, tryParseAsIPAddress);
+                return new Tuple<bool,INode>(true, nodeSettingName);
+            }
+
+            return new Tuple<bool, INode>(false, existNode);
         }
 
         [JsonIgnore]
         virtual public IEnumerable<IMMLogValue> LogEvents { get { throw new NotImplementedException(); } }
         [JsonIgnore]
-        virtual public IEnumerable<IConfigurationLine> Configurations { get { throw new NotImplementedException(); } }
+        virtual public IEnumerable<IConfigurationLine> Configurations { get { return this._assocDC.Configurations; } }
         [JsonIgnore]
         virtual public IEnumerable<IDDL> DDLs { get { throw new NotImplementedException(); } }
 
@@ -240,6 +267,7 @@ namespace DSEDiagnosticLibrary
         {
             if (ReferenceEquals(this, other)) return true;
             if (ReferenceEquals(other,null)) return false;
+            if (other is DataCenter && this._assocDC != null) return this._assocDC.Name == ((DataCenter)other).Name;
 
             if (this.Cluster.IsMaster || other.Cluster.IsMaster) return this._name == ((PlaceholderDataCenter)other)._name;
 
@@ -438,7 +466,9 @@ namespace DSEDiagnosticLibrary
         
         override public IEnumerable<IConfigurationLine> GetConfigurations(INode node)
         {
-            lock (this._configurations) { return this._configurations.Where(c => ((YamlConfigurationLine)c).Node.Equals(node)); }
+            lock (this._configurations) { return this._configurations.Where(c => c.DataCenter is DataCenter
+                                                                                    ? ((YamlConfigurationLine)c).Node.Equals(node)
+                                                                                    : c.DataCenter.Nodes.Contains(node)); }
         }
 
         override public IConfigurationLine ConfigurationMatch(string property,
@@ -554,6 +584,7 @@ namespace DSEDiagnosticLibrary
 		{
             if (ReferenceEquals(this, other)) return true;
             if (ReferenceEquals(other, null)) return false;
+            if (other.GetType() == typeof(PlaceholderDataCenter)) return ((PlaceholderDataCenter)other).Equals(this);
 
             if (this.Cluster.IsMaster || other.Cluster.IsMaster) return this.Name == other.Name;
 

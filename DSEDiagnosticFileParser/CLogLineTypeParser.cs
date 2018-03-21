@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using DSEDiagnosticLibrary;
 using DSEDiagnosticLogger;
 using Common;
+using System.Threading;
 
 namespace DSEDiagnosticFileParser
 {
@@ -1482,6 +1483,7 @@ namespace DSEDiagnosticFileParser
         /// </summary>
         /// <param name="parsers"></param>
         /// <param name="logEvent"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns>
         /// Returns null to indicate that the log event did not match anything.
         /// Returns a tuple where the
@@ -1492,9 +1494,16 @@ namespace DSEDiagnosticFileParser
         ///     fifth item is the parser instance.
         ///     first and third will never both be null.
         /// </returns>
-        public static Tuple<Regex, Match, Regex, Match, CLogLineTypeParser> FindMatch (CLogLineTypeParser[] parsers, ILogMessage logEvent)
+        public static Tuple<Regex, Match, Regex, Match, CLogLineTypeParser> FindMatch (CLogLineTypeParser[] parsers, 
+                                                                                        ILogMessage logEvent,
+                                                                                        CancellationToken cancellationToken)
         {
-            foreach (var parserItem in parsers)
+            Tuple<Regex, Match, Regex, Match, CLogLineTypeParser> returnValue = null;
+            var parallelOptions = new ParallelOptions();
+            parallelOptions.CancellationToken = cancellationToken;
+
+            Parallel.ForEach(parsers, parallelOptions, (parserItem, loopState) =>
+            //foreach (var parserItem in parsers)
             {
                 if ((parserItem.FileLineMatch?.IsMatchAny(logEvent.FileLine.ToString()) ?? true)
                         && (parserItem.FileNameMatch?.IsMatchAny(logEvent.FileName) ?? true)
@@ -1507,25 +1516,31 @@ namespace DSEDiagnosticFileParser
                     var threadIdMatch = parserItem.ParseThreadId?.MatchFirstSuccessful(logEvent.ThreadId, out threadIdRegEx);
                     var messageMatch = parserItem.ParseMessage?.MatchFirstSuccessful(logEvent.Message, out messageRegEx);
 
-                    if(threadIdMatch != null || messageMatch != null)
+                    if(loopState.IsStopped)
                     {
-                        return new Tuple<Regex, Match, Regex, Match, CLogLineTypeParser>(threadIdRegEx,
-                                                                                            threadIdMatch,
-                                                                                            messageRegEx,
-                                                                                            messageMatch,
-                                                                                            parserItem);
+                        return;
+                    }
+                    else if (threadIdMatch != null || messageMatch != null)
+                    {
+                        if(returnValue == null)
+                            returnValue = new Tuple<Regex, Match, Regex, Match, CLogLineTypeParser>(threadIdRegEx,
+                                                                                                    threadIdMatch,
+                                                                                                    messageRegEx,
+                                                                                                    messageMatch,
+                                                                                                    parserItem);                       
+                        loopState.Stop();
+                        return;
                     }
                     else
                     {
                         Logger.Instance.WarnFormat("Parsing of Log line \"{0}\" was matched but parsing failed for \"{1}\". Log Line parsing for this line will be skipped.",
                                                      logEvent.ToString(),
-                                                     parserItem.ToString());
-                        continue;
+                                                     parserItem.ToString());                        
                     }
-                }
-            }
+                }               
+            });
 
-            return null;
+            return returnValue;
         }
     }
 }

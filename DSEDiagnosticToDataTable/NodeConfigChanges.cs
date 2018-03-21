@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Data;
 using DSEDiagnosticLogger;
+using Common;
 
 namespace DSEDiagnosticToDataTable
 {
@@ -67,6 +68,12 @@ namespace DSEDiagnosticToDataTable
                                          where (searchEvent.Class & DSEDiagnosticLibrary.EventClasses.Config) != 0
                                                 && (searchEvent.Class & DSEDiagnosticLibrary.EventClasses.NodeDetection) != 0
                                          select logEvent.Value;
+                    IEnumerable<DSEDiagnosticLibrary.IConfigurationLine> nodeConfigs = null;
+
+                    if(logConfigLines.HasAtLeastOneElement())
+                    {
+                        nodeConfigs = node.Configurations.Where(c => c.Source == DSEDiagnosticLibrary.SourceTypes.Yaml);
+                    }
 
                     foreach (var logConfigLine in logConfigLines)
                     {
@@ -76,7 +83,7 @@ namespace DSEDiagnosticToDataTable
                         {
                             this.CancellationToken.ThrowIfCancellationRequested();
 
-                            var currMatchItem = node.Configurations.FirstOrDefault(c => c.Property.StartsWith(logConfigItem.Key));
+                            var currMatchItem = nodeConfigs.FirstOrDefault(c => c.PropertyName() == logConfigItem.Key);
                             string currValue = null;
                             string logConfigValue;
                             bool matched = false;
@@ -110,7 +117,7 @@ namespace DSEDiagnosticToDataTable
                                 dataRow.SetField(ColumnNames.DataCenter, node.DataCenter.Name);
                                 dataRow.SetField(ColumnNames.NodeIPAddress, node.Id.NodeName());
                                 dataRow.SetField("UTC Timestamp", logConfigLine.EventTime.UtcDateTime);
-                                dataRow.SetField("Log Local Timestamp", logConfigLine.EventTime.LocalDateTime);
+                                dataRow.SetField("Log Local Timestamp", logConfigLine.EventTime.DateTime);
                                 dataRow.SetFieldToTZOffset("Log Time Zone Offset", logConfigLine.EventTime);
                                 dataRow.SetField("Type", logConfigLine.Source);
                                 dataRow.SetField("Property", currMatchItem?.Property ?? logConfigItem.Key);

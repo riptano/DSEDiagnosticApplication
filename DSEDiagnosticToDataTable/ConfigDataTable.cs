@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Data;
 using DSEDiagnosticLogger;
+using Common;
 
 namespace DSEDiagnosticToDataTable
 {
@@ -28,7 +29,7 @@ namespace DSEDiagnosticToDataTable
             dtConfig.Columns.Add("Property", typeof(string));
             dtConfig.Columns.Add("Value", typeof(string));
 
-            dtConfig.PrimaryKey = new System.Data.DataColumn[] { dtConfig.Columns[ColumnNames.DataCenter], dtConfig.Columns[ColumnNames.NodeIPAddress], dtConfig.Columns["Yaml Type"], dtConfig.Columns["Property"] };
+            //dtConfig.PrimaryKey = new System.Data.DataColumn[] { dtConfig.Columns[ColumnNames.DataCenter], dtConfig.Columns[ColumnNames.NodeIPAddress], dtConfig.Columns["Yaml Type"], dtConfig.Columns["Property"] };
 
             dtConfig.DefaultView.ApplyDefaultSort = false;
             dtConfig.DefaultView.AllowDelete = false;
@@ -49,10 +50,8 @@ namespace DSEDiagnosticToDataTable
             this.Table.BeginLoadData();
             try
             {
-                DataRow dataRow = null;
                 int nbrItems = 0;
-                string fileType = null;
-
+                
                 foreach (var dataCenter in this.Cluster.DataCenters)
                 {
                     nbrItems = 0;
@@ -60,37 +59,84 @@ namespace DSEDiagnosticToDataTable
 
                     Logger.Instance.InfoFormat("Loading DSE Configuration for DC \"{0}\"", dataCenter.Name);
 
-                    foreach (var configItem in dataCenter.Configurations)
-                    {
+                    /* Type             Prop                ValueCnt    {GrpValue}
+                    //  Cassandra.Yaml  commitlog_directory 2           Value                                   ValueCnt    TotalNodes Nodes
+                    //                                                  /xnet2/dse-node1/cassandra/commitlog    1           2           {node1, node2}
+                    //                                                  /xnet4/dse-node2/cassandra/commitlog    2           4           {node3, node4, node5, node6}
+                    //                                                  /xnet4/dse-node2/cassandra/commitlog    2           6           {node7 node8, node9, node10, node11, node12}
+                    */
+                    var groupedTPConfLines = from configLine in dataCenter.Configurations
+                                             let normProp = configLine.Source == DSEDiagnosticLibrary.SourceTypes.EnvFile 
+                                                                ? configLine.Property
+                                                                : configLine.NormalizeProperty()
+                                             group configLine by new { Type = configLine.Type.ToString() + '.' + configLine.Source.ToString(),
+                                                 Prop = normProp } into gtp
+                                             select new
+                                             {
+                                                 Type = gtp.Key.Type,
+                                                 Prop = gtp.Key.Prop,
+                                                 ValueCnt = gtp.Count(),
+                                                 GrpValues = (from valueItem in gtp
+                                                              group valueItem by valueItem.NormalizeValue() into gv
+                                                              let vCnt = gv.Count()      
+                                                              let nodes = gv.SelectMany(c => c.DataCenter is DSEDiagnosticLibrary.DataCenter
+                                                                                                    ? new DSEDiagnosticLibrary.INode[] { c.Node }
+                                                                                                    : c.DataCenter.Nodes).DuplicatesRemoved(n => n)
+                                                              select new { Value = gv.Key,
+                                                                            ValueCnt = vCnt,                                                                  
+                                                                            TotalNodes = nodes.Count(),
+                                                                            Nodes = nodes
+                                                                            })
+                                                                .OrderByDescending(i => i.TotalNodes)
+                                             };
+                    var dcNodeCnt = dataCenter.Nodes.Count();
+
+                    foreach (var groupItem in groupedTPConfLines)
+                    {                       
                         this.CancellationToken.ThrowIfCancellationRequested();
 
-                        fileType = configItem.Type.ToString() + '.' + configItem.Source.ToString();
-
-                        if (this.Table.Rows.Contains(new object[] { dataCenter.Name, "<Common>", fileType, configItem.Property }))
+                        var nbrGrpValues = groupItem.GrpValues.Count();
+                        for (int nIdx = 0; nIdx < nbrGrpValues; nIdx++)
                         {
-                            continue;
+                            this.CancellationToken.ThrowIfCancellationRequested();
+
+                            var grpValueItem = groupItem.GrpValues.ElementAt(nIdx);
+                            var dataRow = this.Table.NewRow();
+
+                            if (this.SessionId.HasValue) dataRow.SetField(ColumnNames.SessionId, this.SessionId.Value);
+
+                            dataRow.SetField(ColumnNames.DataCenter, dataCenter.Name);
+
+                            if (nbrGrpValues == 1 && grpValueItem.TotalNodes == 1)
+                            {
+                                dataRow.SetField(ColumnNames.NodeIPAddress, grpValueItem.Nodes.First().Id.NodeName());
+                            }
+                            else if (grpValueItem.TotalNodes == dcNodeCnt)
+                            {
+                                dataRow.SetField(ColumnNames.NodeIPAddress, "<Common All Nodes in DC>");
+                            }
+                            else if (nbrGrpValues == 1)
+                            {
+                                dataRow.SetField(ColumnNames.NodeIPAddress, string.Format("<Partial ({0})>: ", grpValueItem.TotalNodes)
+                                                                                + string.Join(", ", grpValueItem.Nodes.Select(n => n.Id.NodeName()).OrderBy(hn => hn)));
+                            }
+                            else if (nIdx == 0
+                                        && grpValueItem.Nodes.Count() > groupItem.GrpValues.ElementAt(1).Nodes.Count())
+                            {
+                                dataRow.SetField(ColumnNames.NodeIPAddress, string.Format("<Common Majority Nodes ({0}) in DC>", grpValueItem.Nodes.Count()));
+                            }
+                            else
+                            {
+                                dataRow.SetField(ColumnNames.NodeIPAddress, string.Join(", ", grpValueItem.Nodes.Select(n => n.Id.NodeName()).OrderBy(hn => hn)));
+                            }
+
+                            dataRow.SetField("Yaml Type", groupItem.Type);
+                            dataRow.SetField("Property", groupItem.Prop);
+                            dataRow.SetFieldStringLimit("Value", grpValueItem.Value);
+
+                            this.Table.Rows.Add(dataRow);
+                            ++nbrItems;                            
                         }
-
-                        dataRow = this.Table.NewRow();
-
-                        if (this.SessionId.HasValue) dataRow.SetField(ColumnNames.SessionId, this.SessionId.Value);
-
-                        dataRow.SetField(ColumnNames.DataCenter, dataCenter.Name);
-
-                        if(configItem.IsCommonToDataCenter)
-                        {
-                            dataRow.SetField(ColumnNames.NodeIPAddress, "<Common>");
-                        }
-                        else
-                        {
-                            dataRow.SetField(ColumnNames.NodeIPAddress, configItem.Node.Id.NodeName());
-                        }
-                        dataRow.SetField("Yaml Type", fileType);
-                        dataRow.SetField("Property", configItem.Property);
-                        dataRow.SetFieldStringLimit("Value", configItem.NormalizeValue());
-
-                        this.Table.Rows.Add(dataRow);
-                        ++nbrItems;
                     }
 
                     Logger.Instance.InfoFormat("Loaded DSE Configuration for DC \"{0}\", Total Nbr Items {1:###,###,##0}", dataCenter.Name, nbrItems);

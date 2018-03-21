@@ -85,7 +85,7 @@ namespace DSEDiagnosticFileParser
 
                 if (string.IsNullOrEmpty(this.Node.Id.HostName))
                 {
-                    nodeInfo.TryGetValue("hostname").NullSafeSet<string>(v => this.Node.Id.SetIPAddressOrHostName(v, false));
+                    nodeInfo.TryGetValue("hostname").NullSafeSet<string>(v => this.Node.Id.SetIPAddressOrHostName(v, false) );
                     this.NbrItemsParsed += 1;
                 }
 

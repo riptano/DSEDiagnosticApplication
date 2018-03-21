@@ -1396,15 +1396,15 @@
       },
       "ParseMessage": {
         "RegExStrings": [
-          "^updating shards[a-z ]+/?\\s*(?$<NODE>)\\s+\\w+\\s\\w+\\sstatus=(?<SUBCLASS>\\w+)\\,?(?<token>\\s?\\-?[0-9]+\\,?)*",
-          "^updating shards[a-z ]+/?\\s*(?$<NODE>)\\s+\\w+\\s\\w+\\s(?<SUBCLASS>schema)=?(?$<DDLSCHEMAID>)?$",
-          "^updating shards[a-z ]+/?\\s*(?$<NODE>)\\s+\\w+\\s(?<SUBCLASS>dead)$"
+          "^updating shards[a-z ]+/?\\s*(?$<NODE>)\\s+\\w+\\s\\w+\\sstatus=(?<action>\\w+)\\,?(?<token>\\s?\\-?[0-9]+\\,?)*",
+          "^updating shards[a-z ]+/?\\s*(?$<NODE>)\\s+\\w+\\s\\w+\\s(?<action>schema)=?(?$<DDLSCHEMAID>)?$",
+          "^updating shards[a-z ]+/?\\s*(?$<NODE>)\\s+\\w+\\s(?<action>dead)$"
         ]
       },
       "ParseThreadId": null,
       "EventType": "SessionBegin",
       "EventClass": "Detection, Node, Shard",
-      "SubClass": null,
+      "SubClass": "action + ' ' + NODE",
       "Product": "Cassandra",
       "SessionKey": "'shardEvent' + NODE + token",
       "SessionKeyAction": "Add",
@@ -1448,7 +1448,7 @@
       "ParseThreadId": null,
       "EventType": "SessionIgnore",
       "EventClass": "Detection, Node, Shard",
-      "SubClass": "'New Ownership'",
+      "SubClass": "'New Ownership ' + NODE",
       "Product": "Cassandra",
       "SessionKey": "'shardEvent' + NODE + token",
       "SessionKeyAction": "Read",
@@ -1490,7 +1490,7 @@
       "ParseThreadId": null,
       "EventType": "SessionItem, SingleInstance",
       "EventClass": "Detection, Node, Shard",
-      "SubClass": "'Owership Changed'",
+      "SubClass": "'Owership Changed ' + NODE",
       "Product": "Cassandra",
       "SessionKey": "'shardEvent' + NODE + token",
       "SessionKeyAction": "Read",
@@ -1532,7 +1532,7 @@
       "ParseThreadId": null,
       "EventType": "SessionEnd",
       "EventClass": "Detection, Node, Shard",
-      "SubClass": "'Topology Updating'",
+      "SubClass": "'Topology Updated ' + NODE",
       "Product": "Cassandra",
       "SessionLookup": "'shardEvent' + NODE",
       "SessionLookupAction": "ReadRemoveLabel",

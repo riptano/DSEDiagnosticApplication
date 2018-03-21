@@ -403,14 +403,26 @@ namespace DSEDiagnosticLibrary
         [JsonIgnore]
         public IEnumerable<IPAddress> Addresses { get { return this._addresses; } }
 
-		#region IEquatable
-		public bool Equals(NodeIdentifier other)
+        public bool HostNameExists(string checkHostName)
+        {
+            if (this._hostnames.Any(n => HostNameEqual(n, checkHostName))) return true;
+            
+            return false;
+        }
+
+        #region IEquatable
+        public bool Equals(NodeIdentifier other)
 		{
             if (ReferenceEquals(other, null)) return false;
 
             if (ReferenceEquals(this, other)) return true;
-			
-            if (this._addresses.Contains(other._addresses)) return true;
+
+            //Prefer IP Address
+            if (this._addresses.HasAtLeastOneElement() && other._addresses.HasAtLeastOneElement())
+            {
+                if (this._addresses.Contains(other._addresses)) return true;
+                return false;
+            }
 
             if (this._hostnames.Any(other._hostnames, (x, y) => HostNameEqual(x, y))) return true;
 
@@ -432,12 +444,15 @@ namespace DSEDiagnosticLibrary
 		{
             if (this._hostnames.Any(n => HostNameEqual(n, other))) return true;
 
-			IPAddress address;
+            if (this._addresses.HasAtLeastOneElement())
+            {
+                IPAddress address;
 
-			if(IPAddress.TryParse(other, out address))
-			{
-				return this.Equals(address);
-			}
+                if (IPAddress.TryParse(other, out address))
+                {
+                    return this.Equals(address);
+                }
+            }
 
             return false;
 		}
@@ -492,15 +507,42 @@ namespace DSEDiagnosticLibrary
 
         #endregion
 
-        public NodeIdentifier Clone()
+        public NodeIdentifier Clone(bool onlyIPAddress = false, bool onlyFirstItem = false)
         {
             var newId = new NodeIdentifier();
 
-            newId.HostName = this.HostName;
-            this._hostnames.ForEach(n => newId._hostnames.Add(n));
-            this._addresses.ForEach(a => newId._addresses.Add(a));
-            newId._hashCode = this._hashCode;
-
+            if (onlyIPAddress && this._addresses.HasAtLeastOneElement())
+            {
+                if (onlyFirstItem)
+                {
+                    newId._addresses.Add(this._addresses.First());
+                }
+                else
+                {
+                    this._addresses.ForEach(a => newId._addresses.Add(a));
+                }
+            }
+            else
+            {
+                if (onlyFirstItem)
+                {
+                    if (this._hostnames.HasAtLeastOneElement())
+                    {
+                        newId._hostnames.Add(this._hostnames.First());
+                        newId.HostName = newId._hostnames.First();
+                    }
+                    if(this._addresses.HasAtLeastOneElement())
+                        newId._addresses.Add(this._addresses.First());                    
+                }
+                else
+                {
+                    newId.HostName = this.HostName;
+                    this._hostnames.ForEach(n => newId._hostnames.Add(n));
+                    this._addresses.ForEach(a => newId._addresses.Add(a));
+                    newId._hashCode = this._hashCode;
+                }
+            }
+           
             return newId;
         }
 

@@ -150,8 +150,10 @@
     <None Include="Json\ProcessFileMappings-CreateOpsCenterCopy.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Json\ProcessFileMappings.json" />
     <None Include="Json\ProcessFileMappingsNoLogs.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Json\ProcessFileMappingsValidate.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Json\Unzip-ProcessFileMappings.json">

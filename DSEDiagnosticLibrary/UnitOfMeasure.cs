@@ -1261,6 +1261,7 @@ namespace DSEDiagnosticLibrary
             switch (value.ToLower())
             {
                 case "nan":
+                case "nann":
                 case "notanumber":
                 case "not a number":
                 case "notanbr":

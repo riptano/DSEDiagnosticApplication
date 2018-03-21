@@ -31,7 +31,8 @@ namespace DSEDiagnosticToDataTable
             
             dtMultiInstanceInfo.Columns.Add("Rack", typeof(string));            
             dtMultiInstanceInfo.Columns.Add("Instance Type", typeof(string)).AllowDBNull = true; //E
-            
+            dtMultiInstanceInfo.Columns.Add("Host Names", typeof(string)).AllowDBNull = true; //F
+
             dtMultiInstanceInfo.DefaultView.ApplyDefaultSort = false;
             dtMultiInstanceInfo.DefaultView.AllowDelete = false;
             dtMultiInstanceInfo.DefaultView.AllowEdit = false;
@@ -48,7 +49,8 @@ namespace DSEDiagnosticToDataTable
         /// <exception cref="Exception">Should re-thrown any exception except for OperationCanceledException</exception>
         public override DataTable LoadTable()
         {
-            var multiInstanceNodes = this.Cluster.Nodes.Where(n => !string.IsNullOrEmpty(n.DSE.PhysicalServerId));
+            var multiInstanceNodes = this.Cluster.Nodes.Where(n => (n.DSE.InstanceType & DSEDiagnosticLibrary.DSEInfo.InstanceTypes.MultiInstance) != 0
+                                                                    && !string.IsNullOrEmpty(n.DSE.PhysicalServerId));
 
             if (multiInstanceNodes.IsEmpty()) return this.Table;
 
@@ -74,8 +76,8 @@ namespace DSEDiagnosticToDataTable
                     dataRow.SetField(ColumnNames.NodeIPAddress, node.Id.NodeName());
                     dataRow.SetField("Rack", node.DSE.Rack);
                     dataRow.SetField("Instance Type", node.DSE.InstanceType.ToString());
+                    dataRow.SetField("Host Names", node.Id.HostNames.IsEmpty() ? null : string.Join(", ", node.Id.HostNames));
 
-                    
                     this.Table.Rows.Add(dataRow);
                     ++nbrItems;                    
                 }

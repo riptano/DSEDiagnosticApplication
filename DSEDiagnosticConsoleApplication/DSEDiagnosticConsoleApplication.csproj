@@ -150,6 +150,10 @@
     <None Include="..\DSEDiagnosticFileParser\Json\ProcessFileMappingsNoLogs.json">
       <Link>JSON\ProcessFileMappingsNoLogs.json</Link>
     </None>
+    <None Include="..\DSEDiagnosticFileParser\Json\ProcessFileMappingsValidate.json">
+      <Link>JSON\ProcessFileMappingsValidate.json</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="..\DSEDiagnosticFileParser\Json\Unzip-ProcessFileMappings.json">
       <Link>JSON\Unzip-ProcessFileMappings.json</Link>
     </None>
