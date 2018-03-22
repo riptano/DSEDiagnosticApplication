@@ -20,6 +20,7 @@ namespace DSEDiagnosticLibrary
         public uint UserDefinedTypes;
         public uint MaterialViews;
         public uint Triggers;
+        public uint Functions;
         public uint SolrIndexes;
         public uint SasIIIndexes;
         public uint CustomIndexes;
@@ -121,6 +122,7 @@ namespace DSEDiagnosticLibrary
         ICQLMaterializedView TryGetView(string viewName);
         ICQLIndex TryGetIndex(string indexName);
         ICQLTrigger TryGetTrigger(string triggerName);
+        ICQLFunction TryGetFunction(string functionName);
         ICQLUserDefinedType TryGetUDT(string udtName);
         IDDLStmt TryGetDDL(string ddlName);
         IDDLStmt TryGetDDL(int ddlHashCode);
@@ -128,6 +130,7 @@ namespace DSEDiagnosticLibrary
         IEnumerable<ICQLUserDefinedType> GetUDTs();
         IEnumerable<ICQLIndex> GetIndexes();
         IEnumerable<ICQLTrigger> GetTriggers();
+        IEnumerable<ICQLFunction> GetFunctions();
         IEnumerable<ICQLMaterializedView> GetViews();
 
         bool IsSystemKeyspace { get; }
@@ -185,9 +188,16 @@ namespace DSEDiagnosticLibrary
                     }
                 }
                 else
-                {
-                    throw new ArgumentException(string.Format("Replication Factors must be defined for keyspace \"{0}\". Either null or zero RFs were passed to this constructor.", name),
-                                                    "replications");
+                {                    
+                    if (this.Node == null)
+                    {
+                        this.Replications = Enumerable.Empty<KeyspaceReplicationInfo>();
+                        this.LocalStrategy = true;
+                    }
+                    else
+                    {
+                        this.Replications = new KeyspaceReplicationInfo[] { new KeyspaceReplicationInfo(1, this.Node.DataCenter) };
+                    }                                                           
                 }
             }
             else
@@ -375,6 +385,10 @@ namespace DSEDiagnosticLibrary
             {
                 ++this.Stats.Triggers;
             }
+            else if (ddl is ICQLFunction)
+            {
+                ++this.Stats.Functions;
+            }
 
             return ddl;
         }
@@ -439,6 +453,21 @@ namespace DSEDiagnosticLibrary
             }
         }
 
+        public ICQLFunction TryGetFunction(string functionName)
+        {
+            functionName = StringHelpers.RemoveQuotes(functionName.Trim());
+
+            this._ddlList.Lock();
+            try
+            {
+                return (ICQLFunction)this._ddlList.UnSafe.FirstOrDefault(d => d is ICQLTrigger && d.Name == functionName);
+            }
+            finally
+            {
+                this._ddlList.UnLock();
+            }
+        }
+
         public IEnumerable<ICQLTable> GetTables()
         {
             return this._ddlList.Where(c => c is ICQLTable && !(c is ICQLMaterializedView)).Cast<ICQLTable>();
@@ -457,6 +486,11 @@ namespace DSEDiagnosticLibrary
         public IEnumerable<ICQLTrigger> GetTriggers()
         {
             return this._ddlList.Where(c => c is ICQLTrigger).Cast<ICQLTrigger>();
+        }
+
+        public IEnumerable<ICQLFunction> GetFunctions()
+        {
+            return this._ddlList.Where(c => c is ICQLFunction).Cast<ICQLFunction>();
         }
 
         public ICQLUserDefinedType TryGetUDT(string udtName)
@@ -485,7 +519,8 @@ namespace DSEDiagnosticLibrary
                                         .UnSafe
                                         .FirstOrDefault(d => ((d is ICQLTable
                                                                     || d is ICQLMaterializedView
-                                                                    || d is ICQLTrigger)
+                                                                    || d is ICQLTrigger
+                                                                    || d is ICQLFunction)
                                                                 && d.Name == ddlName)
                                                               || (d is ICQLIndex
                                                                     && (d.Name == ddlName || d.ReferenceName == ddlName)));

@@ -79,6 +79,7 @@ namespace DSEDiagtnosticToExcel
                                                                 workSheet.Cells["R:R"].Style.Numberformat.Format = "#,###";
                                                                 workSheet.Cells["S:S"].Style.Numberformat.Format = "#,###";
                                                                 workSheet.Cells["T:T"].Style.Numberformat.Format = "#,###";
+                                                                workSheet.Cells["U:U"].Style.Numberformat.Format = "#,###";
 
                                                                 workSheet.Cells[dtKeySpace.Rows.Count + 2, 5].FormulaR1C1 = string.Format("sum(E2:E{0})", dtKeySpace.Rows.Count + 1);
                                                                 workSheet.Cells[dtKeySpace.Rows.Count + 2, 6].FormulaR1C1 = string.Format("sum(F2:F{0})", dtKeySpace.Rows.Count + 1);
@@ -96,13 +97,14 @@ namespace DSEDiagtnosticToExcel
                                                                 workSheet.Cells[dtKeySpace.Rows.Count + 2, 18].FormulaR1C1 = string.Format("sum(R2:R{0})", dtKeySpace.Rows.Count + 1);
                                                                 workSheet.Cells[dtKeySpace.Rows.Count + 2, 19].FormulaR1C1 = string.Format("sum(S2:S{0})", dtKeySpace.Rows.Count + 1);
                                                                 workSheet.Cells[dtKeySpace.Rows.Count + 2, 20].FormulaR1C1 = string.Format("sum(T2:T{0})", dtKeySpace.Rows.Count + 1);
+                                                                workSheet.Cells[dtKeySpace.Rows.Count + 2, 20].FormulaR1C1 = string.Format("sum(U2:U{0})", dtKeySpace.Rows.Count + 1);
 
                                                                 workSheet.Cells[dtKeySpace.Rows.Count + 2, 5, dtKeySpace.Rows.Count + 2, 20].Style.Border.Top.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thick;
 
                                                                 workSheet.View.FreezePanes(2, 1);
-                                                                workSheet.Cells["A1:T1"].AutoFilter = true;
+                                                                workSheet.Cells["A1:U1"].AutoFilter = true;
                                                                 
-                                                                workSheet.AutoFitColumn(workSheet.Cells["A:T"]);
+                                                                workSheet.AutoFitColumn(workSheet.Cells["A:U"]);
                                                             },
                                                             -1,
                                                            -1,

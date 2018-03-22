@@ -834,7 +834,7 @@ namespace DSEDiagnosticLibrary
             public Version Cassandra;
             public Version Search;
             public Version Analytics;
-            public Version OpsCenterAgent;
+            public string OpsCenterAgent;
 		}
 
         [JsonObject(MemberSerialization.OptOut)]

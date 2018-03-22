@@ -82,6 +82,7 @@
     <Compile Include="AggregatedStats.cs" />
     <Compile Include="Cluster.cs" />
     <Compile Include="Configuration.cs" />
+    <Compile Include="CQLFunction.cs" />
     <Compile Include="CQLIndex.cs" />
     <Compile Include="CQLMaterializedView.cs" />
     <Compile Include="CQLTable.cs" />

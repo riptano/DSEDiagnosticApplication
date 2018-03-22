@@ -1182,6 +1182,7 @@ namespace DSEDiagnosticLibrary
                     return Types.Percent | uofType;
                 case "microsecond":
                 case "microseconds":
+                case "micro":
                 case "us":
                     return Types.us | uofType;
                 case "nan":

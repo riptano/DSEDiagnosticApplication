@@ -34,7 +34,7 @@ namespace DSEDiagnosticFileParser
             
             if (!string.IsNullOrEmpty(fileLine))
             {
-                this.Node.DSE.Versions.OpsCenterAgent = new Version(fileLine);
+                this.Node.DSE.Versions.OpsCenterAgent = fileLine;
                 ++this.NbrItemsParsed;
             }
 

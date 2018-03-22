@@ -395,10 +395,21 @@ namespace DSEDiagnosticFileParser
                     continue;
                 }
 
+                regexMatch = this.RegExParser.Match(cqlStmt, 7); //create function
+
+                if (regexMatch.Success)
+                {
+                    if (ProcessDDLFunction(regexMatch, (uint)this.NbrItemsParsed))
+                    {
+                        ++nbrGenerated;
+                    }
+                    continue;
+                }
+
                 Logger.Instance.ErrorFormat("{0}\t{1}\tCQL Statement Processing Error (DC {3}). Unknown CQL statement of \"{2}\".",
                                                 this.Node,
                                                 this.File,
-                                                string.Join(", ", cqlStatements.Select(s => "'" + s + "'")),
+                                                cqlStmt,
                                                 this.Node?.DataCenter?.Name);
                 ++this.NbrErrors;
             }
@@ -815,6 +826,61 @@ namespace DSEDiagnosticFileParser
 
             return false;
         }
+
+        private bool ProcessDDLFunction(Match functionMatch, uint lineNbr)
+        {
+            var name = functionMatch.Groups[1].Value.Trim();
+            var ksfunctionPair = StringHelpers.SplitTableName(name, null);            
+            var ksInstance = string.IsNullOrEmpty(ksfunctionPair.Item1) ? this._usingKeySpace : this.GetKeySpace(ksfunctionPair.Item1);
+
+            if (ksInstance == null) throw new ArgumentNullException("Keyspace", string.Format("CQL Function \"{0}\" could not find associated keyspace \"{1}\". DDL: {2}",
+                                                                                                 name,
+                                                                                                 ksfunctionPair.Item1 ?? "<CQL use stmt required or fully qualified name>",
+                                                                                                 functionMatch.Groups[0].Value));
+            
+
+            if (ksInstance.TryGetFunction(ksfunctionPair.Item2) == null)
+            {
+                var strColumns = functionMatch.Groups[2].Success ? functionMatch.Groups[2].Value.Trim() : null;
+
+                if (string.IsNullOrEmpty(strColumns)) throw new ArgumentNullException("input parameters", string.Format("CQL Function \"{0}\" did not have any input parameters. DDL: {1}",
+                                                                                                                            name,
+                                                                                                                            functionMatch.Groups[0].Value));
+
+                var columnsSplit = Common.StringFunctions.Split(strColumns,
+                                                                    ',',
+                                                                    StringFunctions.IgnoreWithinDelimiterFlag.AngleBracket
+                                                                        | StringFunctions.IgnoreWithinDelimiterFlag.Parenthese,
+                                                                    StringFunctions.SplitBehaviorOptions.StringTrimEachElement);
+                var columns = this.ProcessTableColumns(columnsSplit, ksInstance);
+                var strReturnType = functionMatch.Groups[4].Success ? functionMatch.Groups[4].Value.Trim() : null;
+
+                if (string.IsNullOrEmpty(strReturnType)) throw new ArgumentNullException("return type", string.Format("CQL Function \"{0}\" did not have a return type. DDL: {1}",
+                                                                                                                            name,
+                                                                                                                            functionMatch.Groups[0].Value));
+
+                var returnType = this.ProcessColumnType(strReturnType, ksInstance);
+
+                var cqlFunction = new CQLFunction(this.File,
+                                                    lineNbr,
+                                                    ksfunctionPair.Item2,
+                                                    ksInstance,
+                                                    functionMatch.Groups[3].Value.Trim(), //Call type
+                                                    columns,
+                                                    returnType,
+                                                    functionMatch.Groups[5].Value.Trim(), //lang
+                                                    functionMatch.Groups[6].Value.Trim(), //Code block
+                                                    functionMatch.Value,
+                                                    this.Node);
+
+                this._ddlList.Add(cqlFunction);
+
+                return true;
+            }
+
+            return false;
+        }
+
 
         private IEnumerable<CQLColumn> ProcessTableColumns(List<string> columnSplits, IKeyspace keyspace)
         {

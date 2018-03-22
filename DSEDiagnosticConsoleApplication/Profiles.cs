@@ -30,6 +30,11 @@ namespace DSEDiagnosticConsoleApplication
 
             return CurrentProfile;
         }
+
+        public static IEnumerable<string> Names()
+        {
+            return ProfileCollection.Select(p => p.ProfileName);
+        }
     }
 
     public sealed class Profile

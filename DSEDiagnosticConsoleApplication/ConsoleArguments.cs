@@ -44,11 +44,13 @@ namespace DSEDiagnosticConsoleApplication
 
         public ConsoleArguments()
         {
+            this._cmdLineParser.ShowUsageOnEmptyCommandline = true;
+           
             Profiles.SetProfile();
 
             this._cmdLineParser.Arguments.Add(new DirectoryArgument('D', "DiagnosticPath")
             {
-                Optional = false,
+                Optional = true, //Required
                 DirectoryMustExist = true,
                 DefaultValue = ParserSettings.DiagnosticPath?.DirectoryInfo(),
                 Description = "The directory location of the diagnostic files. The structure of these folders and files is depending on the value of DiagnosticNoSubFolders. If Relative Path, this path is merged with current default directory path. The defaults are defined in the DiagnosticPath app-config file."
@@ -73,25 +75,28 @@ namespace DSEDiagnosticConsoleApplication
             this._cmdLineParser.Arguments.Add(new ValueArgument<string>('L', "AlternativeLogFilePath")
             {
                 Optional = true,
+                AllowMultiple = true,
                 DefaultValue = string.Join(", ", ParserSettings.AdditionalFilesForParsingClass.Where(a => a.Key == "LogFile" || a.Key == "file_cassandra_log4net_ReadTimeRange" || a.Key == "file_cassandra_log4net").Select(s => s.Value)),
-                Description = "A list of file paths separated by comma that will be included in log parsing, if enabled. This can include wild card patterns.",
-                Example = @"c:\additionallogs\system*.log, c:\additional logs\debug*.log"
+                Description = "A file paths that will be included in log parsing, if enabled. This can include wild card patterns. Multiple arguments allowed.",
+                Example = @"-L c:\additionallogs\system*.log -L c:\additional logs\debug*.log"
             });
 
             this._cmdLineParser.Arguments.Add(new ValueArgument<string>('C', "AlternativeDDLFilePath")
             {
                 Optional = true,
+                AllowMultiple = true,
                 DefaultValue = string.Join(", ", ParserSettings.AdditionalFilesForParsingClass.Where(a => a.Key == "CQLFile" || a.Key == "cql_ddl").Select(s => s.Value)),
-                Description = "A list of file paths separated by comma that will be included in DLL (CQL) parsing, if enabled. This can include wild card patterns.",
-                Example = @"c:\additionalDDL\describe_schema, c:\additional DDL\describe.cql"
+                Description = "A file paths that will be included in DLL (CQL) parsing, if enabled. This can include wild card patterns. Multiple arguments allowed.",
+                Example = @"-C c:\additionalDDL\describe_schema -C c:\additionalDDL\describe.cql"
             });
 
             this._cmdLineParser.Arguments.Add(new ValueArgument<string>('Z', "AlternativeCompressionFilePath")
             {
                 Optional = true,
+                AllowMultiple = true,
                 DefaultValue = string.Join(", ", ParserSettings.AdditionalFilesForParsingClass.Where(a => a.Key == "ZipFile" || a.Key == "file_unzip").Select(s => s.Value)),
-                Description = "A list of file paths separated by comma that will be included in the decompress process, if enabled. This can include wild card patterns.",
-                Example = @"c:\additionalZip\system.log.1.zip, c:\additionalZip\system.2.zip"
+                Description = "A file paths that will be included in the decompress process, if enabled. This can include wild card patterns. Multiple arguments allowed.",
+                Example = @"-Z c:\additionalZip\system.log.1.zip -Z c:\additionalZip\system.2.zip"
             });
 
             this._cmdLineParser.Arguments.Add(new ValueArgument<string>('A', "AlternativeFilePath")
@@ -249,7 +254,7 @@ namespace DSEDiagnosticConsoleApplication
             {
                 DefaultValue = Profiles.CurrentProfile?.ProfileName,
                 Optional = true,
-                Description = "The Profile used to parse, transform, and analysis the data."
+                Description = string.Format("The Profile used to parse, transform, and analysis the data. Profile Names: \"{0}\"", string.Join(", ", Profiles.Names()))
             });
 
             this._cmdLineParser.Arguments.Add(new ValueArgument<TimeSpan>("LogAggrPeriod")
@@ -267,13 +272,20 @@ namespace DSEDiagnosticConsoleApplication
             this._cmdLineParser.Arguments.Add(new SwitchArgument("DisableParallelProcessing", false)
             {
                 Description = "Disable Parallel Processing"
-            });            
+            });
+
+            this._cmdLineParser.Arguments.Add(new SwitchArgument('?', "ShowDefaults", false)
+            {
+                Optional = true,
+                Description = "Show Arguments plus Default Values"
+            });
         }
 
         public bool ParseSetArguments(string[] args)
         {
             bool additionalFilesForParsingClassInitial = true;
             bool onlyNodesInitial = true;
+            bool diagnosticPathPresent = false;
 
             this._cmdLineParser.ParseCommandLine(args);
 
@@ -289,8 +301,9 @@ namespace DSEDiagnosticConsoleApplication
             {
                 switch (item.LongName)
                 {
-                    case "DiagnosticPath":
+                    case "DiagnosticPath":                        
                         ParserSettings.DiagnosticPath = ParserSettings.MakeDirectoryPath(((DirectoryArgument)item).Value.ToString(), ParserSettings.DiagnosticPath);
+                        diagnosticPathPresent = true;
                         break;
                     case "ExcelFilePath":
                         ParserSettings.ExcelFilePath = ParserSettings.MakeFilePath(((FileArgument) item).Value.ToString(), ParserSettings.ExcelFilePath?.ParentDirectoryPath, ParserSettings.ExcelFilePath);
@@ -392,41 +405,50 @@ namespace DSEDiagnosticConsoleApplication
                         break;
                     case "AlternativeLogFilePath":
                         {
-                            var paths = ((ValueArgument<string>)item).Value.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-
-                            if(additionalFilesForParsingClassInitial)
-                            {
-                                ParserSettings.AdditionalFilesForParsingClass.Clear();
-                                additionalFilesForParsingClassInitial = false;
-                            }
-
-                            ParserSettings.AdditionalFilesForParsingClass.AddRange(paths.Select(p => new KeyValuePair<string, IFilePath>("LogFile", PathUtils.BuildFilePath(p))));
-                        }
-                        break;
-                    case "AlternativeDDLFilePath":
-                        {
-                            var paths = ((ValueArgument<string>)item).Value.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-
-                            if(additionalFilesForParsingClassInitial)
-                            {
-                                ParserSettings.AdditionalFilesForParsingClass.Clear();
-                                additionalFilesForParsingClassInitial = false;
-                            }
-
-                            ParserSettings.AdditionalFilesForParsingClass.AddRange(paths.Select(p => new KeyValuePair<string, IFilePath>("CQLFile", PathUtils.BuildFilePath(p))));
-                        }
-                        break;
-                    case "AlternativeCompressionFilePath":
-                        {
-                            var paths = ((ValueArgument<string>)item).Value.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-
                             if (additionalFilesForParsingClassInitial)
                             {
                                 ParserSettings.AdditionalFilesForParsingClass.Clear();
                                 additionalFilesForParsingClassInitial = false;
                             }
 
-                            ParserSettings.AdditionalFilesForParsingClass.AddRange(paths.Select(p => new KeyValuePair<string, IFilePath>("ZipFile", PathUtils.BuildFilePath(p))));
+                            foreach (var filePath in ((ValueArgument<string>)item).Values)
+                            {
+                                var paths = filePath.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                                
+                                ParserSettings.AdditionalFilesForParsingClass.AddRange(paths.Select(p => new KeyValuePair<string, IFilePath>("LogFile", PathUtils.BuildFilePath(p))));
+                            }
+                        }
+                        break;
+                    case "AlternativeDDLFilePath":
+                        {
+                            if (additionalFilesForParsingClassInitial)
+                            {
+                                ParserSettings.AdditionalFilesForParsingClass.Clear();
+                                additionalFilesForParsingClassInitial = false;
+                            }
+
+                            foreach (var filePath in ((ValueArgument<string>)item).Values)
+                            {
+                                var paths = filePath.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);                                
+
+                                ParserSettings.AdditionalFilesForParsingClass.AddRange(paths.Select(p => new KeyValuePair<string, IFilePath>("CQLFile", PathUtils.BuildFilePath(p))));
+                            }
+                        }
+                        break;
+                    case "AlternativeCompressionFilePath":
+                        {
+                            if (additionalFilesForParsingClassInitial)
+                            {
+                                ParserSettings.AdditionalFilesForParsingClass.Clear();
+                                additionalFilesForParsingClassInitial = false;
+                            }
+
+                            foreach (var filePath in ((ValueArgument<string>)item).Values)
+                            {
+                                var paths = filePath.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                                
+                                ParserSettings.AdditionalFilesForParsingClass.AddRange(paths.Select(p => new KeyValuePair<string, IFilePath>("ZipFile", PathUtils.BuildFilePath(p))));
+                            }
                         }
                         break;
                     case "AlternativeFilePath":
@@ -586,12 +608,22 @@ namespace DSEDiagnosticConsoleApplication
                         break;
                     case "Profile":
                         {
-                            var profile = Profiles.SetProfile(((ValueArgument<string>)item).Value, false);
+                            var argValue = ((ValueArgument<string>)item).Value;
+
+                            if(argValue == "?")
+                            {
+                                Console.WriteLine();
+                                Console.WriteLine("Profiles are \"{0}\". Default is \"{1}\"", string.Join(", ", Profiles.Names()), Profiles.CurrentProfile?.ProfileName);
+                                return false;
+                            }
+
+                            var profile = Profiles.SetProfile(argValue, false);
 
                             if(profile == null)
                             {
-                                throw new ArgumentException(string.Format("Profile name \"{0}\" was not defined.",
-                                                                    ((ValueArgument<string>)item).Value));
+                                throw new CommandLineParser.Exceptions.CommandLineArgumentException(string.Format("Profile name \"{0}\" was not defined.",
+                                                                                                                    argValue),
+                                                                                                    "Profile");
                             }
 
                             DSEDiagnosticFileParser.LibrarySettings.DefaultLogLevelHandling = DSEDiagnosticLibrary.LibrarySettings.ParseEnum<DSEDiagnosticFileParser.file_cassandra_log4net.DefaultLogLevelHandlers>(profile.DefaultLogLevelHandling);
@@ -619,6 +651,46 @@ namespace DSEDiagnosticConsoleApplication
                     case "DisableParallelProcessing":
                         ParserSettings.DisableParallelProcessing = ((SwitchArgument)item).Value;
                         break;
+                    case "ShowDefaults":
+                        {
+                            Console.WriteLine();
+                            Console.WriteLine("Arguments including Default Values:");
+                            Console.WriteLine();
+
+                            foreach (var cmdArg in this._cmdLineParser.Arguments)
+                            {
+                                var defaultValue = (cmdArg as IArgumentWithDefaultValue)?.DefaultValue;
+                                var example = cmdArg.Example?.Trim();
+
+                                if (cmdArg.ShortName.HasValue)
+                                {
+                                    Console.WriteLine("\t-{0}, --{1} [Default Value \"{2}\"{4}] {3}",
+                                                        cmdArg.ShortName.Value,
+                                                        cmdArg.LongName,                                                            
+                                                        defaultValue == null || (defaultValue is string && ((string)defaultValue) == string.Empty)
+                                                            ? "<none>"
+                                                            : defaultValue,
+                                                        cmdArg.Description,
+                                                        cmdArg.AllowMultiple ? ", Multiple Allowed" : string.Empty);
+                                }
+                                else
+                                {
+                                    Console.WriteLine("\t--{0} [Default Value \"{1}\"{3}] {2}",
+                                                        cmdArg.LongName,
+                                                        defaultValue == null || (defaultValue is string && ((string)defaultValue) == string.Empty)
+                                                            ? "<none>"
+                                                            : defaultValue,
+                                                        cmdArg.Description,
+                                                        cmdArg.AllowMultiple ? ", Multiple Allowed" : string.Empty);
+                                }
+
+                                if (!string.IsNullOrEmpty(example))
+                                {
+                                    Console.WriteLine("\t\tExmaple: {0}", example);
+                                }
+                            }                            
+                        }
+                        return false;
                     default:
 
                         throw new ArgumentException(string.Format("Do not know how to map {0} ({1}) to a setting!",
@@ -628,11 +700,16 @@ namespace DSEDiagnosticConsoleApplication
                 }
             }
 
+            if(!diagnosticPathPresent)
+            {
+                throw new CommandLineParser.Exceptions.MandatoryArgumentNotSetException("DiagnosticPath was not found and is required.", "DiagnosticPath");
+            }
+
             return true;
         }
 
         public void ShowUsage()
-        {
+        {            
             this._cmdLineParser.ShowUsage();
         }
 

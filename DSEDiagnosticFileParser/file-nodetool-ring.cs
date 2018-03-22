@@ -166,12 +166,13 @@ namespace DSEDiagnosticFileParser
                                                     null,
                                                     new object[] { line });
 
-                            Logger.Instance.Error(string.Format("FileMapper<{2}>\t<NoNodeId>\t{0}\tInvalid Token Range found for \"{1}\" in nodetool Ring File.",
+                            Logger.Instance.Error(string.Format("FileMapper<{2}>\t<NoNodeId>\t{0}\tInvalid Token Range found for \"{1}\" in nodetool Ring File. File will be skipped.",
                                                                 this.File,
                                                                 line,
                                                                 this.MapperId),
                                                     ex);
                             ++this.NbrErrors;
+                            break;
                         }
                     }
                 }

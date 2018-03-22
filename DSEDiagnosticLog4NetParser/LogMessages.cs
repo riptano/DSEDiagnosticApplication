@@ -96,16 +96,37 @@ namespace DSEDiagnosticLog4NetParser
                 return null;
             }
 
-            var lineMatch = this.Log4NetConversionPatternRegExLine.Match(logLine);
             LogMessage logMessage = null;
 
-            if (lineMatch.Success)
+            try
             {
-                logMessage = new LogMessage(logLinePos, logLine.GetHashCode());
-            }
-            else if (this._lastMessage != null)
-            {
-                if (LogLevels.Any(l => logLine.StartsWith(l, StringComparison.InvariantCultureIgnoreCase)))
+                var lineMatch = this.Log4NetConversionPatternRegExLine.Match(logLine);
+
+                if (lineMatch.Success)
+                {
+                    logMessage = new LogMessage(logLinePos, logLine.GetHashCode());
+                }
+                else if (this._lastMessage != null)
+                {
+                    if (LogLevels.Any(l => logLine.StartsWith(l, StringComparison.InvariantCultureIgnoreCase)))
+                    {
+                        if (!ignoreErros)
+                        {
+                            var error = string.Format("{0}\t{1}\tInvalid line detected in Log4Net Log file at line number {3}. Line ignored. Line is: {2}",
+                                                    this.Node,
+                                                    this.LogFile.PathResolved,
+                                                    logLine,
+                                                    logLinePos);
+                            Logger.Instance.Warn(error);
+                            this._errors.Add(error);
+                        }
+                        return null;
+                    }
+
+                    this._lastMessage.AddExtraMessage(logLine);
+                    return this._lastMessage;
+                }
+                else
                 {
                     if (!ignoreErros)
                     {
@@ -120,165 +141,158 @@ namespace DSEDiagnosticLog4NetParser
                     return null;
                 }
 
-                this._lastMessage.AddExtraMessage(logLine);
-                return this._lastMessage;
-            }
-            else
-            {
-                if (!ignoreErros)
-                {
-                    var error = string.Format("{0}\t{1}\tInvalid line detected in Log4Net Log file at line number {3}. Line ignored. Line is: {2}",
-                                            this.Node,
-                                            this.LogFile.PathResolved,
-                                            logLine,
-                                            logLinePos);
-                    Logger.Instance.Warn(error);
-                    this._errors.Add(error);
-                }
-                return null;
-            }
+                this._lastMessage = logMessage;
 
-            this._lastMessage = logMessage;
-
-            #region Log TimeStamp or Time
-            if (this._logTimestampValue)
-            {
-                long timeStamp;
-
-                if (long.TryParse(lineMatch.Groups["Timestamp"].Value.Trim(), out timeStamp))
+                #region Log TimeStamp or Time
+                if (this._logTimestampValue)
                 {
-                    logMessage.LogTimeSpan = TimeSpan.FromMilliseconds(timeStamp);
-                }
-                else
-                {
-                    if (!ignoreErros)
+                    long timeStamp;
+
+                    if (long.TryParse(lineMatch.Groups["Timestamp"].Value.Trim(), out timeStamp))
                     {
-                        var error = string.Format("{0}\t{1}\tInvalid Timestamp detected ({2}) in line \"{3}\" within Log4Net Log file at line number {4}. Line ignored.",
-                                                this.Node,
-                                                this.LogFile.PathResolved,
-                                                lineMatch.Groups["Timestamp"].Value,
-                                                logLine,
-                                                logLinePos);
-                        Logger.Instance.Warn(error);
-                        this._errors.Add(error);
-                    }
-                    return null;
-                }
-            }
-            else
-            {
-                DateTime timeStamp;
-
-                if (string.IsNullOrEmpty(this._datetimeFormat)
-                        ? DateTime.TryParse(lineMatch.Groups["Time"].Value.Trim(), out timeStamp)
-                        : DateTime.TryParseExact(lineMatch.Groups["Time"].Value.Trim(),
-                                                    this._datetimeFormat,
-                                                    CultureInfo.InvariantCulture,
-                                                    DateTimeStyles.None,
-                                                    out timeStamp))
-
-                {
-                    logMessage.LogDateTime = timeStamp;
-
-                    if(this._timeZoneInstance == null)
-                    {
-                        logMessage.LogDateTimewTZOffset = new DateTimeOffset(logMessage.LogDateTime, TimeSpan.Zero);
+                        logMessage.LogTimeSpan = TimeSpan.FromMilliseconds(timeStamp);
                     }
                     else
                     {
-                        //This is an work-around to fix a timing issue in the TZ lib...
-                        try
+                        if (!ignoreErros)
                         {
-                            logMessage.LogDateTimewTZOffset = Common.TimeZones.ConvertToOffset(logMessage.LogDateTime, this._timeZoneInstance);
+                            var error = string.Format("{0}\t{1}\tInvalid Timestamp detected ({2}) in line \"{3}\" within Log4Net Log file at line number {4}. Line ignored.",
+                                                    this.Node,
+                                                    this.LogFile.PathResolved,
+                                                    lineMatch.Groups["Timestamp"].Value,
+                                                    logLine,
+                                                    logLinePos);
+                            Logger.Instance.Warn(error);
+                            this._errors.Add(error);
                         }
-                        catch (ArgumentOutOfRangeException)
+                        return null;
+                    }
+                }
+                else
+                {
+                    DateTime timeStamp;
+
+                    if (string.IsNullOrEmpty(this._datetimeFormat)
+                            ? DateTime.TryParse(lineMatch.Groups["Time"].Value.Trim(), out timeStamp)
+                            : DateTime.TryParseExact(lineMatch.Groups["Time"].Value.Trim(),
+                                                        this._datetimeFormat,
+                                                        CultureInfo.InvariantCulture,
+                                                        DateTimeStyles.None,
+                                                        out timeStamp))
+
+                    {
+                        logMessage.LogDateTime = timeStamp;
+
+                        if (this._timeZoneInstance == null)
                         {
-                            System.Threading.Thread.Sleep(1);
-                            logMessage.LogDateTimewTZOffset = Common.TimeZones.ConvertToOffset(logMessage.LogDateTime, this._timeZoneInstance);
+                            logMessage.LogDateTimewTZOffset = new DateTimeOffset(logMessage.LogDateTime, TimeSpan.Zero);
+                        }
+                        else
+                        {
+                            //This is an work-around to fix a timing issue in the TZ lib...
+                            try
+                            {
+                                logMessage.LogDateTimewTZOffset = Common.TimeZones.ConvertToOffset(logMessage.LogDateTime, this._timeZoneInstance);
+                            }
+                            catch (System.Exception)                            
+                            {
+                                System.Threading.Thread.Sleep(1);
+                                logMessage.LogDateTimewTZOffset = Common.TimeZones.ConvertToOffset(logMessage.LogDateTime, this._timeZoneInstance);
+                            }
+                        }
+
+                        this._endingLogDateTime = logMessage.LogDateTimewTZOffset;
+                        if (this._startingLogDateTime == DateTimeOffset.MinValue)
+                        {
+                            this._startingLogDateTime = logMessage.LogDateTimewTZOffset;
                         }
                     }
-
-                    this._endingLogDateTime = logMessage.LogDateTimewTZOffset;
-                    if (this._startingLogDateTime == DateTimeOffset.MinValue)
+                    else
                     {
-                        this._startingLogDateTime = logMessage.LogDateTimewTZOffset;
+                        if (!ignoreErros)
+                        {
+                            var error = string.Format("{0}\t{1}\tInvalid DateTime detected ({2}) in line \"{3}\" within Log4Net Log file at line number {4}{5}. Line ignored.",
+                                                    this.Node,
+                                                    this.LogFile.PathResolved,
+                                                    lineMatch.Groups["Time"].Value,
+                                                    logLine,
+                                                    logLinePos,
+                                                    string.IsNullOrEmpty(this._datetimeFormat) ? string.Empty : this._datetimeFormat);
+                            Logger.Instance.Warn(error);
+                            this._errors.Add(error);
+                        }
+                        return null;
                     }
                 }
-                else
+                #endregion
+                #region Log Level
                 {
-                    if (!ignoreErros)
+                    LogLevels logLevel;
+
+                    if (Enum.TryParse(lineMatch.Groups["Level"].Value.Trim(), true, out logLevel))
                     {
-                        var error = string.Format("{0}\t{1}\tInvalid DateTime detected ({2}) in line \"{3}\" within Log4Net Log file at line number {4}{5}. Line ignored.",
-                                                this.Node,
-                                                this.LogFile.PathResolved,
-                                                lineMatch.Groups["Time"].Value,
-                                                logLine,
-                                                logLinePos,
-                                                string.IsNullOrEmpty(this._datetimeFormat) ? string.Empty : this._datetimeFormat);
-                        Logger.Instance.Warn(error);
-                        this._errors.Add(error);
+                        logMessage.Level = logLevel;
                     }
-                    return null;
+                    else
+                    {
+                        if (!ignoreErros)
+                        {
+                            var error = string.Format("{0}\t{1}\tInvalid Log Level detected ({2}) in line \"{3}\" within Log4Net Log file at line number {4}. Line ignored.",
+                                                    this.Node,
+                                                    this.LogFile.PathResolved,
+                                                    lineMatch.Groups["Level"].Value,
+                                                    logLine,
+                                                    logLinePos);
+                            Logger.Instance.Warn(error);
+                            this._errors.Add(error);
+                        }
+                        return null;
+                    }
                 }
+                #endregion
+                #region Log File Line
+                {
+                    int fileLine;
+
+                    if (int.TryParse(lineMatch.Groups["Line"].Value.Trim(), out fileLine))
+                    {
+                        logMessage.FileLine = fileLine;
+                    }
+                    else
+                    {
+                        if (!ignoreErros)
+                        {
+                            var error = string.Format("{0}\t{1}\tInvalid Log File Line detected ({2}) in line \"{3}\" within Log4Net Log file at line number {4}. Line ignored.",
+                                                    this.Node,
+                                                    this.LogFile.PathResolved,
+                                                    lineMatch.Groups["Line"].Value,
+                                                    logLine,
+                                                    logLinePos);
+                            Logger.Instance.Warn(error);
+                            this._errors.Add(error);
+                        }
+                        return null;
+                    }
+                }
+                #endregion
+                #region Remaining Log string fields
+                logMessage.FileName = lineMatch.Groups["File"].Value.Trim();
+                logMessage.ThreadId = lineMatch.Groups["Thread"].Value.Trim();
+                logMessage.Message = lineMatch.Groups["Message"].Value.Trim();
+                #endregion
+
+                this._logMessages.Add(logMessage);
             }
-            #endregion
-            #region Log Level
+            catch(System.Exception ex)
             {
-                LogLevels logLevel;
-
-                if (Enum.TryParse(lineMatch.Groups["Level"].Value.Trim(), true, out logLevel))
-                {
-                    logMessage.Level = logLevel;
-                }
-                else
-                {
-                    if (!ignoreErros)
-                    {
-                        var error = string.Format("{0}\t{1}\tInvalid Log Level detected ({2}) in line \"{3}\" within Log4Net Log file at line number {4}. Line ignored.",
-                                                this.Node,
-                                                this.LogFile.PathResolved,
-                                                lineMatch.Groups["Level"].Value,
-                                                logLine,
-                                                logLinePos);
-                        Logger.Instance.Warn(error);
-                        this._errors.Add(error);
-                    }
-                    return null;
-                }
+                Logger.Instance.Error(string.Format("Exception occurred while parsing line \"{0}\" in file \"{1}\" at line pos {2}",
+                                                        logLine,
+                                                        this.LogFile.PathResolved,
+                                                        logLinePos),
+                                        ex);
+                throw;
             }
-            #endregion
-            #region Log File Line
-            {
-                int fileLine;
-
-                if (int.TryParse(lineMatch.Groups["Line"].Value.Trim(), out fileLine))
-                {
-                    logMessage.FileLine = fileLine;
-                }
-                else
-                {
-                    if (!ignoreErros)
-                    {
-                        var error = string.Format("{0}\t{1}\tInvalid Log File Line detected ({2}) in line \"{3}\" within Log4Net Log file at line number {4}. Line ignored.",
-                                                this.Node,
-                                                this.LogFile.PathResolved,
-                                                lineMatch.Groups["Line"].Value,
-                                                logLine,
-                                                logLinePos);
-                        Logger.Instance.Warn(error);
-                        this._errors.Add(error);
-                    }
-                    return null;
-                }
-            }
-            #endregion
-            #region Remaining Log string fields
-            logMessage.FileName = lineMatch.Groups["File"].Value.Trim();
-            logMessage.ThreadId = lineMatch.Groups["Thread"].Value.Trim();
-            logMessage.Message = lineMatch.Groups["Message"].Value.Trim();
-            #endregion
-
-            this._logMessages.Add(logMessage);
+            
             return logMessage;
         }
 

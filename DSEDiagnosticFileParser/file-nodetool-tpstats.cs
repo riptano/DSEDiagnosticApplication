@@ -105,6 +105,19 @@ namespace DSEDiagnosticFileParser
             PAGED_RANGE                  0
             READ_REPAIR                  0
 
+            Message type           Dropped                  Latency waiting in queue (micros)                                    
+                                                        50%               95%               99%               Max
+            READ                       109              0.00              0.00              0.00         268650.95
+            RANGE_SLICE                  0              0.00              0.00              0.00         223875.79
+            _TRACE                       0               N/A               N/A               N/A               N/A
+            HINT                         0              0.00              0.00              0.00              0.00
+            MUTATION                     0              0.00              0.00              0.00         268650.95
+            COUNTER_MUTATION             0              0.00              0.00              0.00              0.00
+            BATCH_STORE                  0              0.00              0.00              0.00              0.00
+            BATCH_REMOVE                 0              0.00              0.00              0.00              0.00
+            REQUEST_RESPONSE             0              0.00              0.00              0.00          12108.97
+            PAGED_RANGE                  0               N/A               N/A               N/A               N/A
+            READ_REPAIR                  0              0.00              0.00              0.00              0.00
             */
 
             string line;
@@ -114,6 +127,9 @@ namespace DSEDiagnosticFileParser
             string propType = null;
             string[] poolProperties = null;
             bool droppedPropties = false;
+            bool extendDroppedProp = false;
+            string uom = "micros";
+            bool skipNextLine = false;
 
             var statItem = new AggregatedStats(this.File,
                                                 this.Node,
@@ -125,6 +141,12 @@ namespace DSEDiagnosticFileParser
             foreach (var element in fileLines)
             {
                 this.CancellationToken.ThrowIfCancellationRequested();
+
+                if(skipNextLine)
+                {
+                    skipNextLine = false;
+                    continue;
+                }
 
                 line = element.Trim();
 
@@ -141,7 +163,7 @@ namespace DSEDiagnosticFileParser
 
                     if (name.Success && props.Success)
                     {
-                        if (props.Captures.Count == 5)
+                        if (props.Captures.Count == 5 && !extendDroppedProp)
                         {
                             if (poolProperties == null)
                             {
@@ -163,7 +185,7 @@ namespace DSEDiagnosticFileParser
                                 continue;
                             }
                         }
-                        else if(props.Captures.Count == 1)
+                        else if(props.Captures.Count == 1) //Dropped
                         {
                             if(droppedPropties)
                             {
@@ -175,6 +197,41 @@ namespace DSEDiagnosticFileParser
                                 droppedPropties = true;
                                 propType = props.Captures[0].Value.Trim();
                             }
+                            continue;
+                        }
+                        else if(props.Captures.Count == 2 && !extendDroppedProp) //Dropped                  Latency waiting in queue (micros)  
+                        {
+                            var uomValue = this.RegExParser.Match(line, 1);
+                            var uomGrp = regExMatch.Groups["uom"];
+
+                            if (uomValue.Success && uomGrp.Success)
+                            {
+                                uom = uomGrp.Value.Trim();
+                            }
+
+                            propType = props.Captures[0].Value.Trim();
+                            extendDroppedProp = true;
+                            skipNextLine = true; // 0%               95%               99%               Max
+                            continue;
+                        }
+                        else if(extendDroppedProp && props.Captures.Count == 5)
+                        {
+                            var tpName = name.Value.Trim();
+                            statItem.AssociateItem(tpName + '.' + propType, long.Parse(props.Captures[0].Value.Trim()));
+
+                            var checkValue = (Action<string, string>)((latName, capValue) =>
+                            {
+                                if(!string.IsNullOrEmpty(capValue) && capValue != "N/A")
+                                {
+                                    statItem.AssociateItem(latName, new UnitOfMeasure(capValue, uom, UnitOfMeasure.Types.Time));
+                                }
+                            });
+
+                            checkValue(tpName + ".Latency.Waiting.0%", props.Captures[1].Value.Trim());
+                            checkValue(tpName + ".Latency.Waiting.95%", props.Captures[2].Value.Trim());
+                            checkValue(tpName + ".Latency.Waiting.99%", props.Captures[3].Value.Trim());
+                            checkValue(tpName + ".Latency.Waiting.Max", props.Captures[4].Value.Trim());
+
                             continue;
                         }
                     }

@@ -37,16 +37,17 @@ namespace DSEDiagnosticToDataTable
             dtKeySpace.Columns.Add("solr Indexes", typeof(int)).AllowDBNull = true;
             dtKeySpace.Columns.Add("SAS Indexes", typeof(int)).AllowDBNull = true;
             dtKeySpace.Columns.Add("Custom Indexes", typeof(int)).AllowDBNull = true;
+            dtKeySpace.Columns.Add("Functions", typeof(int)).AllowDBNull = true;//l
             dtKeySpace.Columns.Add("Triggers", typeof(int)).AllowDBNull = true;
-            dtKeySpace.Columns.Add("Total", typeof(int)).AllowDBNull = true;//m
-            dtKeySpace.Columns.Add("Active", typeof(int)).AllowDBNull = true;//n
-            dtKeySpace.Columns.Add("STCS", typeof(int)).AllowDBNull = true;//o
-            dtKeySpace.Columns.Add("LCS", typeof(int)).AllowDBNull = true;//p
-            dtKeySpace.Columns.Add("DTCS", typeof(int)).AllowDBNull = true;//q
-            dtKeySpace.Columns.Add("TCS", typeof(int)).AllowDBNull = true;//r
-            dtKeySpace.Columns.Add("TWCS", typeof(int)).AllowDBNull = true;//s
-            dtKeySpace.Columns.Add("Other Strategies", typeof(int)).AllowDBNull = true;//t
-            dtKeySpace.Columns.Add("DDL", typeof(string));//u
+            dtKeySpace.Columns.Add("Total", typeof(int)).AllowDBNull = true;//n
+            dtKeySpace.Columns.Add("Active", typeof(int)).AllowDBNull = true;//o
+            dtKeySpace.Columns.Add("STCS", typeof(int)).AllowDBNull = true;//p
+            dtKeySpace.Columns.Add("LCS", typeof(int)).AllowDBNull = true;//q
+            dtKeySpace.Columns.Add("DTCS", typeof(int)).AllowDBNull = true;//r
+            dtKeySpace.Columns.Add("TCS", typeof(int)).AllowDBNull = true;//s
+            dtKeySpace.Columns.Add("TWCS", typeof(int)).AllowDBNull = true;//t
+            dtKeySpace.Columns.Add("Other Strategies", typeof(int)).AllowDBNull = true;//u
+            dtKeySpace.Columns.Add("DDL", typeof(string));//v
 
             dtKeySpace.PrimaryKey = new System.Data.DataColumn[] { dtKeySpace.Columns["Name"], dtKeySpace.Columns[ColumnNames.DataCenter] };
 
@@ -164,12 +165,15 @@ namespace DSEDiagnosticToDataTable
             dataRow["SAS Indexes"] = (int)keySpace.Stats.SasIIIndexes;
             dataRow["Custom Indexes"] = (int)keySpace.Stats.CustomIndexes;
             dataRow["Triggers"] = (int)keySpace.Stats.Triggers;
+            dataRow["Functions"] = (int)keySpace.Stats.Functions;
             dataRow["Total"] = (int)(keySpace.Stats.Tables
                                         + keySpace.Stats.MaterialViews
                                         + keySpace.Stats.SecondaryIndexes
                                         + keySpace.Stats.SolrIndexes
                                         + keySpace.Stats.SasIIIndexes
-                                        + keySpace.Stats.CustomIndexes);
+                                        + keySpace.Stats.CustomIndexes
+                                        + keySpace.Stats.Functions
+                                        + keySpace.Stats.Triggers);
             dataRow["STCS"] = (int)keySpace.Stats.STCS;
             dataRow["LCS"] = (int)keySpace.Stats.LCS;
             dataRow["DTCS"] = (int)keySpace.Stats.DTCS;
