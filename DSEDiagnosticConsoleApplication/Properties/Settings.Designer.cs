@@ -160,11 +160,11 @@ namespace DSEDiagnosticConsoleApplication.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute(@"[
-{""ProfileName"":""AllFilesLogs"",""Log4NetParser"":"".\\Json\\Log4NetParser.json"",""ProcessFileMappings"":"".\\Json\\ProcessFileMappings.json"",""EnableVirtualMemory"":true, ""DefaultLogLevelHandling"":""Warning, Error, Fatal, Exception""},
-{""ProfileName"":""NoLogs"",""Log4NetParser"":"".\\Json\\Log4NetParser.json"",""ProcessFileMappings"":"".\\Json\\ProcessFileMappingsNoLogs.json"",""EnableVirtualMemory"":true, ""DefaultLogLevelHandling"":null},
-{""ProfileName"":""Validate"",""Log4NetParser"":"".\\Json\\Log4NetParserValidateLogs.json"",""ProcessFileMappings"":"".\\Json\\ProcessFileMappingsValidate.json"",""EnableVirtualMemory"":false, ""DefaultLogLevelHandling"":""Fatal, Exception""},
-{""ProfileName"":""Decompressive"",""Log4NetParser"":"".\\Json\\Log4NetParserValidateLogs.json"",""ProcessFileMappings"":"".\\Json\\Unzip-ProcessFileMappings.json"",""EnableVirtualMemory"":false, ""DefaultLogLevelHandling"":""Fatal, Exception""},
-{""ProfileName"":""CreateOpsCenterStruct"",""Log4NetParser"":"".\\Json\\Log4NetParserValidateLogs.json"",""ProcessFileMappings"":"".\\Json\\ProcessFileMappings-CreateOpsCenterCopy.json"",""EnableVirtualMemory"":false, ""DefaultLogLevelHandling"":""Fatal, Exception""}
+{""ProfileName"":""AllFilesLogs"",""Log4NetParser"":"".\\Json\\Log4NetParser.json"",""ProcessFileMappings"":"".\\Json\\ProcessFileMappings.json"",""EnableVirtualMemory"":true, ""DefaultLogLevelHandling"":""Warning, Error, Fatal, Exception"", ""DebugLogProcessingTypes"":""OnlyFlushCompactionMsgs""},
+{""ProfileName"":""NoLogs"",""Log4NetParser"":"".\\Json\\Log4NetParser.json"",""ProcessFileMappings"":"".\\Json\\ProcessFileMappingsNoLogs.json"",""EnableVirtualMemory"":true, ""DefaultLogLevelHandling"":null, ""DebugLogProcessingTypes"":""Disabled""},
+{""ProfileName"":""Validate"",""Log4NetParser"":"".\\Json\\Log4NetParserValidateLogs.json"",""ProcessFileMappings"":"".\\Json\\ProcessFileMappingsValidate.json"",""EnableVirtualMemory"":false, ""DefaultLogLevelHandling"":""Fatal, Exception"", ""DebugLogProcessingTypes"":""OnlyLogDateRange""},
+{""ProfileName"":""Decompressive"",""Log4NetParser"":"".\\Json\\Log4NetParserValidateLogs.json"",""ProcessFileMappings"":"".\\Json\\Unzip-ProcessFileMappings.json"",""EnableVirtualMemory"":false, ""DefaultLogLevelHandling"":""Fatal, Exception"", ""DebugLogProcessingTypes"":""Disabled""},
+{""ProfileName"":""CreateOpsCenterStruct"",""Log4NetParser"":"".\\Json\\Log4NetParserValidateLogs.json"",""ProcessFileMappings"":"".\\Json\\ProcessFileMappings-CreateOpsCenterCopy.json"",""EnableVirtualMemory"":false, ""DefaultLogLevelHandling"":""Fatal, Exception"", ""DebugLogProcessingTypes"":""Disabled""}
 ]")]
         public string Profiles {
             get {

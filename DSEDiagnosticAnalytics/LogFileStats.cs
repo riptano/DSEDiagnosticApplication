@@ -300,7 +300,7 @@ namespace DSEDiagnosticAnalytics
 
                     Logger.Instance.InfoFormat("Analyzing Log Information for Node \"{0}\"", node);
                     var logItems = from item in node.LogFiles
-                                   let isDebugFile = item.LogFile.Name.IndexOf("debug", StringComparison.OrdinalIgnoreCase) >= 0
+                                   let isDebugFile = item.IsDebugLog
                                    group item by isDebugFile into g
                                    select new { IsDebugFile = g.Key, LogInfos = DetermineLogRange(g).OrderBy(l => l.LogDateRange).ToList() };
 

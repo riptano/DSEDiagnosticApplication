@@ -141,7 +141,7 @@ namespace DSEDiagnosticConsoleApplication
             this._cmdLineParser.Arguments.Add(new ValueArgument<string>('R', "LogTimeRange")
             {
                 Optional = true,
-                DefaultValue = ParserSettings.LogTimeRange == null ? null : string.Format("{0}, {1}", ParserSettings.LogTimeRange.Min, ParserSettings.LogTimeRange.Max),
+                DefaultValue = ParserSettings.LogRestrictedTimeRange == null ? null : string.Format("{0}, {1}", ParserSettings.LogRestrictedTimeRange.Min, ParserSettings.LogRestrictedTimeRange.Max),
                 Description = "Only import log entries from/to this date/time range. Empty string will parse all entries. Syntax: \"<FromDateTimeOnly> [+|-HH[:MM]]|[IANA TimeZone Name]\", \", <ToDateTimeOnly> [+|-HH[:MM]]|[IANA TimeZone Name]\", or \"<FromDateTime> [+|-HH[:MM]]|[IANA TimeZone Name],<ToDateTime> [+|-HH[:MM]]|[IANA TimeZone Name]\". If [IANA TimeZone Name] or [+|-HH[:MM]] (timezone offset) is not given the local machine's TZ is used. Ignored if LogRangeBasedOnPrevHrs is defined.",
                 Example = "\"2018-02-01 00:00:00 +00:00, 2018-02-21 00:00:00 UDT\" only logs between Feb01 to Feb21 2018 UDT -or- \",2018-02-21 00:00:00 UDT\" All logs up to Feb21 2018 UDT -or- \"2018-02-01 00:00:00 UDT\" only logs from Feb01 2018 UDT to last log entries"
             });
@@ -196,7 +196,7 @@ namespace DSEDiagnosticConsoleApplication
 
             this._cmdLineParser.Arguments.Add(new ValueArgument<string>("LogLinePatternLayout")
             {
-                DefaultValue = DSEDiagnosticFileParser.LibrarySettings.Log4NetConversionPattern,
+                DefaultValue = ParserSettings.Log4NetConversionPattern,
                 Optional = true,
                 Description = "The definition that defines the format of a Log Line. This definition must follow the Apache Log PatternLayout configuration."
             });
@@ -211,7 +211,7 @@ namespace DSEDiagnosticConsoleApplication
             this._cmdLineParser.Arguments.Add(new ValueArgument<string>("DefaultClusterTimeZone")
             {
                 Optional = true,
-                DefaultValue = DSEDiagnosticLibrary.LibrarySettings.DefaultClusterTZ,
+                DefaultValue = ParserSettings.DefaultClusterTZ,
                 Description = "An IANA TimeZone name used as the default time zone for all data centers/nodes where the time zone could not be determined.",
                 Example = @"America/Chicago"
             });
@@ -234,12 +234,13 @@ namespace DSEDiagnosticConsoleApplication
 
             this._cmdLineParser.Arguments.Add(new ValueArgument<string>("ClusterName")
             {
+                DefaultValue = ParserSettings.ClusterName,
                 Optional = true,               
                 Description = "The name of the cluster"                
             });
 
             this._cmdLineParser.Arguments.Add(new ValueArgument<int>("ClusterHashCode")
-            {
+            {                
                 Optional = true,
                 Description = "The cluster's hash code."
             });
@@ -252,7 +253,7 @@ namespace DSEDiagnosticConsoleApplication
 
             this._cmdLineParser.Arguments.Add(new ValueArgument<string>("Profile")
             {
-                DefaultValue = Profiles.CurrentProfile?.ProfileName,
+                DefaultValue = ParserSettings.Profile,
                 Optional = true,
                 Description = string.Format("The Profile used to parse, transform, and analysis the data. Profile Names: \"{0}\"", string.Join(", ", Profiles.Names()))
             });
@@ -328,7 +329,7 @@ namespace DSEDiagnosticConsoleApplication
 
                             if (string.IsNullOrEmpty(value))
                             {
-                                ParserSettings.LogTimeRange = null;
+                                ParserSettings.LogRestrictedTimeRange = null;
                             }
                             else
                             {
@@ -380,7 +381,7 @@ namespace DSEDiagnosticConsoleApplication
                                             endDTOS = DetermineDateTimeFromTZ(endDT, endTZ);
                                         }
 
-                                        ParserSettings.LogTimeRange = new DateTimeOffsetRange(startDTOS, endDTOS);
+                                        ParserSettings.LogRestrictedTimeRange = new DateTimeOffsetRange(startDTOS, endDTOS);
                                     }
                                     catch (System.Exception ex)
                                     {
@@ -507,7 +508,7 @@ namespace DSEDiagnosticConsoleApplication
 
                             if(!string.IsNullOrEmpty(value))
                             {
-                                DSEDiagnosticFileParser.LibrarySettings.Log4NetConversionPattern = value;
+                               ParserSettings.Log4NetConversionPattern = value;
                             }
                         }
                         break;
@@ -535,19 +536,19 @@ namespace DSEDiagnosticConsoleApplication
                                 throw new CommandLineParser.Exceptions.CommandLineFormatException(string.Format("DefaultClusterTimeZone IANA name was not found. Value given is \"{0}\"", value));
                             }
 
-                            DSEDiagnosticLibrary.LibrarySettings.DefaultClusterTZ = value;
+                            ParserSettings.DefaultClusterTZ = value;
                             break;
                         }
                     case "ClusterName":
                         {
                             var value = ((ValueArgument<string>)item).Value;
-                            DSEDiagnosticConsoleApplication.ParserSettings.ClusterName = value;
+                            ParserSettings.ClusterName = value;
                             break;
                         }
                     case "ClusterHashCode":
                         {
                             var value = ((ValueArgument<int>)item).Value;
-                            DSEDiagnosticConsoleApplication.ParserSettings.ClusterHashCode = value;
+                            ParserSettings.ClusterHashCode = value;
                             break;
                         }
                     case "DefaultDCTimeZone":
@@ -571,7 +572,7 @@ namespace DSEDiagnosticConsoleApplication
                                 }
                             }
 
-                            DSEDiagnosticLibrary.DataCenter.DefaultTimeZones = items.ToArray();
+                            ParserSettings.DCDefaultTimeZones = items.ToArray();
                         }
                         break;
                     case "DefaultNodeTimeZone":
@@ -595,14 +596,14 @@ namespace DSEDiagnosticConsoleApplication
                                 }
                             }
 
-                            DSEDiagnosticLibrary.Node.DefaultTimeZones = items.ToArray();
+                            ParserSettings.NodeDefaultTimeZones = items.ToArray();
                         }
                         break;
                     case "DisableLogEventMemoryMapping":
                         {
                             if (((SwitchArgument)item).Value)
                             {
-                                DSEDiagnosticLibrary.LibrarySettings.LogEventsAreMemoryMapped = false;
+                                ParserSettings.LogEventsAreMemoryMapped = false;
                             }
                         }
                         break;
@@ -635,7 +636,7 @@ namespace DSEDiagnosticConsoleApplication
                             }                            
                             if (!results.Any(i => i.LongName == "DisableLogEventMemoryMapping"))
                             {
-                                DSEDiagnosticLibrary.LibrarySettings.LogEventsAreMemoryMapped = profile.EnableVirtualMemory;
+                                ParserSettings.LogEventsAreMemoryMapped = profile.EnableVirtualMemory;
                             }
                         }
                         break;

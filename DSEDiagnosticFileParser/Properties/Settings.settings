@@ -1692,5 +1692,14 @@ CREATE TABLE "OpsCenter".rollups300 (
 {"Key":"SOLRINDEXNAME","Value":"[a-z0-9'\\-_$%+=!?&lt;&gt;^*&amp;@/.]+"}
 ]</Value>
     </Setting>
+    <Setting Name="DebugLogProcessing" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Auto,OnlyFlushCompactionMsgs</Value>
+    </Setting>
+    <Setting Name="DebugFlushCompCLogLineTags" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">1.*, 2.*</Value>
+    </Setting>
+    <Setting Name="LogCheckOverlappingDateRange" Type="System.Boolean" Scope="Application">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

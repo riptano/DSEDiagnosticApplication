@@ -334,5 +334,14 @@ namespace DSEDiagnosticLibrary.Properties {
                 return ((bool)(this["LogEventsAreMemoryMapped"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("debug")]
+        public string DebugLogFileName {
+            get {
+                return ((string)(this["DebugLogFileName"]));
+            }
+        }
     }
 }

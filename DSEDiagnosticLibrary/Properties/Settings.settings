@@ -153,5 +153,8 @@
     <Setting Name="LogEventsAreMemoryMapped" Type="System.Boolean" Scope="Application">
       <Value Profile="(Default)">True</Value>
     </Setting>
+    <Setting Name="DebugLogFileName" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">debug</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

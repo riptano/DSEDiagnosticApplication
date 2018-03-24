@@ -1484,6 +1484,7 @@ namespace DSEDiagnosticFileParser
         /// <param name="parsers"></param>
         /// <param name="logEvent"></param>
         /// <param name="cancellationToken"></param>
+        /// <param name="onlyMatch"></param>
         /// <returns>
         /// Returns null to indicate that the log event did not match anything.
         /// Returns a tuple where the
@@ -1496,7 +1497,8 @@ namespace DSEDiagnosticFileParser
         /// </returns>
         public static Tuple<Regex, Match, Regex, Match, CLogLineTypeParser> FindMatch (CLogLineTypeParser[] parsers, 
                                                                                         ILogMessage logEvent,
-                                                                                        CancellationToken cancellationToken)
+                                                                                        CancellationToken cancellationToken,
+                                                                                        bool onlyMatch = false)
         {
             Tuple<Regex, Match, Regex, Match, CLogLineTypeParser> returnValue = null;
             var parallelOptions = new ParallelOptions();
@@ -1513,14 +1515,14 @@ namespace DSEDiagnosticFileParser
                 {
                     Regex threadIdRegEx = null;
                     Regex messageRegEx = null;
-                    var threadIdMatch = parserItem.ParseThreadId?.MatchFirstSuccessful(logEvent.ThreadId, out threadIdRegEx);
-                    var messageMatch = parserItem.ParseMessage?.MatchFirstSuccessful(logEvent.Message, out messageRegEx);
+                    var threadIdMatch = onlyMatch ? null : parserItem.ParseThreadId?.MatchFirstSuccessful(logEvent.ThreadId, out threadIdRegEx);
+                    var messageMatch = onlyMatch ? null : parserItem.ParseMessage?.MatchFirstSuccessful(logEvent.Message, out messageRegEx);
 
                     if(loopState.IsStopped)
                     {
                         return;
                     }
-                    else if (threadIdMatch != null || messageMatch != null)
+                    else if (onlyMatch || threadIdMatch != null || messageMatch != null)
                     {
                         if(returnValue == null)
                             returnValue = new Tuple<Regex, Match, Regex, Match, CLogLineTypeParser>(threadIdRegEx,

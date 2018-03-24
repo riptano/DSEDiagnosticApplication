@@ -26,6 +26,7 @@ namespace DSEDiagnosticConsoleApplication
                 DSEDiagnosticFileParser.LibrarySettings.Log4NetParser = DSEDiagnosticFileParser.LibrarySettings.ReadJsonFileIntoObject<DSEDiagnosticFileParser.CLogTypeParser>(CurrentProfile.Log4NetParser);
                 DSEDiagnosticFileParser.LibrarySettings.ProcessFileMappingValue = CurrentProfile.ProcessFileMappings;
                 DSEDiagnosticLibrary.LibrarySettings.LogEventsAreMemoryMapped = CurrentProfile.EnableVirtualMemory;
+                DSEDiagnosticFileParser.LibrarySettings.DebugLogProcessing = DSEDiagnosticLibrary.LibrarySettings.ParseEnum<DSEDiagnosticFileParser.file_cassandra_log4net.DebugLogProcessingTypes>(CurrentProfile.DebugLogProcessingTypes);
             }
 
             return CurrentProfile;
@@ -44,5 +45,6 @@ namespace DSEDiagnosticConsoleApplication
         public string ProcessFileMappings;
         public bool EnableVirtualMemory;
         public string DefaultLogLevelHandling;
+        public string DebugLogProcessingTypes;
     }
 }

@@ -27,22 +27,20 @@ namespace DSEDiagnosticFileParser
         public static string[] IgnoreFileWExtensions = Properties.Settings.Default.IgnoreFileWExtensions.ToArray().Select(i => i.Trim().ToLower()).ToArray();
         public static System.Text.RegularExpressions.Regex LogExceptionRegExMatches = new System.Text.RegularExpressions.Regex(Properties.Settings.Default.LogExceptionRegExMatches, System.Text.RegularExpressions.RegexOptions.Compiled | System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.Singleline);
         public static file_cassandra_log4net.DefaultLogLevelHandlers DefaultLogLevelHandlingInit = DSEDiagnosticLibrary.LibrarySettings.ParseEnum<file_cassandra_log4net.DefaultLogLevelHandlers>(Properties.Settings.Default.DefaultLogLevelHandling);
-        
+        public static file_cassandra_log4net.DebugLogProcessingTypes DebugLogProcessing = DSEDiagnosticLibrary.LibrarySettings.ParseEnum<file_cassandra_log4net.DebugLogProcessingTypes>(Properties.Settings.Default.DebugLogProcessing);
+
         public static file_cassandra_log4net.DefaultLogLevelHandlers DefaultLogLevelHandling
         {
-            get { return file_cassandra_log4net.DefaultLogLevelHandling; }
-            set
-            {
-                file_cassandra_log4net.DefaultLogLevelHandling = value;
-            }
+            get;
+            set;
         }
 
-        public static DateTimeOffsetRange LogTimeRange
+        public static DateTimeOffsetRange LogRestrictedTimeRange
         {
-            get { return DSEDiagnosticFileParser.file_cassandra_log4net.LogTimeRange; }
-            set { DSEDiagnosticFileParser.file_cassandra_log4net.LogTimeRange = value; }
+            get;
+            set;
         }
-
+       
         private static string defaultProcessFileMappingValue = Properties.Settings.Default.ProcessFileMappings;
         public static string ProcessFileMappingValue
         {

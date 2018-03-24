@@ -30,7 +30,7 @@ namespace DSEDiagnosticFileParser.Tests
 
         const bool LogEventsAreMemoryMapped = true;
 
-        [TestMethod()]
+        
         public void CreateClusterDCNodeDDL()
         {
             DSEDiagnosticLibrary.LibrarySettings.LogEventsAreMemoryMapped = LogEventsAreMemoryMapped;
@@ -74,12 +74,14 @@ namespace DSEDiagnosticFileParser.Tests
         {
             this.CreateClusterDCNodeDDL();
 
-            Assert.AreEqual(this._cluster, DSEDiagnosticLibrary.Cluster.GetCurrentOrMaster());
+            Assert.AreEqual(this._cluster.Name, ClusterName);
             Assert.IsNotNull(this._node1);
 
             var testLogFile = Common.Path.PathUtils.BuildFilePath(@".\LogFiles\CompactionSingle.log");
             
             var parseFile = new file_cassandra_log4net(DiagnosticFile.CatagoryTypes.LogFile, testLogFile.ParentDirectoryPath, testLogFile, this._node1, null, null, null);
+            parseFile.CheckOverlappingDateRange = false;
+            parseFile.DebugLogProcessing = file_cassandra_log4net.DebugLogProcessingTypes.AllMsg;
 
             var nbrLinesParsed = parseFile.ProcessFile();
 
@@ -142,10 +144,12 @@ namespace DSEDiagnosticFileParser.Tests
             testLogFile = Common.Path.PathUtils.BuildFilePath(@".\LogFiles\CompactionFlush.log");
 
             parseFile = new file_cassandra_log4net(DiagnosticFile.CatagoryTypes.LogFile, testLogFile.ParentDirectoryPath, testLogFile, this._node1, null, null, null);
+            parseFile.CheckOverlappingDateRange = false;
+            parseFile.DebugLogProcessing = file_cassandra_log4net.DebugLogProcessingTypes.AllMsg;
 
             nbrLinesParsed = parseFile.ProcessFile();
 
-            Assert.AreEqual((uint)34, nbrLinesParsed);
+            Assert.AreEqual((uint)35, nbrLinesParsed);
             Assert.AreEqual(0, parseFile.NbrErrors);
             Assert.AreEqual(43, parseFile.NbrItemsParsed);
             Assert.AreEqual(DSEDiagnosticFileParser.DiagnosticFile.CatagoryTypes.LogFile, parseFile.Catagory);
@@ -156,7 +160,7 @@ namespace DSEDiagnosticFileParser.Tests
 
             Assert.IsNotNull(result);
             Assert.AreEqual(this._node1, result.Node);
-            Assert.AreEqual(34, result.Results.Count());
+            Assert.AreEqual(35, result.Results.Count());
             Assert.AreEqual(0, result.OrphanedSessionEvents.Count());
 
             logeventResults = result.Results.Cast<DSEDiagnosticLibrary.LogCassandraEvent>();
@@ -272,12 +276,14 @@ namespace DSEDiagnosticFileParser.Tests
         {
             this.CreateClusterDCNodeDDL();
 
-            Assert.AreEqual(this._cluster, DSEDiagnosticLibrary.Cluster.GetCurrentOrMaster());
+            Assert.AreEqual(this._cluster.Name, ClusterName);
             Assert.IsNotNull(this._node1);
 
             var testLogFile = Common.Path.PathUtils.BuildFilePath(@".\LogFiles\NodeConfig.log");
 
             var parseFile = new file_cassandra_log4net(DiagnosticFile.CatagoryTypes.LogFile, testLogFile.ParentDirectoryPath, testLogFile, this._node1, null, null, null);
+            parseFile.CheckOverlappingDateRange = false;
+            parseFile.DebugLogProcessing = file_cassandra_log4net.DebugLogProcessingTypes.AllMsg;
 
             var nbrLinesParsed = parseFile.ProcessFile();
 
@@ -392,6 +398,8 @@ namespace DSEDiagnosticFileParser.Tests
             var testLogFile = Common.Path.PathUtils.BuildFilePath(@".\LogFiles\ExceptionSimple.log");
 
             var parseFile = new file_cassandra_log4net(DiagnosticFile.CatagoryTypes.LogFile, testLogFile.ParentDirectoryPath, testLogFile, this._node1, null, null, null);
+            parseFile.CheckOverlappingDateRange = false;
+            parseFile.DebugLogProcessing = file_cassandra_log4net.DebugLogProcessingTypes.AllMsg;
 
             var nbrLinesParsed = parseFile.ProcessFile();
 
@@ -541,6 +549,8 @@ namespace DSEDiagnosticFileParser.Tests
             var testLogFile = Common.Path.PathUtils.BuildFilePath(@".\LogFiles\SchemaChangesShardingEvts.log");
 
             var parseFile = new file_cassandra_log4net(DiagnosticFile.CatagoryTypes.LogFile, testLogFile.ParentDirectoryPath, testLogFile, this._node1, null, null, null);
+            parseFile.CheckOverlappingDateRange = false;
+            parseFile.DebugLogProcessing = file_cassandra_log4net.DebugLogProcessingTypes.AllMsg;
 
             var nbrLinesParsed = parseFile.ProcessFile();
 
@@ -572,8 +582,8 @@ namespace DSEDiagnosticFileParser.Tests
             Assert.AreEqual(2, logEvents.ElementAt(nIdx).LogProperties.Count);
             Assert.AreEqual("NODE", logEvents.ElementAt(nIdx).LogProperties.ElementAt(0).Key);
             Assert.AreEqual("10.0.0.2", logEvents.ElementAt(nIdx).LogProperties.ElementAt(0).Value.ToString());
-            Assert.AreEqual("status", logEvents.ElementAt(nIdx).LogProperties.ElementAt(1).Key);
-            Assert.AreEqual("cluster", logEvents.ElementAt(nIdx).LogProperties.ElementAt(1).Value.ToString());
+            Assert.AreEqual("action", logEvents.ElementAt(nIdx).LogProperties.ElementAt(1).Key);
+            Assert.AreEqual("now part of the cluster", logEvents.ElementAt(nIdx).LogProperties.ElementAt(1).Value.ToString());
             Assert.AreEqual(this._node1, logEvents.ElementAt(nIdx).Node);
             Assert.AreEqual(1, logEvents.ElementAt(nIdx).AssociatedNodes.Count());
             Assert.AreEqual(this._node2, logEvents.ElementAt(nIdx).AssociatedNodes.First());
@@ -597,7 +607,7 @@ namespace DSEDiagnosticFileParser.Tests
             Assert.AreEqual(2, logEvents.ElementAt(nIdx).LogProperties.Count);
             Assert.AreEqual("NODE", logEvents.ElementAt(nIdx).LogProperties.ElementAt(0).Key);
             Assert.AreEqual("10.0.0.2", logEvents.ElementAt(nIdx).LogProperties.ElementAt(0).Value.ToString());
-            Assert.AreEqual("status", logEvents.ElementAt(nIdx).LogProperties.ElementAt(1).Key);
+            Assert.AreEqual("action", logEvents.ElementAt(nIdx).LogProperties.ElementAt(1).Key);
             Assert.AreEqual("UP", logEvents.ElementAt(nIdx).LogProperties.ElementAt(1).Value.ToString());
             Assert.AreEqual(this._node1, logEvents.ElementAt(nIdx).Node);
             Assert.AreEqual(1, logEvents.ElementAt(nIdx).AssociatedNodes.Count());
@@ -625,7 +635,7 @@ namespace DSEDiagnosticFileParser.Tests
             Assert.AreEqual(3, logEvents.ElementAt(nIdx).LogProperties.Count);
             Assert.AreEqual("NODE", logEvents.ElementAt(nIdx).LogProperties.ElementAt(0).Key);
             Assert.AreEqual("10.0.0.2", logEvents.ElementAt(nIdx).LogProperties.ElementAt(0).Value.ToString());
-            Assert.AreEqual("status", logEvents.ElementAt(nIdx).LogProperties.ElementAt(1).Key);
+            Assert.AreEqual("action", logEvents.ElementAt(nIdx).LogProperties.ElementAt(1).Key);
             Assert.AreEqual("NORMAL", logEvents.ElementAt(nIdx).LogProperties.ElementAt(1).Value.ToString());
             Assert.AreEqual("token", logEvents.ElementAt(nIdx).LogProperties.ElementAt(2).Key);
             Assert.AreEqual(-1051573540106914992, logEvents.ElementAt(nIdx).LogProperties.ElementAt(2).Value);
@@ -734,7 +744,7 @@ namespace DSEDiagnosticFileParser.Tests
             Assert.AreEqual(3, logEvents.ElementAt(nIdx).LogProperties.Count);
             Assert.AreEqual("NODE", logEvents.ElementAt(nIdx).LogProperties.ElementAt(0).Key);
             Assert.AreEqual("10.0.0.2", logEvents.ElementAt(nIdx).LogProperties.ElementAt(0).Value.ToString());
-            Assert.AreEqual("status", logEvents.ElementAt(nIdx).LogProperties.ElementAt(1).Key);
+            Assert.AreEqual("action", logEvents.ElementAt(nIdx).LogProperties.ElementAt(1).Key);
             Assert.AreEqual("TEST", logEvents.ElementAt(nIdx).LogProperties.ElementAt(1).Value.ToString());
             Assert.AreEqual("token", logEvents.ElementAt(nIdx).LogProperties.ElementAt(2).Key);
             Assert.AreEqual(1051573540106914992, logEvents.ElementAt(nIdx).LogProperties.ElementAt(2).Value);
@@ -796,7 +806,7 @@ namespace DSEDiagnosticFileParser.Tests
             Assert.AreEqual(3, logEvents.ElementAt(nIdx).LogProperties.Count);
             Assert.AreEqual("NODE", logEvents.ElementAt(nIdx).LogProperties.ElementAt(0).Key);
             Assert.AreEqual("10.0.0.2", logEvents.ElementAt(nIdx).LogProperties.ElementAt(0).Value.ToString());
-            Assert.AreEqual("status", logEvents.ElementAt(nIdx).LogProperties.ElementAt(1).Key);
+            Assert.AreEqual("action", logEvents.ElementAt(nIdx).LogProperties.ElementAt(1).Key);
             Assert.AreEqual("SCHEMA", logEvents.ElementAt(nIdx).LogProperties.ElementAt(1).Value.ToString());
             Assert.AreEqual("DDLSCHEMAID", logEvents.ElementAt(nIdx).LogProperties.ElementAt(2).Key);
             Assert.AreEqual("541fdec0-47c9-33fd-b79c-4a37acd21019", logEvents.ElementAt(nIdx).LogProperties.ElementAt(2).Value);
@@ -862,7 +872,7 @@ namespace DSEDiagnosticFileParser.Tests
             Assert.AreEqual(2, logEvents.ElementAt(nIdx).LogProperties.Count);
             Assert.AreEqual("NODE", logEvents.ElementAt(nIdx).LogProperties.ElementAt(0).Key);
             Assert.AreEqual("10.0.0.2", logEvents.ElementAt(nIdx).LogProperties.ElementAt(0).Value.ToString());
-            Assert.AreEqual("status", logEvents.ElementAt(nIdx).LogProperties.ElementAt(1).Key);
+            Assert.AreEqual("action", logEvents.ElementAt(nIdx).LogProperties.ElementAt(1).Key);
             Assert.AreEqual("dead", logEvents.ElementAt(nIdx).LogProperties.ElementAt(1).Value.ToString());           
             Assert.AreEqual(this._node1, logEvents.ElementAt(nIdx).Node);
             Assert.AreEqual(1, logEvents.ElementAt(nIdx).AssociatedNodes.Count());
@@ -1285,6 +1295,8 @@ namespace DSEDiagnosticFileParser.Tests
             var testLogFile = Common.Path.PathUtils.BuildFilePath(@".\LogFiles\UnHandledLogEvents.log");
 
             var parseFile = new file_cassandra_log4net(DiagnosticFile.CatagoryTypes.LogFile, testLogFile.ParentDirectoryPath, testLogFile, this._node1, null, null, null);
+            parseFile.CheckOverlappingDateRange = false;
+            parseFile.DebugLogProcessing = file_cassandra_log4net.DebugLogProcessingTypes.AllMsg;
 
             var nbrLinesParsed = parseFile.ProcessFile();
 
@@ -1326,8 +1338,10 @@ namespace DSEDiagnosticFileParser.Tests
             Assert.AreEqual("Fatal(Fatal Message)", logEvent.ExceptionPath.First());
 
             parseFile = new file_cassandra_log4net(DiagnosticFile.CatagoryTypes.LogFile, testLogFile.ParentDirectoryPath, testLogFile, this._node1, null, null, null);
+            parseFile.CheckOverlappingDateRange = false;
+            parseFile.DebugLogProcessing = file_cassandra_log4net.DebugLogProcessingTypes.AllMsg;
+            parseFile.DefaultLogLevelHandling = file_cassandra_log4net.DefaultLogLevelHandlers.Disabled;
 
-            file_cassandra_log4net.DefaultLogLevelHandling = file_cassandra_log4net.DefaultLogLevelHandlers.Disabled;
             nbrLinesParsed = parseFile.ProcessFile();
 
             Assert.AreEqual((uint)0, nbrLinesParsed);
@@ -1398,6 +1412,8 @@ namespace DSEDiagnosticFileParser.Tests
             var testLogFile = Common.Path.PathUtils.BuildFilePath(@".\LogFiles\GC.log");
 
             var parseFile = new file_cassandra_log4net(DiagnosticFile.CatagoryTypes.LogFile, testLogFile.ParentDirectoryPath, testLogFile, this._node1, null, null, null);
+            parseFile.CheckOverlappingDateRange = false;
+            parseFile.DebugLogProcessing = file_cassandra_log4net.DebugLogProcessingTypes.AllMsg;
 
             var nbrLinesParsed = parseFile.ProcessFile();
 
@@ -1466,6 +1482,8 @@ namespace DSEDiagnosticFileParser.Tests
             var testLogFile = Common.Path.PathUtils.BuildFilePath(@".\LogFiles\PoolGC.log");
 
             var parseFile = new file_cassandra_log4net(DiagnosticFile.CatagoryTypes.LogFile, testLogFile.ParentDirectoryPath, testLogFile, this._node1, null, null, null);
+            parseFile.CheckOverlappingDateRange = false;
+            parseFile.DebugLogProcessing = file_cassandra_log4net.DebugLogProcessingTypes.AllMsg;
 
             var nbrLinesParsed = parseFile.ProcessFile();
 
@@ -1568,6 +1586,8 @@ namespace DSEDiagnosticFileParser.Tests
             var testLogFile = Common.Path.PathUtils.BuildFilePath(@".\LogFiles\SolrHardCommit.log");
 
             var parseFile = new file_cassandra_log4net(DiagnosticFile.CatagoryTypes.LogFile, testLogFile.ParentDirectoryPath, testLogFile, this._node1, null, null, null);
+            parseFile.CheckOverlappingDateRange = false;
+            parseFile.DebugLogProcessing = file_cassandra_log4net.DebugLogProcessingTypes.AllMsg;
 
             var nbrLinesParsed = parseFile.ProcessFile();
 
@@ -1825,6 +1845,362 @@ namespace DSEDiagnosticFileParser.Tests
             Assert.AreEqual("coafstatim", logEvent.Keyspace.Name);
             Assert.AreEqual("coafstatim.application.coafstatim_application_appcretddt_index", logEvent.TableViewIndex.FullName);
             Assert.AreEqual(1, logEvent.DDLItems.Count());
+        }
+
+        [TestMethod()]
+        public void ProcessFileTest_OverlappingLogTimeRange()
+        {
+            this.CreateClusterDCNodeDDL();
+
+            Assert.AreEqual(this._cluster, DSEDiagnosticLibrary.Cluster.TryGetCluster(ClusterName));
+            Assert.IsNotNull(this._node1);
+
+            var tstNode = DSEDiagnosticLibrary.Cluster.TryGetAddNode("10.0.1.2", this._datacenter2);
+            Assert.AreEqual("10.0.1.2", tstNode?.Id.NodeName());
+            Assert.AreEqual(tstNode, this._datacenter2.TryGetNode("10.0.1.2"));
+
+            var testLogFile = Common.Path.PathUtils.BuildFilePath(@".\LogFiles\Log1.log");
+
+            var parseFile = new file_cassandra_log4net(DiagnosticFile.CatagoryTypes.LogFile, testLogFile.ParentDirectoryPath, testLogFile, tstNode, null, null, null);
+            
+            var nbrLinesParsed = parseFile.ProcessFile();
+
+            Assert.AreEqual((uint)5, nbrLinesParsed);
+            Assert.AreEqual(0, parseFile.NbrErrors);
+            Assert.AreEqual(0, parseFile.NbrWarnings);
+            Assert.AreEqual(6, parseFile.NbrItemsParsed);
+            Assert.AreEqual(DSEDiagnosticFileParser.DiagnosticFile.CatagoryTypes.LogFile, parseFile.Catagory);
+            Assert.AreEqual(this._cluster, parseFile.Cluster);
+            Assert.AreEqual(tstNode, parseFile.Node);
+
+            var result = parseFile.Result as DSEDiagnosticFileParser.file_cassandra_log4net.LogResults;
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(tstNode, result.Node);
+            Assert.AreEqual(5, result.Results.Count());
+            Assert.AreEqual(0, result.OrphanedSessionEvents.Count());
+            Assert.AreEqual(1, tstNode.LogFiles.Count());
+            Assert.AreEqual(DateTimeOffset.Parse("2011-02-10 13:33:00.000 +00"), tstNode.LogFiles.First().LogDateRange.Min);
+            Assert.AreEqual(DateTimeOffset.Parse("2011-02-10 13:35:06.380 +00"), tstNode.LogFiles.First().LogDateRange.Max);
+            Assert.AreEqual(DateTimeOffset.Parse("2011-02-10 13:33:00.000 +00"), tstNode.LogFiles.First().LogFileDateRange.Min);
+            Assert.AreEqual(DateTimeOffset.Parse("2011-05-18 22:00:00.00 +00"), tstNode.LogFiles.First().LogFileDateRange.Max);
+
+            testLogFile = Common.Path.PathUtils.BuildFilePath(@".\LogFiles\Log1-Before.log");
+            parseFile = new file_cassandra_log4net(DiagnosticFile.CatagoryTypes.LogFile, testLogFile.ParentDirectoryPath, testLogFile, tstNode, null, null, null);
+
+            nbrLinesParsed = parseFile.ProcessFile();
+
+            Assert.AreEqual((uint)5, nbrLinesParsed);
+            Assert.AreEqual(0, parseFile.NbrErrors);
+            Assert.AreEqual(0, parseFile.NbrWarnings);
+            Assert.AreEqual(6, parseFile.NbrItemsParsed);
+            Assert.AreEqual(DSEDiagnosticFileParser.DiagnosticFile.CatagoryTypes.LogFile, parseFile.Catagory);
+            Assert.AreEqual(this._cluster, parseFile.Cluster);
+            Assert.AreEqual(tstNode, parseFile.Node);
+
+            result = parseFile.Result as DSEDiagnosticFileParser.file_cassandra_log4net.LogResults;
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(tstNode, result.Node);
+            Assert.AreEqual(5, result.Results.Count());
+            Assert.AreEqual(0, result.OrphanedSessionEvents.Count());
+            Assert.AreEqual(2, tstNode.LogFiles.Count());
+            Assert.AreEqual(DateTimeOffset.Parse("2011-01-10 13:33:00.000  +00"), tstNode.LogFiles.ElementAt(1).LogDateRange.Min);
+            Assert.AreEqual(DateTimeOffset.Parse("2011-01-10 13:35:06.380 +00"), tstNode.LogFiles.ElementAt(1).LogDateRange.Max);
+            Assert.AreEqual(DateTimeOffset.Parse("2011-01-10 13:33:00.000  +00"), tstNode.LogFiles.ElementAt(1).LogFileDateRange.Min);
+            Assert.AreEqual(DateTimeOffset.Parse("2011-02-10 13:31:59.999 +00"), tstNode.LogFiles.ElementAt(1).LogFileDateRange.Max);
+
+            testLogFile = Common.Path.PathUtils.BuildFilePath(@".\LogFiles\Log1-After.log");
+            parseFile = new file_cassandra_log4net(DiagnosticFile.CatagoryTypes.LogFile, testLogFile.ParentDirectoryPath, testLogFile, tstNode, null, null, null);
+
+            nbrLinesParsed = parseFile.ProcessFile();
+
+            Assert.AreEqual((uint)5, nbrLinesParsed);
+            Assert.AreEqual(0, parseFile.NbrErrors);
+            Assert.AreEqual(0, parseFile.NbrWarnings);
+            Assert.AreEqual(6, parseFile.NbrItemsParsed);
+            Assert.AreEqual(DSEDiagnosticFileParser.DiagnosticFile.CatagoryTypes.LogFile, parseFile.Catagory);
+            Assert.AreEqual(this._cluster, parseFile.Cluster);
+            Assert.AreEqual(tstNode, parseFile.Node);
+
+            result = parseFile.Result as DSEDiagnosticFileParser.file_cassandra_log4net.LogResults;
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(tstNode, result.Node);
+            Assert.AreEqual(5, result.Results.Count());
+            Assert.AreEqual(0, result.OrphanedSessionEvents.Count());
+            Assert.AreEqual(3, tstNode.LogFiles.Count());
+            Assert.AreEqual(DateTimeOffset.Parse("2011-05-18 22:00:00.001  +00"), tstNode.LogFiles.ElementAt(2).LogDateRange.Min);
+            Assert.AreEqual(DateTimeOffset.Parse("2011-05-18 22:35:06.380 +00"), tstNode.LogFiles.ElementAt(2).LogDateRange.Max);
+            Assert.AreEqual(DateTimeOffset.Parse("2011-05-18 22:00:00.001  +00"), tstNode.LogFiles.ElementAt(2).LogFileDateRange.Min);
+            Assert.AreEqual(DateTimeOffset.Parse("2011-06-18 22:00:00.000 +00"), tstNode.LogFiles.ElementAt(2).LogFileDateRange.Max);
+
+            testLogFile = Common.Path.PathUtils.BuildFilePath(@".\LogFiles\Log1-Within.log");
+            parseFile = new file_cassandra_log4net(DiagnosticFile.CatagoryTypes.LogFile, testLogFile.ParentDirectoryPath, testLogFile, tstNode, null, null, null);
+
+            nbrLinesParsed = parseFile.ProcessFile();
+
+            Assert.AreEqual((uint)0, nbrLinesParsed);
+            Assert.AreEqual(0, parseFile.NbrErrors);
+            Assert.AreEqual(1, parseFile.NbrWarnings);
+            Assert.AreEqual(0, parseFile.NbrItemsParsed);
+            Assert.AreEqual(DSEDiagnosticFileParser.DiagnosticFile.CatagoryTypes.LogFile, parseFile.Catagory);
+            Assert.AreEqual(this._cluster, parseFile.Cluster);
+            Assert.AreEqual(tstNode, parseFile.Node);
+
+            result = parseFile.Result as DSEDiagnosticFileParser.file_cassandra_log4net.LogResults;
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(tstNode, result.Node);
+            Assert.IsNull(result.Results);
+            Assert.AreEqual(0, result.OrphanedSessionEvents.Count());            
+            Assert.AreEqual(4, tstNode.LogFiles.Count());
+            Assert.AreEqual(DateTimeOffset.Parse("2011-03-10 13:33:00.000  +00"), tstNode.LogFiles.ElementAt(3).LogDateRange.Min);
+            Assert.AreEqual(DateTimeOffset.Parse("2011-04-18 22:00:00.00 +00"), tstNode.LogFiles.ElementAt(3).LogDateRange.Max);
+            Assert.AreEqual(DateTimeOffset.Parse("2011-03-10 13:33:00.000  +00"), tstNode.LogFiles.ElementAt(3).LogFileDateRange.Min);
+            Assert.AreEqual(DateTimeOffset.Parse("2011-04-18 22:00:00.000 +00"), tstNode.LogFiles.ElementAt(3).LogFileDateRange.Max);
+
+            testLogFile = Common.Path.PathUtils.BuildFilePath(@".\LogFiles\Log1-Same.log");
+            parseFile = new file_cassandra_log4net(DiagnosticFile.CatagoryTypes.LogFile, testLogFile.ParentDirectoryPath, testLogFile, tstNode, null, null, null);
+
+            nbrLinesParsed = parseFile.ProcessFile();
+
+            Assert.AreEqual((uint)0, nbrLinesParsed);
+            Assert.AreEqual(0, parseFile.NbrErrors);
+            Assert.AreEqual(1, parseFile.NbrWarnings);
+            Assert.AreEqual(0, parseFile.NbrItemsParsed);
+            Assert.AreEqual(DSEDiagnosticFileParser.DiagnosticFile.CatagoryTypes.LogFile, parseFile.Catagory);
+            Assert.AreEqual(this._cluster, parseFile.Cluster);
+            Assert.AreEqual(tstNode, parseFile.Node);
+
+            result = parseFile.Result as DSEDiagnosticFileParser.file_cassandra_log4net.LogResults;
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(tstNode, result.Node);
+            Assert.IsNull(result.Results);
+            Assert.AreEqual(0, result.OrphanedSessionEvents.Count());
+            Assert.AreEqual(5, tstNode.LogFiles.Count());
+            Assert.AreEqual(DateTimeOffset.Parse("2011-02-10 13:33:00.000  +00"), tstNode.LogFiles.ElementAt(4).LogDateRange.Min);
+            Assert.AreEqual(DateTimeOffset.Parse("2011-05-18 22:00:00.000 +00"), tstNode.LogFiles.ElementAt(4).LogDateRange.Max);
+            Assert.AreEqual(DateTimeOffset.Parse("2011-02-10 13:33:00.000  +00"), tstNode.LogFiles.ElementAt(4).LogFileDateRange.Min);
+            Assert.AreEqual(DateTimeOffset.Parse("2011-05-18 22:00:00.000 +00"), tstNode.LogFiles.ElementAt(4).LogFileDateRange.Max);
+
+            testLogFile = Common.Path.PathUtils.BuildFilePath(@".\LogFiles\Log1-OL-Before.log");
+            parseFile = new file_cassandra_log4net(DiagnosticFile.CatagoryTypes.LogFile, testLogFile.ParentDirectoryPath, testLogFile, tstNode, null, null, null);
+
+            nbrLinesParsed = parseFile.ProcessFile();
+
+            Assert.AreEqual((uint)5, nbrLinesParsed);
+            Assert.AreEqual(0, parseFile.NbrErrors);
+            Assert.AreEqual(1, parseFile.NbrWarnings);
+            Assert.AreEqual(8, parseFile.NbrItemsParsed);
+            Assert.AreEqual(DSEDiagnosticFileParser.DiagnosticFile.CatagoryTypes.LogFile, parseFile.Catagory);
+            Assert.AreEqual(this._cluster, parseFile.Cluster);
+            Assert.AreEqual(tstNode, parseFile.Node);
+
+            result = parseFile.Result as DSEDiagnosticFileParser.file_cassandra_log4net.LogResults;
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(tstNode, result.Node);
+            Assert.AreEqual(5, result.Results.Count());
+            Assert.AreEqual(0, result.OrphanedSessionEvents.Count());
+            Assert.AreEqual(6, tstNode.LogFiles.Count());
+            Assert.AreEqual(DateTimeOffset.Parse("2011-01-08 13:33:00.000  +00"), tstNode.LogFiles.ElementAt(5).LogDateRange.Min);
+            Assert.AreEqual(DateTimeOffset.Parse("2011-01-08 13:35:06.380 +00"), tstNode.LogFiles.ElementAt(5).LogDateRange.Max);
+            Assert.AreEqual(DateTimeOffset.Parse("2011-01-08 13:33:00.000  +00"), tstNode.LogFiles.ElementAt(5).LogFileDateRange.Min);
+            Assert.AreEqual(DateTimeOffset.Parse("2011-02-10 13:31:59.999 +00"), tstNode.LogFiles.ElementAt(5).LogFileDateRange.Max);
+
+            testLogFile = Common.Path.PathUtils.BuildFilePath(@".\LogFiles\Log1-OL-After.log");
+            parseFile = new file_cassandra_log4net(DiagnosticFile.CatagoryTypes.LogFile, testLogFile.ParentDirectoryPath, testLogFile, tstNode, null, null, null);
+
+            nbrLinesParsed = parseFile.ProcessFile();
+
+            Assert.AreEqual((uint)5, nbrLinesParsed);
+            Assert.AreEqual(0, parseFile.NbrErrors);
+            Assert.AreEqual(1, parseFile.NbrWarnings);
+            Assert.AreEqual(13, parseFile.NbrItemsParsed);
+            Assert.AreEqual(DSEDiagnosticFileParser.DiagnosticFile.CatagoryTypes.LogFile, parseFile.Catagory);
+            Assert.AreEqual(this._cluster, parseFile.Cluster);
+            Assert.AreEqual(tstNode, parseFile.Node);
+
+            result = parseFile.Result as DSEDiagnosticFileParser.file_cassandra_log4net.LogResults;
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(tstNode, result.Node);
+            Assert.AreEqual(5, result.Results.Count());
+            Assert.AreEqual(0, result.OrphanedSessionEvents.Count());
+            Assert.AreEqual(7, tstNode.LogFiles.Count());
+            Assert.AreEqual(DateTimeOffset.Parse("2011-07-18 22:00:00.001  +00"), tstNode.LogFiles.ElementAt(6).LogDateRange.Min);
+            Assert.AreEqual(DateTimeOffset.Parse("2011-07-18 22:35:06.380 +00"), tstNode.LogFiles.ElementAt(6).LogDateRange.Max);
+            Assert.AreEqual(DateTimeOffset.Parse("2011-05-18 22:00:00.001  +00"), tstNode.LogFiles.ElementAt(6).LogFileDateRange.Min);
+            Assert.AreEqual(DateTimeOffset.Parse("2011-07-18 23:00:00.000 +00"), tstNode.LogFiles.ElementAt(6).LogFileDateRange.Max);
+
+            //Debug Log (new Node)
+            tstNode = DSEDiagnosticLibrary.Cluster.TryGetAddNode("10.0.2.2", this._datacenter2);
+            Assert.AreEqual("10.0.2.2", tstNode?.Id.NodeName());
+            Assert.AreEqual(tstNode, this._datacenter2.TryGetNode("10.0.2.2"));
+
+            testLogFile = Common.Path.PathUtils.BuildFilePath(@".\LogFiles\Debug1.log");
+            parseFile = new file_cassandra_log4net(DiagnosticFile.CatagoryTypes.LogFile, testLogFile.ParentDirectoryPath, testLogFile, tstNode, null, null, null);
+            parseFile.DebugLogProcessing = file_cassandra_log4net.DebugLogProcessingTypes.Disabled;
+
+            nbrLinesParsed = parseFile.ProcessFile();
+
+            Assert.AreEqual((uint)0, nbrLinesParsed);
+            Assert.AreEqual(0, parseFile.NbrErrors);
+            Assert.AreEqual(0, parseFile.NbrWarnings);
+            Assert.AreEqual(0, parseFile.NbrItemsParsed);
+            Assert.AreEqual(DSEDiagnosticFileParser.DiagnosticFile.CatagoryTypes.LogFile, parseFile.Catagory);
+            Assert.AreEqual(this._cluster, parseFile.Cluster);
+            Assert.AreEqual(tstNode, parseFile.Node);
+
+            result = parseFile.Result as DSEDiagnosticFileParser.file_cassandra_log4net.LogResults;
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(tstNode, result.Node);
+            Assert.IsNull(result.Results);
+            Assert.AreEqual(0, result.OrphanedSessionEvents.Count());
+            Assert.AreEqual(0, tstNode.LogFiles.Count());
+            
+            testLogFile = Common.Path.PathUtils.BuildFilePath(@".\LogFiles\Debug1.log");
+            parseFile = new file_cassandra_log4net(DiagnosticFile.CatagoryTypes.LogFile, testLogFile.ParentDirectoryPath, testLogFile, tstNode, null, null, null);
+            parseFile.DebugLogProcessing = file_cassandra_log4net.DebugLogProcessingTypes.OnlyFlushCompactionMsgs;
+
+            nbrLinesParsed = parseFile.ProcessFile();
+
+            Assert.AreEqual((uint)5, nbrLinesParsed);
+            Assert.AreEqual(0, parseFile.NbrErrors);
+            Assert.AreEqual(0, parseFile.NbrWarnings);
+            Assert.AreEqual(17, parseFile.NbrItemsParsed);
+            Assert.AreEqual(DSEDiagnosticFileParser.DiagnosticFile.CatagoryTypes.LogFile, parseFile.Catagory);
+            Assert.AreEqual(this._cluster, parseFile.Cluster);
+            Assert.AreEqual(tstNode, parseFile.Node);
+
+            result = parseFile.Result as DSEDiagnosticFileParser.file_cassandra_log4net.LogResults;
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(tstNode, result.Node);
+            Assert.IsNotNull(result.Results);
+            Assert.AreEqual(5, result.Results.Count());
+            Assert.AreEqual(0, result.OrphanedSessionEvents.Count());
+            Assert.AreEqual(1, tstNode.LogFiles.Count());
+            Assert.AreEqual(DateTimeOffset.Parse("2017-02-10 13:33:04.872  +00"), tstNode.LogFiles.ElementAt(0).LogDateRange.Min);
+            Assert.AreEqual(DateTimeOffset.Parse("2017-02-10 13:35:06.380 +00"), tstNode.LogFiles.ElementAt(0).LogDateRange.Max);
+            Assert.AreEqual(DateTimeOffset.Parse("2017-02-10 13:33:04.872  +00"), tstNode.LogFiles.ElementAt(0).LogFileDateRange.Min);
+            Assert.AreEqual(DateTimeOffset.Parse("2017-02-10 13:40:17.100 +00"), tstNode.LogFiles.ElementAt(0).LogFileDateRange.Max);
+
+            //Dup Time Range
+            testLogFile = Common.Path.PathUtils.BuildFilePath(@".\LogFiles\Debug1.log");
+            parseFile = new file_cassandra_log4net(DiagnosticFile.CatagoryTypes.LogFile, testLogFile.ParentDirectoryPath, testLogFile, tstNode, null, null, null);
+            parseFile.DebugLogProcessing = file_cassandra_log4net.DebugLogProcessingTypes.OnlyFlushCompactionMsgs;
+
+            nbrLinesParsed = parseFile.ProcessFile();
+
+            Assert.AreEqual((uint)0, nbrLinesParsed);
+            Assert.AreEqual(0, parseFile.NbrErrors);
+            Assert.AreEqual(1, parseFile.NbrWarnings);
+            Assert.AreEqual(0, parseFile.NbrItemsParsed);
+            Assert.AreEqual(DSEDiagnosticFileParser.DiagnosticFile.CatagoryTypes.LogFile, parseFile.Catagory);
+            Assert.AreEqual(this._cluster, parseFile.Cluster);
+            Assert.AreEqual(tstNode, parseFile.Node);
+
+            result = parseFile.Result as DSEDiagnosticFileParser.file_cassandra_log4net.LogResults;
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(tstNode, result.Node);
+            Assert.IsNull(result.Results);
+            //Assert.AreEqual(5, result.Results.Count());
+            Assert.AreEqual(0, result.OrphanedSessionEvents.Count());
+            Assert.AreEqual(2, tstNode.LogFiles.Count());
+            Assert.AreEqual(DateTimeOffset.Parse("2017-02-10 13:33:04.872  +00"), tstNode.LogFiles.ElementAt(1).LogDateRange.Min);
+            Assert.AreEqual(DateTimeOffset.Parse("2017-02-10 13:40:17.100 +00"), tstNode.LogFiles.ElementAt(1).LogDateRange.Max);
+            Assert.AreEqual(DateTimeOffset.Parse("2017-02-10 13:33:04.872  +00"), tstNode.LogFiles.ElementAt(1).LogFileDateRange.Min);
+            Assert.AreEqual(DateTimeOffset.Parse("2017-02-10 13:40:17.100 +00"), tstNode.LogFiles.ElementAt(1).LogFileDateRange.Max);
+
+            //Just Time Range
+            testLogFile = Common.Path.PathUtils.BuildFilePath(@".\LogFiles\Debug1.log");
+            parseFile = new file_cassandra_log4net(DiagnosticFile.CatagoryTypes.LogFile, testLogFile.ParentDirectoryPath, testLogFile, tstNode, null, null, null);
+            parseFile.DebugLogProcessing = file_cassandra_log4net.DebugLogProcessingTypes.OnlyLogDateRange;
+
+            nbrLinesParsed = parseFile.ProcessFile();
+
+            Assert.AreEqual((uint)1, nbrLinesParsed);
+            Assert.AreEqual(0, parseFile.NbrErrors);
+            Assert.AreEqual(1, parseFile.NbrWarnings);
+            Assert.AreEqual(2, parseFile.NbrItemsParsed);
+            Assert.AreEqual(DSEDiagnosticFileParser.DiagnosticFile.CatagoryTypes.LogFile, parseFile.Catagory);
+            Assert.AreEqual(this._cluster, parseFile.Cluster);
+            Assert.AreEqual(tstNode, parseFile.Node);
+
+            result = parseFile.Result as DSEDiagnosticFileParser.file_cassandra_log4net.LogResults;
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(tstNode, result.Node);
+            Assert.IsNull(result.Results);
+            //Assert.AreEqual(5, result.Results.Count());
+            Assert.AreEqual(0, result.OrphanedSessionEvents.Count());
+            Assert.AreEqual(3, tstNode.LogFiles.Count());
+            Assert.AreEqual(DateTimeOffset.Parse("2017-02-10 13:33:04.872  +00"), tstNode.LogFiles.ElementAt(2).LogDateRange.Min);
+            Assert.AreEqual(DateTimeOffset.Parse("2017-02-10 13:40:17.100 +00"), tstNode.LogFiles.ElementAt(2).LogDateRange.Max);
+            Assert.AreEqual(DateTimeOffset.Parse("2017-02-10 13:33:04.872  +00"), tstNode.LogFiles.ElementAt(2).LogFileDateRange.Min);
+            Assert.AreEqual(DateTimeOffset.Parse("2017-02-10 13:40:17.100 +00"), tstNode.LogFiles.ElementAt(2).LogFileDateRange.Max);
+
+            // All Messages
+            testLogFile = Common.Path.PathUtils.BuildFilePath(@".\LogFiles\Debug1.log");
+            parseFile = new file_cassandra_log4net(DiagnosticFile.CatagoryTypes.LogFile, testLogFile.ParentDirectoryPath, testLogFile, tstNode, null, null, null);
+            parseFile.DebugLogProcessing = file_cassandra_log4net.DebugLogProcessingTypes.AllMsg;
+            parseFile.CheckOverlappingDateRange = false;
+
+            nbrLinesParsed = parseFile.ProcessFile();
+
+            Assert.AreEqual((uint)8, nbrLinesParsed);
+            Assert.AreEqual(0, parseFile.NbrErrors);
+            Assert.AreEqual(1, parseFile.NbrWarnings);
+            Assert.AreEqual(17, parseFile.NbrItemsParsed);
+            Assert.AreEqual(DSEDiagnosticFileParser.DiagnosticFile.CatagoryTypes.LogFile, parseFile.Catagory);
+            Assert.AreEqual(this._cluster, parseFile.Cluster);
+            Assert.AreEqual(tstNode, parseFile.Node);
+
+            result = parseFile.Result as DSEDiagnosticFileParser.file_cassandra_log4net.LogResults;
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(tstNode, result.Node);
+            Assert.IsNotNull(result.Results);
+            Assert.AreEqual(8, result.Results.Count());
+            Assert.AreEqual(0, result.OrphanedSessionEvents.Count());
+            Assert.AreEqual(4, tstNode.LogFiles.Count());
+            Assert.AreEqual(DateTimeOffset.Parse("2017-02-10 13:33:04.872  +00"), tstNode.LogFiles.ElementAt(3).LogDateRange.Min);
+            Assert.AreEqual(DateTimeOffset.Parse("2017-02-10 13:40:17.100 +00"), tstNode.LogFiles.ElementAt(3).LogDateRange.Max);
+            Assert.AreEqual(DateTimeOffset.Parse("2017-02-10 13:33:04.872  +00"), tstNode.LogFiles.ElementAt(3).LogFileDateRange.Min);
+            Assert.AreEqual(DateTimeOffset.Parse("2017-02-10 13:40:17.100 +00"), tstNode.LogFiles.ElementAt(3).LogFileDateRange.Max);
+
+            // Test for non debug log for same dates
+            testLogFile = Common.Path.PathUtils.BuildFilePath(@".\LogFiles\Log2.log"); //Same file as Debug1.log
+            parseFile = new file_cassandra_log4net(DiagnosticFile.CatagoryTypes.LogFile, testLogFile.ParentDirectoryPath, testLogFile, tstNode, null, null, null);
+            
+            nbrLinesParsed = parseFile.ProcessFile();
+
+            Assert.AreEqual((uint)8, nbrLinesParsed);
+            Assert.AreEqual(0, parseFile.NbrErrors);
+            Assert.AreEqual(0, parseFile.NbrWarnings);
+            Assert.AreEqual(17, parseFile.NbrItemsParsed);
+            Assert.AreEqual(DSEDiagnosticFileParser.DiagnosticFile.CatagoryTypes.LogFile, parseFile.Catagory);
+            Assert.AreEqual(this._cluster, parseFile.Cluster);
+            Assert.AreEqual(tstNode, parseFile.Node);
+
+            result = parseFile.Result as DSEDiagnosticFileParser.file_cassandra_log4net.LogResults;
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(tstNode, result.Node);
+            Assert.IsNotNull(result.Results);
+            Assert.AreEqual(8, result.Results.Count());
+            Assert.AreEqual(0, result.OrphanedSessionEvents.Count());
+            Assert.AreEqual(5, tstNode.LogFiles.Count());
+            Assert.AreEqual(DateTimeOffset.Parse("2017-02-10 13:33:04.872  +00"), tstNode.LogFiles.ElementAt(4).LogDateRange.Min);
+            Assert.AreEqual(DateTimeOffset.Parse("2017-02-10 13:40:17.100 +00"), tstNode.LogFiles.ElementAt(4).LogDateRange.Max);
+            Assert.AreEqual(DateTimeOffset.Parse("2017-02-10 13:33:04.872  +00"), tstNode.LogFiles.ElementAt(4).LogFileDateRange.Min);
+            Assert.AreEqual(DateTimeOffset.Parse("2017-02-10 13:40:17.100 +00"), tstNode.LogFiles.ElementAt(4).LogFileDateRange.Max);
+
         }
     }
 

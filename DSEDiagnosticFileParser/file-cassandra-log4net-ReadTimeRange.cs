@@ -16,6 +16,12 @@ namespace DSEDiagnosticFileParser
     [JsonObject(MemberSerialization.OptOut)]
     public sealed class file_cassandra_log4net_ReadTimeRange : DiagnosticFile
     {
+        public DateTimeOffsetRange LogRestrictedTimeRange
+        {
+            get;
+            set;
+        } = LibrarySettings.LogRestrictedTimeRange;
+
         public file_cassandra_log4net_ReadTimeRange(CatagoryTypes catagory,
                                                         IDirectoryPath diagnosticDirectory,
                                                         IFilePath file,
@@ -142,25 +148,40 @@ namespace DSEDiagnosticFileParser
             return this._result;
         }
 
-        public override uint ProcessFile()
+        public static Tuple<LogFileInfo,int> DeteremineLogFileInfo(IFilePath logFile, INode node, System.Threading.CancellationToken cancellationToken, DateTimeOffsetRange logTimeRange, bool? isDebugFile)
         {
-            this.CancellationToken.ThrowIfCancellationRequested();
             LogFileInfo logFileInfo = null;
+            int nbrItemsParsed = 0;
 
-            using (var logFileInstance = new ReadLogFile(this.File, LibrarySettings.Log4NetConversionPattern, this.CancellationToken, this.Node, file_cassandra_log4net.LogTimeRange))
+            using (var logFileInstance = new ReadLogFile(logFile, LibrarySettings.Log4NetConversionPattern, cancellationToken, node, logTimeRange))
             {
                 using (var logMessages = logFileInstance.ReadLogFileTimeRange())
                 {
-                    this.NbrItemsParsed = logMessages.CompletionStatus == LogCompletionStatus.ReadLogTimeRange ? 2 : 0;
+                    nbrItemsParsed = logMessages.CompletionStatus == LogCompletionStatus.ReadLogTimeRange ? 2 : 0;
 
-                   if(this.NbrItemsParsed > 0)
+                    if (nbrItemsParsed > 0)
                     {
-                        logFileInfo = new LogFileInfo(this.File,
+                        logFileInfo = new LogFileInfo(logFile,
                                                         logMessages.LogTimeRange,
-                                                        0);
+                                                        0,
+                                                        null,
+                                                        null,
+                                                        null,
+                                                        isDebugFile);
                     }
                 }
             }
+
+            return new Tuple<LogFileInfo, int>(logFileInfo, nbrItemsParsed);
+        }
+
+        public override uint ProcessFile()
+        {
+            this.CancellationToken.ThrowIfCancellationRequested();
+            var logFileInfoResult = DeteremineLogFileInfo(this.File, this.Node, this.CancellationToken, this.LogRestrictedTimeRange, null);
+            LogFileInfo logFileInfo = logFileInfoResult.Item1;
+
+            this.NbrItemsParsed = logFileInfoResult.Item2;
 
             if (logFileInfo != null)
             {

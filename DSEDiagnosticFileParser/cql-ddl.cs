@@ -17,8 +17,15 @@ namespace DSEDiagnosticFileParser
         public static void DisabledSystemDSEDefaultKeyspacesInitialLoading()
         {
             SystemDDLInitialized = true;
+            LoadSystemDSEDefaultKeyspaces = false;
         }
 
+        public static bool LoadSystemDSEKeyspaces
+        {
+            get { return LoadSystemDSEDefaultKeyspaces; }           
+        }
+
+        static bool LoadSystemDSEDefaultKeyspaces = true;
         volatile static bool SystemDDLInitialized = false;
         static object syncLock = new object();
 

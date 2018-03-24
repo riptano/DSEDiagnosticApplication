@@ -50,18 +50,18 @@ namespace DSEDiagnosticConsoleApplication
             if (ParserSettings.OnlyIncludeXHrsofLogsFromDiagCaptureTime > 0
                 && DSEDiagnosticLibrary.DSEInfo.NodeToolCaptureTimestamp.HasValue)
             {
-                DSEDiagnosticFileParser.file_cassandra_log4net.LogTimeRange = new DateTimeOffsetRange(DSEDiagnosticLibrary.DSEInfo.NodeToolCaptureTimestamp.Value - TimeSpan.FromHours(ParserSettings.OnlyIncludeXHrsofLogsFromDiagCaptureTime), DSEDiagnosticLibrary.DSEInfo.NodeToolCaptureTimestamp.Value);
+                DSEDiagnosticFileParser.LibrarySettings.LogRestrictedTimeRange = new DateTimeOffsetRange(DSEDiagnosticLibrary.DSEInfo.NodeToolCaptureTimestamp.Value - TimeSpan.FromHours(ParserSettings.OnlyIncludeXHrsofLogsFromDiagCaptureTime), DSEDiagnosticLibrary.DSEInfo.NodeToolCaptureTimestamp.Value);
             }
 
-            if (DSEDiagnosticFileParser.file_cassandra_log4net.LogTimeRange != null)
+            if (DSEDiagnosticFileParser.LibrarySettings.LogRestrictedTimeRange != null)
             {
                 Logger.Instance.WarnFormat("Using UTC Log Range of {0} to {1}",
-                                                DSEDiagnosticFileParser.file_cassandra_log4net.LogTimeRange.Min == DateTimeOffset.MinValue
+                                                DSEDiagnosticFileParser.LibrarySettings.LogRestrictedTimeRange.Min == DateTimeOffset.MinValue
                                                             ? "MinValue"
-                                                            : DSEDiagnosticFileParser.file_cassandra_log4net.LogTimeRange.Min.ToString(@"yyyy-MM-dd HH:mm:ss zzz"),
-                                                 DSEDiagnosticFileParser.file_cassandra_log4net.LogTimeRange.Max == DateTimeOffset.MaxValue
+                                                            : DSEDiagnosticFileParser.LibrarySettings.LogRestrictedTimeRange.Min.ToString(@"yyyy-MM-dd HH:mm:ss zzz"),
+                                                 DSEDiagnosticFileParser.LibrarySettings.LogRestrictedTimeRange.Max == DateTimeOffset.MaxValue
                                                             ? "MaxValue"
-                                                            : DSEDiagnosticFileParser.file_cassandra_log4net.LogTimeRange.Max.ToString(@"yyyy-MM-dd HH:mm:ss zzz"));
+                                                            : DSEDiagnosticFileParser.LibrarySettings.LogRestrictedTimeRange.Max.ToString(@"yyyy-MM-dd HH:mm:ss zzz"));
             }
             
             var diagParserTask = DSEDiagnosticFileParser.DiagnosticFile.ProcessFile(ParserSettings.DiagnosticPath,

@@ -73,7 +73,7 @@ namespace DSEDiagnosticFileParser
                     {
                         if (hostName.ToLower() == "localhost") continue;
 
-                        this.Node.Id.SetIPAddressOrHostName(hostName);
+                        node.Id.SetIPAddressOrHostName(hostName);
                         ++nbrGenerated;               
                     }
                 }

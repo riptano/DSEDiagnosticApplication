@@ -1084,5 +1084,32 @@ public static class {0}
                 return ((string)(this["RegExLexiconValues"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Auto,OnlyFlushCompactionMsgs")]
+        public string DebugLogProcessing {
+            get {
+                return ((string)(this["DebugLogProcessing"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1.*, 2.*")]
+        public string DebugFlushCompCLogLineTags {
+            get {
+                return ((string)(this["DebugFlushCompCLogLineTags"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool LogCheckOverlappingDateRange {
+            get {
+                return ((bool)(this["LogCheckOverlappingDateRange"]));
+            }
+        }
     }
 }

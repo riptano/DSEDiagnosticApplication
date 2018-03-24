@@ -1092,19 +1092,27 @@ namespace DSEDiagnosticLibrary
     [JsonObject(MemberSerialization.OptOut)]
     public sealed class LogFileInfo
     {
+        public static bool IsDebugLogFile(IFilePath logFile)
+        {
+            return logFile.Name.IndexOf(Properties.Settings.Default.DebugLogFileName, StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
         public LogFileInfo(IFilePath logFile,
                             DateTimeOffsetRange logfileDateRange,
                             int logItems,
                             IEnumerable<ILogEvent> orphanedEvents = null,
                             DateTimeOffsetRange logDateRange = null,
-                            IEnumerable<DateTimeOffsetRange> nodeRestarts = null)
+                            IEnumerable<DateTimeOffsetRange> nodeRestarts = null,
+                            bool? isDebugLog = null)
         {
             this.LogFile = logFile;
             this.LogFileDateRange = logfileDateRange;
             this.LogItems = logItems;
             this.LogDateRange = logDateRange ?? logfileDateRange;
             this.LogFileSize = new UnitOfMeasure(logFile.FileInfo().Length, UnitOfMeasure.Types.Byte | UnitOfMeasure.Types.Storage);
-            if(orphanedEvents != null)
+            this.IsDebugLog = isDebugLog.HasValue ? isDebugLog.Value : IsDebugLogFile(this.LogFile);
+
+            if (orphanedEvents != null)
             {
                 this._orphanedEvents.AddRange(orphanedEvents);
             }
@@ -1141,6 +1149,8 @@ namespace DSEDiagnosticLibrary
         private CTS.List<DateTimeOffsetRange> _restarts = new CTS.List<DateTimeOffsetRange>();
         [JsonIgnore]
         public IList<DateTimeOffsetRange> Restarts { get { return this._restarts; } }
+
+        public bool IsDebugLog { get; }
 
         public override string ToString()
         {

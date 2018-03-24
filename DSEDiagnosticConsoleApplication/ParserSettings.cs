@@ -222,14 +222,12 @@ namespace DSEDiagnosticConsoleApplication
         public static List<KeyValuePair<string, IFilePath>> AdditionalFilesForParsingClass = new List<KeyValuePair<string, IFilePath>>();
         public static List<string> WarnWhenKSTblIsDetected = Properties.Settings.Default.WarnWhenKSTblIsDetected.ToList(false);
         public static IFilePath ExcelFileTemplatePath = MakeFilePath(Properties.Settings.Default.ExcelFileTemplatePath, ExcelFilePath?.ParentDirectoryPath);
-        public static string ClusterName = null;
-        public static int? ClusterHashCode = null;
         public static TimeSpan LogAggregationPeriod = Properties.Settings.Default.LogAggregationPeriod;
 
-        public static DateTimeOffsetRange LogTimeRange
+        public static DateTimeOffsetRange LogRestrictedTimeRange
         {
-            get { return DSEDiagnosticFileParser.LibrarySettings.LogTimeRange; }
-            set { DSEDiagnosticFileParser.LibrarySettings.LogTimeRange = value; }
+            get { return DSEDiagnosticFileParser.LibrarySettings.LogRestrictedTimeRange; }
+            set { DSEDiagnosticFileParser.LibrarySettings.LogRestrictedTimeRange = value; }
         }
         public static DateTimeOffset? NodeToolCaptureTimestamp
         {
@@ -263,6 +261,70 @@ namespace DSEDiagnosticConsoleApplication
         {
             get { return DSEDiagtnosticToExcel.LibrarySettings.AppendToWorkSheet; }
             set { DSEDiagtnosticToExcel.LibrarySettings.AppendToWorkSheet = value; }
+        }
+
+        public static DSEDiagnosticFileParser.file_cassandra_log4net.DebugLogProcessingTypes DebugLogProcessing
+        {
+            get { return DSEDiagnosticFileParser.LibrarySettings.DebugLogProcessing; }
+            set { DSEDiagnosticFileParser.LibrarySettings.DebugLogProcessing = value; }
+        }
+
+        public static bool LoadSystemDSEKeyspaces
+        {            
+            get { return DSEDiagnosticFileParser.cql_ddl.LoadSystemDSEKeyspaces; }           
+        }
+
+        public static string Log4NetConversionPattern
+        {
+            get { return DSEDiagnosticFileParser.LibrarySettings.Log4NetConversionPattern; }
+            set { DSEDiagnosticFileParser.LibrarySettings.Log4NetConversionPattern = value; }
+        }
+
+        public static string DefaultClusterTZ
+        {
+            get { return DSEDiagnosticLibrary.LibrarySettings.DefaultClusterTZ; }
+            set { DSEDiagnosticLibrary.LibrarySettings.DefaultClusterTZ = value; }
+        }
+
+        public static string ClusterName
+        {
+            get { return DSEDiagnosticConsoleApplication.ParserSettings.ClusterName; }
+            set { DSEDiagnosticConsoleApplication.ParserSettings.ClusterName = value; }
+        }
+
+        public static int? ClusterHashCode
+        {
+            get { return DSEDiagnosticConsoleApplication.ParserSettings.ClusterHashCode; }
+            set { DSEDiagnosticConsoleApplication.ParserSettings.ClusterHashCode = value; }
+        }
+
+        public static DSEDiagnosticLibrary.DefaultAssocItemToTimeZone[] DCDefaultTimeZones
+        {
+            get { return DSEDiagnosticLibrary.DataCenter.DefaultTimeZones; }
+            set { DSEDiagnosticLibrary.DataCenter.DefaultTimeZones = value; }
+        }
+
+        public static DSEDiagnosticLibrary.DefaultAssocItemToTimeZone[] NodeDefaultTimeZones
+        {
+            get { return DSEDiagnosticLibrary.Node.DefaultTimeZones; }
+            set { DSEDiagnosticLibrary.Node.DefaultTimeZones = value; }
+        }
+
+        public static bool LogEventsAreMemoryMapped
+        {
+            get { return DSEDiagnosticLibrary.LibrarySettings.LogEventsAreMemoryMapped; }
+            set { DSEDiagnosticLibrary.LibrarySettings.LogEventsAreMemoryMapped = value; }
+        }
+
+        public static string Profile
+        {
+            get { return Profiles.CurrentProfile?.ProfileName ?? Profiles.DefaultProfileName; }            
+        }
+
+        public static DSEDiagnosticFileParser.file_cassandra_log4net.DebugLogProcessingTypes DebugLogProcessingType
+        {
+            get { return DSEDiagnosticFileParser.LibrarySettings.DebugLogProcessing; }
+            set { DSEDiagnosticFileParser.LibrarySettings.DebugLogProcessing = value; }
         }
 
         public static List<string> OnlyNodes = new List<string>();
