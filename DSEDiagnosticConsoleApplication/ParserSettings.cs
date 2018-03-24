@@ -288,14 +288,14 @@ namespace DSEDiagnosticConsoleApplication
 
         public static string ClusterName
         {
-            get { return DSEDiagnosticConsoleApplication.ParserSettings.ClusterName; }
-            set { DSEDiagnosticConsoleApplication.ParserSettings.ClusterName = value; }
+            get;
+            set;
         }
 
         public static int? ClusterHashCode
         {
-            get { return DSEDiagnosticConsoleApplication.ParserSettings.ClusterHashCode; }
-            set { DSEDiagnosticConsoleApplication.ParserSettings.ClusterHashCode = value; }
+            get;
+            set;
         }
 
         public static DSEDiagnosticLibrary.DefaultAssocItemToTimeZone[] DCDefaultTimeZones
