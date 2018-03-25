@@ -188,13 +188,13 @@ namespace DSEDiagnosticFileParser
            
             if (Logger.Instance.IsDebugEnabled)
             {
-                Logger.Instance.DebugFormat("Loaded class \"{0}\"{{File{{{1}}}, Parser{{{2}}}, LogDebugProcessing{{{3}}}, DetectDuplicatedLog{{4}}, CheckOverLappingDateRanges{{5}} }}",
+                Logger.Instance.DebugFormat("Loaded class \"{0}\"(File({1}), LogDebugProcessing({3}), DetectDuplicatedLog({4}), CheckOverLappingDateRanges({5}) )",
                                             this.GetType().Name,
                                             this.File,
-                                            this._parser == null ? string.Empty : string.Join(", ", this._parser.Select(l => l.ToString()),
+                                            null,
                                             this.DebugLogProcessing,
                                             this.DetectDuplicatedLogEvents,
-                                            this.CheckOverlappingDateRange));
+                                            this.CheckOverlappingDateRange);
             }
         }
 

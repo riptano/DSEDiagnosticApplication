@@ -211,7 +211,7 @@ namespace DSEDiagnosticFileParser
 
                             propType = props.Captures[0].Value.Trim();
                             extendDroppedProp = true;
-                            skipNextLine = true; // 0%               95%               99%               Max
+                            skipNextLine = true; // 50%               95%               99%               Max
                             continue;
                         }
                         else if(extendDroppedProp && props.Captures.Count == 5)
@@ -227,7 +227,7 @@ namespace DSEDiagnosticFileParser
                                 }
                             });
 
-                            checkValue(tpName + ".Latency.Waiting.0%", props.Captures[1].Value.Trim());
+                            checkValue(tpName + ".Latency.Waiting.50%", props.Captures[1].Value.Trim());
                             checkValue(tpName + ".Latency.Waiting.95%", props.Captures[2].Value.Trim());
                             checkValue(tpName + ".Latency.Waiting.99%", props.Captures[3].Value.Trim());
                             checkValue(tpName + ".Latency.Waiting.Max", props.Captures[4].Value.Trim());

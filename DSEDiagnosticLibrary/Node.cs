@@ -1447,7 +1447,15 @@ namespace DSEDiagnosticLibrary
                 }
                 else
                 {
-                    refDTO = Common.TimeZones.Convert(DSEInfo.NodeToolCaptureTimestamp.Value, machineTZ);
+                    try
+                    {
+                        refDTO = Common.TimeZones.Convert(DSEInfo.NodeToolCaptureTimestamp.Value, machineTZ);
+                    }
+                    catch(System.Exception)
+                    {
+                        System.Threading.Thread.Sleep(1);
+                        refDTO = Common.TimeZones.Convert(DSEInfo.NodeToolCaptureTimestamp.Value, machineTZ);
+                    }
                 }
 
                 if (this.DSE.NodeToolDateRange == null || this.DSE.NodeToolDateRange.Max.Offset != refDTO.Offset)

@@ -20,7 +20,7 @@ namespace DSEDiagnosticToDataTable
         public override DataTable CreateInitializationTable()
         {
             var dtTPStats = new DataTable(TableNames.NodeStats, TableNames.Namespace);
-
+            
             if (this.SessionId.HasValue) dtTPStats.Columns.Add(ColumnNames.SessionId, typeof(Guid));
 
             dtTPStats.Columns.Add(ColumnNames.Source, typeof(string)); //A
@@ -51,7 +51,8 @@ namespace DSEDiagnosticToDataTable
             dtTPStats.Columns.Add("GC Survivor Space Change (mb)", typeof(decimal)).AllowDBNull = true;
             dtTPStats.Columns.Add("GC Old Space Change (mb)", typeof(decimal)).AllowDBNull = true; //p
             dtTPStats.Columns.Add("IORate (mb/sec)", typeof(decimal)).AllowDBNull = true; //q
-            dtTPStats.Columns.Add("Reconciliation Reference", typeof(object)).AllowDBNull = true;//R
+            
+            dtTPStats.Columns.Add("Reconciliation Reference", typeof(object)).AllowDBNull = true;//r
 
             /*
             dtTPStats.DefaultView.ApplyDefaultSort = false;
@@ -107,7 +108,14 @@ namespace DSEDiagnosticToDataTable
 
                         foreach (var itemValue in item.Values)
                         {
-                            dataRow.SetField(itemValue.Col, itemValue.Value);
+                            if (itemValue.Value is DSEDiagnosticLibrary.UnitOfMeasure)
+                            {
+                                dataRow.SetFieldToDecimal(itemValue.Col, (DSEDiagnosticLibrary.UnitOfMeasure)itemValue.Value, DSEDiagnosticLibrary.UnitOfMeasure.Types.MS);
+                            }
+                            else
+                            {
+                                dataRow.SetField(itemValue.Col, itemValue.Value);
+                            }
                         }
 
                         if (stat.ReconciliationRefs.HasAtLeastOneElement())
@@ -141,10 +149,19 @@ namespace DSEDiagnosticToDataTable
 
         /// <summary>
         /// Pool Name                    Active   Pending      Completed   Blocked  All time blocked
-        ///  Attribute Key: Pool Name.MutationStage.Active
-        ///  Message type           Dropped
-        ///  Attribute Key: READ.Dropped
+        ///     Attribute Key: Pool Name.MutationStage.Active
+        ///     Attribute Name: MutationStage Column Name: Active
         ///
+        ///  Message type           Dropped
+        ///     Attribute Key: READ.Dropped
+        ///     Attribute Name: READ Column Name: Dropped
+        ///
+        /// Message type           Dropped                  Latency waiting in queue (micros)                                    
+        ///                                                 50%               95%               99%               Max
+        ///     Attribute Key: READ.Dropped
+        ///     Attribute Name: READ Column Name: Dropped
+        ///     Attribute Key: READ.Latency.Waiting.50%
+        ///     Attribute Name: READ.Latency.Waiting.50% Column Name: Latency (ms)
         /// </summary>
         /// <param name="attribute"></param>
         /// <returns>
@@ -154,8 +171,16 @@ namespace DSEDiagnosticToDataTable
         Tuple<string,string> GetColumnNameFromAttributeKey(string attributeKey)
         {
             var splitNames = attributeKey.Split('.');
+            var attrName = splitNames[splitNames.Length - 2];
+            var colName = splitNames.Last();
 
-            return new Tuple<string, string>(splitNames[splitNames.Length - 2], splitNames.Last());
+            if (splitNames.Length == 4 && attrName == "Waiting")
+            {
+                attrName = attributeKey;
+                colName = "Latency (ms)";
+            }
+
+            return new Tuple<string, string>(attrName, colName);
         }
     }
 }
