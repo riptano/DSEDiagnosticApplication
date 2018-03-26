@@ -20,7 +20,7 @@ namespace DSEDiagnosticLibrary
         static readonly IEnumerable<IDDLStmt> EmptyDDLItems = Enumerable.Empty<IDDLStmt>();
         static readonly IEnumerable<INode> EmptyAssocatedNodes = Enumerable.Empty<INode>();
         static readonly IEnumerable<IMMLogValue> EmptyParents = Enumerable.Empty<IMMLogValue>();
-        static readonly IEnumerable<DSEInfo.TokenRangeInfo> EmptyTokenRanges = Enumerable.Empty<DSEInfo.TokenRangeInfo>();
+        static readonly IEnumerable<TokenRangeInfo> EmptyTokenRanges = Enumerable.Empty<TokenRangeInfo>();
 
         public LogCassandraEvent(IFilePath logFile,
                                     INode node,
@@ -41,7 +41,7 @@ namespace DSEDiagnosticLibrary
                                     IEnumerable<string> ssTables = null,
                                     IEnumerable<IDDLStmt> ddlItems = null,
                                     IEnumerable<INode> assocatedNodes = null,
-                                    IEnumerable<DSEInfo.TokenRangeInfo> tokenRanges = null,
+                                    IEnumerable<TokenRangeInfo> tokenRanges = null,
                                     string sessionTieOutId = null,
                                     DSEInfo.InstanceTypes product = DSEInfo.InstanceTypes.Cassandra,
                                     bool assocateToNode = false)
@@ -115,7 +115,7 @@ namespace DSEDiagnosticLibrary
                                    IEnumerable<string> ssTables = null,
                                    IEnumerable<IDDLStmt> ddlItems = null,
                                    IEnumerable<INode> assocatedNodes = null,
-                                   IEnumerable<DSEInfo.TokenRangeInfo> tokenRanges = null,
+                                   IEnumerable<TokenRangeInfo> tokenRanges = null,
                                    string sessionTieOutId = null,
                                    DSEInfo.InstanceTypes product = DSEInfo.InstanceTypes.Cassandra,
                                    bool assocateToNode = false)
@@ -167,7 +167,7 @@ namespace DSEDiagnosticLibrary
                                    IEnumerable<string> ssTables = null,
                                    IEnumerable<IDDLStmt> ddlItems = null,
                                    IEnumerable<INode> assocatedNodes = null,
-                                   IEnumerable<DSEInfo.TokenRangeInfo> tokenRanges = null,
+                                   IEnumerable<TokenRangeInfo> tokenRanges = null,
                                    string sessionTieOutId = null,
                                    DSEInfo.InstanceTypes product = DSEInfo.InstanceTypes.Cassandra,
                                    bool assocateToNode = false)
@@ -219,7 +219,7 @@ namespace DSEDiagnosticLibrary
                                    IEnumerable<string> ssTables = null,
                                    IEnumerable<IDDLStmt> ddlItems = null,
                                    IEnumerable<INode> assocatedNodes = null,
-                                   IEnumerable<DSEInfo.TokenRangeInfo> tokenRanges = null,
+                                   IEnumerable<TokenRangeInfo> tokenRanges = null,
                                    string sessionTieOutId = null,
                                    DSEInfo.InstanceTypes product = DSEInfo.InstanceTypes.Cassandra,
                                    bool assocateToNode = false)
@@ -528,7 +528,7 @@ namespace DSEDiagnosticLibrary
         public IEnumerable<string> SSTables { get; private set; }
         public IEnumerable<IDDLStmt> DDLItems { get; private set; }
         public IEnumerable<INode> AssociatedNodes { get; private set; }
-        public IEnumerable<DSEInfo.TokenRangeInfo> TokenRanges { get; private set; }
+        public IEnumerable<TokenRangeInfo> TokenRanges { get; private set; }
 
         /// <summary>
         /// Top level exception

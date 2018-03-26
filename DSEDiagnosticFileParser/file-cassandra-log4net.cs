@@ -34,7 +34,7 @@ namespace DSEDiagnosticFileParser
         {
             get;
             set;
-        } = LibrarySettings.DefaultLogLevelHandlingInit;
+        } = LibrarySettings.DefaultLogLevelHandling;
 
         public DateTimeOffsetRange LogRestrictedTimeRange
         {
@@ -49,7 +49,7 @@ namespace DSEDiagnosticFileParser
             /// <summary>
             /// If defined only the debug logs date/time range is recorded
             /// </summary>
-            OnlyLogDateRange = 0x001,
+            OnlyLogDateRange = 0x0001,
             /// <summary>
             /// Disabled if DSE version is < 5.0 (disables duplicate msg detection), otherwise OnlyFlushCompactionMsgs or AllMsg (if defined) is used
             /// </summary>
@@ -165,9 +165,14 @@ namespace DSEDiagnosticFileParser
             }
 
             if((this.DebugLogProcessing & DebugLogProcessingTypes.Disabled) != 0
-                    || (this.DebugLogProcessing & DebugLogProcessingTypes.OnlyFlushCompactionMsgs) != 0)
+                    || (this.DebugLogProcessing & DebugLogProcessingTypes.OnlyFlushCompactionMsgs) != 0
+                    || (this.DebugLogProcessing & DebugLogProcessingTypes.OnlyLogDateRange) != 0)
             {
                 this.DetectDuplicatedLogEvents = false;
+            }
+            else if ((this.DebugLogProcessing & DebugLogProcessingTypes.AllMsg) != 0)
+            {
+                this.DetectDuplicatedLogEvents = true;
             }
 
             if ((this.DebugLogProcessing & DebugLogProcessingTypes.OnlyFlushCompactionMsgs) != 0)
@@ -185,16 +190,24 @@ namespace DSEDiagnosticFileParser
                     this.DetectDuplicatedLogEvents = false;
                 }
             }
+            else
+            {
+                this.DebugFlushCompMatchingRegEx = null;
+            }
            
             if (Logger.Instance.IsDebugEnabled)
             {
-                Logger.Instance.DebugFormat("Loaded class \"{0}\"(File({1}), LogDebugProcessing({3}), DetectDuplicatedLog({4}), CheckOverLappingDateRanges({5}) )",
+                Logger.Instance.DebugFormat("Loaded class \"{0}\"(File({1}), RestrictedDateRange({6}), LogDebugProcessing({2}), DetectDuplicatedLog({3}), CheckOverLappingDateRanges({4}), OnlyFlushCompactionMsgs({5}), DefaultLogLevelHandling({7}) )",
                                             this.GetType().Name,
                                             this.File,
-                                            null,
                                             this.DebugLogProcessing,
                                             this.DetectDuplicatedLogEvents,
-                                            this.CheckOverlappingDateRange);
+                                            this.CheckOverlappingDateRange,
+                                            this.DebugFlushCompMatchingRegEx != null,
+                                            this.LogRestrictedTimeRange,
+                                            this.DefaultLogLevelHandling);
+                Logger.Instance.DebugFormat("Log Line Parser TagId: {0}",
+                                                string.Join(", ", this._parser.Select(i => i.TagId)));
             }
         }
 
@@ -391,34 +404,28 @@ namespace DSEDiagnosticFileParser
                 return result;
             }
 
-            if (this.Node.LogFiles != null
-                    && this.Node.LogFiles.HasAtLeastOneElement())
+            if (this.LogRestrictedTimeRange != null
+                    || (this.Node.LogFiles != null
+                            && this.Node.LogFiles.HasAtLeastOneElement()))
             {
-                var fileInfoResult = file_cassandra_log4net_ReadTimeRange.DeteremineLogFileInfo(this.File, this.Node, this.CancellationToken, LogRestrictedTimeRange, isDebugFile);
+                var fileInfoResult = file_cassandra_log4net_ReadTimeRange.DeteremineLogFileInfo(this.File, this.Node, this.CancellationToken, this.LogRestrictedTimeRange, isDebugFile);
                 var logFileInfo = fileInfoResult.Item1;
                 
-                if (logFileInfo != null)
+                if (logFileInfo == null)
                 {
-                    if (this.LogRestrictedTimeRange != null && this.LogRestrictedTimeRange.IsNotBetween(logFileInfo.LogDateRange))
+                    if(this.LogRestrictedTimeRange != null && Logger.Instance.IsDebugEnabled)
                     {
-                        if (this.LogRestrictedTimeRange.IsBetween(logFileInfo.LogFileDateRange.Min) || this.LogRestrictedTimeRange.IsBetween(logFileInfo.LogFileDateRange.Max))
-                        {
-                            //NOP One side of the log range falls within the restricted range.
-                        }
-                        else
-                        {
-                            Logger.Instance.WarnFormat("MapperId<{0}>\t{1}\t{2}\tLog file skipped since Date Range {3} did not met restricted range of {4}",
-                                                                this.MapperId,
-                                                                this.Node,
-                                                                this.File.PathResolved,
-                                                                logFileInfo.LogFileDateRange,
-                                                                this.LogRestrictedTimeRange);
-                            ++this.NbrWarnings;
-                            this.Node.AssociateItem(logFileInfo);
-                            return (uint)0;
-                        }
-                    }
+                        Logger.Instance.DebugFormat("MapperId<{0}>\t{1}\t{2}\tLog file skipped since Date Range did not met restricted range of {3}",
+                                                        this.MapperId,
+                                                        this.Node,
+                                                        this.File.PathResolved,
+                                                        this.LogRestrictedTimeRange);
+                    }                    
 
+                    return (uint)0;
+                }
+                else
+                {
                     if (this.CheckOverlappingDateRange)
                     {
                         lock (this.Node)
@@ -688,7 +695,7 @@ namespace DSEDiagnosticFileParser
             IDDLStmt primaryDDL;
             List<IDDLStmt> ddlInstances;
             IEnumerable<INode> assocatedNodes;
-            IEnumerable<DSEInfo.TokenRangeInfo> tokenRanges;
+            IEnumerable<TokenRangeInfo> tokenRanges;
             LateDDLResolution? lateDDLresolution;
             string subClass;
 
@@ -781,7 +788,7 @@ namespace DSEDiagnosticFileParser
             IDDLStmt primaryDDL;
             List<IDDLStmt> ddlInstances;
             IEnumerable<INode> assocatedNodes;
-            IEnumerable<DSEInfo.TokenRangeInfo> tokenRanges;
+            IEnumerable<TokenRangeInfo> tokenRanges;
             LateDDLResolution? lateDDLresolution;
             string subClass;
             
@@ -1060,7 +1067,7 @@ namespace DSEDiagnosticFileParser
             IDDLStmt primaryDDL;            
             List<IDDLStmt> ddlInstances;
             IEnumerable<INode> assocatedNodes;
-            IEnumerable<DSEInfo.TokenRangeInfo> tokenRanges;
+            IEnumerable<TokenRangeInfo> tokenRanges;
             LateDDLResolution? lateDDLresolution;
             string subClass;
             
@@ -1519,7 +1526,7 @@ namespace DSEDiagnosticFileParser
                                             out List<string> sstableFilePaths,
                                             out List<IDDLStmt> ddlInstances,
                                             out IEnumerable<INode> assocatedNodes,
-                                            out IEnumerable<DSEInfo.TokenRangeInfo> tokenRanges)
+                                            out IEnumerable<TokenRangeInfo> tokenRanges)
                                             //out string sessionId)
         {            
             var keyspaceName = StringHelpers.RemoveQuotes((string)logProperties.TryGetValue("KEYSPACE"));
@@ -1831,11 +1838,11 @@ namespace DSEDiagnosticFileParser
                 var tokenRangeStrings = TurnPropertyIntoCollection(logProperties, "TOKENRANGE");
                 var tokenStartStrings = TurnPropertyIntoCollection(logProperties, "TOKENSTART");
                 var tokenEndStrings = TurnPropertyIntoCollection(logProperties, "TOKENEND");
-                var tokenList = tokenRangeStrings != null || tokenStartStrings != null || tokenEndStrings != null ? new List<DSEInfo.TokenRangeInfo>() : null;
+                var tokenList = tokenRangeStrings != null || tokenStartStrings != null || tokenEndStrings != null ? new List<TokenRangeInfo>() : null;
 
                 if (tokenRangeStrings != null)
                 {
-                    tokenList.AddRange(tokenRangeStrings.Select(t => new DSEInfo.TokenRangeInfo(t)));
+                    tokenList.AddRange(tokenRangeStrings.Select(t => TokenRangeInfo.CreateTokenRange(t)));
                 }
                 if (tokenStartStrings != null || tokenEndStrings != null)
                 {
@@ -1849,7 +1856,7 @@ namespace DSEDiagnosticFileParser
                     }
                     for (int nIdx = 0; nIdx < tokenStartStrings.Count(); ++nIdx)
                     {
-                        tokenList.Add(new DSEInfo.TokenRangeInfo(tokenStartStrings.ElementAt(nIdx), tokenEndStrings.ElementAt(nIdx)));
+                        tokenList.Add(TokenRangeInfo.CreateTokenRange(tokenStartStrings.ElementAt(nIdx), tokenEndStrings.ElementAt(nIdx)));
                     }
                 }
                 tokenRanges = tokenList;

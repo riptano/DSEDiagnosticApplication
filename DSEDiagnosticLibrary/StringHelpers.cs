@@ -584,10 +584,10 @@ namespace DSEDiagnosticLibrary
                 writeElement.StoreValue((int)MMElementType.Cluster);
                 writeElement.StoreValue(value.GetHashCode());
             }
-            else if (value is DSEInfo.TokenRangeInfo)
+            else if (value is TokenRangeInfo)
             {
                 writeElement.StoreValue((int)MMElementType.TokenRange);
-                writeElement.WriteMMElement((DSEInfo.TokenRangeInfo)value);
+                writeElement.WriteMMElement((TokenRangeInfo)value);
             }
             else if (value is IPAddress)
             {
@@ -617,10 +617,22 @@ namespace DSEDiagnosticLibrary
             }
         }
 
-        static public void WriteMMElement(this Common.Patterns.Collections.MemoryMapper.WriteElement writeElement, DSEInfo.TokenRangeInfo value)
+        static public void WriteMMElement(this Common.Patterns.Collections.MemoryMapper.WriteElement writeElement, TokenRangeInfo value)
         {
-            writeElement.StoreValue(value.StartRange);
-            writeElement.StoreValue(value.EndRange);
+            bool isLong = value is TokenRangeLong;
+
+            writeElement.StoreValue(isLong);
+            if(isLong)
+            {
+                writeElement.StoreValue(((TokenRangeLong)value).StartRangeNum);
+                writeElement.StoreValue(((TokenRangeLong)value).EndRangeNum);
+            }
+            else
+            {
+                writeElement.StoreValue(value.StartRange.ToString());
+                writeElement.StoreValue(value.EndRange.ToString());
+            }
+           
             writeElement.WriteMMElement(value.Load);
         }
 
@@ -656,7 +668,7 @@ namespace DSEDiagnosticLibrary
             writeElement.StoreValue((ulong)value.UnitType);
         }
 
-        static public void WriteMMElement(this Common.Patterns.Collections.MemoryMapper.WriteElement writeElement, IEnumerable<DSEInfo.TokenRangeInfo> value)
+        static public void WriteMMElement(this Common.Patterns.Collections.MemoryMapper.WriteElement writeElement, IEnumerable<TokenRangeInfo> value)
         {
             var count = value?.Count() ?? -1;
 
@@ -762,21 +774,28 @@ namespace DSEDiagnosticLibrary
             return value;
         }
 
-        static public DSEInfo.TokenRangeInfo GetMMTokenRange(this Common.Patterns.Collections.MemoryMapper.ReadElement readElement)
+        static public TokenRangeInfo GetMMTokenRange(this Common.Patterns.Collections.MemoryMapper.ReadElement readElement)
         {
-            return new DSEInfo.TokenRangeInfo(readElement.GetLongValue(),
-                                                readElement.GetLongValue(),
-                                                readElement.GetMMUOM());
+            var isLong = readElement.GetBoolValue();
+
+            if(isLong)
+                return new TokenRangeLong(readElement.GetLongValue(),
+                                            readElement.GetLongValue(),
+                                            readElement.GetMMUOM());
+
+            return TokenRangeInfo.CreateTokenRange(readElement.GetStringValue(),
+                                                    readElement.GetStringValue(),
+                                                    readElement.GetMMUOM());
         }
 
-        static public IEnumerable<DSEInfo.TokenRangeInfo> GetMMTokenRangeEnum(this Common.Patterns.Collections.MemoryMapper.ReadElement readView)
+        static public IEnumerable<TokenRangeInfo> GetMMTokenRangeEnum(this Common.Patterns.Collections.MemoryMapper.ReadElement readView)
         {
             var count = readView.GetIntValue();
 
             if (count < 0) return null;
-            if (count == 0) return Enumerable.Empty<DSEInfo.TokenRangeInfo>();
+            if (count == 0) return Enumerable.Empty<TokenRangeInfo>();
 
-            var tokenRanges = new List<DSEInfo.TokenRangeInfo>(count);
+            var tokenRanges = new List<TokenRangeInfo>(count);
 
             for(int nIdx = 1; nIdx <= count; nIdx++)
             {
@@ -862,8 +881,18 @@ namespace DSEDiagnosticLibrary
 
         static public void SkipMMTokenRange(this Common.Patterns.Collections.MemoryMapper.ReadElement readElement)
         {
-            readElement.SkipLong();
-            readElement.SkipLong();
+            var isLong = readElement.GetBoolValue();
+
+            if (isLong)
+            {
+                readElement.SkipLong();
+                readElement.SkipLong();
+            }
+            else
+            {
+                readElement.SkipString();
+                readElement.SkipString();
+            }
             readElement.SkipMMUOM();
         }
 

@@ -42,7 +42,7 @@ namespace DSEDiagnosticToDataTable
             dtNodeInfo.Columns.Add("End NodeTool Range", typeof(DateTime)).AllowDBNull = true; //l
 
             dtNodeInfo.Columns.Add("Uptime", typeof(TimeSpan)).AllowDBNull = true; //m
-            //dtNodeInfo.Columns.Add("Uptime", typeof(string)).AllowDBNull = true; //n
+            //dtNodeInfo.Columns.Add("Uptime", typeof(string)).AllowDBNull = true;
 
             dtNodeInfo.Columns.Add("Log Min Timestamp", typeof(DateTime)).AllowDBNull = true;//n
             dtNodeInfo.Columns.Add("Log Max Timestamp", typeof(DateTime)).AllowDBNull = true;
@@ -69,7 +69,8 @@ namespace DSEDiagnosticToDataTable
             dtNodeInfo.Columns.Add("Key Cache Information", typeof(string)).AllowDBNull = true;//ah
             dtNodeInfo.Columns.Add("Row Cache Information", typeof(string)).AllowDBNull = true;//ai
             dtNodeInfo.Columns.Add("Counter Cache Information", typeof(string)).AllowDBNull = true;//aj
-            dtNodeInfo.Columns.Add("Multi-Instance Server Id", typeof(string)).AllowDBNull = true;//ak
+            dtNodeInfo.Columns.Add("Chunk Cache Information", typeof(string)).AllowDBNull = true;//ak
+            dtNodeInfo.Columns.Add("Multi-Instance Server Id", typeof(string)).AllowDBNull = true;//al
 
             dtNodeInfo.DefaultView.ApplyDefaultSort = false;
             dtNodeInfo.DefaultView.AllowDelete = false;
@@ -203,6 +204,7 @@ namespace DSEDiagnosticToDataTable
                         dataRow.SetField("Key Cache Information", node.DSE.KeyCacheInformation);
                         dataRow.SetField("Row Cache Information", node.DSE.RowCacheInformation);
                         dataRow.SetField("Counter Cache Information", node.DSE.CounterCacheInformation);
+                        dataRow.SetField("Chunk Cache Information", node.DSE.ChunkCacheInformation);
                         if (node.DSE.IsSeedNode.HasValue) dataRow.SetField("Seed Node", node.DSE.IsSeedNode.Value);
 
                         this.Table.Rows.Add(dataRow);

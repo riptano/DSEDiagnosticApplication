@@ -327,6 +327,12 @@ namespace DSEDiagnosticConsoleApplication
             set { DSEDiagnosticFileParser.LibrarySettings.DebugLogProcessing = value; }
         }
 
+        public static DSEDiagnosticFileParser.file_cassandra_log4net.DefaultLogLevelHandlers DefaultLogLevelHandling
+        {
+            get { return DSEDiagnosticFileParser.LibrarySettings.DefaultLogLevelHandling; }
+            set { DSEDiagnosticFileParser.LibrarySettings.DefaultLogLevelHandling = value; }
+        }
+
         public static List<string> OnlyNodes = new List<string>();
 
         public static Version DSEVersion = null;

@@ -72,6 +72,25 @@ namespace DSEDiagnosticFileParser
             Percent Repaired       : 0.002445829365017248%
             Token                  : (invoke with -T/--tokens to see all 256 tokens)
 
+            ID                     : df93723c-0714-4872-a8a2-e327ed2365ad
+            Gossip active          : true
+            Thrift active          : true
+            Native Transport active: true
+            Load                   : 438.5 GiB
+            Generation No          : 1520869789
+            Uptime (seconds)       : 610305
+            Heap Memory (MB)       : 25275.49 / 32768.00
+            Off Heap Memory (MB)   : 1384.04
+            Data Center            : PIAD3N
+            Rack                   : RACK01
+            Exceptions             : 1
+            Key Cache              : entries 152564, size 99.49 MiB, capacity 100 MiB, 285238161 hits, 291943238 requests, 0.977 recent hit rate, 14400 save period in seconds
+            Row Cache              : entries 0, size 0 bytes, capacity 0 bytes, 0 hits, 0 requests, NaN recent hit rate, 0 save period in seconds
+            Counter Cache          : entries 285666, size 50 MiB, capacity 50 MiB, 27356 hits, 150523 requests, 0.182 recent hit rate, 7200 save period in seconds
+            Chunk Cache            : entries 7680, size 480 MiB, capacity 480 MiB, 90542270 misses, 750295628 requests, 0.879 recent hit rate, 183.301 microseconds miss latency
+            Percent Repaired       : 4.996919574020069%
+            Token                  : (invoke with -T/--tokens to see all 256 tokens)
+
             */
 
             string line;
@@ -166,6 +185,9 @@ namespace DSEDiagnosticFileParser
                         break;
                     case "counter cache":
                         this.Node.DSE.CounterCacheInformation = lineValue;
+                        break;
+                    case "chunk cache":
+                        this.Node.DSE.ChunkCacheInformation = lineValue;
                         break;
                     case "percent repaired":
                         this.Node.DSE.RepairedPercent = UnitOfMeasure.Create(lineValue, UnitOfMeasure.Types.Percent);

@@ -61,10 +61,11 @@ namespace DSEDiagtnosticToExcel
                                                                 //workSheet.Cells["1:1"].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
                                                                 workSheet.View.FreezePanes(2, 1);
                                                                 workSheet.Cells["A1:AH1"].AutoFilter = true;
+                                                                workSheet.Cells["AL1:AL1"].AutoFilter = true;
                                                                 workSheet.Cells["G:G"].Style.Numberformat.Format = "#,###,###,##0.00";
                                                                 workSheet.Cells["H:H"].Style.Numberformat.Format = "##0.00%";
                                                                 workSheet.Cells["I:I"].Style.Numberformat.Format = "0.00";
-                                                                workSheet.Cells["J:J"].Style.Numberformat.Format = Properties.Settings.Default.ExcelTimeFormat;
+                                                                //workSheet.Cells["J:J"].Style.Numberformat.Format = Properties.Settings.Default.ExcelTimeFormat;
 
                                                                 workSheet.Cells["K:K"].Style.Numberformat.Format = Properties.Settings.Default.ExcelDateTimeFormat;
                                                                 workSheet.Cells["L:L"].Style.Numberformat.Format = Properties.Settings.Default.ExcelDateTimeFormat;

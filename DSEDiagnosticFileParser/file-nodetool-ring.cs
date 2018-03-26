@@ -156,7 +156,14 @@ namespace DSEDiagnosticFileParser
 
                         try
                         {
-                            node.DSE.AddTokenPair(startToken, regExSplit[7], regExSplit[5]);
+                            if (startToken.Length > 20)
+                            {
+                                node.DSE.AddStrTokenPair(startToken, regExSplit[7], regExSplit[5]);
+                            }
+                            else
+                            {
+                                node.DSE.AddTokenPair(startToken, regExSplit[7], regExSplit[5]);
+                            }
                             startToken = regExSplit[7];
                         }
                         catch (System.ArgumentException ex)
@@ -171,8 +178,7 @@ namespace DSEDiagnosticFileParser
                                                                 line,
                                                                 this.MapperId),
                                                     ex);
-                            ++this.NbrErrors;
-                            break;
+                            ++this.NbrErrors;                            
                         }
                     }
                 }

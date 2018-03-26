@@ -176,12 +176,12 @@ namespace DSEDiagnosticLibrary.Tests
             }
 
             //Child Event
-            var tokenRanges = new List<DSEDiagnosticLibrary.DSEInfo.TokenRangeInfo>();
+            var tokenRanges = new List<DSEDiagnosticLibrary.TokenRangeInfo>();
 
             parentEvents = new List<ILogEvent>() { logEvent };
             logTimestamp = logTimestamp + new TimeSpan(0, 10, 0);            
 
-            tokenRanges.Add(new DSEInfo.TokenRangeInfo(0, -100, new UnitOfMeasure("10 MB")));
+            tokenRanges.Add(new TokenRangeLong(0, -100, new UnitOfMeasure("10 MB")));
 
             logEvent = new LogCassandraEvent(Common.Path.PathUtils.BuildFilePath(@"c:\logfile.log"),
                                                     this._node1,

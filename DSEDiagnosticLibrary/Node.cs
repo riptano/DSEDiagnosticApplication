@@ -836,187 +836,7 @@ namespace DSEDiagnosticLibrary
             public Version Analytics;
             public string OpsCenterAgent;
 		}
-
-        [JsonObject(MemberSerialization.OptOut)]
-        public sealed class TokenRangeInfo : IEquatable<TokenRangeInfo>
-		{
-            static readonly Regex RegExTokenRange = new Regex(Properties.Settings.Default.TokenRangeRegEx, RegexOptions.Compiled);
-
-            private TokenRangeInfo() { }
-            public TokenRangeInfo(long startToken, long endToken, UnitOfMeasure? loadToken = null)
-            {
-                this.StartRange = startToken;
-                this.EndRange = endToken;
-                this.Load = loadToken.HasValue ? UnitOfMeasure.NaNValue : loadToken.Value;
-
-                if (this.StartRange > 0 && this.EndRange < 0)
-                {
-                    this.Slots = (ulong)((this.EndRange - long.MinValue)
-                                            + (long.MaxValue - this.StartRange));
-                    this.WrapsRange = true;
-                }
-                else
-                {
-                    this.Slots = (ulong) (this.EndRange - this.StartRange);
-                }
-            }
-            public TokenRangeInfo(string startToken, string endToken, string loadToken = null)
-            {
-                if(!long.TryParse(startToken, out this.StartRange))
-                {
-                    throw new ArgumentException(string.Format("Could not parse value \"{0}\" into a long Start Token value.", startToken), "startToken");
-                }
-                if (!long.TryParse(endToken, out this.EndRange))
-                {
-                    throw new ArgumentException(string.Format("Could not parse value \"{0}\" into a long End Token value.", endToken), "endToken");
-                }
-                this.Load = UnitOfMeasure.Create(loadToken);
-
-                if (this.StartRange > 0 && this.EndRange < 0)
-                {
-                    this.Slots = (ulong)((this.EndRange - long.MinValue)
-                                            + (long.MaxValue - this.StartRange));
-                    WrapsRange = true;
-                }
-                else
-                {
-                    this.Slots = (ulong)(this.EndRange - this.StartRange);
-                }
-            }
-            public TokenRangeInfo(string tokenRange, string loadToken = null)
-            {
-                var tokenMatch = RegExTokenRange.Match(tokenRange);
-
-                if(tokenMatch.Success)
-                {
-                    var startToken = tokenMatch.Groups[1].Value;
-                    var endToken = tokenMatch.Groups[2].Value;
-
-                    if (!long.TryParse(startToken, out this.StartRange))
-                    {
-                        throw new ArgumentException(string.Format("Could not parse value \"{0}\" ({1}) into a long Start Token value.", startToken, tokenRange), "tokenRange");
-                    }
-                    if (!long.TryParse(endToken, out this.EndRange))
-                    {
-                        throw new ArgumentException(string.Format("Could not parse value \"{0}\" ({1}) into a long End Token value.", endToken, tokenRange), "tokenRange");
-                    }
-                    this.Load = UnitOfMeasure.Create(loadToken);
-                    if (this.StartRange > 0 && this.EndRange < 0)
-                    {
-                        this.Slots = (ulong)((this.EndRange - long.MinValue)
-                                                + (long.MaxValue - this.StartRange));
-                        WrapsRange = true;
-                    }
-                    else
-                    {
-                        this.Slots = (ulong)(this.EndRange - this.StartRange);
-                    }
-                }
-                else
-                {
-                    throw new ArgumentException(string.Format("Could not parse value \"{0}\" into a Token Range.", tokenRange), "tokenRange");
-                }
-            }
-
-            /// <summary>
-            /// If true, this range wraps from a starting range that is positive but ends in a negative numeric value (e.g., from the maximum numeric value to the minimal numeric value).
-            /// </summary>
-            public bool WrapsRange = false;
-            /// <summary>
-            /// Start Token (exclusive)
-            /// </summary>
-            public long StartRange;
-            /// <summary>
-            /// End Token (inclusive)
-            /// </summary>
-            public long EndRange; //End Token (inclusive)
-            /// <summary>
-            /// The number of tokens (slots) that can be accommodated within this range
-            /// </summary>
-            public ulong Slots;
-            /// <summary>
-            /// The size/amount of data that is currently within this token range.
-            /// </summary>
-            public UnitOfMeasure Load;
-
-            /// <summary>
-            /// Returns the Token range as a string representation 
-            /// </summary>
-            public string Range { get { return string.Format("({0},{1}]", this.StartRange, this.EndRange); } }
-
-            /// <summary>
-            /// Checks to determine if checkRange is within this range.
-            /// </summary>
-            /// <param name="checkRange"></param>
-            /// <returns></returns>
-            public bool IsWithinRange(TokenRangeInfo checkRange)
-            {
-                if(checkRange.EndRange <= this.EndRange)
-                {
-                    if(checkRange.EndRange > this.StartRange)
-                    {
-                        return true;
-                    }
-                }
-
-                if (checkRange.StartRange > this.StartRange)
-                {
-                    if (checkRange.StartRange < this.EndRange)
-                    {
-                        return true;
-                    }
-                }
-
-                return false;
-            }
-
-            public bool IsWithinRange(long checkRange)
-            {
-                if (checkRange <= this.EndRange)
-                {
-                    if (checkRange > this.StartRange)
-                    {
-                        return true;
-                    }
-                }
-                
-                return false;
-            }
-
-
-            public override string ToString()
-            {
-                return string.Format("TokenRangeInfo{{Range:({0},{1}], Slots:{2:###,###,###,###,##0}{3}}}",
-                                        this.StartRange,
-                                        this.EndRange,
-                                        this.Slots,
-                                        this.Load.NaN ? string.Empty : string.Format("Load:{0}", this.Load));
-            }
-
-            #region Overrides/Equals
-            public bool Equals(TokenRangeInfo other)
-            {
-                if (other == null) return false;
-                if (ReferenceEquals(this, other)) return true;
-
-                return this.EndRange == other.EndRange
-                        && this.StartRange == other.StartRange;
-            }
-
-            public override bool Equals(object other)
-            {
-                if (other is TokenRangeInfo) return this.Equals((TokenRangeInfo)other);
-
-                return false;
-            }
-
-            public override int GetHashCode()
-            {
-                return (589 + this.StartRange.GetHashCode()) * 31 + this.EndRange.GetHashCode();
-            }
-            #endregion
-        }
-
+        
         [JsonObject(MemberSerialization.OptOut)]
         public sealed class DirectoryLocations
         {
@@ -1068,15 +888,18 @@ namespace DSEDiagnosticLibrary
         public string KeyCacheInformation;
         public string RowCacheInformation;
         public string CounterCacheInformation;
+        public string ChunkCacheInformation;
 
         [JsonProperty(PropertyName="TokenRanges")]
         private List<TokenRangeInfo> _tokenRanges = new List<TokenRangeInfo>();
         [JsonIgnore]
         public IEnumerable<TokenRangeInfo> TokenRanges { get { return this._tokenRanges; } }
 
+        public IEnumerable<Tuple<string,string,string>> TokenStrRanges { get; private set; }
+
         public TokenRangeInfo AddTokenPair(string start, string end, string tokenLoad)
         {
-            var range = new TokenRangeInfo(start, end, tokenLoad);
+            var range = TokenRangeInfo.CreateTokenRange(start, end, tokenLoad);
 
             if(this._tokenRanges.Any(r => r.IsWithinRange(range)))
             {
@@ -1087,7 +910,23 @@ namespace DSEDiagnosticLibrary
 
             return range;
         }
-	}
+
+        public Tuple<string,string,string> AddStrTokenPair(string start, string end, string tokenLoad)
+        {
+            var range = new Tuple<string, string, string>(start, end, tokenLoad);
+            
+            if(this.TokenStrRanges == null)
+            {
+                this.TokenStrRanges = new List<Tuple<string, string, string>>() { range };
+            }
+            else
+            {
+                ((List<Tuple<string, string, string>>)this.TokenStrRanges).Add(range);
+            }
+
+            return range;
+        }
+    }
 
     [JsonObject(MemberSerialization.OptOut)]
     public sealed class LogFileInfo

@@ -15,7 +15,7 @@ namespace DSEDiagnosticLibrary
         IEnumerable<string> SSTables { get; }
         IEnumerable<IDDLStmt> DDLItems { get; }
         IEnumerable<INode> AssociatedNodes { get; }
-        IEnumerable<DSEInfo.TokenRangeInfo> TokenRanges { get; }
+        IEnumerable<TokenRangeInfo> TokenRanges { get; }
         string Exception { get; }
         IEnumerable<string> ExceptionPath { get; }
 

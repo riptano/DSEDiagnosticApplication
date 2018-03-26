@@ -73,7 +73,7 @@ namespace DSEDiagnosticToDataTable
                             dataRow.SetField(ColumnNames.NodeIPAddress, node.Id.NodeName());
                             dataRow.SetField("Start Token (exclusive)", tokenRange.StartRange.ToString());
                             dataRow.SetField("End Token (inclusive)", tokenRange.EndRange.ToString());
-                            dataRow.SetField("Slots", tokenRange.Slots.ToString("###,###,###,###,##0"));
+                            dataRow.SetField("Slots", tokenRange.SlotsFormatted());
                             dataRow.SetFieldToDecimal("Load(MB)", tokenRange.Load, DSEDiagnosticLibrary.UnitOfMeasure.Types.MiB);
                             if(tokenRange.WrapsRange) dataRow.SetField("Wraps Range", true);
 
