@@ -484,7 +484,13 @@ namespace DSEDiagnosticLibrary
                 {
                     var collection = JsonConvert.DeserializeObject<Dictionary<string, object>>(value)
                                         .OrderBy(d => d.Key);
-                    return "{" + string.Join(", ", collection.Select(p => p.Key + ":" + p.Value.ToString())) + "}";
+                    return "{" + string.Join(", ", 
+                                                collection.Select(p => p.Key
+                                                                        + ":"
+                                                                        + (p.Value is string
+                                                                                ? StringHelpers.DetermineProperFormat((string)p.Value)
+                                                                                : p.Value.ToString())))
+                            + "}";
                 }
 
                 var valueItems = StringFunctions.Split(value, ",")

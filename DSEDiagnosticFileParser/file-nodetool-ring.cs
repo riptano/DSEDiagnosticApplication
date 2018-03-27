@@ -156,14 +156,7 @@ namespace DSEDiagnosticFileParser
 
                         try
                         {
-                            if (startToken.Length > 20)
-                            {
-                                node.DSE.AddStrTokenPair(startToken, regExSplit[7], regExSplit[5]);
-                            }
-                            else
-                            {
-                                node.DSE.AddTokenPair(startToken, regExSplit[7], regExSplit[5]);
-                            }
+                            node.DSE.AddTokenPair(startToken, regExSplit[7], regExSplit[5]);                            
                             startToken = regExSplit[7];
                         }
                         catch (System.ArgumentException ex)

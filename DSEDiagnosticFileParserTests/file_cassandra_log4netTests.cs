@@ -1881,7 +1881,7 @@ namespace DSEDiagnosticFileParser.Tests
             Assert.AreEqual(0, result.OrphanedSessionEvents.Count());
             Assert.AreEqual(1, tstNode.LogFiles.Count());
             Assert.AreEqual(DateTimeOffset.Parse("2011-02-10 13:33:00.000 +00"), tstNode.LogFiles.First().LogDateRange.Min);
-            Assert.AreEqual(DateTimeOffset.Parse("2011-02-10 13:35:06.380 +00"), tstNode.LogFiles.First().LogDateRange.Max);
+            Assert.AreEqual(DateTimeOffset.Parse("2011-05-18 22:00:00.000 +00"), tstNode.LogFiles.First().LogDateRange.Max);
             Assert.AreEqual(DateTimeOffset.Parse("2011-02-10 13:33:00.000 +00"), tstNode.LogFiles.First().LogFileDateRange.Min);
             Assert.AreEqual(DateTimeOffset.Parse("2011-05-18 22:00:00.00 +00"), tstNode.LogFiles.First().LogFileDateRange.Max);
 
@@ -1906,7 +1906,7 @@ namespace DSEDiagnosticFileParser.Tests
             Assert.AreEqual(0, result.OrphanedSessionEvents.Count());
             Assert.AreEqual(2, tstNode.LogFiles.Count());
             Assert.AreEqual(DateTimeOffset.Parse("2011-01-10 13:33:00.000  +00"), tstNode.LogFiles.ElementAt(1).LogDateRange.Min);
-            Assert.AreEqual(DateTimeOffset.Parse("2011-01-10 13:35:06.380 +00"), tstNode.LogFiles.ElementAt(1).LogDateRange.Max);
+            Assert.AreEqual(DateTimeOffset.Parse("2011-02-10 13:31:59.999 +00"), tstNode.LogFiles.ElementAt(1).LogDateRange.Max);
             Assert.AreEqual(DateTimeOffset.Parse("2011-01-10 13:33:00.000  +00"), tstNode.LogFiles.ElementAt(1).LogFileDateRange.Min);
             Assert.AreEqual(DateTimeOffset.Parse("2011-02-10 13:31:59.999 +00"), tstNode.LogFiles.ElementAt(1).LogFileDateRange.Max);
 
@@ -1931,7 +1931,7 @@ namespace DSEDiagnosticFileParser.Tests
             Assert.AreEqual(0, result.OrphanedSessionEvents.Count());
             Assert.AreEqual(3, tstNode.LogFiles.Count());
             Assert.AreEqual(DateTimeOffset.Parse("2011-05-18 22:00:00.001  +00"), tstNode.LogFiles.ElementAt(2).LogDateRange.Min);
-            Assert.AreEqual(DateTimeOffset.Parse("2011-05-18 22:35:06.380 +00"), tstNode.LogFiles.ElementAt(2).LogDateRange.Max);
+            Assert.AreEqual(DateTimeOffset.Parse("2011-06-18 22:00:00.000 +00"), tstNode.LogFiles.ElementAt(2).LogDateRange.Max);
             Assert.AreEqual(DateTimeOffset.Parse("2011-05-18 22:00:00.001  +00"), tstNode.LogFiles.ElementAt(2).LogFileDateRange.Min);
             Assert.AreEqual(DateTimeOffset.Parse("2011-06-18 22:00:00.000 +00"), tstNode.LogFiles.ElementAt(2).LogFileDateRange.Max);
 
@@ -2006,7 +2006,7 @@ namespace DSEDiagnosticFileParser.Tests
             Assert.AreEqual(0, result.OrphanedSessionEvents.Count());
             Assert.AreEqual(6, tstNode.LogFiles.Count());
             Assert.AreEqual(DateTimeOffset.Parse("2011-01-08 13:33:00.000  +00"), tstNode.LogFiles.ElementAt(5).LogDateRange.Min);
-            Assert.AreEqual(DateTimeOffset.Parse("2011-01-08 13:35:06.380 +00"), tstNode.LogFiles.ElementAt(5).LogDateRange.Max);
+            Assert.AreEqual(DateTimeOffset.Parse("2011-01-09 13:31:59.999 +00"), tstNode.LogFiles.ElementAt(5).LogDateRange.Max);
             Assert.AreEqual(DateTimeOffset.Parse("2011-01-08 13:33:00.000  +00"), tstNode.LogFiles.ElementAt(5).LogFileDateRange.Min);
             Assert.AreEqual(DateTimeOffset.Parse("2011-02-10 13:31:59.999 +00"), tstNode.LogFiles.ElementAt(5).LogFileDateRange.Max);
 
@@ -2030,8 +2030,8 @@ namespace DSEDiagnosticFileParser.Tests
             Assert.AreEqual(5, result.Results.Count());
             Assert.AreEqual(0, result.OrphanedSessionEvents.Count());
             Assert.AreEqual(7, tstNode.LogFiles.Count());
-            Assert.AreEqual(DateTimeOffset.Parse("2011-07-18 22:00:00.001  +00"), tstNode.LogFiles.ElementAt(6).LogDateRange.Min);
-            Assert.AreEqual(DateTimeOffset.Parse("2011-07-18 22:35:06.380 +00"), tstNode.LogFiles.ElementAt(6).LogDateRange.Max);
+            Assert.AreEqual(DateTimeOffset.Parse("2011-06-18 22:00:00.000  +00"), tstNode.LogFiles.ElementAt(6).LogDateRange.Min);
+            Assert.AreEqual(DateTimeOffset.Parse("2011-07-18 23:00:00.000 +00"), tstNode.LogFiles.ElementAt(6).LogDateRange.Max);
             Assert.AreEqual(DateTimeOffset.Parse("2011-05-18 22:00:00.001  +00"), tstNode.LogFiles.ElementAt(6).LogFileDateRange.Min);
             Assert.AreEqual(DateTimeOffset.Parse("2011-07-18 23:00:00.000 +00"), tstNode.LogFiles.ElementAt(6).LogFileDateRange.Max);
 
@@ -2085,7 +2085,7 @@ namespace DSEDiagnosticFileParser.Tests
             Assert.AreEqual(0, result.OrphanedSessionEvents.Count());
             Assert.AreEqual(1, tstNode.LogFiles.Count());
             Assert.AreEqual(DateTimeOffset.Parse("2017-02-10 13:33:04.872  +00"), tstNode.LogFiles.ElementAt(0).LogDateRange.Min);
-            Assert.AreEqual(DateTimeOffset.Parse("2017-02-10 13:35:06.380 +00"), tstNode.LogFiles.ElementAt(0).LogDateRange.Max);
+            Assert.AreEqual(DateTimeOffset.Parse("2017-02-10 13:40:17.100 +00"), tstNode.LogFiles.ElementAt(0).LogDateRange.Max);
             Assert.AreEqual(DateTimeOffset.Parse("2017-02-10 13:33:04.872  +00"), tstNode.LogFiles.ElementAt(0).LogFileDateRange.Min);
             Assert.AreEqual(DateTimeOffset.Parse("2017-02-10 13:40:17.100 +00"), tstNode.LogFiles.ElementAt(0).LogFileDateRange.Max);
 

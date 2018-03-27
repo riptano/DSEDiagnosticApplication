@@ -491,6 +491,9 @@ namespace DSEDiagnosticFileParser
             }
             #endregion
 
+            DateTimeOffset? logLineDateRangeBegin = null;
+            DateTimeOffset logLineDateRangeLast = DateTimeOffset.MinValue;
+
             using (var logFileInstance = new ReadLogFile(this.File, LibrarySettings.Log4NetConversionPattern, this.CancellationToken, this.Node, this.LogRestrictedTimeRange))
             {
                 Tuple<Regex, Match, Regex, Match, CLogLineTypeParser> matchItem;
@@ -520,7 +523,10 @@ namespace DSEDiagnosticFileParser
                                                                             .OrderBy(o => o.EventTimeLocal);
 
                         possibleOpenSessions.ForEach(o => this._openSessions[o.SessionTieOutId] = (LogCassandraEvent)o);
+                        logLineDateRangeBegin = logMessage.LogDateTimewTZOffset;
                     }
+
+                    logLineDateRangeLast = logMessage.LogDateTimewTZOffset;
 
                     //Exception messages will be invoked twice. Once on the original log event (no exception info) and than with the exception information for the original logMessage instance. 
                     if (logMessage.ExtraMessages.HasAtLeastOneElement())
@@ -649,7 +655,9 @@ namespace DSEDiagnosticFileParser
                                                     logFileDateRange,
                                                     this._logEvents.Count,
                                                     this._orphanedSessionEvents.Count == 0 ? null : this._orphanedSessionEvents,
-                                                    this._logEvents.Count == 0 ? null : new DateTimeOffsetRange(this._logEvents.First().EventTime, this._logEvents.Last().EventTime),
+                                                    logLineDateRangeBegin.HasValue
+                                                        ? new DateTimeOffsetRange(logLineDateRangeBegin.Value, logLineDateRangeLast)
+                                                        : null,
                                                     nodeRestarts.Count == 0 ? null : nodeRestarts,
                                                     isDebugFile);
 

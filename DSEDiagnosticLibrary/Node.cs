@@ -894,9 +894,7 @@ namespace DSEDiagnosticLibrary
         private List<TokenRangeInfo> _tokenRanges = new List<TokenRangeInfo>();
         [JsonIgnore]
         public IEnumerable<TokenRangeInfo> TokenRanges { get { return this._tokenRanges; } }
-
-        public IEnumerable<Tuple<string,string,string>> TokenStrRanges { get; private set; }
-
+        
         public TokenRangeInfo AddTokenPair(string start, string end, string tokenLoad)
         {
             var range = TokenRangeInfo.CreateTokenRange(start, end, tokenLoad);
@@ -909,23 +907,7 @@ namespace DSEDiagnosticLibrary
             this._tokenRanges.Add(range);
 
             return range;
-        }
-
-        public Tuple<string,string,string> AddStrTokenPair(string start, string end, string tokenLoad)
-        {
-            var range = new Tuple<string, string, string>(start, end, tokenLoad);
-            
-            if(this.TokenStrRanges == null)
-            {
-                this.TokenStrRanges = new List<Tuple<string, string, string>>() { range };
-            }
-            else
-            {
-                ((List<Tuple<string, string, string>>)this.TokenStrRanges).Add(range);
-            }
-
-            return range;
-        }
+        }        
     }
 
     [JsonObject(MemberSerialization.OptOut)]
