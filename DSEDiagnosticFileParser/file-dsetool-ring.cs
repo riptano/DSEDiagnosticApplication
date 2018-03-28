@@ -25,6 +25,14 @@ namespace DSEDiagnosticFileParser
         {
         }
 
+        public file_dsetool_ring(IFilePath file,
+                                    string defaultClusterName,
+                                    string defaultDCName,
+                                    Version targetDSEVersion = null)
+            : base(CatagoryTypes.CommandOutputFile, file, defaultClusterName, defaultDCName, targetDSEVersion)
+        {
+        }
+
         public override IResult GetResult()
         {
             return new EmptyResult(this.File, this.Node?.Cluster, this.Node?.DataCenter, this.Node);

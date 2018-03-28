@@ -26,6 +26,15 @@ namespace DSEDiagnosticFileParser
             this._result = new StatResults(this);
         }
 
+        public file_nodetool_tpstats(IFilePath file,
+                                        string defaultClusterName,
+                                        string defaultDCName,
+                                        Version targetDSEVersion = null)
+            : base(CatagoryTypes.CommandOutputFile, file, defaultClusterName, defaultDCName, targetDSEVersion)
+        {
+            this._result = new StatResults(this);
+        }
+
         [JsonObject(MemberSerialization.OptOut)]
         public sealed class StatResults : IResult
         {

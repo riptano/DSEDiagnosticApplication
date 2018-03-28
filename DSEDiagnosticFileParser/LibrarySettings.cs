@@ -28,7 +28,9 @@ namespace DSEDiagnosticFileParser
         public static System.Text.RegularExpressions.Regex LogExceptionRegExMatches = new System.Text.RegularExpressions.Regex(Properties.Settings.Default.LogExceptionRegExMatches, System.Text.RegularExpressions.RegexOptions.Compiled | System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.Singleline);
         public static file_cassandra_log4net.DefaultLogLevelHandlers DefaultLogLevelHandling = DSEDiagnosticLibrary.LibrarySettings.ParseEnum<file_cassandra_log4net.DefaultLogLevelHandlers>(Properties.Settings.Default.DefaultLogLevelHandling);
         public static file_cassandra_log4net.DebugLogProcessingTypes DebugLogProcessing = DSEDiagnosticLibrary.LibrarySettings.ParseEnum<file_cassandra_log4net.DebugLogProcessingTypes>(Properties.Settings.Default.DebugLogProcessing);
-       
+        public static IEnumerable<string> IgnoreWarningsErrosInKeySpaces = Properties.Settings.Default.IgnoreWarningsErrosInKeySpaces.ToArray();
+
+
         public static DateTimeOffsetRange LogRestrictedTimeRange
         {
             get;

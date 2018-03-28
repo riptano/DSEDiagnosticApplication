@@ -63,6 +63,8 @@ namespace DSEDiagnosticConsoleApplication
                                                             ? "MaxValue"
                                                             : DSEDiagnosticFileParser.LibrarySettings.LogRestrictedTimeRange.Max.ToString(@"yyyy-MM-dd HH:mm:ss zzz"));
             }
+
+            DSEDiagnosticFileParser.LibrarySettings.IgnoreWarningsErrosInKeySpaces = ParserSettings.IgnoreKeySpaces;
             
             var diagParserTask = DSEDiagnosticFileParser.DiagnosticFile.ProcessFile(ParserSettings.DiagnosticPath,
                                                                                      clusterName: ParserSettings.ClusterName ?? defaultCluster,

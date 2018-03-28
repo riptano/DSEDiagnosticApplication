@@ -88,7 +88,7 @@ namespace DSEDiagnosticToDataTable
                     this.CancellationToken.ThrowIfCancellationRequested();
 
                     var tpStatGroups = from statItem in stat.Data
-                                       let attrKeyCol = this.GetColumnNameFromAttributeKey(statItem.Key)
+                                       let attrKeyCol = GetColumnNameFromAttributeKey(statItem.Key)
                                        group new { Col = attrKeyCol.Item2, Value = statItem.Value } by attrKeyCol.Item1 into g
                                        select new { Attr = g.Key, Values = g };
 
@@ -168,7 +168,7 @@ namespace DSEDiagnosticToDataTable
         /// Item1: Attribute Name
         /// Item2: Column Name
         /// </returns>
-        Tuple<string,string> GetColumnNameFromAttributeKey(string attributeKey)
+        public static Tuple<string,string> GetColumnNameFromAttributeKey(string attributeKey)
         {
             var splitNames = attributeKey.Split('.');
             var attrName = splitNames[splitNames.Length - 2];

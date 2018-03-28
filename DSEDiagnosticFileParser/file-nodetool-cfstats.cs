@@ -23,8 +23,27 @@ namespace DSEDiagnosticFileParser
                                         Version targetDSEVersion)
             : base(catagory, diagnosticDirectory, file, node, defaultClusterName, defaultDCName, targetDSEVersion)
         {
+            this._result = new StatResults(this);           
+        }
+
+        public file_nodetool_cfstats(IFilePath file,
+                                        string defaultClusterName,
+                                        string defaultDCName,
+                                        Version targetDSEVersion = null)
+            : base(CatagoryTypes.CommandOutputFile, file, defaultClusterName, defaultDCName, targetDSEVersion)
+        {
             this._result = new StatResults(this);
         }
+
+        /// <summary>
+        /// A collection of keyspace names and if a warning or error occurred for that keyspace it will be ignored.       
+        /// </summary>
+        [JsonIgnore]
+        public IEnumerable<string> IgnoreWarningsErrosInKeySpaces
+        {
+            get;
+            set;
+        } = LibrarySettings.IgnoreWarningsErrosInKeySpaces;
 
         [JsonObject(MemberSerialization.OptOut)]
         public sealed class StatResults : IResult
@@ -158,17 +177,15 @@ namespace DSEDiagnosticFileParser
 
             string line;
             bool skipSection = true;
-            IKeyspace currentKeyspace = null;
+            IKeyspace currentKeyspace = null;            
             IDDLStmt currentDDL = null;
             AggregatedStats statItem = null;
             AggregatedStats statItemCurrentKeyspace = null;
-            string[] splitValue = null; //first is the key/property and second item is the value
-            Tuple<string, UnitOfMeasure.Types> UOM = null;
-            string[] propValueSplit = null;
+            string[] splitValue = null; //first is the key/property and second item is the value            
             object propValue = null;
             object numValue = null;
             string attribute = null;
-
+            
             foreach (var element in fileLines)
             {
                 this.CancellationToken.ThrowIfCancellationRequested();
@@ -183,12 +200,13 @@ namespace DSEDiagnosticFileParser
 
                 splitValue = line.Split(':');
                 attribute = splitValue[0].Trim();
-
+                
                 if (attribute == "Keyspace")
                 {
                     var keyspaceNotInDC = false;
                     var ksName = splitValue[1].Trim();
                     skipSection = false;
+                                        
                     currentKeyspace = this.Node.DataCenter?.TryGetKeyspace(ksName);
 
                     if(currentKeyspace == null)
@@ -201,46 +219,56 @@ namespace DSEDiagnosticFileParser
                                                                         || this.Node.DataCenter == null
                                                                         || k.Replications.Any(r => r.DataCenter.Name == this.Node.DataCenter.Name));
 
-                        if(currentKeyspace == null)
+                        if (currentKeyspace == null)
                         {
                             currentKeyspace = this.Node.Cluster.Keyspaces.FirstOrDefault(k => k.Name == ksName);
 
                             if (currentKeyspace != null)
                             {
-                                Logger.Instance.WarnFormat("MapperId<{0}>\t{1}\t{2}\tNodetool CFStats Keyspace \"{3}\" was found but not in DC \"{4}\" (Keyspace DC(s) are {{{5}}}). This section will use this Keyspace and the AggregatedStats instance will be marked as in Error.",
-                                                            this.MapperId,
-                                                            this.Node,
-                                                            this.File.PathResolved,
-                                                            ksName,
-                                                            this.Node.DataCenter?.Name ?? "<NoDC>",
-                                                            string.Join(",", currentKeyspace.DataCenters.Select(dc => dc.Name)));
-                                ++this.NbrWarnings;
-                                this._unknownDDLs.Add(string.Format("{0} (KS Not Fnd in DC {1})", ksName, this.Node.DataCenter.Name));
+                                if (this.IgnoreWarningsErrosInKeySpaces == null || !this.IgnoreWarningsErrosInKeySpaces.Any(i => i == ksName))
+                                {
+                                    Logger.Instance.WarnFormat("MapperId<{0}>\t{1}\t{2}\tNodetool CFStats Keyspace \"{3}\" was found but not in DC \"{4}\" (Keyspace DC(s) are {{{5}}}). This section will use this Keyspace and the AggregatedStats instance will be marked as in Error.",
+                                                                this.MapperId,
+                                                                this.Node,
+                                                                this.File.PathResolved,
+                                                                ksName,
+                                                                this.Node.DataCenter?.Name ?? "<NoDC>",
+                                                                string.Join(",", currentKeyspace.DataCenters.Select(dc => dc.Name)));
+                                    ++this.NbrWarnings;
+                                    this._unknownDDLs.Add(string.Format("{0} (KS Not Fnd in DC {1})", ksName, this.Node.DataCenter.Name));
+                                }
                                 keyspaceNotInDC = true;
                             }
                         }
                         else
                         {
-                            Logger.Instance.InfoFormat("MapperId<{0}>\t{1}\t{2}\tNodetool CFStats Keyspace \"{3}\" was not found in DC \"{4}\" in Cluster \"{5}\" but was Found in the Master Cluster. Using the Master Cluster's instance.",
-                                                        this.MapperId,
-                                                        this.Node,
-                                                        this.File.PathResolved,
-                                                        ksName,
-                                                        this.Node.DataCenter?.Name ?? "<NoDC>",
-                                                        this.Node.Cluster.Name);
+                            if (this.IgnoreWarningsErrosInKeySpaces == null || !this.IgnoreWarningsErrosInKeySpaces.Any(i => i == ksName))
+                            {
+                                Logger.Instance.InfoFormat("MapperId<{0}>\t{1}\t{2}\tNodetool CFStats Keyspace \"{3}\" was not found in DC \"{4}\" in Cluster \"{5}\" but was Found in the Master Cluster. Using the Master Cluster's instance.",
+                                                            this.MapperId,
+                                                            this.Node,
+                                                            this.File.PathResolved,
+                                                            ksName,
+                                                            this.Node.DataCenter?.Name ?? "<NoDC>",
+                                                            this.Node.Cluster.Name);
+                            }
                         }
                     }
 
                     if (currentKeyspace == null)
                     {
-                        Logger.Instance.WarnFormat("MapperId<{0}>\t{1}\t{2}\tNodetool CFStats Keyspace \"{3}\" was not found in DC \"{4}\" and this complete section will be skipped.",
+                        if (this.IgnoreWarningsErrosInKeySpaces == null || !this.IgnoreWarningsErrosInKeySpaces.Any(i => i == ksName))
+                        {
+                            Logger.Instance.WarnFormat("MapperId<{0}>\t{1}\t{2}\tNodetool CFStats Keyspace \"{3}\" was not found in DC \"{4}\" and this complete section will be skipped.",
                                                     this.MapperId,
                                                     this.Node,
                                                     this.File.PathResolved,
                                                     ksName,
                                                     this.Node.DataCenter?.Name ?? "<NoDC>");
-                        ++this.NbrWarnings;
-                        this._unknownDDLs.Add(ksName);
+                            ++this.NbrWarnings;
+                            this._unknownDDLs.Add(ksName);
+                        }
+
                         skipSection = true;
                         statItem = null;
                         statItemCurrentKeyspace = null;
@@ -281,20 +309,28 @@ namespace DSEDiagnosticFileParser
                 }
                 else if (attribute == "Table" || attribute == "Table (index)")
                 {
+                    var itemName = splitValue[1].Trim();
+                                        
                     skipSection = false;
-                    currentDDL = currentKeyspace.TryGetDDL(splitValue[1].Trim());
+
+                    currentDDL = currentKeyspace.TryGetDDL(itemName);
 
                     if (currentDDL == null)
                     {
-                        var tableName = currentKeyspace.Name + '.' + splitValue[1].Trim();
-                        Logger.Instance.WarnFormat("MapperId<{0}>\t{1}\t{2}\tNodetool CFStats Table/Index/View \"{3}\" was not found in \"{4}\" and this complete section will be skipped.",
-                                                    this.MapperId,
-                                                    this.Node,
-                                                    this.File.PathResolved,
-                                                    tableName,
-                                                    currentKeyspace.DataCenter?.ToString() ?? currentKeyspace.Cluster?.ToString());
-                        ++this.NbrWarnings;
-                        this._unknownDDLs.Add(tableName);
+                        var tableName = currentKeyspace.Name + '.' + itemName;
+
+                        if (this.IgnoreWarningsErrosInKeySpaces == null || !this.IgnoreWarningsErrosInKeySpaces.Any(i => i == currentKeyspace.Name))
+                        {
+                            Logger.Instance.WarnFormat("MapperId<{0}>\t{1}\t{2}\tNodetool CFStats Table/Index/View \"{3}\" was not found in \"{4}\" and this complete section will be skipped.",
+                                                        this.MapperId,
+                                                        this.Node,
+                                                        this.File.PathResolved,
+                                                        tableName,
+                                                        currentKeyspace.DataCenter?.ToString() ?? currentKeyspace.Cluster?.ToString());
+                            ++this.NbrWarnings;
+                            this._unknownDDLs.Add(tableName);
+                        }
+
                         skipSection = true;
                         statItem = null;
 
@@ -330,56 +366,50 @@ namespace DSEDiagnosticFileParser
                     continue;
                 }
 
-                UOM = UOMKeywords.FirstOrDefault(u => attribute.IndexOf(u.Item1, StringComparison.CurrentCultureIgnoreCase) >= 0);
-                propValueSplit = splitValue[1].Trim().Split(' ');
-
-                if (Common.StringFunctions.ParseIntoNumeric(propValueSplit[0], out numValue, true))
+                //determine attribute value
                 {
-                    if (UOM != null || propValueSplit.Length > 1)
-                    {
-                        propValue = UnitOfMeasure.Create(((dynamic)numValue),
-                                                            UOM?.Item2 ?? UnitOfMeasure.Types.Unknown,
-                                                            propValueSplit.Length > 1 ? propValueSplit[1].Trim() : null,
-                                                            true);
+                    var attrValue = splitValue[1].Trim();
+                    var attrValueUOM = UnitOfMeasure.ConvertToType(attrValue);
 
-                        if (((UnitOfMeasure)propValue).Value < 0)
-                        {
-                            numValue = propValue = null;
-                        }
-                    }
-                    else
+                    if ((attrValueUOM & UnitOfMeasure.Types.NaN) != 0)
                     {
-                        if ((dynamic)numValue == -1)
-                        {
-                            numValue = propValue = null;
-                        }
-                        else
-                        {
-                            propValue = numValue;
-                        }
-                    }
-                }
-                else
-                {
-                    propValue = UnitOfMeasure.Create(splitValue[1].Trim(),
-                                                            UOM?.Item2 ?? UnitOfMeasure.Types.Unknown,
-                                                            true,
-                                                            true);
-
-                    if(propValue == null)
-                    {
-                        propValue = splitValue[1].Trim();
+                        propValue = new UnitOfMeasure(attrValueUOM);
                         numValue = null;
                     }
-                    else if(!((UnitOfMeasure)propValue).NaN && ((UnitOfMeasure) propValue).Value == -1)
-                    {
-                        numValue = propValue = null;
-                    }
                     else
                     {
-                        numValue = ((UnitOfMeasure)propValue).Value;
+                        var UOM = UOMKeywords.FirstOrDefault(u => attribute.IndexOf(u.Item1, StringComparison.CurrentCultureIgnoreCase) >= 0);
+                        var propValueSplit = attrValue.Split(' ');
+
+                        if (Common.StringFunctions.ParseIntoNumeric(propValueSplit[0], out numValue, true))
+                        {
+                            if (UOM != null || attrValueUOM != UnitOfMeasure.Types.Unknown || propValueSplit.Length > 1)
+                            {
+                                propValue = UnitOfMeasure.Create(((dynamic)numValue),
+                                                                    (UOM?.Item2 ?? UnitOfMeasure.Types.Unknown) | attrValueUOM,
+                                                                    propValueSplit.Length > 1 ? propValueSplit[1].Trim() : null,
+                                                                    true);
+                            }
+                            else
+                            {
+                                if ((dynamic)numValue == -1)
+                                {
+                                    numValue = propValue = null;
+                                }
+                                else
+                                {
+                                    propValue = numValue;
+                                }
+                            }
+                        }                        
+                        else
+                        {
+                            propValue = attrValue;
+                            numValue = null;
+                        }
                     }
                 }
+                
 
                 if(statItem.TableViewIndex != null)
                 {

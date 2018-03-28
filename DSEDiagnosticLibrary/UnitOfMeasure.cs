@@ -960,8 +960,8 @@ namespace DSEDiagnosticLibrary
                 if((uofType & Types.SizeUnits) != 0
                         && uof < 0)
                 {
-                    ulong posValue;
-                    unchecked { posValue = (ulong)uof; }
+                    uint posValue;
+                    unchecked { posValue = (uint)uof; }
 
                     return new UnitOfMeasure((decimal)posValue, uofType);
                 }
@@ -994,6 +994,17 @@ namespace DSEDiagnosticLibrary
 
             return new UnitOfMeasure((decimal)uof, strUOF, uofType);
         }
+
+        public static UnitOfMeasure Create(uint uof, Types uofType, string strUOF = null)
+        {            
+            return new UnitOfMeasure((decimal)uof, strUOF, uofType);
+        }
+
+        public static UnitOfMeasure Create(ulong uof, Types uofType, string strUOF = null)
+        {            
+            return new UnitOfMeasure((decimal)uof, strUOF, uofType);
+        }
+
 
         public static UnitOfMeasure Create(decimal uof, Types uofType, string strUOF = null, bool convertOverflowOnSize = false)
         {
@@ -1218,9 +1229,10 @@ namespace DSEDiagnosticLibrary
                 case "storage":
                     return Types.Storage;
             }
-
+            
             Types parsedType;
-            if (Enum.TryParse<Types>(uof, true, out parsedType))
+            if (!uof.All(c => char.IsDigit(c)) &&
+                    Enum.TryParse<Types>(uof, true, out parsedType))
             {
                 return parsedType | uofType;
             }

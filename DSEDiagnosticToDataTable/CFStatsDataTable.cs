@@ -103,7 +103,14 @@ namespace DSEDiagnosticToDataTable
                             dataRow.SetField(ColumnNames.KeySpace, keyspaceName);
                             if (stat.TableViewIndex != null)
                             {
-                                dataRow.SetField(ColumnNames.Table, warn ? stat.TableViewIndex.Name + " (warn)" : stat.TableViewIndex.Name);
+                                var itemName = stat.TableViewIndex.Name;
+
+                                if (stat.TableViewIndex is DSEDiagnosticLibrary.ICQLIndex)
+                                    itemName += " (index)";
+                                else if (stat.TableViewIndex is DSEDiagnosticLibrary.ICQLMaterializedView)
+                                    itemName += " (mv)";
+
+                                dataRow.SetField(ColumnNames.Table, warn ? itemName + " (warn)" : itemName);
                                 dataRow.SetField("Active", stat.TableViewIndex.IsActive);
                             }
 
@@ -189,7 +196,7 @@ namespace DSEDiagnosticToDataTable
 
                             dataRow.SetField("Unit of Measure", uom.UnitType.ToString());
 
-                            if ((uom.UnitType & DSEDiagnosticLibrary.UnitOfMeasure.Types.SizeUnits) != 0)
+                            if (!uom.NaN && (uom.UnitType & DSEDiagnosticLibrary.UnitOfMeasure.Types.SizeUnits) != 0)
                             {
                                 dataRow.SetField("Size in MB", uom.ConvertSizeUOM(DSEDiagnosticLibrary.UnitOfMeasure.Types.MiB));
                             }

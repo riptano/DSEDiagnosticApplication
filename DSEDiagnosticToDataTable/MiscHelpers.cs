@@ -55,6 +55,26 @@ namespace DSEDiagnosticToDataTable
             return dataRow;
         }
 
+        public static DataRow SetFieldToULong(this DataRow dataRow, string columnName, UnitOfMeasure uom, UnitOfMeasure.Types uomType = UnitOfMeasure.Types.Unknown)
+        {
+            if (!uom.NaN)
+            {
+                if (uom.Value > long.MaxValue || uom.Value < 0)
+                {
+                    unchecked
+                    {
+                        dataRow.SetField(columnName, (ulong)(uomType == UnitOfMeasure.Types.Unknown ? uom.Value : uom.ConvertTo(uomType)));
+                    }
+                }
+                else
+                {
+                    dataRow.SetField(columnName, (long)(uomType == UnitOfMeasure.Types.Unknown ? uom.Value : uom.ConvertTo(uomType)));
+                }
+            }
+
+            return dataRow;
+        }
+
         public static DataRow SetFieldToTimeSpan(this DataRow dataRow, string columnName, UnitOfMeasure uom)
         {
             if (!uom.NaN)
