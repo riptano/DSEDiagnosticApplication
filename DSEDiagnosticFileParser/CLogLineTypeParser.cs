@@ -500,9 +500,133 @@ namespace DSEDiagnosticFileParser
 
         public CLogLineTypeParser SessionBeginReference { get; internal set; } = null;
 
+        public bool IsClone { get; private set; } = false;
+
+        private decimal? _linkedTag = null;
+
+        /// <summary>
+        /// This Tag Id will be used to associated this instance to the matching tag id which must be defined in the master parser collection.
+        /// The matching instance values will be copied to this instance. If this instance already has values defined, they will NOT be overwritten.
+        /// 
+        /// This property should be the first property in the JSON string so that reminding propeties can be degined as overrides.
+        /// </summary>
+        public decimal? LinkedTagId
+        {
+            get { return this._linkedTag; }
+            set
+            {
+                if (value.HasValue && (!this._linkedTag.HasValue || value.Value != this._linkedTag))
+                {
+                    bool forceUpdate = this._linkedTag.HasValue;
+                    this._linkedTag = value;
+
+                    var masterParser = LibrarySettings.MasterLog4NetParser();
+                    var useParser = masterParser.Parsers.FirstOrDefault(p => p.TagId == this._linkedTag);
+
+                    if(useParser == null)
+                    {
+                        throw new System.ArgumentOutOfRangeException("MasterLog4NetParser",
+                                                                        string.Format("Master CLogLineTypeParser Tag Id {0} was not found for LinkedTagId", this._linkedTag));
+                    }
+
+                    this.Clone(useParser, forceUpdate);
+
+                    if(Logger.Instance.IsDebugEnabled)
+                    {
+                        Logger.Instance.DebugFormat("Using Master CLogLineTypeParser Tag Id of {0} ({1}) for Linked Id of {2} ({3})",
+                                                        useParser.TagId,
+                                                        useParser.Description,
+                                                        this.TagId,
+                                                        this.Description);
+                    }
+                }
+                else
+                {
+                    this._linkedTag = value;
+                }
+            }
+        }
         #endregion
 
         #region public methods
+
+        public void Clone(CLogLineTypeParser useAsCopy, bool forceUpdate = false)
+        {
+            if(forceUpdate)
+            {
+                this.TagId = useAsCopy.TagId;
+                this.Description = useAsCopy.Description;
+                this.SessionBeginTagId = useAsCopy.SessionBeginTagId;
+                this.MatchVersion = useAsCopy.MatchVersion;
+                this.LevelMatch = useAsCopy.LevelMatch;
+                this.ThreadIdMatch = useAsCopy.ThreadIdMatch;
+                this.FileNameMatch = useAsCopy.FileNameMatch;
+                this.FileLineMatch = useAsCopy.FileLineMatch;
+                this.MessageMatch = useAsCopy.MessageMatch;
+                this.ParseMessage = useAsCopy.ParseMessage;
+                this.ParseThreadId = useAsCopy.ParseThreadId;
+                this.EventType = useAsCopy.EventType;
+                this.EventClass = useAsCopy.EventClass;
+                this.MaxNumberOfEvents = useAsCopy.MaxNumberOfEvents;
+                this.MaxNumberOfEventsPerNode = useAsCopy.MaxNumberOfEventsPerNode;
+                this.RunningCount = useAsCopy.RunningCount;
+                this.IgnoreEvent = useAsCopy.IgnoreEvent;
+                this._subclass = useAsCopy._subclass;
+                this.Product = useAsCopy.Product;
+                this._sessionKey = useAsCopy._sessionKey;
+                this.SessionKeyAction = useAsCopy.SessionKeyAction;
+                this._sessionKeyLookup = useAsCopy._sessionKeyLookup;
+                this._sessionLookupRegEx = useAsCopy._sessionLookupRegEx;
+                this.SessionLookupAction = useAsCopy.SessionLookupAction;
+                this.SessionParentAction = useAsCopy.SessionParentAction;
+                this.Examples = useAsCopy.Examples;
+                this.SessionBeginReference = useAsCopy.SessionBeginReference;
+                this._nodesRunningCnt = useAsCopy._nodesRunningCnt;
+                for (int nIdx = 0; nIdx < this.CachedInfo.Length; nIdx++)
+                {
+                    this.CachedInfo[nIdx] = new CacheInfo()
+                    {
+                        KeyIsGroupName = useAsCopy.CachedInfo[nIdx].KeyIsGroupName,
+                        KeyIsStatic = useAsCopy.CachedInfo[nIdx].KeyIsStatic,
+                        KeyMethodInfo = useAsCopy.CachedInfo[nIdx].KeyMethodInfo,
+                        KeyMethodInfoIsMethod = useAsCopy.CachedInfo[nIdx].KeyMethodInfoIsMethod,
+                        KeyValue = useAsCopy.CachedInfo[nIdx].KeyValue
+                    };
+                }
+            }
+            else
+            {
+                if (this.TagId == 0) this.TagId = useAsCopy.TagId;
+                if (this.Description == null) this.Description = useAsCopy.Description;
+                if (this.SessionBeginTagId == null) this.SessionBeginTagId = useAsCopy.SessionBeginTagId;
+                if (this.MatchVersion == null) this.MatchVersion = useAsCopy.MatchVersion;
+                if (this.LevelMatch == null) this.LevelMatch = useAsCopy.LevelMatch;
+                if (this.ThreadIdMatch == null) this.ThreadIdMatch = useAsCopy.ThreadIdMatch;
+                if (this.FileNameMatch == null) this.FileNameMatch = useAsCopy.FileNameMatch;
+                if (this.FileLineMatch == null) this.FileLineMatch = useAsCopy.FileLineMatch;
+                if (this.MessageMatch == null) this.MessageMatch = useAsCopy.MessageMatch;
+                if (this.ParseMessage == null) this.ParseMessage = useAsCopy.ParseMessage;
+                if (this.ParseThreadId == null) this.ParseThreadId = useAsCopy.ParseThreadId;
+                if (this.EventType == EventTypes.Unkown) this.EventType = useAsCopy.EventType;
+                if (this.EventClass == EventClasses.Unknown) this.EventClass = useAsCopy.EventClass;
+                if (this.MaxNumberOfEvents == -1) this.MaxNumberOfEvents = useAsCopy.MaxNumberOfEvents;
+                if (this.MaxNumberOfEventsPerNode == -1) this.MaxNumberOfEventsPerNode = useAsCopy.MaxNumberOfEventsPerNode;
+                if (this.RunningCount == 0) this.RunningCount = useAsCopy.RunningCount;
+                if (!this.IgnoreEvent) this.IgnoreEvent = useAsCopy.IgnoreEvent;
+                if (this.SubClass == null) this.SubClass = useAsCopy.SubClass;
+                if (this.Product == DSEInfo.InstanceTypes.Unkown) this.Product = useAsCopy.Product;
+                if (this.SessionKey == null) this.SessionKey = useAsCopy.SessionKey;
+                if (this.SessionKeyAction == SessionKeyActions.Auto) this.SessionKeyAction = useAsCopy.SessionKeyAction;
+                if (this.SessionLookup == null) this.SessionLookup = useAsCopy.SessionLookup;
+                if (this.SessionLookupAction == SessionLookupActions.Default || this.SessionLookupAction == SessionLookupActions.ReadSession) this.SessionLookupAction = useAsCopy.SessionLookupAction;
+                if (this.SessionParentAction == SessionParentActions.Default) this.SessionParentAction = useAsCopy.SessionParentAction;
+                if (this.Examples == null) this.Examples = useAsCopy.Examples;
+                if (this.SessionBeginReference == null) this.SessionBeginReference = useAsCopy.SessionBeginReference;
+                if (this._nodesRunningCnt == null) this._nodesRunningCnt = useAsCopy._nodesRunningCnt;
+            }
+            
+            this.IsClone = true;
+    }
 
         public struct SessionInfo
         {

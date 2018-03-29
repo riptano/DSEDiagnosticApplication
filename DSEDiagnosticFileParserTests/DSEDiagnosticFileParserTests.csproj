@@ -84,6 +84,7 @@
     <Otherwise />
   </Choose>
   <ItemGroup>
+    <Compile Include="CLogLineTypeParser_Test.cs" />
     <Compile Include="cql_ddlTests.cs" />
     <Compile Include="file_cassandra_log4netTests.cs" />
     <Compile Include="file_dsetool_ringTests.cs" />

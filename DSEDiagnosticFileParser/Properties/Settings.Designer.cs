@@ -1136,5 +1136,17 @@ public static class {0}
                 return ((global::System.Collections.Specialized.StringCollection)(this["IgnoreWarningsErrosInKeySpaces"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute(".\\Log4NetParser.json,.\\Json\\Log4NetParser.json,[cpld]\\Json\\Log4NetParser.json,[cp" +
+            "ld]\\Log4NetParser.json,[ApplicationRunTimeDirectory]\\Json\\Log4NetParser.json,[Ap" +
+            "plicationRunTimeDirectory]\\Log4NetParser.json,.\\Log4NetParser.json,.\\Json\\Log4Ne" +
+            "tParser.json")]
+        public string MasterLog4NetParser {
+            get {
+                return ((string)(this["MasterLog4NetParser"]));
+            }
+        }
     }
 }

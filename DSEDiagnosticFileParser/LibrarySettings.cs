@@ -16,12 +16,13 @@ namespace DSEDiagnosticFileParser
         public static RegExLexicon RegExLexiconValues = RegExLexicon.Instance;
         public static bool DetectDuplicatedLogEvents = Properties.Settings.Default.DetectDuplicatedLogEvents;
         public static Tuple<string, string>[] ExtractFilesWithExtensions = JsonConvert.DeserializeObject<Tuple<string, string>[]>(Properties.Settings.Default.ExtractFilesWithExtensions);
-        public static FileMapper[] ProcessFileMappings = ReadJsonFileIntoObject<FileMapper[]>(Properties.Settings.Default.ProcessFileMappings);
+        public static FileMapper[] ProcessFileMappings = ReadJsonFileIntoObject<FileMapper[]>(Properties.Settings.Default.ProcessFileMappings);        
         public static Dictionary<string,RegExParseString> DiagnosticFileRegExAssocations = ReadJsonFileIntoObject<Dictionary<string, RegExParseString>>(Properties.Settings.Default.DiagnosticFileRegExAssocations);
         public static string[] ObscureFiledValues = Properties.Settings.Default.ObscureFiledValues.ToArray();
         public static Dictionary<string, string> SnitchFileMappings = CreateDictionary(Properties.Settings.Default.SnitchFileMappings);
         public static string Log4NetConversionPattern = Properties.Settings.Default.Log4NetConversionPattern;
         public static CLogTypeParser Log4NetParser = ReadJsonFileIntoObject<CLogTypeParser>(Properties.Settings.Default.Log4NetParser);
+        public static string MasterLog4NetParserPathJSON = Properties.Settings.Default.MasterLog4NetParser;
         public static string[] CodeDomAssemblies = Properties.Settings.Default.CodeDomAssemblies.ToArray();
         public static file_create_folder_structure.Mappings FileCreateFolderTargetSourceMappings = ReadJsonFileIntoObject<file_create_folder_structure.Mappings>(Properties.Settings.Default.FileCreateFolderTargetSourceMappings);
         public static string[] IgnoreFileWExtensions = Properties.Settings.Default.IgnoreFileWExtensions.ToArray().Select(i => i.Trim().ToLower()).ToArray();
@@ -132,6 +133,14 @@ namespace DSEDiagnosticFileParser
                 Logger.Instance.Error(string.Format("Invalid Json Value or File Path. Value is: \"{0}\"", jsonStringOrFile), e);
                 throw;
             }
+        }
+
+        private static CLogTypeParser MasterLog4NetParserCache = null;
+        public static CLogTypeParser MasterLog4NetParser()
+        {
+            return MasterLog4NetParserCache == null
+                    ? MasterLog4NetParserCache = ReadJsonFileIntoObject<CLogTypeParser>(MasterLog4NetParserPathJSON)
+                    : MasterLog4NetParserCache;
         }
     }
 }

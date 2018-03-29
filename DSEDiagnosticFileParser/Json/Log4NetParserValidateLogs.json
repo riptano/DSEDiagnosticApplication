@@ -3,583 +3,63 @@
   "Parsers": [
     {
       "Description": "Node Down or Join Cluster",
-      "TagId": 4.0,
-      "MatchVersion": null,
-      "LevelMatch": {
-        "RegExStrings": [
-          "INFO"
-        ]
-      },
-      "ThreadIdMatch": null,
-      "FileNameMatch": {
-        "RegExStrings": [
-          "^Gossiper.java$"
-        ]
-      },
-      "FileLineMatch": null,
-      "MessageMatch": {
-        "RegExStrings": [
-          "^(InetAddress|Node)\\s.+\\s(down|cluster)"
-        ]
-      },
-      "ParseMessage": {
-        "RegExStrings": [
-          "^InetAddress\\s+/?\\s*(?$<NODE>)\\s+\\w+\\s+\\w+\\s+(?<action>DOWN)$",
-          "^Node\\s+/?\\s*(?$<NODE>)\\s+is\\s+(?<action>now part of the cluster)$"
-        ]
-      },
-      "ParseThreadId": null,
-      "EventType": "SessionBegin",
-      "EventClass": "NodeDetection, Change",
-      "SubClass": "NODE + ' ' + action",
-      "Product": "Cassandra",
-      "SessionKey": "EventClass + NODE",
-      "SessionKeyAction": "Add",
-      "Examples": [
-        "=> INFO  [GossipTasks:1] 2017-02-12 02:13:59,976  Gossiper.java:1008 - InetAddress /10.1.37.0 is now DOWN",
-        "=> INFO  [GossipStage:1] 2017-02-12 02:13:59,976  Gossiper.java:1029 - Node /10.1.37.0 is now part of the cluster",
-        "INFO  [SharedPool-Worker-1] 2017-02-12 02:14:00,978  Gossiper.java:993 - InetAddress /10.1.37.0 is now UP"
-      ]
+      "LinkedTagId": 4.0      
     },
     {
       "Description": "Node Up",
-      "TagId": 4.1,
-      "SessionBeginTagId": 4.0,
-      "MatchVersion": null,
-      "LevelMatch": {
-        "RegExStrings": [
-          "INFO"
-        ]
-      },
-      "ThreadIdMatch": null,
-      "FileNameMatch": {
-        "RegExStrings": [
-          "^Gossiper.java$"
-        ]
-      },
-      "FileLineMatch": null,
-      "MessageMatch": {
-        "RegExStrings": [
-          "^InetAddress\\s.+\\sup"
-        ]
-      },
-      "ParseMessage": {
-        "RegExStrings": [
-          "^InetAddress\\s+/?\\s*(?$<NODE>)\\s+\\w+\\s+\\w+\\s+(?<action>UP)$"
-        ]
-      },
-      "ParseThreadId": null,
-      "EventType": "SessionEnd, SessionIgnore",
-      "EventClass": "NodeDetection, Change",
-      "SubClass": "NODE + ' UP'",
-      "Product": "Cassandra",
-      "SessionKey": "EventClass + NODE",
-      "Examples": [
-        "INFO  [GossipTasks:1] 2017-02-12 02:13:59,976  Gossiper.java:1008 - InetAddress /10.1.37.0 is now DOWN",
-        "INFO  [GossipStage:1] 2017-02-12 02:13:59,976  Gossiper.java:1029 - Node /10.1.37.0 is now part of the cluster",
-        "=> INFO  [SharedPool-Worker-1] 2017-02-12 02:14:00,978  Gossiper.java:993 - InetAddress /10.1.37.0 is now UP"
-      ]
+      "LinkedTagId": 4.1      
     },
     {
       "Description": "Node Shutdown",
-      "TagId": 5.0,
-      "MatchVersion": null,
-      "LevelMatch": {
-        "RegExStrings": [
-          "INFO"
-        ]
-      },
-      "ThreadIdMatch": null,
-      "FileNameMatch": {
-        "RegExStrings": [
-          "^DseDaemon.java$"
-        ]
-      },
-      "FileLineMatch": null,
-      "MessageMatch": {
-        "RegExStrings": [
-          "^DSE shutdown "
-        ]
-      },
-      "ParseMessage": {
-        "RegExStrings": [
-          "^\\w+\\s+(?<SUBCLASS>shutdown\\s+\\w+)\\s*\\.$"
-        ]
-      },
-      "ParseThreadId": null,
-      "EventType": "SessionBegin",
-      "EventClass": "NodeDetection, Change",
-      "SubClass": null,
-      "Product": "Cassandra",
-      "SessionKey": "EventClass + 'Shutdown'",
-      "SessionKeyAction": "Add",
-      "Examples": [
-        "=> INFO  [Daemon shutdown] 2017-05-01 15:20:06,377  DseDaemon.java:542 - DSE shutdown complete.",
-        "INFO  [main] 2017-05-16 13:39:58,892  DseDaemon.java:827 - DSE startup complete."
-      ]
+      "LinkedTagId": 5.0      
     },
     {
       "Description": "Node Startup",
-      "TagId": 5.1,
-      "SessionBeginTagId": 5.0,
-      "MatchVersion": null,
-      "LevelMatch": {
-        "RegExStrings": [
-          "INFO"
-        ]
-      },
-      "ThreadIdMatch": null,
-      "FileNameMatch": {
-        "RegExStrings": [
-          "^DseDaemon.java$"
-        ]
-      },
-      "FileLineMatch": null,
-      "MessageMatch": {
-        "RegExStrings": [
-          "^DSE startup "
-        ]
-      },
-      "ParseMessage": {
-        "RegExStrings": [
-          "^\\w+\\s+(?<SUBCLASS>startup\\s+\\w+)\\s*\\.$"
-        ]
-      },
-      "ParseThreadId": null,
-      "EventType": "SessionEnd",
-      "EventClass": "NodeDetection, Change",
-      "SubClass": null,
-      "Product": "Cassandra",
-      "SessionKey": "EventClass + 'Shutdown'",
-      "SessionKeyAction": "ReadRemove",
-      "Examples": [
-        "INFO  [Daemon shutdown] 2017-05-01 15:20:06,377  DseDaemon.java:542 - DSE shutdown complete.",
-        "=> INFO  [main] 2017-05-16 13:39:58,892  DseDaemon.java:827 - DSE startup complete."
-      ]
+      "LinkedTagId": 5.1      
     },
     {
       "Description": "Node Configuration",
-      "TagId": 6.0,
-      "MatchVersion": null,
-      "LevelMatch": {
-        "RegExStrings": [
-          "INFO"
-        ]
-      },
-      "ThreadIdMatch": null,
-      "FileNameMatch": {
-        "RegExStrings": [
-          "^Config.java$"
-        ]
-      },
-      "FileLineMatch": null,
-      "MessageMatch": {
-        "RegExStrings": [
-          "^Node configuration\\:"
-        ]
-      },
-      "ParseMessage": {
-        "RegExStrings": [
-          "^Node\\s+configuration\\:\\s*\\[\\s*(?:(?<KEY>[a-z0-9\\-_.]+)\\s*\\=\\s*(?<VALUE>(?:\\[Ljava\\.lang\\.String\\;\\@[a-f0-9]+)|[a-z0-9.,\\-_{}=<> //\\]\\[]+)\\s*(?:\\;|\\])\\s*)+"
-        ]
-      },
-      "ParseThreadId": null,
-      "EventType": "SingleInstance",
-      "EventClass": "Config, NodeDetection",
-      "SubClass": null,
-      "Product": "Cassandra",
-      "Examples": [
-        "=> INFO  [main] 2017-05-16 13:39:43,277  Config.java:440 - Node configuration:[allocate_tokens_for_keyspace=null; authenticator=AllowAllAuthenticator; authorizer=AllowAllAuthorizer; auto_bootstrap=true; auto_snapshot=true; batch_size_fail_threshold_in_kb=640; batch_size_warn_threshold_in_kb=64; batchlog_replay_throttle_in_kb=1024; broadcast_address=null; broadcast_rpc_address=null; buffer_pool_use_heap_if_exhausted=true; cas_contention_timeout_in_ms=1000; client_encryption_options=<REDACTED>; cluster_name=Andersen 5.0 Test Cluster; column_index_size_in_kb=64; commit_failure_policy=stop; commitlog_compression=null; commitlog_directory=/mnt/cassandra/commitlog/commitlog; commitlog_max_compression_buffers_in_pool=3; commitlog_periodic_queue_size=-1; commitlog_segment_size_in_mb=32; commitlog_sync=periodic; commitlog_sync_batch_window_in_ms=null; commitlog_sync_period_in_ms=10000; commitlog_total_space_in_mb=null; compaction_large_partition_warning_threshold_mb=100; compaction_throughput_mb_per_sec=16; concurrent_compactors=null; concurrent_counter_writes=32; concurrent_materialized_view_writes=32; concurrent_reads=32; concurrent_replicates=null; concurrent_writes=32; counter_cache_keys_to_save=2147483647; counter_cache_save_period=7200; counter_cache_size_in_mb=null; counter_write_request_timeout_in_ms=5000; cross_node_timeout=false; data_file_directories=[Ljava.lang.String;@1a45193b; disk_access_mode=auto; disk_failure_policy=stop; disk_optimization_estimate_percentile=0.95; disk_optimization_page_cross_chance=0.1; disk_optimization_strategy=ssd; dynamic_snitch=true; dynamic_snitch_badness_threshold=0.1; dynamic_snitch_reset_interval_in_ms=600000; dynamic_snitch_update_interval_in_ms=100; enable_scripted_user_defined_functions=false; enable_user_defined_functions=false; enable_user_defined_functions_threads=true; encryption_options=null; endpoint_snitch=com.datastax.bdp.snitch.DseDelegateSnitch; file_cache_size_in_mb=512; gc_warn_threshold_in_ms=1000; hinted_handoff_disabled_datacenters=[]; hinted_handoff_enabled=true; hinted_handoff_throttle_in_kb=1024; hints_compression=null; hints_directory=/mnt/cassandra/savedcache/hints; hints_flush_period_in_ms=10000; incremental_backups=false; index_interval=null; index_summary_capacity_in_mb=null; index_summary_resize_interval_in_minutes=60; initial_token=null; inter_dc_stream_throughput_outbound_megabits_per_sec=200; inter_dc_tcp_nodelay=false; internode_authenticator=null; internode_compression=dc; internode_recv_buff_size_in_bytes=null; internode_send_buff_size_in_bytes=null; key_cache_keys_to_save=2147483647; key_cache_save_period=14400; key_cache_size_in_mb=null; listen_address=192.168.247.69; listen_interface=null; listen_interface_prefer_ipv6=false; listen_on_broadcast_address=false; max_hint_window_in_ms=10800000; max_hints_delivery_threads=2; max_hints_file_size_in_mb=128; max_mutation_size_in_kb=null; max_streaming_retries=3; max_value_size_in_mb=256; memtable_allocation_type=heap_buffers; memtable_cleanup_threshold=null; memtable_flush_writers=null; memtable_heap_space_in_mb=null; memtable_offheap_space_in_mb=null; native_transport_max_concurrent_connections=-1; native_transport_max_concurrent_connections_per_ip=-1; native_transport_max_frame_size_in_mb=256; native_transport_max_threads=128; native_transport_port=9042; native_transport_port_ssl=null; num_tokens=128; otc_coalescing_strategy=TIMEHORIZON; otc_coalescing_window_us=200; partitioner=org.apache.cassandra.dht.Murmur3Partitioner; permissions_cache_max_entries=1000; permissions_update_interval_in_ms=-1; permissions_validity_in_ms=2000; phi_convict_threshold=8.0; range_request_timeout_in_ms=10000; read_request_timeout_in_ms=5000; request_scheduler=org.apache.cassandra.scheduler.NoScheduler; request_scheduler_id=null; request_scheduler_options=null; request_timeout_in_ms=10000; role_manager=com.datastax.bdp.cassandra.auth.DseRoleManager; roles_cache_max_entries=1000; roles_update_interval_in_ms=-1; roles_validity_in_ms=2000; row_cache_class_name=org.apache.cassandra.cache.OHCProvider; row_cache_keys_to_save=2147483647; row_cache_save_period=0; row_cache_size_in_mb=0; rpc_address=192.168.247.69; rpc_interface=null; rpc_interface_prefer_ipv6=false; rpc_keepalive=true; rpc_listen_backlog=50; rpc_max_threads=2147483647; rpc_min_threads=16; rpc_port=9160; rpc_recv_buff_size_in_bytes=null; rpc_send_buff_size_in_bytes=null; rpc_server_type=sync; saved_caches_directory=/mnt/cassandra/savedcache/saved_caches; seed_provider=org.apache.cassandra.locator.SimpleSeedProvider{seeds=192.168.247.69}; server_encryption_options=<REDACTED>; snapshot_before_compaction=false; ssl_storage_port=7001; sstable_preemptive_open_interval_in_mb=50; start_native_transport=true; start_rpc=true; storage_port=7000; stream_throughput_outbound_megabits_per_sec=200; streaming_socket_timeout_in_ms=86400000; thrift_framed_transport_size_in_mb=15; thrift_max_message_length_in_mb=16; tombstone_failure_threshold=100000; tombstone_warn_threshold=1000; tracetype_query_ttl=86400; tracetype_repair_ttl=604800; trickle_fsync=true; trickle_fsync_interval_in_kb=10240; truncate_request_timeout_in_ms=60000; unlogged_batch_across_partitions_warn_threshold=10; user_defined_function_fail_timeout=1500; user_defined_function_warn_timeout=500; user_function_timeout_policy=die; windows_timer_interval=1; write_request_timeout_in_ms=2000]"
-      ]
+      "LinkedTagId": 6.0
     },
     {
       "Description": "Sharding Start",
-      "TagId": 8.0,
-      "MatchVersion": null,
-      "LevelMatch": {
-        "RegExStrings": [
-          "INFO"
-        ]
-      },
-      "FileNameMatch": {
-        "RegExStrings": [
-          "^ShardRouter.java$"
-        ]
-      },
-      "MessageMatch": {
-        "RegExStrings": [
-          "^Updating shards\\s"
-        ]
-      },
-      "ParseMessage": {
-        "RegExStrings": [
-          "^updating shards[a-z ]+/?\\s*(?$<NODE>)\\s+\\w+\\s\\w+\\sstatus=(?<action>\\w+)\\,?(?<token>\\s?\\-?[0-9]+\\,?)*",
-          "^updating shards[a-z ]+/?\\s*(?$<NODE>)\\s+\\w+\\s\\w+\\s(?<action>schema)=?(?$<DDLSCHEMAID>)?$",
-          "^updating shards[a-z ]+/?\\s*(?$<NODE>)\\s+\\w+\\s(?<action>dead)$"
-        ]
-      },
-      "ParseThreadId": null,
-      "EventType": "SessionBegin",
-      "EventClass": "Detection, Node, Shard",
-      "SubClass": "action + ' ' + NODE",
-      "Product": "Cassandra",
-      "SessionKey": "'shardEvent' + NODE + token",
-      "SessionKeyAction": "Add",
-      "SessionLookup": "'shardEvent' + NODE",
-      "SessionLookupAction": "DefineLabel, Stack",
-      "Examples": [
-        "=>INFO  [SharedPool-Worker-1] 2018-01-07 22:53:49,522  ShardRouter.java:605 - Updating shards state due to endpoint /10.0.0.2 changing state STATUS=NORMAL,-1051573540106914992",
-        "=>INFO  [GossipStage:1] 2018-01-07 22:56:01,123  ShardRouter.java:645 - Updating shards state due to endpoint /10.0.0.2 changing state SCHEMA=541fdec0-47c9-33fd-b79c-4a37acd21019",
-        "=>INFO  [GossipStage:1] 2018-01-07 22:56:02,345  ShardRouter.java:645 - Updating shards state due to endpoint /10.0.0.2 being dead",
-        "INFO  [GossipStage:1] 2018-01-07 22:53:49,525  StorageService.java:1790 - Nodes /10.0.0.2 and /10.0.0.1 have the same token -1051573540106914992.  /10.0.0.2 is the new owner",
-        "WARN  [GossipStage:1] 2018-01-07 22:53:49,905  TokenMetadata.java:196 - Token -1051573540106914992 changing ownership from /10.0.0.1 to /10.0.0.2",
-        "NFO  [GossipStage:1] 2018-01-07 22:53:49,918  TokenMetadata.java:414 - Updating topology for /10.0.0.2"
-      ]
+      "LinkedTagId": 8.0
     },
     {
       "Description": "Sharding Same Token",
-      "TagId": 8.1,
-      "SessionBeginTagId": 8.0,
-      "MatchVersion": null,
-      "LevelMatch": {
-        "RegExStrings": [
-          "INFO"
-        ]
-      },
-      "FileNameMatch": {
-        "RegExStrings": [
-          "^StorageService.java$"
-        ]
-      },
-      "FileLineMatch": null,
-      "MessageMatch": {
-        "RegExStrings": [
-          "^Nodes\\s/?[^ ]+\\sand\\s/?[^ ]+\\shave the same token "
-        ]
-      },
-      "ParseMessage": {
-        "RegExStrings": [
-          "^nodes/?\\s*[^ ]+\\s+and\\s+[^ ]+\\s+\\w+\\s+\\w+\\s+\\w+\\s+token\\s+(?<token>\\s?\\-?[0-9]+\\,?)*\\.?\\s+/?\\s*(?$<NODE>)\\s"
-        ]
-      },
-      "ParseThreadId": null,
-      "EventType": "SessionIgnore",
-      "EventClass": "Detection, Node, Shard",
-      "SubClass": "'New Ownership ' + NODE",
-      "Product": "Cassandra",
-      "SessionKey": "'shardEvent' + NODE + token",
-      "SessionKeyAction": "Read",
-      "Examples": [
-        "INFO  [SharedPool-Worker-1] 2018-01-07 22:53:49,522  ShardRouter.java:605 - Updating shards state due to endpoint /10.0.0.2 changing state STATUS=NORMAL,-1051573540106914992",
-        "INFO  [GossipStage:1] 2018-01-07 22:56:01,123  ShardRouter.java:645 - Updating shards state due to endpoint /10.0.0.2 changing state SCHEMA=541fdec0-47c9-33fd-b79c-4a37acd21019",
-        "INFO  [GossipStage:1] 2018-01-07 22:56:02,345  ShardRouter.java:645 - Updating shards state due to endpoint /10.0.0.2 being dead",
-        "=>INFO  [GossipStage:1] 2018-01-07 22:53:49,525  StorageService.java:1790 - Nodes /10.0.0.2 and /10.0.0.1 have the same token -1051573540106914992.  /10.0.0.2 is the new owner",
-        "WARN  [GossipStage:1] 2018-01-07 22:53:49,905  TokenMetadata.java:196 - Token -1051573540106914992 changing ownership from /10.0.0.1 to /10.0.0.2",
-        "NFO  [GossipStage:1] 2018-01-07 22:53:49,918  TokenMetadata.java:414 - Updating topology for /10.0.0.2"
-      ]
+      "LinkedTagId": 8.1
     },
     {
       "Description": "Sharding Same Token",
-      "TagId": 8.2,
-      "SessionBeginTagId": 8.0,
-      "MatchVersion": null,
-      "LevelMatch": {
-        "RegExStrings": [
-          "WARN"
-        ]
-      },
-      "FileNameMatch": {
-        "RegExStrings": [
-          "^TokenMetadata.java$"
-        ]
-      },
-      "FileLineMatch": null,
-      "MessageMatch": {
-        "RegExStrings": [
-          "^Token \\-?[0-9]+ changing ownership "
-        ]
-      },
-      "ParseMessage": {
-        "RegExStrings": [
-          "^Token\\s+(?<token>\\s?\\-?[0-9]+\\,?)\\s+\\w+\\s+\\w+\\s+\\w+\\s+/?\\s*[^ ]+\\sto\\s+(?$<NODE>)$"
-        ]
-      },
-      "ParseThreadId": null,
-      "EventType": "SessionItem, SingleInstance",
-      "EventClass": "Detection, Node, Shard",
-      "SubClass": "'Owership Changed ' + NODE",
-      "Product": "Cassandra",
-      "SessionKey": "'shardEvent' + NODE + token",
-      "SessionKeyAction": "Read",
-      "Examples": [
-        "INFO  [SharedPool-Worker-1] 2018-01-07 22:53:49,522  ShardRouter.java:605 - Updating shards state due to endpoint /10.0.0.2 changing state STATUS=NORMAL,-1051573540106914992",
-        "INFO  [GossipStage:1] 2018-01-07 22:56:01,123  ShardRouter.java:645 - Updating shards state due to endpoint /10.0.0.2 changing state SCHEMA=541fdec0-47c9-33fd-b79c-4a37acd21019",
-        "INFO  [GossipStage:1] 2018-01-07 22:56:02,345  ShardRouter.java:645 - Updating shards state due to endpoint /10.0.0.2 being dead",
-        "INFO  [GossipStage:1] 2018-01-07 22:53:49,525  StorageService.java:1790 - Nodes /10.0.0.2 and /10.0.0.1 have the same token -1051573540106914992.  /10.0.0.2 is the new owner",
-        "=>WARN  [GossipStage:1] 2018-01-07 22:53:49,905  TokenMetadata.java:196 - Token -1051573540106914992 changing ownership from /10.0.0.1 to /10.0.0.2",
-        "NFO  [GossipStage:1] 2018-01-07 22:53:49,918  TokenMetadata.java:414 - Updating topology for /10.0.0.2"
-      ]
+      "LinkedTagId": 8.2
     },
     {
       "Description": "Sharding Updating",
-      "TagId": 8.3,
-      "SessionBeginTagId": 8.0,
-      "MatchVersion": null,
-      "LevelMatch": {
-        "RegExStrings": [
-          "INFO"
-        ]
-      },
-      "FileNameMatch": {
-        "RegExStrings": [
-          "^TokenMetadata.java$"
-        ]
-      },
-      "FileLineMatch": null,
-      "MessageMatch": {
-        "RegExStrings": [
-          "^Updating topology for "
-        ]
-      },
-      "ParseMessage": {
-        "RegExStrings": [
-          "^Updating\\s+\\w+\\s+\\w+\\s+/?\\s*(?$<NODE>)"
-        ]
-      },
-      "ParseThreadId": null,
-      "EventType": "SessionEnd",
-      "EventClass": "Detection, Node, Shard",
-      "SubClass": "'Topology Updated ' + NODE",
-      "Product": "Cassandra",
-      "SessionLookup": "'shardEvent' + NODE",
-      "SessionLookupAction": "ReadRemoveLabel",
-      "Examples": [
-        "INFO  [SharedPool-Worker-1] 2018-01-07 22:53:49,522  ShardRouter.java:605 - Updating shards state due to endpoint /10.0.0.2 changing state STATUS=NORMAL,-1051573540106914992",
-        "INFO  [GossipStage:1] 2018-01-07 22:56:01,123  ShardRouter.java:645 - Updating shards state due to endpoint /10.0.0.2 changing state SCHEMA=541fdec0-47c9-33fd-b79c-4a37acd21019",
-        "INFO  [GossipStage:1] 2018-01-07 22:56:02,345  ShardRouter.java:645 - Updating shards state due to endpoint /10.0.0.2 being dead",
-        "INFO  [GossipStage:1] 2018-01-07 22:53:49,525  StorageService.java:1790 - Nodes /10.0.0.2 and /10.0.0.1 have the same token -1051573540106914992.  /10.0.0.2 is the new owner",
-        "WARN  [GossipStage:1] 2018-01-07 22:53:49,905  TokenMetadata.java:196 - Token 887656048495882619 changing ownership from /10.0.0.1 to /10.0.0.2",
-        "=>INFO  [GossipStage:1] 2018-01-07 22:53:49,918  TokenMetadata.java:414 - Updating topology for /10.0.0.2"
-      ]
+      "LinkedTagId": 8.3
     },
     {
       "Description": "Create table or view",
-      "TagId": 9.0,
-      "MatchVersion": null,
-      "LevelMatch": {
-        "RegExStrings": [
-          "INFO"
-        ]
-      },
-      "FileNameMatch": {
-        "RegExStrings": [
-          "^MigrationManager.java$"
-        ]
-      },
-      "FileLineMatch": null,
-      "MessageMatch": {
-        "RegExStrings": [
-          "^Create new (table|columnfamily|view)"
-        ]
-      },
-      "ParseMessage": {
-        "RegExStrings": [
-          "^(?<action>Create) new\\s+(?<type>table|columnfamily)\\s*:\\s+org.apache.cassandra.config.CFMetaData@[0-9a-f]+\\[cfid=(?$<DDLSCHEMAID>),ksname=(?$<KEYSPACE>),cfname=(?$<DDLITEMNAME>)",
-          "^(?<action>Create) new\\s+(?<type>view)\\s*:\\s+org.apache.cassandra.config.ViewDefinition@[0-9a-f]+\\[ksname=(?<KEYSPACE>[a-z0-9'\\-_$%+=!?<>^*&@]+),viewname=(?$<DDLITEMNAME>),basetableid=(?<basetaleid>[a-f0-9\\-]+),baseTableName=(?<basetablename>[a-z0-9'\\-_$%+=!?<>^*&@]+),.+cfid=(?$<DDLSCHEMAID>),"
-        ]
-      },
-      "ParseThreadId": null,
-      "EventType": "SingleInstance",
-      "EventClass": "Detection, Schema, Change",
-      "SubClass": "'New Table|View'",
-      "Product": "Cassandra",
-      "Examples": [
-        "=> INFO  [SharedPool-Worker-1] 2018-01-07 22:58:02,456  MigrationManager.java:249 - Create new ColumnFamily: org.apache.cassandra.config.CFMetaData@6d3c6562[cfId=ed1b46c1-3a72-11e7-9ff5-a12e162c4992,ksName=loan_servicing,cfName=bh_skillset_look_up,cfType=Standard,comparator=org.apache.cassandra.db.marshal.CompositeType(org.apache.cassandra.db.marshal.UTF8Type,org.apache.cassandra.db.marshal.UTF8Type,org.apache.cassandra.db.marshal.UTF8Type),comment=,readRepairChance=0.0,dcLocalReadRepairChance=0.1,gcGraceSeconds=172800,defaultValidator=org.apache.cassandra.db.marshal.BytesType,keyValidator=org.apache.cassandra.db.marshal.Int32Type,minCompactionThreshold=4,maxCompactionThreshold=32,columnMetadata=[ColumnDefinition{name=workgroup, type=org.apache.cassandra.db.marshal.UTF8Type, kind=REGULAR, componentIndex=2, indexName=null, indexType=null}, ColumnDefinition{name=substrm, type=org.apache.cassandra.db.marshal.UTF8Type, kind=REGULAR, componentIndex=2, indexName=null, indexType=null}, ColumnDefinition{name=end_dt_txt, type=org.apache.cassandra.db.marshal.UTF8Type, kind=REGULAR, componentIndex=2, indexName=null, indexType=null}, ColumnDefinition{name=skillset_name, type=org.apache.cassandra.db.marshal.UTF8Type, kind=CLUSTERING_COLUMN, componentIndex=0, indexName=null, indexType=null}, ColumnDefinition{name=id, type=org.apache.cassandra.db.marshal.Int32Type, kind=PARTITION_KEY, componentIndex=null, indexName=null, indexType=null}, ColumnDefinition{name=start_dt_txt, type=org.apache.cassandra.db.marshal.UTF8Type, kind=CLUSTERING_COLUMN, componentIndex=1, indexName=null, indexType=null}],compactionStrategyClass=class org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy,compactionStrategyOptions={},compressionParameters={sstable_compression=org.apache.cassandra.io.compress.LZ4Compressor},bloomFilterFpChance=0.01,memtableFlushPeriod=0,caching={\"keys\":\"ALL\", \"rows_per_partition\":\"NONE\"},defaultTimeToLive=0,minIndexInterval=128,maxIndexInterval=2048,speculativeRetry=99.0PERCENTILE,droppedColumns={},triggers=[],isDense=false]",
-        "=> INFO  [SharedPool-Worker-1] 2018-01-18 21:56:17,200  MigrationManager.java:342 - Create new table: org.apache.cassandra.config.CFMetaData@608aebd8[cfId=b36ea3f1-fccc-11e7-83c7-9fe59a0dddc1,ksName=keyspace1,cfName=digitalasset_3_0_2,flags=[COMPOUND],params=TableParams{comment=, read_repair_chance=0.0, dclocal_read_repair_chance=0.1, bloom_filter_fp_chance=0.01, crc_check_chance=1.0, gc_grace_seconds=3600, default_time_to_live=0, memtable_flush_period_in_ms=0, min_index_interval=128, max_index_interval=2048, speculative_retry=99PERCENTILE, caching={'keys' : 'ALL', 'rows_per_partition' : 'NONE'}, compaction=CompactionParams{class=org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy, options={max_threshold=32, min_threshold=4}}, compression=org.apache.cassandra.schema.CompressionParams@a29ec320, extensions={}},comparator=comparator(org.apache.cassandra.db.marshal.UTF8Type, org.apache.cassandra.db.marshal.UTF8Type, org.apache.cassandra.db.marshal.UTF8Type),partitionColumns=[[] | [filetype id lastupdated lastupdatedby tags]],partitionKeyColumns=[ColumnDefinition{name=marketname, type=org.apache.cassandra.db.marshal.UTF8Type, kind=PARTITION_KEY, position=0}],clusteringColumns=[ColumnDefinition{name=restaurantid, type=org.apache.cassandra.db.marshal.UTF8Type, kind=CLUSTERING, position=0}, ColumnDefinition{name=virtualpath, type=org.apache.cassandra.db.marshal.UTF8Type, kind=CLUSTERING, position=1}, ColumnDefinition{name=filename, type=org.apache.cassandra.db.marshal.UTF8Type, kind=CLUSTERING, position=2}],keyValidator=org.apache.cassandra.db.marshal.UTF8Type,columnMetadata=[ColumnDefinition{name=id, type=org.apache.cassandra.db.marshal.UUIDType, kind=REGULAR, position=-1}, ColumnDefinition{name=restaurantid, type=org.apache.cassandra.db.marshal.UTF8Type, kind=CLUSTERING, position=0}, ColumnDefinition{name=filetype, type=org.apache.cassandra.db.marshal.UTF8Type, kind=REGULAR, position=-1}, ColumnDefinition{name=tags, type=org.apache.cassandra.db.marshal.UTF8Type, kind=REGULAR, position=-1}, ColumnDefinition{name=filename, type=org.apache.cassandra.db.marshal.UTF8Type, kind=CLUSTERING, position=2}, ColumnDefinition{name=lastupdatedby, type=org.apache.cassandra.db.marshal.UTF8Type, kind=REGULAR, position=-1}, ColumnDefinition{name=marketname, type=org.apache.cassandra.db.marshal.UTF8Type, kind=PARTITION_KEY, position=0}, ColumnDefinition{name=virtualpath, type=org.apache.cassandra.db.marshal.UTF8Type, kind=CLUSTERING, position=1}, ColumnDefinition{name=lastupdated, type=org.apache.cassandra.db.marshal.TimestampType, kind=REGULAR, position=-1}],droppedColumns={},triggers=[],indexes=[]]",
-        "=> INFO  [SharedPool-Worker-1] 2018-01-18 21:59:14,423  MigrationManager.java:356 - Create new view: org.apache.cassandra.config.ViewDefinition@365fc22a[ksName=keyspace1,viewName=view1,baseTableId=08bdd2d2-126e-11e7-8866-d792efac3044,baseTableName=scores,includeAllColumns=false,whereClause=user IS NOT NULL AND game IS NOT NULL AND year IS NOT NULL AND month IS NOT NULL AND day IS NOT NULL,metadata=org.apache.cassandra.config.CFMetaData@1ecaf2c7[cfId=1d109250-fccd-11e7-83c7-9fe59a0dddc1,ksName=keyspace1,cfName=view1,flags=[COMPOUND],params=TableParams{comment=, read_repair_chance=0.0, dclocal_read_repair_chance=0.1, bloom_filter_fp_chance=0.01, crc_check_chance=1.0, gc_grace_seconds=864000, default_time_to_live=0, memtable_flush_period_in_ms=0, min_index_interval=128, max_index_interval=2048, speculative_retry=99PERCENTILE, caching={'keys' : 'ALL', 'rows_per_partition' : 'NONE'}, compaction=CompactionParams{class=org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy, options={max_threshold=32, min_threshold=4}}, compression=org.apache.cassandra.schema.CompressionParams@a29ec320, extensions={}},comparator=comparator(org.apache.cassandra.db.marshal.UTF8Type, org.apache.cassandra.db.marshal.Int32Type, org.apache.cassandra.db.marshal.Int32Type, org.apache.cassandra.db.marshal.Int32Type),partitionColumns=[[] | []],partitionKeyColumns=[ColumnDefinition{name=user, type=org.apache.cassandra.db.marshal.UTF8Type, kind=PARTITION_KEY, position=0}],clusteringColumns=[ColumnDefinition{name=game, type=org.apache.cassandra.db.marshal.UTF8Type, kind=CLUSTERING, position=0}, ColumnDefinition{name=year, type=org.apache.cassandra.db.marshal.Int32Type, kind=CLUSTERING, position=1}, ColumnDefinition{name=month, type=org.apache.cassandra.db.marshal.Int32Type, kind=CLUSTERING, position=2}, ColumnDefinition{name=day, type=org.apache.cassandra.db.marshal.Int32Type, kind=CLUSTERING, position=3}],keyValidator=org.apache.cassandra.db.marshal.UTF8Type,columnMetadata=[ColumnDefinition{name=game, type=org.apache.cassandra.db.marshal.UTF8Type, kind=CLUSTERING, position=0}, ColumnDefinition{name=user, type=org.apache.cassandra.db.marshal.UTF8Type, kind=PARTITION_KEY, position=0}, ColumnDefinition{name=year, type=org.apache.cassandra.db.marshal.Int32Type, kind=CLUSTERING, position=1}, ColumnDefinition{name=day, type=org.apache.cassandra.db.marshal.Int32Type, kind=CLUSTERING, position=3}, ColumnDefinition{name=month, type=org.apache.cassandra.db.marshal.Int32Type, kind=CLUSTERING, position=2}],droppedColumns={},triggers=[],indexes=[]]]",
-        "Note that when indexes are created they are updates on the base table"
-      ]
+      "LinkedTagId": 9.0
     },
     {
       "Description": "Create keyspace",
-      "TagId": 10.0,
-      "MatchVersion": null,
-      "LevelMatch": {
-        "RegExStrings": [
-          "INFO"
-        ]
-      },
-      "FileNameMatch": {
-        "RegExStrings": [
-          "^MigrationManager.java$"
-        ]
-      },
-      "FileLineMatch": null,
-      "MessageMatch": {
-        "RegExStrings": [
-          "^Create new Keyspace"
-        ]
-      },
-      "ParseMessage": {
-        "RegExStrings": [
-          "^(?<action>Create) new\\s+(?<type>Keyspace)\\s*:\\s+KeyspaceMetadata\\{name=(?$<KEYSPACE>),"
-        ]
-      },
-      "ParseThreadId": null,
-      "EventType": "SingleInstance",
-      "EventClass": "Detection, Schema, Change",
-      "SubClass": "'New Keyspace'",
-      "Product": "Cassandra",
-      "Examples": [
-        "=> INFO  [SharedPool-Worker-1] 2018-01-18 22:02:20,249  MigrationManager.java:302 - Create new Keyspace: KeyspaceMetadata{name=keyspace1, params=KeyspaceParams{durable_writes=true, replication=ReplicationParams{class=org.apache.cassandra.locator.SimpleStrategy, replication_factor=1}}, tables=[], views=[], functions=[], types=[]}"
-      ]
+      "LinkedTagId": 10.0
     },
     {
       "Description": "Update keyspace, table, columnfamily, or view",
-      "TagId": 11.0,
-      "MatchVersion": null,
-      "LevelMatch": {
-        "RegExStrings": [
-          "INFO"
-        ]
-      },
-      "FileNameMatch": {
-        "RegExStrings": [
-          "^MigrationManager.java$"
-        ]
-      },
-      "FileLineMatch": null,
-      "MessageMatch": {
-        "RegExStrings": [
-          "^Update (ColumnFamily|table|view|keyspace) "
-        ]
-      },
-      "ParseMessage": {
-        "RegExStrings": [
-          "^(?<action>Update)\\s+(?<type>ColumnFamily|table|view)\\s+(?$<DDLITEMNAME>)\\s",
-          "^(?<action>Update)\\s+(?<type>Keyspace)\\s+(?$<KEYSPACE>)\\s"
-        ]
-      },
-      "ParseThreadId": null,
-      "EventType": "SingleInstance",
-      "EventClass": "Detection, Schema, Change",
-      "SubClass": "'Updating CQL Item'",
-      "Product": "Cassandra",
-      "Examples": [
-        "=> INFO  [SharedPool-Worker-2] 2018-01-07 22:58:03,789  MigrationManager.java:298 - Update ColumnFamily 'loan_servicing/ewfm' From org.apache.cassandra.config.CFMetaData@1988c474[cfId=017d9860-3f84-11e6-9023-2da642d6c5be,ksName=loan_servicing,cfName=ewfm,cfType=Standard,comparator=org.apache.cassandra.db.marshal.CompositeType(org.apache.cassandra.db.marshal.UTF8Type,org.apache.cassandra.db.marshal.UTF8Type)",
-        "=> INFO  [SharedPool-Worker-1] 2018-01-07 22:58:01,123  MigrationManager.java:279 - Update Keyspace 'OpsCenter' From KSMetaData{name=OpsCenter, strategyClass=NetworkTopologyStrategy, strategyOptions={us-east-dsestorage=1, us-west-2-dsestorage=1, us-west-2-2-dsestorage=1},",
-        "=> INFO  [SharedPool-Worker-1] 2018-01-18 21:49:08,725  MigrationManager.java:413 - Update table 'keyspace1/digitalasset_3_0_2' From org.apache.cassandra.config.CFMetaData@69e7f50b[cfId=980fca72-2ea6-11e7-8ff9-2901fcc7f505,ksName=keyspace1,cfName=digitalasset_3_0_2,flags=[COMPOUND],params=TableParams{comment=, read_repair_chance=0.0, dclocal_read_repair_chance=0.1, bloom_filter_fp_chance=0.01, crc_chec",
-        "Note that indexes are updates on the base table"
-      ]
+      "LinkedTagId": 11.0
     },
     {
       "Description": "Drop keyspace, table, columnfamily, or view",
-      "TagId": 12.0,
-      "MatchVersion": null,
-      "LevelMatch": {
-        "RegExStrings": [
-          "INFO"
-        ]
-      },
-      "FileNameMatch": {
-        "RegExStrings": [
-          "^MigrationManager.java$"
-        ]
-      },
-      "FileLineMatch": null,
-      "MessageMatch": {
-        "RegExStrings": [
-          "^Drop (ColumnFamily|table|view|keyspace) "
-        ]
-      },
-      "ParseMessage": {
-        "RegExStrings": [
-          "^(?<action>Drop)\\s+(?<type>ColumnFamily|table|view)\\s+(?$<DDLITEMNAME>)\\s?",
-          "^(?<action>Drop)\\s+(?<type>Keyspace)\\s+(?$<KEYSPACE>)\\s?"
-        ]
-      },
-      "ParseThreadId": null,
-      "EventType": "SingleInstance",
-      "EventClass": "Detection, Schema, Change",
-      "SubClass": "'Drop CQL Item'",
-      "Product": "Cassandra",
-      "Examples": [
-        "=> INFO  [SharedPool-Worker-4] 2018-01-07 22:58:04,012  MigrationManager.java:326 - Drop Keyspace 'validation'",
-        "=> INFO  [SharedPool-Worker-1] 2018-01-18 21:55:04,410  MigrationManager.java:464 - Drop table 'keyspace1/digitalasset_3_0_2'",
-        "=> INFO  [SharedPool-Worker-1] 2018-01-18 21:58:33,418  MigrationManager.java:475 - Drop table 'keyspace1/view1'",
-        "Note that when indexes are dropped thay are updates on the base table"
-      ]
+      "LinkedTagId": 12.0
     },
     {
       "Description": "Not Mark Node Down (pause)",
-      "TagId": 18.0,
-      "MatchVersion": null,
-      "LevelMatch": {
-        "RegExStrings": [
-          "WARN"
-        ]
-      },
-      "ThreadIdMatch": null,
-      "FileNameMatch": {
-        "RegExStrings": [
-          "^FailureDetector.java$"
-        ]
-      },
-      "FileLineMatch": null,
-      "MessageMatch": {
-        "RegExStrings": [
-          "^Not\\s+marking\\s+nodes\\s+down"
-        ]
-      },
-      "ParseMessage": {
-        "RegExStrings": [
-          "^Not\\s+marking\\s+nodes\\s+down\\s+due\\s+to\\s+local\\s+pause\\s+of\\s+(?<GCPause>[0-9,]+)\\s*>\\s*(?<GCPauseThreshold>[0-9,]+)$"
-        ]
-      },
-      "ParseThreadId": null,
-      "EventType": "SingleInstance",
-      "EventClass": "NodeDetection, Change",
-      "SubClass": "'Not marking Node down due to pause'",
-      "Product": "Cassandra",
-      "SessionKey": null,
-      "Examples": [
-        "=> WARN  [GossipTasks:1] 2018-02-06 14:42:58,283  FailureDetector.java:258 - Not marking nodes down due to local pause of 71168044088 > 5000000000"
-      ]
+      "LinkedTagId": 18.0
     },
     {
       "Description": "Hint Handoff (dropped hints node down)",
-      "TagId": 19.0,
-      "MatchVersion": null,
-      "LevelMatch": {
-        "RegExStrings": [
-          "WARN"
-        ]
-      },
-      "ThreadIdMatch": null,
-      "FileNameMatch": {
-        "RegExStrings": [
-          "^HintedHandoffMetrics.java$"
-        ]
-      },
-      "FileLineMatch": null,
-      "MessageMatch": {
-        "RegExStrings": [
-          "^/*[^ ]+\\s+has\\s+[0-9,]+\\s+dropped\\s+hints"
-        ]
-      },
-      "ParseMessage": {
-        "RegExStrings": [
-          "^/*(?<NODE>[^ ]+)\\s+has\\s+(?<droppedhints>[0-9,]+)\\s+dropped\\s+hints"
-        ]
-      },
-      "ParseThreadId": null,
-      "EventType": "SingleInstance",
-      "EventClass": "HintHandOff, NodeDetection, Change",
-      "SubClass": "'Dropped Hints due to Node Down ' + NODE",
-      "Product": "Cassandra",      
-      "Examples": [
-        "=> WARN  [HintedHandoffManager:1] 2017-12-19 16:45:41,561  HintedHandoffMetrics.java:79 - /10.141.88.35 has 433 dropped hints, because node is down past configured hint window."
-      ]
+      "LinkedTagId": 19.0
     }
   ]
 }
