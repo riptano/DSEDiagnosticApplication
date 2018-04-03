@@ -96,7 +96,7 @@ namespace DSEDiagnosticLibrary
         event Action<IReadLogFile, ILogMessages, ILogMessage> ProcessedLogLineAction;
 
         Task<ILogMessages> BeginProcessLogFile(IFilePath logFile);
-        ILogMessages ProcessLogFile(IFilePath logFile);
+        ILogMessages ProcessLogFile(IFilePath logFile);        
         Task<ILogMessages> BeginProcessLogFile();
         ILogMessages ProcessLogFile();
 

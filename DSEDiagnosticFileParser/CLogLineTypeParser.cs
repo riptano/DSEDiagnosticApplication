@@ -1625,12 +1625,14 @@ namespace DSEDiagnosticFileParser
                                                                                         bool onlyMatch = false)
         {
             Tuple<Regex, Match, Regex, Match, CLogLineTypeParser> returnValue = null;
-            var parallelOptions = new ParallelOptions();
-            parallelOptions.CancellationToken = cancellationToken;
+            //var parallelOptions = new ParallelOptions();
+            //parallelOptions.CancellationToken = cancellationToken;
 
-            Parallel.ForEach(parsers, parallelOptions, (parserItem, loopState) =>
-            //foreach (var parserItem in parsers)
+            //Parallel.ForEach(parsers, parallelOptions, (parserItem, loopState) =>
+            foreach (var parserItem in parsers)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 if ((parserItem.FileLineMatch?.IsMatchAny(logEvent.FileLine.ToString()) ?? true)
                         && (parserItem.FileNameMatch?.IsMatchAny(logEvent.FileName) ?? true)
                         && (parserItem.LevelMatch?.IsMatchAny(logEvent.Level.ToString()) ?? true)
@@ -1642,20 +1644,22 @@ namespace DSEDiagnosticFileParser
                     var threadIdMatch = onlyMatch ? null : parserItem.ParseThreadId?.MatchFirstSuccessful(logEvent.ThreadId, out threadIdRegEx);
                     var messageMatch = onlyMatch ? null : parserItem.ParseMessage?.MatchFirstSuccessful(logEvent.Message, out messageRegEx);
 
-                    if(loopState.IsStopped)
+                    //if(loopState.IsStopped)
+                    //{
+                    //    return;
+                    //}
+                    //else
+                    if (onlyMatch || threadIdMatch != null || messageMatch != null)
                     {
-                        return;
-                    }
-                    else if (onlyMatch || threadIdMatch != null || messageMatch != null)
-                    {
-                        if(returnValue == null)
+                        //if(returnValue == null)
                             returnValue = new Tuple<Regex, Match, Regex, Match, CLogLineTypeParser>(threadIdRegEx,
                                                                                                     threadIdMatch,
                                                                                                     messageRegEx,
                                                                                                     messageMatch,
-                                                                                                    parserItem);                       
-                        loopState.Stop();
-                        return;
+                                                                                                    parserItem);
+                        //loopState.Stop();
+                        //return;
+                        break;
                     }
                     else
                     {
@@ -1664,7 +1668,7 @@ namespace DSEDiagnosticFileParser
                                                      parserItem.ToString());                        
                     }
                 }               
-            });
+            }//);
 
             return returnValue;
         }

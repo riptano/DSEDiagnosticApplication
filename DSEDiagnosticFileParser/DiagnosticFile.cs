@@ -286,6 +286,9 @@ namespace DSEDiagnosticFileParser
         [JsonIgnore]
         public Task<DiagnosticFile> Task { get; protected set; }
 
+        [JsonIgnore]
+        public TaskScheduler TaskScheduler { get; protected set; }
+
         public IResult Result { get { return this.GetResult(); } }
 
         #endregion
@@ -822,8 +825,19 @@ namespace DSEDiagnosticFileParser
             if (cancellationToken.HasValue) cancellationToken.Value.ThrowIfCancellationRequested();
 
             INode[] processTheseNodes = null;
+            var nodefileAssocates = targetFiles.Select(f => new
+            {
+                File = f,
+                NodeId = fileMappings.ProcessingTaskOption.HasFlag(FileMapper.ProcessingTaskOptions.ScanForNode)
+                            || fileMappings.ProcessingTaskOption.HasFlag(FileMapper.ProcessingTaskOptions.AllNodesInCluster)
+                            || fileMappings.ProcessingTaskOption.HasFlag(FileMapper.ProcessingTaskOptions.AllNodesInDataCenter)
+                                ? DetermineNodeIdentifier(f, fileMappings.NodeIdPos)
+                                : null
+            });
 
-            if (onlyNodes != null && onlyNodes.HasAtLeastOneElement())
+            if (fileMappings.ProcessingTaskOption.HasFlag(FileMapper.ProcessingTaskOptions.ScanForNode) 
+                    && onlyNodes != null
+                    && onlyNodes.HasAtLeastOneElement())
             {
 
                 if (!fileMappings.ProcessingTaskOption.HasFlag(FileMapper.ProcessingTaskOptions.AllNodesInDataCenter))
@@ -836,7 +850,7 @@ namespace DSEDiagnosticFileParser
                 {
                     processTheseNodes = Cluster.GetNodes(dataCenterName, clusterName).Where(n => onlyNodes.Any(i => i.Equals(n))).ToArray();
                 }
-
+                
                 Logger.Instance.InfoFormat("FileMapper<{0}>\t<NoNodeId>\t<NoFile>\tUsing Only Nodes {{1}} for File Mapper File Parsing Class \"{2}\" for Category {3}, Processing Option {4}, Cluster \"{5}\", and Data Center \"{6}\". !",
                                                 fileMapperId,
                                                 string.Join(", ", processTheseNodes.Select(n => n.Id.NodeName())),
@@ -857,7 +871,7 @@ namespace DSEDiagnosticFileParser
                 else if (fileMappings.ProcessingTaskOption.HasFlag(FileMapper.ProcessingTaskOptions.AllNodesInDataCenter))
                 {
                     processTheseNodes = Cluster.GetNodes(dataCenterName, clusterName).ToArray();
-                }
+                }                
             }
 
             if (processTheseNodes != null && processTheseNodes.Length == 0)
@@ -872,11 +886,90 @@ namespace DSEDiagnosticFileParser
                 return Enumerable.Empty<DiagnosticFile>();
             }
 
+            if(processTheseNodes != null)
+            {
+                nodefileAssocates = nodefileAssocates.Where(fa => fa.NodeId == null 
+                                                                        ? fileMappings.ProcessingTaskOption.HasFlag(FileMapper.ProcessingTaskOptions.IgnoreNode)
+                                                                        : processTheseNodes.Any(n => n.Id.Equals(fa.NodeId)));
+
+            }
+            else if(!fileMappings.ProcessingTaskOption.HasFlag(FileMapper.ProcessingTaskOptions.IgnoreNode))
+            {
+                nodefileAssocates = nodefileAssocates.Where(fa => fa.NodeId != null);
+            }
+
             DiagnosticFile resultInstance = null;
             List<DiagnosticFile> localDFList = new List<DiagnosticFile>();
             bool onlyOnceProcessing = fileMappings.ProcessingTaskOption.HasFlag(FileMapper.ProcessingTaskOptions.OnlyOnce);
+            TaskScheduler taskScheduler = null;
+            bool ioSchedulerEnabled = false;
 
-            var action = (Action<IFilePath, NodeIdentifier>) ((targetFile, useThisNode) =>
+            if (fileMappings.Scheduler != FileMapper.SchedulerTypes.Disabled)
+            {
+                if (fileMappings.SchedulerAvailableThreads == -1 || fileMappings.SchedulerMaxConcurrencyLevel == -1)
+                {
+                    var nodeCnt = processTheseNodes == null
+                                        ? nodefileAssocates.GroupBy(i => i.NodeId).Count()
+                                        : processTheseNodes.Count();
+
+                    if (nodeCnt > 1)
+                    {
+                        if (fileMappings.SchedulerAvailableThreads == -1) fileMappings.SchedulerAvailableThreads = nodeCnt;
+                        if (fileMappings.SchedulerMaxConcurrencyLevel == -1)
+                        {
+                            var halfCnt = nodeCnt / 2;
+
+                            if (halfCnt > System.Environment.ProcessorCount)
+                            {
+                                halfCnt = System.Environment.ProcessorCount / 2;
+                            }
+                            fileMappings.SchedulerMaxConcurrencyLevel = halfCnt;
+                        }
+                    }
+                }
+                if (fileMappings.SchedulerAvailableThreads > 1 && fileMappings.SchedulerMaxConcurrencyLevel > 1)
+                {
+                    ioSchedulerEnabled = true;
+                    switch (fileMappings.Scheduler)
+                    {
+                        case FileMapper.SchedulerTypes.Disabled:
+                            break;
+                        case FileMapper.SchedulerTypes.LimitedConcurrencyLevelTaskScheduler:
+                            taskScheduler = new DSEDiagnosticFileParser.Tasks.Schedulers.LimitedConcurrencyLevelTaskScheduler(fileMappings.SchedulerMaxConcurrencyLevel);
+                            break;
+                        case FileMapper.SchedulerTypes.ThreadPerTaskScheduler:
+                            taskScheduler = new DSEDiagnosticFileParser.Tasks.Schedulers.ThreadPerTaskScheduler();
+                            break;
+                        case FileMapper.SchedulerTypes.WorkStealingTaskScheduler:
+                            taskScheduler = new DSEDiagnosticFileParser.Tasks.Schedulers.WorkStealingTaskScheduler(fileMappings.SchedulerAvailableThreads);
+                            break;
+                        case FileMapper.SchedulerTypes.CurrentThreadTaskScheduler:
+                            taskScheduler = new DSEDiagnosticFileParser.Tasks.Schedulers.CurrentThreadTaskScheduler();
+                            break;
+                        case FileMapper.SchedulerTypes.OrderedTaskScheduler:
+                            taskScheduler = new DSEDiagnosticFileParser.Tasks.Schedulers.OrderedTaskScheduler();
+                            break;
+                        default:
+                            break;
+                    }
+                    
+                    Logger.Instance.InfoFormat("FileMapper<{0}>\t\t\tUsing IOScheduler ({3}) with AvailableThreads {1} and MaxConcurrencyLevel {2}",
+                                                        fileMapperId,
+                                                        fileMappings.SchedulerAvailableThreads,
+                                                        fileMappings.SchedulerMaxConcurrencyLevel,
+                                                        taskScheduler.GetType().Name);                    
+                }
+            }
+            else if (fileMappings.FileMaxDegreeOfParallelism == -2)
+            {
+                taskScheduler = new DSEDiagnosticFileParser.Tasks.Schedulers.LimitedConcurrencyLevelTaskScheduler(System.Environment.ProcessorCount);
+            }
+            else if (fileMappings.FileMaxDegreeOfParallelism >= 1)
+            {
+                taskScheduler = new DSEDiagnosticFileParser.Tasks.Schedulers.LimitedConcurrencyLevelTaskScheduler(fileMappings.FileMaxDegreeOfParallelism);
+            }
+
+            var action = (Action<IFilePath, NodeIdentifier>) ((targetFile, nodeId) =>
             {
                 localDFList.Clear();
 
@@ -896,101 +989,24 @@ namespace DSEDiagnosticFileParser
                                         null,
                                        targetFile.PathResolved);
 
-                resultInstance = null;
+                resultInstance = ProcessFile(fileMapperId,
+                                                diagnosticDirectory,
+                                                targetFile,
+                                                instanceType,
+                                                fileMappings.Catagory,
+                                                nodeId,
+                                                null,
+                                                dataCenterName,
+                                                clusterName,
+                                                cancellationToken,
+                                                targetDSEVersion,
+                                                !DisableParallelProcessing && fileMappings.ProcessingTaskOption.HasFlag(FileMapper.ProcessingTaskOptions.ParallelProcessFiles),
+                                                taskScheduler);
 
-                if (processTheseNodes == null)
+                if (resultInstance != null)
                 {
-                    if (fileMappings.ProcessingTaskOption.HasFlag(FileMapper.ProcessingTaskOptions.ScanForNode))
-                    {
-                        var nodeId = useThisNode ?? DetermineNodeIdentifier(targetFile, fileMappings.NodeIdPos);
-
-                        if (nodeId == null && !fileMappings.ProcessingTaskOption.HasFlag(FileMapper.ProcessingTaskOptions.IgnoreNode))
-                        {
-                            Logger.Instance.ErrorFormat("FileMapper<{1}>\t<NoNodeId>\t{0}\tCouldn't detect node identity (IPAdress or host name) for this file path. This file will be skipped.",
-                                                            targetFile.PathResolved,
-                                                            fileMapperId);
-                        }
-                        else
-                        {
-                            resultInstance = ProcessFile(fileMapperId,
-                                                            diagnosticDirectory,
-                                                            targetFile,
-                                                            instanceType,
-                                                            fileMappings.Catagory,
-                                                            nodeId,
-                                                            null,
-                                                            dataCenterName,
-                                                            clusterName,
-                                                            cancellationToken,
-                                                            targetDSEVersion,
-                                                            !DisableParallelProcessing && fileMappings.ProcessingTaskOption.HasFlag(FileMapper.ProcessingTaskOptions.ParallelProcessFiles));
-
-                            if (resultInstance != null)
-                            {
-                                diagnosticInstances.Add(resultInstance);
-                                localDFList.Add(resultInstance);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        resultInstance = ProcessFile(fileMapperId,
-                                                        diagnosticDirectory,
-                                                        targetFile,
-                                                        instanceType,
-                                                        fileMappings.Catagory,
-                                                        null,
-                                                        null,
-                                                        dataCenterName,
-                                                        clusterName,
-                                                        cancellationToken,
-                                                        targetDSEVersion,
-                                                        !DisableParallelProcessing && fileMappings.ProcessingTaskOption.HasFlag(FileMapper.ProcessingTaskOptions.ParallelProcessFiles));
-
-                        if (resultInstance != null)
-                        {
-                            diagnosticInstances.Add(resultInstance);
-                            localDFList.Add(resultInstance);
-                        }
-                    }
-                }
-                else
-                {
-                    foreach (var node in processTheseNodes)
-                    {
-                        resultInstance = ProcessFile(fileMapperId,
-                                                        diagnosticDirectory,
-                                                        targetFile,
-                                                        instanceType,
-                                                        fileMappings.Catagory,
-                                                        null,
-                                                        node,
-                                                        dataCenterName,
-                                                        clusterName,
-                                                        cancellationToken,
-                                                        targetDSEVersion,
-                                                        !DisableParallelProcessing && fileMappings.ProcessingTaskOption.HasFlag(FileMapper.ProcessingTaskOptions.ParallelProcessFiles));
-
-                        if (resultInstance != null)
-                        {
-                            diagnosticInstances.Add(resultInstance);
-                            localDFList.Add(resultInstance);
-                            if (onlyOnceProcessing && resultInstance.Processed)
-                            {
-                                InvokeProgressionEvent(localDFList,
-                                                       ProgressionEventArgs.Categories.End | ProgressionEventArgs.Categories.Process | ProgressionEventArgs.Categories.DiagnosticFile | ProgressionEventArgs.Categories.Collection,
-                                                       "Processing File",
-                                                       null,
-                                                       2,
-                                                       2,
-                                                       null,
-                                                      targetFile.PathResolved);
-                                break;
-                            }
-                        }
-
-                        if (cancellationToken.HasValue) cancellationToken.Value.ThrowIfCancellationRequested();
-                    }
+                    diagnosticInstances.Add(resultInstance);
+                    localDFList.Add(resultInstance);
                 }
 
                 InvokeProgressionEvent(localDFList,
@@ -1005,12 +1021,11 @@ namespace DSEDiagnosticFileParser
 
             if (!onlyOnceProcessing && fileMappings.ProcessingTaskOption.HasFlag(FileMapper.ProcessingTaskOptions.ParallelProcessNode))
             {
-                var nodefileAssocates = targetFiles.Select(f => new { File = f, Node = DetermineNodeIdentifier(f, fileMappings.NodeIdPos) })
-                                                    .GroupBy(fna => fna.Node, fna => fna.File);
+                var nodefileAssocatesByGroup = nodefileAssocates.GroupBy(fna => fna.NodeId, fna => fna.File);
                
                 if(DisableParallelProcessing)
                 {
-                    foreach(var nodefiles in nodefileAssocates)
+                    foreach(var nodefiles in nodefileAssocatesByGroup)
                     {
                         foreach (var targetFile in nodefiles)
                         {
@@ -1023,9 +1038,15 @@ namespace DSEDiagnosticFileParser
                     var parallelOptions = new ParallelOptions();
 
                     if (cancellationToken.HasValue) parallelOptions.CancellationToken = cancellationToken.Value;
-                    parallelOptions.MaxDegreeOfParallelism = System.Environment.ProcessorCount;
 
-                    Parallel.ForEach(nodefileAssocates, parallelOptions, (nodefiles, loopState) =>
+                    if (ioSchedulerEnabled)
+                        parallelOptions.TaskScheduler = taskScheduler;
+                    else if(fileMappings.NodeMaxDegreeOfParallelism == -2)
+                        parallelOptions.MaxDegreeOfParallelism = System.Environment.ProcessorCount;
+                    else if(fileMappings.NodeMaxDegreeOfParallelism == -1 || fileMappings.NodeMaxDegreeOfParallelism > 0)
+                        parallelOptions.MaxDegreeOfParallelism = fileMappings.NodeMaxDegreeOfParallelism;
+
+                    Parallel.ForEach(nodefileAssocatesByGroup, parallelOptions, (nodefiles, loopState) =>
                     {
                         foreach (var targetFile in nodefiles)
                         {
@@ -1037,9 +1058,9 @@ namespace DSEDiagnosticFileParser
             else
             {
                 //targetFiles
-                foreach (var targetFile in targetFiles)
+                foreach (var targetFile in nodefileAssocates)
                 {
-                    action(targetFile, null);
+                    action(targetFile.File, targetFile.NodeId);
 
                     if (onlyOnceProcessing && resultInstance != null && resultInstance.Processed)
                     {
@@ -1071,7 +1092,8 @@ namespace DSEDiagnosticFileParser
 													string clusterName = null,
                                                     CancellationToken? cancellationToken = null,
                                                     Version targetDSEVersion = null,
-                                                    bool runAsTask = false)
+                                                    bool runAsTask = false,
+                                                    TaskScheduler taskScheduler = null)
 		{
 			var node = useNode == null ? Cluster.TryGetAddNode(nodeId, dataCenterName, clusterName) : useNode;
 			var processingFileInstance = (DiagnosticFile) Activator.CreateInstance(instanceType, catagory, diagnosticDirectory, processFile, node, clusterName, dataCenterName, targetDSEVersion);
@@ -1243,8 +1265,13 @@ namespace DSEDiagnosticFileParser
 
             if (runAsTask)
             {
+                if (taskScheduler != null)
+                    processingFileInstance.TaskScheduler = taskScheduler;
+
                 processingFileInstance.Task = Task<DiagnosticFile>.Factory.StartNew(() => { action(); return processingFileInstance; },
-                                                                                        processingFileInstance.CancellationToken);
+                                                                                        processingFileInstance.CancellationToken,
+                                                                                        TaskCreationOptions.LongRunning,
+                                                                                        taskScheduler ?? TaskScheduler.Default);
                 processingFileInstance.Task.ContinueWith(r =>
                                                             {
                                                                 if(!r.Result.Canceled)

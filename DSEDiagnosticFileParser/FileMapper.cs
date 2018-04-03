@@ -57,7 +57,7 @@ namespace DSEDiagnosticFileParser
             /// </summary>
             ParallelProcessFiles = 0x0040,
             /// <summary>
-            /// If defined, nodes' files are parallel process. ScanForNode is also defined.
+            /// If defined, files associated to each node are processed based on ParallelProcessFiles option while each node is processed in parallel. ScanForNode is also enabled!
             /// Note this option is ignored if OnlyOnce is defined.
             /// </summary>
             ParallelProcessNode = 0x0080 | ScanForNode,
@@ -157,6 +157,62 @@ namespace DSEDiagnosticFileParser
         public CancellationTokenSource CancellationSource { get; set; }
 
         public bool Enabled { get; set; } = true;
+
+        /// <summary>
+        /// Defines the max number of Parallelism for tasks defined with ParallelProcessNode
+        /// 
+        /// Value of zero will not set MaxDegreeOfParallelism, -1 will be unlimited threads, and -2 will be System.Environment.ProcessorCount (default)
+        /// </summary>
+        public int NodeMaxDegreeOfParallelism { get; set; } = -2;
+
+        /// <summary>
+        /// Defines the max number of parallelism of files for tasks defined with ParallelProcessFiles.
+        /// 
+        /// Value of zero or -1 will use the default .NET scheduler (default), -2 will use System.Environment.ProcessorCount value, and a number over 1 will set the max number of threads used for file processing
+        /// </summary>
+        public int FileMaxDegreeOfParallelism { get; set; } = -1;
+
+        public enum SchedulerTypes
+        {
+            Disabled = 0,
+            /// <summary> 
+            /// Provides a task scheduler that ensures a maximum concurrency level while 
+            /// running on top of the ThreadPool. 
+            /// </summary> 
+            LimitedConcurrencyLevelTaskScheduler,
+            /// <summary>Provides a task scheduler that dedicates a thread per task.</summary> 
+            ThreadPerTaskScheduler,
+            /// <summary>Provides a work-stealing scheduler.</summary> 
+            WorkStealingTaskScheduler,
+            /// <summary>Provides a task scheduler that runs tasks on the current thread.</summary> 
+            CurrentThreadTaskScheduler,
+            /// <summary>
+            /// Provides a task scheduler that ensures only one task is executing at a time, and that tasks 
+            /// execute in the order that they were queued. 
+            /// </summary>
+            OrderedTaskScheduler
+        }
+
+        /// <summary>
+        /// If enabled an Task Scheduler is used as the default scheduler.
+        /// SchedulerAvailableThreads and SchedulerMaxConcurrencyLevel must be set.
+        /// 
+        /// If enabled this scheduler is used for ParallelProcessNode and/or ParallelProcessFiles. FileMaxDegreeOfParallelism and NodeMaxDegreeOfParallelism will be ignored.
+        /// </summary>
+        public SchedulerTypes Scheduler { get; set; } = SchedulerTypes.Disabled;
+
+        /// <summary>
+        /// Only if Scheduler is enabled:
+        ///     The number of threads to have available in the scheduler for executing tasks.
+        ///     If -1 the total number of nodes. 
+        /// </summary>
+        public int SchedulerAvailableThreads { get; set; } = -1;
+        /// <summary>
+        /// Only if Scheduler is enabled:
+        ///     The maximum number of threads in the scheduler to be executing concurrently.
+        ///     If -1 half the node count or System.Environment.ProcessorCount whatever is less
+        /// </summary>
+        public int SchedulerMaxConcurrencyLevel { get; set; } = -1;
 
         public IFilePath[] FilePathMerge(IDirectoryPath diagnosticDirectory)
 		{

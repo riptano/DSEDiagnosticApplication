@@ -2018,7 +2018,7 @@ namespace DSEDiagnosticFileParser.Tests
             Assert.AreEqual((uint)5, nbrLinesParsed);
             Assert.AreEqual(0, parseFile.NbrErrors);
             Assert.AreEqual(1, parseFile.NbrWarnings);
-            Assert.AreEqual(13, parseFile.NbrItemsParsed);
+            Assert.AreEqual(12, parseFile.NbrItemsParsed);
             Assert.AreEqual(DSEDiagnosticFileParser.DiagnosticFile.CatagoryTypes.LogFile, parseFile.Catagory);
             Assert.AreEqual(this._cluster, parseFile.Cluster);
             Assert.AreEqual(tstNode, parseFile.Node);

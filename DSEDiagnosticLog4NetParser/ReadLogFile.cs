@@ -145,11 +145,16 @@ namespace DSEDiagnosticLog4NetParser
 
         public ILogMessages ProcessLogFile(IFilePath logFile)
         {
-            this.LogFile = logFile;
-            return this.BeginProcessLogFile().Result;
+            return this.BeginProcessLogFile(logFile).Result;           
         }
 
         public async Task<ILogMessages> BeginProcessLogFile()
+        {
+            var task = Task.Run(() => this.ProcessLogFile());
+            return await task;           
+        }
+
+        public ILogMessages ProcessLogFile()
         {
             bool skippedLines = false;
 
@@ -167,7 +172,6 @@ namespace DSEDiagnosticLog4NetParser
                 LogMessage logMessage;
                 LogMessage lastLogMessage = null;
                 string logLine;
-                Task<string> nextLogLine = readStream.ReadLineAsync();
                 var eventAction = this.ProcessedLogLineAction;
                 short logRangeCheck;
 
@@ -175,14 +179,12 @@ namespace DSEDiagnosticLog4NetParser
 
                 for (;;)
                 {
-                    logLine = await nextLogLine;
+                    logLine = readStream.ReadLine();
 
                     if (logLine == null) break;
 
                     this.CancellationToken.ThrowIfCancellationRequested();
-
-                    nextLogLine = readStream.ReadLineAsync();
-
+                    
                     logMessage = logMessages.AddMessage(logLine, ++this.LinesRead);
 
                     if (logMessage == null)
@@ -209,7 +211,7 @@ namespace DSEDiagnosticLog4NetParser
                         }
 
                         lastLogMessage = logMessage;
-                        logRangeCheck = this.LogFileWithinTimeRange(logMessage, logMessages, readStream, nextLogLine);
+                        logRangeCheck = this.LogFileWithinTimeRange(logMessage, logMessages, readStream);
 
                         if(logRangeCheck > 0)
                         {
@@ -259,12 +261,7 @@ namespace DSEDiagnosticLog4NetParser
             this.Completed = true;
             return this.Log;
         }
-
-        public ILogMessages ProcessLogFile()
-        {
-            return this.BeginProcessLogFile().Result;
-        }
-
+        
         public ILogMessages ReadLogFileTimeRange(IFilePath logFile)
         {
             this.LogFile = logFile;
@@ -300,7 +297,7 @@ namespace DSEDiagnosticLog4NetParser
                 else
                 {
                     logMessages.RemoveMessage();
-                    this.LastLogLineWithinTimeRange(logMessage, logMessages, readStream, null, true);
+                    this.LastLogLineWithinTimeRange(logMessage, logMessages, readStream, true);
                     logMessages.CompletionStatus = LogCompletionStatus.ReadLogTimeRange;
                 }
             }
@@ -342,7 +339,7 @@ namespace DSEDiagnosticLog4NetParser
         /// -1 -- Don't process remaining file
         /// -2 -- Skip File
         /// </returns>
-        private short LogFileWithinTimeRange(LogMessage logMessage, LogMessages logMessages, StreamReader streamReader, Task<string> nextLineTask)
+        private short LogFileWithinTimeRange(LogMessage logMessage, LogMessages logMessages, StreamReader streamReader)
         {
             if (this.LogTimeFrame == null || this.LogTimeFrame.IsBetween(logMessage.LogDateTime))
             {
@@ -356,7 +353,7 @@ namespace DSEDiagnosticLog4NetParser
                                                                     this.LogTimeFrame,
                                                                     this.LogFile);
 
-                this.LastLogLineWithinTimeRange(logMessage, logMessages, streamReader, nextLineTask, true);
+                this.LastLogLineWithinTimeRange(logMessage, logMessages, streamReader, true);
                 return -1;
             }
 
@@ -365,10 +362,10 @@ namespace DSEDiagnosticLog4NetParser
                 return 0;
             }
 
-            return LastLogLineWithinTimeRange(logMessage, logMessages, streamReader, nextLineTask);
+            return LastLogLineWithinTimeRange(logMessage, logMessages, streamReader);
         }
 
-        private short LastLogLineWithinTimeRange(LogMessage logMessage, LogMessages logMessages, StreamReader streamReader, Task<string> nextLineTask, bool justReadLastEntries = false, long readBackLength = 1024)
+        private short LastLogLineWithinTimeRange(LogMessage logMessage, LogMessages logMessages, StreamReader streamReader, bool justReadLastEntries = false, long readBackLength = 1024)
         {
             bool wentBackward = false;
             DateTimeOffset lastDateTime = DateTimeOffset.MaxValue;
@@ -380,7 +377,7 @@ namespace DSEDiagnosticLog4NetParser
 
             if (streamReader.BaseStream.Length > readBackLength)
             {
-                if (nextLineTask != null) nextLine = nextLineTask.Result;
+                nextLine = streamReader.ReadLine();
 
                 streamReader.DiscardBufferedData();
                 streamReader.BaseStream.Seek(readBackLength * -1, System.IO.SeekOrigin.End);
@@ -404,7 +401,7 @@ namespace DSEDiagnosticLog4NetParser
             //Need to go further back...
             if(lastDateTime == DateTimeOffset.MaxValue && wentBackward)
             {
-                return this.LastLogLineWithinTimeRange(logMessage, logMessages, streamReader, nextLineTask, justReadLastEntries, readBackLength * 2);
+                return this.LastLogLineWithinTimeRange(logMessage, logMessages, streamReader, justReadLastEntries, readBackLength * 2);
             }
 
             //Some Log entry within the file is within time frame (current log entry is not)
