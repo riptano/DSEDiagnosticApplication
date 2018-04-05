@@ -115,6 +115,9 @@ namespace DSEDiagnosticFileParser
                                     Version targetDSEVersion)
             : base(catagory, diagnosticDirectory, file, node, defaultClusterName, defaultDCName, targetDSEVersion)
         {
+
+            this.IsDebugFile = LogFileInfo.IsDebugLogFile(this.File);
+
             if (this.Node != null)
             {
                 this.Cluster = this.Node.Cluster;
@@ -150,21 +153,20 @@ namespace DSEDiagnosticFileParser
 
             this._nodeStrId = this.Node.Id.GetHashCode().ToString();
 
-
             if ((this.DebugLogProcessing & DebugLogProcessingTypes.Auto) != 0)
             {
-                if(targetDSEVersion != null && targetDSEVersion.Major < 5)
+                if (targetDSEVersion != null && targetDSEVersion.Major < 5)
                 {
                     this.DebugLogProcessing = DebugLogProcessingTypes.Disabled;
                 }
 
-                if((this.DebugLogProcessing & DebugLogProcessingTypes.AllMsg) == 0)
+                if ((this.DebugLogProcessing & DebugLogProcessingTypes.AllMsg) == 0)
                 {
                     this.DebugLogProcessing |= DebugLogProcessingTypes.OnlyFlushCompactionMsgs;
                 }
             }
 
-            if((this.DebugLogProcessing & DebugLogProcessingTypes.Disabled) != 0
+            if ((this.DebugLogProcessing & DebugLogProcessingTypes.Disabled) != 0
                     || (this.DebugLogProcessing & DebugLogProcessingTypes.OnlyFlushCompactionMsgs) != 0
                     || (this.DebugLogProcessing & DebugLogProcessingTypes.OnlyLogDateRange) != 0)
             {
@@ -181,11 +183,14 @@ namespace DSEDiagnosticFileParser
 
                 if (this.DebugFlushCompMatchingRegEx == null)
                 {
-                    Logger.Instance.WarnFormat("MapperId<{0}>\t{1}\t{2}\tDisabling Debug Log processing since no Rules were found for OnlyFlushCompactionMsgs.",
+                    if (this.IsDebugFile)
+                    {
+                        Logger.Instance.WarnFormat("MapperId<{0}>\t{1}\t{2}\tDisabling Debug Log processing since no Rules were found for OnlyFlushCompactionMsgs.",
                                                                 this.MapperId,
                                                                 this.Node,
                                                                 this.ShortFilePath);
-                    ++this.NbrWarnings;
+                        ++this.NbrWarnings;
+                    }
                     this.DebugLogProcessing = DebugLogProcessingTypes.Disabled;
                     this.DetectDuplicatedLogEvents = false;
                 }
@@ -193,8 +198,8 @@ namespace DSEDiagnosticFileParser
             else
             {
                 this.DebugFlushCompMatchingRegEx = null;
-            }
-           
+            }            
+
             if (Logger.Instance.IsDebugEnabled)
             {
                 Logger.Instance.DebugFormat("Loaded class \"{0}\"(File({1}), RestrictedDateRange({6}), LogDebugProcessing({2}), DetectDuplicatedLog({3}), CheckOverLappingDateRanges({4}), OnlyFlushCompactionMsgs({5}), DefaultLogLevelHandling({7}) )",
@@ -266,6 +271,7 @@ namespace DSEDiagnosticFileParser
 
         public Cluster Cluster { get; private set; }
         public IDataCenter DataCenter { get; private set; }
+        public bool IsDebugFile { get; }
         [JsonProperty(PropertyName="Keyspaces")]
         private IEnumerable<IKeyspace> _dcKeyspaces;
 
@@ -366,9 +372,8 @@ namespace DSEDiagnosticFileParser
             DateTimeOffset? lastShutdown = null;
             var nodeRestarts = new List<DateTimeOffsetRange>();
             var onLogEventHandler = this.OnLogEvent;
-            var isDebugFile = LogFileInfo.IsDebugLogFile(this.File);
-           
-            if (isDebugFile
+            
+            if (this.IsDebugFile
                     && this.DebugLogProcessing == DebugLogProcessingTypes.Disabled)
             {                
                 Logger.Instance.InfoFormat("Debug File \"{0}\" skipped due to debug log action \"{1}\"", this.ShortFilePath, this.DebugLogProcessing);                
@@ -376,7 +381,7 @@ namespace DSEDiagnosticFileParser
             }
 
             #region  Do not process files where log time range has already been processed or are restricted
-            if(isDebugFile
+            if(this.IsDebugFile
                 && (this.DebugLogProcessing & DebugLogProcessingTypes.OnlyLogDateRange) != 0)
             {
                 var fileDiag = new file_cassandra_log4net_ReadTimeRange(this.Catagory,
@@ -408,7 +413,7 @@ namespace DSEDiagnosticFileParser
                     || (this.Node.LogFiles != null
                             && this.Node.LogFiles.HasAtLeastOneElement()))
             {
-                var fileInfoResult = file_cassandra_log4net_ReadTimeRange.DeteremineLogFileInfo(this.File, this.Node, this.CancellationToken, this.LogRestrictedTimeRange, isDebugFile);
+                var fileInfoResult = file_cassandra_log4net_ReadTimeRange.DeteremineLogFileInfo(this.File, this.Node, this.CancellationToken, this.LogRestrictedTimeRange, this.IsDebugFile);
                 var logFileInfo = fileInfoResult.Item1;
                 
                 if (logFileInfo == null)
@@ -430,7 +435,7 @@ namespace DSEDiagnosticFileParser
                     {
                         lock (this.Node)
                         {
-                            var fndOverlapppingLogs = this.Node.LogFiles.Where(l => l.IsDebugLog == isDebugFile);
+                            var fndOverlapppingLogs = this.Node.LogFiles.Where(l => l.IsDebugLog == this.IsDebugFile);
                             var fileAlreadyProcessed = fndOverlapppingLogs.FirstOrDefault(l => l.LogFileDateRange.IsBetween(logFileInfo.LogFileDateRange));
 
                             if (fileAlreadyProcessed != null)
@@ -446,8 +451,8 @@ namespace DSEDiagnosticFileParser
                                 return (uint)0;
                             }
 
-                            var logExtendedRangeAfter = fndOverlapppingLogs.FirstOrDefault(l => l.LogFileDateRange.IsBetween(logFileInfo.LogFileDateRange.Min));
-                            var logExtendedRangeBefore = fndOverlapppingLogs.FirstOrDefault(l => l.LogFileDateRange.IsBetween(logFileInfo.LogFileDateRange.Max));
+                            var logExtendedRangeAfter = fndOverlapppingLogs.FirstOrDefault(l => l.LogFileDateRange.IsWithIn(logFileInfo.LogFileDateRange.Min));
+                            var logExtendedRangeBefore = fndOverlapppingLogs.FirstOrDefault(l => l.LogFileDateRange.IsWithIn(logFileInfo.LogFileDateRange.Max));
 
                             if (logExtendedRangeAfter != null && logExtendedRangeBefore != null)
                             {
@@ -473,7 +478,7 @@ namespace DSEDiagnosticFileParser
                                                                 logExtendedRangeBefore.LogFileDateRange.Min,
                                                                 logExtendedRangeBefore.LogFile?.FileName);
                                 ++this.NbrWarnings;
-                                this.LogRestrictedTimeRange = new DateTimeOffsetRange(DateTimeOffset.MinValue, logExtendedRangeBefore.LogFileDateRange.Min - new TimeSpan(1));
+                                this.LogRestrictedTimeRange = new DateTimeOffsetRange(DateTimeOffset.MinValue, logExtendedRangeBefore.LogFileDateRange.Min);
                             }
                             else if (logExtendedRangeAfter != null)
                             {
@@ -485,7 +490,7 @@ namespace DSEDiagnosticFileParser
                                                                 logExtendedRangeAfter.LogFileDateRange.Max,
                                                                 logExtendedRangeAfter.LogFile?.FileName);
                                 ++this.NbrWarnings;
-                                this.LogRestrictedTimeRange = new DateTimeOffsetRange(logExtendedRangeAfter.LogFileDateRange.Max + new TimeSpan(1), DateTimeOffset.MaxValue);
+                                this.LogRestrictedTimeRange = new DateTimeOffsetRange(logExtendedRangeAfter.LogFileDateRange.Max, DateTimeOffset.MaxValue);
                             }
                         }
                     }
@@ -502,10 +507,10 @@ namespace DSEDiagnosticFileParser
                 LogCassandraEvent logEvent;
                 bool firstLine = true;
                 bool ignoreLogEvent = false;
-                bool handleExceptions = isDebugFile && (this.DebugLogProcessing & DebugLogProcessingTypes.OnlyFlushCompactionMsgs) != 0
+                bool handleExceptions = this.IsDebugFile && (this.DebugLogProcessing & DebugLogProcessingTypes.OnlyFlushCompactionMsgs) != 0
                                             ? false
                                             : (this.DefaultLogLevelHandling & DefaultLogLevelHandlers.Exception) != 0;
-                bool enableLogLevelHandling = isDebugFile && (this.DebugLogProcessing & DebugLogProcessingTypes.OnlyFlushCompactionMsgs) != 0
+                bool enableLogLevelHandling = this.IsDebugFile && (this.DebugLogProcessing & DebugLogProcessingTypes.OnlyFlushCompactionMsgs) != 0
                                                     ? false
                                                     : (this.DefaultLogLevelHandling == DefaultLogLevelHandlers.Disabled
                                                             || this.DefaultLogLevelHandling == DefaultLogLevelHandlers.Exception ? false : true);
@@ -548,7 +553,7 @@ namespace DSEDiagnosticFileParser
                         return;
                     }
 
-                    if (isDebugFile
+                    if (this.IsDebugFile
                         && (this.DebugLogProcessing & DebugLogProcessingTypes.OnlyFlushCompactionMsgs) != 0
                         && this.DebugFlushCompMatchingRegEx != null
                         && (matchItem = CLogTypeParser.FindMatch(this.DebugFlushCompMatchingRegEx, logMessage, this.CancellationToken)) == null)
@@ -661,11 +666,11 @@ namespace DSEDiagnosticFileParser
                                                         ? new DateTimeOffsetRange(logLineDateRangeBegin.Value, logLineDateRangeLast)
                                                         : null,
                                                     nodeRestarts.Count == 0 ? null : nodeRestarts,
-                                                    isDebugFile);
+                                                    this.IsDebugFile);
 
                 if (!this.CheckOverlappingDateRange)
                 {
-                    var fndOverlapppingLogs = this.Node.LogFiles.Where(l => l.IsDebugLog == isDebugFile &&  l.LogDateRange.IsBetween(logFileInfo.LogDateRange));
+                    var fndOverlapppingLogs = this.Node.LogFiles.Where(l => l.IsDebugLog == this.IsDebugFile &&  l.LogDateRange.IsBetween(logFileInfo.LogDateRange));
 
                     if (fndOverlapppingLogs.HasAtLeastOneElement())
                     {

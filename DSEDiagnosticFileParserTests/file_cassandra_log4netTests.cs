@@ -1859,6 +1859,7 @@ namespace DSEDiagnosticFileParser.Tests
             Assert.AreEqual("10.0.1.2", tstNode?.Id.NodeName());
             Assert.AreEqual(tstNode, this._datacenter2.TryGetNode("10.0.1.2"));
 
+            //Range: 2011-02-10 13:33:00,000 to 2011-05-18 22:00:00,000 
             var testLogFile = Common.Path.PathUtils.BuildFilePath(@".\LogFiles\Log1.log");
 
             var parseFile = new file_cassandra_log4net(DiagnosticFile.CatagoryTypes.LogFile, testLogFile.ParentDirectoryPath, testLogFile, tstNode, null, null, null);
@@ -1885,6 +1886,8 @@ namespace DSEDiagnosticFileParser.Tests
             Assert.AreEqual(DateTimeOffset.Parse("2011-02-10 13:33:00.000 +00"), tstNode.LogFiles.First().LogFileDateRange.Min);
             Assert.AreEqual(DateTimeOffset.Parse("2011-05-18 22:00:00.00 +00"), tstNode.LogFiles.First().LogFileDateRange.Max);
 
+            //Log File Range: 2011-01-10 13:33:00,000 to 2011-02-10 13:31:59,999
+            //Range: 2011-01-10 13:33:00,000* to 2011-05-18 22:00:00,000 
             testLogFile = Common.Path.PathUtils.BuildFilePath(@".\LogFiles\Log1-Before.log");
             parseFile = new file_cassandra_log4net(DiagnosticFile.CatagoryTypes.LogFile, testLogFile.ParentDirectoryPath, testLogFile, tstNode, null, null, null);
 
@@ -1910,6 +1913,8 @@ namespace DSEDiagnosticFileParser.Tests
             Assert.AreEqual(DateTimeOffset.Parse("2011-01-10 13:33:00.000  +00"), tstNode.LogFiles.ElementAt(1).LogFileDateRange.Min);
             Assert.AreEqual(DateTimeOffset.Parse("2011-02-10 13:31:59.999 +00"), tstNode.LogFiles.ElementAt(1).LogFileDateRange.Max);
 
+            //Log File Range: 2011-05-18 22:00:00,001 to 2011-06-18 22:00:00,000
+            //Range: 2011-01-10 13:33:00,000 to 2011-06-18 22:00:00,000* 
             testLogFile = Common.Path.PathUtils.BuildFilePath(@".\LogFiles\Log1-After.log");
             parseFile = new file_cassandra_log4net(DiagnosticFile.CatagoryTypes.LogFile, testLogFile.ParentDirectoryPath, testLogFile, tstNode, null, null, null);
 
@@ -1935,6 +1940,8 @@ namespace DSEDiagnosticFileParser.Tests
             Assert.AreEqual(DateTimeOffset.Parse("2011-05-18 22:00:00.001  +00"), tstNode.LogFiles.ElementAt(2).LogFileDateRange.Min);
             Assert.AreEqual(DateTimeOffset.Parse("2011-06-18 22:00:00.000 +00"), tstNode.LogFiles.ElementAt(2).LogFileDateRange.Max);
 
+            //Log File Range: 2011-03-10 13:33:00,000 to 2011-04-18 22:00:00,000 
+            //Range: 2011-01-10 13:33:00,000 to 2011-06-18 22:00:00,000
             testLogFile = Common.Path.PathUtils.BuildFilePath(@".\LogFiles\Log1-Within.log");
             parseFile = new file_cassandra_log4net(DiagnosticFile.CatagoryTypes.LogFile, testLogFile.ParentDirectoryPath, testLogFile, tstNode, null, null, null);
 
@@ -1960,6 +1967,8 @@ namespace DSEDiagnosticFileParser.Tests
             Assert.AreEqual(DateTimeOffset.Parse("2011-03-10 13:33:00.000  +00"), tstNode.LogFiles.ElementAt(3).LogFileDateRange.Min);
             Assert.AreEqual(DateTimeOffset.Parse("2011-04-18 22:00:00.000 +00"), tstNode.LogFiles.ElementAt(3).LogFileDateRange.Max);
 
+            //Log File Range: 22011-02-10 13:33:00,000  to 2011-05-18 22:00:00,000
+            //Range: 2011-01-10 13:33:00,000 to 2011-06-18 22:00:00,000
             testLogFile = Common.Path.PathUtils.BuildFilePath(@".\LogFiles\Log1-Same.log");
             parseFile = new file_cassandra_log4net(DiagnosticFile.CatagoryTypes.LogFile, testLogFile.ParentDirectoryPath, testLogFile, tstNode, null, null, null);
 
@@ -1985,6 +1994,8 @@ namespace DSEDiagnosticFileParser.Tests
             Assert.AreEqual(DateTimeOffset.Parse("2011-02-10 13:33:00.000  +00"), tstNode.LogFiles.ElementAt(4).LogFileDateRange.Min);
             Assert.AreEqual(DateTimeOffset.Parse("2011-05-18 22:00:00.000 +00"), tstNode.LogFiles.ElementAt(4).LogFileDateRange.Max);
 
+            //Log File Range: 2011-01-08 13:33:00,000  to 2011-02-10 13:31:59,998
+            //Range: 2011-01-08 13:33:00,000* to 2011-06-18 22:00:00,000
             testLogFile = Common.Path.PathUtils.BuildFilePath(@".\LogFiles\Log1-OL-Before.log");
             parseFile = new file_cassandra_log4net(DiagnosticFile.CatagoryTypes.LogFile, testLogFile.ParentDirectoryPath, testLogFile, tstNode, null, null, null);
 
@@ -2008,8 +2019,10 @@ namespace DSEDiagnosticFileParser.Tests
             Assert.AreEqual(DateTimeOffset.Parse("2011-01-08 13:33:00.000  +00"), tstNode.LogFiles.ElementAt(5).LogDateRange.Min);
             Assert.AreEqual(DateTimeOffset.Parse("2011-01-09 13:31:59.999 +00"), tstNode.LogFiles.ElementAt(5).LogDateRange.Max);
             Assert.AreEqual(DateTimeOffset.Parse("2011-01-08 13:33:00.000  +00"), tstNode.LogFiles.ElementAt(5).LogFileDateRange.Min);
-            Assert.AreEqual(DateTimeOffset.Parse("2011-02-10 13:31:59.999 +00"), tstNode.LogFiles.ElementAt(5).LogFileDateRange.Max);
+            Assert.AreEqual(DateTimeOffset.Parse("2011-02-10 13:31:59.998 +00"), tstNode.LogFiles.ElementAt(5).LogFileDateRange.Max);
 
+            //Log File Range: 2011-05-18 22:00:00,002  to 2011-07-18 23:00:00,000
+            //Range: 2011-01-08 13:33:00,000 to 2011-07-18 23:00:00,000*
             testLogFile = Common.Path.PathUtils.BuildFilePath(@".\LogFiles\Log1-OL-After.log");
             parseFile = new file_cassandra_log4net(DiagnosticFile.CatagoryTypes.LogFile, testLogFile.ParentDirectoryPath, testLogFile, tstNode, null, null, null);
 
@@ -2032,7 +2045,7 @@ namespace DSEDiagnosticFileParser.Tests
             Assert.AreEqual(7, tstNode.LogFiles.Count());
             Assert.AreEqual(DateTimeOffset.Parse("2011-06-18 22:00:00.000  +00"), tstNode.LogFiles.ElementAt(6).LogDateRange.Min);
             Assert.AreEqual(DateTimeOffset.Parse("2011-07-18 23:00:00.000 +00"), tstNode.LogFiles.ElementAt(6).LogDateRange.Max);
-            Assert.AreEqual(DateTimeOffset.Parse("2011-05-18 22:00:00.001  +00"), tstNode.LogFiles.ElementAt(6).LogFileDateRange.Min);
+            Assert.AreEqual(DateTimeOffset.Parse("2011-05-18 22:00:00.002  +00"), tstNode.LogFiles.ElementAt(6).LogFileDateRange.Min);
             Assert.AreEqual(DateTimeOffset.Parse("2011-07-18 23:00:00.000 +00"), tstNode.LogFiles.ElementAt(6).LogFileDateRange.Max);
 
             //Debug Log (new Node)
