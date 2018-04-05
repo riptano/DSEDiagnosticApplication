@@ -184,7 +184,7 @@ namespace DSEDiagnosticFileParser
                     Logger.Instance.WarnFormat("MapperId<{0}>\t{1}\t{2}\tDisabling Debug Log processing since no Rules were found for OnlyFlushCompactionMsgs.",
                                                                 this.MapperId,
                                                                 this.Node,
-                                                                this.File.PathResolved);
+                                                                this.ShortFilePath);
                     ++this.NbrWarnings;
                     this.DebugLogProcessing = DebugLogProcessingTypes.Disabled;
                     this.DetectDuplicatedLogEvents = false;
@@ -199,7 +199,7 @@ namespace DSEDiagnosticFileParser
             {
                 Logger.Instance.DebugFormat("Loaded class \"{0}\"(File({1}), RestrictedDateRange({6}), LogDebugProcessing({2}), DetectDuplicatedLog({3}), CheckOverLappingDateRanges({4}), OnlyFlushCompactionMsgs({5}), DefaultLogLevelHandling({7}) )",
                                             this.GetType().Name,
-                                            this.File,
+                                            this.ShortFilePath,
                                             this.DebugLogProcessing,
                                             this.DetectDuplicatedLogEvents,
                                             this.CheckOverlappingDateRange,
@@ -371,7 +371,7 @@ namespace DSEDiagnosticFileParser
             if (isDebugFile
                     && this.DebugLogProcessing == DebugLogProcessingTypes.Disabled)
             {                
-                Logger.Instance.InfoFormat("Debug File \"{0}\" skipped due to debug log action \"{1}\"", this.File, this.DebugLogProcessing);                
+                Logger.Instance.InfoFormat("Debug File \"{0}\" skipped due to debug log action \"{1}\"", this.ShortFilePath, this.DebugLogProcessing);                
                 return (uint)0;
             }
 
@@ -399,7 +399,7 @@ namespace DSEDiagnosticFileParser
                 
                 if (Logger.Instance.IsDebugEnabled)
                 {
-                    Logger.Instance.DebugFormat("Debug File \"{0}\" skipped(log date range captured) due to debug log action \"{1}\"", this.File, this.DebugLogProcessing);
+                    Logger.Instance.DebugFormat("Debug File \"{0}\" skipped(log date range captured) due to debug log action \"{1}\"", this.ShortFilePath, this.DebugLogProcessing);
                 }
                 return result;
             }
@@ -418,7 +418,7 @@ namespace DSEDiagnosticFileParser
                         Logger.Instance.DebugFormat("MapperId<{0}>\t{1}\t{2}\tLog file skipped since Date Range did not met restricted range of {3}",
                                                         this.MapperId,
                                                         this.Node,
-                                                        this.File.PathResolved,
+                                                        this.ShortFilePath,
                                                         this.LogRestrictedTimeRange);
                     }                    
 
@@ -438,7 +438,7 @@ namespace DSEDiagnosticFileParser
                                 Logger.Instance.WarnFormat("MapperId<{0}>\t{1}\t{2}\tLog file skipped since Date Range {3} was already processed in log {{{4}}} ",
                                                                 this.MapperId,
                                                                 this.Node,
-                                                                this.File.PathResolved,
+                                                                this.ShortFilePath,
                                                                 logFileInfo.LogFileDateRange,
                                                                 fileAlreadyProcessed.LogFile);
                                 ++this.NbrWarnings;
@@ -454,7 +454,7 @@ namespace DSEDiagnosticFileParser
                                 Logger.Instance.ErrorFormat("MapperId<{0}>\t{1}\t{2}\tLog file skipped since Date Range {3} spans existing log ranges \"{4}\" and \"{5}\".",
                                                                 this.MapperId,
                                                                 this.Node,
-                                                                this.File.PathResolved,
+                                                                this.ShortFilePath,
                                                                 logFileInfo.LogFileDateRange,
                                                                 logExtendedRangeBefore.LogFile?.FileName,
                                                                 logExtendedRangeAfter.LogFile?.FileName);
@@ -468,7 +468,7 @@ namespace DSEDiagnosticFileParser
                                 Logger.Instance.WarnFormat("MapperId<{0}>\t{1}\t{2}\tLog file date/time {3} will be truncated after {4}. Detected overlapping file is {5}",
                                                                 this.MapperId,
                                                                 this.Node,
-                                                                this.File.PathResolved,
+                                                                this.ShortFilePath,
                                                                 logFileInfo.LogFileDateRange,
                                                                 logExtendedRangeBefore.LogFileDateRange.Min,
                                                                 logExtendedRangeBefore.LogFile?.FileName);
@@ -480,7 +480,7 @@ namespace DSEDiagnosticFileParser
                                 Logger.Instance.WarnFormat("MapperId<{0}>\t{1}\t{2}\tLog file date/time {3} will be truncated before {4}. Detected overlapping file is {5}",
                                                                 this.MapperId,
                                                                 this.Node,
-                                                                this.File.PathResolved,
+                                                                this.ShortFilePath,
                                                                 logFileInfo.LogFileDateRange,
                                                                 logExtendedRangeAfter.LogFileDateRange.Max,
                                                                 logExtendedRangeAfter.LogFile?.FileName);
@@ -672,7 +672,7 @@ namespace DSEDiagnosticFileParser
                         Logger.Instance.WarnFormat("MapperId<{0}>\t{1}\t{2}\tDetected overlapping of logs for Event Date Range {3} with logs {{{4}}} ",
                                                         this.MapperId,
                                                         this.Node,
-                                                        this.File.PathResolved,
+                                                        this.ShortFilePath,
                                                         logFileInfo.LogDateRange,
                                                         string.Join(", ", fndOverlapppingLogs));
                         ++this.NbrWarnings;
@@ -1042,7 +1042,7 @@ namespace DSEDiagnosticFileParser
                 Logger.Instance.WarnFormat("MapperId<{0}>\t{1}\t{2}\tCasandra Log Event {4} at {3:yyyy-MM-dd HH:mm:ss,fff} reached the maximum total occurence count. This event will be ignored.",
                                                     this.MapperId,
                                                     this.Node,
-                                                    this.File.PathResolved,
+                                                    this.ShortFilePath,
                                                     logMessage.LogDateTime,
                                                     matchItem.Item5.EventClass);
                 return null;
@@ -1799,7 +1799,7 @@ namespace DSEDiagnosticFileParser
                         Logger.Instance.ErrorFormat("MapperId<{0}>\t{1}\t{2}\tCasandra Log Event at {3:yyyy-MM-dd HH:mm:ss,fff} has mismatch between parsed C* objects from the log vs. DDL C* object instances. There are {4}. They are {{{5}}}. Log line is \"{6}\". DDLItems property for the log instance may contain invalid DDL instances.",
                                                     this.MapperId,
                                                     this.Node,
-                                                    this.File.PathResolved,
+                                                    this.ShortFilePath,
                                                     logMessage.LogDateTime,
                                                     ddlInstancesCnt > ddlNamesCnt ? "multiple resolved C* object (DDL) instances" : "unresolved C* object names",
                                                     string.Join(", ", diffNames),
@@ -1874,7 +1874,7 @@ namespace DSEDiagnosticFileParser
             catch(System.Exception ex)
             {                
                 Logger.Instance.Error(string.Format("Token Failure for File \"{0}\" Log Message: \"{1}\" ",
-                                                    this.File,
+                                                    this.ShortFilePath,
                                                     logMessage),
                                         ex);
                 this.NbrErrors++;
@@ -1889,7 +1889,7 @@ namespace DSEDiagnosticFileParser
                                                     ddlName,
                                                     sstableFilePath,
                                                     ddlSchemaId,
-                                                    this.File,
+                                                    this.ShortFilePath,
                                                     logMessage);
                     this.NbrErrors++;
                 }
@@ -1898,7 +1898,7 @@ namespace DSEDiagnosticFileParser
                 {
                     Logger.Instance.ErrorFormat("Log Event could not determine the primary Keyspace since KEYSPACE ({0}) was not found. File: {1}\r\nLog Message: {2}",
                                                     keyspaceName,
-                                                    this.File,
+                                                    this.ShortFilePath,
                                                     logMessage);
                     this.NbrErrors++;
                 }

@@ -63,7 +63,7 @@ namespace DSEDiagnosticFileParser
 
             Logger.Instance.DebugFormat("Loaded class \"{0}\"{{File{{{1}}}}}",
                                             this.GetType().Name,
-                                            this.File);
+                                            this.ShortFilePath);
         }
 
         [JsonObject(MemberSerialization.OptOut)]
@@ -192,7 +192,7 @@ namespace DSEDiagnosticFileParser
                     Logger.Instance.WarnFormat("MapperId<{0}>\t{1}\t{2}\tDetected overlapping of logs for Date Range {3} with logs {{{4}}} ",
                                                     this.MapperId,
                                                     this.Node,
-                                                    this.File.PathResolved,
+                                                    this.ShortFilePath,
                                                     logFileInfo.LogDateRange,
                                                     string.Join(", ", fndOverlapppingLogs));
                     ++this.NbrWarnings;

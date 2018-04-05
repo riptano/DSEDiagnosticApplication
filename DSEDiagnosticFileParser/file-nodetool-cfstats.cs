@@ -324,7 +324,7 @@ namespace DSEDiagnosticFileParser
                             Logger.Instance.WarnFormat("MapperId<{0}>\t{1}\t{2}\tNodetool CFStats Table/Index/View \"{3}\" was not found in \"{4}\" and this complete section will be skipped.",
                                                         this.MapperId,
                                                         this.Node,
-                                                        this.File.PathResolved,
+                                                        this.ShortFilePath,
                                                         tableName,
                                                         currentKeyspace.DataCenter?.ToString() ?? currentKeyspace.Cluster?.ToString());
                             ++this.NbrWarnings;

@@ -81,7 +81,7 @@ namespace DSEDiagnosticFileParser
                             {
                                 Logger.Instance.WarnFormat("{0}\t{1}\tSnitch defined Node \"{2}\" for DataCenter \"{3}\" for Rack \"{4}\" but wasn't found in current processing. This may indicated an error with the Snitch file or this processing.",
                                                                 this.Node.Id,
-                                                                this.File,
+                                                                this.ShortFilePath,
                                                                 hostDCSplit[0],
                                                                 hostDCSplit[1],
                                                                 pair.Item2);

@@ -330,7 +330,7 @@ namespace DSEDiagnosticFileParser
 
                     if (this._usingKeySpace == null)
                     {
-                        Logger.Instance.ErrorFormat("<NoNodeId>\t{0}\tUsing Keyspace \"{1}\" was not found during CQL DDL. Keyspaces need to be defined before a using CQL statement.", this.File.PathResolved, keyspaceName);
+                        Logger.Instance.ErrorFormat("<NoNodeId>\t{0}\tUsing Keyspace \"{1}\" was not found during CQL DDL. Keyspaces need to be defined before a using CQL statement.", this.ShortFilePath, keyspaceName);
                         ++this.NbrErrors;
                     }
                     continue;
@@ -415,7 +415,7 @@ namespace DSEDiagnosticFileParser
 
                 Logger.Instance.ErrorFormat("{0}\t{1}\tCQL Statement Processing Error (DC {3}). Unknown CQL statement of \"{2}\".",
                                                 this.Node,
-                                                this.File,
+                                                this.ShortFilePath,
                                                 cqlStmt,
                                                 this.Node?.DataCenter?.Name);
                 ++this.NbrErrors;

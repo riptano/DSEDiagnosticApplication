@@ -168,7 +168,37 @@ namespace DSEDiagnosticFileParser
 			this.Catagory = catagory;
 			this.DiagnosticDirectory = diagnosticDirectory;
 			this.File = file;
-			this.Node = node;
+
+            if(this.File == null)
+            {
+                this.ShortFilePath = null;
+            }
+            else
+            {
+                IRelativePath relativePath = null;
+
+                if (this.DiagnosticDirectory != null)
+                {
+                    if (this.File.IsAbsolutePath)
+                    {
+                        if (this.DiagnosticDirectory.IsAbsolutePath)
+                            ((IFilePathAbsolute)this.File).MakePathFrom((IAbsolutePath)this.DiagnosticDirectory, out relativePath);
+                        else
+                            ((IFilePathAbsolute)this.File).MakePathFrom((IRelativePath)this.DiagnosticDirectory, out relativePath);
+                    }
+                    else
+                    {
+                        if (this.DiagnosticDirectory.IsAbsolutePath)
+                            ((IFilePathRelative)this.File).MakePathFrom((IAbsolutePath)this.DiagnosticDirectory, out relativePath);
+                        else
+                            ((IFilePathRelative)this.File).MakePathFrom((IRelativePath)this.DiagnosticDirectory, out relativePath);
+                    }
+                }
+
+                this.ShortFilePath = (relativePath as IFilePath) ?? this.File;
+            }
+
+            this.Node = node;
 			this.ParsedTimeRange = new DateTimeRange();
 			this.ParsedTimeRange.SetMinimal(DateTime.Now);
             this.DefaultClusterName = defaultClusterName;
@@ -179,7 +209,7 @@ namespace DSEDiagnosticFileParser
 
             Logger.Instance.DebugFormat("Loaded class \"{0}\"{{ Catagory{{{7}}}, File{{{1}}}, Node{{{2}}}, DefaultCluster{{{3}}}, DefaultDC{{{4}}}, TargetVersion{{{5}}}, RegExParser{{{6}}} }}",
                                             this.GetType().Name,
-                                            this.File,
+                                            this.ShortFilePath,
                                             this.Node,
                                             this.DefaultClusterName,
                                             this.DefaultDataCenterName,
@@ -208,7 +238,7 @@ namespace DSEDiagnosticFileParser
 
             this.Catagory = catagory;
             this.DiagnosticDirectory = file?.ParentDirectoryPath;
-            this.File = file;
+            this.ShortFilePath = this.File = file;
             this.Node = Cluster.TryGetAddNode(DetermineNodeIdentifier(file, -1), defaultDCName, defaultClusterName);
             this.ParsedTimeRange = new DateTimeRange();
             this.ParsedTimeRange.SetMinimal(DateTime.Now);
@@ -220,7 +250,7 @@ namespace DSEDiagnosticFileParser
 
             Logger.Instance.DebugFormat("Loaded class \"{0}\"{{ Catagory{{{7}}}, File{{{1}}}, Node{{{2}}}, DefaultCluster{{{3}}}, DefaultDC{{{4}}}, TargetVersion{{{5}}}, RegExParser{{{6}}} }}",
                                             this.GetType().Name,
-                                            this.File,
+                                            this.ShortFilePath,
                                             this.Node,
                                             this.DefaultClusterName,
                                             this.DefaultDataCenterName,
@@ -236,6 +266,10 @@ namespace DSEDiagnosticFileParser
         public IDirectoryPath DiagnosticDirectory { get; }
         [JsonConverter(typeof(DSEDiagnosticLibrary.IPathJsonConverter))]
         public IFilePath File { get; }
+        /// <summary>
+        /// This would either be the relative file path based on the diagnostic directory or the actual file as defined in the File property.
+        /// </summary>
+        public IFilePath ShortFilePath { get; }
         public INode Node { get; }
         public string DefaultClusterName { get; }
         public string DefaultDataCenterName { get; }

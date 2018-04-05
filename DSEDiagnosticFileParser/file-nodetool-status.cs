@@ -121,7 +121,7 @@ namespace DSEDiagnosticFileParser
 
                     ++nbrGenerated;
 
-                    Logger.Instance.InfoFormat("FileMapper<{2}>\t{0}\t{3}\tAdded node to DataCenter \"{1}\"", node.Id, node.DataCenter.Name, this.MapperId, this.File);
+                    Logger.Instance.InfoFormat("FileMapper<{2}>\t{0}\t{3}\tAdded node to DataCenter \"{1}\"", node.Id, node.DataCenter.Name, this.MapperId, this.ShortFilePath);
                     continue;
                 }
             }

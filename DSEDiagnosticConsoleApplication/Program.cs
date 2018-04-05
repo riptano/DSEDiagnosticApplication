@@ -83,42 +83,42 @@ namespace DSEDiagnosticConsoleApplication
                     {
                         if(eventArgs.Category.HasFlag(DSEDiagnosticFileParser.ProgressionEventArgs.Categories.Start))
                         {
-                            ConsoleLogReadFiles.Increment(diagFile.File);
+                            ConsoleLogReadFiles.Increment(diagFile.ShortFilePath);
                         }
                         else if(eventArgs.Category.HasFlag(DSEDiagnosticFileParser.ProgressionEventArgs.Categories.End)
                                     || eventArgs.Category.HasFlag(DSEDiagnosticFileParser.ProgressionEventArgs.Categories.Cancel))
                         {
-                            ConsoleLogReadFiles.TaskEnd(diagFile.File);
+                            ConsoleLogReadFiles.TaskEnd(diagFile.ShortFilePath);
                         }
                     }
                     else if (diagFile.Catagory == DSEDiagnosticFileParser.DiagnosticFile.CatagoryTypes.ZipFile)
                     {
                         if (eventArgs.Category.HasFlag(DSEDiagnosticFileParser.ProgressionEventArgs.Categories.Start))
                         {
-                            ConsoleDeCompressFiles.Increment(diagFile.File);
+                            ConsoleDeCompressFiles.Increment(diagFile.ShortFilePath);
                         }
                         else if (eventArgs.Category.HasFlag(DSEDiagnosticFileParser.ProgressionEventArgs.Categories.End)
                                     || eventArgs.Category.HasFlag(DSEDiagnosticFileParser.ProgressionEventArgs.Categories.Cancel))
                         {
-                            ConsoleDeCompressFiles.TaskEnd(diagFile.File);
+                            ConsoleDeCompressFiles.TaskEnd(diagFile.ShortFilePath);
                         }
                     }
                     else
                     {
                         if (eventArgs.Category.HasFlag(DSEDiagnosticFileParser.ProgressionEventArgs.Categories.Start))
                         {
-                            ConsoleTasksReadFiles.Increment(diagFile.File);
+                            ConsoleTasksReadFiles.Increment(diagFile.ShortFilePath);
                         }
                         else if (eventArgs.Category.HasFlag(DSEDiagnosticFileParser.ProgressionEventArgs.Categories.End)
                                     || eventArgs.Category.HasFlag(DSEDiagnosticFileParser.ProgressionEventArgs.Categories.Cancel))
                         {
-                            ConsoleTasksReadFiles.TaskEnd(diagFile.File);
+                            ConsoleTasksReadFiles.TaskEnd(diagFile.ShortFilePath);
                         }
                     }
 
                     if(eventArgs.Category.HasFlag(DSEDiagnosticFileParser.ProgressionEventArgs.Categories.Cancel))
                     {
-                        ConsoleWarnings.Increment(string.Format("Canceled processing for {0}", diagFile.File.FileName));
+                        ConsoleWarnings.Increment(string.Format("Canceled processing for {0}", diagFile.ShortFilePath.FileName));
                     }
 
                     return;

@@ -132,7 +132,7 @@ namespace DSEDiagnosticFileParser
                 if (regExSplit.Length <= 7)
                 {
                     Logger.Instance.ErrorFormat("FileMapper<{2}>\t<NoNodeId>\t{0}\tInvalid Line \"{1}\" found in nodetool Ring File.",
-                                                this.File,
+                                                this.ShortFilePath,
                                                 line,
                                                 this.MapperId);
                     ++this.NbrErrors;
@@ -141,7 +141,7 @@ namespace DSEDiagnosticFileParser
                 {
                     if (currentDataCenter == null)
                     {
-                        Logger.Instance.ErrorFormat("FileMapper<{2}>\t<NoNodeId>\t{1}\tmissing a DataCenter for \"{0}\"", this.GetType().Name, this.File, this.MapperId);
+                        Logger.Instance.ErrorFormat("FileMapper<{2}>\t<NoNodeId>\t{1}\tmissing a DataCenter for \"{0}\"", this.GetType().Name, this.ShortFilePath, this.MapperId);
                         ++this.NbrErrors;
                         continue;
                     }
@@ -175,7 +175,7 @@ namespace DSEDiagnosticFileParser
                                                     new object[] { line });
 
                             Logger.Instance.Error(string.Format("FileMapper<{2}>\t<NoNodeId>\t{0}\tInvalid Token Range found for \"{1}\" in nodetool Ring File. File will be skipped.",
-                                                                this.File,
+                                                                this.ShortFilePath,
                                                                 line,
                                                                 this.MapperId),
                                                     ex);

@@ -195,7 +195,7 @@ namespace DSEDiagnosticFileParser
                     default:
                         Logger.Instance.ErrorFormat("FileMapper<{3}>\t{0}\t{1}\tInvalid Line \"{2}\" found in NodeTool Info File.",
                                                         this.Node.Id,
-                                                        this.File,
+                                                        this.ShortFilePath,
                                                         line,
                                                         this.MapperId);
                         ++this.NbrErrors;

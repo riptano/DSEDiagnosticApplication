@@ -48,7 +48,7 @@ namespace DSEDiagnosticFileParser
                         Logger.Instance.WarnFormat("MapperId<{0}>\t{1}\t{2}\tsolr Index \"{3}\" was not found in \"{4}\".",
                                                     this.MapperId,
                                                     this.Node,
-                                                    this.File.PathResolved,
+                                                    this.ShortFilePath,
                                                     jItem.Key,
                                                     this.Node.DataCenter);
                         ++this.NbrWarnings;

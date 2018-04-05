@@ -152,7 +152,7 @@ namespace DSEDiagnosticFileParser
                         if(node == null)
                         {
                             Logger.Instance.ErrorFormat("FileMapper<{2}>\t<NoNodeId>\t{0}\tNode creation failed for Line \"{1}\" found in DSETool Ring File.",
-                                                            this.File,
+                                                            this.ShortFilePath,
                                                             line,
                                                             this.MapperId);
                         }
@@ -222,7 +222,7 @@ namespace DSEDiagnosticFileParser
                                         if (!updated)
                                         {
                                             Logger.Instance.WarnFormat("FileMapper<{2}>\t<NoNodeId>\t{0}\tInvalid DSE Instance Type of \"{1}\" found in DSETool Ring File. Type Ignored",
-                                                                        this.File,
+                                                                        this.ShortFilePath,
                                                                         grpItem.Value,
                                                                         this.MapperId);
                                             ++this.NbrWarnings;
@@ -283,7 +283,7 @@ namespace DSEDiagnosticFileParser
                     else
                     {
                         Logger.Instance.ErrorFormat("FileMapper<{2}>\t<NoNodeId>\t{0}\tInvalid Line \"{1}\" found in DSETool Ring File.",
-                                                    this.File,
+                                                    this.ShortFilePath,
                                                     line,
                                                     this.MapperId);
                     }
@@ -291,7 +291,7 @@ namespace DSEDiagnosticFileParser
                 else
                 {
                     Logger.Instance.ErrorFormat("FileMapper<{2}>\t<NoNodeId>\t{0}\tInvalid Line \"{1}\" found in DSETool Ring File.",
-                                                    this.File,
+                                                    this.ShortFilePath,
                                                     line,
                                                     this.MapperId);
                     continue;

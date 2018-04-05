@@ -215,7 +215,7 @@ namespace DSEDiagnosticFileParser
                             {
                                 Logger.Instance.WarnFormat("FileMapper<{4}>\t{0}\t{1}\tIgnoring Snitch File ({3}) since a preferred file \"{2}\" was found.",
                                                                this.Node.Id,
-                                                               this.File,
+                                                               this.ShortFilePath,
                                                                checkSnitchFile.FileName,
                                                                this.Node.DSE.EndpointSnitch,
                                                                this.MapperId);
@@ -237,7 +237,7 @@ namespace DSEDiagnosticFileParser
             {
                 Logger.Instance.WarnFormat("FileMapper<{2}>\t{0}\t{1}\tUnknown configuration type for this file. File will be ignored.",
                                                 this.Node.Id,
-                                                this.File,
+                                                this.ShortFilePath,
                                                 this.MapperId);
                 this.Processed = false;
                 this.NbrItemsParsed = 0;
@@ -413,7 +413,7 @@ namespace DSEDiagnosticFileParser
                         }
                         else
                         {
-                            Logger.Instance.ErrorFormat("FileMapper<{4}>\t{0}\t{1}\tInvalid configuration line \"{2}\" at line position {3}.", this.Node.Id, this.File, multipleLine, this.NbrItemsParsed, this.MapperId);
+                            Logger.Instance.ErrorFormat("FileMapper<{4}>\t{0}\t{1}\tInvalid configuration line \"{2}\" at line position {3}.", this.Node.Id, this.ShortFilePath, multipleLine, this.NbrItemsParsed, this.MapperId);
                             ++this.NbrErrors;
                         }
                         multipleLine = null;
@@ -516,7 +516,7 @@ namespace DSEDiagnosticFileParser
                     }
                     else
                     {
-                        Logger.Instance.ErrorFormat("FileMapper<{4}>\t{0}\t{1}\tInvalid configuration line \"{2}\" at line position {3}.", this.Node.Id, this.File, line, this.NbrItemsParsed, this.MapperId);
+                        Logger.Instance.ErrorFormat("FileMapper<{4}>\t{0}\t{1}\tInvalid configuration line \"{2}\" at line position {3}.", this.Node.Id, this.ShortFilePath, line, this.NbrItemsParsed, this.MapperId);
                         ++this.NbrErrors;
                     }
                     continue;

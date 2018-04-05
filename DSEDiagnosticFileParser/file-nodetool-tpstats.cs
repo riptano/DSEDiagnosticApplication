@@ -247,7 +247,7 @@ namespace DSEDiagnosticFileParser
                 }
                 Logger.Instance.ErrorFormat("FileMapper<{3}>\t{0}\t{1}\tInvalid Line \"{2}\" found in nodetool tpstats File.",
                                                 this.Node,
-                                                this.File,
+                                                this.ShortFilePath,
                                                 line,
                                                 this.MapperId);
                 ++this.NbrErrors;
