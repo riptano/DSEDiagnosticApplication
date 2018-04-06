@@ -168,35 +168,7 @@ namespace DSEDiagnosticFileParser
 			this.Catagory = catagory;
 			this.DiagnosticDirectory = diagnosticDirectory;
 			this.File = file;
-
-            if(this.File == null)
-            {
-                this.ShortFilePath = null;
-            }
-            else
-            {
-                IRelativePath relativePath = null;
-
-                if (this.DiagnosticDirectory != null)
-                {
-                    if (this.File.IsAbsolutePath)
-                    {
-                        if (this.DiagnosticDirectory.IsAbsolutePath)
-                            ((IFilePathAbsolute)this.File).MakePathFrom((IAbsolutePath)this.DiagnosticDirectory, out relativePath);
-                        else
-                            ((IFilePathAbsolute)this.File).MakePathFrom((IRelativePath)this.DiagnosticDirectory, out relativePath);
-                    }
-                    else
-                    {
-                        if (this.DiagnosticDirectory.IsAbsolutePath)
-                            ((IFilePathRelative)this.File).MakePathFrom((IAbsolutePath)this.DiagnosticDirectory, out relativePath);
-                        else
-                            ((IFilePathRelative)this.File).MakePathFrom((IRelativePath)this.DiagnosticDirectory, out relativePath);
-                    }
-                }
-
-                this.ShortFilePath = (relativePath as IFilePath) ?? this.File;
-            }
+            this.ShortFilePath = DetermineShortFilePath(this.File, this.DiagnosticDirectory);
 
             this.Node = node;
 			this.ParsedTimeRange = new DateTimeRange();
@@ -328,6 +300,36 @@ namespace DSEDiagnosticFileParser
         #endregion
 
 		#region static
+
+        public static IFilePath DetermineShortFilePath(IFilePath filePath, IDirectoryPath directoryPath)
+        {
+            if (filePath != null)            
+            {
+                IRelativePath relativePath = null;
+
+                if (directoryPath != null)
+                {
+                    if (filePath.IsAbsolutePath)
+                    {
+                        if (directoryPath.IsAbsolutePath)
+                            ((IFilePathAbsolute)filePath).MakePathFrom((IDirectoryPathAbsolute)directoryPath, out relativePath);
+                        else
+                            ((IFilePathAbsolute)filePath).MakePathFrom((IDirectoryPathRelative)directoryPath, out relativePath);
+                    }
+                    else
+                    {
+                        if (directoryPath.IsAbsolutePath)
+                            ((IFilePathRelative)filePath).MakePathFrom((IDirectoryPathAbsolute)directoryPath, out relativePath);
+                        else
+                            ((IFilePathRelative)filePath).MakePathFrom((IDirectoryPathRelative)directoryPath, out relativePath);
+                    }
+                }
+
+                return (relativePath as IFilePath) ?? filePath;
+            }
+
+            return null;
+        }
 
 		/// <summary>
 		///
@@ -1140,12 +1142,12 @@ namespace DSEDiagnosticFileParser
             processingFileInstance.MapperId = fileMapperId;
 
             var action = (Action)(() =>
-            {
+            {                
                 try
                 {
                     Logger.Instance.InfoFormat("FileMapper<{3}>\t{0}\t{1}\tBegin{2}Processing of File",
                                                     node,
-                                                    processFile.PathResolved,
+                                                    processingFileInstance.ShortFilePath,
                                                     runAsTask ? " (Async) " : " ",
                                                     fileMapperId);
 
@@ -1170,7 +1172,7 @@ namespace DSEDiagnosticFileParser
 
                     Logger.Instance.InfoFormat("FileMapper<{3}>\t{0}\t{1}\tEnd of Processing of File that resulted in {2:###,##0} objects",
                                                         node,
-                                                        processFile.PathResolved,
+                                                        processingFileInstance.ShortFilePath,
                                                         nbrItems,
                                                         fileMapperId);
 
@@ -1187,7 +1189,7 @@ namespace DSEDiagnosticFileParser
                 catch(TaskCanceledException)
                 {
                     Logger.Instance.WarnFormat("FileMapper<{2}>\t{0}\t{1}\tProcessing was canceled.",
-                                                node, processFile.PathResolved, fileMapperId);
+                                                node, processFile, fileMapperId);
                     if(processingFileInstance != null)
                     {
                         processingFileInstance.Canceled = true;
@@ -1215,7 +1217,7 @@ namespace DSEDiagnosticFileParser
                             if (!canceled)
                             {
                                 Logger.Instance.WarnFormat("FileMapper<{2}>\t{0}\t{1}\tProcessing was canceled.",
-                                                            node, processFile.PathResolved, fileMapperId);
+                                                            node, processFile, fileMapperId);
                                 if (processingFileInstance != null)
                                 {
                                     processingFileInstance.ParsedTimeRange.SetMaximum(DateTime.Now);
@@ -1265,7 +1267,7 @@ namespace DSEDiagnosticFileParser
                         }
 
                         Logger.Instance.Error(string.Format("FileMapper<{2}>\t{0}\t{1}\tProcessing failed with exception.",
-                                                            node, processFile?.PathResolved, fileMapperId), ae);
+                                                            node, processFile, fileMapperId), ae);
                     }
                 }
                 catch(System.Exception ex)
@@ -1293,7 +1295,7 @@ namespace DSEDiagnosticFileParser
                     }
 
                     Logger.Instance.Error(string.Format("FileMapper<{2}>\t{0}\t{1}\tProcessing failed with exception.",
-                                                            node, processFile?.PathResolved, fileMapperId), ex);
+                                                            node, processFile, fileMapperId), ex);
                 }
             });
 
