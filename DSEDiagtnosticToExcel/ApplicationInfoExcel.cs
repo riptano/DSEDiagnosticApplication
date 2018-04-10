@@ -48,15 +48,18 @@ namespace DSEDiagtnosticToExcel
         }
 
         public ApplicationInfoExcel(IFilePath excelTargetWorkbook,
+                                        IFilePath excelTemplateWorkbook,
                                         string worksheetName)
             : base(new DataTable(DataTableName, DSEDiagnosticToDataTable.TableNames.Namespace),
                     excelTargetWorkbook,
+                    excelTemplateWorkbook,
                     worksheetName,
                     true)
         { }
 
-        public ApplicationInfoExcel(IFilePath excelTargetWorkbook)
+        public ApplicationInfoExcel(IFilePath excelTargetWorkbook, IFilePath excelTemplateWorkbook = null)
             : this(excelTargetWorkbook,
+                    excelTemplateWorkbook,
                     null)
         { }
 
@@ -284,7 +287,8 @@ namespace DSEDiagtnosticToExcel
                                                            appendToWorkSheet: this.AppendToWorkSheet,
                                                            clearWorkSheet: false,
                                                            cachePackage: LibrarySettings.ExcelPackageCache,
-                                                           saveWorkSheet: LibrarySettings.ExcelSaveWorkSheet);
+                                                           saveWorkSheet: LibrarySettings.ExcelSaveWorkSheet,
+                                                           excelTemplateFile: this.ExcelTemplateWorkbook);
 
             return new Tuple<IFilePath, string, int>(this.ExcelTargetWorkbook, this.WorkSheetName, nbrRows);
         }

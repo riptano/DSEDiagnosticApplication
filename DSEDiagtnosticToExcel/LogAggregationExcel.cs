@@ -16,14 +16,16 @@ namespace DSEDiagtnosticToExcel
 
         public LogAggregationExcel(DataTable loginfoDataTable,
                                     IFilePath excelTargetWorkbook,
+                                    IFilePath excelTemplateWorkbook,
                                     string worksheetName,
                                     bool useDataTableDefaultView)
-            : base(loginfoDataTable, excelTargetWorkbook, worksheetName, useDataTableDefaultView)
+            : base(loginfoDataTable, excelTargetWorkbook, excelTemplateWorkbook, worksheetName, useDataTableDefaultView)
         { }
 
         public LogAggregationExcel(DataTable loginfoDataTable,
-                                    IFilePath excelTargetWorkbook)
-            : this(loginfoDataTable, excelTargetWorkbook, null, true)
+                                    IFilePath excelTargetWorkbook,
+                                    IFilePath excelTemplateWorkbook = null)
+            : this(loginfoDataTable, excelTargetWorkbook, excelTemplateWorkbook, null, true)
         { }
 
         public override Tuple<IFilePath, string, int> Load()
@@ -77,7 +79,8 @@ namespace DSEDiagtnosticToExcel
                                                             this.UseDataTableDefaultView,
                                                             appendToWorkSheet: this.AppendToWorkSheet,
                                                             cachePackage: LibrarySettings.ExcelPackageCache,
-                                                           saveWorkSheet: LibrarySettings.ExcelSaveWorkSheet);
+                                                           saveWorkSheet: LibrarySettings.ExcelSaveWorkSheet,
+                                                           excelTemplateFile: this.ExcelTemplateWorkbook);
 
             return new Tuple<IFilePath, string, int>(this.ExcelTargetWorkbook, this.WorkSheetName, nbrRows);
         }

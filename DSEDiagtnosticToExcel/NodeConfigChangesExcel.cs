@@ -16,16 +16,18 @@ namespace DSEDiagtnosticToExcel
 
         public NodeConfigChangesExcel(DataTable keyspaceDataTable,
                                         IFilePath excelTargetWorkbook,
+                                        IFilePath excelTemplateWorkbook,
                                         string worksheetName,
                                         bool useDataTableDefaultView)
-            : base(keyspaceDataTable, excelTargetWorkbook, worksheetName, useDataTableDefaultView)
+            : base(keyspaceDataTable, excelTargetWorkbook, excelTemplateWorkbook, worksheetName, useDataTableDefaultView)
         {
             this.AppendToWorkSheet = false;
         }
 
         public NodeConfigChangesExcel(DataTable keyspaceDataTable,
-                                        IFilePath excelTargetWorkbook)
-            : this(keyspaceDataTable, excelTargetWorkbook, null, true)
+                                        IFilePath excelTargetWorkbook,
+                                        IFilePath excelTemplateWorkbook = null)
+            : this(keyspaceDataTable, excelTargetWorkbook, excelTemplateWorkbook, null, true)
         {
         }
 
@@ -74,7 +76,8 @@ namespace DSEDiagtnosticToExcel
                                                             this.UseDataTableDefaultView,
                                                             appendToWorkSheet: this.AppendToWorkSheet,
                                                             cachePackage: LibrarySettings.ExcelPackageCache,
-                                                           saveWorkSheet: LibrarySettings.ExcelSaveWorkSheet);
+                                                           saveWorkSheet: LibrarySettings.ExcelSaveWorkSheet,
+                                                           excelTemplateFile: this.ExcelTemplateWorkbook);
 
             return new Tuple<IFilePath, string, int>(this.ExcelTargetWorkbook, this.WorkSheetName, nbrRows);
         }

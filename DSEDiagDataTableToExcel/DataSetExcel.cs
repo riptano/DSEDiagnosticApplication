@@ -44,10 +44,10 @@ namespace DataTableToExcel
 
     public sealed class ExcelPkgCache : IDisposable
     {
-        public ExcelPkgCache(IFilePath excelFilePath, bool isCached)
+        public ExcelPkgCache(IFilePath excelFilePath, bool isCached, IFilePath excelTemplateFilePath = null)
         {
             this.ExcelFilePath = excelFilePath;
-            this.ExcelPackage = new ExcelPackage(excelFilePath.FileInfo());
+            this.ExcelPackage = excelTemplateFilePath == null ? new ExcelPackage(excelFilePath.FileInfo()) : new ExcelPackage(excelFilePath.FileInfo(), excelTemplateFilePath.FileInfo());
             this._refCnt = isCached ? 2 : 1;
             this.CachedValue = isCached;
         }
@@ -125,10 +125,10 @@ namespace DataTableToExcel
             return null;
         }
 
-        static public ExcelPkgCache GetAddExcelPackageCache(IFilePath excelPath, bool cacheValue = true)
+        static public ExcelPkgCache GetAddExcelPackageCache(IFilePath excelPath, bool cacheValue = true, IFilePath excelTemplateFilePath = null)
         {
             ExcelPkgCache newInstance = null;
-            var cache = _Caches.GetOrAdd(excelPath, excelFile => newInstance = new ExcelPkgCache(excelPath, cacheValue));
+            var cache = _Caches.GetOrAdd(excelPath, excelFile => newInstance = new ExcelPkgCache(excelPath, cacheValue, excelTemplateFilePath));
 
             if (newInstance == null) cache.IncrementRefCnt();
 
@@ -597,9 +597,10 @@ namespace DataTableToExcel
                                                 bool printHeaders = true,
                                                 bool clearWorkSheet = true,
                                                 bool cachePackage = false,
-                                                bool saveWorkSheet = true)
+                                                bool saveWorkSheet = true,
+                                                IFilePath excelTemplateFile = null)
         {
-            using (var excelPkgCache = ExcelPkgCache.GetAddExcelPackageCache(excelFile, cachePackage))
+            using (var excelPkgCache = ExcelPkgCache.GetAddExcelPackageCache(excelFile, cachePackage, excelTemplateFile))
             {
                 var excelPkg = excelPkgCache.ExcelPackage;
 
@@ -695,7 +696,8 @@ namespace DataTableToExcel
                                                     bool clearWorkSheet = true,
                                                     bool processWorkSheetOnEmptyDataTable = true,
                                                     bool cachePackage = false,
-                                                    bool saveWorkSheet = true)
+                                                    bool saveWorkSheet = true,
+                                                    IFilePath excelTemplateFile = null)
         {
             var excelTargetFile = Common.Path.PathUtils.BuildFilePath(excelFilePath);
             var orgTargetFile = (IFilePath)excelTargetFile.Clone();
@@ -745,7 +747,8 @@ namespace DataTableToExcel
                                     appendToWorkSheet: appendToWorkSheet,
                                     clearWorkSheet: clearWorkSheet,
                                     cachePackage: cachePackage,
-                                    saveWorkSheet: saveWorkSheet);                
+                                    saveWorkSheet: saveWorkSheet,
+                                    excelTemplateFile: excelTemplateFile);                
 
                 workBookActions?.Invoke(WorkBookProcessingStage.PostProcess, orgTargetFile, null, workSheetName, null, dtExcel, dtExcel.Rows.Count, null);
                 return dtExcel.Rows.Count;
@@ -798,7 +801,8 @@ namespace DataTableToExcel
                                     appendToWorkSheet: appendToWorkSheet,
                                     clearWorkSheet: clearWorkSheet,
                                     cachePackage: cachePackage,
-                                    saveWorkSheet: saveWorkSheet);        
+                                    saveWorkSheet: saveWorkSheet,
+                                    excelTemplateFile: excelTemplateFile);        
             });
 
             workBookActions?.Invoke(WorkBookProcessingStage.PostProcess, orgTargetFile, null, workSheetName, null, null, nResult, null);

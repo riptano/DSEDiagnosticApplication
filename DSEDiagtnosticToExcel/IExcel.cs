@@ -21,6 +21,7 @@ namespace DSEDiagtnosticToExcel
         bool UseDataTableDefaultView { get; }
         System.Data.DataTable DataTable { get; }
         Common.IFilePath ExcelTargetWorkbook { get; }
+        Common.IFilePath ExcelTemplateWorkbook { get; }
         Common.IDirectoryPath ExcelTargetFolder { get; }
         string WorkSheetName { get; }
         string WorkBookName { get; }

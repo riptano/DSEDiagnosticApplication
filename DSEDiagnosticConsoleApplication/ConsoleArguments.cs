@@ -265,6 +265,20 @@ namespace DSEDiagnosticConsoleApplication
                 Description = "Log Aggregation Period in DD:HH:MM format"
             });
 
+            this._cmdLineParser.Arguments.Add(new ValueArgument<bool>("ExcelPackageCache")
+            {
+                DefaultValue = DSEDiagtnosticToExcel.LibrarySettings.ExcelPackageCache,
+                Optional = true,
+                Description = "Enables/Disables the Excel Package caching. If disabled each time a worksheet is generated the workbook is saved and reloaded (Excel Package is deleted and recreated)."
+            });
+
+            this._cmdLineParser.Arguments.Add(new ValueArgument<bool>("ExcelWorkSheetSave")
+            {
+                DefaultValue = DSEDiagtnosticToExcel.LibrarySettings.ExcelSaveWorkSheet,
+                Optional = true,
+                Description = "Enables/Disables the saving of a workbook each time a worksheet is added/modified. If ExcelPackageCache is disabled this is always enabled."
+            });
+
             this._cmdLineParser.Arguments.Add(new SwitchArgument("Debug", false)
             {
                 Description = "Debug Mode"
@@ -652,6 +666,12 @@ namespace DSEDiagnosticConsoleApplication
                     case "DisableParallelProcessing":
                         ParserSettings.DisableParallelProcessing = ((SwitchArgument)item).Value;
                         break;
+                    case "ExcelPackageCache":
+                        DSEDiagtnosticToExcel.LibrarySettings.ExcelPackageCache = ((ValueArgument<bool>)item).Value;
+                        break;
+                    case "ExcelWorkSheetSave":
+                        DSEDiagtnosticToExcel.LibrarySettings.ExcelSaveWorkSheet = ((ValueArgument<bool>)item).Value;
+                        break;
                     case "ShowDefaults":
                         {
                             Console.WriteLine();
@@ -691,7 +711,7 @@ namespace DSEDiagnosticConsoleApplication
                                 }
                             }                            
                         }
-                        return false;
+                        return false;                    
                     default:
 
                         throw new ArgumentException(string.Format("Do not know how to map {0} ({1}) to a setting!",

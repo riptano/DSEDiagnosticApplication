@@ -68,35 +68,14 @@ namespace DSEDiagtnosticToExcel
             var excelTargetFileFound = this.ExcelTargetWorkBook.Exist();
             var excelTargetFileAttrs = excelTargetFileFound ? this.ExcelTargetWorkBook.GetAttributes() : System.IO.FileAttributes.Normal;
 
+            this.CancellationToken.ThrowIfCancellationRequested();
+
             if (this.ExcelTemplateWorkbook != null && !excelTargetFileFound)
             {
-                this.CancellationToken.ThrowIfCancellationRequested();
-                try
+                if (this.ExcelTargetWorkBook.FileExtension != this.ExcelTemplateWorkbook.FileExtension)
                 {
-                    if(this.ExcelTargetWorkBook.FileExtension != this.ExcelTemplateWorkbook.FileExtension)
-                    {
-                        this.ExcelTargetWorkBook.ReplaceFileExtension(this.ExcelTemplateWorkbook.FileExtension);
-                    }
-
-                    if (this.ExcelTemplateWorkbook.Copy(this.ExcelTargetWorkBook))
-                    {
-                        Logger.Instance.InfoFormat("Created Workbook \"{0}\" from Template \"{1}\"", this.ExcelTargetWorkBook.Path, this.ExcelTemplateWorkbook.Path);
-                        excelTargetFileFound = true;
-                        excelTargetFileAttrs = this.ExcelTargetWorkBook.GetAttributes();
-                    }
-                    else
-                    {
-                        var msg = string.Format("Creation of Workbook \"{0}\" from Template \"{1}\" Failed", this.ExcelTargetWorkBook.Path, this.ExcelTemplateWorkbook.Path);
-                        Logger.Instance.Error(msg);
-                        throw new System.IO.IOException(msg);
-                    }
-                }
-                catch (System.Exception ex)
-                {
-                    var msg = string.Format("Creation of Workbook \"{0}\" from Template \"{1}\" Failed", this.ExcelTargetWorkBook.Path, this.ExcelTemplateWorkbook.Path);
-                    Logger.Instance.Error(msg, ex);
-                    throw;
-                }
+                    this.ExcelTargetWorkBook.ReplaceFileExtension(this.ExcelTemplateWorkbook.FileExtension);
+                }                    
             }
 
             return this.DataSetTask.ContinueWith(task =>
@@ -109,7 +88,8 @@ namespace DSEDiagtnosticToExcel
 
                 try
                 {
-                    this.ExcelTargetWorkBook.SetAttributes(excelTargetFileAttrs | System.IO.FileAttributes.Hidden);
+                    if(excelTargetFileFound)
+                        this.ExcelTargetWorkBook.SetAttributes(excelTargetFileAttrs | System.IO.FileAttributes.Hidden);
 
                     foreach (DataTable dataTable in dataSet.Tables)
                     {
@@ -121,7 +101,7 @@ namespace DSEDiagtnosticToExcel
                             {
                                 this.CancellationToken.ThrowIfCancellationRequested();
 
-                                var instance = (IExcel)Activator.CreateInstance(fieldInfo.DeclaringType, dataTable, this.ExcelTargetWorkBook);
+                                var instance = (IExcel)Activator.CreateInstance(fieldInfo.DeclaringType, dataTable, this.ExcelTargetWorkBook, this.ExcelTemplateWorkbook);
 
                                 if(this.ExplicitlyAppendToTargetExcelFile.HasValue)
                                 {
@@ -150,7 +130,8 @@ namespace DSEDiagtnosticToExcel
                 }
                 finally
                 {
-                    this.ExcelTargetWorkBook.SetAttributes(excelTargetFileAttrs);
+                    if (excelTargetFileFound)
+                        this.ExcelTargetWorkBook.SetAttributes(excelTargetFileAttrs);
                 }
 
                 return this.ExcelTargetWorkBook;

@@ -14,6 +14,7 @@ namespace DSEDiagtnosticToExcel
 
         internal LoadToExcel(DataTable dataTableToLoad,
                                 IFilePath excelTargetWorkbook,
+                                IFilePath excelTemplateWorkbook,
                                 string worksheetName,
                                 bool useDataTableDefaultView)
         {
@@ -21,6 +22,7 @@ namespace DSEDiagtnosticToExcel
             this.UseDataTableDefaultView = useDataTableDefaultView;
             this.DataTable = dataTableToLoad;
             this.ExcelTargetWorkbook = excelTargetWorkbook;
+            this.ExcelTemplateWorkbook = excelTemplateWorkbook;
             this.ExcelTargetFolder = excelTargetWorkbook.ParentDirectoryPath;
             this.WorkSheetName = string.IsNullOrEmpty(worksheetName) ? dataTableToLoad.TableName : worksheetName;
             this.AppendToWorkSheet = LibrarySettings.AppendToWorkSheet;
@@ -30,12 +32,14 @@ namespace DSEDiagtnosticToExcel
                                 IDirectoryPath excelTargeFolder,
                                 string workBookName,
                                 bool useDataTableDefaultView,
-                                string excelFileExtension = null)
+                                string excelFileExtension = null,
+                                IFilePath excelTemplateWorkbook = null)
         {
             this.LoadTo = LoadToTypes.WorkSheet;
             this.UseDataTableDefaultView = useDataTableDefaultView;
             this.DataTable = dataTableToLoad;
             this.ExcelTargetFolder = ExcelTargetFolder;
+            this.ExcelTemplateWorkbook = excelTemplateWorkbook;
             this.WorkBookName = string.IsNullOrEmpty(workBookName) ? dataTableToLoad.TableName : workBookName;
             this.AppendToWorkSheet = LibrarySettings.AppendToWorkSheet;
 
@@ -52,6 +56,7 @@ namespace DSEDiagtnosticToExcel
         public bool UseDataTableDefaultView { get; }
         public DataTable DataTable { get; }
         public IFilePath ExcelTargetWorkbook { get; }
+        public IFilePath ExcelTemplateWorkbook { get; }
         public IDirectoryPath ExcelTargetFolder { get; }
         public string WorkSheetName { get; }
         public string WorkBookName { get; }
