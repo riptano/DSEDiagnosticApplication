@@ -282,7 +282,9 @@ namespace DSEDiagtnosticToExcel
                                                            "B13",
                                                            this.UseDataTableDefaultView,
                                                            appendToWorkSheet: this.AppendToWorkSheet,
-                                                           clearWorkSheet: false);
+                                                           clearWorkSheet: false,
+                                                           cachePackage: LibrarySettings.ExcelPackageCache,
+                                                           saveWorkSheet: LibrarySettings.ExcelSaveWorkSheet);
 
             return new Tuple<IFilePath, string, int>(this.ExcelTargetWorkbook, this.WorkSheetName, nbrRows);
         }

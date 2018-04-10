@@ -10,29 +10,28 @@ using DataTableToExcel;
 
 namespace DSEDiagtnosticToExcel
 {
-    public sealed class Configexcel : LoadToExcel
+    public sealed class CommonPartitionKeyExcel : LoadToExcel
     {
-        public const string DataTableName = DSEDiagnosticToDataTable.TableNames.Config;
+        public const string DataTableName = DSEDiagnosticToDataTable.TableNames.CommonPartitionKey;
 
-        public Configexcel(DataTable keyspaceDataTable,
-                                IFilePath excelTargetWorkbook,
-                                string worksheetName,
-                                bool useDataTableDefaultView)
+        public CommonPartitionKeyExcel(DataTable keyspaceDataTable,
+                                        IFilePath excelTargetWorkbook,
+                                        string worksheetName,
+                                        bool useDataTableDefaultView)
             : base(keyspaceDataTable, excelTargetWorkbook, worksheetName, useDataTableDefaultView)
         {
             this.AppendToWorkSheet = false;
         }
 
-        public Configexcel(DataTable keyspaceDataTable,
-                                IFilePath excelTargetWorkbook)
+        public CommonPartitionKeyExcel(DataTable keyspaceDataTable,
+                                        IFilePath excelTargetWorkbook)
             : this(keyspaceDataTable, excelTargetWorkbook, null, true)
-        {            
-        }
+        { }
 
         public override Tuple<IFilePath, string, int> Load()
         {
-           var nbrRows = DataTableToExcel.Helpers.WorkBook(this.ExcelTargetWorkbook.PathResolved, this.WorkSheetName, this.DataTable,
-                                                           (stage, orgFilePath, targetFilePath, workSheetName, excelPackage, excelDataTable, rowCount, loadRange) =>
+            var nbrRows = DataTableToExcel.Helpers.WorkBook(this.ExcelTargetWorkbook.PathResolved, this.WorkSheetName, this.DataTable,
+                                                            (stage, orgFilePath, targetFilePath, workSheetName, excelPackage, excelDataTable, rowCount, loadRange) =>
                                                             {
                                                                 switch (stage)
                                                                 {
@@ -55,21 +54,27 @@ namespace DSEDiagtnosticToExcel
                                                                         break;
                                                                 }
                                                             },
-                                                            workSheet =>
-                                                            {
-                                                                workSheet.Cells["1:1"].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.LightGray;
-                                                                workSheet.Cells["1:1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-                                                                //workBook.Cells["1:1"].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
-                                                                workSheet.View.FreezePanes(2, 1);
-                                                                workSheet.Cells["A1:E1"].AutoFilter = true;
-                                                                workSheet.AutoFitColumn(workSheet.Cells["A:D"]);                                                                
-                                                            },
+                                                             workSheet =>
+                                                             {
+                                                                 workSheet.Cells["1:1"].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.LightGray;
+                                                                 workSheet.Cells["1:1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                                                                 //workBook.Cells["1:1"].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
+                                                                 workSheet.View.FreezePanes(2, 1);
+
+
+                                                                 workSheet.Cells["F:F"].Style.Numberformat.Format = "#,###,###,##0";                                                                 
+                                                                 workSheet.Cells["G:G"].Style.Numberformat.Format = "#,###,###,##0";
+                                                                 
+                                                                 workSheet.Cells["A1:G1"].AutoFilter = true;
+
+                                                                 workSheet.AutoFitColumn();
+                                                             },
+                                                             -1,
                                                             -1,
-                                                           -1,
-                                                           "A1",
-                                                           this.UseDataTableDefaultView,
-                                                           appendToWorkSheet: this.AppendToWorkSheet,
-                                                           cachePackage: LibrarySettings.ExcelPackageCache,
+                                                            "A1",
+                                                            this.UseDataTableDefaultView,
+                                                            appendToWorkSheet: this.AppendToWorkSheet,
+                                                            cachePackage: LibrarySettings.ExcelPackageCache,
                                                            saveWorkSheet: LibrarySettings.ExcelSaveWorkSheet);
 
             return new Tuple<IFilePath, string, int>(this.ExcelTargetWorkbook, this.WorkSheetName, nbrRows);

@@ -98,6 +98,7 @@ namespace DSEDiagnosticLibrary
         Change = 0x8000000,
         Schema = 0x10000000,
         Shard = 0x20000000,
+        DataModel = 0x40000000,
         GCStats = GC | Stats,
         MemtableFlush = Memtable | Flush,
         SolrHardCommit = Solr | Commit,
@@ -106,6 +107,7 @@ namespace DSEDiagnosticLibrary
         TableViewIndexStats = TableViewIndex | Stats,
         KeyspaceTableViewIndexStats = Keyspace | TableViewIndexStats,
         PerformanceStats = Performance | Stats,
+        DataModelStats = DataModel | Stats,
         NodeDetection = Node | Detection,
         StatusTypes = Information | Warning | Error | Exception | Fatal | Orphaned
     }

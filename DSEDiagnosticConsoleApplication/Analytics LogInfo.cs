@@ -10,9 +10,11 @@ namespace DSEDiagnosticConsoleApplication
 {
     partial class Program
     {
-        static Task<IEnumerable<DSEDiagnosticLibrary.IAggregatedStats>> ProcessAnalytics_LogInfo(Task<IEnumerable<DSEDiagnosticFileParser.DiagnosticFile>> diagParserTask, System.Threading.CancellationTokenSource cancellationSource)
+        static Task<IEnumerable<DSEDiagnosticLibrary.IAggregatedStats>>[] ProcessAnalytics_LogInfo(Task<IEnumerable<DSEDiagnosticFileParser.DiagnosticFile>> diagParserTask, System.Threading.CancellationTokenSource cancellationSource)
         {
-            var logInfoStatsTask = diagParserTask.ContinueWith((task, ignore) =>
+            Task<IEnumerable<DSEDiagnosticLibrary.IAggregatedStats>>[] tasks = new Task<IEnumerable<DSEDiagnosticLibrary.IAggregatedStats>>[2];
+
+            tasks[0] = diagParserTask.ContinueWith((task, ignore) =>
             {
                 ConsoleAnalyze.Increment("LogFileStats");
                 var cluster = DSEDiagnosticLibrary.Cluster.GetCurrentOrMaster();
@@ -24,14 +26,31 @@ namespace DSEDiagnosticConsoleApplication
                                         cancellationSource.Token,
                                         TaskContinuationOptions.OnlyOnRanToCompletion,
                                         TaskScheduler.Default);
-            logInfoStatsTask.Then(result => ConsoleAnalyze.TaskEnd("LogFileStats"));
+            tasks[0].Then(result => ConsoleAnalyze.TaskEnd("LogFileStats"));
 
-            logInfoStatsTask.Then(result => ConsoleAnalyze.Terminate());
-            logInfoStatsTask.ContinueWith(task => CanceledFaultProcessing(task.Exception),
+            tasks[1] = diagParserTask.ContinueWith((task, ignore) =>
+            {
+                ConsoleAnalyze.Increment("Common PK Stats");
+                var cluster = DSEDiagnosticLibrary.Cluster.GetCurrentOrMaster();
+                var analyticInstance = new DSEDiagnosticAnalytics.DataModelDCPK(cluster, cancellationSource.Token, ParserSettings.IgnoreKeySpaces.ToArray());
+
+                return analyticInstance.ComputeStats();
+            },
+                                        null,
+                                        cancellationSource.Token,
+                                        TaskContinuationOptions.OnlyOnRanToCompletion,
+                                        TaskScheduler.Default);
+            tasks[1].Then(result => ConsoleAnalyze.TaskEnd("Common PK Stats"));
+
+            var analysisTasks = Task.Factory.ContinueWhenAll(tasks,
+                                                                t => t.Cast<Task<IEnumerable<DSEDiagnosticLibrary.IAggregatedStats>>>().SelectMany(r => r.Result));
+
+            analysisTasks.Then(result => ConsoleAnalyze.Terminate());
+            analysisTasks.ContinueWith(task => CanceledFaultProcessing(task.Exception),
                                                         TaskContinuationOptions.OnlyOnFaulted);
-            logInfoStatsTask.ContinueWith(task => CanceledFaultProcessing(null),
+            analysisTasks.ContinueWith(task => CanceledFaultProcessing(null),
                                                         TaskContinuationOptions.OnlyOnCanceled);
-            return logInfoStatsTask;
+            return tasks;
         }
     }
 }

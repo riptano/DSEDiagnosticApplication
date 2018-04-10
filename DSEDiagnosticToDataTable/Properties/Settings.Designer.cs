@@ -49,5 +49,14 @@ namespace DSEDiagnosticToDataTable.Properties {
                 return ((global::System.TimeSpan)(this["LogAggregationPeriod"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool CommonPartitionsAllowZeroReadWriteCnts {
+            get {
+                return ((bool)(this["CommonPartitionsAllowZeroReadWriteCnts"]));
+            }
+        }
     }
 }

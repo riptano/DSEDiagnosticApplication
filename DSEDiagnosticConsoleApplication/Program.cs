@@ -298,15 +298,16 @@ namespace DSEDiagnosticConsoleApplication
 
             var cancellationSource = new System.Threading.CancellationTokenSource();
             var diagParserTask = ProcessDSEDiagnosticFileParser(cancellationSource);
-            var logInfoStatsTask = ProcessAnalytics_LogInfo(diagParserTask, cancellationSource);
-            var loadAllDataTableTask = LoadDataTables(diagParserTask, logInfoStatsTask, cancellationSource);
+            var aggInfoStatsTask = ProcessAnalytics_LogInfo(diagParserTask, cancellationSource);
+            var loadAllDataTableTask = LoadDataTables(diagParserTask, aggInfoStatsTask, cancellationSource);
             var loadExcelWorkBookTask = LoadExcelWorkbook(diagParserTask, loadAllDataTableTask, cancellationSource);
 
             #region Wait for Tasks to Complete
             {
-                var tasks = new Task[] { diagParserTask, logInfoStatsTask, loadAllDataTableTask, loadExcelWorkBookTask };
+                var tasks = new List<Task>() { diagParserTask, loadAllDataTableTask, loadExcelWorkBookTask };
+                tasks.AddRange(aggInfoStatsTask);
 
-                System.Threading.Tasks.Task.WaitAll(tasks, cancellationSource.Token);
+                System.Threading.Tasks.Task.WaitAll(tasks.ToArray(), cancellationSource.Token);
             }
             #endregion
 

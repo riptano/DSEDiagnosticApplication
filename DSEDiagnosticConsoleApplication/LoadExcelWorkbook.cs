@@ -70,13 +70,13 @@ namespace DSEDiagnosticConsoleApplication
                 }
                 else if (action == "Workbook Saved")
                 {
-                    ConsoleExcelWorkbook.Increment(sender.ExcelTargetWorkbook);
+                    ConsoleExcelWorkbook.Increment(ParserSettings.ExcelFilePath);
                 }
             };
 
             var excelTask = loadExcel.Load();
             var excelUpdateAppInfo = UpdateExcelApplInfoWorksheet(diagParserTask, excelTask, cancellationSource);
-
+            
             excelUpdateAppInfo.Then(result => { ConsoleExcelWorkbook.Terminate(); ConsoleExcelWorkSheet.Terminate(); });
             excelUpdateAppInfo.ContinueWith(task => CanceledFaultProcessing(task.Exception),
                                                 TaskContinuationOptions.OnlyOnFaulted);

@@ -42,6 +42,200 @@ namespace DataTableToExcel
         PostProcess
     }
 
+    public sealed class ExcelPkgCache : IDisposable
+    {
+        public ExcelPkgCache(IFilePath excelFilePath, bool isCached)
+        {
+            this.ExcelFilePath = excelFilePath;
+            this.ExcelPackage = new ExcelPackage(excelFilePath.FileInfo());
+            this._refCnt = isCached ? 2 : 1;
+            this.CachedValue = isCached;
+        }
+
+        #region Public Members
+
+        public ExcelPackage ExcelPackage { get; }
+        public IFilePath ExcelFilePath { get; }
+        public bool CachedValue { get; }
+
+        private int _refCnt;
+        public int RefCnt { get { return _refCnt; } }
+
+        public void Close()
+        {
+            if (this._refCnt > 0 && !this.Disposed) this.ExcelPackage.Dispose();
+            this._refCnt = 0;
+        }
+
+        public void Save()
+        {
+            if (this._refCnt > 0 && !this.Disposed) this.ExcelPackage.Save();
+        }
+
+        public void Save(IFilePath newFilePath)
+        {
+            if (this._refCnt > 0 && !this.Disposed) this.ExcelPackage.SaveAs(newFilePath.FileInfo());
+        }
+
+        public void SaveAndClose(IFilePath newFilePath = null)
+        {
+            if (newFilePath == null)
+                this.Save();
+            else
+                this.Save(newFilePath);
+
+            this.Close();
+        }
+
+        public int IncrementRefCnt()
+        {
+            if (this.Disposed) return 0;
+            return System.Threading.Interlocked.Increment(ref this._refCnt);
+        }
+
+        #endregion
+
+        #region Static Members
+
+        static private System.Collections.Concurrent.ConcurrentDictionary<IFilePath, ExcelPkgCache> _Caches = new System.Collections.Concurrent.ConcurrentDictionary<IFilePath, ExcelPkgCache>();
+
+        static public IReadOnlyList<KeyValuePair<IFilePath, ExcelPkgCache>> Caches { get { return _Caches.ToList(); } }
+
+        static public ExcelPackage GetExcelPackage(IFilePath excelPath)
+        {
+            ExcelPkgCache cache;
+
+            if(_Caches.TryGetValue(excelPath, out cache))
+            {
+                return cache.ExcelPackage;
+            }
+
+            return null;
+        }
+
+        static public ExcelPkgCache GetExcelPackageCache(IFilePath excelPath)
+        {
+            ExcelPkgCache cache;
+
+            if (_Caches.TryGetValue(excelPath, out cache))
+            {
+                return cache;
+            }
+
+            return null;
+        }
+
+        static public ExcelPkgCache GetAddExcelPackageCache(IFilePath excelPath, bool cacheValue = true)
+        {
+            ExcelPkgCache newInstance = null;
+            var cache = _Caches.GetOrAdd(excelPath, excelFile => newInstance = new ExcelPkgCache(excelPath, cacheValue));
+
+            if (newInstance == null) cache.IncrementRefCnt();
+
+            return cache;
+        }
+
+        static public ExcelPkgCache RemoveExcelPackageCache(IFilePath excelPath, bool saveFile = false, bool disposePackage = true)
+        {
+            ExcelPkgCache cache = null;
+
+            if(_Caches.TryRemove(excelPath, out cache))
+            {
+                if (saveFile) cache.Save();
+                if (disposePackage) cache.DisposeForce();
+            }
+
+            return cache;
+        }
+
+        static public int SaveAllExcelFiles(bool closePackage = false)
+        {
+            int nSaved = 0;
+
+            foreach(var cache in Caches)
+            {                
+                if (closePackage)
+                {
+                    RemoveExcelPackageCache(cache.Key, true, true);
+                    Logger.Instance.InfoFormat("Excel WorkBooks saved and closed to \"{0}\"", cache.Key.PathResolved);
+                }
+                else
+                {
+                    cache.Value.Save();
+                    Logger.Instance.InfoFormat("Excel WorkBooks saved to \"{0}\"", cache.Key.PathResolved);
+                }
+                nSaved++;
+            }
+
+            return nSaved;
+        }
+        #endregion
+
+        #region Dispose Methods
+
+        public bool Disposed { get; private set; }
+
+        public void DisposeForce()
+        {
+            Dispose(false);
+            GC.SuppressFinalize(this);            
+        }
+
+        // Implement IDisposable.
+        // Do not make this method virtual.
+        // A derived class should not be able to override this method.
+        public void Dispose()
+        {
+            Dispose(true);
+
+            if (this.Disposed)
+            {
+                // This object will be cleaned up by the Dispose method.
+                // Therefore, you should call GC.SupressFinalize to
+                // take this object off the finalization queue
+                // and prevent finalization code for this object
+                // from executing a second time.
+                GC.SuppressFinalize(this);
+            }
+        }
+
+        // Dispose(bool disposing) executes in two distinct scenarios.
+        // If disposing equals true, the method has been called directly
+        // or indirectly by a user's code. Managed and unmanaged resources
+        // can be disposed.
+        // If disposing equals false, the method has been called by the
+        // runtime from inside the finalizer and you should not reference
+        // other objects. Only unmanaged resources can be disposed.
+        private void Dispose(bool disposing)
+        {
+            // Check to see if Dispose has already been called.
+            if (!this.Disposed)
+            {
+                if (disposing)
+                {                    
+                    if (this._refCnt > 0)
+                    {
+                        if (System.Threading.Interlocked.Decrement(ref this._refCnt) <= 0 || !this.CachedValue)
+                        {
+                            this._refCnt = 0;
+                            this.ExcelPackage.Dispose();
+                            this.Disposed = true;
+                        }                                               
+                    }
+                }
+                else
+                {
+                    this._refCnt = 0;
+                    this.ExcelPackage.Dispose();
+                    this.Disposed = true;
+                }
+            }
+        }
+
+        #endregion //end of Dispose Methods
+
+    }
+
     public static class Helpers
     {
         static public void AutoFitColumn(this ExcelWorksheet workSheet, params ExcelRange[] autoFitRanges)
@@ -387,6 +581,58 @@ namespace DataTableToExcel
             return loadRange;
         }
 
+        static public void WorkBookWorkSheet(IFilePath orgTargetFile,
+                                                IFilePath excelFile,
+                                                string workSheetName,
+                                                System.Data.DataTable dtExcel,
+                                                ref int nResult,
+                                                Action<WorkBookProcessingStage, IFilePath, IFilePath, string, ExcelPackage, DataTable, int, string> workBookActions = null,
+                                                Action<ExcelWorksheet> worksheetAction = null,
+                                                bool enableMaxRowLimitPerWorkSheet = true,
+                                                int maxRowInExcelWorkSheet = -1,
+                                                string startingWSCell = "A1",
+                                                bool useDefaultView = false,
+                                                bool renameFirstWorksheetIfDivided = true,
+                                                bool appendToWorkSheet = false,
+                                                bool printHeaders = true,
+                                                bool clearWorkSheet = true,
+                                                bool cachePackage = false,
+                                                bool saveWorkSheet = true)
+        {
+            using (var excelPkgCache = ExcelPkgCache.GetAddExcelPackageCache(excelFile, cachePackage))
+            {
+                var excelPkg = excelPkgCache.ExcelPackage;
+
+                workBookActions?.Invoke(WorkBookProcessingStage.PreLoad, orgTargetFile, excelFile, workSheetName, excelPkg, dtExcel, -1, null);
+
+                var loadRange = WorkSheet(excelPkg,
+                                            workSheetName,
+                                            dtExcel,
+                                            worksheetAction,
+                                            enableMaxRowLimitPerWorkSheet,
+                                            maxRowInExcelWorkSheet,
+                                            startingWSCell,
+                                            useDefaultView,
+                                            renameFirstWorksheetIfDivided,
+                                            appendToWorkSheet,
+                                            printHeaders,
+                                            clearWorkSheet);
+
+                System.Threading.Interlocked.Add(ref nResult, dtExcel.Rows.Count);
+
+                workBookActions?.Invoke(WorkBookProcessingStage.PreSave, orgTargetFile, excelFile, workSheetName, excelPkg, dtExcel, dtExcel.Rows.Count, loadRange?.Address);
+
+                if (saveWorkSheet)
+                {
+                    excelPkg.Save();
+                    workBookActions?.Invoke(WorkBookProcessingStage.Saved, orgTargetFile, excelFile, workSheetName, excelPkg, dtExcel, dtExcel.Rows.Count, loadRange?.Address);
+                    Logger.Instance.InfoFormat("Excel WorkBooks saved to \"{0}\"", excelFile.PathResolved);
+                }
+            }
+        }
+
+
+
         /// <summary>
         /// Loads the data table into a new or existing Excel workbook based on the associated worksheet name (if worksheet exists it is cleared).
         /// </summary>
@@ -447,10 +693,13 @@ namespace DataTableToExcel
                                                     bool generateNewFileName = false,
                                                     bool appendToWorkSheet = false,
                                                     bool clearWorkSheet = true,
-                                                    bool processWorkSheetOnEmptyDataTable = true)
+                                                    bool processWorkSheetOnEmptyDataTable = true,
+                                                    bool cachePackage = false,
+                                                    bool saveWorkSheet = true)
         {
             var excelTargetFile = Common.Path.PathUtils.BuildFilePath(excelFilePath);
             var orgTargetFile = (IFilePath)excelTargetFile.Clone();
+            int nResult = 0;
 
             if (string.IsNullOrEmpty(workSheetName)) workSheetName = dtExcel.TableName;
 
@@ -483,25 +732,20 @@ namespace DataTableToExcel
 
                 workBookActions?.Invoke(WorkBookProcessingStage.PrepareFileName, orgTargetFile, excelFile, workSheetName, null, dtExcel, -1, null);
 
-                using (var excelPkg = new ExcelPackage(excelFile.FileInfo()))
-                {
-                    workBookActions?.Invoke(WorkBookProcessingStage.PreLoad, orgTargetFile, excelFile, workSheetName, excelPkg, dtExcel, -1, null);
-
-                    var loadRange = WorkSheet(excelPkg,
-                                                workSheetName,
-                                                dtExcel,
-                                                worksheetAction,
-                                                maxRowInExcelWorkSheet: maxRowInExcelWorkSheet,
-                                                startingWSCell: startingWSCell,
-                                                useDefaultView: useDefaultView,
-                                                appendToWorkSheet: appendToWorkSheet,
-                                                clearWorkSheet: clearWorkSheet);
-
-                    workBookActions?.Invoke(WorkBookProcessingStage.PreSave, orgTargetFile, excelFile, workSheetName, excelPkg, dtExcel, dtExcel.Rows.Count, loadRange?.Address);
-                    excelPkg.Save();
-                    workBookActions?.Invoke(WorkBookProcessingStage.Saved, orgTargetFile, excelFile, workSheetName, excelPkg, dtExcel, dtExcel.Rows.Count, loadRange?.Address);
-                    Logger.Instance.InfoFormat("Excel WorkBooks saved to \"{0}\"", excelPkg.File?.FullName);
-                }
+                WorkBookWorkSheet(orgTargetFile,
+                                    excelFile,
+                                    workSheetName,                                                
+                                    dtExcel,
+                                    ref nResult,
+                                    workBookActions: workBookActions,
+                                    worksheetAction: worksheetAction,
+                                    maxRowInExcelWorkSheet: maxRowInExcelWorkSheet,
+                                    startingWSCell: startingWSCell,
+                                    useDefaultView: useDefaultView,
+                                    appendToWorkSheet: appendToWorkSheet,
+                                    clearWorkSheet: clearWorkSheet,
+                                    cachePackage: cachePackage,
+                                    saveWorkSheet: saveWorkSheet);                
 
                 workBookActions?.Invoke(WorkBookProcessingStage.PostProcess, orgTargetFile, null, workSheetName, null, dtExcel, dtExcel.Rows.Count, null);
                 return dtExcel.Rows.Count;
@@ -509,8 +753,7 @@ namespace DataTableToExcel
 
             workBookActions?.Invoke(WorkBookProcessingStage.PreProcessDataTable, orgTargetFile, null, workSheetName, null, dtExcel, -1, null);
 
-            var dtSplits = dtExcel.SplitTable(maxRowInExcelWorkBook, useDefaultView);
-            int nResult = 0;
+            var dtSplits = dtExcel.SplitTable(maxRowInExcelWorkBook, useDefaultView);            
             long totalRows = 0;
 
             if (dtSplits.Count() == 1)
@@ -528,6 +771,8 @@ namespace DataTableToExcel
                                                                 string.IsNullOrEmpty(Properties.Settings.Default.ExcelWorkBookFileExtension)
                                                                             ? excelTargetFile.FileExtension
                                                                             : Properties.Settings.Default.ExcelWorkBookFileExtension);
+                cachePackage = false;
+                saveWorkSheet = true;
             }
 
             Parallel.ForEach(dtSplits, dtSplit =>
@@ -540,26 +785,20 @@ namespace DataTableToExcel
 
                 workBookActions?.Invoke(WorkBookProcessingStage.PrepareFileName, orgTargetFile, excelFile, workSheetName, null, dtSplit, -1, null);
 
-                using (var excelPkg = new ExcelPackage(excelFile.FileInfo()))
-                {
-                    workBookActions?.Invoke(WorkBookProcessingStage.PreLoad, orgTargetFile, excelFile, workSheetName, excelPkg, dtSplit, -1, null);
-
-                    var loadRange = WorkSheet(excelPkg,
-                                                workSheetName,
-                                                dtSplit,
-                                                worksheetAction,
-                                                maxRowInExcelWorkSheet: maxRowInExcelWorkSheet,
-                                                startingWSCell: startingWSCell,
-                                                appendToWorkSheet: appendToWorkSheet,
-                                                clearWorkSheet: clearWorkSheet);
-
-                    System.Threading.Interlocked.Add(ref nResult, dtSplit.Rows.Count);
-
-                    workBookActions?.Invoke(WorkBookProcessingStage.PreSave, orgTargetFile, excelFile, workSheetName, excelPkg, dtSplit, dtSplit.Rows.Count, loadRange?.Address);
-                    excelPkg.Save();
-                    workBookActions?.Invoke(WorkBookProcessingStage.Saved, orgTargetFile, excelFile, workSheetName, excelPkg, dtSplit, dtSplit.Rows.Count, loadRange?.Address);
-                    Logger.Instance.InfoFormat("Excel WorkBooks saved to \"{0}\"", excelFile.PathResolved);
-                }
+                WorkBookWorkSheet(orgTargetFile,
+                                    excelFile,
+                                    workSheetName,
+                                    dtSplit,
+                                    ref nResult,
+                                    workBookActions: workBookActions,
+                                    worksheetAction: worksheetAction,
+                                    maxRowInExcelWorkSheet: maxRowInExcelWorkSheet,
+                                    startingWSCell: startingWSCell,
+                                    useDefaultView: false,
+                                    appendToWorkSheet: appendToWorkSheet,
+                                    clearWorkSheet: clearWorkSheet,
+                                    cachePackage: cachePackage,
+                                    saveWorkSheet: saveWorkSheet);        
             });
 
             workBookActions?.Invoke(WorkBookProcessingStage.PostProcess, orgTargetFile, null, workSheetName, null, null, nResult, null);
@@ -567,6 +806,10 @@ namespace DataTableToExcel
             return nResult;
         }
 
+        static public int SaveCloseAllWorkBooks()
+        {
+            return ExcelPkgCache.SaveAllExcelFiles(true);
+        }
 
         static public void WorkSheetLoadColumnDefaults(this ExcelWorksheet workSheet,
                                                         string column,

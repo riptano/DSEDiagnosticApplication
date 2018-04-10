@@ -142,6 +142,11 @@ namespace DSEDiagtnosticToExcel
 
                         instance.Load();
                     }
+
+                    if(DataTableToExcel.Helpers.SaveCloseAllWorkBooks() > 0)
+                    {
+                        if (onAction != null) onAction(null, "Workbook Saved");
+                    }
                 }
                 finally
                 {
@@ -154,5 +159,6 @@ namespace DSEDiagtnosticToExcel
             TaskContinuationOptions.OnlyOnRanToCompletion,
             TaskScheduler.Current);
         }
+
     }
 }

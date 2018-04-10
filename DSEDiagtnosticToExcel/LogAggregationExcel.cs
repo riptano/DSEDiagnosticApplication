@@ -75,7 +75,9 @@ namespace DSEDiagtnosticToExcel
                                                             -1,
                                                             "A1",
                                                             this.UseDataTableDefaultView,
-                                                            appendToWorkSheet: this.AppendToWorkSheet);
+                                                            appendToWorkSheet: this.AppendToWorkSheet,
+                                                            cachePackage: LibrarySettings.ExcelPackageCache,
+                                                           saveWorkSheet: LibrarySettings.ExcelSaveWorkSheet);
 
             return new Tuple<IFilePath, string, int>(this.ExcelTargetWorkbook, this.WorkSheetName, nbrRows);
         }

@@ -62,6 +62,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AnalyzeData.cs" />
+    <Compile Include="DataModelDCPK.cs" />
     <Compile Include="IAnalytics.cs" />
     <Compile Include="LibrarySettings.cs" />
     <Compile Include="LogFileStats.cs" />

@@ -11,7 +11,7 @@ namespace DSEDiagnosticConsoleApplication
     partial class Program
     {
         static Task<System.Data.DataSet> LoadDataTables(Task<IEnumerable<DSEDiagnosticFileParser.DiagnosticFile>> diagParserTask,
-                                                        Task<IEnumerable<DSEDiagnosticLibrary.IAggregatedStats>> logInfoStatsTask,
+                                                        Task<IEnumerable<DSEDiagnosticLibrary.IAggregatedStats>>[] aggStatsTask,
                                                         System.Threading.CancellationTokenSource cancellationSource,
                                                         Guid? sessionGuid = null)
         {
@@ -64,10 +64,24 @@ namespace DSEDiagnosticConsoleApplication
                     taskDataTable.Then(result => ConsoleParsingDataTable.TaskEnd(result.TableName));
                 });
 
-                datatableTasks.Add(logInfoStatsTask.ContinueWith((task, ignore) =>
+                datatableTasks.Add(aggStatsTask[0].ContinueWith((task, ignore) =>
                 {
                     var clusterInstance = DSEDiagnosticLibrary.Cluster.GetCurrentOrMaster();
                     var dtLoadInstance = new DSEDiagnosticToDataTable.LogInfoDataTable(clusterInstance, task.Result, cancellationSource, sessionGuid);
+
+                    ConsoleParsingDataTable.Increment(dtLoadInstance.Table.TableName);
+                    return dtLoadInstance.LoadTable();
+                },
+                                                        null,
+                                                        cancellationSource.Token,
+                                                        TaskContinuationOptions.OnlyOnRanToCompletion,
+                                                        TaskScheduler.Default));
+                datatableTasks.Last().Then(result => ConsoleParsingDataTable.TaskEnd(result.TableName));
+
+                datatableTasks.Add(aggStatsTask[1].ContinueWith((task, ignore) =>
+                {
+                    var clusterInstance = DSEDiagnosticLibrary.Cluster.GetCurrentOrMaster();
+                    var dtLoadInstance = new DSEDiagnosticToDataTable.CommonPartitionKeyDataTable(clusterInstance, task.Result, cancellationSource, sessionGuid);
 
                     ConsoleParsingDataTable.Increment(dtLoadInstance.Table.TableName);
                     return dtLoadInstance.LoadTable();
