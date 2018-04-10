@@ -250,7 +250,12 @@ namespace DataTableToExcel
                 {
                     foreach (var range in autoFitRanges)
                     {
-                        range.AutoFitColumns();
+                        try
+                        {
+                            range.AutoFitColumns();
+                        }
+                        catch (OverflowException)
+                        {}                        
                     }
                 }
             }

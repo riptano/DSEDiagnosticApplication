@@ -31,8 +31,9 @@ namespace DSEDiagnosticToDataTable
             dtPartitionInfo.Columns.Add(ColumnNames.KeySpace, typeof(string));
             dtPartitionInfo.Columns.Add(ColumnNames.Table, typeof(string));
             dtPartitionInfo.Columns.Add(ColumnNames.NodeIPAddress, typeof(string));
-            dtPartitionInfo.Columns.Add("Local read count", typeof(long)).AllowDBNull = true; //f
-            dtPartitionInfo.Columns.Add("Local write count", typeof(long)).AllowDBNull = true; //g
+            dtPartitionInfo.Columns.Add("Local read count", typeof(long)); //f
+            dtPartitionInfo.Columns.Add("Local write count", typeof(long)); //g
+            dtPartitionInfo.Columns.Add("Local Total count", typeof(long)); //h
 
             dtPartitionInfo.DefaultView.ApplyDefaultSort = false;
             dtPartitionInfo.DefaultView.AllowDelete = false;
@@ -71,8 +72,8 @@ namespace DSEDiagnosticToDataTable
                                             DC = s.DataCenter,
                                             Node = s.Node,
                                             Table = s.TableViewIndex,
-                                            LocalReads = s.Data.GetPropertyValue("Local read count"),
-                                            LocalWrites = s.Data.GetPropertyValue("Local write count")
+                                            LocalReads = s.Data.GetPropertyValue("Local read count") ?? 0L,
+                                            LocalWrites = s.Data.GetPropertyValue("Local write count") ?? 0L
                                         });
 
                 foreach (var cpkStat in this.CommonPKStats.Cast<DSEDiagnosticAnalytics.DataModelDCPK.CommonPartitionKey>())
@@ -115,6 +116,7 @@ namespace DSEDiagnosticToDataTable
                             dataRow.SetField(ColumnNames.NodeIPAddress, nodeInfo.Node.Id.NodeName());
                             dataRow.SetField("Local read count", nodeInfo.LocalReads);
                             dataRow.SetField("Local write count", nodeInfo.LocalWrites);
+                            dataRow.SetField("Local Total count", ((long) (dynamic) nodeInfo.LocalWrites) + ((long) (dynamic) nodeInfo.LocalReads));
 
                             this.Table.Rows.Add(dataRow);
                             ++nbrItems;
