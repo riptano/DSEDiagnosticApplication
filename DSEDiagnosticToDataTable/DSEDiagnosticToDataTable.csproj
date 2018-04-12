@@ -61,6 +61,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommonPartitionKeyDataTable.cs" />
+    <Compile Include="DSEDevicesDataTable.cs" />
     <Compile Include="LogAggregationDataTable.cs" />
     <Compile Include="LogInformationDataTable.cs" />
     <Compile Include="MultiInstanceDataTable.cs" />

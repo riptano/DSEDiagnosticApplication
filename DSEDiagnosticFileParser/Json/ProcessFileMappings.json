@@ -308,6 +308,14 @@
     "ProcessPriorityLevel": 500
   },
   {
+    "Catagory": "SystemOutputFile",
+    "FilePatterns": [ ".\\nodes\\*\\os-metrics\\disk_space.json" ],
+    "FileParsingClass": "DSEDiagnosticFileParser.json_disk_space",
+    "NodeIdPos": -1,
+    "ProcessingTaskOption": "ScanForNode,ParallelProcessing,ParallelProcessFiles",
+    "ProcessPriorityLevel": 500
+  },
+  {
     "Catagory": "CQLFile",
     "FilePatterns": [ ".\\nodes\\*\\cqlsh\\describe_schema", ".\\nodes\\*\\driver\\schema" ],
     "FileParsingClass": "DSEDiagnosticFileParser.cql_ddl",

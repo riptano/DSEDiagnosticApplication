@@ -20,7 +20,8 @@ namespace DSEDiagnosticLibrary
         Spark = 0x0010,
         Snitch = 0x0020,
         OpsCenter = 0x0040,
-        Log = 0x0080 | Cassandra
+        Log = 0x0080 | Cassandra,
+        Java = 0x0100
     }
 
     public enum CommonToDataCenterState

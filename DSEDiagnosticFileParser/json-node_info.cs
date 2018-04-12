@@ -76,6 +76,42 @@ namespace DSEDiagnosticFileParser
                     }
                 }
 
+                {
+                    var jsonDeviceLocations = nodeInfo.TryGetValue("devices");
+
+                    if(jsonDeviceLocations != null)
+                    {
+                        jsonDeviceLocations.TryGetValue("commitlog").NullSafeSet<string>(v => this.Node.DSE.Devices.CommitLog = v);
+                        jsonDeviceLocations.TryGetValue("saved_caches").NullSafeSet<string>(v => this.Node.DSE.Devices.SavedCache = v);
+
+                        var items = jsonDeviceLocations.TryGetValue("data");
+
+                        if (items != null)
+                        {
+                            var itemValues = new List<string>();
+
+                            foreach (var item in items)
+                            {
+                                itemValues.Add(item.Value<string>());
+                            }
+                            this.Node.DSE.Devices.Data = itemValues.ToArray();                            
+                        }
+
+                        items = jsonDeviceLocations.TryGetValue("other");
+
+                        if (items != null)
+                        {
+                            var itemValues = new List<string>();
+
+                            foreach (var item in items)
+                            {
+                                itemValues.Add(item.Value<string>());
+                            }
+                            this.Node.DSE.Devices.Others = itemValues.ToArray();                            
+                        }
+                    }
+                }
+
                 nodeInfo.TryGetValue("ec2").TryGetValue("instance-type").NullSafeSet<string>(v => this.Node.Machine.InstanceType = v);
                 nodeInfo.TryGetValue("ec2").TryGetValue("placement").NullSafeSet<string>(v => this.Node.Machine.Placement = v);
                 nodeInfo.TryGetValue("num_procs").EmptySafeSet<uint>(this.Node.Machine.CPU.Cores, v => this.Node.Machine.CPU.Cores = v);

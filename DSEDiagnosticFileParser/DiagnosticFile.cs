@@ -819,13 +819,15 @@ namespace DSEDiagnosticFileParser
 
             targetFiles = targetFiles.DuplicatesRemoved(f => f);
 
-            Logger.Instance.InfoFormat("FileMapper<{5}>\t<NoNodeId>\t{0}\tFile Mapper File Parsing Class \"{1}\" Category {2} Translated to Patterns {{{3}}} which resulted in {4} files",
+            Logger.Instance.InfoFormat("FileMapper<{5}>\t<NoNodeId>\t{0}\tFile Mapper File Parsing Class \"{1}\" Category {2} Scheduler {6} Tasks {7} Translated to Patterns {{{3}}} which resulted in {4} files",
                                             diagnosticDirectory.PathResolved,
                                             fileMappings.FileParsingClass,
                                             fileMappings.Catagory,
                                             mergesFiles == null ? "<Nothing Found>" : string.Join(", ", mergesFiles.Select(m => m.PathResolved)),
                                             targetFiles.Count(),
-                                            fileMapperId);
+                                            fileMapperId,
+                                            fileMappings.Scheduler,
+                                            fileMappings.ProcessingTaskOption);
 
             InvokeProgressionEvent(fileMappings,
                                         ProgressionEventArgs.Categories.End | ProgressionEventArgs.Categories.Process | ProgressionEventArgs.Categories.FileMapper,
@@ -1057,50 +1059,104 @@ namespace DSEDiagnosticFileParser
 
             if (!onlyOnceProcessing && fileMappings.ProcessingTaskOption.HasFlag(FileMapper.ProcessingTaskOptions.ParallelProcessNode))
             {
-                var nodefileAssocatesByGroup = nodefileAssocates.GroupBy(fna => fna.NodeId, fna => fna.File);
-               
-                if(DisableParallelProcessing)
+                if (processTheseNodes == null)
                 {
-                    foreach(var nodefiles in nodefileAssocatesByGroup)
+                    var nodefileAssocatesByGroup = nodefileAssocates.GroupBy(fna => fna.NodeId, fna => fna.File);
+
+                    if (DisableParallelProcessing)
                     {
-                        foreach (var targetFile in nodefiles)
+                        foreach (var nodefiles in nodefileAssocatesByGroup)
                         {
-                            action(targetFile, nodefiles.Key);
+                            foreach (var targetFile in nodefiles)
+                            {
+                                action(targetFile, nodefiles.Key);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        var parallelOptions = new ParallelOptions();
+
+                        if (cancellationToken.HasValue) parallelOptions.CancellationToken = cancellationToken.Value;
+
+                        if (ioSchedulerEnabled)
+                            parallelOptions.TaskScheduler = taskScheduler;
+                        else if (fileMappings.NodeMaxDegreeOfParallelism == -2)
+                            parallelOptions.MaxDegreeOfParallelism = System.Environment.ProcessorCount;
+                        else if (fileMappings.NodeMaxDegreeOfParallelism == -1 || fileMappings.NodeMaxDegreeOfParallelism > 0)
+                            parallelOptions.MaxDegreeOfParallelism = fileMappings.NodeMaxDegreeOfParallelism;
+
+                        Parallel.ForEach(nodefileAssocatesByGroup, parallelOptions, (nodefiles, loopState) =>
+                        {
+                            foreach (var targetFile in nodefiles)
+                            {
+                                action(targetFile, nodefiles.Key);
+                            }
+                        });
+                    }
+                }
+                else
+                {   //Only Process these nodes with the associated file                 
+                    if (DisableParallelProcessing)
+                    {
+                        foreach (var node in processTheseNodes)
+                        {
+                            foreach (var targetFile in nodefileAssocates)
+                            {
+                                action(targetFile.File, node.Id);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        var parallelOptions = new ParallelOptions();
+
+                        if (cancellationToken.HasValue) parallelOptions.CancellationToken = cancellationToken.Value;
+
+                        if (ioSchedulerEnabled)
+                            parallelOptions.TaskScheduler = taskScheduler;
+                        else if (fileMappings.NodeMaxDegreeOfParallelism == -2)
+                            parallelOptions.MaxDegreeOfParallelism = System.Environment.ProcessorCount;
+                        else if (fileMappings.NodeMaxDegreeOfParallelism == -1 || fileMappings.NodeMaxDegreeOfParallelism > 0)
+                            parallelOptions.MaxDegreeOfParallelism = fileMappings.NodeMaxDegreeOfParallelism;
+
+                        Parallel.ForEach(processTheseNodes, parallelOptions, (node, loopState) =>
+                        {
+                            foreach (var targetFile in nodefileAssocates)
+                            {
+                                action(targetFile.File, node.Id);
+                            }
+                        });
+                    }
+                }
+            }
+            else
+            {
+                if (processTheseNodes == null)
+                {
+                    foreach (var targetFile in nodefileAssocates)
+                    {
+                        action(targetFile.File, targetFile.NodeId);
+
+                        if (onlyOnceProcessing && resultInstance != null && resultInstance.Processed)
+                        {
+                            break;
                         }
                     }
                 }
                 else
-                {
-                    var parallelOptions = new ParallelOptions();
-
-                    if (cancellationToken.HasValue) parallelOptions.CancellationToken = cancellationToken.Value;
-
-                    if (ioSchedulerEnabled)
-                        parallelOptions.TaskScheduler = taskScheduler;
-                    else if(fileMappings.NodeMaxDegreeOfParallelism == -2)
-                        parallelOptions.MaxDegreeOfParallelism = System.Environment.ProcessorCount;
-                    else if(fileMappings.NodeMaxDegreeOfParallelism == -1 || fileMappings.NodeMaxDegreeOfParallelism > 0)
-                        parallelOptions.MaxDegreeOfParallelism = fileMappings.NodeMaxDegreeOfParallelism;
-
-                    Parallel.ForEach(nodefileAssocatesByGroup, parallelOptions, (nodefiles, loopState) =>
+                { //Only Process these nodes with the associated file 
+                    foreach (var node in processTheseNodes)
                     {
-                        foreach (var targetFile in nodefiles)
+                        foreach (var targetFile in nodefileAssocates)
                         {
-                            action(targetFile, nodefiles.Key);
-                        }
-                    });
-                }               
-            }
-            else
-            {
-                //targetFiles
-                foreach (var targetFile in nodefileAssocates)
-                {
-                    action(targetFile.File, targetFile.NodeId);
+                            action(targetFile.File, node.Id);
 
-                    if (onlyOnceProcessing && resultInstance != null && resultInstance.Processed)
-                    {
-                        break;
+                            if (onlyOnceProcessing && resultInstance != null && resultInstance.Processed)
+                            {
+                                break;
+                            }
+                        }                        
                     }
                 }
             }

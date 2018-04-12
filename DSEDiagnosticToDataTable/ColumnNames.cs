@@ -36,5 +36,6 @@ namespace DSEDiagnosticToDataTable
         public const string MultiInstanceInfo = "MultiInstanceNodes";
         public const string LogAggregation = "LogAggregation";
         public const string CommonPartitionKey = "CommonPartitionKey";
+        public const string DSEDevices = "DSEDevices";
     }
 }

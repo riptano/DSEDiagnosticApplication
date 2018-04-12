@@ -151,7 +151,7 @@
     "FilePatterns": [ ".\\opscenterd\\node_info.json" ],
     "FileParsingClass": "DSEDiagnosticFileParser.json_node_info",
     "NodeIdPos": -1,
-    "ProcessingTaskOption": "AllNodesInCluster",
+    "ProcessingTaskOption": "AllNodesInCluster,IgnoreNode",
     "ProcessPriorityLevel": 900
   },
   {
@@ -159,7 +159,7 @@
     "FilePatterns": [ ".\\opscenterd\\repair_service.json" ],
     "FileParsingClass": "DSEDiagnosticFileParser.json_repair_service",
     "NodeIdPos": -1,
-    "ProcessingTaskOption": "AllNodesInCluster",
+    "ProcessingTaskOption": "AllNodesInCluster,IgnoreNode",
     "ProcessPriorityLevel": 900
   },
   {
@@ -308,6 +308,14 @@
     "ProcessPriorityLevel": 500
   },
   {
+    "Catagory": "SystemOutputFile",
+    "FilePatterns": [ ".\\nodes\\*\\os-metrics\\disk_space.json" ],
+    "FileParsingClass": "DSEDiagnosticFileParser.json_disk_space",
+    "NodeIdPos": -1,
+    "ProcessingTaskOption": "ScanForNode,ParallelProcessing,ParallelProcessFiles",
+    "ProcessPriorityLevel": 500
+  },
+  {
     "Catagory": "CQLFile",
     "FilePatterns": [ ".\\nodes\\*\\cqlsh\\describe_schema", ".\\nodes\\*\\driver\\schema" ],
     "FileParsingClass": "DSEDiagnosticFileParser.cql_ddl",
@@ -333,8 +341,7 @@
   },
   {
     "Catagory": "LogFile",
-    "FilePatterns": 
-    [
+    "FilePatterns": [
       ".\\nodes\\*\\logs\\cassandra\\system.log",
       ".\\nodes\\*\\logs\\cassandra\\system.log.*",
       ".\\nodes\\*\\logs\\cassandra\\*\\system.log",

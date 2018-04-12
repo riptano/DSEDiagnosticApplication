@@ -120,7 +120,7 @@ namespace DSEDiagnosticToDataTable
                         dataRow.SetField(ColumnNames.NodeIPAddress, node.Id.NodeName());
                         dataRow.SetField(ColumnNames.DataCenter, dataCenter.Name);
 
-                        dataRow.SetField("Instance Type", node.DSE.InstanceType.ToString());
+                        dataRow.SetField("Instance Type", node.Machine.InstanceType?.ToString());
                         dataRow.SetField("CPU Architecture", node.Machine.CPU.Architecture);
                         if(node.Machine.CPU.Cores.HasValue) dataRow.SetField("Cores", (int) node.Machine.CPU.Cores.Value);
                         dataRow.SetFieldToInt("Physical Memory (MB)", node.Machine.Memory.PhysicalMemory, DSEDiagnosticLibrary.UnitOfMeasure.Types.MiB);

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Common;
 using DSEDiagnosticLibrary;
+using DSEDiagnosticLogger;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 
@@ -36,7 +37,39 @@ namespace DSEDiagnosticFileParser
 
             this.Node.UpdateDSENodeToolDateRange();
 
-            this.NbrItemsParsed = 6;
+            uint nLine = 0;
+
+            foreach(var jItem in jObject)
+            {
+                try
+                {
+                    YamlConfigurationLine.AddConfiguration(this.File,
+                                                            this.Node,
+                                                            ++nLine,
+                                                            jItem.Key,
+                                                            jItem.Value.Value<string>(),
+                                                            ConfigTypes.Java,
+                                                            SourceTypes.JSON);
+                }
+                catch(System.Exception ex)
+                {
+                    Logger.Instance.WarnFormat("FileMapper<{2}>\t{0}\t{1}\tJSON Key \"{3}\" at Line {6} throw an exception of \"{4}\" ({5}). Key Ignored",
+                                                this.Node.Id,
+                                                this.ShortFilePath,
+                                                this.MapperId,
+                                                jItem.Key,
+                                                ex.Message,
+                                                ex.GetType().Name,
+                                                nLine);
+                    ++this.NbrWarnings;
+                }
+            }
+
+            this.NbrItemsParsed = 6 + (int) nLine;
+
+
+
+
             this.Processed = true;
             return 0;
         }

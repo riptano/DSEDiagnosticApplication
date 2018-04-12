@@ -111,6 +111,7 @@
     <Compile Include="FileMapper.cs" />
     <Compile Include="file_DSE_env.cs" />
     <Compile Include="jason-cpu.cs" />
+    <Compile Include="json-disk-space.cs" />
     <Compile Include="json-java_heap.cs" />
     <Compile Include="json-java_system_properties.cs" />
     <Compile Include="json-location.cs" />

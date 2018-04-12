@@ -675,6 +675,14 @@ namespace DSEDiagnosticLibrary
             public UnitOfMeasure Tolerance;
 		}
 
+        [JsonObject(MemberSerialization.OptOut)]
+        public sealed class DeviceInfo
+        {
+            public IEnumerable<KeyValuePair<string, UnitOfMeasure>> Free;
+            public IEnumerable<KeyValuePair<string, UnitOfMeasure>> Used;
+            public IEnumerable<KeyValuePair<string, decimal>> PercentUtilized;
+        }
+
         public MachineInfo(INode assocatedNode)
         {
             this._assocatedNode = assocatedNode;
@@ -683,6 +691,7 @@ namespace DSEDiagnosticLibrary
             this.Java = new JavaInfo();
             this.Memory = new MemoryInfo();
             this.NTP = new NTPInfo();
+            this.Devices = new DeviceInfo();
         }
         private INode _assocatedNode;
 
@@ -788,6 +797,7 @@ namespace DSEDiagnosticLibrary
         public CPULoadInfo CPULoad;
         public MemoryInfo Memory;
         public JavaInfo Java;
+        public DeviceInfo Devices;
         public NTPInfo NTP;
 	}
 
@@ -834,7 +844,21 @@ namespace DSEDiagnosticLibrary
             public Version Cassandra;
             public Version Search;
             public Version Analytics;
-            public string OpsCenterAgent;
+            public Version OpsCenterAgent;
+
+            public static Version Parse(string version)
+            {
+                version = version?.Trim();
+                if (string.IsNullOrEmpty(version)) return null;
+
+                var parts = version.Split('.');
+
+                if(parts.Length > 4)
+                {
+                    parts = new string[] { parts[0], parts[1], parts[2], parts[3] };
+                }
+                return new Version(string.Join(".", parts.Select(i => i.Trim())));
+            }
 		}
         
         [JsonObject(MemberSerialization.OptOut)]
@@ -848,10 +872,20 @@ namespace DSEDiagnosticLibrary
             public string SavedCacheDir; //saved_caches_directory
         }
 
+        [JsonObject(MemberSerialization.OptOut)]
+        public sealed class DeviceLocations
+        {            
+            public IEnumerable<string> Others; 
+            public IEnumerable<string> Data; 
+            public string CommitLog; 
+            public string SavedCache; 
+        }
+
         public DSEInfo()
         {
             this.Versions = new VersionInfo();
             this.Locations = new DirectoryLocations();
+            this.Devices = new DeviceLocations();
         }
 
         public InstanceTypes InstanceType;
@@ -883,6 +917,7 @@ namespace DSEDiagnosticLibrary
         public DateTimeRange RepairServiceRanRange;
         public UnitOfMeasure RepairedPercent;
         public DirectoryLocations Locations;
+        public DeviceLocations Devices;
         public string EndpointSnitch;
         public string Partitioner;
         public string KeyCacheInformation;
