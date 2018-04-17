@@ -69,7 +69,7 @@ namespace DSEDiagnosticToDataTable
                     dataRow.SetField(ColumnNames.NodeIPAddress, node.Id.NodeName());
                     dataRow.SetField(ColumnNames.DataCenter, node.DataCenter.Name);
 
-                    dataRow.SetField("Data", deviceName = node.DSE.Devices.Data.FirstOrDefault());
+                    dataRow.SetField("Data", deviceName = node.DSE.Devices.Data?.FirstOrDefault());
                     if(deviceName != null) //
                         dataRow.SetField("Data Utilization", node.Machine.Devices.PercentUtilized
                                                                     .Where(i => i.Key.EndsWith('/' + deviceName) || i.Key.EndsWith('/' + deviceName + '1'))
@@ -87,7 +87,7 @@ namespace DSEDiagnosticToDataTable
                                                                     .Where(i => i.Key.EndsWith('/' + deviceName) || i.Key.EndsWith('/' + deviceName + '1'))
                                                                     .FirstOrDefault().Value);
 
-                    dataRow.SetField("Other", deviceName = node.DSE.Devices.Others.FirstOrDefault());
+                    dataRow.SetField("Other", deviceName = node.DSE.Devices.Others?.FirstOrDefault());
                     if(deviceName != null)
                         dataRow.SetField("Other Utilization", node.Machine.Devices.PercentUtilized
                                                                     .Where(i => i.Key.EndsWith('/' + deviceName) || i.Key.EndsWith('/' + deviceName + '1'))

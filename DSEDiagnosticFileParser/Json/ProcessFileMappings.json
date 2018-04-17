@@ -151,7 +151,7 @@
     "FilePatterns": [ ".\\opscenterd\\node_info.json" ],
     "FileParsingClass": "DSEDiagnosticFileParser.json_node_info",
     "NodeIdPos": -1,
-    "ProcessingTaskOption": "AllNodesInCluster",
+    "ProcessingTaskOption": "AllNodesInCluster,IgnoreNode",
     "ProcessPriorityLevel": 900
   },
   {
@@ -159,7 +159,7 @@
     "FilePatterns": [ ".\\opscenterd\\repair_service.json" ],
     "FileParsingClass": "DSEDiagnosticFileParser.json_repair_service",
     "NodeIdPos": -1,
-    "ProcessingTaskOption": "AllNodesInCluster",
+    "ProcessingTaskOption": "AllNodesInCluster,IgnoreNode",
     "ProcessPriorityLevel": 900
   },
   {

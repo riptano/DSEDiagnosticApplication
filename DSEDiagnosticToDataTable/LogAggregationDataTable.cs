@@ -43,6 +43,10 @@ namespace DSEDiagnosticToDataTable
             dtLog.Columns.Add("Last Occurrence (UTC)", typeof(DateTime));
             dtLog.Columns.Add("Last Occurrence (Local)", typeof(DateTime));
             dtLog.Columns.Add("Occurrences", typeof(long));
+            dtLog.Columns.Add("Duration Max", typeof(long));
+            dtLog.Columns.Add("Duration Min", typeof(long));
+            dtLog.Columns.Add("Duration Mean", typeof(long));
+            dtLog.Columns.Add("Duration StdDevp", typeof(long));
 
             //dtLog.PrimaryKey = new System.Data.DataColumn[] { dtLog.Columns[ColumnNames.KeySpace], dtLog.Columns["Name"] };
 
@@ -97,35 +101,44 @@ namespace DSEDiagnosticToDataTable
 
                 //Merge logs from all nodes and determine events used for aggregations
                 var logGrpEvts = from logMMV in this.Cluster.Nodes.SelectMany(n => n.LogEvents)
-                                  let logEvt = logMMV.GetValue((Common.Patterns.Collections.MemoryMapperElementCreationTypes)LogCassandraEvent.ElementCreationTypes.EventTypeOnly)
-                                  where (logEvt.Type & EventTypes.SingleInstance) == 0
-                                          || (logEvt.Type & EventTypes.SessionBegin) == 0
-                                  let aggregationDateTime = aggPeriods.First(p => p.Includes(logEvt.EventTime.UtcDateTime))
-                                  let logEvent = logMMV.GetValue((Common.Patterns.Collections.MemoryMapperElementCreationTypes)LogCassandraEvent.ElementCreationTypes.AggregationPeriodOnly)
-                                  group logEvent by new { AggregationDateTime = aggregationDateTime.Min,
-                                                              DC = logEvent.DataCenter?.Name,
-                                                              Node = logEvent.Node?.Id.NodeName(),
-                                                              KS = logEvent.Keyspace?.Name,
-                                                              Tbl = logEvent.TableViewIndex?.Name,
-                                                              Class = logEvent.Class.ToString(),
-                                                              Action = logEvent.SubClass,
-                                                              Exception = logEvent.Exception,
-                                                              Path = logEvent.ExceptionPath?.Join("=>", s => s),
-                                                          } into g
-                                  orderby g.Key.AggregationDateTime ascending,
-                                            g.Key.DC,
-                                            g.Key.Node,
-                                            g.Key.KS,
-                                            g.Key.Tbl,
-                                            g.Key.Class,
-                                            g.Key.Action
-                                  select
-                                  new
-                                  {
-                                      GroupItem = g.Key,
-                                      //LogEvents = g,
-                                      LastEvent = g.OrderBy(e => e.EventTime.UtcDateTime).FirstOrDefault(),
-                                      NbrOccurrs = g.Count()
+                                 let logEvt = logMMV.GetValue((Common.Patterns.Collections.MemoryMapperElementCreationTypes)LogCassandraEvent.ElementCreationTypes.EventTypeOnly)
+                                 where (logEvt.Type & EventTypes.SingleInstance) == EventTypes.SingleInstance
+                                         || (logEvt.Type & EventTypes.SessionEnd) == EventTypes.SessionEnd
+                                         || (logEvt.Type & EventTypes.SessionDefinedByDuration) == EventTypes.SessionDefinedByDuration
+                                         || ((logEvt.Type & EventTypes.SessionBegin) == EventTypes.SessionBegin && (logEvt.Class & EventClasses.Orphaned) == EventClasses.Orphaned)
+                                 let aggregationDateTime = aggPeriods.First(p => p.Includes(logEvt.EventTime.UtcDateTime))
+                                 let logEvent = logMMV.GetValue((Common.Patterns.Collections.MemoryMapperElementCreationTypes)LogCassandraEvent.ElementCreationTypes.AggregationPeriodOnly)
+                                 group logEvent by new { AggregationDateTime = aggregationDateTime.Min,
+                                     DC = logEvent.DataCenter?.Name,
+                                     Node = logEvent.Node?.Id.NodeName(),
+                                     KS = logEvent.Keyspace?.Name,
+                                     Tbl = logEvent.TableViewIndex?.Name,
+                                     Class = logEvent.Class.ToString(),
+                                     Action = logEvent.SubClass,
+                                     Exception = logEvent.Exception,
+                                     Path = logEvent.ExceptionPath?.Join("=>", s => s),
+                                 } into g
+                                 orderby g.Key.AggregationDateTime ascending,
+                                           g.Key.DC,
+                                           g.Key.Node,
+                                           g.Key.KS,
+                                           g.Key.Tbl,
+                                           g.Key.Class,
+                                           g.Key.Action
+                                 let durationLinq = g.Where(e => e.Duration.HasValue).Select(e => e.Duration.Value.TotalMilliseconds)
+                                 let hasDuration = durationLinq.HasAtLeastOneElement()
+                                 let durationStats = hasDuration ? durationLinq : null
+                                 select
+                                 new
+                                 {
+                                     GroupItem = g.Key,
+                                     //LogEvents = g,
+                                     LastEvent = g.OrderBy(e => e.EventTime.UtcDateTime).FirstOrDefault(),
+                                     DurationMax = durationStats == null ? (long?) null : (long?) durationStats.Max(),
+                                     DurationMin = durationStats == null ? (long?) null : (long?) durationStats.Min(),
+                                     DurationMean = durationStats == null ? (long?) null : (long?) durationStats.Average(),
+                                     DurationStdDev = durationStats == null ? (long?) null : (long?) durationStats.StandardDeviationP(),
+                                     NbrOccurrs = g.Count()
                                   };
 
                 DataRow dataRow = null;
@@ -153,6 +166,14 @@ namespace DSEDiagnosticToDataTable
                     dataRow.SetField("Last Occurrence (UTC)", logGrpEvt.LastEvent.EventTime.UtcDateTime);
                     dataRow.SetField("Last Occurrence (Local)", logGrpEvt.LastEvent.EventTimeLocal);
                     dataRow.SetField("Occurrences", logGrpEvt.NbrOccurrs);
+
+                    if(logGrpEvt.DurationMax.HasValue)
+                    {
+                        dataRow.SetField("Duration Max", logGrpEvt.DurationMax);
+                        dataRow.SetField("Duration Min", logGrpEvt.DurationMin);
+                        dataRow.SetField("Duration Mean", logGrpEvt.DurationMean);
+                        dataRow.SetField("Duration StdDevp", logGrpEvt.DurationStdDev);
+                    }
 
                     this.Table.Rows.Add(dataRow);
                     ++nbrItems;                    

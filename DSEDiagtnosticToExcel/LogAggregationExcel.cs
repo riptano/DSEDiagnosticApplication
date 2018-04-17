@@ -67,10 +67,14 @@ namespace DSEDiagtnosticToExcel
                                                                  workSheet.Cells["L:L"].Style.Numberformat.Format = Properties.Settings.Default.ExcelDateTimeFormat;
                                                                  workSheet.Cells["M:M"].Style.Numberformat.Format = Properties.Settings.Default.ExcelDateTimeFormat;
                                                                  workSheet.Cells["N:N"].Style.Numberformat.Format = "#,###,###,##0";
-                                                                 
-                                                                 workSheet.Cells["A1:N1"].AutoFilter = true;
+                                                                 workSheet.Cells["O:O"].Style.Numberformat.Format = "#,###,###,##0";
+                                                                 workSheet.Cells["P:P"].Style.Numberformat.Format = "#,###,###,##0";
+                                                                 workSheet.Cells["Q:Q"].Style.Numberformat.Format = "#,###,###,##0";
+                                                                 workSheet.Cells["R:R"].Style.Numberformat.Format = "#,###,###,##0";
 
-                                                                 workSheet.AutoFitColumn(workSheet.Cells["A:I"], workSheet.Cells["K:N"]);
+                                                                 workSheet.Cells["A1:R1"].AutoFilter = true;
+
+                                                                 workSheet.AutoFitColumn(workSheet.Cells["A:I"], workSheet.Cells["K:R"]);
                                                                  workSheet.Column(10).Width = 27; //J
                                                              },
                                                              -1,
