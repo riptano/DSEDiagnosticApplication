@@ -366,7 +366,7 @@ namespace DSEDiagnosticLibrary
             ElementCreationTypes creationType = (ElementCreationTypes)instanceType;
 
             if(creationType == ElementCreationTypes.SessionTieOutIdOnly)
-            {
+            {                
                 readView.SkipInt();
                 readView.SkipStruct();
                 readView.SkipInt();
@@ -374,13 +374,13 @@ namespace DSEDiagnosticLibrary
                 readView.SkipString();
                 readView.SkipInt();
                 readView.SkipInt();
-                readView.SkipInt();
+                readView.SkipLong();
                 this.SessionTieOutId = readView.GetStringValue();
                 return;
             }
 
             if (creationType == ElementCreationTypes.EventTypeOnly)
-            {
+            {                
                 readView.SkipInt();
                 this.EventTime = readView.GetStructValue<DateTimeOffset>();
                 readView.SkipInt();
@@ -412,7 +412,7 @@ namespace DSEDiagnosticLibrary
             {
                 this.Source = (SourceTypes)readView.GetIntValue();
                 this.Type = (EventTypes)readView.GetIntValue();
-                this.Class = (EventClasses)readView.GetIntValue();
+                this.Class = (EventClasses)readView.GetLongValue();
                 this.SessionTieOutId = readView.GetStringValue();
                 this.ParentEvents = readView.GetEnumerableValue<int>()
                                                 .Select(e => new Common.Patterns.Collections.MemoryMapped.List<LogCassandraEvent, ILogEvent>.MMValue(readView.MemoryMapper,
@@ -424,7 +424,7 @@ namespace DSEDiagnosticLibrary
             {
                 this.Source = (SourceTypes)readView.GetIntValue();
                 this.Type = (EventTypes)readView.GetIntValue();
-                this.Class = (EventClasses)readView.GetIntValue();
+                this.Class = (EventClasses)readView.GetLongValue();
                 readView.SkipString();
                 readView.SkipStructEnumerable();
                 // IParsed Members
@@ -488,7 +488,7 @@ namespace DSEDiagnosticLibrary
 
             writeView.StoreValue((int)this.Source);
             writeView.StoreValue((int)this.Type);
-            writeView.StoreValue((int)this.Class);
+            writeView.StoreValue((long)this.Class);
             writeView.StoreValue(this.SessionTieOutId);
 
             writeView.StoreValue(this.ParentEvents.Select(p => p.GetHashCode()));

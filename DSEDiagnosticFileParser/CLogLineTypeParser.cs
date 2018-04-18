@@ -1305,8 +1305,8 @@ namespace DSEDiagnosticFileParser
                                                 .Where(f => f != 0 && (f & ((int)instanceType)) == f)
                                                 .Cast<DSEInfo.InstanceTypes>()),
                                     string.Join("_", Enum.GetValues(typeof(EventClasses))
-                                                .Cast<int>()
-                                                .Where(f => f != 0 && (f & ((int)eventClass)) == f)
+                                                .Cast<long>()
+                                                .Where(f => f != 0 && (f & ((long)eventClass)) == f)
                                                  .Cast<EventClasses>()),
                                     string.Join("_", Enum.GetValues(typeof(EventTypes))
                                                 .Cast<int>()

@@ -102,10 +102,10 @@ namespace DSEDiagnosticToDataTable
                 //Merge logs from all nodes and determine events used for aggregations
                 var logGrpEvts = from logMMV in this.Cluster.Nodes.SelectMany(n => n.LogEvents)
                                  let logEvt = logMMV.GetValue((Common.Patterns.Collections.MemoryMapperElementCreationTypes)LogCassandraEvent.ElementCreationTypes.EventTypeOnly)
-                                 where (logEvt.Type & EventTypes.SingleInstance) == EventTypes.SingleInstance
-                                         || (logEvt.Type & EventTypes.SessionEnd) == EventTypes.SessionEnd
-                                         || (logEvt.Type & EventTypes.SessionDefinedByDuration) == EventTypes.SessionDefinedByDuration
-                                         || ((logEvt.Type & EventTypes.SessionBegin) == EventTypes.SessionBegin && (logEvt.Class & EventClasses.Orphaned) == EventClasses.Orphaned)
+                                 where (logEvt.Type & EventTypes.SingleInstance) != 0
+                                         || (logEvt.Type & EventTypes.SessionEnd) != 0
+                                         || (logEvt.Type & EventTypes.SessionDefinedByDuration) != 0
+                                         || ((logEvt.Type & EventTypes.SessionBegin) != 0 && (logEvt.Class & EventClasses.Orphaned) != 0)
                                  let aggregationDateTime = aggPeriods.First(p => p.Includes(logEvt.EventTime.UtcDateTime))
                                  let logEvent = logMMV.GetValue((Common.Patterns.Collections.MemoryMapperElementCreationTypes)LogCassandraEvent.ElementCreationTypes.AggregationPeriodOnly)
                                  group logEvent by new { AggregationDateTime = aggregationDateTime.Min,
@@ -113,7 +113,7 @@ namespace DSEDiagnosticToDataTable
                                      Node = logEvent.Node?.Id.NodeName(),
                                      KS = logEvent.Keyspace?.Name,
                                      Tbl = logEvent.TableViewIndex?.Name,
-                                     Class = logEvent.Class.ToString(),
+                                     Class = (logEvent.Class & ~EventClasses.LogTypes).ToString(),
                                      Action = logEvent.SubClass,
                                      Exception = logEvent.Exception,
                                      Path = logEvent.ExceptionPath?.Join("=>", s => s),

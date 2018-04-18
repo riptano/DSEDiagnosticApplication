@@ -902,7 +902,7 @@
       "EventType": "SingleInstance",
       "EventClass": "HintHandOff, NodeDetection, Change",
       "SubClass": "'Dropped Hints due to Node Down ' + NODE",
-      "Product": "Cassandra",      
+      "Product": "Cassandra",
       "Examples": [
         "=> WARN  [HintedHandoffManager:1] 2017-12-19 16:45:41,561  HintedHandoffMetrics.java:79 - /10.141.88.35 has 433 dropped hints, because node is down past configured hint window."
       ]
@@ -946,7 +946,7 @@
         "=> INFO  [GossipStage:1] 2017-02-12 02:13:59,976  Gossiper.java:1029 - Node /10.1.37.0 is now part of the cluster",
         "INFO  [SharedPool-Worker-1] 2017-02-12 02:14:00,978  Gossiper.java:993 - InetAddress /10.1.37.0 is now UP"
       ]
-    },   
+    },
     {
       "Description": "Node Up",
       "TagId": 4.1,
@@ -1880,50 +1880,81 @@
       ]
     },
     {
-      "Description": "Solr Hard Commit (index build)",
-      "TagId": 17.0,
+      "Description": "Compacting large partition/row",
+      "TagId": 20.0,
       "MatchVersion": null,
       "LevelMatch": {
         "RegExStrings": [
-          "INFO"
-        ]
-      },
-      "ThreadIdMatch": {
-        "RegExStrings": [
-          "^StreamReceiveTask\\:"
+          "WARN"
         ]
       },
       "FileNameMatch": {
         "RegExStrings": [
-          "^SecondaryIndexManager.java$"
+          "^SSTableWriter.java$",
+          "^CompactionController.java$",
+          "^BigTableWriter.java$"
         ]
       },
       "FileLineMatch": null,
       "MessageMatch": {
         "RegExStrings": [
-          "^Submitting\\sindex\\sbuild"
+          "^(?:Compacting|Writing)\\slarge\\s(?:partition|row)"
         ]
       },
       "ParseMessage": {
         "RegExStrings": [
-          "^Flushing\\s+SecondaryIndex\\s+(?<IndexClass>[^ (,{]+)\\s*\\{\\s*(?<KEYITEM>columnDefs)\\s*=\\s*\\[\\s*(?:ColumnDefinition\\s*\\{\\s*(?:(?:(?<ITEM1>indexName)\\s*\\=\\s*(?<SOLRINDEXNAME>(?<ITEM2>[^},{]+))|(?<ITEM1>[^={]+)\\s*\\=\\s*(?<ITEM2>[^},{]+))(?:\\,|\\})\\s*)+\\s*\\,?\\s*)+"
+          "^(?:Compacting|Writing)\\s+(?<SUBCLASS>large\\s+partition|row)\\s+(?$<TABLEVIEWNAME>)\\s*\\:\\s*(?<partitionkey>.+)\\s+\\((?<size>[0-9,.]+\\s*\\w+)\\)"
         ]
       },
       "ParseThreadId": null,
-      "EventType": "SessionBegin",
-      "EventClass": "MemtableFlush",
-      "SubClass": "IndexClass",
-      "Product": "Search",
-      "SessionKey": "ThreadId",
-      "SessionKeyAction": "Add",
-      "SessionLookup": null,
+      "EventType": "SingleInstance",
+      "EventClass": "Compaction,Partition,TableViewIndex",
+      "SubClass": null,
+      "Product": "Cassandra",
       "Examples": [
-        "=> INFO  [StreamReceiveTask:1] 2017-09-23 16:32:32,763  SecondaryIndexManager.java:365 - Submitting index build of eaa_datauploadstatus_solr_query_index for data in BigTableReader(path='/ssd0/datastax/dse-data/eaa/datauploadstatus-baf504b050f811e694fd4f0af38b3566/mc-1936-big-Data.db')",
-        "INFO  [StreamReceiveTask:1] 2017-09-23 16:32:32,775  AbstractSolrSecondaryIndex.java:1211 - Executing hard commit on index eaa.datauploadstatus",
-        "INFO  [StreamReceiveTask:1] 2017-09-23 16:32:32,784  IndexWriter.java:3465 - commitInternalStart startTime=1506198752784",
-        "INFO  [StreamReceiveTask:1] 2017-09-23 16:32:32,799  IndexWriter.java:3490 - commitInternalComplete duration=15 ms startTime=1506198752784",
-        "INFO  [StreamReceiveTask:1] 2017-09-23 16:32:32,799  SecondaryIndexManager.java:376 - Index build of eaa_datauploadstatus_solr_query_index complete"
-
+        "WARN  [CompactionExecutor:6] 2016-06-07 06:57:44,146  SSTableWriter.java:240 - Compacting large partition kinesis_events/event_messages:49c023da-0bb8-46ce-9845-111514b43a63 (186949948 bytes)",
+        "WARN  [MemtableFlushWriter:140] 2016-10-24 03:10:08,287  SSTableWriter.java:241 - Compacting large partition usprodda/digitalasset_3_0_2:US (130225259 bytes)",
+        "WARN  [CompactionExecutor:705441] 2016-10-05 13:09:40,934 SSTableWriter.java:241 - Compacting large partition handled_exception1/summary_pt1h:5670561a6c33dc0f00f11443:2016-10-01-14-00-00:total (280256103 bytes)",
+        "WARN  [ ] 2016-06-07 06:57:44,146  CompactionController.java:240 - Compacting large row billing/account_payables:20160726:FMCC (348583137 bytes)",
+        "WARN  [ ] 2016-06-07 06:57:44,146  BigTableWriter.java:240 - Writing large partition oats/order_cycles:nasusnop01:2017-01-31 (139296027 bytes)"
+      ]
+    },
+    {
+      "Description": "tombstone",
+      "TagId": 21.0,
+      "MatchVersion": null,
+      "LevelMatch": {
+        "RegExStrings": [
+          "WARN|ERROR"
+        ]
+      },
+      "FileNameMatch": {
+        "RegExStrings": [
+          "^SliceQueryFilter.java$"
+        ]
+      },
+      "FileLineMatch": null,
+      "MessageMatch": {
+        "RegExStrings": [
+          "^Read\\s(?:[0-9,]+)\\slive\\sand\\s(?:[0-9,]+)\\stombstone",
+          "^Scanned\\sover\\s(?:[0-9,]+)\\stombstones"
+        ]
+      },
+      "ParseMessage": {
+        "RegExStrings": [
+          "^(?<SUBCLASS>Read)\\s(?<live_cells>[0-9,]+)\\slive\\sand\\s(?<tombstone_cells>[0-9,]+)\\stombstone\\scells\\sin\\s(?$<TABLEVIEWNAME>)\\s(?:for\\skey\\:\\s*(?<partitionkey>.+))\\s*\\(see tombstone_warn_threshold\\)\\.\\s*(?<columns>[0-9,]+)\\scolumns\\swere\\srequested,\\sslices=(?<slices>\\[[^\\[\\]]+\\])",
+          "^Scanned\\sover\\s(?<tombstone_cells>[0-9,]+)\\stombstones\\sin\\s(?$<TABLEVIEWNAME>)\\s(?:for\\skey\\:\\s*(?<partitionkey>.+))\\;(?<SUBCLASS>\\squery\\saborted)"
+        ]
+      },
+      "ParseThreadId": null,
+      "EventType": "SingleInstance",
+      "EventClass": "Tombstone,TableViewIndex,Query",
+      "SubClass": null,
+      "Product": "Cassandra",
+      "Examples": [
+        "WARN [ReadStage:1325219] 2016-07-14 17:41:21,164 SliceQueryFilter.java (line 231) Read 11 live and 1411 tombstoned cells in cma.mls_records_property (see tombstone_warn_threshold). 5000 columns was requested, slices=[-]",
+        "WARN  [SharedPool-Worker-11] 2016-10-24 10:59:18,247  SliceQueryFilter.java:320 - Read 269 live and 5228 tombstone cells in dse_perf.node_slow_log for key: 10.1.44.175:2016-10-20 20\\:00-0400 (see tombstone_warn_threshold). 1000 columns were requested, slices=[-]",
+        "ERROR [SharedPool-Worker-3] 2016-10-24 10:59:29,758  SliceQueryFilter.java:288 - Scanned over 100000 tombstones in dse_perf.node_slow_log for key: 10.1.46.110:2016-10-19 20\\:00-0400; query aborted (see tombstone_failure_threshold)."
       ]
     }
   ]

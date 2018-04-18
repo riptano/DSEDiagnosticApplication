@@ -58,6 +58,7 @@ namespace DSEDiagnosticConsoleApplication.Properties {
   <string>dse_perf</string>
   <string>HiveMetaStore</string>
   <string>cfs_archive</string>
+  <string>cfs</string>
 </ArrayOfString>")]
         public global::System.Collections.Specialized.StringCollection IgnoreKeySpaces {
             get {
