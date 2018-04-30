@@ -18,15 +18,23 @@ namespace DSEDiagnosticAnalytics
             this.Cluster = cluster;
         }
 
+        public AnalyzeData(INode node, CancellationToken cancellationToken)
+        {
+            this.CancellationToken = cancellationToken;
+            this.Cluster = node.Cluster;
+            this.DataCenter = node.DataCenter;
+            this.Node = node;
+        }
+
         #endregion
 
         #region IAnalytics
 
         public CancellationToken CancellationToken { get; }
         public Cluster Cluster { get; }
-        public DataCenter DataCenter { get; }
-        public Node Node { get; }
-        public KeySpace KeySpace { get; }
+        public IDataCenter DataCenter { get; }
+        public INode Node { get; }
+        public IKeyspace KeySpace { get; }
 
         public abstract IEnumerable<IAggregatedStats> ComputeStats();
         #endregion

@@ -42,11 +42,32 @@ namespace DSEDiagnosticToDataTable
             dtLog.Columns.Add("Exception", typeof(string)).AllowDBNull = true;
             dtLog.Columns.Add("Last Occurrence (UTC)", typeof(DateTime));
             dtLog.Columns.Add("Last Occurrence (Local)", typeof(DateTime));
-            dtLog.Columns.Add("Occurrences", typeof(long));
-            dtLog.Columns.Add("Duration Max", typeof(long));
-            dtLog.Columns.Add("Duration Min", typeof(long));
-            dtLog.Columns.Add("Duration Mean", typeof(long));
-            dtLog.Columns.Add("Duration StdDevp", typeof(long));
+            dtLog.Columns.Add("Occurrences", typeof(long));//n
+            dtLog.Columns.Add("UOM", typeof(string));//O
+            dtLog.Columns.Add("Duration Max", typeof(decimal)).AllowDBNull = true;//p
+            dtLog.Columns.Add("Duration Min", typeof(decimal)).AllowDBNull = true;
+            dtLog.Columns.Add("Duration Mean", typeof(decimal)).AllowDBNull = true;
+            dtLog.Columns.Add("Duration StdDevp", typeof(decimal)).AllowDBNull = true;
+            dtLog.Columns.Add("Duration Total", typeof(decimal)).AllowDBNull = true;
+            dtLog.Columns.Add("Rate Max", typeof(decimal)).AllowDBNull = true;//u
+            dtLog.Columns.Add("Rate Min", typeof(decimal)).AllowDBNull = true;
+            dtLog.Columns.Add("Rate Mean", typeof(decimal)).AllowDBNull = true;
+            dtLog.Columns.Add("Rate StdDevp", typeof(decimal)).AllowDBNull = true;
+            dtLog.Columns.Add("Pending/Tombstone", typeof(long)).AllowDBNull = true;//y
+            dtLog.Columns.Add("Completed/Live", typeof(long)).AllowDBNull = true;//z
+            dtLog.Columns.Add("Blocked", typeof(long)).AllowDBNull = true;
+            dtLog.Columns.Add("AllTimeBlocked", typeof(long)).AllowDBNull = true;
+            dtLog.Columns.Add("Eden Max", typeof(decimal)).AllowDBNull = true;//ac
+            dtLog.Columns.Add("Eden Dif", typeof(decimal)).AllowDBNull = true;
+            dtLog.Columns.Add("Old Max", typeof(decimal)).AllowDBNull = true;
+            dtLog.Columns.Add("Old Dif", typeof(decimal)).AllowDBNull = true;
+            dtLog.Columns.Add("Survivor Max", typeof(decimal)).AllowDBNull = true;                        
+            dtLog.Columns.Add("Survivor Dif", typeof(decimal)).AllowDBNull = true;
+            dtLog.Columns.Add("Size Max", typeof(decimal)).AllowDBNull = true;//ai
+            dtLog.Columns.Add("Size Min", typeof(decimal)).AllowDBNull = true;
+            dtLog.Columns.Add("Size Mean", typeof(decimal)).AllowDBNull = true;
+            dtLog.Columns.Add("Size StdDevp", typeof(decimal)).AllowDBNull = true;
+            dtLog.Columns.Add("Size Total", typeof(decimal)).AllowDBNull = true;//am
 
             //dtLog.PrimaryKey = new System.Data.DataColumn[] { dtLog.Columns[ColumnNames.KeySpace], dtLog.Columns["Name"] };
 
@@ -100,80 +121,157 @@ namespace DSEDiagnosticToDataTable
                 #region Aggregation Log Events
 
                 //Merge logs from all nodes and determine events used for aggregations
-                var logGrpEvts = from logMMV in this.Cluster.Nodes.SelectMany(n => n.LogEvents)
+                var logGrpEvts = from logMMV in this.Cluster.Nodes.SelectMany(n => n.LogEvents)//.AsParallel()
                                  let logEvt = logMMV.GetValue((Common.Patterns.Collections.MemoryMapperElementCreationTypes)LogCassandraEvent.ElementCreationTypes.EventTypeOnly)
                                  where (logEvt.Type & EventTypes.SingleInstance) != 0
-                                         || (logEvt.Type & EventTypes.SessionEnd) != 0
-                                         || (logEvt.Type & EventTypes.SessionDefinedByDuration) != 0
-                                         || ((logEvt.Type & EventTypes.SessionBegin) != 0 && (logEvt.Class & EventClasses.Orphaned) != 0)
+                                         || (logEvt.Type & EventTypes.SessionEnd) == EventTypes.SessionEnd
+                                         || (logEvt.Type & EventTypes.SessionDefinedByDuration) == EventTypes.SessionDefinedByDuration
+                                         || ((logEvt.Type & EventTypes.SessionBegin) == EventTypes.SessionBegin && (logEvt.Class & EventClasses.Orphaned) == EventClasses.Orphaned)
                                  let aggregationDateTime = aggPeriods.First(p => p.Includes(logEvt.EventTime.UtcDateTime))
-                                 let logEvent = logMMV.GetValue((Common.Patterns.Collections.MemoryMapperElementCreationTypes)LogCassandraEvent.ElementCreationTypes.AggregationPeriodOnly)
-                                 group logEvent by new { AggregationDateTime = aggregationDateTime.Min,
-                                     DC = logEvent.DataCenter?.Name,
-                                     Node = logEvent.Node?.Id.NodeName(),
-                                     KS = logEvent.Keyspace?.Name,
-                                     Tbl = logEvent.TableViewIndex?.Name,
-                                     Class = (logEvent.Class & ~EventClasses.LogTypes).ToString(),
-                                     Action = logEvent.SubClass,
-                                     Exception = logEvent.Exception,
-                                     Path = logEvent.ExceptionPath?.Join("=>", s => s),
-                                 } into g
-                                 orderby g.Key.AggregationDateTime ascending,
-                                           g.Key.DC,
-                                           g.Key.Node,
-                                           g.Key.KS,
-                                           g.Key.Tbl,
-                                           g.Key.Class,
-                                           g.Key.Action
-                                 let durationLinq = g.Where(e => e.Duration.HasValue).Select(e => e.Duration.Value.TotalMilliseconds)
-                                 let hasDuration = durationLinq.HasAtLeastOneElement()
-                                 let durationStats = hasDuration ? durationLinq : null
-                                 select
-                                 new
-                                 {
-                                     GroupItem = g.Key,
-                                     //LogEvents = g,
-                                     LastEvent = g.OrderBy(e => e.EventTime.UtcDateTime).FirstOrDefault(),
-                                     DurationMax = durationStats == null ? (long?) null : (long?) durationStats.Max(),
-                                     DurationMin = durationStats == null ? (long?) null : (long?) durationStats.Min(),
-                                     DurationMean = durationStats == null ? (long?) null : (long?) durationStats.Average(),
-                                     DurationStdDev = durationStats == null ? (long?) null : (long?) durationStats.StandardDeviationP(),
-                                     NbrOccurrs = g.Count()
-                                  };
+                                 let logEvent = logMMV.GetValue((Common.Patterns.Collections.MemoryMapperElementCreationTypes)LogCassandraEvent.ElementCreationTypes.AggregationPeriodOnlyWProps)
+                                 group logEvent by new DSEDiagnosticAnalytics.LogEventGroup(aggregationDateTime,
+                                                                                            logEvent.DataCenter,
+                                                                                            logEvent.Node,
+                                                                                            logEvent.Keyspace,
+                                                                                            logEvent.TableViewIndex,
+                                                                                            logEvent.Class,
+                                                                                            logEvent.SubClass,
+                                                                                            logEvent.Exception,
+                                                                                            logEvent.ExceptionPath)
+                                        into g
+                                 select new { GroupKey = g.Key,
+                                                LastEvent = g.OrderBy(e => e.EventTime.UtcDateTime).LastOrDefault(),
+                                                NbrOccurs = g.Count(),
+                                                AnalyticsGroupings = DSEDiagnosticAnalytics.LogEventGrouping.CreateLogEventGrouping(g.Key, g)};
 
                 DataRow dataRow = null;
                 int nbrItems = 0;
 
-                foreach (var logGrpEvt in logGrpEvts)
+                foreach (var logGrpEvt in logGrpEvts
+                                            .OrderBy(i => i.GroupKey.AggregationDateTime)
+                                                .ThenBy(i => i.GroupKey.DataCenterName)
+                                                .ThenBy(i => i.GroupKey.NodeName)
+                                                .ThenBy(i => i.GroupKey.KeySpaceName)
+                                                .ThenBy(i => i.GroupKey.TableName)
+                                                .ThenBy(i => i.GroupKey.Class)
+                                                .ThenBy(i => i.GroupKey.Action))
                 {
                     this.CancellationToken.ThrowIfCancellationRequested();
+
+                    if(logGrpEvt.AnalyticsGroupings.IsEmpty()) continue;
+
+                    string unitOfMeasure = string.Empty;
 
                     dataRow = this.Table.NewRow();
 
                     if (this.SessionId.HasValue) dataRow.SetField(ColumnNames.SessionId, this.SessionId.Value);
 
-                    dataRow.SetField(ColumnNames.UTCTimeStamp, logGrpEvt.GroupItem.AggregationDateTime);
-                    dataRow.SetField(ColumnNames.LogLocalTimeStamp, logGrpEvt.GroupItem.AggregationDateTime + logGrpEvt.LastEvent.EventTime.Offset);
+                    dataRow.SetField(ColumnNames.UTCTimeStamp, logGrpEvt.GroupKey.AggregationDateTime);
+                    dataRow.SetField(ColumnNames.LogLocalTimeStamp, logGrpEvt.GroupKey.AggregationDateTime + logGrpEvt.LastEvent.EventTime.Offset);
                     dataRow.SetField("Aggregation Period", this.AggregationPeriod);
-                    dataRow.SetField(ColumnNames.DataCenter, logGrpEvt.GroupItem.DC);
-                    dataRow.SetField(ColumnNames.NodeIPAddress, logGrpEvt.GroupItem.Node);
-                    dataRow.SetField(ColumnNames.KeySpace, logGrpEvt.GroupItem.KS);
-                    dataRow.SetField(ColumnNames.Table, logGrpEvt.GroupItem.Tbl);
-                    dataRow.SetField("Class", logGrpEvt.GroupItem.Class);
-                    dataRow.SetField("Action", logGrpEvt.GroupItem.Action);
-                    dataRow.SetField("Path", logGrpEvt.GroupItem.Path);
-                    dataRow.SetField("Exception", logGrpEvt.GroupItem.Exception);
+                    dataRow.SetField(ColumnNames.DataCenter, logGrpEvt.GroupKey.DataCenterName);
+                    dataRow.SetField(ColumnNames.NodeIPAddress, logGrpEvt.GroupKey.NodeName);
+                    dataRow.SetField(ColumnNames.KeySpace, logGrpEvt.GroupKey.KeySpaceName);
+                    dataRow.SetField(ColumnNames.Table, logGrpEvt.GroupKey.TableName);
+                    dataRow.SetField("Class", logGrpEvt.GroupKey.Class);
+                    dataRow.SetField("Action", logGrpEvt.GroupKey.Action);
+                    dataRow.SetField("Path", logGrpEvt.GroupKey.Path);
+                    dataRow.SetField("Exception", logGrpEvt.GroupKey.Exception);
                     dataRow.SetField("Last Occurrence (UTC)", logGrpEvt.LastEvent.EventTime.UtcDateTime);
                     dataRow.SetField("Last Occurrence (Local)", logGrpEvt.LastEvent.EventTimeLocal);
-                    dataRow.SetField("Occurrences", logGrpEvt.NbrOccurrs);
-
-                    if(logGrpEvt.DurationMax.HasValue)
+                    dataRow.SetField("Occurrences", logGrpEvt.NbrOccurs);
+                    
+                    foreach (var analyticsGrp in logGrpEvt.AnalyticsGroupings)
                     {
-                        dataRow.SetField("Duration Max", logGrpEvt.DurationMax);
-                        dataRow.SetField("Duration Min", logGrpEvt.DurationMin);
-                        dataRow.SetField("Duration Mean", logGrpEvt.DurationMean);
-                        dataRow.SetField("Duration StdDevp", logGrpEvt.DurationStdDev);
+                        this.CancellationToken.ThrowIfCancellationRequested();
+
+                        if (analyticsGrp.DurationStats != null && analyticsGrp.DurationStats.HasValue)
+                        {
+                            dataRow.SetField("Duration Max", analyticsGrp.DurationStats.Duration.Max);
+                            dataRow.SetField("Duration Min", analyticsGrp.DurationStats.Duration.Min);
+                            dataRow.SetField("Duration Mean", analyticsGrp.DurationStats.Duration.Mean);
+                            dataRow.SetField("Duration StdDevp", analyticsGrp.DurationStats.Duration.StdDev);
+                            dataRow.SetField("Duration Total", analyticsGrp.DurationStats.Duration.Sum);
+                            unitOfMeasure += analyticsGrp.DurationStats.UOM + ',';
+                        }
+                        if (analyticsGrp.PoolStats != null && analyticsGrp.PoolStats.HasValue)
+                        {
+                            if(analyticsGrp.PoolStats.Pending.HasValue)
+                                dataRow.SetField("Pending/Tombstone", analyticsGrp.PoolStats.Pending.Sum);
+                            if (analyticsGrp.PoolStats.Completed.HasValue)
+                                dataRow.SetField("Completed/Live", analyticsGrp.PoolStats.Completed.Sum);
+                            if (analyticsGrp.PoolStats.Blocked.HasValue)
+                                dataRow.SetField("Blocked", analyticsGrp.PoolStats.Blocked.Sum);
+                            if (analyticsGrp.PoolStats.AllTimeBlocked.HasValue)
+                                dataRow.SetField("AllTimeBlocked", analyticsGrp.PoolStats.AllTimeBlocked.Sum);
+                            unitOfMeasure += analyticsGrp.PoolStats.UOM + ',';
+                        }
+                        if (analyticsGrp.GCStats != null && analyticsGrp.GCStats.HasValue)
+                        {
+                            if (analyticsGrp.GCStats.Eden?.Difference.HasValue ?? false)
+                            {
+                                dataRow.SetField("Eden Max", Math.Max(analyticsGrp.GCStats.Eden.Before.Max, analyticsGrp.GCStats.Eden.After.Max));
+                                dataRow.SetField("Eden Dif", analyticsGrp.GCStats.Eden.Difference.Sum);
+                            }
+                            if (analyticsGrp.GCStats.Old?.Difference.HasValue ?? false)
+                            {
+                                dataRow.SetField("Old Max", Math.Max(analyticsGrp.GCStats.Old.Before.Max, analyticsGrp.GCStats.Old.After.Max));
+                                dataRow.SetField("Old Dif", analyticsGrp.GCStats.Old.Difference.Sum);
+                            }
+                            if (analyticsGrp.GCStats.Survivor?.Difference.HasValue ?? false)
+                            {
+                                dataRow.SetField("Survivor Max", Math.Max(analyticsGrp.GCStats.Survivor.Before.Max, analyticsGrp.GCStats.Survivor.After.Max));
+                                dataRow.SetField("Survivor Dif", analyticsGrp.GCStats.Survivor.Difference.Sum);
+                            }
+                            unitOfMeasure += analyticsGrp.GCStats.UOM + ',';
+                        }
+                        if(analyticsGrp.PoolMemTblOPSStats != null && analyticsGrp.PoolMemTblOPSStats.HasValue)
+                        {
+                            if(analyticsGrp.PoolMemTblOPSStats.OPS.HasValue)
+                            {
+                                dataRow.SetField("Rate Max", analyticsGrp.PoolMemTblOPSStats.OPS.Max);
+                                dataRow.SetField("Rate Min", analyticsGrp.PoolMemTblOPSStats.OPS.Min);
+                                dataRow.SetField("Rate Mean", analyticsGrp.PoolMemTblOPSStats.OPS.Mean);
+                                dataRow.SetField("Rate StdDevp", analyticsGrp.PoolMemTblOPSStats.OPS.StdDev);
+                                //dataRow.SetField("Rate Total", analyticsGrp.PoolMemTblOPSStats.OPS.Sum);
+                            }
+                            if(analyticsGrp.PoolMemTblOPSStats.Size.HasValue)
+                            {
+                                dataRow.SetField("Size Max", analyticsGrp.PoolMemTblOPSStats.Size.Max);
+                                dataRow.SetField("Size Min", analyticsGrp.PoolMemTblOPSStats.Size.Min);
+                                dataRow.SetField("Size Mean", analyticsGrp.PoolMemTblOPSStats.Size.Mean);
+                                dataRow.SetField("Size StdDevp", analyticsGrp.PoolMemTblOPSStats.Size.StdDev);
+                                dataRow.SetField("Size Total", analyticsGrp.PoolMemTblOPSStats.Size.Sum);
+                            }
+                            unitOfMeasure += analyticsGrp.PoolMemTblOPSStats.UOM + ',';
+                        }
+                        if (analyticsGrp.LargePartitionRowStats != null && analyticsGrp.LargePartitionRowStats.HasValue)
+                        {                            
+                            if (analyticsGrp.LargePartitionRowStats.Size.HasValue)
+                            {
+                                dataRow.SetField("Size Max", analyticsGrp.LargePartitionRowStats.Size.Max);
+                                dataRow.SetField("Size Min", analyticsGrp.LargePartitionRowStats.Size.Min);
+                                dataRow.SetField("Size Mean", analyticsGrp.LargePartitionRowStats.Size.Mean);
+                                dataRow.SetField("Size StdDevp", analyticsGrp.LargePartitionRowStats.Size.StdDev);
+                                dataRow.SetField("Size Total", analyticsGrp.LargePartitionRowStats.Size.Sum);
+                            }
+                            unitOfMeasure += analyticsGrp.LargePartitionRowStats.UOM + ',';
+                        }
+                        if (analyticsGrp.TombstoneStats != null && analyticsGrp.TombstoneStats.HasValue)
+                        {
+                            if (analyticsGrp.TombstoneStats.Tombstones.HasValue)
+                            {
+                                dataRow.SetField("Pending/Tombstone", analyticsGrp.TombstoneStats.Tombstones.Sum);
+                            }
+                            if (analyticsGrp.TombstoneStats.LiveCells.HasValue)
+                            {
+                                dataRow.SetField("Completed/Live", analyticsGrp.TombstoneStats.LiveCells.Sum);
+                            }
+                            unitOfMeasure += analyticsGrp.TombstoneStats.UOM + ',';
+                        }
                     }
+
+                    dataRow.SetField("UOM", unitOfMeasure.TrimEnd(','));
 
                     this.Table.Rows.Add(dataRow);
                     ++nbrItems;                    

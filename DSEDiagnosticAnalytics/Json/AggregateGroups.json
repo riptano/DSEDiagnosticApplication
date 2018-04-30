@@ -1,0 +1,26 @@
+﻿{
+  "DurationStats": {
+    "AnalyticsGroup": "DurationStats",
+    "AggregateGroupFunctionName": "DurationStats"
+  },
+  "StatusLoggerPoolStats": {
+    "AnalyticsGroup": "StatusLoggerPoolStats",
+    "AggregateGroupFunctionName": "StatusLoggerPoolStats"
+  },
+  "GCStats": {
+    "AnalyticsGroup": "GCStats",
+    "AggregateGroupFunctionName": "GCStats"
+  },
+  "StatusLoggerMemTblOPSStats": {
+    "AnalyticsGroup": "StatusLoggerMemTblOPSStats",
+    "AggregateGroupFunctionName": "StatusLoggerMemTblOPSStats"
+  },
+  "LargePartitionRowStats": {
+    "AnalyticsGroup": "LargePartitionRowStats",
+    "AggregateGroupFunctionName": "LargePartitionRowStats"
+  },
+  "TombstoneStats": {
+    "AnalyticsGroup": "TombstoneStats",
+    "AggregateGroupFunctionName": "TombstoneStats"
+  }
+}

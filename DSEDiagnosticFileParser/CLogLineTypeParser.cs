@@ -23,7 +23,7 @@ namespace DSEDiagnosticFileParser
             public string KeyValue;
         }
 
-        private readonly static string[] SessionKeywords = new string[] { "ThreadId", "FileName", "FileNameLine", "SSTABLEPATH=>DDLITEMNAME", "SSTABLEPATH=>KEYSPACE", "SSTABLEPATH=>KEYSPACEDDLNAME", "SSTABLEPATHS=>DDLITEMNAME", "SSTABLEPATHS=>KEYSPACE", "SSTABLEPATHS=>KEYSPACEDDLNAME", "SSTABLEPATH=>TABLEVIEWNAME", "SSTABLEPATH=>KEYSPACETABLEVIEWNAME", "SSTABLEPATHS=>TABLEVIEWNAME", "SSTABLEPATHS=>KEYSPACETABLEVIEWNAME" };
+        private readonly static string[] SessionKeywords = new string[] { "ThreadId", "FileName", "FileNameLine", "SSTABLEPATH=>DDLITEMNAME", "SSTABLEPATH=>KEYSPACE", "SSTABLEPATH=>KEYSPACEDDLNAME", "SSTABLEPATHS=>DDLITEMNAME", "SSTABLEPATHS=>KEYSPACE", "SSTABLEPATHS=>KEYSPACEDDLNAME", "SSTABLEPATH=>TABLEVIEWNAME", "SSTABLEPATH=>KEYSPACETABLEVIEWNAME", "SSTABLEPATHS=>TABLEVIEWNAME", "SSTABLEPATHS=>KEYSPACETABLEVIEWNAME", "ThreadName"};
 
         readonly CacheInfo[] CachedInfo = new CacheInfo[] { new CacheInfo(), new CacheInfo(), new CacheInfo() };
         private CacheInfo GetCacheInfo(int cacheIdx)
@@ -383,6 +383,11 @@ namespace DSEDiagnosticFileParser
             }
         }
 
+        /// <summary>
+        /// The associated analytics group used to summarized this log event.
+        /// </summary>
+        public string AnalyticsGroup { get; set; }
+
         public DSEInfo.InstanceTypes Product { get; set; }
 
         private const int SessionKeyIdx = 0;
@@ -394,6 +399,7 @@ namespace DSEDiagnosticFileParser
         /// If a keyword is used, the string value is used to create the session key or determine the LogCassandraEvent instance in the open sessions list. Note that the events must be of the same Event Class.
         ///     Keywords can be:
         ///         ThreadId
+        ///         ThreadName
         ///         FileName
         ///         FileNameLine (file name and line number)
         ///         EventClass
@@ -1045,6 +1051,13 @@ namespace DSEDiagnosticFileParser
                     case "ThreadId":
                         objSessionKey = logLineMessage.ThreadId;
                         break;
+                    case "ThreadName": //ValidationExecutor:800
+                        {
+                            var threadId = logLineMessage.ThreadId;
+                            var lstSepPos = threadId.LastIndexOf(':');
+                            objSessionKey = lstSepPos > 0 ? threadId.Substring(0, lstSepPos) : threadId;
+                        }
+                        break;
                     case "FileName":
                         objSessionKey = logLineMessage.FileName;
                         break;
@@ -1352,6 +1365,13 @@ namespace DSEDiagnosticFileParser
                     {
                         case "ThreadId":
                             objSessionKey = logLineMessage.ThreadId;
+                            break;
+                        case "ThreadName": //ValidationExecutor:800
+                            {
+                                var threadId = logLineMessage.ThreadId;
+                                var lstSepPos = threadId.LastIndexOf(':');
+                                objSessionKey = lstSepPos > 0 ? threadId.Substring(0, lstSepPos) : threadId;
+                            }
                             break;
                         case "FileName":
                             objSessionKey = logLineMessage.FileName;

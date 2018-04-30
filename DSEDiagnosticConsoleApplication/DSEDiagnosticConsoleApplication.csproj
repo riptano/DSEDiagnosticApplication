@@ -123,6 +123,10 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\DSEDiagnosticAnalytics\Json\AggregateGroups.json">
+      <Link>JSON\AggregateGroups.json</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="..\DSEDiagnosticFileParser\Json\CLogLineTypeParser Schema.json">
       <Link>JSON\CLogLineTypeParser Schema.json</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

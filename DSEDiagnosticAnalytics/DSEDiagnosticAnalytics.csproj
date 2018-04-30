@@ -61,7 +61,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AggregateGroups.cs" />
     <Compile Include="AnalyzeData.cs" />
+    <Compile Include="CassandraLogEvent.cs" />
     <Compile Include="DataModelDCPK.cs" />
     <Compile Include="IAnalytics.cs" />
     <Compile Include="LibrarySettings.cs" />
@@ -75,6 +77,10 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\DSEDiagnosticFileParser\DSEDiagnosticFileParser.csproj">
+      <Project>{50db5780-7118-44e2-8d1f-e7288304eac5}</Project>
+      <Name>DSEDiagnosticFileParser</Name>
+    </ProjectReference>
     <ProjectReference Include="..\DSEDiagnosticLibrary\DSEDiagnosticLibrary.csproj">
       <Project>{aa88d5c0-9218-445c-885c-4b64fbfb9257}</Project>
       <Name>DSEDiagnosticLibrary</Name>
@@ -86,12 +92,16 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="Json\AggregateGroups.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.

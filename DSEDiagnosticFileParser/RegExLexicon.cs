@@ -120,6 +120,12 @@ namespace DSEDiagnosticFileParser
                         newRegEx += regExpression.Substring(idPos.Item2);
                     }
                 }
+
+                if(DSEDiagnosticLogger.Logger.Instance.IsDebugEnabled)
+                {
+                    DSEDiagnosticLogger.Logger.Instance.DebugFormat("RegEx replaced string \"{0}\"", newRegEx);
+                }
+
                 return newRegEx;
             }
             

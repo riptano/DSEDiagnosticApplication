@@ -12,9 +12,9 @@ namespace DSEDiagnosticAnalytics
     {
         CancellationToken CancellationToken { get; }
         DSEDiagnosticLibrary.Cluster Cluster { get; }
-        DSEDiagnosticLibrary.DataCenter DataCenter { get; }
-        DSEDiagnosticLibrary.Node Node { get; }
-        DSEDiagnosticLibrary.KeySpace KeySpace { get; }
+        DSEDiagnosticLibrary.IDataCenter DataCenter { get; }
+        DSEDiagnosticLibrary.INode Node { get; }
+        DSEDiagnosticLibrary.IKeyspace KeySpace { get; }
 
         IEnumerable<IAggregatedStats> ComputeStats();
     }

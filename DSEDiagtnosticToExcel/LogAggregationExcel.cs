@@ -67,12 +67,35 @@ namespace DSEDiagtnosticToExcel
                                                                  workSheet.Cells["L:L"].Style.Numberformat.Format = Properties.Settings.Default.ExcelDateTimeFormat;
                                                                  workSheet.Cells["M:M"].Style.Numberformat.Format = Properties.Settings.Default.ExcelDateTimeFormat;
                                                                  workSheet.Cells["N:N"].Style.Numberformat.Format = "#,###,###,##0";
-                                                                 workSheet.Cells["O:O"].Style.Numberformat.Format = "#,###,###,##0";
-                                                                 workSheet.Cells["P:P"].Style.Numberformat.Format = "#,###,###,##0";
-                                                                 workSheet.Cells["Q:Q"].Style.Numberformat.Format = "#,###,###,##0";
-                                                                 workSheet.Cells["R:R"].Style.Numberformat.Format = "#,###,###,##0";
 
-                                                                 workSheet.Cells["A1:R1"].AutoFilter = true;
+                                                                 workSheet.Cells["P:P"].Style.Numberformat.Format = "#,###,###,##0.000";
+                                                                 workSheet.Cells["Q:Q"].Style.Numberformat.Format = "#,###,###,##0.000";
+                                                                 workSheet.Cells["R:R"].Style.Numberformat.Format = "#,###,###,##0.000";
+                                                                 workSheet.Cells["S:S"].Style.Numberformat.Format = "#,###,###,##0.000";
+                                                                 workSheet.Cells["T:T"].Style.Numberformat.Format = "#,###,###,##0.000";
+                                                                 workSheet.Cells["U:U"].Style.Numberformat.Format = "#,###,###,##0.000";
+                                                                 workSheet.Cells["V:V"].Style.Numberformat.Format = "#,###,###,##0.000";
+                                                                 workSheet.Cells["W:W"].Style.Numberformat.Format = "#,###,###,##0.000";
+                                                                 workSheet.Cells["X:X"].Style.Numberformat.Format = "#,###,###,##0.000";
+
+                                                                 workSheet.Cells["Y:Y"].Style.Numberformat.Format = "#,###,###,##0";
+                                                                 workSheet.Cells["Z:Z"].Style.Numberformat.Format = "#,###,###,##0";
+                                                                 workSheet.Cells["AA:AA"].Style.Numberformat.Format = "#,###,###,##0";
+                                                                 workSheet.Cells["AB:AB"].Style.Numberformat.Format = "#,###,###,##0";
+
+                                                                 workSheet.Cells["AC:AC"].Style.Numberformat.Format = "#,###,###,##0.00####";
+                                                                 workSheet.Cells["AD:AD"].Style.Numberformat.Format = "#,###,###,##0.00####";
+                                                                 workSheet.Cells["AE:AE"].Style.Numberformat.Format = "#,###,###,##0.00####";
+                                                                 workSheet.Cells["AF:AF"].Style.Numberformat.Format = "#,###,###,##0.00####";
+                                                                 workSheet.Cells["AG:AG"].Style.Numberformat.Format = "#,###,###,##0.00####";
+                                                                 workSheet.Cells["AH:AH"].Style.Numberformat.Format = "#,###,###,##0.00####";
+                                                                 workSheet.Cells["AI:AI"].Style.Numberformat.Format = "#,###,###,##0.00####";
+                                                                 workSheet.Cells["AJ:AJ"].Style.Numberformat.Format = "#,###,###,##0.00####";
+                                                                 workSheet.Cells["AK:AK"].Style.Numberformat.Format = "#,###,###,##0.00####";
+                                                                 workSheet.Cells["AL:AL"].Style.Numberformat.Format = "#,###,###,##0.00####";
+                                                                 workSheet.Cells["AM:AM"].Style.Numberformat.Format = "#,###,###,##0.00####";
+
+                                                                 workSheet.Cells["A1:AM1"].AutoFilter = true;
 
                                                                  workSheet.AutoFitColumn(workSheet.Cells["A:I"], workSheet.Cells["K:R"]);
                                                                  workSheet.Column(10).Width = 27; //J

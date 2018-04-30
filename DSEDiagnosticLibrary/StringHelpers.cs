@@ -474,6 +474,11 @@ namespace DSEDiagnosticLibrary
                                 ?? Common.TimeZones.Find(ianaName, Common.Patterns.TimeZoneInfo.ZoneNameTypes.FormattedName);            
         }
 
+        static public string InternString(this string str)
+        {
+            return string.IsNullOrEmpty(str) ? str : string.Intern(str);
+        }
+
         private enum MMElementType
         {
             JSON = 0,

@@ -15,73 +15,9 @@ using IMMLogValue = Common.Patterns.Collections.MemoryMapped.IMMValue<DSEDiagnos
 namespace DSEDiagnosticFileParser
 {
     [JsonObject(MemberSerialization.OptOut)]
-    public sealed class file_cassandra_log4net : DiagnosticFile
+    public sealed class file_cassandra_log4net : DiagnosticFile, IDisposable
     {        
-        [Flags]
-        public enum DefaultLogLevelHandlers
-        {
-            Disabled = 0,
-            Debug = 0x0001,
-            Informational = 0x0002,
-            Warning = 0x0004,
-            Error = 0x0008,
-            Fatal = 0x0010,
-            Exception = 0x0020,
-            Default = Warning | Error | Fatal | Exception,
-            All = Debug | Informational | Warning | Error | Fatal | Exception
-        }
-        public DefaultLogLevelHandlers DefaultLogLevelHandling
-        {
-            get;
-            set;
-        } = LibrarySettings.DefaultLogLevelHandling;
-
-        public DateTimeOffsetRange LogRestrictedTimeRange
-        {
-            get;
-            set;
-        } = LibrarySettings.LogRestrictedTimeRange;
-
-        [Flags]
-        public enum DebugLogProcessingTypes
-        {
-            Disabled = 0,
-            /// <summary>
-            /// If defined only the debug logs date/time range is recorded
-            /// </summary>
-            OnlyLogDateRange = 0x0001,
-            /// <summary>
-            /// Disabled if DSE version is < 5.0 (disables duplicate msg detection), otherwise OnlyFlushCompactionMsgs or AllMsg (if defined) is used
-            /// </summary>
-            Auto = 0x0002,
-            /// <summary>
-            /// Only flush and compaction messages (disables duplicate msg detection)
-            /// </summary>
-            OnlyFlushCompactionMsgs = 0x0004,
-            /// <summary>
-            /// All messages
-            /// </summary>
-            AllMsg = 0x0008
-        }
-
-        public DebugLogProcessingTypes DebugLogProcessing
-        {
-            get;
-            set;
-        } = LibrarySettings.DebugLogProcessing;
-
-        public bool DetectDuplicatedLogEvents
-        {
-            get;
-            set;
-        } = LibrarySettings.DetectDuplicatedLogEvents;
-
-        public bool CheckOverlappingDateRange
-        {
-            get;
-            set;
-        } = Properties.Settings.Default.LogCheckOverlappingDateRange;
-
+        
         struct CurrentSessionLineTick
         {
             public DateTime LogTick;
@@ -151,6 +87,8 @@ namespace DSEDiagnosticFileParser
 
             this._result = new LogResults(this);
 
+            this.OnLogEvent = DiagnosticFile.CassandraLogProcessingHandler;
+
             this._nodeStrId = this.Node.Id.GetHashCode().ToString();
 
             if ((this.DebugLogProcessing & DebugLogProcessingTypes.Auto) != 0)
@@ -198,7 +136,9 @@ namespace DSEDiagnosticFileParser
             else
             {
                 this.DebugFlushCompMatchingRegEx = null;
-            }            
+            }
+
+            LogProcessingCreationArgs.InvokeEvent(this, OnLogProcessingCreation);
 
             if (Logger.Instance.IsDebugEnabled)
             {
@@ -275,6 +215,72 @@ namespace DSEDiagnosticFileParser
         [JsonProperty(PropertyName="Keyspaces")]
         private IEnumerable<IKeyspace> _dcKeyspaces;
 
+        [Flags]
+        public enum DefaultLogLevelHandlers
+        {
+            Disabled = 0,
+            Debug = 0x0001,
+            Informational = 0x0002,
+            Warning = 0x0004,
+            Error = 0x0008,
+            Fatal = 0x0010,
+            Exception = 0x0020,
+            Default = Warning | Error | Fatal | Exception,
+            All = Debug | Informational | Warning | Error | Fatal | Exception
+        }
+        public DefaultLogLevelHandlers DefaultLogLevelHandling
+        {
+            get;
+            set;
+        } = LibrarySettings.DefaultLogLevelHandling;
+
+        public DateTimeOffsetRange LogRestrictedTimeRange
+        {
+            get;
+            set;
+        } = LibrarySettings.LogRestrictedTimeRange;
+
+        [Flags]
+        public enum DebugLogProcessingTypes
+        {
+            Disabled = 0,
+            /// <summary>
+            /// If defined only the debug logs date/time range is recorded
+            /// </summary>
+            OnlyLogDateRange = 0x0001,
+            /// <summary>
+            /// Disabled if DSE version is < 5.0 (disables duplicate msg detection), otherwise OnlyFlushCompactionMsgs or AllMsg (if defined) is used
+            /// </summary>
+            Auto = 0x0002,
+            /// <summary>
+            /// Only flush and compaction messages (disables duplicate msg detection)
+            /// </summary>
+            OnlyFlushCompactionMsgs = 0x0004,
+            /// <summary>
+            /// All messages
+            /// </summary>
+            AllMsg = 0x0008
+        }
+
+        public DebugLogProcessingTypes DebugLogProcessing
+        {
+            get;
+            set;
+        } = LibrarySettings.DebugLogProcessing;
+
+        public bool DetectDuplicatedLogEvents
+        {
+            get;
+            set;
+        } = LibrarySettings.DetectDuplicatedLogEvents;
+
+        public bool CheckOverlappingDateRange
+        {
+            get;
+            set;
+        } = Properties.Settings.Default.LogCheckOverlappingDateRange;
+
+
         #region Event Handlers/Class
 
         [System.Diagnostics.DebuggerNonUserCode]
@@ -294,6 +300,8 @@ namespace DSEDiagnosticFileParser
 
             public IEnumerable<LogCassandraEvent> OrphanedLogEvents { get; }
 
+            public IList<LogCassandraEvent> LogEvents { get; }
+
             /// <summary>
             /// If true the event is associated to the node (default). If false it is not (log event is ignored).
             /// </summary>
@@ -308,12 +316,13 @@ namespace DSEDiagnosticFileParser
             {
             }
 
-            public LogEventArgs(ILogMessage logMessage, LogCassandraEvent logEvent, IEnumerable<LogCassandraEvent> orphanedLogEvents)
+            public LogEventArgs(ILogMessage logMessage, LogCassandraEvent logEvent, IEnumerable<LogCassandraEvent> orphanedLogEvents, IList<LogCassandraEvent> logEvents)
 
             {
                 this.LogEvent = logEvent;
                 this.LogMessage = logMessage;
                 this.OrphanedLogEvents = orphanedLogEvents;
+                this.LogEvents = logEvents;
                 this.AllowNodeAssocation = true;
             }
 
@@ -325,11 +334,12 @@ namespace DSEDiagnosticFileParser
                                             ILogMessage logMessage,
                                             LogCassandraEvent logEvent,
                                             IEnumerable<LogCassandraEvent> orphanedLogEvents,
+                                            IList<LogCassandraEvent> logEvents,
                                             EventHandler invokeDelegate)
             {
                 if (invokeDelegate != null)
                 {
-                    var eventArgs = new LogEventArgs(logMessage, logEvent, orphanedLogEvents);
+                    var eventArgs = new LogEventArgs(logMessage, logEvent, orphanedLogEvents, logEvents);
 
                     invokeDelegate(sender, eventArgs);
                     return eventArgs.AllowNodeAssocation;
@@ -349,7 +359,49 @@ namespace DSEDiagnosticFileParser
         ///     Called before the event is associated to the node. If the AllowLogging property is set to false the event is not saved (ignored). The default is to associated to the node (true).
         /// </summary>
         public event LogEventArgs.EventHandler OnLogEvent;
-        
+
+        [System.Diagnostics.DebuggerNonUserCode]
+        public sealed class LogProcessingCreationArgs : System.EventArgs
+        {
+            #region Properties           
+            #endregion //end of Properties
+
+            public delegate void EventHandler(file_cassandra_log4net sender, LogProcessingCreationArgs eventArgs);
+
+            #region Constructors
+            public LogProcessingCreationArgs()
+            {
+            }
+            
+            #endregion //end of Constructors
+
+            #region Invoke Event Static Methods
+
+            public static bool InvokeEvent(file_cassandra_log4net sender,
+                                           EventHandler invokeDelegate)
+            {
+                if (invokeDelegate != null)
+                {
+                    var eventArgs = new LogProcessingCreationArgs();
+
+                    invokeDelegate(sender, eventArgs);                   
+                }
+
+                return true;
+            }
+
+            public static bool HasAssignedEvent(EventHandler invokeDelegate)
+            {
+                return invokeDelegate != null;
+            }
+            #endregion //end of Invoke Event Static Methods
+        } //end of Event Argument Class LogEventArgs
+
+        /// <summary>
+        ///     Called during after the initialization of the creation of the instance of this class. 
+        /// </summary>
+        public static event LogProcessingCreationArgs.EventHandler OnLogProcessingCreation;
+
         #endregion
 
         public override IResult GetResult()
@@ -545,7 +597,7 @@ namespace DSEDiagnosticFileParser
                             if (logEvent != null && !ReferenceEquals(logEvent, this._logEvents.LastOrDefault()))
                             {
                                 if(onLogEventHandler == null
-                                        || LogEventArgs.InvokeEvent(this, logMessage, logEvent, this._orphanedSessionEvents, onLogEventHandler))
+                                        || LogEventArgs.InvokeEvent(this, logMessage, logEvent, this._orphanedSessionEvents, this._logEvents, onLogEventHandler))
                                     this._logEvents.Add(logEvent);                                
                             }
                         }
@@ -587,7 +639,7 @@ namespace DSEDiagnosticFileParser
 
                                 if (logEvent != null
                                         && (onLogEventHandler == null
-                                                || LogEventArgs.InvokeEvent(this, logMessage, logEvent, this._orphanedSessionEvents, onLogEventHandler)))
+                                                || LogEventArgs.InvokeEvent(this, logMessage, logEvent, this._orphanedSessionEvents, this._logEvents, onLogEventHandler)))
                                     this._logEvents.Add(logEvent);
                             }
                         }
@@ -603,7 +655,7 @@ namespace DSEDiagnosticFileParser
 
                         if (logEvent != null
                                 && (onLogEventHandler == null
-                                        || LogEventArgs.InvokeEvent(this, logMessage, logEvent, this._orphanedSessionEvents, onLogEventHandler)))
+                                        || LogEventArgs.InvokeEvent(this, logMessage, logEvent, this._orphanedSessionEvents, this._logEvents, onLogEventHandler)))
                         {
                             this._logEvents.Add(logEvent);
 
@@ -691,8 +743,59 @@ namespace DSEDiagnosticFileParser
             this._openSessions.Clear();
             this._unsedOpenSessionEvents.Clear();
 
+            if(onLogEventHandler != null && this._orphanedSessionEvents.HasAtLeastOneElement())
+            {
+                LogEventArgs.InvokeEvent(this, null, null, this._orphanedSessionEvents, this._logEvents, onLogEventHandler);
+            }
+
             return (uint) this._result.RunLogResultsTask(this.Node, this._logEvents);
         }
+
+        #region Dispose Methods
+        
+        public bool Disposed { get; private set; }
+        
+        // Implement IDisposable.
+        // Do not make this method virtual.
+        // A derived class should not be able to override this method.
+        public void Dispose()
+        {
+        	Dispose(true);
+        	// This object will be cleaned up by the Dispose method.
+        	// Therefore, you should call GC.SupressFinalize to
+        	// take this object off the finalization queue
+        	// and prevent finalization code for this object
+        	// from executing a second time.
+        	GC.SuppressFinalize(this);
+        }
+        
+        // Dispose(bool disposing) executes in two distinct scenarios.
+        // If disposing equals true, the method has been called directly
+        // or indirectly by a user's code. Managed and unmanaged resources
+        // can be disposed.
+        // If disposing equals false, the method has been called by the
+        // runtime from inside the finalizer and you should not reference
+        // other objects. Only unmanaged resources can be disposed.
+        private void Dispose(bool disposing)
+        {
+        	// Check to see if Dispose has already been called.
+        	if(!this.Disposed)
+        	{
+        		
+        		if(disposing)
+        		{
+                    // Dispose all managed resources.
+                    this.OnLogEvent = null;
+        		}
+        
+        		//Dispose of all unmanaged resources
+        
+        		// Note disposing has been done.
+        		this.Disposed = true;
+        
+        	}
+        }
+        #endregion //end of Dispose Methods
 
         private LogCassandraEvent PorcessUnHandledEventLevel(ILogMessage logMessage)
         {
@@ -1073,6 +1176,7 @@ namespace DSEDiagnosticFileParser
             EventClasses eventClass = matchItem.Item5.EventClass;
             var sessionParentAction = matchItem.Item5.SessionParentAction;
             bool orphanedSession = false;
+            string analyticsGroup = matchItem.Item5.AnalyticsGroup;
 
             UnitOfMeasure duration;
             DateTime? eventDurationTime;
@@ -1196,6 +1300,22 @@ namespace DSEDiagnosticFileParser
                         {
                             parentEvents.Add(sessionEvent);
                         }
+                        if (string.IsNullOrEmpty(subClass))
+                        {
+                            subClass = sessionEvent.SubClass;
+                        }
+                    }
+
+                    if ((eventType & EventTypes.SessionEnd) == EventTypes.SessionEnd)
+                    {
+                        if(string.IsNullOrEmpty(subClass))
+                        {
+                            subClass = sessionEvent.SubClass;
+                        }
+                        if(string.IsNullOrEmpty(analyticsGroup))
+                        {
+                            analyticsGroup = sessionEvent.AnalyticsGroup;
+                        }
                     }
                 }
             }
@@ -1275,7 +1395,8 @@ namespace DSEDiagnosticFileParser
                                                         assocatedNodes,
                                                         tokenRanges,
                                                         sessionId,
-                                                        matchItem.Item5.Product);
+                                                        matchItem.Item5.Product,
+                                                        analyticsGroup: analyticsGroup);
                 }
                 else if ((eventType & EventTypes.SessionItem) != EventTypes.SessionItem && !duration.NaN)
                 {
@@ -1300,7 +1421,8 @@ namespace DSEDiagnosticFileParser
                                                         assocatedNodes,
                                                         tokenRanges,
                                                         sessionId,
-                                                        matchItem.Item5.Product);
+                                                        matchItem.Item5.Product,
+                                                        analyticsGroup: analyticsGroup);
                 }
                 else if ((eventType & EventTypes.SessionDefinedByDuration) == EventTypes.SessionDefinedByDuration && (!duration.NaN || eventDurationTime.HasValue))
                 {
@@ -1325,7 +1447,8 @@ namespace DSEDiagnosticFileParser
                                                         assocatedNodes,
                                                         tokenRanges,
                                                         sessionId,
-                                                        matchItem.Item5.Product);
+                                                        matchItem.Item5.Product,
+                                                        analyticsGroup: analyticsGroup);
                 }
                 else
                 {
@@ -1350,7 +1473,8 @@ namespace DSEDiagnosticFileParser
                                                         assocatedNodes,
                                                         tokenRanges,
                                                         sessionId,
-                                                        matchItem.Item5.Product);
+                                                        matchItem.Item5.Product,
+                                                        analyticsGroup: analyticsGroup);
                 }
             }
             else
@@ -1378,7 +1502,8 @@ namespace DSEDiagnosticFileParser
                                                         assocatedNodes,
                                                         tokenRanges,
                                                         sessionId,
-                                                        matchItem.Item5.Product);
+                                                        matchItem.Item5.Product,
+                                                        analyticsGroup: analyticsGroup);
 
                     if (logEvent.ParentEvents.Count() > 1)
                     {
@@ -1416,7 +1541,8 @@ namespace DSEDiagnosticFileParser
                                                         assocatedNodes,
                                                         tokenRanges,
                                                         sessionId,
-                                                        matchItem.Item5.Product);
+                                                        matchItem.Item5.Product,
+                                                        analyticsGroup: analyticsGroup);
                 }
             }
             #endregion

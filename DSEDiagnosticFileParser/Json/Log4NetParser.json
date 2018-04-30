@@ -293,6 +293,7 @@
   /// If a keyword is used, the string value is used to create the session key or determine the LogCassandraEvent instance in the open sessions list. Note that the events must be of the same Event Class.
   ///     Keywords can be:
   ///         ThreadId
+  ///         ThreadName
   ///         FileName
   ///         FileNameLine (file name and line number)
   ///         EventClass
@@ -435,6 +436,7 @@
   [
 {"Key":"ID","Value":"[0-9a-f\\-]+"},
 {"Key":"DURATION","Value":"[0-9,.]+"},
+{"Key":"DURATIONwUOM","Value":"(?<DURATION>[0-9,.]+\\s*\\w+)"},
 {"Key":"KEYSPACE","Value":"[a-z0-9'\\-_$%+=!?<>^*&@]+"},
 {"Key":"DDLITEMNAME","Value":"[a-z0-9'\\-_$%+=!?<>^*&@/.]+"},
 {"Key":"TABLEVIEWNAME","Value":"[a-z0-9'\\-_$%+=!?<>^*&@/.]+"},
@@ -442,7 +444,8 @@
 {"Key":"SSTABLEPATH","Value":"[a-z0-9\\-_@#/.\\ +%]+"},
 {"Key":"SSTABLEPATHS","Value":"[a-z0-9\\-_@#/.,\\ +%]*"},
 {"Key":"NODE","Value":"[^ ]+"},
-{"Key":"SOLRINDEXNAME","Value":"[a-z0-9'\\-_$%+=!?<>^*&@/.]+"}
+{"Key":"SOLRINDEXNAME","Value":"[a-z0-9'\\-_$%+=!?<>^*&@/.]+"},
+{"Key":"CQLSELECT","Value":"select\\s+(?<querycols>.+)\\s+from\\s+(?$<TABLEVIEWNAME>)(?:\\s+where\\s+(?<whereclause>.+?))??(?:\\s+order\\s+by\\s+(?<orderbycols>.+?))??(?:\\s+limit\\s+(?<limit>\\d+?))??(?<allowfiltering>\\s+allow\\s+filtering)??"}
 ]
 */
 {
@@ -562,7 +565,7 @@
       "ParseThreadId": null,
       "EventType": "SessionBegin",
       "EventClass": "MemtableFlush",
-      "SubClass": "ThreadId",
+      "SubClass": "ThreadName",
       "Product": "Cassandra",
       "SessionKey": "ThreadId + DDLITEMNAME",
       "SessionKeyAction": "Add",
@@ -600,7 +603,7 @@
       "ParseThreadId": null,
       "EventType": "SessionBeginOrItem",
       "EventClass": "MemtableFlush",
-      "SubClass": "ThreadId",
+      "SubClass": "ThreadName",
       "Product": "Cassandra",
       "SessionKey": "ThreadId + DDLITEMNAME",
       "SessionKeyAction": "Read",
@@ -1717,20 +1720,21 @@
         "RegExStrings": [
           "^GC\\s+for\\s+(?<GC>ParNew):\\s+(?$<DURATION>\\s*\\w+)\\s+\\w+\\s+(?<nbrcollections>[0-9]+)\\s+collections\\,\\s+(?<usedmemory_bytes>[0-9]+)\\s+used;\\s+max\\s+\\w+\\s(?<maxmemory_bytes>[0-9]+)",
           "^ConcurrentMarkSweep\\s+GC\\s+\\w+\\s+(?$<DURATION>\\s*\\w+)\\.\\s+(?<GC>CMS)\\s+Old\\s+Gen:\\s+(?<oldgenfrom_bytes>[0-9]+)\\s+\\->\\s+(?<oldgento_bytes>[0-9]+);\\s+Par\\s+Eden\\s+Space:\\s+(?<paredenspacefrom_bytes>[0-9]+)\\s+\\->\\s+(?<paredenspaceto_bytes>[0-9]+)",
-          "^G1\\s+Young\\s+\\w+\\s+GC\\s+\\w+\\s+(?$<DURATION>\\s*\\w+)\\.\\s+(?<GC>G1)\\s+Eden\\s+Space:\\s+(?<edenspacefrom_bytes>[0-9]+)\\s+\\->\\s+(?<edenspaceto_bytes>[0-9]+);\\s+G1\\s+Survivor\\s+Space:\\s+(?<survivorspacefrom_bytes>[0-9]+)\\s+\\->\\s+(?<survivorspaceto_bytes>[0-9]+)",
-          "^G1\\s+Young\\s+\\w+\\s+GC\\s+\\w+\\s+(?<DURATION>[0-9,.]+\\s*\\w+)\\.\\s+(?<GC>G1)\\s+Eden\\s+Space:\\s+(?<edenspacefrom_bytes>[0-9]+)\\s+\\->\\s+(?<edenspaceto_bytes>[0-9]+);\\s+G1\\s+Old\\s+Gen:\\s+(?<oldgenfrom_bytes>[0-9]+)\\s+\\->\\s+(?<oldgento_bytes>[0-9]+);\\s+G1\\s+Survivor\\s+Space:\\s+(?<survivorspacefrom_bytes>[0-9]+)\\s+\\->\\s+(?<survivorspaceto_bytes>[0-9]+)"
+          "^G1\\s+Young\\s+\\w+\\s+GC\\s+\\w+\\s+(?<DURATION>[0-9,.]+\\s*\\w+)\\.(?:\\s+(?<GC>G1)\\s+Eden\\s+Space:\\s+(?<edenspacefrom_bytes>[0-9]+)\\s+\\->\\s+(?<edenspaceto_bytes>[0-9]+);)?(?:\\s+G1\\s+Old\\s+Gen:\\s+(?<oldgenfrom_bytes>[0-9]+)\\s+\\->\\s+(?<oldgento_bytes>[0-9]+);)?(?:\\s+G1\\s+Survivor\\s+Space:\\s+(?<survivorspacefrom_bytes>[0-9]+)\\s+\\->\\s+(?<survivorspaceto_bytes>[0-9]+))?"
         ]
       },
       "ParseThreadId": null,
       "EventType": "SessionDefinedByDuration",
       "EventClass": "GC",
-      "SubClass": null,
+      "SubClass": "GC",
       "Product": "Cassandra",
+      "AnalyticsGroup": "GCStats",
       "Examples": [
         "=> INFO [ScheduledTasks:1] 2017-01-22 19:11:57,055 GCInspector.java:116 - GC for ParNew: 215 ms for 1 collections, 2617040800 used; max is 4187619328",
         "=> INFO  [Service Thread] 2017-01-16 13:51:39,295  GCInspector.java:258 - ConcurrentMarkSweep GC in 491ms.  CMS Old Gen: 3201269976 -> 1128616640; Par Eden Space: 1145856 -> 824106248;",
         "=> INFO  [Service Thread] 2017-05-01 01:34:24,475  GCInspector.java:258 - G1 Young Generation GC in 265ms.  G1 Eden Space: 16307453952 -> 0; G1 Survivor Space: 436207616 -> 444596224;",
-        "=> WARN  [Service Thread] 2018-03-02 04:23:15,916  GCInspector.java:282 - G1 Young Generation GC in 1558ms.  G1 Eden Space: 3053453312 -> 0; G1 Old Gen: 18404605968 -> 15753805840; G1 Survivor Space: 369098752 -> 436207616;"
+        "=> WARN  [Service Thread] 2018-03-02 04:23:15,916  GCInspector.java:282 - G1 Young Generation GC in 1558ms.  G1 Eden Space: 3053453312 -> 0; G1 Old Gen: 18404605968 -> 15753805840; G1 Survivor Space: 369098752 -> 436207616;",
+        "=> WARN  [Service Thread] 2018-03-02 04:23:15,916  GCInspector.java:282 - G1 Young Generation GC in 504ms.  G1 Eden Space: 7205814272 -> 0; G1 Old Gen: 5762973968 -> 6270484744;)"
       ]
     },
     {
@@ -1759,8 +1763,8 @@
       },
       "ParseMessage": {
         "RegExStrings": [
-          "(?<poolname>[a-z]+)\\s+(?<nbractive>[0-9,]+)\\s+(?<nbrpending>[0-9,]+)\\s+(?<nbrcompleted>[0-9,]+)\\s+(?<nbrblocked>[0-9,]+)\\s+(?<nbralltimeblocked>[0-9,]+)",
-          "(?<poolname>(CompactionManager|MessagingService))\\s+(?<nbractive>[0-9,/na]+)\\s+(?<nbrpending>[0-9,/na]+)"
+          "(?<SUBCLASS>[a-z]+)\\s+(?<nbractive>[0-9,]+)\\s+(?<nbrpending>[0-9,]+)\\s+(?<nbrcompleted>[0-9,]+)\\s+(?<nbrblocked>[0-9,]+)\\s+(?<nbralltimeblocked>[0-9,]+)",
+          "(?<SUBCLASS>(CompactionManager|MessagingService))\\s+(?<nbractive>[0-9,/na]+)\\s+(?<nbrpending>[0-9,/na]+)"
         ]
       },
       "ParseThreadId": null,
@@ -1768,6 +1772,7 @@
       "EventClass": "Pools,Stats",
       "SubClass": null,
       "Product": "Cassandra",
+      "AnalyticsGroup": "StatusLoggerPoolStats",
       "Examples": [
         "INFO  [Service Thread] 2017-01-16 13:51:39,296  StatusLogger.java:51 - Pool Name                    Active   Pending      Completed   Blocked  All Time Blocked",
         "INFO  [Service Thread] 2017-01-16 13:51:39,296  StatusLogger.java:66 - MutationStage                     0         0      144664687         0                 0",
@@ -1821,7 +1826,7 @@
       },
       "ParseMessage": {
         "RegExStrings": [
-          "(?<cachetype>[a-z]+Cache)\\s+(?<size_bytes>[0-9,]+)\\s+(?<capacity_bytes>[0-9,]+)\\s+(?<keystosave>[a-z]+)"
+          "(?<SUBCLASS>[a-z]+Cache)\\s+(?<size_bytes>[0-9,]+)\\s+(?<capacity_bytes>[0-9,]+)\\s+(?<keystosave>[a-z]+)"
         ]
       },
       "ParseThreadId": null,
@@ -1829,6 +1834,7 @@
       "EventClass": "Caches,Stats",
       "SubClass": null,
       "Product": "Cassandra",
+      "IgnoreEvent": true,
       "Examples": [
         "INFO  [Service Thread] 2017-01-16 13:51:39,302  StatusLogger.java:97 - Cache Type                     Size                 Capacity               KeysToSave",
         "INFO  [Service Thread] 2017-01-16 13:51:39,303  StatusLogger.java:99 - KeyCache                  104720385                104857600                      all",
@@ -1867,7 +1873,8 @@
       "ParseThreadId": null,
       "EventType": "SingleInstance",
       "EventClass": "MemtableFlush,Stats",
-      "SubClass": null,
+      "SubClass": "'Memtable ops'",
+      "AnalyticsGroup": "StatusLoggerMemTblOPSStats",
       "Product": "Cassandra",
       "Examples": [
         "INFO  [Service Thread] 2017-01-16 13:51:39,303  StatusLogger.java:112 - ColumnFamily                Memtable ops,data",
@@ -1903,13 +1910,14 @@
       },
       "ParseMessage": {
         "RegExStrings": [
-          "^(?:Compacting|Writing)\\s+(?<SUBCLASS>large\\s+partition|row)\\s+(?$<TABLEVIEWNAME>)\\s*\\:\\s*(?<partitionkey>.+)\\s+\\((?<size>[0-9,.]+\\s*\\w+)\\)"
+          "^(?:Compacting|Writing)\\s+(?<item>large\\s+partition|row)\\s+(?$<TABLEVIEWNAME>)\\s*\\:\\s*(?<partitionkey>.+)\\s+\\((?<size>[0-9,.]+\\s*\\w+)\\)"
         ]
       },
       "ParseThreadId": null,
       "EventType": "SingleInstance",
-      "EventClass": "Compaction,Partition,TableViewIndex",
-      "SubClass": null,
+      "EventClass": "Compaction,Partition,TableViewIndex,Detection",
+      "SubClass": "item + ' ' + partitionkey",
+      "AnalyticsGroup": "LargePartitionRowStats",
       "Product": "Cassandra",
       "Examples": [
         "WARN  [CompactionExecutor:6] 2016-06-07 06:57:44,146  SSTableWriter.java:240 - Compacting large partition kinesis_events/event_messages:49c023da-0bb8-46ce-9845-111514b43a63 (186949948 bytes)",
@@ -1930,31 +1938,139 @@
       },
       "FileNameMatch": {
         "RegExStrings": [
-          "^SliceQueryFilter.java$"
+          "^SliceQueryFilter.java$",
+          "^ReadCommand.java$"
         ]
       },
       "FileLineMatch": null,
       "MessageMatch": {
         "RegExStrings": [
-          "^Read\\s(?:[0-9,]+)\\slive\\sand\\s(?:[0-9,]+)\\stombstone",
-          "^Scanned\\sover\\s(?:[0-9,]+)\\stombstones"
+          "^Read\\s(?:[0-9,]+)\\slive\\s(?:row(?:s)?\\s)?and\\s(?:[0-9,]+)\\stombstone",
+          "^Scanned\\sover\\s(?:[0-9,]+)\\stombstone"
         ]
       },
       "ParseMessage": {
         "RegExStrings": [
-          "^(?<SUBCLASS>Read)\\s(?<live_cells>[0-9,]+)\\slive\\sand\\s(?<tombstone_cells>[0-9,]+)\\stombstone\\scells\\sin\\s(?$<TABLEVIEWNAME>)\\s(?:for\\skey\\:\\s*(?<partitionkey>.+))\\s*\\(see tombstone_warn_threshold\\)\\.\\s*(?<columns>[0-9,]+)\\scolumns\\swere\\srequested,\\sslices=(?<slices>\\[[^\\[\\]]+\\])",
-          "^Scanned\\sover\\s(?<tombstone_cells>[0-9,]+)\\stombstones\\sin\\s(?$<TABLEVIEWNAME>)\\s(?:for\\skey\\:\\s*(?<partitionkey>.+))\\;(?<SUBCLASS>\\squery\\saborted)"
+          "^(?<item>Read)\\s(?<live_cells>[0-9,]+)\\slive\\sand\\s(?<tombstone_cells>[0-9,]+)\\stombstone(?:s|d)?\\scells\\sin\\s(?<TABLEVIEWNAME>[a-z0-9'\\\\-_$%+=!?<>^*&@/.]+)\\s(?:for\\skey\\:\\s*(?<partitionkey>.+))?\\s*\\(see tombstone_warn_threshold\\)\\.\\s*(?<columns>[0-9,]+)\\scolumns\\s(?:were|was)\\srequested,\\sslices=(?<slices>\\[[^\\[\\]]+\\])",
+          "^(?<item>Scanned)\\sover\\s(?<tombstone_cells>[0-9,]+)\\stombstone(?:s|d)?\\sin\\s(?$<TABLEVIEWNAME>)\\s(?:for\\skey\\:\\s*(?<partitionkey>.+))\\;(?<SUBCLASS>\\squery\\saborted)",
+          "^Read\\s(?<live_cells>[0-9,]+)\\slive\\srows\\sand\\s(?<tombstone_cells>[0-9,]+)\\stombstone(?:s|d)?\\scells\\sfor\\s(?<item>query)\\s+$<!CQLSELECT>\\s+\\(see tombstone_warn_threshold\\)"
         ]
       },
       "ParseThreadId": null,
       "EventType": "SingleInstance",
-      "EventClass": "Tombstone,TableViewIndex,Query",
-      "SubClass": null,
+      "EventClass": "Tombstone,TableViewIndex,Query,Detection",
+      "SubClass": "item + ' ' + partitionkey + whereclause",
+      "AnalyticsGroup": "TombstoneStats",
       "Product": "Cassandra",
       "Examples": [
         "WARN [ReadStage:1325219] 2016-07-14 17:41:21,164 SliceQueryFilter.java (line 231) Read 11 live and 1411 tombstoned cells in cma.mls_records_property (see tombstone_warn_threshold). 5000 columns was requested, slices=[-]",
         "WARN  [SharedPool-Worker-11] 2016-10-24 10:59:18,247  SliceQueryFilter.java:320 - Read 269 live and 5228 tombstone cells in dse_perf.node_slow_log for key: 10.1.44.175:2016-10-20 20\\:00-0400 (see tombstone_warn_threshold). 1000 columns were requested, slices=[-]",
-        "ERROR [SharedPool-Worker-3] 2016-10-24 10:59:29,758  SliceQueryFilter.java:288 - Scanned over 100000 tombstones in dse_perf.node_slow_log for key: 10.1.46.110:2016-10-19 20\\:00-0400; query aborted (see tombstone_failure_threshold)."
+        "ERROR [SharedPool-Worker-3] 2016-10-24 10:59:29,758  SliceQueryFilter.java:288 - Scanned over 100000 tombstones in dse_perf.node_slow_log for key: 10.1.46.110:2016-10-19 20\\:00-0400; query aborted (see tombstone_failure_threshold).",
+        "WARN  [SharedPool-Worker-9] 2018-04-04 11:25:35,569  ReadCommand.java:508 - Read 111 live rows and 1932 tombstone cells for query SELECT * FROM ghostlocker.userplaybacksession WHERE token(userid) > -1790144883989260466 AND token(userid) <= -1665322144856710922 LIMIT 1000 (see tombstone_warn_threshold)"
+      ]
+    },
+    {
+      "Description": "commit log syncs",
+      "TagId": 22.0,
+      "MatchVersion": null,
+      "LevelMatch": {
+        "RegExStrings": [
+          "WARN"
+        ]
+      },
+      "FileNameMatch": {
+        "RegExStrings": [
+          "^NoSpamLogger.java$"
+        ]
+      },
+      "FileLineMatch": null,
+      "MessageMatch": {
+        "RegExStrings": [
+          "^Out\\sof\\s[0-9,]+\\scommit\\slog\\ssyncs\\sover\\sthe\\spast"
+        ]
+      },
+      "ParseMessage": {
+        "RegExStrings": [
+          "^Out\\sof\\s(?<nbrlogs>[0-9,]+)\\s[a-z ]+\\spast\\s(?<pastduration>[0-9,.]+\\s*[a-z]+)\\swith\\saverage\\sduration\\sof\\s$<!DURATIONwUOM>\\,\\s(?<logsexceed>[0-9,]+)\\s+[a-z ]+\\scommit\\sinterval[a-z ]+\\s(?<commitinterval>[0-9,.]+\\s*[a-z]+)$"
+        ]
+      },
+      "ParseThreadId": null,
+      "EventType": "SingleInstance",
+      "EventClass": "Commit,Pause,Detection",
+      "SubClass": null,
+      "AnalyticsGroup": "DurationStats",
+      "Product": "Cassandra",
+      "Examples": [
+        "WARN [PERIODIC-COMMIT-LOG-SYNCER] 2017-09-13 20:35:59,729 NoSpamLogger.java:97 - Out of 1 commit log syncs over the past 0.00s with average duration of 72128.48ms, 1 have exceeded the configured commit interval by an average of 62128.48ms"
+      ]
+    },
+    {
+      "Description": "Aggregation query",
+      "TagId": 23.0,
+      "MatchVersion": null,
+      "LevelMatch": {
+        "RegExStrings": [
+          "WARN"
+        ]
+      },
+      "FileNameMatch": {
+        "RegExStrings": [
+          "^SelectStatement.java$"
+        ]
+      },
+      "FileLineMatch": null,
+      "MessageMatch": {
+        "RegExStrings": [
+          "^Aggregation\\s+query"
+        ]
+      },
+      "ParseMessage": {
+        "RegExStrings": [
+          "^Aggregation\\s+query\\s+used\\s+without\\s+partition\\s+key$"
+        ]
+      },
+      "ParseThreadId": null,
+      "EventType": "SingleInstance",
+      "EventClass": "Detection,Query,Partition",
+      "SubClass": "'Aggregation query used without partition key'",
+      "Product": "Cassandra",
+      "Examples": [
+        "WARN  [SharedPool-Worker-1] 2018-03-28 03:37:46,099  SelectStatement.java:369 - Aggregation query used without partition key"
+      ]
+    },
+    {
+      "Description": "Gossip stage",
+      "TagId": 24.0,
+      "MatchVersion": null,
+      "LevelMatch": {
+        "RegExStrings": [
+          "WARN"
+        ]
+      },
+      "FileNameMatch": {
+        "RegExStrings": [
+          "^Gossiper.java$"
+        ]
+      },
+      "FileLineMatch": null,
+      "MessageMatch": {
+        "RegExStrings": [
+          "^Gossip\\s+stage"
+        ]
+      },
+      "ParseMessage": {
+        "RegExStrings": [
+          "^Gossip\\s+stage\\s+has\\s+(?<pendingtasks>\\d+)\\s+pending\\s+tasks;\\s+skipping\\s+status\\s+check\\s+\\(no\\s+nodes\\s+will\\s+be\\s+marked\\s+down\\)$"
+        ]
+      },
+      "ParseThreadId": null,
+      "EventType": "SingleInstance",
+      "EventClass": "Detection,Gossip",
+      "SubClass": "'Pending Gossip Stage (no nodes marked down)'",
+      "Product": "Cassandra",
+      "Examples": [
+        "WARN  [GossipTasks:1] 2018-04-09 16:03:34,543  Gossiper.java:754 - Gossip stage has 4 pending tasks; skipping status check (no nodes will be marked down)",
+        "WARN  [GossipTasks:1] 2017-05-20 03:38:59,863  Gossiper.java:751 - Gossip stage has 1 pending tasks; skipping status check (no nodes will be marked down)"
       ]
     }
   ]

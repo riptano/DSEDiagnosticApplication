@@ -8,5 +8,8 @@
     <Setting Name="LogFileInfoAnalysisGapTriggerInMins" Type="System.Double" Scope="Application">
       <Value Profile="(Default)">15</Value>
     </Setting>
+    <Setting Name="AggregateGroups" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">.\AggregateGroups.json,.\Json\AggregateGroups.json,[cpld]\Json\AggregateGroups.json,[cpld]\AggregateGroups.json,[ApplicationRunTimeDirectory]\Json\AggregateGroups.json,[ApplicationRunTimeDirectory]\AggregateGroups.json,.\Json\AggregateGroups.json,.\AggregateGroups.json</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

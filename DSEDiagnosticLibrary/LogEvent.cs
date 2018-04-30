@@ -10,8 +10,13 @@ namespace DSEDiagnosticLibrary
     public interface ILogEvent : IEvent, Common.Patterns.Collections.IMemoryMapperElement
     {
         string SessionTieOutId { get; }
+        string AnalyticsGroup { get; }       
         IReadOnlyDictionary<string, object> LogProperties { get; }
+#if DEBUG
         string LogMessage { get; }
+#else
+        int LogMessage { get; }
+#endif
         IEnumerable<string> SSTables { get; }
         IEnumerable<IDDLStmt> DDLItems { get; }
         IEnumerable<INode> AssociatedNodes { get; }

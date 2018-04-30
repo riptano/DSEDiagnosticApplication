@@ -10,5 +10,7 @@ namespace DSEDiagnosticAnalytics
     {
         public static double LogFileInfoAnalysisGapTriggerInMins = Properties.Settings.Default.LogFileInfoAnalysisGapTriggerInMins;
         public static double LogFileInfoAnalysisContinousEventInDays = Properties.Settings.Default.LogFileInfoAnalysisContinousEventInDays;
+        public static Dictionary<string, AggregateGroups> AggregateGroups = DSEDiagnosticFileParser.LibrarySettings.ReadJsonFileIntoObject<Dictionary<string, AggregateGroups>>(Properties.Settings.Default.AggregateGroups);
+
     }
 }

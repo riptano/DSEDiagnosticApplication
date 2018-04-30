@@ -1069,6 +1069,7 @@ public static class {0}
         [global::System.Configuration.DefaultSettingValueAttribute(@"[
 {""Key"":""ID"",""Value"":""[0-9a-f\\-]+""},
 {""Key"":""DURATION"",""Value"":""[0-9,.]+""},
+{""Key"":""DURATIONwUOM"",""Value"":""(?<DURATION>[0-9,.]+\\s*\\w+)""},
 {""Key"":""KEYSPACE"",""Value"":""[a-z0-9'\\-_$%+=!?<>^*&@]+""},
 {""Key"":""DDLITEMNAME"",""Value"":""[a-z0-9'\\-_$%+=!?<>^*&@/.]+""},
 {""Key"":""TABLEVIEWNAME"",""Value"":""[a-z0-9'\\-_$%+=!?<>^*&@/.]+""},
@@ -1077,7 +1078,8 @@ public static class {0}
 {""Key"":""SSTABLEPATH"",""Value"":""[a-z0-9\\-_@#/.\\ +%]+""},
 {""Key"":""SSTABLEPATHS"",""Value"":""[a-z0-9\\-_@#/.,\\ +%]*""},
 {""Key"":""NODE"",""Value"":""[^ ]+""},
-{""Key"":""SOLRINDEXNAME"",""Value"":""[a-z0-9'\\-_$%+=!?<>^*&@/.]+""}
+{""Key"":""SOLRINDEXNAME"",""Value"":""[a-z0-9'\\-_$%+=!?<>^*&@/.]+""},
+{""Key"":""CQLSELECT"",""Value"":""select\\s+(?<querycols>.+)\\s+from\\s+(?<TABLEVIEWNAME>[a-z0-9'\\-_$%+=!?<>^*&@/.]+)(?:\\s+where\\s+(?<whereclause>.+?))??(?:\\s+order\\s+by\\s+(?<orderbycols>.+?))??(?:\\s+limit\\s+(?<limit>\\d+?))??(?<allowfiltering>\\s+allow\\s+filtering)??""}
 ]")]
         public string RegExLexiconValues {
             get {

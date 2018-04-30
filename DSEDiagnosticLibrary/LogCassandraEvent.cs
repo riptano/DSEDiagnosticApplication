@@ -44,7 +44,8 @@ namespace DSEDiagnosticLibrary
                                     IEnumerable<TokenRangeInfo> tokenRanges = null,
                                     string sessionTieOutId = null,
                                     DSEInfo.InstanceTypes product = DSEInfo.InstanceTypes.Cassandra,
-                                    bool assocateToNode = false)
+                                    bool assocateToNode = false,
+                                    string analyticsGroup = null)
         {
             if (logFile == null) throw new ArgumentNullException("logFile cannot be null");
             if (node == null) throw new ArgumentNullException("node cannot be null");
@@ -54,11 +55,15 @@ namespace DSEDiagnosticLibrary
             this.Id = string.IsNullOrEmpty(logId) ? Guid.NewGuid() : new Guid(logId);
             this.Path = logFile;
             this.Node = node;
+#if DEBUG
             this.LogMessage = logMessage;
+#else
+            this.LogMessage = logMessage?.GetHashCode() ?? 0;
+#endif
             this.LineNbr = lineNbr;
             this.Type = eventType;
             this.Class = logEventClass;
-            this.SubClass = subClass;
+            this.SubClass = subClass.InternString();
             this.ParentEvents = parentEvents?.Select(p => new Common.Patterns.Collections.MemoryMapped.MMValue<ILogEvent>(p)) ?? EmptyParents;
             this.TimeZone = timeZone;
             this.EventTimeLocal = logLocalTime;
@@ -68,6 +73,7 @@ namespace DSEDiagnosticLibrary
             this.TableViewIndex = tableviewindexItem;
             this.Product = product;
             this.LogProperties = logProperties ?? EmptyLogProperties;
+            this.AnalyticsGroup = analyticsGroup.InternString();
             this.SSTables = ssTables ?? EmptySSTables;
             this.DDLItems = ddlItems ?? EmptyDDLItems;
             this.AssociatedNodes = assocatedNodes ?? EmptyAssocatedNodes;
@@ -118,7 +124,8 @@ namespace DSEDiagnosticLibrary
                                    IEnumerable<TokenRangeInfo> tokenRanges = null,
                                    string sessionTieOutId = null,
                                    DSEInfo.InstanceTypes product = DSEInfo.InstanceTypes.Cassandra,
-                                   bool assocateToNode = false)
+                                   bool assocateToNode = false,
+                                   string analyticsGroup = null)
             :  this(logFile,
                         node,
                         lineNbr,
@@ -141,7 +148,8 @@ namespace DSEDiagnosticLibrary
                         tokenRanges,
                         sessionTieOutId,
                         product,
-                        assocateToNode)
+                        assocateToNode,
+                        analyticsGroup)
         {
             this.Duration = (TimeSpan)uomDuration;
             this.EventTimeBegin = this.EventTime - this.Duration;
@@ -170,7 +178,8 @@ namespace DSEDiagnosticLibrary
                                    IEnumerable<TokenRangeInfo> tokenRanges = null,
                                    string sessionTieOutId = null,
                                    DSEInfo.InstanceTypes product = DSEInfo.InstanceTypes.Cassandra,
-                                   bool assocateToNode = false)
+                                   bool assocateToNode = false,
+                                   string analyticsGroup = null)
             : this(logFile,
                         node,
                         lineNbr,
@@ -193,7 +202,8 @@ namespace DSEDiagnosticLibrary
                         tokenRanges,
                         sessionTieOutId,
                         product,
-                        assocateToNode)
+                        assocateToNode,
+                        analyticsGroup)
         {
             this.EventTimeBegin = logBeginTime;
             this.EventTimeEnd = this.EventTime;
@@ -222,7 +232,8 @@ namespace DSEDiagnosticLibrary
                                    IEnumerable<TokenRangeInfo> tokenRanges = null,
                                    string sessionTieOutId = null,
                                    DSEInfo.InstanceTypes product = DSEInfo.InstanceTypes.Cassandra,
-                                   bool assocateToNode = false)
+                                   bool assocateToNode = false,
+                                   string analyticsGroup = null)
             : this(logFile,
                         node,
                         lineNbr,
@@ -245,7 +256,8 @@ namespace DSEDiagnosticLibrary
                         tokenRanges,
                         sessionTieOutId,
                         product,
-                        assocateToNode)
+                        assocateToNode,
+                        analyticsGroup)
         {
             this.EventTimeBegin = new DateTimeOffset(logLocalBeginTime, this.EventTime.Offset);
             this.EventTimeEnd = this.EventTime;
@@ -354,9 +366,10 @@ namespace DSEDiagnosticLibrary
             SearchView = 8,
             SessionTieOutIdOnly = 9,
             EventTypeOnly = 10,
-            AggregationPeriodOnly = 11
+            AggregationPeriodOnly = 11,
+            AggregationPeriodOnlyWProps = 12
         }
-
+        
         public LogCassandraEvent(MemoryMapper.ReadElement readView, MemoryMapperElementCreationTypes instanceType)
         {
             this._hashcode = readView.GetIntValue();
@@ -387,7 +400,8 @@ namespace DSEDiagnosticLibrary
                 readView.SkipInt();
                 readView.SkipString();
                 readView.SkipInt(); //Source
-                this.Type = (EventTypes)readView.GetIntValue();                
+                this.Type = (EventTypes)readView.GetIntValue();
+                this.Class = (EventClasses)readView.GetLongValue();
                 return;
             }
 
@@ -420,7 +434,7 @@ namespace DSEDiagnosticLibrary
                                                                                                                                                                                 .Find(f => f.ElementHashCode == e)));
             }
 
-            if (creationType == ElementCreationTypes.AggregationPeriodOnly)
+            if (creationType == ElementCreationTypes.AggregationPeriodOnly || creationType == ElementCreationTypes.AggregationPeriodOnlyWProps)
             {
                 this.Source = (SourceTypes)readView.GetIntValue();
                 this.Type = (EventTypes)readView.GetIntValue();
@@ -432,7 +446,7 @@ namespace DSEDiagnosticLibrary
                 readView.SkipInt();
                 readView.SkipUInt();
                 //IEvents members
-                this.SubClass = readView.GetStringValue();
+                this.SubClass = readView.GetStringValue().InternString();
                 readView.SkipString();
                 this.EventTimeLocal = readView.GetStructValue<DateTime>();
                 this.EventTimeBegin = readView.GetNullableValue<DateTimeOffset>();
@@ -440,7 +454,11 @@ namespace DSEDiagnosticLibrary
                 this.Duration = readView.GetNullableValue<TimeSpan>();
                 this.Product = (DSEInfo.InstanceTypes)readView.GetIntValue();
                 //Log Members
-                readView.SkipMMElementKVPStrObj();
+                this.AnalyticsGroup = readView.GetStringValue().InternString();
+                if (creationType == ElementCreationTypes.AggregationPeriodOnlyWProps)
+                    this.LogProperties = readView.ReadMMElement(this.Cluster, this.DataCenter, this.Node, this.Keyspace);
+                else
+                    readView.SkipMMElementKVPStrObj();
                 readView.SkipString();
                 readView.SkipStringEnumerable();
                 readView.SkipStructEnumerable();
@@ -457,7 +475,7 @@ namespace DSEDiagnosticLibrary
                 this.Items = readView.GetIntValue();
                 this.LineNbr = readView.GetUIntValue();
                 //IEvents members
-                this.SubClass = readView.GetStringValue();
+                this.SubClass = readView.GetStringValue().InternString();
                 strValue = readView.GetStringValue();
                 this.TimeZone = string.IsNullOrEmpty(strValue) ? null : Common.TimeZones.Find(strValue);
                 this.EventTimeLocal = readView.GetStructValue<DateTime>();
@@ -466,8 +484,13 @@ namespace DSEDiagnosticLibrary
                 this.Duration = readView.GetNullableValue<TimeSpan>();
                 this.Product = (DSEInfo.InstanceTypes) readView.GetIntValue();
                 //Log Members
+                this.AnalyticsGroup = readView.GetStringValue().InternString();
                 this.LogProperties = readView.ReadMMElement(this.Cluster, this.DataCenter, this.Node, this.Keyspace);
+#if DEBUG
                 this.LogMessage = readView.GetStringValue();
+#else
+                this.LogMessage = readView.GetIntValue();
+#endif
                 this.SSTables = readView.GetEnumerableString();
                 this.DDLItems = readView.GetEnumerableValue<int>().Select(h => Cluster.TryGetDDLStmt(h));
                 this.AssociatedNodes = readView.GetEnumerableValue<int>().Select(h => Cluster.TryGetNode(h));
@@ -506,6 +529,7 @@ namespace DSEDiagnosticLibrary
             writeView.StoreValue(this.Duration);
             writeView.StoreValue((int)this.Product);
             //Log Members
+            writeView.StoreValue(this.AnalyticsGroup);
             writeView.WriteMMElement(this.LogProperties);
             writeView.StoreValue(this.LogMessage);
             writeView.StoreValue(this.SSTables);
@@ -517,14 +541,20 @@ namespace DSEDiagnosticLibrary
         }
 
 
-        #endregion
+#endregion
 
-        #region ILogEvent
+#region ILogEvent
 
         public string SessionTieOutId { get; private set; }
         
         public IReadOnlyDictionary<string, object> LogProperties { get; private set; }
+        public string AnalyticsGroup { get; }
+
+#if DEBUG
         public string LogMessage { get; }
+#else
+        public int LogMessage { get; }
+#endif
         public IEnumerable<string> SSTables { get; private set; }
         public IEnumerable<IDDLStmt> DDLItems { get; private set; }
         public IEnumerable<INode> AssociatedNodes { get; private set; }
@@ -628,7 +658,7 @@ namespace DSEDiagnosticLibrary
             return false;
         }
 
-        #endregion
+#endregion
 
         public void UpdateEndingTimeStamp(DateTime eventTimeLocalEnd, bool checkEndTime = true, bool forceUpdate = false)
         {
@@ -803,7 +833,7 @@ namespace DSEDiagnosticLibrary
 
 
 
-        #region IEquatable
+#region IEquatable
         public bool Equals(Guid other)
         {
             if (other == null) return false;
@@ -830,9 +860,9 @@ namespace DSEDiagnosticLibrary
             return false;
         }
 
-        #endregion
+#endregion
 
-        #region Overrides
+#region Overrides
 
         [JsonProperty(PropertyName="HashCode")]
         private int _hashcode = 0;
@@ -845,7 +875,11 @@ namespace DSEDiagnosticLibrary
                 return this._hashcode = (this.Node.GetHashCode()
                                             + (this.SessionTieOutId == null ? 0 : this.SessionTieOutId.GetHashCode())
                                             + this.EventTimeLocal.GetHashCode()) * 31
+#if DEBUG
                                             + this.LogMessage.GetHashCode();
+#else
+                                            + this.LogMessage;
+#endif
             }
         }
 
@@ -864,6 +898,6 @@ namespace DSEDiagnosticLibrary
                                     this.ParentEvents?.Count());
         }
 
-        #endregion
+#endregion
     }
 }
