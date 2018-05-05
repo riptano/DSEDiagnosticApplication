@@ -439,6 +439,7 @@
 {"Key":"DURATIONwUOM","Value":"(?<DURATION>[0-9,.]+\\s*\\w+)"},
 {"Key":"KEYSPACE","Value":"[a-z0-9'\\-_$%+=!?<>^*&@]+"},
 {"Key":"DDLITEMNAME","Value":"[a-z0-9'\\-_$%+=!?<>^*&@/.]+"},
+{"Key":"DDLITEMNAMES","Value":"[a-z0-9'\\-_$%+=!?<>^*&@/. ,]*"},
 {"Key":"TABLEVIEWNAME","Value":"[a-z0-9'\\-_$%+=!?<>^*&@/.]+"},
 {"Key":"DDLSCHEMAID","Value":"[0-9a-f\\-]+"},
 {"Key":"SSTABLEPATH","Value":"[a-z0-9\\-_@#/.\\ +%]+"},
@@ -1124,14 +1125,15 @@
       },
       "ParseMessage": {
         "RegExStrings": [
-          "^Not\\s+marking\\s+nodes\\s+down\\s+due\\s+to\\s+local\\s+pause\\s+of\\s+(?<GCPause>[0-9,]+)\\s*>\\s*(?<GCPauseThreshold>[0-9,]+)$"
+          "^Not\\s+marking\\s+nodes\\s+down\\s+due\\s+to\\s+local\\s+pause\\s+of\\s+(?<DURATION>[0-9,]+)\\s*>\\s*(?<GCPauseThreshold>[0-9,]+)$"
         ]
       },
       "ParseThreadId": null,
-      "EventType": "SingleInstance",
-      "EventClass": "NodeDetection, Change",
+      "EventType": "SessionDefinedByDuration",
+      "EventClass": "NodeDetection,GC,Pause",
       "SubClass": "'Not marking Node down due to pause'",
       "Product": "Cassandra",
+      "AnalyticsGroup": "GCPauseStats",
       "SessionKey": null,
       "Examples": [
         "=> WARN  [GossipTasks:1] 2018-02-06 14:42:58,283  FailureDetector.java:258 - Not marking nodes down due to local pause of 71168044088 > 5000000000"
@@ -1887,7 +1889,7 @@
       ]
     },
     {
-      "Description": "Compacting large partition/row",
+      "Description": "large partition/row",
       "TagId": 20.0,
       "MatchVersion": null,
       "LevelMatch": {
@@ -1910,7 +1912,7 @@
       },
       "ParseMessage": {
         "RegExStrings": [
-          "^(?:Compacting|Writing)\\s+(?<item>large\\s+partition|row)\\s+(?$<TABLEVIEWNAME>)\\s*\\:\\s*(?<partitionkey>.+)\\s+\\((?<size>[0-9,.]+\\s*\\w+)\\)"
+          "^(?:Compacting|Writing)\\s+(?<item>large\\s+partition|row)\\s+(?$<DDLITEMNAME>)\\s*\\:\\s*(?<partitionkey>.+)?\\s+\\((?<size>[0-9,.]+\\s*\\w+)\\)"
         ]
       },
       "ParseThreadId": null,
@@ -1924,7 +1926,8 @@
         "WARN  [MemtableFlushWriter:140] 2016-10-24 03:10:08,287  SSTableWriter.java:241 - Compacting large partition usprodda/digitalasset_3_0_2:US (130225259 bytes)",
         "WARN  [CompactionExecutor:705441] 2016-10-05 13:09:40,934 SSTableWriter.java:241 - Compacting large partition handled_exception1/summary_pt1h:5670561a6c33dc0f00f11443:2016-10-01-14-00-00:total (280256103 bytes)",
         "WARN  [ ] 2016-06-07 06:57:44,146  CompactionController.java:240 - Compacting large row billing/account_payables:20160726:FMCC (348583137 bytes)",
-        "WARN  [ ] 2016-06-07 06:57:44,146  BigTableWriter.java:240 - Writing large partition oats/order_cycles:nasusnop01:2017-01-31 (139296027 bytes)"
+        "WARN  [ ] 2016-06-07 06:57:44,146  BigTableWriter.java:240 - Writing large partition oats/order_cycles:nasusnop01:2017-01-31 (139296027 bytes)",
+        "WARN  [CompactionExecutor:943648] 2018-04-23 09:44:03,812  BigTableWriter.java:211 - Writing large partition axon/audit.parked_at_idx: (111.836MiB) to sstable /dse/dse_data/axon/audit-4584ec70347411e89c4fe548a3a93499/.parked_at_idx/mc-6140-big-Data.db)"
       ]
     },
     {
@@ -2066,11 +2069,53 @@
       "ParseThreadId": null,
       "EventType": "SingleInstance",
       "EventClass": "Detection,Gossip",
+      "AnalyticsGroup": "GossipPendingStats",
       "SubClass": "'Pending Gossip Stage (no nodes marked down)'",
       "Product": "Cassandra",
       "Examples": [
         "WARN  [GossipTasks:1] 2018-04-09 16:03:34,543  Gossiper.java:754 - Gossip stage has 4 pending tasks; skipping status check (no nodes will be marked down)",
         "WARN  [GossipTasks:1] 2017-05-20 03:38:59,863  Gossiper.java:751 - Gossip stage has 1 pending tasks; skipping status check (no nodes will be marked down)"
+      ]
+    },
+    {
+      "Description": "Batches",
+      "TagId": 25.0,
+      "MatchVersion": null,
+      "LevelMatch": {
+        "RegExStrings": [
+          "WARN"
+        ]
+      },
+      "FileNameMatch": {
+        "RegExStrings": [
+          "^NoSpamLogger.java$",
+          "^BatchStatement.java$"
+        ]
+      },
+      "FileLineMatch": null,
+      "MessageMatch": {
+        "RegExStrings": [
+          "^Unlogged\\s+batch\\s",
+          "^Batch\\s"
+        ]
+      },
+      "ParseMessage": {
+        "RegExStrings": [
+          "^(?<type>Unlogged)\\sbatch\\scovering\\s(?<nbrpartitions>[0-9,]+)\\spartitions\\s\\w+\\s\\w+\\stables?\\s+\\[(?$<DDLITEMNAMES>)\\]",
+          "^Batch\\s\\w+\\s(?<type>prepared?)\\sstatements?\\s\\w+\\s\\[(?$<DDLITEMNAMES>)\\]\\s\\w+\\s\\w+\\ssize\\s+(?<size_bytes>[0-9,.]+\\s*\\w*)\\s*,\\s",
+          "^Batch\\sfor\\s\\[(?$<DDLITEMNAMES>)\\]\\s\\w+\\s\\w+\\s(?<type>size)\\s+(?<size_bytes>[0-9,.]+\\s*\\w*)\\s*,\\s"
+        ]
+      },
+      "ParseThreadId": null,
+      "EventType": "SingleInstance",
+      "EventClass": "Detection,Batches",
+      "AnalyticsGroup": "BatchStats",
+      "SubClass": "type",
+      "Product": "Cassandra",
+      "Examples": [
+        "WARN  [SharedPool-Worker-11] 2016-10-24 03:09:39,832  NoSpamLogger.java:94 - Unlogged batch covering 33 partitions detected against tables [usprodofrs.rstpromobydate_3_0_0_4, usprodofrs.rstpromo_3_0_0_4]. You should use a logged batch for atomicity, or asynchronous writes for performance.",
+        "WARN [Native-Transport-Requests:30] 2016-08-01 22:58:11,080 BatchStatement.java (line 226) Batch of prepared statements for [clearcore.documents_case] is of size 71809, exceeding specified threshold of 65536 by 6273.",
+        "WARN  [Native-Transport-Requests-4] 2018-04-23 15:39:49,679  BatchStatement.java:298 - Batch for [axon.accounts, axon.audit] is of size 69.044KiB, exceeding specified threshold of 64.000KiB by 5.044KiB."
       ]
     }
   ]

@@ -1317,6 +1317,40 @@ namespace DSEDiagnosticFileParser
                             analyticsGroup = sessionEvent.AnalyticsGroup;
                         }
                     }
+
+                    {
+                        object keyValue;
+                        if (primaryKS == null
+                                && sessionEvent.Keyspace != null
+                                && logProperties != null
+                                && logProperties.TryGetValue("KEYSPACE", out keyValue)
+                                && sessionEvent.Keyspace.Name == (keyValue is string ? (string) keyValue : (keyValue as IKeyspace)?.Name))
+                        {
+                            primaryKS = sessionEvent.Keyspace;
+                        }
+
+                        if (primaryDDL == null
+                                && sessionEvent.TableViewIndex != null
+                                && logProperties != null)
+                        {
+                            if(logProperties.TryGetValue("DDLITEMNAME", out keyValue)
+                                && (sessionEvent.TableViewIndex.Name == (keyValue is string ? (string)keyValue : (keyValue as IDDLStmt)?.Name)
+                                        || sessionEvent.TableViewIndex.FullName == (keyValue is string ? (string)keyValue : (keyValue as IDDLStmt)?.FullName)))
+                            {
+                                primaryDDL = sessionEvent.TableViewIndex;
+                            }
+                            else if (logProperties.TryGetValue("TABLEVIEWNAME", out keyValue)
+                                        && (sessionEvent.TableViewIndex.Name == (keyValue is string ? (string)keyValue : (keyValue as IDDLStmt)?.Name)
+                                                || sessionEvent.TableViewIndex.FullName == (keyValue is string ? (string)keyValue : (keyValue as IDDLStmt)?.FullName)))
+                            {
+                                primaryDDL = sessionEvent.TableViewIndex;
+                            }
+
+                            if (primaryKS == null && primaryDDL != null)
+                                primaryKS = primaryDDL.Keyspace;
+                        }
+
+                    }
                 }
             }
 
@@ -1899,42 +1933,46 @@ namespace DSEDiagnosticFileParser
                         };
                         ddlInstances = null;
                     }
-                    else
+                    else if(Logger.Instance.IsDebugEnabled)
                     {
                         var localPrimaryKS = primaryKS;
-                        var instanceNames = ddlInstances?.Select(d => localPrimaryKS == null ? d.Name : d.FullName);
-                        var names = new List<string>();
 
-                        if (ddlNames != null)
+                        if (localPrimaryKS == null || !LibrarySettings.IgnoreWarningsErrosInKeySpaces.Any(k => k == localPrimaryKS.Name))
                         {
-                            names.AddRange(primaryKS == null ? ddlNames : ddlNames.Select(s => s.Contains('.') ? s : localPrimaryKS.Name + '.' + s));
-                        }
-                        if (solrDDLNames != null)
-                        {
-                            names.AddRange(primaryKS == null ? solrDDLNames : solrDDLNames.Select(s => s.Contains('.') ? s : localPrimaryKS.Name + '.' + s));
-                        }
-                        if (sstableFilePaths != null)
-                        {
-                            names.AddRange(sstableDDLInstance.Select(d => localPrimaryKS == null ? d.Name : d.FullName));
-                        }
+                            var instanceNames = ddlInstances?.Select(d => localPrimaryKS == null ? d.Name : d.FullName);
+                            var names = new List<string>();
 
-                        var diffNames = ddlInstancesCnt > ddlNamesCnt
-                                            ? instanceNames.Complement(names)
-                                            : names.Complement(instanceNames ?? Enumerable.Empty<string>());
+                            if (ddlNames != null)
+                            {
+                                names.AddRange(primaryKS == null ? ddlNames : ddlNames.Select(s => s.Contains('.') ? s : localPrimaryKS.Name + '.' + s));
+                            }
+                            if (solrDDLNames != null)
+                            {
+                                names.AddRange(primaryKS == null ? solrDDLNames : solrDDLNames.Select(s => s.Contains('.') ? s : localPrimaryKS.Name + '.' + s));
+                            }
+                            if (sstableFilePaths != null)
+                            {
+                                names.AddRange(sstableDDLInstance.Select(d => localPrimaryKS == null ? d.Name : d.FullName));
+                            }
 
-                        if (diffNames.IsEmpty())
-                        {
-                            diffNames = names;
+                            var diffNames = ddlInstancesCnt > ddlNamesCnt
+                                                ? instanceNames.Complement(names)
+                                                : names.Complement(instanceNames ?? Enumerable.Empty<string>());
+
+                            if (diffNames.IsEmpty())
+                            {
+                                diffNames = names;
+                            }
+
+                            Logger.Instance.ErrorFormat("MapperId<{0}>\t{1}\t{2}\tCasandra Log Event at {3:yyyy-MM-dd HH:mm:ss,fff} has mismatch between parsed C* objects from the log vs. DDL C* object instances. There are {4}. They are {{{5}}}. Log line is \"{6}\". DDLItems property for the log instance may contain invalid DDL instances.",
+                                                        this.MapperId,
+                                                        this.Node,
+                                                        this.ShortFilePath,
+                                                        logMessage.LogDateTime,
+                                                        ddlInstancesCnt > ddlNamesCnt ? "multiple resolved C* object (DDL) instances" : "unresolved C* object names",
+                                                        string.Join(", ", diffNames),
+                                                        logMessage.Message);
                         }
-
-                        Logger.Instance.ErrorFormat("MapperId<{0}>\t{1}\t{2}\tCasandra Log Event at {3:yyyy-MM-dd HH:mm:ss,fff} has mismatch between parsed C* objects from the log vs. DDL C* object instances. There are {4}. They are {{{5}}}. Log line is \"{6}\". DDLItems property for the log instance may contain invalid DDL instances.",
-                                                    this.MapperId,
-                                                    this.Node,
-                                                    this.ShortFilePath,
-                                                    logMessage.LogDateTime,
-                                                    ddlInstancesCnt > ddlNamesCnt ? "multiple resolved C* object (DDL) instances" : "unresolved C* object names",
-                                                    string.Join(", ", diffNames),
-                                                    logMessage.Message);
                     }
                 }
             }
@@ -2016,22 +2054,38 @@ namespace DSEDiagnosticFileParser
             {
                 if(primaryDDL == null && (ddlName != null || sstableFilePath != null || ddlSchemaId != null))
                 {
-                    Logger.Instance.ErrorFormat("Log Event could not determine the primary DDL since DDLITEMNAME/TABLEVIEWNAME ({0}), SSTABLEPATH ({1}), or DDLSCHEMAID ({2}) was not found. File: {3}\r\nLog Message: {4}",
+                    bool ignoreError = ddlName != null && Cluster.Keyspaces.Any(k => k.DDLs.Any(d => d.Name == ddlName || d.FullName == ddlName));
+                    
+                    if(!ignoreError)
+                        ignoreError = ddlSchemaId != null && Cluster.Keyspaces.Any(k => k.DDLs.OfType<ICQLTable>().Any(d => d.Id.ToString() == ddlSchemaId));
+
+                    if (!ignoreError)
+                    {
+                        Logger.Instance.ErrorFormat("Log Event could not determine the primary DDL since DDLITEMNAME/TABLEVIEWNAME ({0}), SSTABLEPATH ({1}), or DDLSCHEMAID ({2}) was not found. File: {3}\r\nLog Message: {4}",
                                                     ddlName,
                                                     sstableFilePath,
                                                     ddlSchemaId,
                                                     this.ShortFilePath,
                                                     logMessage);
-                    this.NbrErrors++;
+                        this.NbrErrors++;
+                    }
                 }
 
                 if (primaryKS == null && keyspaceName != null)
                 {
-                    Logger.Instance.ErrorFormat("Log Event could not determine the primary Keyspace since KEYSPACE ({0}) was not found. File: {1}\r\nLog Message: {2}",
+                    bool ignoreError = Cluster.Keyspaces.Any(k => k.Name == keyspaceName);
+
+                    if (!ignoreError)
+                        ignoreError = LibrarySettings.IgnoreWarningsErrosInKeySpaces.Any(k => k == keyspaceName);
+
+                    if (!ignoreError)
+                    {
+                        Logger.Instance.ErrorFormat("Log Event could not determine the primary Keyspace since KEYSPACE ({0}) was not found. File: {1}\r\nLog Message: {2}",
                                                     keyspaceName,
                                                     this.ShortFilePath,
                                                     logMessage);
-                    this.NbrErrors++;
+                        this.NbrErrors++;
+                    }
                 }
             }
         }
@@ -2187,7 +2241,7 @@ namespace DSEDiagnosticFileParser
                             }
                         }
                         #endregion
-                    }
+                    }                    
                     else
                     {
                         #region Single Value or common Groups
@@ -2258,6 +2312,21 @@ namespace DSEDiagnosticFileParser
 
                                 logProperties.TryAddValue(normalizedGroupName, groupCaptures);
                             }
+                        }
+                        #endregion
+                    }
+
+                    if ((groupName == "KEYSPACES" || groupName == "DDLITEMNAMES" || groupName == "SSTABLEPATHS" || groupName == "NODES"))
+                    {
+                        #region List of items
+                        object itemValue;
+
+                        if(logProperties.TryGetValue(groupName, out itemValue) && itemValue is string)
+                        {
+                            var listItem = ((string)itemValue).Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+
+                            if(listItem.Length > 0)
+                                logProperties[groupName] = listItem.Select(i => i.Trim()).ToList();
                         }
                         #endregion
                     }

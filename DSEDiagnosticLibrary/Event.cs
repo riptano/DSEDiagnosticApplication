@@ -103,6 +103,7 @@ namespace DSEDiagnosticLibrary
         Tombstone       = 0x200000000,
         Query           = 0x400000000,
         Gossip          = 0x800000000,
+        Batches         = 0x1000000000,
         GCStats = GC | Stats,
         MemtableFlush = Memtable | Flush,
         SolrHardCommit = Solr | Commit,

@@ -413,7 +413,7 @@ namespace DSEDiagnosticAnalytics
             return 0M;
         }
 
-        public static decimal GetPropUOMValue(this IReadOnlyDictionary<string, object> propTable, string key)
+        public static decimal GetPropUOMValue(this IReadOnlyDictionary<string, object> propTable, string key, UnitOfMeasure.Types uomConvertType = UnitOfMeasure.Types.Unknown)
         {
             object value;
 
@@ -423,7 +423,11 @@ namespace DSEDiagnosticAnalytics
                 {
                     if(value is UnitOfMeasure)
                     {
-                        return ((UnitOfMeasure)value).NormalizedValue.Value;
+                        var uom = (UnitOfMeasure) value;
+
+                        if (uomConvertType == UnitOfMeasure.Types.Unknown) return uom.Value;
+
+                        return uom.ConvertTo(uomConvertType);                        
                     }
                     else if(value.IsNumber())
                     {
@@ -460,15 +464,16 @@ namespace DSEDiagnosticAnalytics
             long lastCompleted = 0;
             long lastAllTimeBlock = 0;
 
-            var poolPendingItems = assocatedLogEvents.Select(i => i.LogProperties.IsPositive("nbrpending")).Where(i => i > 0);
-            var poolCompletedItems = assocatedLogEvents.Select(i => i.LogProperties.IsPositive("nbrcompleted", ref lastCompleted)).Where(i => i > 0);
+            var poolPendingItems = assocatedLogEvents.Select(i => i.LogProperties.IsPositive("nbrpending")).Where(i => i > 0L);
+            var poolCompletedItems = assocatedLogEvents.Select(i => i.LogProperties.IsPositive("nbrcompleted", ref lastCompleted)).Where(i => i > 0L);
             var poolBlockedItems = assocatedLogEvents.Select(i => i.LogProperties.IsPositive("nbrblocked")).Where(i => i > 0);
-            var poolBlockedAllTimeItems = assocatedLogEvents.Select(i => i.LogProperties.IsPositive("nbralltimeblocked", ref lastAllTimeBlock)).Where(i => i > 0);
+            var poolBlockedAllTimeItems = assocatedLogEvents.Select(i => i.LogProperties.IsPositive("nbralltimeblocked", ref lastAllTimeBlock)).Where(i => i > 0L);
 
             return poolBlockedAllTimeItems.IsEmpty() && poolBlockedItems.IsEmpty() && poolCompletedItems.IsEmpty() && poolPendingItems.IsEmpty() 
                     ? null
                     : new LogEventGrouping(ref logEventGroup,
                                             assocatedLogEvents,
+                                            LogEventGrouping.GroupingTypes.StatusLoggerPoolStats,
                                             poolPendingItems,
                                             poolCompletedItems,
                                             poolBlockedItems,
@@ -477,50 +482,54 @@ namespace DSEDiagnosticAnalytics
 
         public static LogEventGrouping StatusLoggerMemTblOPSStats(ref LogEventGroup logEventGroup, string analyticsGroup, IEnumerable<ILogEvent> assocatedLogEvents)
         {            
-            var poolOPSItems = assocatedLogEvents.Select(i => i.LogProperties.IsPositive("memtable")).Where(i => i > 0);
-            var poolSizeItems = assocatedLogEvents.Select(i => i.LogProperties.GetPropUOMValue("datasize")).Where(i => i > 0);
+            var poolOPSItems = assocatedLogEvents.Select(i => i.LogProperties.IsPositive("memtable")).Where(i => i > 0L);
+            var poolSizeItems = assocatedLogEvents.Select(i => i.LogProperties.GetPropUOMValue("datasize", UnitOfMeasure.Types.MiB)).Where(i => i > 0L);
             
             return poolOPSItems.IsEmpty() && poolSizeItems.IsEmpty()
                     ? null
                     :new LogEventGrouping(ref logEventGroup,
                                             assocatedLogEvents,
-                                            poolOPSItems,
-                                            poolSizeItems);
+                                            LogEventGrouping.GroupingTypes.StatusLoggerMemTblOPSStats,
+                                            new IEnumerable<long>[] { poolOPSItems },
+                                            new IEnumerable<decimal>[] { poolSizeItems });
         }
 
         public static LogEventGrouping LargePartitionRowStats(ref LogEventGroup logEventGroup, string analyticsGroup, IEnumerable<ILogEvent> assocatedLogEvents)
         {
-            var partitionSizeItems = assocatedLogEvents.Select(i => i.LogProperties.GetPropUOMValue("size")).Where(i => i >= 0);
+            var partitionSizeItems = assocatedLogEvents.Select(i => i.LogProperties.GetPropUOMValue("size", UnitOfMeasure.Types.MiB)).Where(i => i >= 0M);
            
             return partitionSizeItems.IsEmpty()
                     ? null
                     : new LogEventGrouping(ref logEventGroup,
                                             assocatedLogEvents,
+                                            LogEventGrouping.GroupingTypes.LargePartitionRowStats,
                                             partitionSizeItems);
         }
 
         public static LogEventGrouping TombstoneStats(ref LogEventGroup logEventGroup, string analyticsGroup, IEnumerable<ILogEvent> assocatedLogEvents)
         {
-            var tombstoneItems = assocatedLogEvents.Select(i => i.LogProperties.IsPositiveZero("tombstone")).Where(i => i >= 0);
-            var liveItems = assocatedLogEvents.Select(i => i.LogProperties.IsPositiveZero("live")).Where(i => i >= 0);
+            var tombstoneItems = assocatedLogEvents.Select(i => i.LogProperties.IsPositiveZero("tombstone")).Where(i => i >= 0L);
+            var liveItems = assocatedLogEvents.Select(i => i.LogProperties.IsPositiveZero("live")).Where(i => i >= 0L);
 
             return new LogEventGrouping(ref logEventGroup,
                                         assocatedLogEvents,
+                                        LogEventGrouping.GroupingTypes.TombstoneStats,
                                         liveItems,
                                         tombstoneItems);
         }
 
         public static LogEventGrouping GCStats(ref LogEventGroup logEventGroup, string analyticsGroup, IEnumerable<ILogEvent> assocatedLogEvents)
         {            
-            var poolEdenFromItems = assocatedLogEvents.Select(i => i.LogProperties.GetPropUOMValue("edenspacefrom")).Where(i => i >= 0);
-            var poolEdenToItems = assocatedLogEvents.Select(i => i.LogProperties.GetPropUOMValue("edenspaceto")).Where(i => i >= 0);
-            var poolOldGenFromItems = assocatedLogEvents.Select(i => i.LogProperties.GetPropUOMValue("oldgenfrom")).Where(i => i >= 0);
-            var poolOldGenToItems = assocatedLogEvents.Select(i => i.LogProperties.GetPropUOMValue("oldgento")).Where(i => i >= 0);
-            var poolSurvivorFromItems = assocatedLogEvents.Select(i => i.LogProperties.GetPropUOMValue("survivorspacefrom")).Where(i => i >= 0);
-            var poolSurvivorToItems = assocatedLogEvents.Select(i => i.LogProperties.GetPropUOMValue("survivorspaceto")).Where(i => i >= 0);
+            var poolEdenFromItems = assocatedLogEvents.Select(i => i.LogProperties.GetPropUOMValue("edenspacefrom", UnitOfMeasure.Types.MiB)).Where(i => i >= 0M);
+            var poolEdenToItems = assocatedLogEvents.Select(i => i.LogProperties.GetPropUOMValue("edenspaceto", UnitOfMeasure.Types.MiB)).Where(i => i >= 0M);
+            var poolOldGenFromItems = assocatedLogEvents.Select(i => i.LogProperties.GetPropUOMValue("oldgenfrom", UnitOfMeasure.Types.MiB)).Where(i => i >= 0M);
+            var poolOldGenToItems = assocatedLogEvents.Select(i => i.LogProperties.GetPropUOMValue("oldgento", UnitOfMeasure.Types.MiB)).Where(i => i >= 0M);
+            var poolSurvivorFromItems = assocatedLogEvents.Select(i => i.LogProperties.GetPropUOMValue("survivorspacefrom", UnitOfMeasure.Types.MiB)).Where(i => i >= 0M);
+            var poolSurvivorToItems = assocatedLogEvents.Select(i => i.LogProperties.GetPropUOMValue("survivorspaceto", UnitOfMeasure.Types.MiB)).Where(i => i >= 0M);
 
             return new LogEventGrouping(ref logEventGroup,
                                         assocatedLogEvents,
+                                        LogEventGrouping.GroupingTypes.GCStats,                                        
                                         poolEdenFromItems,
                                         poolEdenToItems,
                                         poolOldGenFromItems,
@@ -529,6 +538,33 @@ namespace DSEDiagnosticAnalytics
                                         poolSurvivorToItems);
         }
 
+        public static LogEventGrouping GossipPendingStats(ref LogEventGroup logEventGroup, string analyticsGroup, IEnumerable<ILogEvent> assocatedLogEvents)
+        {
+            var pending = assocatedLogEvents.Select(i => i.LogProperties.GetPropLongValue("pendingtasks")).Where(i => i >= 0M);
+            
+            return new LogEventGrouping(ref logEventGroup,
+                                        assocatedLogEvents,
+                                        LogEventGrouping.GroupingTypes.GossipPendingStats,
+                                        pending);
+        }
+
+        public static LogEventGrouping BatchStats(ref LogEventGroup logEventGroup, string analyticsGroup, IEnumerable<ILogEvent> assocatedLogEvents)
+        {
+            var nbrPartitions = assocatedLogEvents.Select(i => i.LogProperties.GetPropLongValue("nbrpartitions")).Where(i => i > 0);
+            var sizes = assocatedLogEvents.Select(i => i.LogProperties.GetPropUOMValue("size", UnitOfMeasure.Types.MiB)).Where(i => i > 0M);
+
+            return new LogEventGrouping(ref logEventGroup,
+                                        assocatedLogEvents,
+                                        LogEventGrouping.GroupingTypes.BatchStats,
+                                        new IEnumerable<long>[] { nbrPartitions },
+                                        new IEnumerable<decimal>[] { sizes });
+        }
+
+        public static LogEventGrouping GCPauseStats(ref LogEventGroup logEventGroup, string analyticsGroup, IEnumerable<ILogEvent> assocatedLogEvents)
+        {
+            var durationStats = new LogEventGrouping.DurationStatItems(assocatedLogEvents);
+            return durationStats.HasValue ? new LogEventGrouping(ref logEventGroup, durationStats) : null;
+        }
     }
 
     public struct LogEventGroup
@@ -549,22 +585,37 @@ namespace DSEDiagnosticAnalytics
             this.NodeName = node?.Id.NodeName();
             this.KeySpaceName = keyspace?.Name;
             this.TableName = ddlStmt?.Name;
-            this.Class = (classes & ~EventClasses.LogTypes).ToString();
-            this.Action = subClass;
+            if(string.IsNullOrEmpty(subClass))
+                this.Class = (classes & ~EventClasses.LogTypes & ~EventClasses.Orphaned).ToString();
+            else 
+                this.Class = (classes & ~EventClasses.LogTypes & ~EventClasses.Orphaned).ToString() + " (" + subClass + ")";
+            //this.Orphaned = (classes & EventClasses.Orphaned) == EventClasses.Orphaned;
             this.Exception = exception;
             this.Path = exceptionPath?.Join("=>", s => s);
         }
 
         public LogEventGroup(DateTimeRange aggregationDateTime, ILogEvent logEvent)
             : this()
-        {
+        {            
             this.AggregationDateTime = aggregationDateTime.Min;
             this.DataCenterName = logEvent.DataCenter?.Name;
             this.NodeName = logEvent.Node?.Id.NodeName();
             this.KeySpaceName = logEvent.Keyspace?.Name;
-            this.TableName = logEvent.TableViewIndex?.Name;
-            this.Class = (logEvent.Class & ~EventClasses.LogTypes).ToString();
-            this.Action = logEvent.SubClass;
+
+            if (logEvent.DDLItems == null || logEvent.DDLItems.IsEmpty())
+            {
+                this.TableName = logEvent.TableViewIndex?.Name;
+            }
+            else
+            {
+                this.TableName = string.Join(",", logEvent.DDLItems.Select(i => i.FullName).Sort());
+            }
+            
+            if (string.IsNullOrEmpty(logEvent.SubClass))
+                this.Class = (logEvent.Class & ~EventClasses.LogTypes & ~EventClasses.Orphaned).ToString();
+            else
+                this.Class = (logEvent.Class & ~EventClasses.LogTypes & ~EventClasses.Orphaned).ToString() + " (" + logEvent.SubClass + ")";
+            //this.Orphaned = (logEvent.Class & EventClasses.Orphaned) == EventClasses.Orphaned;
             this.Exception = logEvent.Exception;
             this.Path = logEvent.ExceptionPath?.Join("=>", s => s);
         }
@@ -575,13 +626,25 @@ namespace DSEDiagnosticAnalytics
         public readonly string KeySpaceName;
         public readonly string TableName;
         public readonly string Class;
-        public readonly string Action;
+        //public readonly bool Orphaned;
         public readonly string Exception;
         public readonly string Path;                                    
     }
 
     public sealed class LogEventGrouping
     {
+
+        public enum GroupingTypes
+        {
+            DurationStats = 0,
+            StatusLoggerPoolStats,
+            StatusLoggerMemTblOPSStats,
+            LargePartitionRowStats,
+            TombstoneStats,
+            GCStats,
+            GossipPendingStats,
+            BatchStats
+        }
 
         public static IEnumerable<LogEventGrouping> CreateLogEventGrouping(LogEventGroup logEventGroup, IEnumerable<ILogEvent> assocatedLogEvents)
         {            
@@ -590,7 +653,10 @@ namespace DSEDiagnosticAnalytics
                         {
                             if (string.IsNullOrEmpty(logEvtGrp.Key))
                             {
-                                return new LogEventGrouping(ref logEventGroup, logEvtGrp, true);
+                                return new LogEventGrouping(ref logEventGroup,
+                                                            logEvtGrp,
+                                                            LogEventGrouping.GroupingTypes.DurationStats,
+                                                            null, null, true);
                             }
 
                             AggregateGroups aggregateGroup;
@@ -601,21 +667,108 @@ namespace DSEDiagnosticAnalytics
                             }
 
                             Logger.Instance.WarnFormat("Aggregate Group \"{0}\" was not found in AggregateGroups using CassandraLogEventAggregate.DurationStats function", logEvtGrp.Key);
-                            return new LogEventGrouping(ref logEventGroup, logEvtGrp, true);
+                            return new LogEventGrouping(ref logEventGroup,
+                                                            logEvtGrp,
+                                                            LogEventGrouping.GroupingTypes.DurationStats,
+                                                            null, null, true);
                         })
                         .Where(i => i?.HasValue ?? false);            
         }
 
         /// <summary>
         /// General Events or events with no Aggregate Group
-        /// </summary>
+        /// 
+        ///  GroupingTypes.DurationStats: longAggreations and decimalAggreations are ignored
+        ///  GroupingTypes.StatusLoggerPoolStats: decimalAggreations is ignored where longAggreations is pending, completed, blocked, alltimeBlocked
+        ///  GroupingTypes.StatusLoggerMemTblOPSStats: longAggreations is ops and decimalAggreations is size
+        ///  GroupingTypes.LargePartitionRowStats: longAggreations is ignored and decimalAggreations is size
+        ///  GroupingTypes.TombstoneStats: longAggreations are live and cells; decimalAggreations is ignored
+        ///  GroupingTypes.GCStats:  decimalAggreations is beforeEden, afterEden, beforeOld, afterOld, beforeSurvivor, afterSurvivor; longAggreations is ignored
+        ///  GroupingTypes.GossipPendingStats: longAggreations is pending; decimalAggreations is ignored
+        /// <param name="assocatedLogEvents">
+        /// </param>
+        /// <param name="decimalAggreations">
+        /// </param>
         /// <param name="groupKey"></param>
-        /// <param name="assocatedLogEvents"></param>
-        public LogEventGrouping(ref LogEventGroup groupKey, IEnumerable<ILogEvent> assocatedLogEvents, bool forceHasValue = false)
+        /// <param name="longAggreations"></param>
+        /// <param name="type"></param>
+        /// <param name="forceHasValue"></param>
+        public LogEventGrouping(ref LogEventGroup groupKey,
+                                IEnumerable<ILogEvent> assocatedLogEvents,
+                                GroupingTypes type,
+                                IEnumerable<long>[] longAggreations,
+                                IEnumerable<decimal>[] decimalAggreations,
+                                bool forceHasValue = false)
         {
-            this.GroupKey = groupKey;
-            this.DurationStats = new DurationStatItems(assocatedLogEvents);
-            this.HasValue = forceHasValue ? true : this.DurationStats?.HasValue ?? false;
+            
+            switch (type)
+            {
+                case GroupingTypes.DurationStats:
+                    this.GroupKey = groupKey;
+                    this.DurationStats = new DurationStatItems(assocatedLogEvents);
+                    this.HasValue = forceHasValue ? true : this.DurationStats?.HasValue ?? false;
+                    break;
+                case GroupingTypes.StatusLoggerPoolStats:
+                    this.GroupKey = groupKey;
+                    this.PoolStats = new PoolStatItems(longAggreations[0], longAggreations[1], longAggreations[2], longAggreations[3]);
+                    this.HasValue = forceHasValue ? true : this.PoolStats.HasValue;
+                    break;
+                case GroupingTypes.StatusLoggerMemTblOPSStats:
+                    this.GroupKey = groupKey;
+                    this.PoolMemTblOPSStats = new PoolMemTblOPSItems(longAggreations[0], decimalAggreations[0]);
+                    this.HasValue = forceHasValue ? true : this.PoolMemTblOPSStats.HasValue;
+                    break;
+                case GroupingTypes.LargePartitionRowStats:
+                    this.GroupKey = groupKey;
+                    this.LargePartitionRowStats = new LargePartitionRowItems(decimalAggreations[0]);
+                    this.HasValue = forceHasValue ? true : this.LargePartitionRowStats.HasValue;
+                    break;
+                case GroupingTypes.TombstoneStats:
+                    this.GroupKey = groupKey;
+                    this.TombstoneStats = new TombstoneItems(longAggreations[0], longAggreations[1]);
+                    this.HasValue = forceHasValue ? true : this.TombstoneStats.HasValue;
+                    break;
+                case GroupingTypes.GCStats:
+                    this.GroupKey = groupKey;
+                    this.DurationStats = new DurationStatItems(assocatedLogEvents);
+                    this.GCStats = new GCStatItems(decimalAggreations[0],
+                                                    decimalAggreations[1],
+                                                    decimalAggreations[2],
+                                                    decimalAggreations[3],
+                                                    decimalAggreations[4],
+                                                    decimalAggreations[5]);
+                    this.HasValue = forceHasValue ? true : (this.DurationStats?.HasValue ?? false) || this.GCStats.HasValue;
+                    break;
+                case GroupingTypes.GossipPendingStats:
+                    this.GroupKey = groupKey;
+                    this.GossipPendingStats = new GossipPendingItems(longAggreations[0]);
+                    this.HasValue = forceHasValue ? true : this.GossipPendingStats.HasValue;
+                    break;
+                case GroupingTypes.BatchStats:
+                    this.GroupKey = groupKey;
+                    this.BatchSizeStats = new BatchSizeItems(longAggreations[0], decimalAggreations[0]);
+                    this.HasValue = forceHasValue ? true : this.BatchSizeStats.HasValue;
+                    break;
+                default:
+                    break;
+            }
+            
+        }
+
+        public LogEventGrouping(ref LogEventGroup groupKey,
+                                IEnumerable<ILogEvent> assocatedLogEvents,
+                                GroupingTypes type,
+                                params IEnumerable<long>[] longAggreations)
+            : this(ref groupKey, assocatedLogEvents, type, longAggreations, null)
+        {
+        }
+
+        public LogEventGrouping(ref LogEventGroup groupKey,
+                                IEnumerable<ILogEvent> assocatedLogEvents,
+                                GroupingTypes type,                                
+                                params IEnumerable<decimal>[] decimalAggreations)
+            : this(ref groupKey, assocatedLogEvents, type, null, decimalAggreations)
+        {
         }
 
         /// <summary>
@@ -624,97 +777,12 @@ namespace DSEDiagnosticAnalytics
         /// <param name="groupKey"></param>
         /// <param name="durationStats"></param>
         public LogEventGrouping(ref LogEventGroup groupKey, DurationStatItems durationStats)
-        {
+        {           
             this.GroupKey = groupKey;
             this.DurationStats = durationStats;
-            this.HasValue = this.DurationStats.HasValue;
+            this.HasValue = this.DurationStats.HasValue;            
         }
-
-        /// <summary>
-        /// For Pools
-        /// </summary>
-        /// <param name="groupKey"></param>
-        /// <param name="pending"></param>
-        /// <param name="completed"></param>
-        /// <param name="blocked"></param>
-        /// <param name="alltimeBlocked"></param>
-        /// <param name="nbrOccurs"></param>
-        public LogEventGrouping(ref LogEventGroup groupKey,
-                                    IEnumerable<ILogEvent> assocatedLogEvents,
-                                    IEnumerable<long> pending,
-                                    IEnumerable<long> completed,
-                                    IEnumerable<long> blocked,
-                                    IEnumerable<long> alltimeBlocked)           
-        {
-            this.GroupKey = groupKey;
-            this.PoolStats = new PoolStatItems(pending, completed, blocked, alltimeBlocked);
-            this.HasValue = this.PoolStats.HasValue;
-        }
-
-        /// <summary>
-        /// For GC
-        /// </summary>
-        /// <param name="groupKey"></param>
-        /// <param name="assocatedLogEvents"></param>
-        /// <param name="beforeYoung"></param>
-        /// <param name="afterYoung"></param>
-        /// <param name="beforeEden"></param>
-        /// <param name="afterEden"></param>
-        /// <param name="beforeOld"></param>
-        /// <param name="afterOld"></param>
-        /// <param name="beforeSurvivor"></param>
-        /// <param name="afterSurvivor"></param>
-        public LogEventGrouping(ref LogEventGroup groupKey,
-                                IEnumerable<ILogEvent> assocatedLogEvents,
-                                IEnumerable<decimal> beforeEden, IEnumerable<decimal> afterEden,
-                                IEnumerable<decimal> beforeOld, IEnumerable<decimal> afterOld,
-                                IEnumerable<decimal> beforeSurvivor, IEnumerable<decimal> afterSurvivor)
-        {            
-            this.GroupKey = groupKey;
-            this.DurationStats = new DurationStatItems(assocatedLogEvents);
-            this.GCStats = new GCStatItems(beforeEden, afterEden, beforeOld, afterOld, beforeSurvivor, afterSurvivor);
-            this.HasValue = (this.DurationStats?.HasValue ?? false) || this.GCStats.HasValue;
-        }
-
-        /// <summary>
-        /// Pool MemTable OPS/Size
-        /// </summary>
-        /// <param name="groupKey"></param>
-        /// <param name="assocatedLogEvents"></param>
-        /// <param name="ops"></param>
-        /// <param name="size"></param>
-        public LogEventGrouping(ref LogEventGroup groupKey,
-                                IEnumerable<ILogEvent> assocatedLogEvents,
-                                IEnumerable<long> ops,
-                                IEnumerable<decimal> size)
-        {
-            this.GroupKey = groupKey;
-            
-            this.PoolMemTblOPSStats = new PoolMemTblOPSItems(ops, size);
-            this.HasValue = this.PoolMemTblOPSStats.HasValue;
-        }
-
-        public LogEventGrouping(ref LogEventGroup groupKey,
-                                IEnumerable<ILogEvent> assocatedLogEvents,
-                                IEnumerable<decimal> size)
-        {
-            this.GroupKey = groupKey;
-
-            this.LargePartitionRowStats = new LargePartitionRowItems(size);
-            this.HasValue = this.LargePartitionRowStats.HasValue;
-        }
-
-        public LogEventGrouping(ref LogEventGroup groupKey,
-                                IEnumerable<ILogEvent> assocatedLogEvents,
-                                IEnumerable<long> liveCells,
-                                IEnumerable<long> tombstones)
-        {
-            this.GroupKey = groupKey;
-
-            this.TombstoneStats = new TombstoneItems(liveCells, tombstones);
-            this.HasValue = this.TombstoneStats.HasValue;
-        }
-
+       
         public readonly LogEventGroup GroupKey;
         public readonly bool HasValue;
 
@@ -806,7 +874,7 @@ namespace DSEDiagnosticAnalytics
 
             public readonly bool HasValue;
             public readonly ItemStatsDecimal Duration;
-            public readonly string UOM = "Seconds";
+            public readonly string UOM = "MS";
         }
 
         public readonly DurationStatItems DurationStats;
@@ -934,5 +1002,44 @@ namespace DSEDiagnosticAnalytics
         }
 
         public readonly TombstoneItems TombstoneStats;
+
+        public sealed class GossipPendingItems
+        {
+            public GossipPendingItems(IEnumerable<long> pending)
+            {
+                this.Pending = new ItemStatsLong(pending);
+                
+                this.HasValue = this.Pending.HasValue;
+            }
+
+            public readonly bool HasValue;
+            public readonly ItemStatsLong Pending;            
+            public readonly string UOM = "Items";
+        }
+
+        public readonly GossipPendingItems GossipPendingStats;
+
+        public sealed class BatchSizeItems
+        {
+            public BatchSizeItems(IEnumerable<long> nbrPartitions, IEnumerable<decimal> batchSized)
+            {
+                this.NbrPartitions = new ItemStatsLong(nbrPartitions);
+                if (this.NbrPartitions.HasValue)
+                    this.UOM = "Partitions";                
+
+                this.BatchSizes = new ItemStatsDecimal(batchSized);
+                if (this.BatchSizes.HasValue)
+                    if (this.UOM == null) this.UOM = "MIB"; else this.UOM += ", MiB";
+
+                this.HasValue = this.NbrPartitions.HasValue || this.BatchSizes.HasValue;
+            }
+
+            public readonly bool HasValue;
+            public readonly ItemStatsLong NbrPartitions;
+            public readonly ItemStatsDecimal BatchSizes;
+            public readonly string UOM;
+        }
+
+        public readonly BatchSizeItems BatchSizeStats;
     }
 }

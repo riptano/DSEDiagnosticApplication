@@ -287,7 +287,7 @@ namespace DSEDiagtnosticToExcel
                                                            appendToWorkSheet: this.AppendToWorkSheet,
                                                            clearWorkSheet: false,
                                                            cachePackage: LibrarySettings.ExcelPackageCache,
-                                                           saveWorkSheet: LibrarySettings.ExcelSaveWorkSheet,
+                                                           //saveWorkSheet: LibrarySettings.ExcelSaveWorkSheet,
                                                            excelTemplateFile: this.ExcelTemplateWorkbook);
 
             return new Tuple<IFilePath, string, int>(this.ExcelTargetWorkbook, this.WorkSheetName, nbrRows);

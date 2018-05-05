@@ -22,5 +22,17 @@
   "TombstoneStats": {
     "AnalyticsGroup": "TombstoneStats",
     "AggregateGroupFunctionName": "TombstoneStats"
+  },
+  "GossipPendingStats": {
+    "AnalyticsGroup": "GossipPendingStats",
+    "AggregateGroupFunctionName": "GossipPendingStats"
+  },
+  "BatchStats": {
+    "AnalyticsGroup": "BatchStats",
+    "AggregateGroupFunctionName": "BatchStats"
+  },
+  "GCPauseStats": {
+    "AnalyticsGroup": "GCPauseStats",
+    "AggregateGroupFunctionName": "GCPauseStats"
   }
 }

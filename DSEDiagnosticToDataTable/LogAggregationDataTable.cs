@@ -37,7 +37,7 @@ namespace DSEDiagnosticToDataTable
             dtLog.Columns.Add(ColumnNames.KeySpace, typeof(string)).AllowDBNull = true;
             dtLog.Columns.Add(ColumnNames.Table, typeof(string)).AllowDBNull = true;
             dtLog.Columns.Add("Class", typeof(string));
-            dtLog.Columns.Add("Action", typeof(string)).AllowDBNull = true; //Subclass
+            dtLog.Columns.Add("HasOrphanedEvents", typeof(bool)).AllowDBNull = true; //Subclass
             dtLog.Columns.Add("Path", typeof(string)); //Exception Path
             dtLog.Columns.Add("Exception", typeof(string)).AllowDBNull = true;
             dtLog.Columns.Add("Last Occurrence (UTC)", typeof(DateTime));
@@ -68,6 +68,11 @@ namespace DSEDiagnosticToDataTable
             dtLog.Columns.Add("Size Mean", typeof(decimal)).AllowDBNull = true;
             dtLog.Columns.Add("Size StdDevp", typeof(decimal)).AllowDBNull = true;
             dtLog.Columns.Add("Size Total", typeof(decimal)).AllowDBNull = true;//am
+            dtLog.Columns.Add("Count Max", typeof(long)).AllowDBNull = true;//an
+            dtLog.Columns.Add("Count Min", typeof(long)).AllowDBNull = true;
+            dtLog.Columns.Add("Count Mean", typeof(decimal)).AllowDBNull = true;
+            dtLog.Columns.Add("Count StdDevp", typeof(decimal)).AllowDBNull = true;
+            dtLog.Columns.Add("Count Total", typeof(long)).AllowDBNull = true;//ar
 
             //dtLog.PrimaryKey = new System.Data.DataColumn[] { dtLog.Columns[ColumnNames.KeySpace], dtLog.Columns["Name"] };
 
@@ -128,19 +133,14 @@ namespace DSEDiagnosticToDataTable
                                          || (logEvt.Type & EventTypes.SessionDefinedByDuration) == EventTypes.SessionDefinedByDuration
                                          || ((logEvt.Type & EventTypes.SessionBegin) == EventTypes.SessionBegin && (logEvt.Class & EventClasses.Orphaned) == EventClasses.Orphaned)
                                  let aggregationDateTime = aggPeriods.First(p => p.Includes(logEvt.EventTime.UtcDateTime))
-                                 let logEvent = logMMV.GetValue((Common.Patterns.Collections.MemoryMapperElementCreationTypes)LogCassandraEvent.ElementCreationTypes.AggregationPeriodOnlyWProps)
-                                 group logEvent by new DSEDiagnosticAnalytics.LogEventGroup(aggregationDateTime,
-                                                                                            logEvent.DataCenter,
-                                                                                            logEvent.Node,
-                                                                                            logEvent.Keyspace,
-                                                                                            logEvent.TableViewIndex,
-                                                                                            logEvent.Class,
-                                                                                            logEvent.SubClass,
-                                                                                            logEvent.Exception,
-                                                                                            logEvent.ExceptionPath)
+                                 let logEvent = logMMV.GetValue((Common.Patterns.Collections.MemoryMapperElementCreationTypes)LogCassandraEvent.ElementCreationTypes.AggregationPeriodOnlyWProps)                                 
+                                group logEvent by new DSEDiagnosticAnalytics.LogEventGroup(aggregationDateTime,
+                                                                                            logEvent)
                                         into g
                                  select new { GroupKey = g.Key,
-                                                LastEvent = g.OrderBy(e => e.EventTime.UtcDateTime).LastOrDefault(),
+                                                HasOrphaned = g.Any(e => (e.Class & EventClasses.Orphaned) == EventClasses.Orphaned),
+                                                LastEvent = g.OrderBy(e => e.EventTime).Last(),
+                                                FirstEvent = g.OrderBy(e => e.EventTime).First(),
                                                 NbrOccurs = g.Count(),
                                                 AnalyticsGroupings = DSEDiagnosticAnalytics.LogEventGrouping.CreateLogEventGrouping(g.Key, g)};
 
@@ -149,12 +149,8 @@ namespace DSEDiagnosticToDataTable
 
                 foreach (var logGrpEvt in logGrpEvts
                                             .OrderBy(i => i.GroupKey.AggregationDateTime)
-                                                .ThenBy(i => i.GroupKey.DataCenterName)
-                                                .ThenBy(i => i.GroupKey.NodeName)
-                                                .ThenBy(i => i.GroupKey.KeySpaceName)
-                                                .ThenBy(i => i.GroupKey.TableName)
-                                                .ThenBy(i => i.GroupKey.Class)
-                                                .ThenBy(i => i.GroupKey.Action))
+                                                .ThenBy(i => i.FirstEvent.EventTime)
+                                                .ThenBy(i => i.LastEvent.EventTime))
                 {
                     this.CancellationToken.ThrowIfCancellationRequested();
 
@@ -174,7 +170,7 @@ namespace DSEDiagnosticToDataTable
                     dataRow.SetField(ColumnNames.KeySpace, logGrpEvt.GroupKey.KeySpaceName);
                     dataRow.SetField(ColumnNames.Table, logGrpEvt.GroupKey.TableName);
                     dataRow.SetField("Class", logGrpEvt.GroupKey.Class);
-                    dataRow.SetField("Action", logGrpEvt.GroupKey.Action);
+                    if(logGrpEvt.HasOrphaned) dataRow.SetField("HasOrphanedEvents", true);
                     dataRow.SetField("Path", logGrpEvt.GroupKey.Path);
                     dataRow.SetField("Exception", logGrpEvt.GroupKey.Exception);
                     dataRow.SetField("Last Occurrence (UTC)", logGrpEvt.LastEvent.EventTime.UtcDateTime);
@@ -268,6 +264,34 @@ namespace DSEDiagnosticToDataTable
                                 dataRow.SetField("Completed/Live", analyticsGrp.TombstoneStats.LiveCells.Sum);
                             }
                             unitOfMeasure += analyticsGrp.TombstoneStats.UOM + ',';
+                        }
+                        if (analyticsGrp.GossipPendingStats != null && analyticsGrp.GossipPendingStats.HasValue)
+                        {
+                            if (analyticsGrp.GossipPendingStats.Pending.HasValue)
+                            {
+                                dataRow.SetField("Pending/Tombstone", analyticsGrp.GossipPendingStats.Pending.Sum);
+                            }                            
+                            unitOfMeasure += analyticsGrp.GossipPendingStats.UOM + ',';
+                        }
+                        if (analyticsGrp.BatchSizeStats != null && analyticsGrp.BatchSizeStats.HasValue)
+                        {
+                            if (analyticsGrp.BatchSizeStats.NbrPartitions.HasValue)
+                            {
+                                dataRow.SetField("Count Max", analyticsGrp.BatchSizeStats.NbrPartitions.Max);
+                                dataRow.SetField("Count Min", analyticsGrp.BatchSizeStats.NbrPartitions.Min);
+                                dataRow.SetField("Count Mean", analyticsGrp.BatchSizeStats.NbrPartitions.Mean);
+                                dataRow.SetField("Count StdDevp", analyticsGrp.BatchSizeStats.NbrPartitions.StdDev);
+                                dataRow.SetField("Count Total", analyticsGrp.BatchSizeStats.NbrPartitions.Sum);
+                            }
+                            if (analyticsGrp.BatchSizeStats.BatchSizes.HasValue)
+                            {
+                                dataRow.SetField("Size Max", analyticsGrp.BatchSizeStats.BatchSizes.Max);
+                                dataRow.SetField("Size Min", analyticsGrp.BatchSizeStats.BatchSizes.Min);
+                                dataRow.SetField("Size Mean", analyticsGrp.BatchSizeStats.BatchSizes.Mean);
+                                dataRow.SetField("Size StdDevp", analyticsGrp.BatchSizeStats.BatchSizes.StdDev);
+                                dataRow.SetField("Size Total", analyticsGrp.BatchSizeStats.BatchSizes.Sum);
+                            }
+                            unitOfMeasure += analyticsGrp.BatchSizeStats.UOM + ',';
                         }
                     }
 

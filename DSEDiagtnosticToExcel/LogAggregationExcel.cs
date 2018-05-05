@@ -94,8 +94,13 @@ namespace DSEDiagtnosticToExcel
                                                                  workSheet.Cells["AK:AK"].Style.Numberformat.Format = "#,###,###,##0.00####";
                                                                  workSheet.Cells["AL:AL"].Style.Numberformat.Format = "#,###,###,##0.00####";
                                                                  workSheet.Cells["AM:AM"].Style.Numberformat.Format = "#,###,###,##0.00####";
+                                                                 workSheet.Cells["AN:AN"].Style.Numberformat.Format = "#,###,###,##0";
+                                                                 workSheet.Cells["AO:AO"].Style.Numberformat.Format = "#,###,###,##0";
+                                                                 workSheet.Cells["AP:AP"].Style.Numberformat.Format = "#,###,###,##0.00";
+                                                                 workSheet.Cells["AQ:AQ"].Style.Numberformat.Format = "#,###,###,##0.00";
+                                                                 workSheet.Cells["AR:AR"].Style.Numberformat.Format = "#,###,###,##0";
 
-                                                                 workSheet.Cells["A1:AM1"].AutoFilter = true;
+                                                                 workSheet.Cells["A1:AR1"].AutoFilter = true;
 
                                                                  workSheet.AutoFitColumn(workSheet.Cells["A:I"], workSheet.Cells["K:R"]);
                                                                  workSheet.Column(10).Width = 27; //J

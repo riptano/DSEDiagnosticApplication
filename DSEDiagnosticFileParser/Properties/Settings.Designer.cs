@@ -1072,6 +1072,7 @@ public static class {0}
 {""Key"":""DURATIONwUOM"",""Value"":""(?<DURATION>[0-9,.]+\\s*\\w+)""},
 {""Key"":""KEYSPACE"",""Value"":""[a-z0-9'\\-_$%+=!?<>^*&@]+""},
 {""Key"":""DDLITEMNAME"",""Value"":""[a-z0-9'\\-_$%+=!?<>^*&@/.]+""},
+{""Key"":""DDLITEMNAMES"",""Value"":""[a-z0-9'\\-_$%+=!?<>^*&@/. ,]*""},
 {""Key"":""TABLEVIEWNAME"",""Value"":""[a-z0-9'\\-_$%+=!?<>^*&@/.]+""},
 {""Key"":""DDLITEM"",""Value"":""[^ ]+""},
 {""Key"":""DDLSCHEMAID"",""Value"":""[0-9a-f\\-]+""},

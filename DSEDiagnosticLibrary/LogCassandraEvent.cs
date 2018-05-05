@@ -459,10 +459,23 @@ namespace DSEDiagnosticLibrary
                     this.LogProperties = readView.ReadMMElement(this.Cluster, this.DataCenter, this.Node, this.Keyspace);
                 else
                     readView.SkipMMElementKVPStrObj();
+#if DEBUG
                 readView.SkipString();
-                readView.SkipStringEnumerable();
-                readView.SkipStructEnumerable();
-                readView.SkipStructEnumerable();
+#else
+                readView.SkipInt();
+#endif
+                if (creationType == ElementCreationTypes.AggregationPeriodOnlyWProps)
+                {
+                    this.SSTables = readView.GetEnumerableString();
+                    this.DDLItems = readView.GetEnumerableValue<int>().Select(h => Cluster.TryGetDDLStmt(h));
+                    this.AssociatedNodes = readView.GetEnumerableValue<int>().Select(h => Cluster.TryGetNode(h));
+                }
+                else
+                {
+                    readView.SkipStringEnumerable();
+                    readView.SkipStructEnumerable();
+                    readView.SkipStructEnumerable();
+                }
                 readView.SkipMMTokenRangeEnum();
                 this.Exception = readView.GetStringValue();
                 this.ExceptionPath = readView.GetEnumerableString();
