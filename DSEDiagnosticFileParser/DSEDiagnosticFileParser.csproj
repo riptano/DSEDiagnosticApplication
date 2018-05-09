@@ -146,10 +146,19 @@
     <None Include="Json\Log4NetParser.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Json\Log4NetParserLogsNoFlushComp.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Json\Log4NetParserValidateLogs.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Json\ProcessFileMappingsNoDebugLogs.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Json\ProcessFileMappings-CreateOpsCenterCopy.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Json\ProcessFileMappings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Json\ProcessFileMappingsNoLogs.json">

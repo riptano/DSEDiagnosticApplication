@@ -143,6 +143,10 @@
       <Link>JSON\Log4NetParser.json</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="..\DSEDiagnosticFileParser\Json\Log4NetParserLogsNoFlushComp.json">
+      <Link>JSON\Log4NetParserLogsNoFlushComp.json</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="..\DSEDiagnosticFileParser\Json\Log4NetParserValidateLogs.json">
       <Link>JSON\Log4NetParserValidateLogs.json</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -153,6 +157,10 @@
     </None>
     <None Include="..\DSEDiagnosticFileParser\Json\ProcessFileMappings.json">
       <Link>JSON\ProcessFileMappings.json</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\DSEDiagnosticFileParser\Json\ProcessFileMappingsNoDebugLogs.json">
+      <Link>JSON\ProcessFileMappingsNoDebugLogs.json</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="..\DSEDiagnosticFileParser\Json\ProcessFileMappingsNoLogs.json">

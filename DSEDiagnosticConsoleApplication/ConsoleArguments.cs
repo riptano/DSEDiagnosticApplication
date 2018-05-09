@@ -131,11 +131,11 @@ namespace DSEDiagnosticConsoleApplication
                 Description = "When the OpsCenter Diagnostic TarBall was created or when the \"nodetool\" statical (e.g., cfstats) capture occurred. Null will use the Date embedded in the OpsCenter tar ball directory. Syntax should be that of a date time offset (+|-HH[:MM] and no IANA name accepted). If time zone offset not given, current machine's offset is used."
             });
 
-            this._cmdLineParser.Arguments.Add(new ValueArgument<int>("LogRangeBasedOnPrevHrs")
+            this._cmdLineParser.Arguments.Add(new ValueArgument<int>('X', "LogRangeBasedOnPrevHrs")
             {
                 Optional = true,
                 DefaultValue = ParserSettings.OnlyIncludeXHrsofLogsFromDiagCaptureTime,
-                Description = "Only import log entries based on the previous <X> hours from DiagCaptureTime. only valid if DiagCaptureTime is defined or is a OpsCtrDiagStruct. -1 disables this option"
+                Description = "Only import log entries based on the previous <X> hours from DiagCaptureTime. only valid if DiagCaptureTime is defined or is a OpsCtrDiagStruct. Value of \"-1\" disables this option"
             });
 
             this._cmdLineParser.Arguments.Add(new ValueArgument<string>('R', "LogTimeRange")
@@ -245,11 +245,18 @@ namespace DSEDiagnosticConsoleApplication
                 Description = "The cluster's hash code."
             });
 
-            this._cmdLineParser.Arguments.Add(new SwitchArgument("DisableLogEventMemoryMapping", false)
-            {
-                Optional = true,
-                Description = "If defined the Log Events are NOT mapped into virtual memory (uses physical memory with better performance but can OOM). The default is to map events into virtual memory resulting in smaller physical memory utilizations on the cost of performance."
-            });
+            if(ParserSettings.LogEventsAreMemoryMapped)
+                this._cmdLineParser.Arguments.Add(new SwitchArgument("DisableLogEventMemoryMapping", false)
+                {
+                    Optional = true,
+                    Description = "If defined the Log Events are NOT mapped into virtual memory (uses physical memory with better performance but can OOM). The default is to map events into virtual memory resulting in smaller physical memory utilizations on the cost of performance."
+                });
+            else
+                this._cmdLineParser.Arguments.Add(new SwitchArgument("EnableLogEventMemoryMapping", false)
+                {
+                    Optional = true,
+                    Description = "If defined the Log Events are mapped into virtual memory."
+                });
 
             this._cmdLineParser.Arguments.Add(new ValueArgument<string>("Profile")
             {
@@ -284,10 +291,16 @@ namespace DSEDiagnosticConsoleApplication
                 Description = "Debug Mode"
             });
 
-            this._cmdLineParser.Arguments.Add(new SwitchArgument("DisableParallelProcessing", false)
-            {
-                Description = "Disable Parallel Processing"
-            });
+            if(ParserSettings.DisableParallelProcessing)
+                this._cmdLineParser.Arguments.Add(new SwitchArgument("EnableParallelProcessing", false)
+                {
+                    Description = "Enable Parallel Processing"
+                });
+            else
+                this._cmdLineParser.Arguments.Add(new SwitchArgument("DisableParallelProcessing", false)
+                {
+                    Description = "Disable Parallel Processing"
+                });
 
             this._cmdLineParser.Arguments.Add(new SwitchArgument('?', "ShowDefaults", false)
             {
@@ -621,6 +634,14 @@ namespace DSEDiagnosticConsoleApplication
                             }
                         }
                         break;
+                    case "EnableLogEventMemoryMapping":
+                        {
+                            if (((SwitchArgument)item).Value)
+                            {
+                                ParserSettings.LogEventsAreMemoryMapped = true;
+                            }
+                        }
+                        break;
                     case "Profile":
                         {
                             var argValue = ((ValueArgument<string>)item).Value;
@@ -649,7 +670,7 @@ namespace DSEDiagnosticConsoleApplication
                             {
                                 DSEDiagnosticFileParser.LibrarySettings.ProcessFileMappingValue = profile.ProcessFileMappings;
                             }                            
-                            if (!results.Any(i => i.LongName == "DisableLogEventMemoryMapping"))
+                            if (!results.Any(i => i.LongName == "DisableLogEventMemoryMapping" || i.LongName == "EnableEventMemoryMapping"))
                             {
                                 ParserSettings.LogEventsAreMemoryMapped = profile.EnableVirtualMemory;
                             }
@@ -665,7 +686,16 @@ namespace DSEDiagnosticConsoleApplication
                         this.Debug = ((SwitchArgument)item).Value;
                         break;
                     case "DisableParallelProcessing":
-                        ParserSettings.DisableParallelProcessing = ((SwitchArgument)item).Value;
+                        if (((SwitchArgument)item).Value)
+                        {
+                            ParserSettings.DisableParallelProcessing = true;
+                        }
+                        break;
+                    case "EnableParallelProcessing":
+                        if (((SwitchArgument)item).Value)
+                        {
+                            ParserSettings.DisableParallelProcessing = false;
+                        }
                         break;
                     case "ExcelPackageCache":
                         DSEDiagtnosticToExcel.LibrarySettings.ExcelPackageCache = ((ValueArgument<bool>)item).Value;
