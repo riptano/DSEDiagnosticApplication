@@ -471,12 +471,13 @@
       "FileLineMatch": null,
       "MessageMatch": {
         "RegExStrings": [
-          "^Compacted\\s\\d+\\ssstables\\s"
+          "^Compacted\\s"
         ]
       },
       "ParseMessage": {
         "RegExStrings": [
-          "^Compacted\\s(?<sstables>\\d+)\\ssstables\\s+to\\s*\\[(?$<SSTABLEPATHS>)\\]\\.\\s+(?<size>[0-9.,]+\\s+[a-z]+)\\s+to\\s+(?<newsize__size>[0-9.,]+)\\s\\([0-9a-z\\ %~,.]+\\)+\\sin\\s+(?$<DURATION>\\s*[a-z/]+)\\s*\\=\\s*(?<iorate>[0-9.,]+\\s*[a-z/]+)\\.\\s+(?<totalpartions>[0-9,]+)\\s+total\\s+partitions\\s+merged\\s+to\\s+(?<mergedpartitions>[0-9,]+)\\.\\s+Partition\\s+merge\\s+counts\\s+were\\s+\\{(?<mergecounts>[0-9:\\ ,]+)\\s*\\}$"
+          "^Compacted\\s(?<sstables>\\d+)\\ssstables\\s+to\\s*\\[(?$<SSTABLEPATHS>)\\]\\.\\s+(?<size>[0-9.,]+\\s+[a-z]+)\\s+to\\s+(?<newsize__size>[0-9.,]+)\\s\\([0-9a-z\\ %~,.]+\\)+\\sin\\s+(?$<DURATION>\\s*[a-z/]+)\\s*\\=\\s*(?<iorate>[0-9.,]+\\s*[a-z/]+)\\.\\s+(?<totalpartions>[0-9,]+)\\s+total\\s+partitions\\s+merged\\s+to\\s+(?<mergedpartitions>[0-9,]+)\\.\\s+Partition\\s+merge\\s+counts\\s+were\\s+\\{(?<mergecounts>[0-9:\\ ,]+)\\s*\\}$",
+          "^Compacted\\s+\\((?<ID>[a-f0-9\\-]+)\\)\\s+(?<sstables>\\d+)\\ssstables\\s+to\\s*\\[(?$<SSTABLEPATHS>)\\](?:\\s+to\\s+level\\s*=\\s*(?<level>\\d+))?\\.\\s+(?<size>[0-9.,]+\\s*[a-z]+)\\s+to\\s+(?<newsize_size>[0-9.,]+(\\s*[a-z]+)?)\\s\\([0-9a-z\\ %~,.]+\\)+\\sin\\s+$<!DURATIONwUOM>\\.\\s*Read\\sThroughput\\s+\\=\\s+(?<readrate>[0-9.,]+\\s*[a-z/]+),\\s+Write\\sThroughput\\s+\\=\\s+(?<iorate>[0-9.,]+\\s*[a-z/]+),\\s+Row\\sThroughput\\s+\\=\\s+~?(?<rowsrate>[0-9,]+\\s*[a-z/]+)\\.\\s+(?<totalpartions>[0-9,]+)\\s+total\\s+partitions\\s+merged\\s+to\\s+(?<mergedpartitions>[0-9,]+)\\.\\s+Partition\\s+merge\\s+counts\\s+were\\s+\\{(?<mergecounts>[0-9:\\ ,]+)\\s*\\}$"
         ]
       },
       "ParseThreadId": null,
@@ -492,7 +493,9 @@
         "INFO  [CompactionExecutor:3211] 2017-01-16 13:33:04,872  CompactionTask.java:141 - Compacting [SSTableReader(path='/var/lib/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/system-compactions_in_progress-ka-90586-Data.db'), SSTableReader(path='/var/lib/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/system-compactions_in_progress-ka-90588-Data.db'), SSTableReader(path='/var/lib/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/system-compactions_in_progress-ka-90587-Data.db'), SSTableReader(path='/var/lib/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/system-compactions_in_progress-ka-90589-Data.db')]",
         "==> INFO  [CompactionExecutor:3211] 2017-01-16 13:33:06,380  CompactionTask.java:274 - Compacted 4 sstables to [/var/lib/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/system-compactions_in_progress-ka-90590,].  590 bytes to 196 (~33% of original) in 15ms = 0.012461MB/s.  3 total partitions merged to 2.  Partition merge counts were {1:1, 2:1, }",
         "INFO  [CompactionExecutor:734] 2017-02-11 23:58:47,586  CompactionTask.java:141 - Compacting [SSTableReader(path='/data/cassandra/data/usprodsec/session_3-ca531e218ed211e6ab872748a53d9d02/usprodsec-session_3-ka-78735-Data.db'), SSTableReader(path='/data/cassandra/data/usprodsec/session_3-ca531e218ed211e6ab872748a53d9d02/usprodsec-session_3-ka-78732-Data.db'), SSTableReader(path='/data/cassandra/data/usprodsec/session_3-ca531e218ed211e6ab872748a53d9d02/usprodsec-session_3-ka-78734-Data.db'), SSTableReader(path='/data/cassandra/data/usprodsec/session_3-ca531e218ed211e6ab872748a53d9d02/usprodsec-session_3-ka-78733-Data.db')]",
-        "INFO  [CompactionExecutor:734] 2017-02-11 23:58:47,715  CompactionTask.java:274 - Compacted 4 sstables to[/ data / cassandra / data / usprodsec / session_3 - ca531e218ed211e6ab872748a53d9d02 / usprodsec - session_3 - ka - 78741,].  3,541 bytes to 1,079 (~30% of original) in 128ms = 0.008039MB/s.  35 total partitions merged to 12.  Partition merge counts were {1:1, 3:10, 4:1, }"
+        "=> INFO  [CompactionExecutor:734] 2017-02-11 23:58:47,715  CompactionTask.java:274 - Compacted 4 sstables to[/ data / cassandra / data / usprodsec / session_3 - ca531e218ed211e6ab872748a53d9d02 / usprodsec - session_3 - ka - 78741,].  3,541 bytes to 1,079 (~30% of original) in 128ms = 0.008039MB/s.  35 total partitions merged to 12.  Partition merge counts were {1:1, 3:10, 4:1, }",
+        "DEBUG [CompactionExecutor:67331] 2018-04-24 16:02:00,480  CompactionTask.java:156 - Compacting (d27e4a00-47d8-11e8-bbce-6df154ea9215) [/opt/cassandra/data01/system/peers-37f71aca7dc2383ba70672528af04d4f/mc-643-big-Data.db:level=0, ]",
+        "=> DEBUG [CompactionExecutor:67331] 2018-04-24 16:02:00,488  CompactionTask.java:256 - Compacted (d27a5260-47d8-11e8-bbce-6df154ea9215) 4 sstables to [/opt/cassandra/data01/system/peers-37f71aca7dc2383ba70672528af04d4f/mc-646-big,] to level=0.  57.526KiB to 13.715KiB (~23% of original) in 32ms.  Read Throughput = 1.725MiB/s, Write Throughput = 421.110KiB/s, Row Throughput = ~1,269/s.  44 total partitions merged to 11.  Partition merge counts were {4:11, }"
       ]
     },
     {
@@ -513,12 +516,13 @@
       "FileLineMatch": null,
       "MessageMatch": {
         "RegExStrings": [
-          "^Compacting\\s+\\["
+          "^Compacting\\s"
         ]
       },
       "ParseMessage": {
         "RegExStrings": [
-          "^Compacting\\s+\\[(?:SSTableReader\\s*\\(\\s*path\\s*=\\s*'\\s*(?$<SSTABLEPATHS>)\\s*'\\s*\\),?\\s*)+\\s*\\]$"
+          "^Compacting\\s+\\[(?:SSTableReader\\s*\\(\\s*path\\s*=\\s*'\\s*(?$<SSTABLEPATHS>)\\s*'\\s*\\),?\\s*)+\\s*\\]$",
+          "^Compacting\\s+(?:\\((?<ID>[a-f0-9\\-]+)\\)\\s+)?\\[(?:(?<SSTABLEPATH>[a-z0-9\\-_@#/.\\ +%]+)\\:level=(?<level>\\d+,?\\s*))+\\]$"
         ]
       },
       "ParseThreadId": null,
@@ -533,8 +537,10 @@
       "Examples": [
         "==> INFO  [CompactionExecutor:3211] 2017-01-16 13:33:04,872  CompactionTask.java:141 - Compacting [SSTableReader(path='/var/lib/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/system-compactions_in_progress-ka-90586-Data.db'), SSTableReader(path='/var/lib/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/system-compactions_in_progress-ka-90588-Data.db'), SSTableReader(path='/var/lib/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/system-compactions_in_progress-ka-90587-Data.db'), SSTableReader(path='/var/lib/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/system-compactions_in_progress-ka-90589-Data.db')]",
         "INFO  [CompactionExecutor:3211] 2017-01-16 13:33:06,380  CompactionTask.java:274 - Compacted 4 sstables to [/var/lib/cassandra/data/system/compactions_in_progress-55080ab05d9c388690a4acb25fe1f77b/system-compactions_in_progress-ka-90590,].  590 bytes to 196 (~33% of original) in 15ms = 0.012461MB/s.  3 total partitions merged to 2.  Partition merge counts were {1:1, 2:1, }",
-        "INFO  [CompactionExecutor:734] 2017-02-11 23:58:47,586  CompactionTask.java:141 - Compacting [SSTableReader(path='/data/cassandra/data/usprodsec/session_3-ca531e218ed211e6ab872748a53d9d02/usprodsec-session_3-ka-78735-Data.db'), SSTableReader(path='/data/cassandra/data/usprodsec/session_3-ca531e218ed211e6ab872748a53d9d02/usprodsec-session_3-ka-78732-Data.db'), SSTableReader(path='/data/cassandra/data/usprodsec/session_3-ca531e218ed211e6ab872748a53d9d02/usprodsec-session_3-ka-78734-Data.db'), SSTableReader(path='/data/cassandra/data/usprodsec/session_3-ca531e218ed211e6ab872748a53d9d02/usprodsec-session_3-ka-78733-Data.db')]",
-        "INFO  [CompactionExecutor:734] 2017-02-11 23:58:47,715  CompactionTask.java:274 - Compacted 4 sstables to[/ data / cassandra / data / usprodsec / session_3 - ca531e218ed211e6ab872748a53d9d02 / usprodsec - session_3 - ka - 78741,].  3,541 bytes to 1,079 (~30% of original) in 128ms = 0.008039MB/s.  35 total partitions merged to 12.  Partition merge counts were {1:1, 3:10, 4:1, }"
+        "=> INFO  [CompactionExecutor:734] 2017-02-11 23:58:47,586  CompactionTask.java:141 - Compacting [SSTableReader(path='/data/cassandra/data/usprodsec/session_3-ca531e218ed211e6ab872748a53d9d02/usprodsec-session_3-ka-78735-Data.db'), SSTableReader(path='/data/cassandra/data/usprodsec/session_3-ca531e218ed211e6ab872748a53d9d02/usprodsec-session_3-ka-78732-Data.db'), SSTableReader(path='/data/cassandra/data/usprodsec/session_3-ca531e218ed211e6ab872748a53d9d02/usprodsec-session_3-ka-78734-Data.db'), SSTableReader(path='/data/cassandra/data/usprodsec/session_3-ca531e218ed211e6ab872748a53d9d02/usprodsec-session_3-ka-78733-Data.db')]",
+        "INFO  [CompactionExecutor:734] 2017-02-11 23:58:47,715  CompactionTask.java:274 - Compacted 4 sstables to[/ data / cassandra / data / usprodsec / session_3 - ca531e218ed211e6ab872748a53d9d02 / usprodsec - session_3 - ka - 78741,].  3,541 bytes to 1,079 (~30% of original) in 128ms = 0.008039MB/s.  35 total partitions merged to 12.  Partition merge counts were {1:1, 3:10, 4:1, }",
+        "=> DEBUG [CompactionExecutor:67331] 2018-04-24 16:02:00,480  CompactionTask.java:156 - Compacting (d27e4a00-47d8-11e8-bbce-6df154ea9215) [/opt/cassandra/data01/system/peers-37f71aca7dc2383ba70672528af04d4f/mc-643-big-Data.db:level=0, /opt/cassandra/data01/system/paxos-b7b7f0c2fd0a34108c053ef614bb7c2d/mc-14202-big-Data.db:level=0, ]",
+        "DEBUG [CompactionExecutor:67331] 2018-04-24 16:02:00,488  CompactionTask.java:256 - Compacted (d27a5260-47d8-11e8-bbce-6df154ea9215) 4 sstables to [/opt/cassandra/data01/system/peers-37f71aca7dc2383ba70672528af04d4f/mc-646-big,] to level=0.  57.526KiB to 13.715KiB (~23% of original) in 32ms.  Read Throughput = 1.725MiB/s, Write Throughput = 421.110KiB/s, Row Throughput = ~1,269/s.  44 total partitions merged to 11.  Partition merge counts were {4:11, }"
       ]
     },
     {
@@ -571,7 +577,17 @@
       "SessionKey": "ThreadId + DDLITEMNAME",
       "SessionKeyAction": "Add",
       "SessionLookup": null,
-      "Examples": [ "=> INFO  [SlabPoolCleaner] 2017-01-16 13:51:50,636  ColumnFamilyStore.java:1211 - Flushing largest CFS(Keyspace='OpsCenter', ColumnFamily='rollup_state') to free up room. Used total: 0.33/0.00, live: 0.33/0.00, flushing: 0.00/0.00, this: 0.14/0.14", "INFO  [SlabPoolCleaner] 2017-01-16 13:51:50,636  ColumnFamilyStore.java:905 - Enqueuing flush of rollup_state: 221288084 (14%) on-heap, 0 (0%) off-heap", "INFO  [MemtableFlushWriter:8021] 2017-01-16 13:51:50,637  Memtable.java:347 - Writing Memtable-rollup_state@1750499154(8.948MiB serialized bytes, 3237264 ops, 14%/0% of on/off-heap limit)", "INFO  [MemtableFlushWriter:8021] 2017-01-16 13:51:51,353  Memtable.java:382 - Completed flushing /var/lib/cassandra/data/OpsCenter/rollup_state-9b934af0746111e68dd04f228b4be406/OpsCenter-rollup_state-tmp-ka-7811-Data.db (1.797MiB) for commitlog position ReplayPosition(segmentId=1483996065725, position=29889014)" ]
+      "Examples": [
+
+        "=> INFO  [SlabPoolCleaner] 2017-01-16 13:51:50,636  ColumnFamilyStore.java:1211 - Flushing largest CFS(Keyspace='OpsCenter', ColumnFamily='rollup_state') to free up room. Used total: 0.33/0.00, live: 0.33/0.00, flushing: 0.00/0.00, this: 0.14/0.14",
+        "INFO  [SlabPoolCleaner] 2017-01-16 13:51:50,636  ColumnFamilyStore.java:905 - Enqueuing flush of rollup_state: 221288084 (14%) on-heap, 0 (0%) off-heap",
+        "INFO  [MemtableFlushWriter:8021] 2017-01-16 13:51:50,637  Memtable.java:347 - Writing Memtable-rollup_state@1750499154(8.948MiB serialized bytes, 3237264 ops, 14%/0% of on/off-heap limit)",
+        "INFO  [MemtableFlushWriter:8021] 2017-01-16 13:51:51,353  Memtable.java:382 - Completed flushing /var/lib/cassandra/data/OpsCenter/rollup_state-9b934af0746111e68dd04f228b4be406/OpsCenter-rollup_state-tmp-ka-7811-Data.db (1.797MiB) for commitlog position ReplayPosition(segmentId=1483996065725, position=29889014)",
+        "=> DEBUG [SlabPoolCleaner] 2018-04-25 08:07:53,237  ColumnFamilyStore.java:1311 - Flushing largest CFS(Keyspace='ghostlocker', ColumnFamily='cassandracache') to free up room. Used total: 0.33/0.00, live: 0.33/0.00, flushing: 0.00/0.00, this: 0.18/0.00",
+        "DEBUG [SlabPoolCleaner] 2018-04-25 08:07:53,237  ColumnFamilyStore.java:920 - Enqueuing flush of cassandracache: 745.523MiB (18%) on-heap, 0.000KiB (0%) off-heap",
+        "DEBUG [PerDiskMemtableFlushWriter_0:33] 2018-04-25 08:07:53,244  Memtable.java:461 - Writing Memtable-cassandracache@1008600417(327.808MiB serialized bytes, 422494 ops, 18%/0% of on/off-heap limit), flushed range = (min(-9223372036854775808), max(9223372036854775807)]",
+        "DEBUG [PerDiskMemtableFlushWriter_0:33] 2018-04-25 08:07:54,162  Memtable.java:490 - Completed flushing /opt/cassandra/data01/ghostlocker/cassandracache-cd9b046155cb11e7b3e4f1176ea923d9/mc-14643-big-Data.db (317.980MiB) for commitlog position CommitLogPosition(segmentId=1524586125756, position=9253124)"
+      ]
     },
     {
       "Description": "Flushing (enqueuing)",
@@ -598,7 +614,7 @@
       "ParseMessage": {
         "RegExStrings": [
           "^Enqueuing\\s+flush\\s+of\\s+Memtable\\-(?$<KEYSPACE>)\\.(?$<DDLITEMNAME>)\\@\\d+\\((?<onheapserialized_bytes>\\d+)\\/(?<onheap_bytes>[0-9.,]+)\\s+\\w+\\/\\w+\\s+\\w+,\\s+(?<operationspersec>[0-9,]+\\s+[a-z]+)\\s*\\)",
-          "^Enqueuing\\s+flush\\s+of\\s+(?$<DDLITEMNAME>)\\s*\\:\\s+(?<onheap_bytes>[0-9,.]+)\\s+\\((?<onheappercent>[0-9,.]+\\%)\\)\\s+on-heap,\\s+(?<offheap_bytes>[0-9,.]+)\\s+\\((?<offheappercent>[0-9,.]+\\s*[a-z/%]+)\\)\\s"
+          "^Enqueuing\\s+flush\\s+of\\s+(?$<DDLITEMNAME>)\\s*\\:\\s+(?<onheap_bytes>[0-9,.]+[a-z]{0,3})\\s+\\((?<onheappercent>[0-9,.]+\\%)\\)\\s+on-heap,\\s+(?<offheap_bytes>[0-9,.]+[a-z]{0,3})\\s+\\((?<offheappercent>[0-9,.]+\\s*[a-z/%]+)\\)\\s"
         ]
       },
       "ParseThreadId": null,
@@ -634,7 +650,12 @@
         "INFO  [SlabPoolCleaner] 2017-01-16 13:51:50,636  ColumnFamilyStore.java:1211 - Flushing largest CFS(Keyspace='OpsCenter', ColumnFamily='rollup_state') to free up room. Used total: 0.33/0.00, live: 0.33/0.00, flushing: 0.00/0.00, this: 0.14/0.14",
         "=> INFO  [SlabPoolCleaner] 2017-01-16 13:51:50,636  ColumnFamilyStore.java:905 - Enqueuing flush of rollup_state: 221288084 (14%) on-heap, 0 (0%) off-heap",
         "INFO  [MemtableFlushWriter:8021] 2017-01-16 13:51:50,637  Memtable.java:347 - Writing Memtable-rollup_state@1750499154(8.948MiB serialized bytes, 3237264 ops, 14%/0% of on/off-heap limit)",
-        "INFO  [MemtableFlushWriter:8021] 2017-01-16 13:51:51,353  Memtable.java:382 - Completed flushing /var/lib/cassandra/data/OpsCenter/rollup_state-9b934af0746111e68dd04f228b4be406/OpsCenter-rollup_state-tmp-ka-7811-Data.db (1.797MiB) for commitlog position ReplayPosition(segmentId=1483996065725, position=29889014)"
+        "INFO  [MemtableFlushWriter:8021] 2017-01-16 13:51:51,353  Memtable.java:382 - Completed flushing /var/lib/cassandra/data/OpsCenter/rollup_state-9b934af0746111e68dd04f228b4be406/OpsCenter-rollup_state-tmp-ka-7811-Data.db (1.797MiB) for commitlog position ReplayPosition(segmentId=1483996065725, position=29889014)",
+        "DEBUG [SlabPoolCleaner] 2018-04-25 08:07:53,237  ColumnFamilyStore.java:1311 - Flushing largest CFS(Keyspace='ghostlocker', ColumnFamily='cassandracache') to free up room. Used total: 0.33/0.00, live: 0.33/0.00, flushing: 0.00/0.00, this: 0.18/0.00",
+        "=> DEBUG [SlabPoolCleaner] 2018-04-25 08:07:53,237  ColumnFamilyStore.java:920 - Enqueuing flush of cassandracache: 745.523MiB (18%) on-heap, 0.000KiB (0%) off-heap",
+        "DEBUG [PerDiskMemtableFlushWriter_0:33] 2018-04-25 08:07:53,244  Memtable.java:461 - Writing Memtable-cassandracache@1008600417(327.808MiB serialized bytes, 422494 ops, 18%/0% of on/off-heap limit), flushed range = (min(-9223372036854775808), max(9223372036854775807)]",
+        "DEBUG [PerDiskMemtableFlushWriter_0:33] 2018-04-25 08:07:54,162  Memtable.java:490 - Completed flushing /opt/cassandra/data01/ghostlocker/cassandracache-cd9b046155cb11e7b3e4f1176ea923d9/mc-14643-big-Data.db (317.980MiB) for commitlog position CommitLogPosition(segmentId=1524586125756, position=9253124)"
+
       ]
     },
     {
@@ -691,7 +712,11 @@
         "INFO  [MemtableFlushWriter:913] 2017-02-11 01:41:57,864  Memtable.java:382 - Completed flushing /data/cassandra/data/usprodda/digitalasset_3_0_2-42613c599c943db2b2805c31c2d36acb/usprodda-digitalasset_3_0_2.digitalasset_3_0_2_id-tmp-ka-308-Data.db (0.000KiB) for commitlog position ReplayPosition(segmentId=1486705955848, position=25089636)",
         "INFO  [AntiEntropyStage:1] 2017-02-11 01:41:57,862  ColumnFamilyStore.java:905 - Enqueuing flush of digitalasset_3_0_2: 38866 (0%) on-heap, 0 (0%) off-heap",
         "=> INFO  [MemtableFlushWriter:913] 2017-02-11 01:41:57,863  Memtable.java:347 - Writing Memtable-digitalasset_3_0_2.digitalasset_3_0_2_id@153078410(3.746KiB serialized bytes, 123 ops, 0%/0% of on/off-heap limit)",
-        "INFO  [MemtableFlushWriter:913] 2017-02-11 01:41:57,864  Memtable.java:382 - Completed flushing /data/cassandra/data/usprodda/digitalasset_3_0_2-42613c599c943db2b2805c31c2d36acb/usprodda-digitalasset_3_0_2.digitalasset_3_0_2_id-tmp-ka-308-Data.db (0.000KiB) for commitlog position ReplayPosition(segmentId=1486705955848, position=25089636)"
+        "INFO  [MemtableFlushWriter:913] 2017-02-11 01:41:57,864  Memtable.java:382 - Completed flushing /data/cassandra/data/usprodda/digitalasset_3_0_2-42613c599c943db2b2805c31c2d36acb/usprodda-digitalasset_3_0_2.digitalasset_3_0_2_id-tmp-ka-308-Data.db (0.000KiB) for commitlog position ReplayPosition(segmentId=1486705955848, position=25089636)",
+        "DEBUG [SlabPoolCleaner] 2018-04-25 08:07:53,237  ColumnFamilyStore.java:1311 - Flushing largest CFS(Keyspace='ghostlocker', ColumnFamily='cassandracache') to free up room. Used total: 0.33/0.00, live: 0.33/0.00, flushing: 0.00/0.00, this: 0.18/0.00",
+        "=> DEBUG [SlabPoolCleaner] 2018-04-25 08:07:53,237  ColumnFamilyStore.java:920 - Enqueuing flush of cassandracache: 745.523MiB (18%) on-heap, 0.000KiB (0%) off-heap",
+        "DEBUG [PerDiskMemtableFlushWriter_0:33] 2018-04-25 08:07:53,244  Memtable.java:461 - Writing Memtable-cassandracache@1008600417(327.808MiB serialized bytes, 422494 ops, 18%/0% of on/off-heap limit), flushed range = (min(-9223372036854775808), max(9223372036854775807)]",
+        "DEBUG [PerDiskMemtableFlushWriter_0:33] 2018-04-25 08:07:54,162  Memtable.java:490 - Completed flushing /opt/cassandra/data01/ghostlocker/cassandracache-cd9b046155cb11e7b3e4f1176ea923d9/mc-14643-big-Data.db (317.980MiB) for commitlog position CommitLogPosition(segmentId=1524586125756, position=9253124)"
       ]
     },
     {
@@ -1927,7 +1952,8 @@
         "WARN  [CompactionExecutor:705441] 2016-10-05 13:09:40,934 SSTableWriter.java:241 - Compacting large partition handled_exception1/summary_pt1h:5670561a6c33dc0f00f11443:2016-10-01-14-00-00:total (280256103 bytes)",
         "WARN  [ ] 2016-06-07 06:57:44,146  CompactionController.java:240 - Compacting large row billing/account_payables:20160726:FMCC (348583137 bytes)",
         "WARN  [ ] 2016-06-07 06:57:44,146  BigTableWriter.java:240 - Writing large partition oats/order_cycles:nasusnop01:2017-01-31 (139296027 bytes)",
-        "WARN  [CompactionExecutor:943648] 2018-04-23 09:44:03,812  BigTableWriter.java:211 - Writing large partition axon/audit.parked_at_idx: (111.836MiB) to sstable /dse/dse_data/axon/audit-4584ec70347411e89c4fe548a3a93499/.parked_at_idx/mc-6140-big-Data.db)"
+        "WARN  [CompactionExecutor:943648] 2018-04-23 09:44:03,812  BigTableWriter.java:211 - Writing large partition axon/audit.parked_at_idx: (111.836MiB) to sstable /dse/dse_data/axon/audit-4584ec70347411e89c4fe548a3a93499/.parked_at_idx/mc-6140-big-Data.db)",
+        "WARN  [PerDiskMemtableFlushWriter_0:33] 2018-04-25 08:07:54,161  BigTableWriter.java:211 - Writing large partition ghostlocker/cassandracache:DmsPlaybackCache (317.980MiB) to sstable /opt/cassandra/data01/ghostlocker/cassandracache-cd9b046155cb11e7b3e4f1176ea923d9/mc-14643-big-Data.db"
       ]
     },
     {

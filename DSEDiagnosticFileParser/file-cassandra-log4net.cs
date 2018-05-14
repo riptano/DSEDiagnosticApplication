@@ -1707,7 +1707,12 @@ namespace DSEDiagnosticFileParser
             var keyspaceName = StringHelpers.RemoveQuotes((string)logProperties.TryGetValue("KEYSPACE"));
             var ddlName = StringHelpers.RemoveQuotes((string)logProperties.TryGetValue("DDLITEMNAME") ?? (string)logProperties.TryGetValue("TABLEVIEWNAME"));
             var ddlSchemaId = (string)logProperties.TryGetValue("DDLSCHEMAID");
-            var sstableFilePath = StringHelpers.RemoveQuotes((string)logProperties.TryGetValue("SSTABLEPATH"));
+            var possibleSSTableFilePath = logProperties.TryGetValue("SSTABLEPATH");
+            var sstableFilePath = possibleSSTableFilePath is IList<object> 
+                                    ? (((IList<object>)possibleSSTableFilePath).Count == 1
+                                        ? StringHelpers.RemoveQuotes(StringHelpers.RemoveQuotes((string) ((IList<object>)possibleSSTableFilePath)[0]))
+                                        : null)
+                                    : StringHelpers.RemoveQuotes((string)logProperties.TryGetValue("SSTABLEPATH"));
             var keyspaceNames = TurnPropertyIntoCollection(logProperties, "KEYSPACES");
             var ddlNames = TurnPropertyIntoCollection(logProperties, "DDLITEMNAMES");
             var solrDDLNames = TurnPropertyIntoCollection(logProperties, "SOLRINDEXNAME");            
@@ -1729,7 +1734,7 @@ namespace DSEDiagnosticFileParser
 
             logId = logProperties.TryGetValue("ID")?.ToString();
             subClass = logProperties.TryGetValue("SUBCLASS")?.ToString();
-            sstableFilePaths = TurnPropertyIntoCollection(logProperties, "SSTABLEPATHS");
+            sstableFilePaths = TurnPropertyIntoCollection(logProperties, "SSTABLEPATHS");            
             primaryKS = null;
             primaryDDL = Cluster.TryGetTableIndexViewbyString(sstableFilePath ?? ddlName, this.Cluster, this.DataCenter, keyspaceName);
             ddlInstances = null;
@@ -1740,6 +1745,18 @@ namespace DSEDiagnosticFileParser
             #region Determine Keyspace/DDLs
             {
                 IEnumerable<IDDLStmt> sstableDDLInstance = null;
+
+                if (possibleSSTableFilePath is IList<object> && ((IList<object>)possibleSSTableFilePath).Count > 1)
+                {
+                    if (sstableFilePaths == null)
+                    {
+                        sstableFilePaths = ((IList<object>)possibleSSTableFilePath).Cast<string>().ToList();
+                    }
+                    else
+                    {
+                        sstableFilePaths.AddRange(((IList<object>)possibleSSTableFilePath).Cast<string>());
+                    }
+                }
 
                 if (primaryDDL != null)
                 {

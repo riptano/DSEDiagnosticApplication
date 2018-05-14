@@ -85,9 +85,9 @@ namespace DSEDiagnosticFileParser.Tests
 
             var nbrLinesParsed = parseFile.ProcessFile();
 
-            Assert.AreEqual((uint)4, nbrLinesParsed);
+            Assert.AreEqual((uint)6, nbrLinesParsed);
             Assert.AreEqual(0, parseFile.NbrErrors);
-            Assert.AreEqual(4, parseFile.NbrItemsParsed);
+            Assert.AreEqual(6, parseFile.NbrItemsParsed);
             Assert.AreEqual(DSEDiagnosticFileParser.DiagnosticFile.CatagoryTypes.LogFile, parseFile.Catagory);
             Assert.AreEqual(this._cluster, parseFile.Cluster);
             Assert.AreEqual(this._node1, parseFile.Node);
@@ -96,7 +96,7 @@ namespace DSEDiagnosticFileParser.Tests
 
             Assert.IsNotNull(result);
             Assert.AreEqual(this._node1, result.Node);
-            Assert.AreEqual(4, result.Results.Count());
+            Assert.AreEqual(6, result.Results.Count());
             Assert.AreEqual(0, result.OrphanedSessionEvents.Count());
             
             var logeventResults = result.Results.Cast<DSEDiagnosticLibrary.LogCassandraEvent>();
@@ -127,7 +127,7 @@ namespace DSEDiagnosticFileParser.Tests
                     beginEvent = null;
                 }
 
-                Assert.AreEqual(DSEDiagnosticLibrary.EventClasses.Compaction | DSEDiagnosticLibrary.EventClasses.Information, logEvent.Class);
+                Assert.IsTrue(logEvent.Class.HasFlag(EventClasses.Compaction));
                 Assert.AreEqual(TimeZoneName, logEvent.TimeZone?.Name);
                 Assert.IsNotNull(logEvent.Keyspace);                
                 Assert.AreEqual(this._node1, logEvent.Node);
@@ -149,9 +149,9 @@ namespace DSEDiagnosticFileParser.Tests
 
             nbrLinesParsed = parseFile.ProcessFile();
 
-            Assert.AreEqual((uint)35, nbrLinesParsed);
+            Assert.AreEqual((uint)39, nbrLinesParsed);
             Assert.AreEqual(0, parseFile.NbrErrors);
-            Assert.AreEqual(43, parseFile.NbrItemsParsed);
+            Assert.AreEqual(48, parseFile.NbrItemsParsed);
             Assert.AreEqual(DSEDiagnosticFileParser.DiagnosticFile.CatagoryTypes.LogFile, parseFile.Catagory);
             Assert.AreEqual(this._cluster, parseFile.Cluster);
             Assert.AreEqual(this._node1, parseFile.Node);
@@ -160,12 +160,13 @@ namespace DSEDiagnosticFileParser.Tests
 
             Assert.IsNotNull(result);
             Assert.AreEqual(this._node1, result.Node);
-            Assert.AreEqual(35, result.Results.Count());
+            Assert.AreEqual(39, result.Results.Count());
             Assert.AreEqual(0, result.OrphanedSessionEvents.Count());
 
             logeventResults = result.Results.Cast<DSEDiagnosticLibrary.LogCassandraEvent>();
 
             var newSession = true;
+            var hintHandOff = false;
             var itemNbr = 0;
 
             foreach (var logEvent in logeventResults)
@@ -237,10 +238,16 @@ namespace DSEDiagnosticFileParser.Tests
                             if (logEvent.Class.HasFlag(EventClasses.HintHandOff))
                             {
                                 beginEvent = (DSEDiagnosticLibrary.LogCassandraEvent)logEvent.ParentEvents.Last().Value;
+                                hintHandOff = true;
                             }
                             else
                             {
                                 beginEvent = (DSEDiagnosticLibrary.LogCassandraEvent)logEvent.ParentEvents.TakeLast(2).First().Value;
+                                if(hintHandOff)
+                                {
+                                    hintHandOff = false;
+                                    newSession = true;
+                                }
                             }
 
                             if(beginEvent.ParentEvents.IsEmpty())
