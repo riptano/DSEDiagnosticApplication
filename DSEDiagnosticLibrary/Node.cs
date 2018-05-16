@@ -828,7 +828,11 @@ namespace DSEDiagnosticLibrary
             Analytics_SM = Analytics | SM,
             Analytics_SW = Analytics | SW,
             Cassandra_JT = Cassandra | JT,
-            SearchAnalytics = Search | Analytics
+            SearchAnalytics = Search | Analytics,
+            SearchAnalytics_TT = Search | Analytics | TT,
+            SearchAnalytics_JT = Search | Analytics | JT,
+            SearchAnalytics_SW = Search | Analytics | SW,
+            SearchAnalytics_SM = Search | Analytics | SM
         }
 
 		public enum DSEStatuses

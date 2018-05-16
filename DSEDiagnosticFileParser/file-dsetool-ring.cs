@@ -196,7 +196,7 @@ namespace DSEDiagnosticFileParser
                                 {
                                     bool updated = false;
 
-                                    if (grpItem.Value[grpItem.Value.Length - 1] == ')')
+                                    if (grpItem.Value.Length > 3 && grpItem.Value[grpItem.Value.Length - 1] == ')')
                                     {
                                         var newName = grpItem.Value.Replace('(', '_').Substring(0, grpItem.Value.Length - 1);
 
@@ -218,16 +218,8 @@ namespace DSEDiagnosticFileParser
                                                 if (updated = Enum.TryParse<DSEInfo.InstanceTypes>(instanceType, true, out type))
                                                 {
                                                     node.DSE.InstanceType |= type;
-                                                }
-                                                else
-                                                {
-                                                    if (instanceType.ToLower().Contains("cassandra")) node.DSE.InstanceType |= DSEInfo.InstanceTypes.Cassandra;
-                                                    if (instanceType.ToLower().Contains("analytics")) node.DSE.InstanceType |= DSEInfo.InstanceTypes.Analytics;
-                                                    if (instanceType.ToLower().Contains("search")) node.DSE.InstanceType |= DSEInfo.InstanceTypes.Search;
-                                                    if (instanceType.ToLower().Contains("graph")) node.DSE.InstanceType |= DSEInfo.InstanceTypes.Graph;                                                    
-                                                }
-
-
+                                                }                                            
+                                                
                                                 if (!string.IsNullOrEmpty(subType))
                                                 {
                                                     if (updated = Enum.TryParse<DSEInfo.InstanceTypes>(subType, true, out type))
@@ -235,6 +227,29 @@ namespace DSEDiagnosticFileParser
                                                         node.DSE.InstanceType |= type;
                                                     }
                                                 }
+                                            }
+                                        }
+                                        if (!updated)
+                                        {
+                                            if (grpItem.Value.ToLower().Contains("cassandra"))
+                                            {
+                                                node.DSE.InstanceType |= DSEInfo.InstanceTypes.Cassandra;
+                                                updated = true;
+                                            }
+                                            if (grpItem.Value.ToLower().Contains("analytics"))
+                                            {
+                                                node.DSE.InstanceType |= DSEInfo.InstanceTypes.Analytics;
+                                                updated = true;
+                                            }
+                                            if (grpItem.Value.ToLower().Contains("search"))
+                                            {
+                                                node.DSE.InstanceType |= DSEInfo.InstanceTypes.Search;
+                                                updated = true;
+                                            }
+                                            if (grpItem.Value.ToLower().Contains("graph"))
+                                            {
+                                                node.DSE.InstanceType |= DSEInfo.InstanceTypes.Graph;
+                                                updated = true;
                                             }
                                         }
                                         if (!updated)
