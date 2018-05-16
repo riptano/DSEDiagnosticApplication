@@ -336,7 +336,18 @@ namespace DSEDiagnosticConsoleApplication
         public static List<string> OnlyNodes = new List<string>();
 
         public static Version DSEVersion = null;
-        
+
+        private static List<string> _IgnoreLogParsingTagEvents = Properties.Settings.Default.IgnoreLogParsingTagEvents?.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+        public static IEnumerable<string> IgnoreLogParsingTagEvents
+        {
+            get { return _IgnoreLogParsingTagEvents; }
+            set
+            {
+                _IgnoreLogParsingTagEvents = value?.ToList();
+            }
+        }
+
+
         #endregion
     }
 }

@@ -27,6 +27,9 @@ namespace DSEDiagnosticConsoleApplication
                 DSEDiagnosticFileParser.LibrarySettings.ProcessFileMappingValue = CurrentProfile.ProcessFileMappings;
                 DSEDiagnosticLibrary.LibrarySettings.LogEventsAreMemoryMapped = CurrentProfile.EnableVirtualMemory;
                 DSEDiagnosticFileParser.LibrarySettings.DebugLogProcessing = DSEDiagnosticLibrary.LibrarySettings.ParseEnum<DSEDiagnosticFileParser.file_cassandra_log4net.DebugLogProcessingTypes>(CurrentProfile.DebugLogProcessingTypes);
+
+                if(CurrentProfile.IgnoreLogTagEvents != null)
+                    ParserSettings.IgnoreLogParsingTagEvents = CurrentProfile.IgnoreLogTagEvents.Split(new Char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
             }
 
             return CurrentProfile;
@@ -46,5 +49,6 @@ namespace DSEDiagnosticConsoleApplication
         public bool EnableVirtualMemory;
         public string DefaultLogLevelHandling;
         public string DebugLogProcessingTypes;
+        public string IgnoreLogTagEvents;
     }
 }

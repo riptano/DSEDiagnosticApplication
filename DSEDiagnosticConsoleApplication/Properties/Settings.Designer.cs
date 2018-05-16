@@ -195,5 +195,14 @@ namespace DSEDiagnosticConsoleApplication.Properties {
                 return ((global::System.TimeSpan)(this["LogAggregationPeriod"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string IgnoreLogParsingTagEvents {
+            get {
+                return ((string)(this["IgnoreLogParsingTagEvents"]));
+            }
+        }
     }
 }

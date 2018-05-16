@@ -105,6 +105,16 @@ namespace DSEDiagnosticFileParser
              3C-A8-2A-17-87-28  172.26.2.135     Chicago              rack1        Cassandra            yes    Up      Normal   218.99 GB        ?                    32                                           0.90         
              3C-A8-2A-17-57-D8  172.26.2.136     Chicago              rack1        Cassandra(JT)        yes    Up      Normal   270.87 GB        ?                    32                                           0.90         
             */
+            /*
+            Address          DC                   Rack         Workload             Graph  Status  State    Load             Owns                 VNodes                                       Health [0,1] 
+            10.5.24.161      datacenter1          RAC1         SearchAnalytics(SM)  no     Up      Normal   173.54 GiB       ?                    256                                          0.90         
+            10.5.24.162      datacenter1          RAC1         SearchAnalytics      no     Up      Normal   170.52 GiB       ?                    256                                          0.90         
+            10.5.24.163      datacenter1          RAC1         SearchAnalytics      no     Up      Normal   176.42 GiB       ?                    256                                          0.90         
+            10.5.24.164      datacenter1          RAC1         SearchAnalytics      no     Up      Normal   173.55 GiB       ?                    256                                          0.90         
+            10.5.24.165      datacenter1          RAC1         SearchAnalytics      no     Up      Normal   179.21 GiB       ?                    256                                          0.90         
+            10.5.24.166      datacenter1          RAC1         SearchAnalytics      no     Up      Normal   167.15 GiB       ?                    256                                          0.90         
+            Note: you must specify a keyspace to get ownership information.
+             */
 
             string line = null;
             Match matchesLine = null;
@@ -200,7 +210,7 @@ namespace DSEDiagnosticFileParser
                                     {
                                         {
                                             var indexPos = grpItem.Value.IndexOf('(');
-                                            if (indexPos < 0)
+                                            if (indexPos > 0)
                                             {
                                                 var instanceType = grpItem.Value.Substring(0, indexPos);
                                                 var subType = grpItem.Value.Substring(indexPos + 1, grpItem.Value.Length - indexPos - 2);
@@ -209,6 +219,14 @@ namespace DSEDiagnosticFileParser
                                                 {
                                                     node.DSE.InstanceType |= type;
                                                 }
+                                                else
+                                                {
+                                                    if (instanceType.ToLower().Contains("cassandra")) node.DSE.InstanceType |= DSEInfo.InstanceTypes.Cassandra;
+                                                    if (instanceType.ToLower().Contains("analytics")) node.DSE.InstanceType |= DSEInfo.InstanceTypes.Analytics;
+                                                    if (instanceType.ToLower().Contains("search")) node.DSE.InstanceType |= DSEInfo.InstanceTypes.Search;
+                                                    if (instanceType.ToLower().Contains("graph")) node.DSE.InstanceType |= DSEInfo.InstanceTypes.Graph;                                                    
+                                                }
+
 
                                                 if (!string.IsNullOrEmpty(subType))
                                                 {

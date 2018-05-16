@@ -285,6 +285,14 @@ namespace DSEDiagnosticConsoleApplication
                 Optional = true,
                 Description = "Enables/Disables the saving of a workbook each time a worksheet is added/modified. If ExcelPackageCache is disabled this is always enabled."
             });
+            
+            this._cmdLineParser.Arguments.Add(new ValueArgument<string>("IgnoreLogTagEvent")
+            {
+                Optional = true,
+                AllowMultiple = true,
+                Description = "A Log Event Tag Id that will cause that associated log event to be ignored during parsing. If an integral value (i.e., 10, no decimal) and a session event, all items in that session are ignored. Multiple arguments can be defined.",
+                Example = @"10 -- all session items associated to this id tag (e.g., 10.0, 10.1, 10.2, etc.); 10.1 -- only the item assocated to the id of 10.1."
+            });
 
             this._cmdLineParser.Arguments.Add(new SwitchArgument("Debug", false)
             {
@@ -680,6 +688,57 @@ namespace DSEDiagnosticConsoleApplication
                         {
                             var value = ((ValueArgument<TimeSpan>)item).Value;
                             ParserSettings.LogAggregationPeriod = value;
+                        }
+                        break;
+                    case "IgnoreLogTagEvent":
+                        {
+                            var items = ((ValueArgument<string>)item).Values
+                                                                        .SelectMany(i =>
+                                                                        {
+                                                                            return i.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                                                                        });
+
+                            foreach (var logTagId in items)
+                            {
+                                int valueInt;
+                                var hasDecimal = logTagId.Contains('.');
+
+                                if(!hasDecimal && int.TryParse(logTagId, out valueInt))
+                                {
+                                    var lower = (decimal)valueInt;
+                                    var upper = (decimal) valueInt + 1;
+                                    var logEvent = DSEDiagnosticFileParser.LibrarySettings.Log4NetParser.Parsers.FirstOrDefault(i => i.TagId >= lower && i.TagId < upper);
+                                    
+                                    if(logEvent != null)
+                                    {
+                                        logEvent.IgnoreEvent = true;
+                                    }
+                                }
+                                else
+                                {
+                                    try
+                                    {
+                                        var valueDec = decimal.Parse(logTagId);
+                                        var logEvent = DSEDiagnosticFileParser.LibrarySettings.Log4NetParser.Parsers.FirstOrDefault(i => i.TagId == valueDec);
+
+                                        if (logEvent != null)
+                                        {
+                                            logEvent.IgnoreEvent = true;
+                                        }
+                                    }
+                                    catch (System.Exception ex)
+                                    {
+                                        throw new CommandLineParser.Exceptions.CommandLineArgumentException(string.Format("Log Event Tag Id \"{0}\" was not valid. Exception is \"{1}\": {2}",
+                                                                                                                    logTagId, 
+                                                                                                                    ex.GetType().Name,
+                                                                                                                    ex.Message),
+                                                                                                    "IgnoreLogTagEvent");
+                                    }
+                                    
+                                }
+                            }
+
+                            ParserSettings.IgnoreLogParsingTagEvents = items;
                         }
                         break;
                     case "Debug":

@@ -586,7 +586,8 @@
         "=> DEBUG [SlabPoolCleaner] 2018-04-25 08:07:53,237  ColumnFamilyStore.java:1311 - Flushing largest CFS(Keyspace='ghostlocker', ColumnFamily='cassandracache') to free up room. Used total: 0.33/0.00, live: 0.33/0.00, flushing: 0.00/0.00, this: 0.18/0.00",
         "DEBUG [SlabPoolCleaner] 2018-04-25 08:07:53,237  ColumnFamilyStore.java:920 - Enqueuing flush of cassandracache: 745.523MiB (18%) on-heap, 0.000KiB (0%) off-heap",
         "DEBUG [PerDiskMemtableFlushWriter_0:33] 2018-04-25 08:07:53,244  Memtable.java:461 - Writing Memtable-cassandracache@1008600417(327.808MiB serialized bytes, 422494 ops, 18%/0% of on/off-heap limit), flushed range = (min(-9223372036854775808), max(9223372036854775807)]",
-        "DEBUG [PerDiskMemtableFlushWriter_0:33] 2018-04-25 08:07:54,162  Memtable.java:490 - Completed flushing /opt/cassandra/data01/ghostlocker/cassandracache-cd9b046155cb11e7b3e4f1176ea923d9/mc-14643-big-Data.db (317.980MiB) for commitlog position CommitLogPosition(segmentId=1524586125756, position=9253124)"
+        "DEBUG [PerDiskMemtableFlushWriter_0:33] 2018-04-25 08:07:54,162  Memtable.java:490 - Completed flushing /opt/cassandra/data01/ghostlocker/cassandracache-cd9b046155cb11e7b3e4f1176ea923d9/mc-14643-big-Data.db (317.980MiB) for commitlog position CommitLogPosition(segmentId=1524586125756, position=9253124)",
+        "DEBUG [MemtableFlushWriter:33] 2018-04-30 12:02:25,534  ColumnFamilyStore.java:1219 - Flushed to [BigTableReader(path='/opt/cassandra/data01/ghostlocker/cassandracache-cd9b046155cb11e7b3e4f1176ea923d9/mc-14643-big-Data.db')] (1 sstables, 146.931KiB), biggest 146.931KiB, smallest 146.931KiB"
       ]
     },
     {
@@ -654,8 +655,8 @@
         "DEBUG [SlabPoolCleaner] 2018-04-25 08:07:53,237  ColumnFamilyStore.java:1311 - Flushing largest CFS(Keyspace='ghostlocker', ColumnFamily='cassandracache') to free up room. Used total: 0.33/0.00, live: 0.33/0.00, flushing: 0.00/0.00, this: 0.18/0.00",
         "=> DEBUG [SlabPoolCleaner] 2018-04-25 08:07:53,237  ColumnFamilyStore.java:920 - Enqueuing flush of cassandracache: 745.523MiB (18%) on-heap, 0.000KiB (0%) off-heap",
         "DEBUG [PerDiskMemtableFlushWriter_0:33] 2018-04-25 08:07:53,244  Memtable.java:461 - Writing Memtable-cassandracache@1008600417(327.808MiB serialized bytes, 422494 ops, 18%/0% of on/off-heap limit), flushed range = (min(-9223372036854775808), max(9223372036854775807)]",
-        "DEBUG [PerDiskMemtableFlushWriter_0:33] 2018-04-25 08:07:54,162  Memtable.java:490 - Completed flushing /opt/cassandra/data01/ghostlocker/cassandracache-cd9b046155cb11e7b3e4f1176ea923d9/mc-14643-big-Data.db (317.980MiB) for commitlog position CommitLogPosition(segmentId=1524586125756, position=9253124)"
-
+        "DEBUG [PerDiskMemtableFlushWriter_0:33] 2018-04-25 08:07:54,162  Memtable.java:490 - Completed flushing /opt/cassandra/data01/ghostlocker/cassandracache-cd9b046155cb11e7b3e4f1176ea923d9/mc-14643-big-Data.db (317.980MiB) for commitlog position CommitLogPosition(segmentId=1524586125756, position=9253124)",
+        "DEBUG [MemtableFlushWriter:33] 2018-04-30 12:02:25,534  ColumnFamilyStore.java:1219 - Flushed to [BigTableReader(path='/opt/cassandra/data01/ghostlocker/cassandracache-cd9b046155cb11e7b3e4f1176ea923d9/mc-14643-big-Data.db')] (1 sstables, 146.931KiB), biggest 146.931KiB, smallest 146.931KiB"
       ]
     },
     {
@@ -714,9 +715,10 @@
         "=> INFO  [MemtableFlushWriter:913] 2017-02-11 01:41:57,863  Memtable.java:347 - Writing Memtable-digitalasset_3_0_2.digitalasset_3_0_2_id@153078410(3.746KiB serialized bytes, 123 ops, 0%/0% of on/off-heap limit)",
         "INFO  [MemtableFlushWriter:913] 2017-02-11 01:41:57,864  Memtable.java:382 - Completed flushing /data/cassandra/data/usprodda/digitalasset_3_0_2-42613c599c943db2b2805c31c2d36acb/usprodda-digitalasset_3_0_2.digitalasset_3_0_2_id-tmp-ka-308-Data.db (0.000KiB) for commitlog position ReplayPosition(segmentId=1486705955848, position=25089636)",
         "DEBUG [SlabPoolCleaner] 2018-04-25 08:07:53,237  ColumnFamilyStore.java:1311 - Flushing largest CFS(Keyspace='ghostlocker', ColumnFamily='cassandracache') to free up room. Used total: 0.33/0.00, live: 0.33/0.00, flushing: 0.00/0.00, this: 0.18/0.00",
-        "=> DEBUG [SlabPoolCleaner] 2018-04-25 08:07:53,237  ColumnFamilyStore.java:920 - Enqueuing flush of cassandracache: 745.523MiB (18%) on-heap, 0.000KiB (0%) off-heap",
-        "DEBUG [PerDiskMemtableFlushWriter_0:33] 2018-04-25 08:07:53,244  Memtable.java:461 - Writing Memtable-cassandracache@1008600417(327.808MiB serialized bytes, 422494 ops, 18%/0% of on/off-heap limit), flushed range = (min(-9223372036854775808), max(9223372036854775807)]",
-        "DEBUG [PerDiskMemtableFlushWriter_0:33] 2018-04-25 08:07:54,162  Memtable.java:490 - Completed flushing /opt/cassandra/data01/ghostlocker/cassandracache-cd9b046155cb11e7b3e4f1176ea923d9/mc-14643-big-Data.db (317.980MiB) for commitlog position CommitLogPosition(segmentId=1524586125756, position=9253124)"
+        "DEBUG [SlabPoolCleaner] 2018-04-25 08:07:53,237  ColumnFamilyStore.java:920 - Enqueuing flush of cassandracache: 745.523MiB (18%) on-heap, 0.000KiB (0%) off-heap",
+        "=> DEBUG [PerDiskMemtableFlushWriter_0:33] 2018-04-25 08:07:53,244  Memtable.java:461 - Writing Memtable-cassandracache@1008600417(327.808MiB serialized bytes, 422494 ops, 18%/0% of on/off-heap limit), flushed range = (min(-9223372036854775808), max(9223372036854775807)]",
+        "DEBUG [PerDiskMemtableFlushWriter_0:33] 2018-04-25 08:07:54,162  Memtable.java:490 - Completed flushing /opt/cassandra/data01/ghostlocker/cassandracache-cd9b046155cb11e7b3e4f1176ea923d9/mc-14643-big-Data.db (317.980MiB) for commitlog position CommitLogPosition(segmentId=1524586125756, position=9253124)",
+        "DEBUG [MemtableFlushWriter:33] 2018-04-30 12:02:25,534  ColumnFamilyStore.java:1219 - Flushed to [BigTableReader(path='/opt/cassandra/data01/ghostlocker/cassandracache-cd9b046155cb11e7b3e4f1176ea923d9/mc-14643-big-Data.db')] (1 sstables, 146.931KiB), biggest 146.931KiB, smallest 146.931KiB"
       ]
     },
     {
@@ -763,7 +765,11 @@
         "=>INFO  [MemtableFlushWriter:8021] 2017-01-16 13:51:51,353  Memtable.java:382 - Completed flushing /var/lib/cassandra/data/OpsCenter/rollup_state-9b934af0746111e68dd04f228b4be406/OpsCenter-rollup_state-tmp-ka-7811-Data.db (1.797MiB) for commitlog position ReplayPosition(segmentId=1483996065725, position=29889014)",
         "INFO  [BatchlogTasks:1] 2017-01-16 13:35:06,379  ColumnFamilyStore.java:905 - Enqueuing flush of batchlog: 213016 (0%) on-heap, 0 (0%) off-heap",
         "INFO  [MemtableFlushWriter:8011] 2017-01-16 13:35:06,379  Memtable.java:347 - Writing Memtable-batchlog@1763876046(112.479KiB serialized bytes, 775 ops, 0%/0% of on/off-heap limit)",
-        "=> INFO  [MemtableFlushWriter:8011] 2017-01-16 13:35:06,380  Memtable.java:393 - Completed flushing /var/lib/cassandra/data/system/batchlog-0290003c977e397cac3efdfdc01d626b/system-batchlog-tmp-ka-10184-Data.db; nothing needed to be retained.  Commitlog position was ReplayPosition(segmentId=1483996065722, position=32855484)"
+        "=> INFO  [MemtableFlushWriter:8011] 2017-01-16 13:35:06,380  Memtable.java:393 - Completed flushing /var/lib/cassandra/data/system/batchlog-0290003c977e397cac3efdfdc01d626b/system-batchlog-tmp-ka-10184-Data.db; nothing needed to be retained.  Commitlog position was ReplayPosition(segmentId=1483996065722, position=32855484)",
+        "DEBUG [SlabPoolCleaner] 2018-04-25 08:07:53,237  ColumnFamilyStore.java:920 - Enqueuing flush of cassandracache: 745.523MiB (18%) on-heap, 0.000KiB (0%) off-heap",
+        "DEBUG [PerDiskMemtableFlushWriter_0:33] 2018-04-25 08:07:53,244  Memtable.java:461 - Writing Memtable-cassandracache@1008600417(327.808MiB serialized bytes, 422494 ops, 18%/0% of on/off-heap limit), flushed range = (min(-9223372036854775808), max(9223372036854775807)]",
+        "=> DEBUG [PerDiskMemtableFlushWriter_0:33] 2018-04-25 08:07:54,162  Memtable.java:490 - Completed flushing /opt/cassandra/data01/ghostlocker/cassandracache-cd9b046155cb11e7b3e4f1176ea923d9/mc-14643-big-Data.db (317.980MiB) for commitlog position CommitLogPosition(segmentId=1524586125756, position=9253124)",
+        "DEBUG [MemtableFlushWriter:33] 2018-04-30 12:02:25,534  ColumnFamilyStore.java:1219 - Flushed to [BigTableReader(path='/opt/cassandra/data01/ghostlocker/cassandracache-cd9b046155cb11e7b3e4f1176ea923d9/mc-14643-big-Data.db')] (1 sstables, 146.931KiB), biggest 146.931KiB, smallest 146.931KiB"
       ]
     },
     {
