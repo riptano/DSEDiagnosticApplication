@@ -12,9 +12,14 @@ namespace DSEDiagnosticToDataTable
 {
     public sealed class NodeDataTable : DataTableLoad
     {
-        public NodeDataTable(DSEDiagnosticLibrary.Cluster cluster, CancellationTokenSource cancellationSource = null, Guid? sessionId = null)
+        public NodeDataTable(DSEDiagnosticLibrary.Cluster cluster, IEnumerable<DSEDiagnosticLibrary.IAggregatedStats> logFileStats, CancellationTokenSource cancellationSource = null, Guid? sessionId = null)
             : base(cluster, cancellationSource, sessionId)
-        {}
+        {
+            this.LogFileStats = logFileStats;
+        }
+
+        public IEnumerable<DSEDiagnosticLibrary.IAggregatedStats> LogFileStats { get; }
+
 
         public override DataTable CreateInitializationTable()
         {
@@ -135,23 +140,31 @@ namespace DSEDiagnosticToDataTable
                             TimeSpan maxTZOffset = TimeSpan.Zero;
                             int fileCnt;
                             int totalFiles = 0;
-                            var systemLogFiles = node.LogFiles
-                                                       .Where(l => l.LogFile.Name.IndexOf("debug", StringComparison.OrdinalIgnoreCase) < 0);
-                            var debugLogFiles = node.LogFiles
-                                                        .Where(l => l.LogFile.Name.IndexOf("debug", StringComparison.OrdinalIgnoreCase) >= 0);
+                            var nodeFileLogInfo = this.LogFileStats.Where(l => l.Node == node).Cast<DSEDiagnosticAnalytics.LogFileStats.LogInfoStat>();
+                            var systemLogFiles = nodeFileLogInfo
+                                                       .Where(l => !l.IsDebugFile);                                                       
+                            var debugLogFiles = nodeFileLogInfo
+                                                        .Where(l => l.IsDebugFile);
 
                             var systemLogEntries = systemLogFiles;
 
                             if (systemLogEntries.HasAtLeastOneElement())
                             {
-                                var systemMaxLogTS = systemLogEntries.Max(l => l.LogDateRange.Max);
-                                var systemMinLogTS = systemLogEntries.Min(l => l.LogDateRange.Min);
-                                var systemDuration = TimeSpan.FromSeconds(systemLogEntries.Sum(l => l.LogDateRange.TimeSpan().TotalSeconds));
+                                var systemMaxLogTS = systemLogEntries.Max(l => l.LogRange.Max);
+                                var systemMinLogTS = systemLogEntries.Min(l => l.LogRange.Min);
+                                var systemDuration = TimeSpan.FromSeconds(systemLogEntries
+                                                                            .Where(l=> l.OverlappingType == DSEDiagnosticAnalytics.LogFileStats.LogInfoStat.OverLappingTypes.Normal)
+                                                                            .Select(l => l.LogRange.TimeSpan().TotalSeconds)
+                                                                            .DefaultIfEmpty().Sum());
+                                var systemGap = TimeSpan.FromSeconds(systemLogEntries
+                                                                        .Where(l => l.OverlappingType == DSEDiagnosticAnalytics.LogFileStats.LogInfoStat.OverLappingTypes.Gap)
+                                                                        .Select(l => l.LogRange.TimeSpan().TotalSeconds)
+                                                                        .DefaultIfEmpty().Sum());
 
                                 dataRow.SetField("Log Min Timestamp", systemMinLogTS.DateTime);
                                 dataRow.SetField("Log Max Timestamp", systemMaxLogTS.DateTime);
-                                dataRow.SetField("Log Duration", systemMaxLogTS - systemMinLogTS);
-                                dataRow.SetField("Log Timespan Difference", TimeSpan.FromSeconds(Math.Abs((systemMaxLogTS - systemMinLogTS).TotalSeconds - systemDuration.TotalSeconds)));
+                                dataRow.SetField("Log Duration", systemDuration);
+                                dataRow.SetField("Log Timespan Difference", systemGap);
 
                                 minTzOffset = systemMinLogTS.Offset;
                                 maxTZOffset = systemMaxLogTS.Offset;
@@ -163,14 +176,21 @@ namespace DSEDiagnosticToDataTable
 
                             if (debugLogEntries.HasAtLeastOneElement())
                             {
-                                var debugMaxLogTS = debugLogEntries.Max(l => l.LogDateRange.Max);
-                                var debugMinLogTS = debugLogEntries.Min(l => l.LogDateRange.Min);
-                                var debugDuration = TimeSpan.FromSeconds(debugLogEntries.Sum(l => l.LogDateRange.TimeSpan().TotalSeconds));
+                                var debugMaxLogTS = debugLogEntries.Max(l => l.LogRange.Max);
+                                var debugMinLogTS = debugLogEntries.Min(l => l.LogRange.Min);
+                                var debugDuration = TimeSpan.FromSeconds(debugLogEntries
+                                                                            .Where(l => l.OverlappingType == DSEDiagnosticAnalytics.LogFileStats.LogInfoStat.OverLappingTypes.Normal)
+                                                                            .Select(l => l.LogRange.TimeSpan().TotalSeconds)
+                                                                            .DefaultIfEmpty().Sum());
+                                var debugGap = TimeSpan.FromSeconds(debugLogEntries
+                                                                        .Where(l => l.OverlappingType == DSEDiagnosticAnalytics.LogFileStats.LogInfoStat.OverLappingTypes.Gap)
+                                                                        .Select(l => l.LogRange.TimeSpan().TotalSeconds)
+                                                                        .DefaultIfEmpty().Sum());
 
                                 dataRow.SetField("Debug Log Min Timestamp", debugMinLogTS.DateTime);
                                 dataRow.SetField("Debug Log Max Timestamp", debugMaxLogTS.DateTime);
-                                dataRow.SetField("Debug Log Duration", debugMaxLogTS - debugMinLogTS);
-                                dataRow.SetField("Debug Log Timespan Difference", TimeSpan.FromSeconds(Math.Abs((debugMaxLogTS - debugMinLogTS).TotalSeconds - debugDuration.TotalSeconds)));
+                                dataRow.SetField("Debug Log Duration", debugDuration);
+                                dataRow.SetField("Debug Log Timespan Difference", debugGap);
 
                                 if(debugMaxLogTS.Offset != maxTZOffset)
                                     maxTZOffset = debugMaxLogTS.Offset;

@@ -39,8 +39,7 @@ namespace DSEDiagnosticConsoleApplication
                     new DSEDiagnosticToDataTable.ConfigDataTable(cluster, cancellationSource, sessionGuid),
                     new DSEDiagnosticToDataTable.CQLDDLDataTable(cluster, cancellationSource, ParserSettings.IgnoreKeySpaces.ToArray(), sessionGuid),
                     new DSEDiagnosticToDataTable.KeyspaceDataTable(cluster, cancellationSource, ParserSettings.IgnoreKeySpaces.ToArray(), sessionGuid),
-                    new DSEDiagnosticToDataTable.MachineDataTable(cluster, cancellationSource, sessionGuid),
-                    new DSEDiagnosticToDataTable.NodeDataTable(cluster, cancellationSource, sessionGuid),
+                    new DSEDiagnosticToDataTable.MachineDataTable(cluster, cancellationSource, sessionGuid),                   
                     new DSEDiagnosticToDataTable.TokenRangesDataTable(cluster, cancellationSource, sessionGuid),
                     new DSEDiagnosticToDataTable.CFStatsDataTable(cluster, cancellationSource, ParserSettings.IgnoreKeySpaces.ToArray(), ParserSettings.WarnWhenKSTblIsDetected.ToArray(), sessionGuid),
                     new DSEDiagnosticToDataTable.TPStatsDataTable(cluster, cancellationSource, sessionGuid),
@@ -66,9 +65,23 @@ namespace DSEDiagnosticConsoleApplication
                 });
 
                 datatableTasks.Add(aggStatsTask[0].ContinueWith((task, ignore) =>
+                                                        {
+                                                            var clusterInstance = DSEDiagnosticLibrary.Cluster.GetCurrentOrMaster();
+                                                            var dtLoadInstance = new DSEDiagnosticToDataTable.LogInfoDataTable(clusterInstance, task.Result, cancellationSource, sessionGuid);
+
+                                                            ConsoleParsingDataTable.Increment(dtLoadInstance.Table.TableName);
+                                                            return dtLoadInstance.LoadTable();
+                                                        },
+                                                        null,
+                                                        cancellationSource.Token,
+                                                        TaskContinuationOptions.OnlyOnRanToCompletion,
+                                                        TaskScheduler.Default));
+                datatableTasks.Last().Then(result => ConsoleParsingDataTable.TaskEnd(result.TableName));
+
+                datatableTasks.Add(aggStatsTask[0].ContinueWith((task, ignore) =>
                 {
                     var clusterInstance = DSEDiagnosticLibrary.Cluster.GetCurrentOrMaster();
-                    var dtLoadInstance = new DSEDiagnosticToDataTable.LogInfoDataTable(clusterInstance, task.Result, cancellationSource, sessionGuid);
+                    var dtLoadInstance = new DSEDiagnosticToDataTable.NodeDataTable(cluster, task.Result, cancellationSource, sessionGuid);
 
                     ConsoleParsingDataTable.Increment(dtLoadInstance.Table.TableName);
                     return dtLoadInstance.LoadTable();
@@ -91,7 +104,6 @@ namespace DSEDiagnosticConsoleApplication
                                                         cancellationSource.Token,
                                                         TaskContinuationOptions.OnlyOnRanToCompletion,
                                                         TaskScheduler.Default));
-
                 datatableTasks.Last().Then(result => ConsoleParsingDataTable.TaskEnd(result.TableName));
 
                 loadAllDataTableTask = Task.Factory.ContinueWhenAll(datatableTasks.ToArray(),
