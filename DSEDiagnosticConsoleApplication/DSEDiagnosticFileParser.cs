@@ -65,7 +65,8 @@ namespace DSEDiagnosticConsoleApplication
             }
 
             DSEDiagnosticFileParser.LibrarySettings.IgnoreWarningsErrosInKeySpaces = ParserSettings.IgnoreKeySpaces;
-            
+            DSEDiagnosticFileParser.file_cassandra_log4net.OnLogProcessingCreation += DSEDiagnosticAnalytics.CassandraLogEvent.LogEventCreationCallBack;
+
             var diagParserTask = DSEDiagnosticFileParser.DiagnosticFile.ProcessFile(ParserSettings.DiagnosticPath,
                                                                                      clusterName: ParserSettings.ClusterName ?? defaultCluster,
                                                                                      clusterHashCode: ParserSettings.ClusterHashCode,

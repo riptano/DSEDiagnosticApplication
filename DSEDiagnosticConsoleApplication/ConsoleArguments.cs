@@ -294,6 +294,11 @@ namespace DSEDiagnosticConsoleApplication
                 Example = @"10 -- all session items associated to this id tag (e.g., 10.0, 10.1, 10.2, etc.); 10.1 -- only the item assocated to the id of 10.1."
             });
 
+            this._cmdLineParser.Arguments.Add(new SwitchArgument("OldExcelWS", false)
+            {
+                Description = "Old Excel Worksheet Format Used"
+            });
+
             this._cmdLineParser.Arguments.Add(new SwitchArgument("Debug", false)
             {
                 Description = "Debug Mode"
@@ -740,6 +745,9 @@ namespace DSEDiagnosticConsoleApplication
 
                             ParserSettings.IgnoreLogParsingTagEvents = items;
                         }
+                        break;
+                    case "OldExcelWS":
+                        ParserSettings.OldExcelWorksheets = ((SwitchArgument)item).Value;
                         break;
                     case "Debug":
                         this.Debug = ((SwitchArgument)item).Value;

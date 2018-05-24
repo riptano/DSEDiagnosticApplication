@@ -28,11 +28,12 @@ namespace DSEDiagnosticAnalytics
             var logEvtAnalytics = new CassandraLogEvent(sender);
 
             sender.OnLogEvent += logEvtAnalytics.LogEventCallBack;
+            sender.Tag = logEvtAnalytics;
 
             if(Logger.Instance.IsDebugEnabled)
             {
                 Logger.Instance.DebugFormat("Registering CassandraLogEvent Analytics to LogFile {0}", sender.ShortFilePath);
-            }
+            }           
         }
 
         #region Stats
@@ -245,32 +246,99 @@ namespace DSEDiagnosticAnalytics
 
         }
 
-#endregion
+        #endregion
 
 
-#region Members
+        #region Members
 
         public DSEDiagnosticFileParser.file_cassandra_log4net EventParser { get; }
 
         public IFilePath LogFilePath { get { return this.EventParser?.File; } }
-        
+
+        public static CTS.Dictionary<INode, AggregatedStats> AggregatedStats = new CTS.Dictionary<INode, AggregatedStats>();
+
         public void LogEventCallBack(DSEDiagnosticFileParser.file_cassandra_log4net sender, DSEDiagnosticFileParser.file_cassandra_log4net.LogEventArgs eventArgs)
         {
             if (eventArgs.LogEvent == null) return;
 
-            if (eventArgs.LogMessage.FileName == "StatusLogger.java")
+            this.CancellationToken.ThrowIfCancellationRequested();
+
+            if ((eventArgs.LogEvent.Class & EventClasses.Partition) == EventClasses.Partition
+                    && eventArgs.LogEvent.TableViewIndex != null
+                    && eventArgs.LogEvent.LogProperties.ContainsKey("size"))
             {
-                if ((eventArgs.LogEvent.Class & EventClasses.Caches) != 0)
+                var partitionSize = (UnitOfMeasure) eventArgs.LogEvent.LogProperties["size"];
+
+                var aggStat = AggregatedStats.GetOrAdd(sender.Node, sndNode =>
+                                                        {
+                                                            var stat = new AggregatedStats(sender.File,
+                                                                                                sndNode,
+                                                                                                SourceTypes.CassandraLog,
+                                                                                                EventTypes.AggregateDataTool,
+                                                                                                EventClasses.Partition | EventClasses.Node | EventClasses.KeyspaceTableViewIndexStats,
+                                                                                                eventArgs.LogEvent.TableViewIndex);
+                                                            sndNode.AssociateItem(stat);
+                                                            return stat;
+                                                        });
+                object dataValue;
+
+                if(aggStat.Data.TryGetValue("Partition large", out dataValue))
                 {
-                    eventArgs.AllowNodeAssocation = false;
-                    return;
+                    ((List<UnitOfMeasure>)dataValue).Add(partitionSize);
+                }
+                else
+                {
+                    aggStat.AssociateItem("Partition large", new List<UnitOfMeasure>() { partitionSize });                    
                 }
             }
 
-            this.CancellationToken.ThrowIfCancellationRequested();
+            if ((eventArgs.LogEvent.Class & EventClasses.Tombstone) == EventClasses.Tombstone
+                    && eventArgs.LogEvent.TableViewIndex != null
+                    && eventArgs.LogEvent.LogProperties.ContainsKey("tombstone_cells"))
+            {
+                var nodeStat = AggregatedStats.GetOrAdd(sender.Node, sndNode =>
+                {
+                    var stat = new AggregatedStats(sender.File,
+                                                        sndNode,
+                                                        SourceTypes.CassandraLog,
+                                                        EventTypes.AggregateDataTool,
+                                                        EventClasses.Partition | EventClasses.Node | EventClasses.KeyspaceTableViewIndexStats,
+                                                        eventArgs.LogEvent.TableViewIndex);
+                    sndNode.AssociateItem(stat);
+                    return stat;
+                });
+                var tombstones = (long) ((dynamic)eventArgs.LogEvent.LogProperties["tombstone_cells"]);
+                object dataValue;
 
+                if (nodeStat.Data.TryGetValue("Tombstones Read", out dataValue))
+                {
+                    ((List<long>)dataValue).Add(tombstones);
+                }
+                else
+                {
+                    nodeStat.AssociateItem("Tombstones Read", new List<long>() { tombstones });                    
+                }
+               
+                dynamic reads;
 
+                if(eventArgs.LogEvent.LogProperties.TryGetValue("live_cells", out reads))
+                {
+                    var readsValue = (decimal) reads;
+                    decimal percent = 0;
 
+                    if(tombstones > 0 || reads > 0)                       
+                        percent = (decimal) tombstones/(((decimal)tombstones) + reads);
+
+                    if (nodeStat.Data.TryGetValue("Tombstone/Live Percent", out dataValue))
+                    {
+                        ((List<decimal>)dataValue).Add(percent);
+                    }
+                    else
+                    {
+                        nodeStat.AssociateItem("Tombstone/Live Percent", new List<decimal>() { percent });                        
+                    }
+                }
+            }
         }
 
         public override IEnumerable<IAggregatedStats> ComputeStats()
@@ -289,56 +357,56 @@ namespace DSEDiagnosticAnalytics
             return logStats;
         }
 
-#endregion
+    #endregion
 
-#region Dispose Methods
+    #region Dispose Methods
 
-        public bool Disposed { get; private set; }
+            public bool Disposed { get; private set; }
 
-        // Implement IDisposable.
-        // Do not make this method virtual.
-        // A derived class should not be able to override this method.
-        public void Dispose()
-        {
-	        Dispose(true);
-	        // This object will be cleaned up by the Dispose method.
-	        // Therefore, you should call GC.SupressFinalize to
-	        // take this object off the finalization queue
-	        // and prevent finalization code for this object
-	        // from executing a second time.
-	        GC.SuppressFinalize(this);
-        }
+            // Implement IDisposable.
+            // Do not make this method virtual.
+            // A derived class should not be able to override this method.
+            public void Dispose()
+            {
+	            Dispose(true);
+	            // This object will be cleaned up by the Dispose method.
+	            // Therefore, you should call GC.SupressFinalize to
+	            // take this object off the finalization queue
+	            // and prevent finalization code for this object
+	            // from executing a second time.
+	            GC.SuppressFinalize(this);
+            }
 
-        // Dispose(bool disposing) executes in two distinct scenarios.
-        // If disposing equals true, the method has been called directly
-        // or indirectly by a user's code. Managed and unmanaged resources
-        // can be disposed.
-        // If disposing equals false, the method has been called by the
-        // runtime from inside the finalizer and you should not reference
-        // other objects. Only unmanaged resources can be disposed.
-        private void Dispose(bool disposing)
-        {
-	        // Check to see if Dispose has already been called.
-	        if(!this.Disposed)
-	        {
+            // Dispose(bool disposing) executes in two distinct scenarios.
+            // If disposing equals true, the method has been called directly
+            // or indirectly by a user's code. Managed and unmanaged resources
+            // can be disposed.
+            // If disposing equals false, the method has been called by the
+            // runtime from inside the finalizer and you should not reference
+            // other objects. Only unmanaged resources can be disposed.
+            private void Dispose(bool disposing)
+            {
+	            // Check to see if Dispose has already been called.
+	            if(!this.Disposed)
+	            {
 		
-		        if(disposing)
-		        {
-			        // Dispose all managed resources.
-			        if(this.EventParser != null)
-                    {
-                        this.EventParser.OnLogEvent -= this.LogEventCallBack;
-                    }
-		        }
+		            if(disposing)
+		            {
+			            // Dispose all managed resources.
+			            if(this.EventParser != null && !this.EventParser.Disposed)
+                        {
+                            this.EventParser.OnLogEvent -= this.LogEventCallBack;
+                        }
+		            }
 
-		        //Dispose of all unmanaged resources
+		            //Dispose of all unmanaged resources
 
-		        // Note disposing has been done.
-		        this.Disposed = true;
+		            // Note disposing has been done.
+		            this.Disposed = true;
 
-	        }
-        }
-#endregion //end of Dispose Methods
+	            }
+            }
+    #endregion //end of Dispose Methods
     }
 
     public static class CassandraLogEventAggregate

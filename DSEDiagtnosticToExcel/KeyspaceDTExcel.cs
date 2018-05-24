@@ -46,7 +46,52 @@ namespace DSEDiagtnosticToExcel
                                                                         this.CallActionEvent("Begin Loading");
                                                                         break;
                                                                     case WorkBookProcessingStage.PreSave:
-                                                                        this.CallActionEvent("Loaded");
+                                                                        {
+                                                                            var workSheet = excelPackage.Workbook.Worksheets[WorkSheetName];
+                                                                            var rangeAddress = loadRange == null ? null : workSheet?.Cells[loadRange];
+
+                                                                            if (rangeAddress != null)
+                                                                            {
+                                                                                var startRow = rangeAddress.Start.Row;
+                                                                                var endRow = rangeAddress.End.Row;
+                                                                                string lastValue = string.Empty;
+                                                                                string currentValue;
+                                                                                bool formatOn = false;
+
+                                                                                for (int nRow = startRow; nRow <= endRow; ++nRow)
+                                                                                {
+                                                                                    if (workSheet.Cells[nRow, 1] != null)
+                                                                                    {
+                                                                                        currentValue = workSheet.Cells[nRow, 1].Value as string;
+                                                                                        if (currentValue != null)
+                                                                                        {
+                                                                                            if (lastValue == null)
+                                                                                            {
+                                                                                                lastValue = currentValue;
+                                                                                                formatOn = false;
+                                                                                            }
+                                                                                            else if (lastValue != currentValue)
+                                                                                            {
+                                                                                                lastValue = currentValue;
+                                                                                                formatOn = !formatOn;
+                                                                                            }
+
+                                                                                            if (formatOn)
+                                                                                            {
+                                                                                                workSheet.Row(nRow).Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                                                                                                workSheet.Row(nRow).Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
+                                                                                            }
+                                                                                            else
+                                                                                            {
+                                                                                                workSheet.Row(nRow).Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.None;
+                                                                                            }
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            }
+
+                                                                            this.CallActionEvent("Loaded");
+                                                                        }
                                                                         break;
                                                                     case WorkBookProcessingStage.Saved:
                                                                         this.CallActionEvent("Workbook Saved");
@@ -99,11 +144,11 @@ namespace DSEDiagtnosticToExcel
                                                                 workSheet.Cells[dtKeySpace.Rows.Count + 2, 18].FormulaR1C1 = string.Format("sum(R2:R{0})", dtKeySpace.Rows.Count + 1);
                                                                 workSheet.Cells[dtKeySpace.Rows.Count + 2, 19].FormulaR1C1 = string.Format("sum(S2:S{0})", dtKeySpace.Rows.Count + 1);
                                                                 workSheet.Cells[dtKeySpace.Rows.Count + 2, 20].FormulaR1C1 = string.Format("sum(T2:T{0})", dtKeySpace.Rows.Count + 1);
-                                                                workSheet.Cells[dtKeySpace.Rows.Count + 2, 20].FormulaR1C1 = string.Format("sum(U2:U{0})", dtKeySpace.Rows.Count + 1);
+                                                                workSheet.Cells[dtKeySpace.Rows.Count + 2, 21].FormulaR1C1 = string.Format("sum(U2:U{0})", dtKeySpace.Rows.Count + 1);
 
-                                                                workSheet.Cells[dtKeySpace.Rows.Count + 2, 5, dtKeySpace.Rows.Count + 2, 20].Style.Border.Top.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thick;
+                                                                workSheet.Cells[dtKeySpace.Rows.Count + 2, 5, dtKeySpace.Rows.Count + 2, 21].Style.Border.Top.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thick;
 
-                                                                workSheet.View.FreezePanes(2, 1);
+                                                                workSheet.View.FreezePanes(2, 2);
                                                                 workSheet.Cells["A1:U1"].AutoFilter = true;
                                                                 
                                                                 workSheet.AutoFitColumn(workSheet.Cells["A:U"]);

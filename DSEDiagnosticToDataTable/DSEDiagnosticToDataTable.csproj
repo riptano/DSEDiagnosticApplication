@@ -60,6 +60,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AggregatedStatsDataTable.cs" />
     <Compile Include="CommonPartitionKeyDataTable.cs" />
     <Compile Include="DSEDevicesDataTable.cs" />
     <Compile Include="LogAggregationDataTable.cs" />

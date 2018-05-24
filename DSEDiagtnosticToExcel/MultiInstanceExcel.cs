@@ -77,8 +77,12 @@ namespace DSEDiagtnosticToExcel
 
                                                                                             if (formatOn)
                                                                                             {
-                                                                                                workSheet.Row(nRow).Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.LightGray;
-                                                                                                //workSheet.Row(nRow).Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Yellow);                                                                                                
+                                                                                                workSheet.Row(nRow).Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                                                                                                workSheet.Row(nRow).Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
+                                                                                            }
+                                                                                            else
+                                                                                            {
+                                                                                                workSheet.Row(nRow).Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.None;
                                                                                             }
                                                                                         }
                                                                                     }   

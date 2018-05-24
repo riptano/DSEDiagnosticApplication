@@ -12,7 +12,7 @@ namespace DSEDiagtnosticToExcel.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "15.5.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "15.7.0.0")]
     internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
         
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
@@ -34,117 +34,218 @@ namespace DSEDiagtnosticToExcel.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("{\r\n\"CFStats\":{\"Column\":\"F\",\"Attrs\":[\r\n\t\"Average live cells per slice (last five m" +
-            "inutes)\",\r\n\t\"Average tombstones per slice (last five minutes)\",\r\n\t\"Batch size ma" +
-            "ximum\",\r\n\t\"Batch size mean\",\r\n\t\"Batch size minimum\",\r\n\t\"Batch size occurrences\"," +
-            "\r\n\t\"Bloom filter false positives\",\r\n\t\"Bloom filter false ratio\",\r\n\t\"Bloom filter" +
-            " off heap memory used\",\r\n\t\"Bloom filter space used\",\r\n\t\"Compacted partition maxi" +
-            "mum bytes\",\r\n\t\"Compacted partition mean bytes\",\r\n\t\"Compacted partition minimum b" +
-            "ytes\",\r\n\t\"Compaction maximum latency\",\r\n\t\"Compaction maximum rate\",\r\n\t\"Compactio" +
-            "n mean latency\",\r\n\t\"Compaction mean rate\",\r\n\t\"Compaction mean rate\",\r\n\t\"Compacti" +
-            "on minimum latency\",\r\n\t\"Compaction minimum rate\",\r\n\t\"Compaction occurrences\",\r\n\t" +
-            "\"Compression metadata off heap memory used\",\r\n\t\"Index summary off heap memory us" +
-            "ed\",\r\n\t\"Local read count\",\r\n\t\"Local read latency\",\r\n\t\"Local write count\",\r\n\t\"Loc" +
-            "al write latency\",\r\n\t\"Maximum live cells per slice (last five minutes)\",\r\n\t\"Maxi" +
-            "mum tombstones per slice (last five minutes)\",\r\n\t\"MemTable OPS maximum\",\r\n\t\"MemT" +
-            "able OPS mean\",\r\n\t\"MemTable OPS minimum\",\r\n\t\"MemTable Size maximum\",\r\n\t\"MemTable" +
-            " Size mean\",\r\n\t\"MemTable Size minimum\",\r\n\t\"MemTable occurrences\",\r\n\t\"Memtable ce" +
-            "ll count\",\r\n\t\"Memtable data size\",\r\n\t\"Memtable off heap memory used\",\r\n\t\"Memtabl" +
-            "e switch count\",\r\n\t\"Number of keys (estimate)\",\r\n\t\"Off heap memory used (total)\"" +
-            ",\r\n\t\"Partition large maximum\",\r\n\t\"Partition large mean\",\r\n\t\"Partition large mini" +
-            "mum\",\r\n\t\"Partition large occurrences\",\r\n\t\"Pending flushes\",\r\n\t\"Read Count\",\r\n\t\"R" +
-            "ead latency\",\r\n\t\"Read latency maximum\",\r\n\t\"SSTable Compression Ratio\",\r\n\t\"SSTabl" +
-            "e count\",\r\n\t\"SSTable read maximum \",\r\n\t\"Space used (live)\",\r\n\t\"Space used (total" +
-            ")\",\r\n\t\"Space used by snapshots (total)\",\r\n\t\"Tombstones warning Total\",\r\n\t\"Tombst" +
-            "ones warning maximum\",\r\n\t\"Tombstones warning mean\",\r\n\t\"Tombstones warning minimu" +
-            "m\",\r\n\t\"Tombstones warning occurrences\",\r\n\t\"Write Count\",\r\n\t\"Write latency\",\r\n\t\"W" +
-            "rite latency maximum\",\r\n\t\"Unlogged Batch Partitions Count Total\",\r\n\t\"Unlogged Ba" +
-            "tch Partitions Count maximum\",\r\n\t\"Unlogged Batch Partitions Count mean\",\r\n\t\"Unlo" +
-            "gged Batch Partitions Count minimum\",\r\n\t\"Unlogged Batch Partitions Count occurre" +
-            "nces\",\r\n\t\"Tombstones query aborted Total\",\r\n\t\"Tombstones query aborted maximum\"," +
-            "\r\n\t\"Tombstones query aborted mean\",\r\n\t\"Tombstones query aborted minimum\",\r\n\t\"Tom" +
-            "bstones query aborted occurences\",\r\n\t\"Read Repair maximum latency\",\r\n\t\"Read Repa" +
-            "ir minimum latency\",\r\n\t\"Read Repair mean latency\",\r\n\t\"Read Repair occurrences\",\r" +
-            "\n\t\"Read Repair Aborted occurrences\",\r\n\t\"Solr reindex duration maximum\",\r\n\t\"Solr " +
-            "reindex duration minimum\",\r\n\t\"Solr reindex duration mean\",\r\n\t\"Solr reindex durat" +
-            "ion stdev\",\r\n\t\"Solr reindex occurrences\",\r\n\t\"AntiCompaction maximum latency\",\r\n\t" +
-            "\"AntiCompaction mean latency\",\r\n\t\"AntiCompaction minimum latency\",\r\n\t\"AntiCompac" +
-            "tion occurrences\",\r\n\t\"AntiCompaction SSTable count\",\r\n\t\"Memtable Flush maximum l" +
-            "atency\",\r\n\t\"Memtable Flush mean latency\",\r\n\t\"Memtable Flush minimum latency\",\r\n\t" +
-            "\"Memtable Flush occurrences\",\r\n\t\"Memtable Flush maximum IORate\",\r\n\t\"Memtable Flu" +
-            "sh mean IORate\",\r\n\t\"Memtable Flush minimum IORate\",\r\n\t\"Memtable Flush maximum St" +
-            "orage\",\r\n\t\"Memtable Flush mean Storage\",\r\n\t\"Memtable Flush minimum Storage\",\r\n\t\"" +
-            "Memtable Flush total Storage\",\r\n                   \"Error (DC Not Defined within" +
-            " KS)\",\r\n                   \"Errors\"\r\n]},\r\n\"NodeStats\":{\"Column\":\"D\",\"Attrs\":[\r\n\t" +
-            "\"AntiEntropySessions\",\r\n\t\"AntiEntropyStage\",\r\n\t\"AntiEntropyStage Total\",\r\n\t\"Anti" +
-            "EntropyStage maximum\",\r\n\t\"AntiEntropyStage mean\",\r\n\t\"AntiEntropyStage minimum\",\r" +
-            "\n\t\"AntiEntropyStage occurrences\",\r\n\t\"BINARY\",\r\n\t\"COUNTER_MUTATION\",\r\n\t\"CacheClea" +
-            "nupExecutor\",\r\n\t\"CommitLogArchiver\",\r\n\t\"CompactionExecutor\",\r\n\t\"CompactionExecut" +
-            "or Total\",\r\n\t\"CompactionExecutor maximum\",\r\n\t\"CompactionExecutor mean\",\r\n\t\"Compa" +
-            "ctionExecutor minimum\",\r\n\t\"CompactionExecutor occurrences\",\r\n\t\"CounterMutationSt" +
-            "age\",\r\n\t\"CounterMutationStage Total\",\r\n\t\"CounterMutationStage maximum\",\r\n\t\"Count" +
-            "erMutationStage mean\",\r\n\t\"CounterMutationStage minimum\",\r\n\t\"CounterMutationStage" +
-            " occurrences\",\r\n\t\"GC maximum latency\",\r\n\t\"GC mean latency\",\r\n\t\"GC minimum latenc" +
-            "y\",\r\n\t\"GC occurrences\",\r\n\t\"GossipStage\",\r\n\t\"GossipStage Total\",\r\n\t\"GossipStage m" +
-            "aximum\",\r\n\t\"GossipStage mean\",\r\n\t\"GossipStage minimum\",\r\n\t\"GossipStage occurrenc" +
-            "es\",\r\n\t\"HintedHandoff\",\r\n\t\"HintedHandoff Total\",\r\n\t\"HintedHandoff maximum\",\r\n\t\"H" +
-            "intedHandoff mean\",\r\n\t\"HintedHandoff minimum\",\r\n\t\"HintedHandoff occurrences\",\r\n\t" +
-            "\"InternalResponseStage\",\r\n\t\"InternalResponseStage Total\",\r\n\t\"InternalResponseSta" +
-            "ge maximum\",\r\n\t\"InternalResponseStage mean\",\r\n\t\"InternalResponseStage minimum\",\r" +
-            "\n\t\"InternalResponseStage occurrences\",\r\n\t\"MUTATION\",\r\n\t\"MemtableFlushWriter\",\r\n\t" +
-            "\"MemtableFlushWriter Total\",\r\n\t\"MemtableFlushWriter maximum\",\r\n\t\"MemtableFlushWr" +
-            "iter mean\",\r\n\t\"MemtableFlushWriter minimum\",\r\n\t\"MemtableFlushWriter occurrences\"" +
-            ",\r\n\t\"MemtablePostFlush\",\r\n\t\"MemtablePostFlush Total\",\r\n\t\"MemtablePostFlush maxim" +
-            "um\",\r\n\t\"MemtablePostFlush mean\",\r\n\t\"MemtablePostFlush minimum\",\r\n\t\"MemtablePostF" +
-            "lush occurrences\",\r\n\t\"MemtableReclaimMemory\",\r\n\t\"MemtableReclaimMemory Total\",\r\n" +
-            "\t\"MemtableReclaimMemory maximum\",\r\n\t\"MemtableReclaimMemory mean\",\r\n\t\"MemtableRec" +
-            "laimMemory minimum\",\r\n\t\"MemtableReclaimMemory occurrences\",\r\n\t\"MigrationStage\",\r" +
-            "\n\t\"MigrationStage Total\",\r\n\t\"MigrationStage maximum\",\r\n\t\"MigrationStage mean\",\r\n" +
-            "\t\"MigrationStage minimum\",\r\n\t\"MigrationStage occurrences\",\r\n\t\"MiscStage\",\r\n\t\"Mut" +
-            "ationStage\",\r\n\t\"MutationStage Total\",\r\n\t\"MutationStage maximum\",\r\n\t\"MutationStag" +
-            "e mean\",\r\n\t\"MutationStage minimum\",\r\n\t\"MutationStage occurrences\",\r\n\t\"PAGED_RANG" +
-            "E\",\r\n\t\"Pause maximum latency\",\r\n\t\"Pause mean latency\",\r\n\t\"Pause minimum latency\"" +
-            ",\r\n\t\"Pause occurrences\",\r\n\t\"PendingRangeCalculator\",\r\n\t\"PendingRangeCalculator T" +
-            "otal\",\r\n\t\"PendingRangeCalculator maximum\",\r\n\t\"PendingRangeCalculator mean\",\r\n\t\"P" +
-            "endingRangeCalculator minimum\",\r\n\t\"PendingRangeCalculator occurrences\",\r\n\t\"RANGE" +
-            "_SLICE\",\r\n\t\"READ\",\r\n\t\"READ_REPAIR\",\r\n\t\"REQUEST_RESPONSE\",\r\n\t\"ReadRepairStage\",\r\n" +
-            "\t\"ReadRepairStage Total\",\r\n\t\"ReadRepairStage maximum\",\r\n\t\"ReadRepairStage mean\"," +
-            "\r\n\t\"ReadRepairStage minimum\",\r\n\t\"ReadRepairStage occurrences\",\r\n\t\"ReadStage\",\r\n\t" +
-            "\"ReadStage Total\",\r\n\t\"ReadStage maximum\",\r\n\t\"ReadStage mean\",\r\n\t\"ReadStage minim" +
-            "um\",\r\n\t\"ReadStage occurrences\",\r\n\t\"RequestResponseStage\",\r\n\t\"RequestResponseStag" +
-            "e Total\",\r\n\t\"RequestResponseStage maximum\",\r\n\t\"RequestResponseStage mean\",\r\n\t\"Re" +
-            "questResponseStage minimum\",\r\n\t\"RequestResponseStage occurrences\",\r\n\t\"Sampler\",\r" +
-            "\n\t\"Slow Query maximum latency\",\r\n\t\"Slow Query mean latency\",\r\n\t\"Slow Query minim" +
-            "um latency\",\r\n\t\"Slow Query occurrences\",\r\n\t\"ValidationExecutor\",\r\n\t\"_TRACE\",\r\n\t\"" +
-            "OutOfMemoryError occurrences\",\r\n\t\"CommitLogFlushFailure occurrences\",\r\n\t\"Dropped" +
-            " Hints Total\",\r\n\t\"Dropped Hints maximum\",\r\n\t\"Dropped Hints mean\",\r\n\t\"Dropped Hin" +
-            "ts minimum\",\r\n\t\"Dropped Hints occurrences\",\r\n\t\"Allocation Failed Maximum Memory " +
-            "Reached Total\",\r\n\t\"Allocation Failed Maximum Memory Reached maximum\",\r\n\t\"Allocat" +
-            "ion Failed Maximum Memory Reached minimum\",\r\n\t\"Allocation Failed Maximum Memory " +
-            "Reached mean\",\r\n\t\"Allocation Failed Maximum Memory Reached occurrences\",\r\n\t\"Drop" +
-            "ped Mutation Total\",\r\n\t\"Dropped Mutation maximum\",\r\n\t\"Dropped Mutation mean\",\r\n\t" +
-            "\"Dropped Mutation minimum\",\r\n\t\"Dropped Mutation occurrences\",\r\n\t\"GC Continuous m" +
-            "aximum latency\",\r\n\t\"GC Continuous minimum latency\",\r\n\t\"GC Continuous mean latenc" +
-            "y\",\r\n\t\"GC Continuous occurrences\",\r\n\t\"GC Continuous latency\",\r\n\t\"GC Continuous s" +
-            "tandard deviation latency\",\r\n\t\"GC TimeFrame maximum latency\",\r\n\t\"GC TimeFrame mi" +
-            "nimum latency\",\r\n\t\"GC TimeFrame mean latency\",\r\n\t\"GC TimeFrame occurrences\",\r\n\t\"" +
-            "GC TimeFrame latency\",\r\n\t\"GC TimeFrame standard deviation latency\",\r\n\t\"GC TimeFr" +
-            "ame percent\",\r\n\t\"Timedout Hints Total\",\r\n\t\"Timedout Hints maximum\",\r\n\t\"Timedout " +
-            "Hints mean\",\r\n\t\"Timedout Hints minimum\",\r\n\t\"Timedout Hints occurrences\",\r\n\t\"Conc" +
-            "urrent Compaction maximum\",\r\n\t\"Concurrent Compaction minimum\",\r\n\t\"Concurrent Com" +
-            "paction mean\",\r\n\t\"Concurrent Compaction standard deviation\",\r\n\t\"Concurrent Compa" +
-            "ction Total\",\r\n\t\"Concurrent Compaction occurrences\",\r\n\t\"Concurrent MemtableFlush" +
-            " maximum\",\r\n\t\"Concurrent MemtableFlush minimum\",\r\n\t\"Concurrent MemtableFlush mea" +
-            "n\",\r\n\t\"Concurrent MemtableFlush standard deviation\",\r\n\t\"Concurrent MemtableFlush" +
-            " Total\",\r\n\t\"Concurrent MemtableFlush occurrences\",\r\n\t\"Concurrent Compaction/Flus" +
-            "h Performance Warnings maximum\",\r\n\t\"Concurrent Compaction/Flush Performance Warn" +
-            "ings minimum\",\r\n\t\"Concurrent Compaction/Flush Performance Warnings mean\",\r\n\t\"Con" +
-            "current Compaction/Flush Performance Warnings standard deviation\",\r\n\t\"Concurrent" +
-            " Compaction/Flush GC maximum\",\r\n\t\"Concurrent Compaction/Flush GC minimum\",\r\n\t\"Co" +
-            "ncurrent Compaction/Flush GC mean\",\r\n\t\"Concurrent Compaction/Flush GC standard d" +
-            "eviation\",\r\n\t\"Shard State Change Schema\",\r\n\t\"Shard State Change Dead Node\",\r\n\t\"N" +
-            "ode Marked Down (Dropped Hints)\",\r\n\t\"Node Not Responding (Timed Out Hints)\"\r\n]}\r" +
-            "\n\r\n}")]
+        [global::System.Configuration.DefaultSettingValueAttribute("{\r\n\"CFStats\":[{\"Column\":\"F\",\"Attrs\":[\r\n\t\"Average live cells per slice (last five " +
+            "minutes)\",\r\n\t\"Average tombstones per slice (last five minutes)\",\r\n\t\"Batch size m" +
+            "aximum\",\r\n\t\"Batch size mean\",\r\n\t\"Batch size minimum\",\r\n\t\"Batch size occurrences\"" +
+            ",\r\n\t\"Bloom filter false positives\",\r\n\t\"Bloom filter false ratio\",\r\n\t\"Bloom filte" +
+            "r off heap memory used\",\r\n\t\"Bloom filter space used\",\r\n\t\"Compacted partition max" +
+            "imum bytes\",\r\n\t\"Compacted partition mean bytes\",\r\n\t\"Compacted partition minimum " +
+            "bytes\",\r\n\t\"Compaction maximum latency\",\r\n\t\"Compaction maximum rate\",\r\n\t\"Compacti" +
+            "on mean latency\",\r\n\t\"Compaction mean rate\",\r\n\t\"Compaction mean rate\",\r\n\t\"Compact" +
+            "ion minimum latency\",\r\n\t\"Compaction minimum rate\",\r\n\t\"Compaction occurrences\",\r\n" +
+            "\t\"Compression metadata off heap memory used\",\r\n\t\"Index summary off heap memory u" +
+            "sed\",\r\n\t\"Local read count\",\r\n\t\"Local read latency\",\r\n\t\"Local write count\",\r\n\t\"Lo" +
+            "cal write latency\",\r\n\t\"Maximum live cells per slice (last five minutes)\",\r\n\t\"Max" +
+            "imum tombstones per slice (last five minutes)\",\r\n\t\"MemTable OPS maximum\",\r\n\t\"Mem" +
+            "Table OPS mean\",\r\n\t\"MemTable OPS minimum\",\r\n\t\"MemTable Size maximum\",\r\n\t\"MemTabl" +
+            "e Size mean\",\r\n\t\"MemTable Size minimum\",\r\n\t\"MemTable occurrences\",\r\n\t\"Memtable c" +
+            "ell count\",\r\n\t\"Memtable data size\",\r\n\t\"Memtable off heap memory used\",\r\n\t\"Memtab" +
+            "le switch count\",\r\n\t\"Number of keys (estimate)\",\r\n\t\"Off heap memory used (total)" +
+            "\",\r\n\t\"Partition large maximum\",\r\n\t\"Partition large mean\",\r\n\t\"Partition large min" +
+            "imum\",\r\n\t\"Partition large occurrences\",\r\n\t\"Pending flushes\",\r\n\t\"Read Count\",\r\n\t\"" +
+            "Read latency\",\r\n\t\"Read latency maximum\",\r\n\t\"SSTable Compression Ratio\",\r\n\t\"SSTab" +
+            "le count\",\r\n\t\"SSTable read maximum \",\r\n\t\"Space used (live)\",\r\n\t\"Space used (tota" +
+            "l)\",\r\n\t\"Space used by snapshots (total)\",\r\n\t\"Tombstones warning Total\",\r\n\t\"Tombs" +
+            "tones warning maximum\",\r\n\t\"Tombstones warning mean\",\r\n\t\"Tombstones warning minim" +
+            "um\",\r\n\t\"Tombstones warning occurrences\",\r\n\t\"Write Count\",\r\n\t\"Write latency\",\r\n\t\"" +
+            "Write latency maximum\",\r\n\t\"Unlogged Batch Partitions Count Total\",\r\n\t\"Unlogged B" +
+            "atch Partitions Count maximum\",\r\n\t\"Unlogged Batch Partitions Count mean\",\r\n\t\"Unl" +
+            "ogged Batch Partitions Count minimum\",\r\n\t\"Unlogged Batch Partitions Count occurr" +
+            "ences\",\r\n\t\"Tombstones query aborted Total\",\r\n\t\"Tombstones query aborted maximum\"" +
+            ",\r\n\t\"Tombstones query aborted mean\",\r\n\t\"Tombstones query aborted minimum\",\r\n\t\"To" +
+            "mbstones query aborted occurences\",\r\n\t\"Read Repair maximum latency\",\r\n\t\"Read Rep" +
+            "air minimum latency\",\r\n\t\"Read Repair mean latency\",\r\n\t\"Read Repair occurrences\"," +
+            "\r\n\t\"Read Repair Aborted occurrences\",\r\n\t\"Solr reindex duration maximum\",\r\n\t\"Solr" +
+            " reindex duration minimum\",\r\n\t\"Solr reindex duration mean\",\r\n\t\"Solr reindex dura" +
+            "tion stdev\",\r\n\t\"Solr reindex occurrences\",\r\n\t\"AntiCompaction maximum latency\",\r\n" +
+            "\t\"AntiCompaction mean latency\",\r\n\t\"AntiCompaction minimum latency\",\r\n\t\"AntiCompa" +
+            "ction occurrences\",\r\n\t\"AntiCompaction SSTable count\",\r\n\t\"Memtable Flush maximum " +
+            "latency\",\r\n\t\"Memtable Flush mean latency\",\r\n\t\"Memtable Flush minimum latency\",\r\n" +
+            "\t\"Memtable Flush occurrences\",\r\n\t\"Memtable Flush maximum IORate\",\r\n\t\"Memtable Fl" +
+            "ush mean IORate\",\r\n\t\"Memtable Flush minimum IORate\",\r\n\t\"Memtable Flush maximum S" +
+            "torage\",\r\n\t\"Memtable Flush mean Storage\",\r\n\t\"Memtable Flush minimum Storage\",\r\n\t" +
+            "\"Memtable Flush total Storage\",\r\n                   \"Error (DC Not Defined withi" +
+            "n KS)\",\r\n                   \"Errors\"\r\n]}],\r\n\"NodeStats\":[{\"Column\":\"D\",\"Attrs\":[" +
+            "\r\n\t\"AntiEntropySessions\",\r\n\t\"AntiEntropyStage\",\r\n\t\"AntiEntropyStage Total\",\r\n\t\"A" +
+            "ntiEntropyStage maximum\",\r\n\t\"AntiEntropyStage mean\",\r\n\t\"AntiEntropyStage minimum" +
+            "\",\r\n\t\"AntiEntropyStage occurrences\",\r\n\t\"BINARY\",\r\n\t\"COUNTER_MUTATION\",\r\n\t\"CacheC" +
+            "leanupExecutor\",\r\n\t\"CommitLogArchiver\",\r\n\t\"CompactionExecutor\",\r\n\t\"CompactionExe" +
+            "cutor Total\",\r\n\t\"CompactionExecutor maximum\",\r\n\t\"CompactionExecutor mean\",\r\n\t\"Co" +
+            "mpactionExecutor minimum\",\r\n\t\"CompactionExecutor occurrences\",\r\n\t\"CounterMutatio" +
+            "nStage\",\r\n\t\"CounterMutationStage Total\",\r\n\t\"CounterMutationStage maximum\",\r\n\t\"Co" +
+            "unterMutationStage mean\",\r\n\t\"CounterMutationStage minimum\",\r\n\t\"CounterMutationSt" +
+            "age occurrences\",\r\n\t\"GC maximum latency\",\r\n\t\"GC mean latency\",\r\n\t\"GC minimum lat" +
+            "ency\",\r\n\t\"GC occurrences\",\r\n\t\"GossipStage\",\r\n\t\"GossipStage Total\",\r\n\t\"GossipStag" +
+            "e maximum\",\r\n\t\"GossipStage mean\",\r\n\t\"GossipStage minimum\",\r\n\t\"GossipStage occurr" +
+            "ences\",\r\n\t\"HintedHandoff\",\r\n\t\"HintedHandoff Total\",\r\n\t\"HintedHandoff maximum\",\r\n" +
+            "\t\"HintedHandoff mean\",\r\n\t\"HintedHandoff minimum\",\r\n\t\"HintedHandoff occurrences\"," +
+            "\r\n\t\"InternalResponseStage\",\r\n\t\"InternalResponseStage Total\",\r\n\t\"InternalResponse" +
+            "Stage maximum\",\r\n\t\"InternalResponseStage mean\",\r\n\t\"InternalResponseStage minimum" +
+            "\",\r\n\t\"InternalResponseStage occurrences\",\r\n\t\"MUTATION\",\r\n\t\"MemtableFlushWriter\"," +
+            "\r\n\t\"MemtableFlushWriter Total\",\r\n\t\"MemtableFlushWriter maximum\",\r\n\t\"MemtableFlus" +
+            "hWriter mean\",\r\n\t\"MemtableFlushWriter minimum\",\r\n\t\"MemtableFlushWriter occurrenc" +
+            "es\",\r\n\t\"MemtablePostFlush\",\r\n\t\"MemtablePostFlush Total\",\r\n\t\"MemtablePostFlush ma" +
+            "ximum\",\r\n\t\"MemtablePostFlush mean\",\r\n\t\"MemtablePostFlush minimum\",\r\n\t\"MemtablePo" +
+            "stFlush occurrences\",\r\n\t\"MemtableReclaimMemory\",\r\n\t\"MemtableReclaimMemory Total\"" +
+            ",\r\n\t\"MemtableReclaimMemory maximum\",\r\n\t\"MemtableReclaimMemory mean\",\r\n\t\"Memtable" +
+            "ReclaimMemory minimum\",\r\n\t\"MemtableReclaimMemory occurrences\",\r\n\t\"MigrationStage" +
+            "\",\r\n\t\"MigrationStage Total\",\r\n\t\"MigrationStage maximum\",\r\n\t\"MigrationStage mean\"" +
+            ",\r\n\t\"MigrationStage minimum\",\r\n\t\"MigrationStage occurrences\",\r\n\t\"MiscStage\",\r\n\t\"" +
+            "MutationStage\",\r\n\t\"MutationStage Total\",\r\n\t\"MutationStage maximum\",\r\n\t\"MutationS" +
+            "tage mean\",\r\n\t\"MutationStage minimum\",\r\n\t\"MutationStage occurrences\",\r\n\t\"PAGED_R" +
+            "ANGE\",\r\n\t\"Pause maximum latency\",\r\n\t\"Pause mean latency\",\r\n\t\"Pause minimum laten" +
+            "cy\",\r\n\t\"Pause occurrences\",\r\n\t\"PendingRangeCalculator\",\r\n\t\"PendingRangeCalculato" +
+            "r Total\",\r\n\t\"PendingRangeCalculator maximum\",\r\n\t\"PendingRangeCalculator mean\",\r\n" +
+            "\t\"PendingRangeCalculator minimum\",\r\n\t\"PendingRangeCalculator occurrences\",\r\n\t\"RA" +
+            "NGE_SLICE\",\r\n\t\"READ\",\r\n\t\"READ_REPAIR\",\r\n\t\"REQUEST_RESPONSE\",\r\n\t\"ReadRepairStage\"" +
+            ",\r\n\t\"ReadRepairStage Total\",\r\n\t\"ReadRepairStage maximum\",\r\n\t\"ReadRepairStage mea" +
+            "n\",\r\n\t\"ReadRepairStage minimum\",\r\n\t\"ReadRepairStage occurrences\",\r\n\t\"ReadStage\"," +
+            "\r\n\t\"ReadStage Total\",\r\n\t\"ReadStage maximum\",\r\n\t\"ReadStage mean\",\r\n\t\"ReadStage mi" +
+            "nimum\",\r\n\t\"ReadStage occurrences\",\r\n\t\"RequestResponseStage\",\r\n\t\"RequestResponseS" +
+            "tage Total\",\r\n\t\"RequestResponseStage maximum\",\r\n\t\"RequestResponseStage mean\",\r\n\t" +
+            "\"RequestResponseStage minimum\",\r\n\t\"RequestResponseStage occurrences\",\r\n\t\"Sampler" +
+            "\",\r\n\t\"Slow Query maximum latency\",\r\n\t\"Slow Query mean latency\",\r\n\t\"Slow Query mi" +
+            "nimum latency\",\r\n\t\"Slow Query occurrences\",\r\n\t\"ValidationExecutor\",\r\n\t\"_TRACE\",\r" +
+            "\n\t\"OutOfMemoryError occurrences\",\r\n\t\"CommitLogFlushFailure occurrences\",\r\n\t\"Drop" +
+            "ped Hints Total\",\r\n\t\"Dropped Hints maximum\",\r\n\t\"Dropped Hints mean\",\r\n\t\"Dropped " +
+            "Hints minimum\",\r\n\t\"Dropped Hints occurrences\",\r\n\t\"Allocation Failed Maximum Memo" +
+            "ry Reached Total\",\r\n\t\"Allocation Failed Maximum Memory Reached maximum\",\r\n\t\"Allo" +
+            "cation Failed Maximum Memory Reached minimum\",\r\n\t\"Allocation Failed Maximum Memo" +
+            "ry Reached mean\",\r\n\t\"Allocation Failed Maximum Memory Reached occurrences\",\r\n\t\"D" +
+            "ropped Mutation Total\",\r\n\t\"Dropped Mutation maximum\",\r\n\t\"Dropped Mutation mean\"," +
+            "\r\n\t\"Dropped Mutation minimum\",\r\n\t\"Dropped Mutation occurrences\",\r\n\t\"GC Continuou" +
+            "s maximum latency\",\r\n\t\"GC Continuous minimum latency\",\r\n\t\"GC Continuous mean lat" +
+            "ency\",\r\n\t\"GC Continuous occurrences\",\r\n\t\"GC Continuous latency\",\r\n\t\"GC Continuou" +
+            "s standard deviation latency\",\r\n\t\"GC TimeFrame maximum latency\",\r\n\t\"GC TimeFrame" +
+            " minimum latency\",\r\n\t\"GC TimeFrame mean latency\",\r\n\t\"GC TimeFrame occurrences\",\r" +
+            "\n\t\"GC TimeFrame latency\",\r\n\t\"GC TimeFrame standard deviation latency\",\r\n\t\"GC Tim" +
+            "eFrame percent\",\r\n\t\"Timedout Hints Total\",\r\n\t\"Timedout Hints maximum\",\r\n\t\"Timedo" +
+            "ut Hints mean\",\r\n\t\"Timedout Hints minimum\",\r\n\t\"Timedout Hints occurrences\",\r\n\t\"C" +
+            "oncurrent Compaction maximum\",\r\n\t\"Concurrent Compaction minimum\",\r\n\t\"Concurrent " +
+            "Compaction mean\",\r\n\t\"Concurrent Compaction standard deviation\",\r\n\t\"Concurrent Co" +
+            "mpaction Total\",\r\n\t\"Concurrent Compaction occurrences\",\r\n\t\"Concurrent MemtableFl" +
+            "ush maximum\",\r\n\t\"Concurrent MemtableFlush minimum\",\r\n\t\"Concurrent MemtableFlush " +
+            "mean\",\r\n\t\"Concurrent MemtableFlush standard deviation\",\r\n\t\"Concurrent MemtableFl" +
+            "ush Total\",\r\n\t\"Concurrent MemtableFlush occurrences\",\r\n\t\"Concurrent Compaction/F" +
+            "lush Performance Warnings maximum\",\r\n\t\"Concurrent Compaction/Flush Performance W" +
+            "arnings minimum\",\r\n\t\"Concurrent Compaction/Flush Performance Warnings mean\",\r\n\t\"" +
+            "Concurrent Compaction/Flush Performance Warnings standard deviation\",\r\n\t\"Concurr" +
+            "ent Compaction/Flush GC maximum\",\r\n\t\"Concurrent Compaction/Flush GC minimum\",\r\n\t" +
+            "\"Concurrent Compaction/Flush GC mean\",\r\n\t\"Concurrent Compaction/Flush GC standar" +
+            "d deviation\",\r\n\t\"Shard State Change Schema\",\r\n\t\"Shard State Change Dead Node\",\r\n" +
+            "\t\"Node Marked Down (Dropped Hints)\",\r\n\t\"Node Not Responding (Timed Out Hints)\"\r\n" +
+            "]}],\r\n\"AggregatedStats\":[{\"Column\":\"I\",\"Attrs\":[\r\n\t\"_TRACE.Dropped\",\r\n\t\"Average " +
+            "live cells per slice (last five minutes)\",\r\n\t\"Average tombstones per slice (last" +
+            " five minutes)\",\r\n\t\"BINARY.Dropped\",\r\n\t\"Bloom filter false positives\",\r\n\t\"Bloom " +
+            "filter false ratio\",\r\n\t\"Bloom filter off heap memory used\",\r\n\t\"Bloom filter spac" +
+            "e used\",\r\n\t\"Compacted partition maximum bytes\",\r\n\t\"Compacted partition mean byte" +
+            "s\",\r\n\t\"Compacted partition minimum bytes\",\r\n\t\"Compression metadata off heap memo" +
+            "ry used\",\r\n\t\"COUNTER_MUTATION.Dropped\",\r\n\t\"Error (DC Not Defined within KS)\",\r\n\t" +
+            "\"Index summary off heap memory used\",\r\n\t\"Local read count\",\r\n\t\"Local read latenc" +
+            "y\",\r\n\t\"Local write count\",\r\n\t\"Local write latency\",\r\n\t\"Maximum live cells per sl" +
+            "ice (last five minutes)\",\r\n\t\"Maximum tombstones per slice (last five minutes)\",\r" +
+            "\n\t\"Memtable cell count\",\r\n\t\"Memtable data size\",\r\n\t\"Memtable off heap memory use" +
+            "d\",\r\n\t\"Memtable switch count\",\r\n\t\"MUTATION.Dropped\",\r\n\t\"Number of keys (estimate" +
+            ")\",\r\n\t\"Off heap memory used (total)\",\r\n\t\"PAGED_RANGE.Dropped\",\r\n\t\"Partition larg" +
+            "e\",\r\n\t\"Pending Flushes\",\r\n\t\"Pool Name.AntiEntropySessions.Active\",\r\n\t\"Pool Name." +
+            "AntiEntropySessions.All time blocked\",\r\n\t\"Pool Name.AntiEntropySessions.Blocked\"" +
+            ",\r\n\t\"Pool Name.AntiEntropySessions.Completed\",\r\n\t\"Pool Name.AntiEntropySessions." +
+            "Pending\",\r\n\t\"Pool Name.AntiEntropyStage.Active\",\r\n\t\"Pool Name.AntiEntropyStage.A" +
+            "ll time blocked\",\r\n\t\"Pool Name.AntiEntropyStage.Blocked\",\r\n\t\"Pool Name.AntiEntro" +
+            "pyStage.Completed\",\r\n\t\"Pool Name.AntiEntropyStage.Pending\",\r\n\t\"Pool Name.CacheCl" +
+            "eanupExecutor.Active\",\r\n\t\"Pool Name.CacheCleanupExecutor.All time blocked\",\r\n\t\"P" +
+            "ool Name.CacheCleanupExecutor.Blocked\",\r\n\t\"Pool Name.CacheCleanupExecutor.Comple" +
+            "ted\",\r\n\t\"Pool Name.CacheCleanupExecutor.Pending\",\r\n\t\"Pool Name.CommitLogArchiver" +
+            ".Active\",\r\n\t\"Pool Name.CommitLogArchiver.All time blocked\",\r\n\t\"Pool Name.CommitL" +
+            "ogArchiver.Blocked\",\r\n\t\"Pool Name.CommitLogArchiver.Completed\",\r\n\t\"Pool Name.Com" +
+            "mitLogArchiver.Pending\",\r\n\t\"Pool Name.CompactionExecutor.Active\",\r\n\t\"Pool Name.C" +
+            "ompactionExecutor.All time blocked\",\r\n\t\"Pool Name.CompactionExecutor.Blocked\",\r\n" +
+            "\t\"Pool Name.CompactionExecutor.Completed\",\r\n\t\"Pool Name.CompactionExecutor.Pendi" +
+            "ng\",\r\n\t\"Pool Name.CounterMutationStage.Active\",\r\n\t\"Pool Name.CounterMutationStag" +
+            "e.All time blocked\",\r\n\t\"Pool Name.CounterMutationStage.Blocked\",\r\n\t\"Pool Name.Co" +
+            "unterMutationStage.Completed\",\r\n\t\"Pool Name.CounterMutationStage.Pending\",\r\n\t\"Po" +
+            "ol Name.GossipStage.Active\",\r\n\t\"Pool Name.GossipStage.All time blocked\",\r\n\t\"Pool" +
+            " Name.GossipStage.Blocked\",\r\n\t\"Pool Name.GossipStage.Completed\",\r\n\t\"Pool Name.Go" +
+            "ssipStage.Pending\",\r\n\t\"Pool Name.HintedHandoff.Active\",\r\n\t\"Pool Name.HintedHando" +
+            "ff.All time blocked\",\r\n\t\"Pool Name.HintedHandoff.Blocked\",\r\n\t\"Pool Name.HintedHa" +
+            "ndoff.Completed\",\r\n\t\"Pool Name.HintedHandoff.Pending\",\r\n\t\"Pool Name.InternalResp" +
+            "onseStage.Active\",\r\n\t\"Pool Name.InternalResponseStage.All time blocked\",\r\n\t\"Pool" +
+            " Name.InternalResponseStage.Blocked\",\r\n\t\"Pool Name.InternalResponseStage.Complet" +
+            "ed\",\r\n\t\"Pool Name.InternalResponseStage.Pending\",\r\n\t\"Pool Name.MemtableFlushWrit" +
+            "er.Active\",\r\n\t\"Pool Name.MemtableFlushWriter.All time blocked\",\r\n\t\"Pool Name.Mem" +
+            "tableFlushWriter.Blocked\",\r\n\t\"Pool Name.MemtableFlushWriter.Completed\",\r\n\t\"Pool " +
+            "Name.MemtableFlushWriter.Pending\",\r\n\t\"Pool Name.MemtablePostFlush.Active\",\r\n\t\"Po" +
+            "ol Name.MemtablePostFlush.All time blocked\",\r\n\t\"Pool Name.MemtablePostFlush.Bloc" +
+            "ked\",\r\n\t\"Pool Name.MemtablePostFlush.Completed\",\r\n\t\"Pool Name.MemtablePostFlush." +
+            "Pending\",\r\n\t\"Pool Name.MemtableReclaimMemory.Active\",\r\n\t\"Pool Name.MemtableRecla" +
+            "imMemory.All time blocked\",\r\n\t\"Pool Name.MemtableReclaimMemory.Blocked\",\r\n\t\"Pool" +
+            " Name.MemtableReclaimMemory.Completed\",\r\n\t\"Pool Name.MemtableReclaimMemory.Pendi" +
+            "ng\",\r\n\t\"Pool Name.MigrationStage.Active\",\r\n\t\"Pool Name.MigrationStage.All time b" +
+            "locked\",\r\n\t\"Pool Name.MigrationStage.Blocked\",\r\n\t\"Pool Name.MigrationStage.Compl" +
+            "eted\",\r\n\t\"Pool Name.MigrationStage.Pending\",\r\n\t\"Pool Name.MiscStage.Active\",\r\n\t\"" +
+            "Pool Name.MiscStage.All time blocked\",\r\n\t\"Pool Name.MiscStage.Blocked\",\r\n\t\"Pool " +
+            "Name.MiscStage.Completed\",\r\n\t\"Pool Name.MiscStage.Pending\",\r\n\t\"Pool Name.Mutatio" +
+            "nStage.Active\",\r\n\t\"Pool Name.MutationStage.All time blocked\",\r\n\t\"Pool Name.Mutat" +
+            "ionStage.Blocked\",\r\n\t\"Pool Name.MutationStage.Completed\",\r\n\t\"Pool Name.MutationS" +
+            "tage.Pending\",\r\n\t\"Pool Name.Native-Transport-Requests.Active\",\r\n\t\"Pool Name.Nati" +
+            "ve-Transport-Requests.All time blocked\",\r\n\t\"Pool Name.Native-Transport-Requests." +
+            "Blocked\",\r\n\t\"Pool Name.Native-Transport-Requests.Completed\",\r\n\t\"Pool Name.Native" +
+            "-Transport-Requests.Pending\",\r\n\t\"Pool Name.PendingRangeCalculator.Active\",\r\n\t\"Po" +
+            "ol Name.PendingRangeCalculator.All time blocked\",\r\n\t\"Pool Name.PendingRangeCalcu" +
+            "lator.Blocked\",\r\n\t\"Pool Name.PendingRangeCalculator.Completed\",\r\n\t\"Pool Name.Pen" +
+            "dingRangeCalculator.Pending\",\r\n\t\"Pool Name.ReadRepairStage.Active\",\r\n\t\"Pool Name" +
+            ".ReadRepairStage.All time blocked\",\r\n\t\"Pool Name.ReadRepairStage.Blocked\",\r\n\t\"Po" +
+            "ol Name.ReadRepairStage.Completed\",\r\n\t\"Pool Name.ReadRepairStage.Pending\",\r\n\t\"Po" +
+            "ol Name.ReadStage.Active\",\r\n\t\"Pool Name.ReadStage.All time blocked\",\r\n\t\"Pool Nam" +
+            "e.ReadStage.Blocked\",\r\n\t\"Pool Name.ReadStage.Completed\",\r\n\t\"Pool Name.ReadStage." +
+            "Pending\",\r\n\t\"Pool Name.RequestResponseStage.Active\",\r\n\t\"Pool Name.RequestRespons" +
+            "eStage.All time blocked\",\r\n\t\"Pool Name.RequestResponseStage.Blocked\",\r\n\t\"Pool Na" +
+            "me.RequestResponseStage.Completed\",\r\n\t\"Pool Name.RequestResponseStage.Pending\",\r" +
+            "\n\t\"Pool Name.Sampler.Active\",\r\n\t\"Pool Name.Sampler.All time blocked\",\r\n\t\"Pool Na" +
+            "me.Sampler.Blocked\",\r\n\t\"Pool Name.Sampler.Completed\",\r\n\t\"Pool Name.Sampler.Pendi" +
+            "ng\",\r\n\t\"Pool Name.ValidationExecutor.Active\",\r\n\t\"Pool Name.ValidationExecutor.Al" +
+            "l time blocked\",\r\n\t\"Pool Name.ValidationExecutor.Blocked\",\r\n\t\"Pool Name.Validati" +
+            "onExecutor.Completed\",\r\n\t\"Pool Name.ValidationExecutor.Pending\",\r\n\t\"RANGE_SLICE." +
+            "Dropped\",\r\n\t\"Read Count\",\r\n\t\"Read Latency\",\r\n\t\"READ.Dropped\",\r\n\t\"READ_REPAIR.Dro" +
+            "pped\",\r\n\t\"REQUEST_RESPONSE.Dropped\",\r\n\t\"Space used (live)\",\r\n\t\"Space used (total" +
+            ")\",\r\n\t\"Space used by snapshots (total)\",\r\n\t\"SSTable Compression Ratio\",\r\n\t\"SSTab" +
+            "le count\",\r\n\t\"SSTables in each level\",\r\n\t\"Tombstone/Live Percent\",\r\n\t\"Tombstones" +
+            " Read\",\r\n\t\"Write Count\",\r\n\t\"Write Latency\",\r\n\t\"Error (DC Not Defined within KS)\"" +
+            ",\r\n\t\"Errors\"\r\n]},\r\n{\"Column\":\"A\",\"Attrs\":[\r\n\"TPStats\",\r\n\"CFStats\",\r\n\"CFStats\",\r\n" +
+            "\"TPStats\",\r\n\"CFStats\",\r\n\"CFStats\",\r\n\"CFStats\",\r\n\"CFStats\",\r\n\"CFStats\",\r\n\"CFStats" +
+            "\",\r\n\"CFStats\",\r\n\"CFStats\",\r\n\"TPStats\",\r\n\"CFStats\",\r\n\"CFStats\",\r\n\"CFStats\",\r\n\"CFS" +
+            "tats\",\r\n\"CFStats\",\r\n\"CFStats\",\r\n\"CFStats\",\r\n\"CFStats\",\r\n\"CFStats\",\r\n\"CFStats\",\r\n" +
+            "\"CFStats\",\r\n\"CFStats\",\r\n\"TPStats\",\r\n\"CFStats\",\r\n\"CFStats\",\r\n\"TPStats\",\r\n\"Cassand" +
+            "raLog\",\r\n\"CFStats\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStats\",\r" +
+            "\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStat" +
+            "s\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TP" +
+            "Stats\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStats\",\r" +
+            "\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStat" +
+            "s\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TP" +
+            "Stats\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStats\",\r" +
+            "\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStat" +
+            "s\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TP" +
+            "Stats\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStats\",\r" +
+            "\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStat" +
+            "s\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TP" +
+            "Stats\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStats\",\r" +
+            "\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStat" +
+            "s\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TP" +
+            "Stats\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStats\",\r" +
+            "\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"CFStat" +
+            "s\",\r\n\"CFStats\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"TPStats\",\r\n\"CFStats\",\r\n\"CFStats\",\r\n\"CF" +
+            "Stats\",\r\n\"CFStats\",\r\n\"CFStats\",\r\n\"CFStats\",\r\n\"CFStats\",\r\n\"CassandraLog\",\r\n\"CFSta" +
+            "ts\",\r\n\"CFStats\",\r\n\"CFStats\",\r\n\"CFStats\"\r\n]}]\r\n\r\n}")]
         public string WorkSheetDefaultAttrs {
             get {
                 return ((string)(this["WorkSheetDefaultAttrs"]));

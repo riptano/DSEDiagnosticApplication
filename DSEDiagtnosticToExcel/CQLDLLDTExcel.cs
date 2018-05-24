@@ -45,7 +45,52 @@ namespace DSEDiagtnosticToExcel
                                                                         this.CallActionEvent("Begin Loading");
                                                                         break;
                                                                     case WorkBookProcessingStage.PreSave:
-                                                                        this.CallActionEvent("Loaded");
+                                                                        {
+                                                                            var workSheet = excelPackage.Workbook.Worksheets[WorkSheetName];
+                                                                            var rangeAddress = loadRange == null ? null : workSheet?.Cells[loadRange];
+
+                                                                            if (rangeAddress != null)
+                                                                            {
+                                                                                var startRow = rangeAddress.Start.Row;
+                                                                                var endRow = rangeAddress.End.Row;
+                                                                                string lastValue = string.Empty;
+                                                                                string currentValue;
+                                                                                bool formatOn = false;
+
+                                                                                for (int nRow = startRow; nRow <= endRow; ++nRow)
+                                                                                {
+                                                                                    if (workSheet.Cells[nRow, 2] != null)
+                                                                                    {
+                                                                                        currentValue = workSheet.Cells[nRow, 2].Value as string;
+                                                                                        if (currentValue != null)
+                                                                                        {
+                                                                                            if (lastValue == null)
+                                                                                            {
+                                                                                                lastValue = currentValue;
+                                                                                                formatOn = false;
+                                                                                            }
+                                                                                            else if (lastValue != currentValue)
+                                                                                            {
+                                                                                                lastValue = currentValue;
+                                                                                                formatOn = !formatOn;
+                                                                                            }
+
+                                                                                            if (formatOn)
+                                                                                            {
+                                                                                                workSheet.Row(nRow).Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                                                                                                workSheet.Row(nRow).Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
+                                                                                            }
+                                                                                            else
+                                                                                            {
+                                                                                                workSheet.Row(nRow).Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.None;
+                                                                                            }
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            }
+
+                                                                            this.CallActionEvent("Loaded");
+                                                                        }
                                                                         break;
                                                                     case WorkBookProcessingStage.Saved:
                                                                         this.CallActionEvent("Workbook Saved");
@@ -74,7 +119,7 @@ namespace DSEDiagtnosticToExcel
                                                                 workSheet.Cells["N1:N2"].Style.Border.Left.Style = OfficeOpenXml.Style.ExcelBorderStyle.Medium;
                                                                 workSheet.Cells["U1:U2"].Style.Border.Right.Style = OfficeOpenXml.Style.ExcelBorderStyle.Medium;
 
-                                                                workSheet.View.FreezePanes(3, 1);
+                                                                workSheet.View.FreezePanes(3, 5);
                                                                 workSheet.Cells["I:I"].Style.Numberformat.Format = "0%";
                                                                 workSheet.Cells["J:J"].Style.Numberformat.Format = "0%";
                                                                 workSheet.Cells["L:L"].Style.Numberformat.Format = Properties.Settings.Default.ExcelTimeSpanFormat;

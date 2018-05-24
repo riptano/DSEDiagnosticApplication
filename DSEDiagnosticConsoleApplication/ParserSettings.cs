@@ -347,6 +347,11 @@ namespace DSEDiagnosticConsoleApplication
             }
         }
 
+        public static bool OldExcelWorksheets
+        {
+            get;
+            set;
+        }
 
         #endregion
     }

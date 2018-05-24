@@ -305,7 +305,7 @@ namespace DSEDiagnosticFileParser
         /// Event handler for Cassandra Log events. This is called for each event read and created from the Cassandra log files. 
         /// </summary>
         public static file_cassandra_log4net.LogEventArgs.EventHandler CassandraLogProcessingHandler = null;
-
+        
         public static IFilePath DetermineShortFilePath(IFilePath filePath, IDirectoryPath directoryPath)
         {
             if (filePath != null)            

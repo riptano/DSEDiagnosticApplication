@@ -12,7 +12,7 @@ namespace DSEDiagnosticFileParser.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "15.5.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "15.7.0.0")]
     internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
         
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
@@ -1149,6 +1149,24 @@ public static class {0}
         public string MasterLog4NetParser {
             get {
                 return ((string)(this["MasterLog4NetParser"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Maximum tombstones per slice (last five minutes)")]
+        public string CFStatTombstonePropName {
+            get {
+                return ((string)(this["CFStatTombstonePropName"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Maximum live cells per slice (last five minutes)")]
+        public string CFStatLiveCellPropName {
+            get {
+                return ((string)(this["CFStatLiveCellPropName"]));
             }
         }
     }

@@ -42,8 +42,8 @@ namespace DSEDiagtnosticToExcel
                                                                     case WorkBookProcessingStage.PreLoad:
                                                                         this.CallActionEvent("Begin Loading");
                                                                         break;
-                                                                    case WorkBookProcessingStage.PreSave:
-                                                                        this.CallActionEvent("Loaded");
+                                                                    case WorkBookProcessingStage.PreSave:                                                                        
+                                                                        this.CallActionEvent("Loaded");                                                                        
                                                                         break;
                                                                     case WorkBookProcessingStage.Saved:
                                                                         this.CallActionEvent("Workbook Saved");
@@ -100,10 +100,20 @@ namespace DSEDiagtnosticToExcel
                                                                  workSheet.Cells["AQ:AQ"].Style.Numberformat.Format = "#,###,###,##0.00";
                                                                  workSheet.Cells["AR:AR"].Style.Numberformat.Format = "#,###,###,##0";
 
-                                                                 workSheet.Cells["A1:AR1"].AutoFilter = true;
+                                                                 //workSheet.Cells["A1:AR1"].AutoFilter = true;
 
                                                                  workSheet.AutoFitColumn(workSheet.Cells["A:I"], workSheet.Cells["K:R"]);
                                                                  workSheet.Column(10).Width = 27; //J
+                                                                 
+                                                                 using (var tblRange = workSheet.Cells["A:AR"])
+                                                                 {
+                                                                     var table = workSheet.Tables.FirstOrDefault(t => t.Name == "AggregatedLogTable")
+                                                                                   ?? workSheet.Tables.Add(tblRange, "AggregatedLogTable");
+                                                                    
+                                                                     table.ShowFilter = true;
+                                                                     table.ShowHeader = true;
+                                                                     table.TableStyle = OfficeOpenXml.Table.TableStyles.Light21;
+                                                                 }
                                                              },
                                                              -1,
                                                             -1,

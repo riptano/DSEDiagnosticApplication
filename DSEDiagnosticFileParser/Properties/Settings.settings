@@ -1726,5 +1726,11 @@ CREATE TABLE "OpsCenter".rollups300 (
     <Setting Name="MasterLog4NetParser" Type="System.String" Scope="Application">
       <Value Profile="(Default)">.\Log4NetParser.json,.\Json\Log4NetParser.json,[cpld]\Json\Log4NetParser.json,[cpld]\Log4NetParser.json,[ApplicationRunTimeDirectory]\Json\Log4NetParser.json,[ApplicationRunTimeDirectory]\Log4NetParser.json,.\Log4NetParser.json,.\Json\Log4NetParser.json</Value>
     </Setting>
+    <Setting Name="CFStatTombstonePropName" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Maximum tombstones per slice (last five minutes)</Value>
+    </Setting>
+    <Setting Name="CFStatLiveCellPropName" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Maximum live cells per slice (last five minutes)</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

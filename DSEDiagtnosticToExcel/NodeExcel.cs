@@ -45,7 +45,52 @@ namespace DSEDiagtnosticToExcel
                                                                         this.CallActionEvent("Begin Loading");
                                                                         break;
                                                                     case WorkBookProcessingStage.PreSave:
-                                                                        this.CallActionEvent("Loaded");
+                                                                        {
+                                                                            var workSheet = excelPackage.Workbook.Worksheets[WorkSheetName];
+                                                                            var rangeAddress = loadRange == null ? null : workSheet?.Cells[loadRange];
+
+                                                                            if (rangeAddress != null)
+                                                                            {
+                                                                                var startRow = rangeAddress.Start.Row;
+                                                                                var endRow = rangeAddress.End.Row;
+                                                                                string lastValue = string.Empty;
+                                                                                string currentValue;
+                                                                                bool formatOn = false;
+
+                                                                                for (int nRow = startRow; nRow <= endRow; ++nRow)
+                                                                                {
+                                                                                    if (workSheet.Cells[nRow, 2] != null)
+                                                                                    {
+                                                                                        currentValue = workSheet.Cells[nRow, 2].Value as string;
+                                                                                        if (currentValue != null)
+                                                                                        {
+                                                                                            if (lastValue == null)
+                                                                                            {
+                                                                                                lastValue = currentValue;
+                                                                                                formatOn = false;
+                                                                                            }
+                                                                                            else if (lastValue != currentValue)
+                                                                                            {
+                                                                                                lastValue = currentValue;
+                                                                                                formatOn = !formatOn;
+                                                                                            }
+
+                                                                                            if (formatOn)
+                                                                                            {
+                                                                                                workSheet.Row(nRow).Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                                                                                                workSheet.Row(nRow).Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
+                                                                                            }
+                                                                                            else
+                                                                                            {
+                                                                                                workSheet.Row(nRow).Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.None;
+                                                                                            }
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            }
+
+                                                                            this.CallActionEvent("Loaded");
+                                                                        }
                                                                         break;
                                                                     case WorkBookProcessingStage.Saved:
                                                                         this.CallActionEvent("Workbook Saved");
@@ -61,34 +106,39 @@ namespace DSEDiagtnosticToExcel
                                                                 workSheet.Cells["1:1"].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.LightGray;
                                                                 workSheet.Cells["1:1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
                                                                 //workSheet.Cells["1:1"].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
-                                                                workSheet.View.FreezePanes(2, 1);
-                                                                workSheet.Cells["A1:AH1"].AutoFilter = true;
-                                                                workSheet.Cells["AL1:AL1"].AutoFilter = true;
-                                                                workSheet.Cells["G:G"].Style.Numberformat.Format = "#,###,###,##0.00";
-                                                                workSheet.Cells["H:H"].Style.Numberformat.Format = "##0.00%";
-                                                                workSheet.Cells["I:I"].Style.Numberformat.Format = "0.00";
-                                                                //workSheet.Cells["J:J"].Style.Numberformat.Format = Properties.Settings.Default.ExcelTimeFormat;
+                                                                workSheet.View.FreezePanes(3, 1);
 
-                                                                workSheet.Cells["K:K"].Style.Numberformat.Format = Properties.Settings.Default.ExcelDateTimeFormat;
-                                                                workSheet.Cells["L:L"].Style.Numberformat.Format = Properties.Settings.Default.ExcelDateTimeFormat;
-                                                                workSheet.Cells["M:M"].Style.Numberformat.Format = Properties.Settings.Default.ExcelTimeSpanFormat; // "0.00";
+                                                                workSheet.Cells["G1:L1"].Style.WrapText = true;
+                                                                workSheet.Cells["G1:L1"].Merge = true;
+                                                                workSheet.Cells["G1:L1"].Value = "Versions";
+                                                                workSheet.Cells["G1:G2"].Style.Border.Left.Style = OfficeOpenXml.Style.ExcelBorderStyle.Medium;
+                                                                workSheet.Cells["L1:L2"].Style.Border.Right.Style = OfficeOpenXml.Style.ExcelBorderStyle.Medium;
+
+
+                                                                workSheet.Cells["A2:AN2"].AutoFilter = true;                                                               
+                                                                workSheet.Cells["M:M"].Style.Numberformat.Format = "#,###,###,##0.00";
+                                                                workSheet.Cells["N:N"].Style.Numberformat.Format = "##0.00%";
+                                                                workSheet.Cells["O:O"].Style.Numberformat.Format = "0.00";
+                                                                
+                                                                workSheet.Cells["Q:Q"].Style.Numberformat.Format = Properties.Settings.Default.ExcelDateTimeFormat;
+                                                                workSheet.Cells["R:R"].Style.Numberformat.Format = Properties.Settings.Default.ExcelDateTimeFormat;
+                                                                workSheet.Cells["S:S"].Style.Numberformat.Format = Properties.Settings.Default.ExcelTimeSpanFormat; // "0.00";
                                                                
-                                                                workSheet.Cells["N:N"].Style.Numberformat.Format = Properties.Settings.Default.ExcelDateTimeFormat;
-                                                                workSheet.Cells["O:O"].Style.Numberformat.Format = Properties.Settings.Default.ExcelDateTimeFormat;
-                                                                workSheet.Cells["P:P"].Style.Numberformat.Format = Properties.Settings.Default.ExcelTimeSpanFormat;
-                                                                workSheet.Cells["Q:Q"].Style.Numberformat.Format = Properties.Settings.Default.ExcelTimeSpanFormat;
-                                                                workSheet.Cells["R:R"].Style.Numberformat.Format = "#,###,###,##0";
-                                                                workSheet.Cells["S:S"].Style.Numberformat.Format = Properties.Settings.Default.ExcelDateTimeFormat;
                                                                 workSheet.Cells["T:T"].Style.Numberformat.Format = Properties.Settings.Default.ExcelDateTimeFormat;
-                                                                workSheet.Cells["U:U"].Style.Numberformat.Format = Properties.Settings.Default.ExcelTimeSpanFormat;
+                                                                workSheet.Cells["U:U"].Style.Numberformat.Format = Properties.Settings.Default.ExcelDateTimeFormat;
                                                                 workSheet.Cells["V:V"].Style.Numberformat.Format = Properties.Settings.Default.ExcelTimeSpanFormat;
-                                                                workSheet.Cells["W:W"].Style.Numberformat.Format = "#,###,###,##0";
+                                                                workSheet.Cells["W:W"].Style.Numberformat.Format = Properties.Settings.Default.ExcelTimeSpanFormat;
+                                                                workSheet.Cells["X:X"].Style.Numberformat.Format = "#,###,###,##0";
+                                                                workSheet.Cells["Y:Y"].Style.Numberformat.Format = Properties.Settings.Default.ExcelDateTimeFormat;
+                                                                workSheet.Cells["Z:Z"].Style.Numberformat.Format = Properties.Settings.Default.ExcelDateTimeFormat;
+                                                                workSheet.Cells["AA:AA"].Style.Numberformat.Format = Properties.Settings.Default.ExcelTimeSpanFormat;
+                                                                workSheet.Cells["AB:AB"].Style.Numberformat.Format = Properties.Settings.Default.ExcelTimeSpanFormat;
+                                                                workSheet.Cells["AC:AC"].Style.Numberformat.Format = "#,###,###,##0";
 
-                                                                workSheet.Cells["X:X"].Style.Numberformat.Format = "#,###,###,##0.00";
-                                                                workSheet.Cells["Y:Y"].Style.Numberformat.Format = "#,###,###,##0.00";
-                                                                workSheet.Cells["Z:Z"].Style.Numberformat.Format = "#,###,###,##0";
-                                                                workSheet.Cells["AA:AA"].Style.Numberformat.Format = "#,###,###,##0.00";
-                                                                workSheet.Cells["AB:AB"].Style.Numberformat.Format = "#,###,###,##0.0000%";
+                                                                workSheet.Cells["AE:AE"].Style.Numberformat.Format = "#,###,###,##0.00";
+                                                                workSheet.Cells["AF:AF"].Style.Numberformat.Format = "#,###,###,##0";
+                                                                workSheet.Cells["AG:AG"].Style.Numberformat.Format = "#,###,###,##0";
+                                                                workSheet.Cells["AH:AH"].Style.Numberformat.Format = "#,###,###,##0.0000%";
 
                                                                 //workSheet.InsertColumn(11, 1);
                                                                 //workSheet.Column(10).Hidden = true;
@@ -100,7 +150,7 @@ namespace DSEDiagtnosticToExcel
                                                             },
                                                             -1,
                                                            -1,
-                                                           "A1",
+                                                           "A2",
                                                            this.UseDataTableDefaultView,
                                                            appendToWorkSheet: this.AppendToWorkSheet,
                                                            cachePackage: LibrarySettings.ExcelPackageCache,

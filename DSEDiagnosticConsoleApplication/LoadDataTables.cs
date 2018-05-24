@@ -41,8 +41,9 @@ namespace DSEDiagnosticConsoleApplication
                     new DSEDiagnosticToDataTable.KeyspaceDataTable(cluster, cancellationSource, ParserSettings.IgnoreKeySpaces.ToArray(), sessionGuid),
                     new DSEDiagnosticToDataTable.MachineDataTable(cluster, cancellationSource, sessionGuid),                   
                     new DSEDiagnosticToDataTable.TokenRangesDataTable(cluster, cancellationSource, sessionGuid),
-                    new DSEDiagnosticToDataTable.CFStatsDataTable(cluster, cancellationSource, ParserSettings.IgnoreKeySpaces.ToArray(), ParserSettings.WarnWhenKSTblIsDetected.ToArray(), sessionGuid),
-                    new DSEDiagnosticToDataTable.TPStatsDataTable(cluster, cancellationSource, sessionGuid),
+                    ParserSettings.OldExcelWorksheets ? new DSEDiagnosticToDataTable.CFStatsDataTable(cluster, cancellationSource, ParserSettings.IgnoreKeySpaces.ToArray(), ParserSettings.WarnWhenKSTblIsDetected.ToArray(), sessionGuid) : null,
+                    ParserSettings.OldExcelWorksheets ? new DSEDiagnosticToDataTable.TPStatsDataTable(cluster, cancellationSource, sessionGuid) : null,
+                    ParserSettings.OldExcelWorksheets ? null : new DSEDiagnosticToDataTable.AggregatedStatsDataTable(cluster, cancellationSource, ParserSettings.IgnoreKeySpaces.ToArray(), ParserSettings.WarnWhenKSTblIsDetected.ToArray(), sessionGuid),
                     new DSEDiagnosticToDataTable.MultiInstanceDataTable(cluster, cancellationSource, sessionGuid),
                     new DSEDiagnosticToDataTable.NodeConfigChanges(cluster, cancellationSource, sessionGuid),
                     new DSEDiagnosticToDataTable.LogAggregationDataTable(cluster, cancellationSource, ParserSettings.IgnoreKeySpaces.ToArray(), ParserSettings.LogAggregationPeriod, sessionGuid),
@@ -51,17 +52,20 @@ namespace DSEDiagnosticConsoleApplication
 
                 loadDataTables.ForEach(ldtInstance =>
                 {
-                    var taskDataTable = diagParserTask.ContinueWith((task, instance) =>
+                    if (ldtInstance != null)
                     {
-                        ConsoleParsingDataTable.Increment(ldtInstance.Table.TableName);
-                        return ((DSEDiagnosticToDataTable.IDataTable)instance).LoadTable();
-                    },
-                                            ldtInstance,
-                                            cancellationSource.Token,
-                                            TaskContinuationOptions.OnlyOnRanToCompletion,
-                                            TaskScheduler.Default);
-                    datatableTasks.Add(taskDataTable);
-                    taskDataTable.Then(result => ConsoleParsingDataTable.TaskEnd(result.TableName));
+                        var taskDataTable = diagParserTask.ContinueWith((task, instance) =>
+                        {
+                            ConsoleParsingDataTable.Increment(ldtInstance.Table.TableName);
+                            return ((DSEDiagnosticToDataTable.IDataTable)instance).LoadTable();
+                        },
+                                                ldtInstance,
+                                                cancellationSource.Token,
+                                                TaskContinuationOptions.OnlyOnRanToCompletion,
+                                                TaskScheduler.Default);
+                        datatableTasks.Add(taskDataTable);
+                        taskDataTable.Then(result => ConsoleParsingDataTable.TaskEnd(result.TableName));
+                    }
                 });
 
                 datatableTasks.Add(aggStatsTask[0].ContinueWith((task, ignore) =>

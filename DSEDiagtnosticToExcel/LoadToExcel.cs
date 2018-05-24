@@ -82,11 +82,16 @@ namespace DSEDiagtnosticToExcel
 
             if(!string.IsNullOrEmpty(this.WorkSheetName))
             {
-                DataTableToExcel.WorkSheetColAttrDefaults defaultAttrs;
+                DataTableToExcel.WorkSheetColAttrDefaults[] defaultAttrs;
 
                 if(LibrarySettings.WorkSheetDefaultAttrs.TryGetValue(this.WorkSheetName, out defaultAttrs))
                 {
-                    bResult = DataTableToExcel.Helpers.WorkSheetLoadColumnDefaults(excelWorkSheet, defaultAttrs);
+                    var startRow = excelWorkSheet.Dimension.End.Row + 1;
+
+                    foreach (var defaultAttr in defaultAttrs)
+                    {
+                        bResult = DataTableToExcel.Helpers.WorkSheetLoadColumnDefaults(excelWorkSheet, defaultAttr, startRow);
+                    }
                 }
             }
 

@@ -69,7 +69,10 @@ namespace DataTableToExcel
 
         public void Save()
         {
-            if (this._refCnt > 0 && !this.Disposed) this.ExcelPackage.Save();
+            if (this._refCnt > 0 && !this.Disposed)
+            {                
+                this.ExcelPackage.Save();
+            }
         }
 
         public void Save(IFilePath newFilePath)
@@ -831,6 +834,18 @@ namespace DataTableToExcel
 
         }
 
+        static public void WorkSheetLoadColumnDefaults(this ExcelWorksheet workSheet,
+                                                        string column,
+                                                        int startRow,
+                                                        string[] defaultValues)
+        {
+            for (int emptyRow = startRow, posValue = 0; posValue < defaultValues.Length; ++emptyRow, ++posValue)
+            {
+                workSheet.Cells[string.Format("{0}{1}", column, emptyRow)].Value = defaultValues[posValue];
+            }
+
+        }
+
         static public void WorkSheetLoadColumnDefaults(this ExcelPackage excelPkg,
                                                         string workSheetName,
                                                         string column,
@@ -862,6 +877,17 @@ namespace DataTableToExcel
             }
 
             WorkSheetLoadColumnDefaults(workSheet, defaultAttrs.Column, defaultAttrs.Attrs);
+            return true;
+        }
+
+        static public bool WorkSheetLoadColumnDefaults(this ExcelWorksheet workSheet, WorkSheetColAttrDefaults defaultAttrs, int startRow)
+        {
+            if (string.IsNullOrEmpty(defaultAttrs.Column) || defaultAttrs.Attrs == null || defaultAttrs.Attrs.Length == 0)
+            {
+                return false;
+            }
+
+            WorkSheetLoadColumnDefaults(workSheet, defaultAttrs.Column, startRow, defaultAttrs.Attrs);
             return true;
         }
 

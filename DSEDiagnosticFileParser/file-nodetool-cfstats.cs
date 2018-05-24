@@ -433,7 +433,26 @@ namespace DSEDiagnosticFileParser
                 statItem.AssociateItem(attribute, propValue);
             }
 
-            this.Processed = true;
+            var calcTombstoneLiveRatio = from item in this._statsList
+                                         where item.TableViewIndex != null && item.TableViewIndex is ICQLTable
+                                         let tombstones = item.Data.Where(i => i.Key == Properties.Settings.Default.CFStatTombstonePropName)
+                                                                .DefaultIfEmpty().Sum(i => (decimal)((dynamic)i.Value))
+                                         let liveCells = item.Data.Where(i => i.Key == Properties.Settings.Default.CFStatLiveCellPropName)
+                                                                .DefaultIfEmpty().Sum(i => (decimal)((dynamic)i.Value))
+                                         select new
+                                         {
+                                             Stat = item,
+                                             TombstoneLivePercent = tombstones == 0 && liveCells == 0
+                                                                                ? 0
+                                                                                : tombstones / (tombstones + liveCells)
+                                         };
+
+            foreach (var stat in calcTombstoneLiveRatio)
+            {
+                stat.Stat.AssociateItem("Tombstone/Live Percent", stat.TombstoneLivePercent);
+            }
+
+             this.Processed = true;
             return (uint) this._statsList.Count;
         }
     }

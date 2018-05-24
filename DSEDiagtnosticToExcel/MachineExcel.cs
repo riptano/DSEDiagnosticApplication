@@ -45,7 +45,52 @@ namespace DSEDiagtnosticToExcel
                                                                         this.CallActionEvent("Begin Loading");
                                                                         break;
                                                                     case WorkBookProcessingStage.PreSave:
-                                                                        this.CallActionEvent("Loaded");
+                                                                        {
+                                                                            var workSheet = excelPackage.Workbook.Worksheets[WorkSheetName];
+                                                                            var rangeAddress = loadRange == null ? null : workSheet?.Cells[loadRange];
+
+                                                                            if (rangeAddress != null)
+                                                                            {
+                                                                                var startRow = rangeAddress.Start.Row;
+                                                                                var endRow = rangeAddress.End.Row;
+                                                                                string lastValue = string.Empty;
+                                                                                string currentValue;
+                                                                                bool formatOn = false;
+
+                                                                                for (int nRow = startRow; nRow <= endRow; ++nRow)
+                                                                                {
+                                                                                    if (workSheet.Cells[nRow, 2] != null)
+                                                                                    {
+                                                                                        currentValue = workSheet.Cells[nRow, 2].Value as string;
+                                                                                        if (currentValue != null)
+                                                                                        {
+                                                                                            if (lastValue == null)
+                                                                                            {
+                                                                                                lastValue = currentValue;
+                                                                                                formatOn = false;
+                                                                                            }
+                                                                                            else if (lastValue != currentValue)
+                                                                                            {
+                                                                                                lastValue = currentValue;
+                                                                                                formatOn = !formatOn;
+                                                                                            }
+
+                                                                                            if (formatOn)
+                                                                                            {
+                                                                                                workSheet.Row(nRow).Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                                                                                                workSheet.Row(nRow).Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
+                                                                                            }
+                                                                                            else
+                                                                                            {
+                                                                                                workSheet.Row(nRow).Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.None;
+                                                                                            }
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            }
+
+                                                                            this.CallActionEvent("Loaded");
+                                                                        }
                                                                         break;
                                                                     case WorkBookProcessingStage.Saved:
                                                                         this.CallActionEvent("Workbook Saved");
@@ -92,50 +137,47 @@ namespace DSEDiagtnosticToExcel
                                                                 workSheet.Cells["AD1:AG1"].Value = "Java Heap (MB)";
                                                                 workSheet.Cells["AD1:AD2"].Style.Border.Left.Style = OfficeOpenXml.Style.ExcelBorderStyle.Dashed;
                                                                 workSheet.Cells["AG1:AG2"].Style.Border.Right.Style = OfficeOpenXml.Style.ExcelBorderStyle.Medium;
-
-                                                                workSheet.Cells["AH1:AM1"].Style.WrapText = true;
-                                                                workSheet.Cells["AH1:AM1"].Merge = true;
-                                                                workSheet.Cells["AH1:AM1"].Value = "Versions";
-                                                                workSheet.Cells["AH1:AH2"].Style.Border.Left.Style = OfficeOpenXml.Style.ExcelBorderStyle.Medium;
-                                                                workSheet.Cells["AM1:AM2"].Style.Border.Right.Style = OfficeOpenXml.Style.ExcelBorderStyle.Medium;
-
-                                                                workSheet.Cells["AN1:AU1"].Style.WrapText = true;
-                                                                workSheet.Cells["AN1:AU1"].Merge = true;
-                                                                workSheet.Cells["AN1:AU1"].Value = "NTP";
-                                                                workSheet.Cells["AN1:AN2"].Style.Border.Left.Style = OfficeOpenXml.Style.ExcelBorderStyle.Medium;
-                                                                workSheet.Cells["AU1:AU2"].Style.Border.Right.Style = OfficeOpenXml.Style.ExcelBorderStyle.Medium;
+                                                                
+                                                                workSheet.Cells["AH1:AO1"].Style.WrapText = true;
+                                                                workSheet.Cells["AH1:AO1"].Merge = true;
+                                                                workSheet.Cells["AH1:AO1"].Value = "NTP";
+                                                                workSheet.Cells["AH1:AO2"].Style.Border.Left.Style = OfficeOpenXml.Style.ExcelBorderStyle.Medium;
+                                                                workSheet.Cells["AH1:AO2"].Style.Border.Right.Style = OfficeOpenXml.Style.ExcelBorderStyle.Medium;
 
                                                                 workSheet.Cells["E:E"].Style.Numberformat.Format = "#,###,###,##0";
                                                                 workSheet.Cells["F:F"].Style.Numberformat.Format = "#,###,###,##0";
-                                                                workSheet.Cells["M:M"].Style.Numberformat.Format = "#,###,###,##0";
-                                                                workSheet.Cells["P:P"].Style.Numberformat.Format = "#,###,###,##0";
-                                                                workSheet.Cells["Q:Q"].Style.Numberformat.Format = "#,###,###,##0";
-                                                                workSheet.Cells["R:R"].Style.Numberformat.Format = "#,###,###,##0";
-                                                                workSheet.Cells["S:S"].Style.Numberformat.Format = "#,###,###,##0";
-                                                                workSheet.Cells["T:T"].Style.Numberformat.Format = "#,###,###,##0";
-                                                                workSheet.Cells["AN:AN"].Style.Numberformat.Format = "#,###,###,##0";
-                                                                workSheet.Cells["AO:AO"].Style.Numberformat.Format = "#,###,###,##0";
-                                                                workSheet.Cells["AP:AP"].Style.Numberformat.Format = "#,###,###,##0";
-                                                                workSheet.Cells["AQ:AQ"].Style.Numberformat.Format = "#,###,###,##0";
-                                                                workSheet.Cells["AR:AR"].Style.Numberformat.Format = "#,###,###,##0";
-
                                                                 workSheet.Cells["K:K"].Style.Numberformat.Format = "#,###,###,##0.00";
                                                                 workSheet.Cells["L:L"].Style.Numberformat.Format = "#,###,###,##0.00";
                                                                 workSheet.Cells["M:M"].Style.Numberformat.Format = "#,###,###,##0.00";
                                                                 workSheet.Cells["N:N"].Style.Numberformat.Format = "#,###,###,##0.00";
-                                                                workSheet.Cells["Y:Y"].Style.Numberformat.Format = "#,###,###,##0.00";
+                                                                workSheet.Cells["O:O"].Style.Numberformat.Format = "#,###,###,##0.00";
+                                                                workSheet.Cells["P:P"].Style.Numberformat.Format = "#,###,###,##0.00";
+                                                                workSheet.Cells["Q:Q"].Style.Numberformat.Format = "#,###,###,##0.00";
+                                                                workSheet.Cells["R:R"].Style.Numberformat.Format = "#,###,###,##0.00";
+                                                                workSheet.Cells["S:S"].Style.Numberformat.Format = "#,###,###,##0.00";
+                                                                workSheet.Cells["T:T"].Style.Numberformat.Format = "#,###,###,##0.00";
+                                                                workSheet.Cells["V:V"].Style.Numberformat.Format = "#,###,###,##0";
+
                                                                 workSheet.Cells["Z:Z"].Style.Numberformat.Format = "#,###,###,##0.00";
+                                                                workSheet.Cells["AA:AA"].Style.Numberformat.Format = "#,###,###,##0.00";
                                                                 workSheet.Cells["AB:AB"].Style.Numberformat.Format = "#,###,###,##0.00";
                                                                 workSheet.Cells["AC:AC"].Style.Numberformat.Format = "#,###,###,##0.00";
+
                                                                 workSheet.Cells["AD:AD"].Style.Numberformat.Format = "#,###,###,##0.00";
                                                                 workSheet.Cells["AE:AE"].Style.Numberformat.Format = "#,###,###,##0.00";
                                                                 workSheet.Cells["AF:AF"].Style.Numberformat.Format = "#,###,###,##0.00";
                                                                 workSheet.Cells["AG:AG"].Style.Numberformat.Format = "#,###,###,##0.00";
-                                                                workSheet.Cells["AS:AS"].Style.Numberformat.Format = "#,###,###,##0.00";
-                                                                workSheet.Cells["AT:AT"].Style.Numberformat.Format = "#,###,###,##0.00";
-                                                                workSheet.Cells["AU:AU"].Style.Numberformat.Format = "#,###,###,##0.00";
 
-                                                                workSheet.Cells["A2:AU2"].AutoFilter = true;
+                                                                workSheet.Cells["AH:AH"].Style.Numberformat.Format = "#,###,###,##0";
+                                                                workSheet.Cells["AI:AI"].Style.Numberformat.Format = "#,###,###,##0";
+                                                                workSheet.Cells["AJ:AJ"].Style.Numberformat.Format = "#,###,###,##0";
+                                                                workSheet.Cells["AK:AK"].Style.Numberformat.Format = "#,###,###,##0";
+                                                                workSheet.Cells["AL:AL"].Style.Numberformat.Format = "#,###,###,##0";
+                                                                workSheet.Cells["AM:AM"].Style.Numberformat.Format = "#,###,###,##0";
+                                                                workSheet.Cells["AN:AN"].Style.Numberformat.Format = "#,###,###,##0";
+                                                                workSheet.Cells["AO:AO"].Style.Numberformat.Format = "#,###,###,##0";
+
+                                                                workSheet.Cells["A2:AO2"].AutoFilter = true;
                                                                 
                                                                 workSheet.AutoFitColumn();
                                                             },

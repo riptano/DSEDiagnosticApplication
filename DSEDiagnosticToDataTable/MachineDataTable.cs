@@ -62,23 +62,15 @@ namespace DSEDiagnosticToDataTable
             dtOSMachineInfo.Columns.Add("Heap Max", typeof(decimal)); //af
             dtOSMachineInfo.Columns.Add("Heap Used", typeof(decimal)); //ag
 
-            //DataStax Versions
-            dtOSMachineInfo.Columns.Add("DSE", typeof(string)).AllowDBNull = true; //ah
-            dtOSMachineInfo.Columns.Add("Cassandra", typeof(string)).AllowDBNull = true;
-            dtOSMachineInfo.Columns.Add("Search", typeof(string)).AllowDBNull = true;
-            dtOSMachineInfo.Columns.Add("Spark", typeof(string)).AllowDBNull = true;//ak
-            dtOSMachineInfo.Columns.Add("Agent", typeof(string)).AllowDBNull = true; //al
-            dtOSMachineInfo.Columns.Add("VNodes", typeof(bool)).AllowDBNull = true; //am
-
             //NTP
-            dtOSMachineInfo.Columns.Add("Correction (ms)", typeof(int)); //an
+            dtOSMachineInfo.Columns.Add("Correction (ms)", typeof(int)); //ah
             dtOSMachineInfo.Columns.Add("Polling (secs)", typeof(int));
             dtOSMachineInfo.Columns.Add("Maximum Error (us)", typeof(int));
             dtOSMachineInfo.Columns.Add("Estimated Error (us)", typeof(int));
-            dtOSMachineInfo.Columns.Add("Time Constant", typeof(int)); //ar
-            dtOSMachineInfo.Columns.Add("Precision (us)", typeof(decimal)); //as
+            dtOSMachineInfo.Columns.Add("Time Constant", typeof(int)); //al
+            dtOSMachineInfo.Columns.Add("Precision (us)", typeof(decimal)); //am
             dtOSMachineInfo.Columns.Add("Frequency (ppm)", typeof(decimal));
-            dtOSMachineInfo.Columns.Add("Tolerance (ppm)", typeof(decimal)); //au
+            dtOSMachineInfo.Columns.Add("Tolerance (ppm)", typeof(decimal)); //ao
 
             dtOSMachineInfo.DefaultView.ApplyDefaultSort = false;
             dtOSMachineInfo.DefaultView.AllowDelete = false;
@@ -168,15 +160,7 @@ namespace DSEDiagnosticToDataTable
                                 .SetFieldToDecimal("Heap Init", node.Machine.Java.HeapMemory.Initial, DSEDiagnosticLibrary.UnitOfMeasure.Types.MiB)
                                 .SetFieldToDecimal("Heap Max", node.Machine.Java.HeapMemory.Maximum, DSEDiagnosticLibrary.UnitOfMeasure.Types.MiB)
                                 .SetFieldToDecimal("Heap Used", node.Machine.Java.HeapMemory.Used, DSEDiagnosticLibrary.UnitOfMeasure.Types.MiB);
-
-                        //DataStax Versions
-                        dataRow.SetField("DSE", node.DSE.Versions.DSE?.ToString());
-                        dataRow.SetField("Cassandra", node.DSE.Versions.Cassandra?.ToString());
-                        dataRow.SetField("Search", node.DSE.Versions.Search?.ToString());
-                        dataRow.SetField("Spark", node.DSE.Versions.Analytics?.ToString());
-                        dataRow.SetField("Agent", node.DSE.Versions.OpsCenterAgent?.ToString());
-                        if(node.DSE.VNodesEnabled.HasValue) dataRow.SetField("VNodes", node.DSE.VNodesEnabled.Value);
-
+                        
                         //NTP
                         dataRow.SetFieldToInt("Correction (ms)", node.Machine.NTP.Correction, DSEDiagnosticLibrary.UnitOfMeasure.Types.MS)
                                 .SetFieldToInt("Polling (secs)", node.Machine.NTP.Polling, DSEDiagnosticLibrary.UnitOfMeasure.Types.SEC)

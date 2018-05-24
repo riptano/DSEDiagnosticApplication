@@ -177,6 +177,14 @@
       <Link>dseFastTemplate.xlsm</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="..\dseHealthAssessment2Template.xlsm">
+      <Link>dseHealthAssessment2Template.xlsm</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\dseHealthAssessment3Template.xlsm">
+      <Link>dseHealthAssessment3Template.xlsm</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="App.config" />
     <None Include="JSON\DSEDiagConsoleApp-OpsCtr-ProcessFileMappings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

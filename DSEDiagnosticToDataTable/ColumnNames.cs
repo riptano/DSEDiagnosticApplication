@@ -31,6 +31,7 @@ namespace DSEDiagnosticToDataTable
         public const string Node = "Node";
         public const string TokenRanges = "TokenRanges";
         public const string CFStats = "CFStats";
+        public const string AggregatedStats = "AggregatedStats";
         public const string NodeStats = "NodeStats";
         public const string LogInfo = "LogInformation";
         public const string MultiInstanceInfo = "MultiInstanceNodes";

@@ -88,7 +88,7 @@ namespace DSEDiagnosticFileParser
             this._result = new LogResults(this);
 
             this.OnLogEvent = DiagnosticFile.CassandraLogProcessingHandler;
-
+            
             this._nodeStrId = this.Node.Id.GetHashCode().ToString();
 
             if ((this.DebugLogProcessing & DebugLogProcessingTypes.Auto) != 0)
@@ -280,6 +280,7 @@ namespace DSEDiagnosticFileParser
             set;
         } = Properties.Settings.Default.LogCheckOverlappingDateRange;
 
+        public object Tag { get; set; }
 
         #region Event Handlers/Class
 
@@ -786,6 +787,8 @@ namespace DSEDiagnosticFileParser
         		{
                     // Dispose all managed resources.
                     this.OnLogEvent = null;
+
+                    this.Tag = null;                    
         		}
         
         		//Dispose of all unmanaged resources
