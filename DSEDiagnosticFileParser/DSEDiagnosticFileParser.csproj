@@ -146,6 +146,9 @@
     <None Include="Json\Log4NetParser.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Json\Log4NetParserLogsNoFlushCompGC.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Json\Log4NetParserLogsNoFlushComp.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

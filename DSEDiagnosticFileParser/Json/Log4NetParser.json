@@ -936,7 +936,7 @@
       "ParseThreadId": null,
       "EventType": "SingleInstance",
       "EventClass": "HintHandOff, NodeDetection, Change",
-      "SubClass": "'Dropped Hints due to Node Down ' + NODE",
+      "SubClass": "'Dropped Hints due to Peer Node Down'",
       "Product": "Cassandra",
       "Examples": [
         "=> WARN  [HintedHandoffManager:1] 2017-12-19 16:45:41,561  HintedHandoffMetrics.java:79 - /10.141.88.35 has 433 dropped hints, because node is down past configured hint window."
@@ -972,7 +972,7 @@
       "ParseThreadId": null,
       "EventType": "SessionBegin",
       "EventClass": "NodeDetection, Change",
-      "SubClass": "NODE + ' ' + action",
+      "SubClass": "'Peer Node ' + action",
       "Product": "Cassandra",
       "SessionKey": "EventClass + NODE",
       "SessionKeyAction": "Add",
@@ -1012,7 +1012,7 @@
       "ParseThreadId": null,
       "EventType": "SessionEnd, SessionIgnore",
       "EventClass": "NodeDetection, Change",
-      "SubClass": "NODE + ' UP'",
+      "SubClass": "'Peer Node UP'",
       "Product": "Cassandra",
       "SessionKey": "EventClass + NODE",
       "Examples": [
@@ -1162,7 +1162,7 @@
       "ParseThreadId": null,
       "EventType": "SessionDefinedByDuration",
       "EventClass": "NodeDetection,GC,Pause",
-      "SubClass": "'Not marking Node down due to pause'",
+      "SubClass": "'not marking peer nodes down due to pause'",
       "Product": "Cassandra",
       "AnalyticsGroup": "GCPauseStats",
       "SessionKey": null,
@@ -1440,7 +1440,7 @@
       "ParseThreadId": null,
       "EventType": "SessionBegin",
       "EventClass": "Detection, Node, Shard",
-      "SubClass": "action + ' ' + NODE",
+      "SubClass": "'Updating ' + action",
       "Product": "Cassandra",
       "SessionKey": "'shardEvent' + NODE + token",
       "SessionKeyAction": "Add",
@@ -1484,7 +1484,7 @@
       "ParseThreadId": null,
       "EventType": "SessionIgnore",
       "EventClass": "Detection, Node, Shard",
-      "SubClass": "'New Ownership ' + NODE",
+      "SubClass": "'New Ownership'",
       "Product": "Cassandra",
       "SessionKey": "'shardEvent' + NODE + token",
       "SessionKeyAction": "Read",
@@ -1526,7 +1526,7 @@
       "ParseThreadId": null,
       "EventType": "SessionItem, SingleInstance",
       "EventClass": "Detection, Node, Shard",
-      "SubClass": "'Owership Changed ' + NODE",
+      "SubClass": "'Owership Changed'",
       "Product": "Cassandra",
       "SessionKey": "'shardEvent' + NODE + token",
       "SessionKeyAction": "Read",
@@ -1568,7 +1568,7 @@
       "ParseThreadId": null,
       "EventType": "SessionEnd",
       "EventClass": "Detection, Node, Shard",
-      "SubClass": "'Topology Updated ' + NODE",
+      "SubClass": "'Topology Updating'",
       "Product": "Cassandra",
       "SessionLookup": "'shardEvent' + NODE",
       "SessionLookupAction": "ReadRemoveLabel",
@@ -1943,13 +1943,13 @@
       },
       "ParseMessage": {
         "RegExStrings": [
-          "^(?:Compacting|Writing)\\s+(?<item>large\\s+partition|row)\\s+(?$<DDLITEMNAME>)\\s*\\:\\s*(?<partitionkey>.+)?\\s+\\((?<size>[0-9,.]+\\s*\\w+)\\)"
+          "^(?:Compacting|Writing)\\s+(?<item>large\\s+partition|row)\\s+(?$<DDLITEMNAME>)\\s*\\:\\s*(?<partitionkey>.+)?\\s+\\((?<size>[0-9,.]+\\s*\\w+)"
         ]
       },
       "ParseThreadId": null,
       "EventType": "SingleInstance",
       "EventClass": "Compaction,Partition,TableViewIndex,Detection",
-      "SubClass": "item + ' ' + partitionkey",
+      "SubClass": "item",
       "AnalyticsGroup": "LargePartitionRowStats",
       "Product": "Cassandra",
       "Examples": [
@@ -1994,7 +1994,7 @@
       "ParseThreadId": null,
       "EventType": "SingleInstance",
       "EventClass": "Tombstone,TableViewIndex,Query,Detection",
-      "SubClass": "item + ' ' + partitionkey + whereclause",
+      "SubClass": "item",
       "AnalyticsGroup": "TombstoneStats",
       "Product": "Cassandra",
       "Examples": [

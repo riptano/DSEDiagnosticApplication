@@ -653,10 +653,40 @@ namespace DSEDiagnosticAnalytics
             this.NodeName = node?.Id.NodeName();
             this.KeySpaceName = keyspace?.Name;
             this.TableName = ddlStmt?.Name;
-            if(string.IsNullOrEmpty(subClass))
-                this.Class = (classes & ~EventClasses.LogTypes & ~EventClasses.Orphaned).ToString();
-            else 
-                this.Class = (classes & ~EventClasses.LogTypes & ~EventClasses.Orphaned).ToString() + " (" + subClass + ")";
+            {
+                var logClass = (classes & ~EventClasses.LogTypes & ~EventClasses.Orphaned);
+
+                if((logClass & EventClasses.MemtableFlush) != 0 
+                        && !string.IsNullOrEmpty(subClass)                        
+                        && (subClass.StartsWith("sharedpool", StringComparison.OrdinalIgnoreCase) || subClass.StartsWith("stream", StringComparison.OrdinalIgnoreCase)))
+                {                    
+                    if (subClass.StartsWith("sharedpool", StringComparison.OrdinalIgnoreCase))
+                    {
+                        subClass = "SharedPool";
+                    }
+                    else if(subClass.StartsWith("stream", StringComparison.OrdinalIgnoreCase))
+                    {
+                        var pos = subClass.IndexOf('/');
+
+                        if (pos > 0)
+                        {
+                            this.AssocItem = subClass.Substring(pos + 1);
+                            subClass = subClass.Substring(0, pos - 1);
+                        }
+                        else
+                            subClass = null;
+                    }
+                }
+
+                if (string.IsNullOrEmpty(subClass))
+                {
+                    this.Class = logClass.ToString();
+                }
+                else
+                {
+                    this.Class = logClass.ToString() + '(' + subClass + ')';
+                }                
+            }
             //this.Orphaned = (classes & EventClasses.Orphaned) == EventClasses.Orphaned;
             this.Exception = exception;
             this.Path = exceptionPath?.Join("=>", s => s);
@@ -678,11 +708,82 @@ namespace DSEDiagnosticAnalytics
             {
                 this.TableName = string.Join(",", logEvent.DDLItems.Select(i => i.FullName).Sort());
             }
-            
-            if (string.IsNullOrEmpty(logEvent.SubClass))
-                this.Class = (logEvent.Class & ~EventClasses.LogTypes & ~EventClasses.Orphaned).ToString();
-            else
-                this.Class = (logEvent.Class & ~EventClasses.LogTypes & ~EventClasses.Orphaned).ToString() + " (" + logEvent.SubClass + ")";
+            {
+                var logClass = (logEvent.Class & ~EventClasses.LogTypes & ~EventClasses.Orphaned);
+                string assocItem = null;
+                var subClass = logEvent.SubClass;
+
+                if ((logClass & EventClasses.MemtableFlush) != 0
+                        && !string.IsNullOrEmpty(subClass)
+                        && (subClass.StartsWith("sharedpool", StringComparison.OrdinalIgnoreCase)
+                                || subClass.StartsWith("stream", StringComparison.OrdinalIgnoreCase)))
+                {
+                    if (subClass.StartsWith("sharedpool", StringComparison.OrdinalIgnoreCase))
+                    {
+                        subClass = "SharedPool";
+                    }
+                    else if (subClass.StartsWith("stream", StringComparison.OrdinalIgnoreCase))
+                    {
+                        var pos = subClass.IndexOf('/');
+
+                        if (pos > 0)
+                        {
+                            this.AssocItem = subClass.Substring(pos + 1);
+                            subClass = subClass.Substring(0, pos - 1);
+                        }
+                        else
+                            subClass = null;
+                    }
+                }
+
+                if (string.IsNullOrEmpty(subClass))
+                {
+                    this.Class = logClass.ToString();
+                }
+                else
+                {
+                    this.Class = logClass.ToString() + '(' + subClass + ')';
+                }
+
+                if (logEvent.AssociatedNodes != null && logEvent.AssociatedNodes.HasAtLeastOneElement())
+                {
+                    if (assocItem == null)
+                        assocItem = string.Empty;
+                    else
+                        assocItem += ", ";
+                    assocItem += string.Join(",", logEvent.AssociatedNodes.Select(n => n?.Id.NodeName()).Where(s => s != null));
+                }
+                if (logEvent.TokenRanges != null && logEvent.TokenRanges.HasAtLeastOneElement())
+                {
+                    if (assocItem == null)
+                        assocItem = string.Empty;
+                    else
+                        assocItem += ", ";
+                    assocItem += "Tokens{ " + string.Join(",", logEvent.TokenRanges.Select(n => n?.ToString()).Where(s => s != null)) + "}";
+                }
+                if (logEvent.LogProperties.ContainsKey("partitionkey"))
+                {
+                    if (assocItem == null)
+                        assocItem = string.Empty;
+                    else
+                        assocItem += ", ";
+                    assocItem += "PartitionKey{ " + logEvent.LogProperties["partitionkey"].ToString() + "}";
+                }
+                if (logEvent.LogProperties.ContainsKey("whereclause"))
+                {
+                    if (assocItem == null)
+                        assocItem = string.Empty;
+                    else
+                        assocItem += ", ";
+                    assocItem += "WhereClause{ " + logEvent.LogProperties["whereclause"].ToString() + "}";
+                }
+
+                if(!string.IsNullOrEmpty(assocItem))
+                {
+                    this.AssocItem = assocItem;
+                }
+            }
+
             //this.Orphaned = (logEvent.Class & EventClasses.Orphaned) == EventClasses.Orphaned;
             this.Exception = logEvent.Exception;
             this.Path = logEvent.ExceptionPath?.Join("=>", s => s);
@@ -694,6 +795,7 @@ namespace DSEDiagnosticAnalytics
         public readonly string KeySpaceName;
         public readonly string TableName;
         public readonly string Class;
+        public readonly string AssocItem;
         //public readonly bool Orphaned;
         public readonly string Exception;
         public readonly string Path;                                    

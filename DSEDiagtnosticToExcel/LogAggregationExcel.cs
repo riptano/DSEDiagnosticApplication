@@ -99,20 +99,35 @@ namespace DSEDiagtnosticToExcel
                                                                  workSheet.Cells["AP:AP"].Style.Numberformat.Format = "#,###,###,##0.00";
                                                                  workSheet.Cells["AQ:AQ"].Style.Numberformat.Format = "#,###,###,##0.00";
                                                                  workSheet.Cells["AR:AR"].Style.Numberformat.Format = "#,###,###,##0";
+                                                                 workSheet.Cells["AS:AS"].Style.Numberformat.Format = "#,###,###,##0";
 
                                                                  //workSheet.Cells["A1:AR1"].AutoFilter = true;
 
-                                                                 workSheet.AutoFitColumn(workSheet.Cells["A:I"], workSheet.Cells["K:R"]);
-                                                                 workSheet.Column(10).Width = 27; //J
-                                                                 
-                                                                 using (var tblRange = workSheet.Cells["A:AR"])
+                                                                 workSheet.AutoFitColumn(workSheet.Cells["A:F"], workSheet.Cells["H:H"], workSheet.Cells["M:AS"]);
+                                                                 workSheet.Column(7).Width = 25; //G
+                                                                 workSheet.Column(9).Width = 25; //I
+                                                                 workSheet.Column(11).Width = 25; //K
+                                                                 workSheet.Column(12).Width = 25; //L
+
+                                                                 var table = workSheet.Tables.FirstOrDefault(t => t.Name == "AggregatedLogTable");
+                                                                 if (table == null)
                                                                  {
-                                                                     var table = workSheet.Tables.FirstOrDefault(t => t.Name == "AggregatedLogTable")
-                                                                                   ?? workSheet.Tables.Add(tblRange, "AggregatedLogTable");
-                                                                    
-                                                                     table.ShowFilter = true;
-                                                                     table.ShowHeader = true;
-                                                                     table.TableStyle = OfficeOpenXml.Table.TableStyles.Light21;
+                                                                     using (var tblRange = workSheet.Cells[string.Format("A1:AS{0}", this.DataTable.Rows.Count + 2)])
+                                                                     {
+                                                                         table = workSheet.Tables.Add(tblRange, "AggregatedLogTable");
+
+                                                                         table.ShowFilter = true;
+                                                                         table.ShowHeader = true;
+                                                                         table.TableStyle = OfficeOpenXml.Table.TableStyles.Light21;
+                                                                     }
+                                                                 }
+                                                                 else
+                                                                 {
+                                                                     var oldaddy = table.Address;
+                                                                     var newaddy = new ExcelAddressBase(oldaddy.Start.Row, oldaddy.Start.Column, this.DataTable.Rows.Count + 2, oldaddy.End.Column);
+
+                                                                     //Edit the raw XML by searching for all references to the old address
+                                                                     table.TableXml.InnerXml = table.TableXml.InnerXml.Replace(oldaddy.ToString(), newaddy.ToString());
                                                                  }
                                                              },
                                                              -1,

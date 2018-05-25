@@ -57,31 +57,45 @@ namespace DSEDiagtnosticToExcel
                                                             },
                                                              workSheet =>
                                                              {
-                                                                    //workSheet.Cells["1:1"].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.LightGray;
-                                                                    //workSheet.Cells["1:1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-                                                                    //workBook.Cells["1:1"].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
-                                                                    //workSheet.Cells["K:K"].Style.Numberformat.Format = "#,###,###,##0.00";
+                                                                 //workSheet.Cells["1:1"].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.LightGray;
+                                                                 //workSheet.Cells["1:1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                                                                 //workBook.Cells["1:1"].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
+                                                                 //workSheet.Cells["K:K"].Style.Numberformat.Format = "#,###,###,##0.00";
 
-                                                                    //workSheet.Cells["I1"].Value = workSheet.Cells["I1"].Text + "(Formatted)";
-                                                                    //workSheet.View.FreezePanes(2, 1);
-                                                                    //workSheet.Cells["A1:M1"].AutoFilter = true;
-                                                                    //workSheet.Column(10).Hidden = true;
+                                                                 //workSheet.Cells["I1"].Value = workSheet.Cells["I1"].Text + "(Formatted)";
+                                                                 //workSheet.View.FreezePanes(2, 1);
+                                                                 //workSheet.Cells["A1:M1"].AutoFilter = true;
+                                                                 //workSheet.Column(10).Hidden = true;
 
-                                                                 if(!this.AppendToWorkSheet)
-                                                                 {
-                                                                     this.LoadDefaultAttributes(workSheet);
-                                                                 }
+                                                                 //int nbrLoaded = 0;
+
+                                                                 //if(!this.AppendToWorkSheet)
+                                                                 //{
+                                                                 //    nbrloaded = this.LoadDefaultAttributes(workSheet);
+                                                                 //}
 
                                                                  workSheet.AutoFitColumn(workSheet.Cells["A:N"]);
 
-                                                                 using (var tblRange = workSheet.Cells["A:N"])
+                                                                 var table = workSheet.Tables.FirstOrDefault(t => t.Name == "AggregatedStatsTable");
+                                                                 if (table == null)
                                                                  {
-                                                                     var table = workSheet.Tables.FirstOrDefault(t => t.Name == "AggregatedStatsTable")
-                                                                                    ?? workSheet.Tables.Add(tblRange, "AggregatedStatsTable");
+                                                                     using (var tblRange = workSheet.Cells[string.Format("A1:N{0}",this.DataTable.Rows.Count + 2)])
+                                                                     {
+                                                                         table = workSheet.Tables.Add(tblRange, "AggregatedStatsTable");
 
-                                                                     table.ShowFilter = true;
-                                                                     table.ShowHeader = true;                                                                     
+                                                                         table.ShowFilter = true;
+                                                                         table.ShowHeader = true;
+                                                                         table.TableStyle = OfficeOpenXml.Table.TableStyles.Light21;
+                                                                     }
                                                                  }
+                                                                 else
+                                                                 {
+                                                                     var oldaddy = table.Address;
+                                                                     var newaddy = new ExcelAddressBase(oldaddy.Start.Row, oldaddy.Start.Column, this.DataTable.Rows.Count + 2, oldaddy.End.Column);
+
+                                                                     //Edit the raw XML by searching for all references to the old address
+                                                                     table.TableXml.InnerXml = table.TableXml.InnerXml.Replace(oldaddy.ToString(), newaddy.ToString());
+                                                                 }                                                                 
                                                              },
                                                              -1,
                                                             -1,

@@ -32,11 +32,16 @@ namespace DSEDiagnosticConsoleApplication
                     Logger.Instance.DebugFormat("Load Excel is using Cluster \"{0}\"", cluster.Name);
                 }
 
-                ParserSettings.ExcelFilePath = Common.Path.PathUtils.BuildFilePath(string.Format(Properties.Settings.Default.ExcelFileNameGeneratedStringFormat,
-                                                                                                    ParserSettings.DiagnosticPath,
-                                                                                                    cluster.IsMaster ? "MasterCluster" : cluster.Name,
-                                                                                                    RunDateTime,
-                                                                                                    ParserSettings.ExcelFileTemplatePath?.FileExtension ?? DSEDiagtnosticToExcel.LibrarySettings.ExcelFileExtension));
+                string processTF = string.Empty;
+
+                if(DSEDiagnosticFileParser.LibrarySettings.LogRestrictedTimeRange != null && !DSEDiagnosticFileParser.LibrarySettings.LogRestrictedTimeRange.IsEmpty())
+                {
+                    processTF = string.Format("-{0:yyMMdd}To{1:MMdd}",
+                                                DSEDiagnosticFileParser.LibrarySettings.LogRestrictedTimeRange.Min.UtcDateTime,
+                                                DSEDiagnosticFileParser.LibrarySettings.LogRestrictedTimeRange.Max.UtcDateTime);
+                }
+
+                ParserSettings.ExcelFilePath = Common.Path.PathUtils.BuildFilePath(DetermineExcelTargetFile(cluster));
             }
 
             var loadExcel = new DSEDiagtnosticToExcel.LoadDataSet(loadAllDataTableTask,

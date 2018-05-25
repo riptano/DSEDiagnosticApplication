@@ -106,7 +106,7 @@ namespace DSEDiagtnosticToExcel
                                                                 workSheet.Cells["1:2"].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.LightGray;
                                                                 workSheet.Cells["1:2"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
                                                                 //workBook.Cells["1:1"].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
-                                                                workSheet.View.FreezePanes(3, 1);
+                                                                workSheet.View.FreezePanes(3, 2);
 
                                                                 workSheet.Cells["K1:N1"].Style.WrapText = true;
                                                                 workSheet.Cells["K1:N1"].Merge = true;

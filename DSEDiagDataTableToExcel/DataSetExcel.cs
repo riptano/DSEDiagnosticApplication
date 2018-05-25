@@ -823,36 +823,41 @@ namespace DataTableToExcel
             return ExcelPkgCache.SaveAllExcelFiles(true);
         }
 
-        static public void WorkSheetLoadColumnDefaults(this ExcelWorksheet workSheet,
+        static public int WorkSheetLoadColumnDefaults(this ExcelWorksheet workSheet,
                                                         string column,
                                                         string[] defaultValues)
         {
+            int nbrLoaded = 0;
             for (int emptyRow = workSheet.Dimension.End.Row + 1, posValue = 0; posValue < defaultValues.Length; ++emptyRow, ++posValue)
             {
                 workSheet.Cells[string.Format("{0}{1}", column, emptyRow)].Value = defaultValues[posValue];
+                ++nbrLoaded;
             }
-
+            return nbrLoaded;
         }
 
-        static public void WorkSheetLoadColumnDefaults(this ExcelWorksheet workSheet,
+        static public int WorkSheetLoadColumnDefaults(this ExcelWorksheet workSheet,
                                                         string column,
                                                         int startRow,
                                                         string[] defaultValues)
         {
+            int nbrLoaded = 0;
             for (int emptyRow = startRow, posValue = 0; posValue < defaultValues.Length; ++emptyRow, ++posValue)
             {
                 workSheet.Cells[string.Format("{0}{1}", column, emptyRow)].Value = defaultValues[posValue];
+                ++nbrLoaded;
             }
-
+            return nbrLoaded;
         }
 
-        static public void WorkSheetLoadColumnDefaults(this ExcelPackage excelPkg,
+        static public int WorkSheetLoadColumnDefaults(this ExcelPackage excelPkg,
                                                         string workSheetName,
                                                         string column,
                                                         int startRow,
                                                         string[] defaultValues)
         {
             var workSheet = excelPkg.Workbook.Worksheets[workSheetName];
+            int nbrLoaded = 0;
             if (workSheet == null)
             {
                 workSheet = excelPkg.Workbook.Worksheets.Add(workSheetName);
@@ -865,30 +870,29 @@ namespace DataTableToExcel
             for (int emptyRow = startRow, posValue = 0; posValue < defaultValues.Length; ++emptyRow, ++posValue)
             {
                 workSheet.Cells[string.Format("{0}{1}", column, emptyRow)].Value = defaultValues[posValue];
+                ++nbrLoaded;
             }
-
+            return nbrLoaded;
         }
 
-        static public bool WorkSheetLoadColumnDefaults(this ExcelWorksheet workSheet, WorkSheetColAttrDefaults defaultAttrs)
+        static public int WorkSheetLoadColumnDefaults(this ExcelWorksheet workSheet, WorkSheetColAttrDefaults defaultAttrs)
         {
             if (string.IsNullOrEmpty(defaultAttrs.Column) || defaultAttrs.Attrs == null || defaultAttrs.Attrs.Length == 0)
             {
-                return false;
+                return 0;
             }
 
-            WorkSheetLoadColumnDefaults(workSheet, defaultAttrs.Column, defaultAttrs.Attrs);
-            return true;
+            return WorkSheetLoadColumnDefaults(workSheet, defaultAttrs.Column, defaultAttrs.Attrs);           
         }
 
-        static public bool WorkSheetLoadColumnDefaults(this ExcelWorksheet workSheet, WorkSheetColAttrDefaults defaultAttrs, int startRow)
+        static public int WorkSheetLoadColumnDefaults(this ExcelWorksheet workSheet, WorkSheetColAttrDefaults defaultAttrs, int startRow)
         {
             if (string.IsNullOrEmpty(defaultAttrs.Column) || defaultAttrs.Attrs == null || defaultAttrs.Attrs.Length == 0)
             {
-                return false;
+                return 0;
             }
 
-            WorkSheetLoadColumnDefaults(workSheet, defaultAttrs.Column, startRow, defaultAttrs.Attrs);
-            return true;
+            return WorkSheetLoadColumnDefaults(workSheet, defaultAttrs.Column, startRow, defaultAttrs.Attrs);            
         }
 
         static public ExcelRange TranslaateToExcelRange(this ExcelWorksheet excelWorksheet, DataTable dataTable, string dtColumnName, int excelEndRow = -1, int excelStartRow = 1)

@@ -76,9 +76,9 @@ namespace DSEDiagtnosticToExcel
 
         public event OnActionEventHandler OnAction;
 
-        internal bool LoadDefaultAttributes(OfficeOpenXml.ExcelWorksheet excelWorkSheet)
+        internal int LoadDefaultAttributes(OfficeOpenXml.ExcelWorksheet excelWorkSheet)
         {
-            bool bResult = false;
+            int nbrLoaded = 0;
 
             if(!string.IsNullOrEmpty(this.WorkSheetName))
             {
@@ -90,12 +90,12 @@ namespace DSEDiagtnosticToExcel
 
                     foreach (var defaultAttr in defaultAttrs)
                     {
-                        bResult = DataTableToExcel.Helpers.WorkSheetLoadColumnDefaults(excelWorkSheet, defaultAttr, startRow);
+                        nbrLoaded += DataTableToExcel.Helpers.WorkSheetLoadColumnDefaults(excelWorkSheet, defaultAttr, startRow);
                     }
                 }
             }
 
-            return bResult;
+            return nbrLoaded;
         }
 
         internal void CallActionEvent(string actionItem)

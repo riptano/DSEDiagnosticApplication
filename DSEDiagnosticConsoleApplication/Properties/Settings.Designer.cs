@@ -142,7 +142,7 @@ namespace DSEDiagnosticConsoleApplication.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("{0}\\{1}-{2:yyyy-MM-dd-HH-mm-ss}{3}")]
+        [global::System.Configuration.DefaultSettingValueAttribute("{0}\\{1}-{2:yyyy-MM-dd-HH-mm-ss}-{3}{4}{5}")]
         public string ExcelFileNameGeneratedStringFormat {
             get {
                 return ((string)(this["ExcelFileNameGeneratedStringFormat"]));
@@ -180,7 +180,11 @@ namespace DSEDiagnosticConsoleApplication.Properties {
             ":\"AllNoFlushComp\",\"Log4NetParser\":\".\\\\Json\\\\Log4NetParserLogsNoFlushComp.json\",\"" +
             "ProcessFileMappings\":\".\\\\Json\\\\ProcessFileMappingsNoDebugLogs.json\",\"EnableVirtu" +
             "alMemory\":true, \"DefaultLogLevelHandling\":\"Warning, Error, Fatal, Exception\", \"D" +
-            "ebugLogProcessingTypes\":\"Disable\"}\r\n]")]
+            "ebugLogProcessingTypes\":\"Disable\"},\r\n{\"ProfileName\":\"ValidateWLogs\",\"Log4NetPars" +
+            "er\":\".\\\\Json\\\\Log4NetParserLogsNoFlushCompGC.json\",\"ProcessFileMappings\":\".\\\\Jso" +
+            "n\\\\ProcessFileMappingsValidate.json\",\"EnableVirtualMemory\":false, \"DefaultLogLev" +
+            "elHandling\":\"Fatal, Exception\", \"DebugLogProcessingTypes\":\"OnlyLogDateRange\"}\r\n]" +
+            "")]
         public string Profiles {
             get {
                 return ((string)(this["Profiles"]));

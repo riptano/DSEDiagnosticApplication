@@ -37,6 +37,7 @@ namespace DSEDiagnosticToDataTable
             dtLog.Columns.Add(ColumnNames.KeySpace, typeof(string)).AllowDBNull = true;
             dtLog.Columns.Add(ColumnNames.Table, typeof(string)).AllowDBNull = true;
             dtLog.Columns.Add("Class", typeof(string));
+            dtLog.Columns.Add("Related Info", typeof(string));
             dtLog.Columns.Add("HasOrphanedEvents", typeof(bool)).AllowDBNull = true; //Subclass
             dtLog.Columns.Add("Path", typeof(string)); //Exception Path
             dtLog.Columns.Add("Exception", typeof(string)).AllowDBNull = true;
@@ -170,6 +171,7 @@ namespace DSEDiagnosticToDataTable
                     dataRow.SetField(ColumnNames.KeySpace, logGrpEvt.GroupKey.KeySpaceName);
                     dataRow.SetField(ColumnNames.Table, logGrpEvt.GroupKey.TableName);
                     dataRow.SetField("Class", logGrpEvt.GroupKey.Class);
+                    dataRow.SetField("Related Info", logGrpEvt.GroupKey.AssocItem);
                     if(logGrpEvt.HasOrphaned) dataRow.SetField("HasOrphanedEvents", true);
                     dataRow.SetField("Path", logGrpEvt.GroupKey.Path);
                     dataRow.SetField("Exception", logGrpEvt.GroupKey.Exception);
