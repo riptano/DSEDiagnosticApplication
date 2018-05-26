@@ -130,6 +130,28 @@ namespace DSEDiagnosticFileParser
             IgnoreParents = 2
         }
 
+        [Flags]
+        public enum PropertyInherentOptions
+        {
+            None = 0,
+            /// <summary>
+            /// If defined, the property is overwritten regardless if value exists or not, otherwise it is updated only if no value is defined
+            /// </summary>
+            Overwrite = 0x0001,
+            /// <summary>
+            /// If defined the values are merged
+            /// </summary>
+            Merge = 0x0002,
+            SubClass = 0x0010,
+            PrimaryKS = 0x0020,
+            PrimaryDDL = 0x0040,            
+            SSTableFilePaths = 0x0080,
+            DDLInstances = 0x0100,
+            AssocatedNodes = 0x0200,
+            TokenRanges = 0x0400,
+            TagLogProp = 0x0800
+        }
+
         #region constructors
         public CLogLineTypeParser()
         {
@@ -157,7 +179,7 @@ namespace DSEDiagnosticFileParser
                       string.IsNullOrEmpty(filelineMatchRegEx) ? null : new RegExParseString(filelineMatchRegEx),
                       string.IsNullOrEmpty(messageMatchRegEx) ? null : new RegExParseString(messageMatchRegEx),
                       string.IsNullOrEmpty(parsemessageRegEx) ? null : new RegExParseString(parsemessageRegEx),
-                      string.IsNullOrEmpty(threadidMatchRegEx) ? null : new RegExParseString(threadidMatchRegEx),
+                      string.IsNullOrEmpty(parsethreadidRegEx) ? null : new RegExParseString(parsethreadidRegEx),
                       sessionKey,
                       eventType,
                       eventClass,
@@ -363,6 +385,11 @@ namespace DSEDiagnosticFileParser
         /// </summary>
         public bool IgnoreEvent { get; set; }
 
+        /// <summary>
+        /// Properties that can be inherent from the parent session
+        /// </summary>
+        public PropertyInherentOptions PropertyInherentOption { get; set; } = PropertyInherentOptions.None;
+
         private const int SubClassIdx = 1;
         private string _subclass = null;
         /// <summary>
@@ -514,7 +541,7 @@ namespace DSEDiagnosticFileParser
         /// This Tag Id will be used to associated this instance to the matching tag id which must be defined in the master parser collection.
         /// The matching instance values will be copied to this instance. If this instance already has values defined, they will NOT be overwritten.
         /// 
-        /// This property should be the first property in the JSON string so that reminding propeties can be degined as overrides.
+        /// This property should be the first property in the JSON string so that reminding properties can be deigned as overrides.
         /// </summary>
         public decimal? LinkedTagId
         {

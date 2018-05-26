@@ -1297,6 +1297,118 @@ namespace DSEDiagnosticFileParser
                         }                                                
                     }
 
+                    if((matchItem.Item5.PropertyInherentOption & CLogLineTypeParser.PropertyInherentOptions.AssocatedNodes) != 0)
+                    {
+                        if(assocatedNodes == null
+                                || assocatedNodes.IsEmpty()
+                                || (matchItem.Item5.PropertyInherentOption & CLogLineTypeParser.PropertyInherentOptions.Overwrite) != 0)
+                        {
+                            assocatedNodes = sessionEvent.AssociatedNodes;
+                        }
+                        else if ((matchItem.Item5.PropertyInherentOption & CLogLineTypeParser.PropertyInherentOptions.Merge) != 0
+                                    && sessionEvent.AssociatedNodes.HasAtLeastOneElement())
+                        {
+                            assocatedNodes = assocatedNodes.Concat(sessionEvent.AssociatedNodes).DuplicatesRemoved(i => i);
+                        }
+                    }
+                    if ((matchItem.Item5.PropertyInherentOption & CLogLineTypeParser.PropertyInherentOptions.DDLInstances) != 0)
+                    {
+                        if (ddlInstances == null
+                                || ddlInstances.IsEmpty()
+                                || (matchItem.Item5.PropertyInherentOption & CLogLineTypeParser.PropertyInherentOptions.Overwrite) != 0)
+                        {
+                            ddlInstances = sessionEvent.DDLItems.ToList();
+                        }
+                        else if ((matchItem.Item5.PropertyInherentOption & CLogLineTypeParser.PropertyInherentOptions.Merge) != 0
+                                    && sessionEvent.DDLItems.HasAtLeastOneElement())
+                        {
+                            ddlInstances = ddlInstances.Concat(sessionEvent.DDLItems).DuplicatesRemoved(i => i.FullName).ToList();
+                        }
+                    }
+                    if ((matchItem.Item5.PropertyInherentOption & CLogLineTypeParser.PropertyInherentOptions.PrimaryDDL) != 0)
+                    {
+                        if (primaryDDL == null
+                                || (matchItem.Item5.PropertyInherentOption & CLogLineTypeParser.PropertyInherentOptions.Overwrite) != 0)
+                        {
+                            primaryDDL = sessionEvent.TableViewIndex;
+                        }
+                        else if ((matchItem.Item5.PropertyInherentOption & CLogLineTypeParser.PropertyInherentOptions.Merge) != 0
+                                    && sessionEvent.TableViewIndex != null)
+                        {
+                            primaryDDL = sessionEvent.TableViewIndex;
+                        }
+                    }
+                    if ((matchItem.Item5.PropertyInherentOption & CLogLineTypeParser.PropertyInherentOptions.PrimaryKS) != 0)
+                    {
+                        if (primaryKS == null
+                                || (matchItem.Item5.PropertyInherentOption & CLogLineTypeParser.PropertyInherentOptions.Overwrite) != 0)
+                        {
+                            primaryKS = sessionEvent.Keyspace;
+                        }
+                        else if ((matchItem.Item5.PropertyInherentOption & CLogLineTypeParser.PropertyInherentOptions.Merge) != 0
+                                    && sessionEvent.Keyspace != null)
+                        {
+                            primaryKS = sessionEvent.Keyspace;
+                        }
+                    }
+                    if ((matchItem.Item5.PropertyInherentOption & CLogLineTypeParser.PropertyInherentOptions.SubClass) != 0)
+                    {
+                        if (subClass == null
+                                || (matchItem.Item5.PropertyInherentOption & CLogLineTypeParser.PropertyInherentOptions.Overwrite) != 0)
+                        {
+                            subClass = sessionEvent.SubClass;
+                        }
+                        else if ((matchItem.Item5.PropertyInherentOption & CLogLineTypeParser.PropertyInherentOptions.Merge) != 0
+                                    && sessionEvent.SubClass != null)
+                        {
+                            subClass = subClass == null ? sessionEvent.SubClass : subClass + sessionEvent.SubClass;
+                        }
+                    }
+                    if ((matchItem.Item5.PropertyInherentOption & CLogLineTypeParser.PropertyInherentOptions.SSTableFilePaths) != 0)
+                    {
+                        if (sstableFilePaths == null
+                                || sstableFilePaths.IsEmpty()
+                                || (matchItem.Item5.PropertyInherentOption & CLogLineTypeParser.PropertyInherentOptions.Overwrite) != 0)
+                        {
+                            sstableFilePaths = sessionEvent.SSTables.ToList();
+                        }
+                        else if ((matchItem.Item5.PropertyInherentOption & CLogLineTypeParser.PropertyInherentOptions.Merge) != 0
+                                    && sessionEvent.SSTables.HasAtLeastOneElement())
+                        {
+                            sstableFilePaths = sstableFilePaths.Concat(sessionEvent.SSTables).DuplicatesRemoved(i => i).ToList();
+                        }
+                    }
+                    if ((matchItem.Item5.PropertyInherentOption & CLogLineTypeParser.PropertyInherentOptions.TokenRanges) != 0)
+                    {
+                        if (tokenRanges == null
+                                || tokenRanges.IsEmpty()
+                                || (matchItem.Item5.PropertyInherentOption & CLogLineTypeParser.PropertyInherentOptions.Overwrite) != 0)
+                        {
+                            tokenRanges = sessionEvent.TokenRanges;
+                        }
+                        else if ((matchItem.Item5.PropertyInherentOption & CLogLineTypeParser.PropertyInherentOptions.Merge) != 0
+                                    && sessionEvent.TokenRanges.HasAtLeastOneElement())
+                        {
+                            tokenRanges = tokenRanges.Concat(sessionEvent.TokenRanges).DuplicatesRemoved(i => i).ToList();
+                        }
+                    }
+                    if ((matchItem.Item5.PropertyInherentOption & CLogLineTypeParser.PropertyInherentOptions.TagLogProp) != 0)
+                    {
+                        if (!logProperties.ContainsKey("tag")
+                                || (matchItem.Item5.PropertyInherentOption & CLogLineTypeParser.PropertyInherentOptions.Overwrite) != 0)
+                        {
+                            if (sessionEvent.LogProperties.ContainsKey("tag")) logProperties.Add("tag", sessionEvent.LogProperties["tag"]);
+                        }
+                        else if ((matchItem.Item5.PropertyInherentOption & CLogLineTypeParser.PropertyInherentOptions.Merge) != 0
+                                    && sessionEvent.LogProperties.ContainsKey("tag"))
+                        {
+                            if (logProperties.ContainsKey("tag"))
+                                logProperties["tag"] = (string) logProperties["tag"] + (string) sessionEvent.LogProperties["tag"];
+                            else
+                                logProperties.Add("tag", sessionEvent.LogProperties["tag"]);
+                        }
+                    }
+
                     if ((sessionEvent.Type & EventTypes.SessionBegin) == EventTypes.SessionBegin)
                     {
                         if (sessionParentAction != CLogLineTypeParser.SessionParentActions.IgnoreCurrent)
@@ -1307,15 +1419,15 @@ namespace DSEDiagnosticFileParser
                         {
                             subClass = sessionEvent.SubClass;
                         }
-                    }
+                    }                   
 
                     if ((eventType & EventTypes.SessionEnd) == EventTypes.SessionEnd)
                     {
-                        if(string.IsNullOrEmpty(subClass))
+                        if (string.IsNullOrEmpty(subClass))
                         {
                             subClass = sessionEvent.SubClass;
                         }
-                        if(string.IsNullOrEmpty(analyticsGroup))
+                        if (string.IsNullOrEmpty(analyticsGroup))
                         {
                             analyticsGroup = sessionEvent.AnalyticsGroup;
                         }
@@ -2025,7 +2137,7 @@ namespace DSEDiagnosticFileParser
 
                                         return n.ToString();
                                     })
-                                    .Where(n => !this.Node.Equals(n))
+                                    .Where(n => !this.Node.Equals(n) && n != "127.0.0.1")
                                     .Select(n => this.Cluster.TryGetNode(n))                                    
                                     .DuplicatesRemoved(n => n);
                 }                

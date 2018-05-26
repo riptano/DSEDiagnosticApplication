@@ -712,37 +712,14 @@ namespace DSEDiagnosticAnalytics
                 var logClass = (logEvent.Class & ~EventClasses.LogTypes & ~EventClasses.Orphaned);
                 string assocItem = null;
                 var subClass = logEvent.SubClass;
-
-                if ((logClass & EventClasses.MemtableFlush) != 0
-                        && !string.IsNullOrEmpty(subClass)
-                        && (subClass.StartsWith("sharedpool", StringComparison.OrdinalIgnoreCase)
-                                || subClass.StartsWith("stream", StringComparison.OrdinalIgnoreCase)))
-                {
-                    if (subClass.StartsWith("sharedpool", StringComparison.OrdinalIgnoreCase))
-                    {
-                        subClass = "SharedPool";
-                    }
-                    else if (subClass.StartsWith("stream", StringComparison.OrdinalIgnoreCase))
-                    {
-                        var pos = subClass.IndexOf('/');
-
-                        if (pos > 0)
-                        {
-                            this.AssocItem = subClass.Substring(pos + 1);
-                            subClass = subClass.Substring(0, pos - 1);
-                        }
-                        else
-                            subClass = null;
-                    }
-                }
-
+                
                 if (string.IsNullOrEmpty(subClass))
                 {
                     this.Class = logClass.ToString();
                 }
                 else
                 {
-                    this.Class = logClass.ToString() + '(' + subClass + ')';
+                    this.Class = logClass.ToString() + '(' + subClass.Trim() + ')';
                 }
 
                 if (logEvent.AssociatedNodes != null && logEvent.AssociatedNodes.HasAtLeastOneElement())
@@ -751,8 +728,8 @@ namespace DSEDiagnosticAnalytics
                         assocItem = string.Empty;
                     else
                         assocItem += ", ";
-                    assocItem += string.Join(",", logEvent.AssociatedNodes.Select(n => n?.Id.NodeName()).Where(s => s != null));
-                }
+                    assocItem += string.Join(",", logEvent.AssociatedNodes.Select(n => n.DataCenter.Name + '|' + n.Id.NodeName()));
+                }                
                 if (logEvent.TokenRanges != null && logEvent.TokenRanges.HasAtLeastOneElement())
                 {
                     if (assocItem == null)
@@ -777,8 +754,16 @@ namespace DSEDiagnosticAnalytics
                         assocItem += ", ";
                     assocItem += "WhereClause{ " + logEvent.LogProperties["whereclause"].ToString() + "}";
                 }
+                if (logEvent.LogProperties.ContainsKey("tag"))
+                {
+                    if (assocItem == null)
+                        assocItem = string.Empty;
+                    else
+                        assocItem += ", ";
+                    assocItem += "Tag{ " + logEvent.LogProperties["tag"].ToString() + "}";
+                }
 
-                if(!string.IsNullOrEmpty(assocItem))
+                if (!string.IsNullOrEmpty(assocItem))
                 {
                     this.AssocItem = assocItem;
                 }

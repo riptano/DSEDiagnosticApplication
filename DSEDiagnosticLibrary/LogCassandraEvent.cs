@@ -469,14 +469,15 @@ namespace DSEDiagnosticLibrary
                     this.SSTables = readView.GetEnumerableString();
                     this.DDLItems = readView.GetEnumerableValue<int>().Select(h => Cluster.TryGetDDLStmt(h));
                     this.AssociatedNodes = readView.GetEnumerableValue<int>().Select(h => Cluster.TryGetNode(h));
+                    this.TokenRanges = readView.GetMMTokenRangeEnum();
                 }
                 else
                 {
                     readView.SkipStringEnumerable();
                     readView.SkipStructEnumerable();
                     readView.SkipStructEnumerable();
-                }
-                readView.SkipMMTokenRangeEnum();
+                    readView.SkipMMTokenRangeEnum();
+                }               
                 this.Exception = readView.GetStringValue();
                 this.ExceptionPath = readView.GetEnumerableString();
             }

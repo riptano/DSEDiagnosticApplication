@@ -569,7 +569,14 @@
           "^Flushing\\s+largest\\s+\\w+\\s*\\(\\s*Keyspace\\s*=\\s*(?$<KEYSPACE>),\\s+\\w+\\s*=\\s*(?$<DDLITEMNAME>)\\)\\s+to\\s+(?<reason>[^.]+)\\.\\s+Used\\s+total:\\s+(?<totalthresholdonheap>[0-9,.]+)\\s*/\\s*(?<totalthresholdoffheap>[0-9.,]+)\\s*,\\s*live:\\s+(?<livethresholdonheap>[0-9,.]+)\\s*/\\s*(?<livethresholdoffheap>[0-9,.]+)\\s*,\\s+flushing:\\s+(?<flushthresholdonheap>[0-9,.]+)\\s*/\\s*(?<flushthresholdoffheap>[0-9.,]+)\\s*,\\s+this:\\s+(?<thisthresholdonheap>[0-9,.]+)\\s*/\\s*(?<thisthresholdoffheap>[0-9,.]+)$"
         ]
       },
-      "ParseThreadId": null,
+      "ParseThreadId": {
+        "RegExStrings": [
+          "^(?<SUBCLASS>stream-in)-(?$<NODE>)$",
+          "^(?<SUBCLASS>sharedpool)-(?<tag>.+)",
+          "^(?<SUBCLASS>RMI TCP Connection)\\s*\\(\\d+\\)\\s*\\-\\s*(?$<NODE>)$",
+          "^(?<tag>(?<SUBCLASS>mutationStage)-\\d+)$"
+        ]
+      },
       "EventType": "SessionBegin",
       "EventClass": "MemtableFlush",
       "SubClass": "ThreadName",
@@ -618,7 +625,14 @@
           "^Enqueuing\\s+flush\\s+of\\s+(?$<DDLITEMNAME>)\\s*\\:\\s+(?<onheap_bytes>[0-9,.]+[a-z]{0,3})\\s+\\((?<onheappercent>[0-9,.]+\\%)\\)\\s+on-heap,\\s+(?<offheap_bytes>[0-9,.]+[a-z]{0,3})\\s+\\((?<offheappercent>[0-9,.]+\\s*[a-z/%]+)\\)\\s"
         ]
       },
-      "ParseThreadId": null,
+      "ParseThreadId": {
+        "RegExStrings": [
+          "^(?<SUBCLASS>stream-in)-(?$<NODE>)$",
+          "^(?<SUBCLASS>sharedpool)-(?<tag>.+)",
+          "^(?<SUBCLASS>RMI TCP Connection)\\s*\\(\\d+\\)\\s*\\-\\s*(?<NODE>[^ ]+)$",
+          "^(?<tag>(?<SUBCLASS>mutationStage)-\\d+)$"
+        ]
+      },
       "EventType": "SessionBeginOrItem",
       "EventClass": "MemtableFlush",
       "SubClass": "ThreadName",
@@ -689,7 +703,8 @@
       "ParseThreadId": null,
       "EventType": "SessionBegin",
       "EventClass": "MemtableFlush",
-      "SubClass": null,
+      "SubClass": "ThreadName",
+      "PropertyInherentOption": "AssocatedNodes, SubClass, TagLogProp, Overwrite",
       "Product": "Cassandra",
       "SessionKey": "ThreadId + DDLITEMNAME",
       "SessionLookupAction": "ReadRemoveLabel, Stack",
@@ -753,6 +768,7 @@
       "EventType": "SessionEnd",
       "EventClass": "MemtableFlush",
       "SubClass": null,
+      "PropertyInherentOption": "AssocatedNodes, SubClass, TagLogProp",
       "Product": "Cassandra",
       "SessionKey": "ThreadId + SSTABLEPATH=>DDLITEMNAME",
       "Examples": [
