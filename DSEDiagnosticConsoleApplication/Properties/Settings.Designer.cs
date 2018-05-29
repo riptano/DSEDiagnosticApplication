@@ -211,7 +211,7 @@ namespace DSEDiagnosticConsoleApplication.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("./*/*.log.*")]
+        [global::System.Configuration.DefaultSettingValueAttribute(".\\*\\*.log.*")]
         public string AppendFilePathForAddLogArgument {
             get {
                 return ((string)(this["AppendFilePathForAddLogArgument"]));

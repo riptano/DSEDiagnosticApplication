@@ -1023,6 +1023,26 @@ namespace DSEDiagnosticFileParser
                     return;
                 }
 
+                if(targetFile.IsRelativePath)
+                {
+                    if (diagnosticDirectory.IsAbsolutePath)
+                    {
+                        IAbsolutePath newFilePath;
+                        if (((Common.IFilePathRelative)targetFile).MakePathFrom((IAbsolutePath)diagnosticDirectory, out newFilePath))
+                        {
+                            targetFile = (IFilePathAbsolute)newFilePath;
+                        }
+                    }
+                    else
+                    {
+                        IAbsolutePath newFilePath;
+                        if (((Common.IFilePathRelative)targetFile).MakePathFrom((IRelativePath)diagnosticDirectory, out newFilePath))
+                        {
+                            targetFile = (IFilePath)newFilePath;
+                        }
+                    }
+                }
+
                 InvokeProgressionEvent(fileMappings,
                                         ProgressionEventArgs.Categories.Start | ProgressionEventArgs.Categories.Process | ProgressionEventArgs.Categories.FileMapper,
                                         "Processing File",

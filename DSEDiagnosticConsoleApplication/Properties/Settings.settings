@@ -81,7 +81,7 @@
       <Value Profile="(Default)" />
     </Setting>
     <Setting Name="AppendFilePathForAddLogArgument" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">./*/*.log.*</Value>
+      <Value Profile="(Default)">.\*\*.log.*</Value>
     </Setting>
   </Settings>
 </SettingsFile>

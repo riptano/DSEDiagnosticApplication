@@ -455,8 +455,9 @@ namespace DSEDiagnosticConsoleApplication
                             foreach (var filePath in ((ValueArgument<string>)item).Values)
                             {
                                 var paths = filePath.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                                                    .Select(p => p.Last() == '"' ? p.Substring(0, p.Length - 1) + '\\' : p)
                                                     .Select(p => string.IsNullOrEmpty(System.IO.Path.GetExtension(p))
-                                                                    ? p + Properties.Settings.Default.AppendFilePathForAddLogArgument
+                                                                    ? (p.Last() == '\\' ? p : p + '\\') + Properties.Settings.Default.AppendFilePathForAddLogArgument
                                                                     : p);
 
                                 ParserSettings.AdditionalFilesForParsingClass.AddRange(paths.Select(p => new KeyValuePair<string, IFilePath>("LogFile", PathUtils.BuildFilePath(p))));
