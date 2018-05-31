@@ -349,7 +349,9 @@
       ".\\nodes\\*\\logs\\cassandra\\debug.log",
       ".\\nodes\\*\\logs\\cassandra\\debug.log.*",
       ".\\nodes\\*\\logs\\cassandra\\*\\debug.log",
-      ".\\nodes\\*\\logs\\cassandra\\*\\debug.log.*"
+      ".\\nodes\\*\\logs\\cassandra\\*\\debug.log.*",
+      ".\\AdditionalLogs\\*\\*.log.*",
+      ".\\ArchivedLogs\\*\\*.log.*"
     ],
     "FileParsingClass": "DSEDiagnosticFileParser.file_cassandra_log4net",
     "NodeIdPos": -1,
