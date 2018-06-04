@@ -34,5 +34,17 @@
   "GCPauseStats": {
     "AnalyticsGroup": "GCPauseStats",
     "AggregateGroupFunctionName": "GCPauseStats"
+  },
+  "FlushStats": {
+    "AnalyticsGroup": "FlushStats",
+    "AggregateGroupFunctionName": "FlushStats"
+  },
+  "CompactionStats": {
+    "AnalyticsGroup": "CompactionStats",
+    "AggregateGroupFunctionName": "CompactionStats"
+  },
+  "HintHandOffStats": {
+    "AnalyticsGroup": "HintHandOffStats",
+    "AggregateGroupFunctionName": "HintHandOffStats"
   }
 }

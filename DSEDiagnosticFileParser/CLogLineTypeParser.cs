@@ -25,7 +25,7 @@ namespace DSEDiagnosticFileParser
 
         private readonly static string[] SessionKeywords = new string[] { "ThreadId", "FileName", "FileNameLine", "SSTABLEPATH=>DDLITEMNAME", "SSTABLEPATH=>KEYSPACE", "SSTABLEPATH=>KEYSPACEDDLNAME", "SSTABLEPATHS=>DDLITEMNAME", "SSTABLEPATHS=>KEYSPACE", "SSTABLEPATHS=>KEYSPACEDDLNAME", "SSTABLEPATH=>TABLEVIEWNAME", "SSTABLEPATH=>KEYSPACETABLEVIEWNAME", "SSTABLEPATHS=>TABLEVIEWNAME", "SSTABLEPATHS=>KEYSPACETABLEVIEWNAME", "ThreadName"};
 
-        readonly CacheInfo[] CachedInfo = new CacheInfo[] { new CacheInfo(), new CacheInfo(), new CacheInfo() };
+        readonly CacheInfo[] CachedInfo = new CacheInfo[] { new CacheInfo(), new CacheInfo(), new CacheInfo(), new CacheInfo() };
         private CacheInfo GetCacheInfo(int cacheIdx)
         {
             return CachedInfo[cacheIdx];
@@ -39,6 +39,8 @@ namespace DSEDiagnosticFileParser
                 return "SessionKeyLookup";
             else if (cacheIdx == SubClassIdx)
                 return "SubClass";
+            else if (cacheIdx == DeltaRunningTotalKeyIdx)
+                return "DeltaRunningTotalKey";
 
             return "<Unknown CLogLineTypeParser Property Name>";
         }
@@ -51,6 +53,8 @@ namespace DSEDiagnosticFileParser
                 return clogLineTypePasrer._sessionKeyLookup;
             else if (cacheIdx == SubClassIdx)
                 return clogLineTypePasrer._subclass;
+            else if (cacheIdx == DeltaRunningTotalKeyIdx)
+                return clogLineTypePasrer._deltaRunningTotalKey;
 
             return null;
         }
@@ -149,6 +153,9 @@ namespace DSEDiagnosticFileParser
             DDLInstances = 0x0100,
             AssocatedNodes = 0x0200,
             TokenRanges = 0x0400,
+            /// <summary>
+            /// looks for the "tag" log property key.
+            /// </summary>
             TagLogProp = 0x0800
         }
 
@@ -390,12 +397,23 @@ namespace DSEDiagnosticFileParser
         /// </summary>
         public PropertyInherentOptions PropertyInherentOption { get; set; } = PropertyInherentOptions.None;
 
+        /// <summary>
+        /// If true and a session event, all log properties from the prior session events will be merged into this event. Current event&apos;s log properties are not overwritten.
+        /// If duplicated log properties are present, the event&apos;s property that is most current is used.
+        /// </summary>
+        public bool LogPropertySessionMerge { get; set; }
+
+        /// <summary>
+        /// If true (default), this event is associated to the this node. If false, the event is not stored (associated) to the node and will not be available in the LogEvents property 
+        /// </summary>
+        public bool AssociateEventToNode { get; set; } = true;
+
         private const int SubClassIdx = 1;
         private string _subclass = null;
         /// <summary>
         /// e.g., Hint, Tombstone, etc. or null
         /// This takes the same values as <see cref="SessionKey"/>
-        /// Callers should call the <see cref="DetermineSubClass(Cluster, INode, IKeyspace, IDictionary{string, object}, ILogMessage, IList{LogCassandraEvent}, IList{Tuple{string, List{LogCassandraEvent}}})"/> method to obtain the correct value.
+        /// Callers should call the <see cref="DetermineSubClass(Cluster, INode, IKeyspace, IDictionary{string, object}, ILogMessage)"/> method to obtain the correct value.
         /// </summary>
         public string SubClass
         {
@@ -414,6 +432,30 @@ namespace DSEDiagnosticFileParser
         /// The associated analytics group used to summarized this log event.
         /// </summary>
         public string AnalyticsGroup { get; set; }
+
+        /// <summary>
+        /// The property name (group name) of a running total value that will be converted to a delta between instances.
+        /// </summary>
+        public string[] DeltaRunningTotalProperty { get; set; }
+
+        private const int DeltaRunningTotalKeyIdx = 3;
+        private string _deltaRunningTotalKey = null;
+        /// <summary>
+        /// If defined it will be the unique key used to access the DeltaRunningTotalProperty running total value.
+        /// Callers should call the <see cref="DetermineDeltaRunningTotalKey(Cluster, INode, IKeyspace, IDictionary{string, object}, ILogMessage)"/> method to obtain the correct value.
+        /// </summary>
+        public string DeltaRunningTotalKey
+        {
+            get { return this._deltaRunningTotalKey; }
+            set
+            {
+                if (value != this._subclass)
+                {
+                    this._deltaRunningTotalKey = value;
+                    CacheSessionKey(this, ref this._deltaRunningTotalKey, DeltaRunningTotalKeyIdx, true);
+                }
+            }
+        }
 
         public DSEInfo.InstanceTypes Product { get; set; }
 
@@ -604,7 +646,13 @@ namespace DSEDiagnosticFileParser
                 this.MaxNumberOfEventsPerNode = useAsCopy.MaxNumberOfEventsPerNode;
                 this.RunningCount = useAsCopy.RunningCount;
                 this.IgnoreEvent = useAsCopy.IgnoreEvent;
+                this.PropertyInherentOption = useAsCopy.PropertyInherentOption;
+                this.LogPropertySessionMerge = useAsCopy.LogPropertySessionMerge;
+                this.AssociateEventToNode = useAsCopy.AssociateEventToNode;
                 this._subclass = useAsCopy._subclass;
+                this.AnalyticsGroup = useAsCopy.AnalyticsGroup;
+                this.DeltaRunningTotalProperty = useAsCopy.DeltaRunningTotalProperty;
+                this._deltaRunningTotalKey = useAsCopy._deltaRunningTotalKey;
                 this.Product = useAsCopy.Product;
                 this._sessionKey = useAsCopy._sessionKey;
                 this.SessionKeyAction = useAsCopy.SessionKeyAction;
@@ -614,6 +662,7 @@ namespace DSEDiagnosticFileParser
                 this.SessionParentAction = useAsCopy.SessionParentAction;
                 this.Examples = useAsCopy.Examples;
                 this.SessionBeginReference = useAsCopy.SessionBeginReference;
+                                
                 this._nodesRunningCnt = useAsCopy._nodesRunningCnt;
                 for (int nIdx = 0; nIdx < this.CachedInfo.Length; nIdx++)
                 {
@@ -646,7 +695,13 @@ namespace DSEDiagnosticFileParser
                 if (this.MaxNumberOfEventsPerNode == -1) this.MaxNumberOfEventsPerNode = useAsCopy.MaxNumberOfEventsPerNode;
                 if (this.RunningCount == 0) this.RunningCount = useAsCopy.RunningCount;
                 if (!this.IgnoreEvent) this.IgnoreEvent = useAsCopy.IgnoreEvent;
+                if (this.PropertyInherentOption == PropertyInherentOptions.None) this.PropertyInherentOption = useAsCopy.PropertyInherentOption;
+                if (!this.LogPropertySessionMerge) this.LogPropertySessionMerge = useAsCopy.LogPropertySessionMerge;
+                if (this.AssociateEventToNode) this.AssociateEventToNode = useAsCopy.AssociateEventToNode;
                 if (this.SubClass == null) this.SubClass = useAsCopy.SubClass;
+                if (this.AnalyticsGroup == null) this.AnalyticsGroup = useAsCopy.AnalyticsGroup;
+                if (this.DeltaRunningTotalProperty == null) this.DeltaRunningTotalProperty = useAsCopy.DeltaRunningTotalProperty;
+                if (this.DeltaRunningTotalKey == null) this.DeltaRunningTotalKey = useAsCopy.DeltaRunningTotalKey;
                 if (this.Product == DSEInfo.InstanceTypes.Unkown) this.Product = useAsCopy.Product;
                 if (this.SessionKey == null) this.SessionKey = useAsCopy.SessionKey;
                 if (this.SessionKeyAction == SessionKeyActions.Auto) this.SessionKeyAction = useAsCopy.SessionKeyAction;
@@ -655,7 +710,7 @@ namespace DSEDiagnosticFileParser
                 if (this.SessionParentAction == SessionParentActions.Default) this.SessionParentAction = useAsCopy.SessionParentAction;
                 if (this.Examples == null) this.Examples = useAsCopy.Examples;
                 if (this.SessionBeginReference == null) this.SessionBeginReference = useAsCopy.SessionBeginReference;
-                if (this._nodesRunningCnt == null) this._nodesRunningCnt = useAsCopy._nodesRunningCnt;
+                if (this._nodesRunningCnt == null) this._nodesRunningCnt = useAsCopy._nodesRunningCnt;                
             }
             
             this.IsClone = true;
@@ -965,6 +1020,25 @@ namespace DSEDiagnosticFileParser
                     ? null
                     : DetermineKeyValue(this,
                                         SubClassIdx,
+                                        cluster,
+                                        node,
+                                        keyspace,
+                                        logLineProperties,
+                                        logLineMessage,
+                                        false,
+                                        true);
+        }
+
+        public string DetermineDeltaRunningTotalKey(Cluster cluster,
+                                                        INode node,
+                                                        IKeyspace keyspace,
+                                                        IDictionary<string, object> logLineProperties,
+                                                        ILogMessage logLineMessage)
+        {
+            return this._deltaRunningTotalKey == null
+                    ? null
+                    : DetermineKeyValue(this,
+                                        DeltaRunningTotalKeyIdx,
                                         cluster,
                                         node,
                                         keyspace,

@@ -951,6 +951,21 @@ namespace DSEDiagnosticLibrary
     }
 
     [JsonObject(MemberSerialization.OptOut)]
+    public sealed class AnalyticsInfo
+    {       
+        public AnalyticsInfo()
+        {
+            this.RunningTotalProperties = new Dictionary<string, object>();
+        }
+
+        public IDictionary<string,object> RunningTotalProperties
+        {
+            get;
+        }
+
+    }
+
+    [JsonObject(MemberSerialization.OptOut)]
     public sealed class LogFileInfo
     {
         public static bool IsDebugLogFile(IFilePath logFile)
@@ -1031,6 +1046,8 @@ namespace DSEDiagnosticLibrary
 		MachineInfo Machine { get; }
 		DSEInfo DSE { get; }
 
+        AnalyticsInfo Analytics { get; }
+
 		IEnumerable<IMMLogValue> LogEvents { get; }
         INode AssociateItem(IMMLogValue eventItems);
         IMMLogValue AssociateItem(ILogEvent eventItems);
@@ -1063,6 +1080,7 @@ namespace DSEDiagnosticLibrary
 		{
             this.DSE = new DSEInfo();
             this.Machine = new MachineInfo(this);
+            this.Analytics = new AnalyticsInfo();
 
             if (LibrarySettings.LogEventsAreMemoryMapped)
             {
@@ -1190,6 +1208,11 @@ namespace DSEDiagnosticLibrary
 		{
 			get;
 		}
+
+        public AnalyticsInfo Analytics
+        {
+            get;
+        }
 
         public NodeIdentifier Id
 		{

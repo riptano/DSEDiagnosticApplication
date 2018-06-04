@@ -192,9 +192,10 @@ namespace DSEDiagnosticFileParser
                 this.NbrItems = eventList.Count;
                 this.ResultsTask = System.Threading.Tasks.Task.Factory.StartNew(() =>
                                     {
-                                        var mmEvents = new List<IMMLogValue>(eventList.Count);
+                                        var logEvts = eventList.Where(e => !e.TempEvent);
+                                        var mmEvents = new List<IMMLogValue>();
 
-                                        eventList.ForEach(e =>
+                                        logEvts.ForEach(e =>
                                         {
                                             mmEvents.Add(node.AssociateItem(e));
                                         });
@@ -1214,6 +1215,34 @@ namespace DSEDiagnosticFileParser
                                                                 logProperties,
                                                                 logMessage);
 
+            #region log property processing
+            if(matchItem.Item5.DeltaRunningTotalProperty != null)
+            {
+                object propValue;
+                object runningTot;
+                var runningTotKeyPrefix = matchItem.Item5.DetermineDeltaRunningTotalKey(this.Cluster, this.Node, primaryKS, logProperties, logMessage);
+                
+                foreach (var deltaProp in matchItem.Item5.DeltaRunningTotalProperty)
+                {
+                    var runningTotKey = runningTotKeyPrefix == null ? deltaProp : runningTotKeyPrefix + '-' + deltaProp;
+
+                    if (logProperties.TryGetValue(deltaProp, out propValue) && propValue != null)
+                    {
+                        if(this.Node.Analytics.RunningTotalProperties.TryGetValue(runningTotKey, out runningTot))
+                        {
+                            logProperties[deltaProp] = (dynamic)propValue >= (dynamic)runningTot ? (dynamic)propValue - (dynamic)runningTot : propValue;
+                            this.Node.Analytics.RunningTotalProperties[runningTotKey] = propValue;
+                        }
+                        else
+                        {
+                            this.Node.Analytics.RunningTotalProperties.Add(runningTotKey, propValue);
+                            logProperties.Remove(deltaProp);
+                        }
+                    }
+                }
+            }
+            #endregion
+
             #region Session Instance
 
             if ((eventType & EventTypes.SessionItem) == EventTypes.SessionItem)
@@ -1409,6 +1438,19 @@ namespace DSEDiagnosticFileParser
                         }
                     }
 
+                    if(matchItem.Item5.LogPropertySessionMerge)
+                    {
+                        var sessionEvtLogProps = this._logEvents.Where(e => e.Id == sessionEvent.Id).Reverse().SelectMany(e => e.LogProperties);
+                        
+                        foreach (var kvPair in sessionEvtLogProps)
+                        {
+                            if(!logProperties.ContainsKey(kvPair.Key))
+                            {
+                                logProperties.Add(kvPair.Key, kvPair.Value);
+                            }
+                        }
+                    }
+
                     if ((sessionEvent.Type & EventTypes.SessionBegin) == EventTypes.SessionBegin)
                     {
                         if (sessionParentAction != CLogLineTypeParser.SessionParentActions.IgnoreCurrent)
@@ -1545,7 +1587,8 @@ namespace DSEDiagnosticFileParser
                                                         tokenRanges,
                                                         sessionId,
                                                         matchItem.Item5.Product,
-                                                        analyticsGroup: analyticsGroup);
+                                                        analyticsGroup: analyticsGroup,
+                                                        tempEvent: !matchItem.Item5.AssociateEventToNode);
                 }
                 else if ((eventType & EventTypes.SessionItem) != EventTypes.SessionItem && !duration.NaN)
                 {
@@ -1571,7 +1614,8 @@ namespace DSEDiagnosticFileParser
                                                         tokenRanges,
                                                         sessionId,
                                                         matchItem.Item5.Product,
-                                                        analyticsGroup: analyticsGroup);
+                                                        analyticsGroup: analyticsGroup,
+                                                        tempEvent: !matchItem.Item5.AssociateEventToNode);
                 }
                 else if ((eventType & EventTypes.SessionDefinedByDuration) == EventTypes.SessionDefinedByDuration && (!duration.NaN || eventDurationTime.HasValue))
                 {
@@ -1597,7 +1641,8 @@ namespace DSEDiagnosticFileParser
                                                         tokenRanges,
                                                         sessionId,
                                                         matchItem.Item5.Product,
-                                                        analyticsGroup: analyticsGroup);
+                                                        analyticsGroup: analyticsGroup,
+                                                        tempEvent: !matchItem.Item5.AssociateEventToNode);
                 }
                 else
                 {
@@ -1623,7 +1668,8 @@ namespace DSEDiagnosticFileParser
                                                         tokenRanges,
                                                         sessionId,
                                                         matchItem.Item5.Product,
-                                                        analyticsGroup: analyticsGroup);
+                                                        analyticsGroup: analyticsGroup,
+                                                        tempEvent: !matchItem.Item5.AssociateEventToNode);
                 }
             }
             else
@@ -1652,7 +1698,8 @@ namespace DSEDiagnosticFileParser
                                                         tokenRanges,
                                                         sessionId,
                                                         matchItem.Item5.Product,
-                                                        analyticsGroup: analyticsGroup);
+                                                        analyticsGroup: analyticsGroup,
+                                                        tempEvent: !matchItem.Item5.AssociateEventToNode);
 
                     if (logEvent.ParentEvents.Count() > 1)
                     {
@@ -1691,7 +1738,8 @@ namespace DSEDiagnosticFileParser
                                                         tokenRanges,
                                                         sessionId,
                                                         matchItem.Item5.Product,
-                                                        analyticsGroup: analyticsGroup);
+                                                        analyticsGroup: analyticsGroup,
+                                                        tempEvent: !matchItem.Item5.AssociateEventToNode);
                 }
             }
             #endregion

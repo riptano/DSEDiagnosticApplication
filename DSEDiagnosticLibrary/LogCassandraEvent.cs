@@ -45,7 +45,8 @@ namespace DSEDiagnosticLibrary
                                     string sessionTieOutId = null,
                                     DSEInfo.InstanceTypes product = DSEInfo.InstanceTypes.Cassandra,
                                     bool assocateToNode = false,
-                                    string analyticsGroup = null)
+                                    string analyticsGroup = null,
+                                    bool tempEvent = false)
         {
             if (logFile == null) throw new ArgumentNullException("logFile cannot be null");
             if (node == null) throw new ArgumentNullException("node cannot be null");
@@ -96,7 +97,8 @@ namespace DSEDiagnosticLibrary
                 this.EventTimeBegin = this.EventTime;
             }
 
-            if(assocateToNode)
+            this.TempEvent = tempEvent;
+            if(assocateToNode && !tempEvent)
             {
                 this.Node.AssociateItem(this);
             }
@@ -125,7 +127,8 @@ namespace DSEDiagnosticLibrary
                                    string sessionTieOutId = null,
                                    DSEInfo.InstanceTypes product = DSEInfo.InstanceTypes.Cassandra,
                                    bool assocateToNode = false,
-                                   string analyticsGroup = null)
+                                   string analyticsGroup = null,
+                                   bool tempEvent = false)
             :  this(logFile,
                         node,
                         lineNbr,
@@ -149,7 +152,8 @@ namespace DSEDiagnosticLibrary
                         sessionTieOutId,
                         product,
                         assocateToNode,
-                        analyticsGroup)
+                        analyticsGroup,
+                        tempEvent)
         {
             this.Duration = (TimeSpan)uomDuration;
             this.EventTimeBegin = this.EventTime - this.Duration;
@@ -179,7 +183,8 @@ namespace DSEDiagnosticLibrary
                                    string sessionTieOutId = null,
                                    DSEInfo.InstanceTypes product = DSEInfo.InstanceTypes.Cassandra,
                                    bool assocateToNode = false,
-                                   string analyticsGroup = null)
+                                   string analyticsGroup = null,
+                                   bool tempEvent = false)
             : this(logFile,
                         node,
                         lineNbr,
@@ -203,7 +208,8 @@ namespace DSEDiagnosticLibrary
                         sessionTieOutId,
                         product,
                         assocateToNode,
-                        analyticsGroup)
+                        analyticsGroup,
+                        tempEvent)
         {
             this.EventTimeBegin = logBeginTime;
             this.EventTimeEnd = this.EventTime;
@@ -233,7 +239,8 @@ namespace DSEDiagnosticLibrary
                                    string sessionTieOutId = null,
                                    DSEInfo.InstanceTypes product = DSEInfo.InstanceTypes.Cassandra,
                                    bool assocateToNode = false,
-                                   string analyticsGroup = null)
+                                   string analyticsGroup = null,
+                                   bool tempEvent = false)
             : this(logFile,
                         node,
                         lineNbr,
@@ -257,7 +264,8 @@ namespace DSEDiagnosticLibrary
                         sessionTieOutId,
                         product,
                         assocateToNode,
-                        analyticsGroup)
+                        analyticsGroup,
+                        tempEvent)
         {
             this.EventTimeBegin = new DateTimeOffset(logLocalBeginTime, this.EventTime.Offset);
             this.EventTimeEnd = this.EventTime;
@@ -673,6 +681,11 @@ namespace DSEDiagnosticLibrary
         }
 
 #endregion
+
+        /// <summary>
+        /// If true, event is a temp event and cannot be associated to a node.
+        /// </summary>
+        public bool TempEvent { get; }
 
         public void UpdateEndingTimeStamp(DateTime eventTimeLocalEnd, bool checkEndTime = true, bool forceUpdate = false)
         {

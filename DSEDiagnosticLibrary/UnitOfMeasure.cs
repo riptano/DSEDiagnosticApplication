@@ -1158,6 +1158,7 @@ namespace DSEDiagnosticLibrary
                     return Types.PiB | uofType;
                 case "nanoseconds":
                 case "nanosecond":
+                case "nano":
                 case "ns":
                     return Types.NS | uofType;
                 case "milliseconds":

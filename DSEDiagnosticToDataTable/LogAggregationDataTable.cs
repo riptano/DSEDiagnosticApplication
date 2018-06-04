@@ -29,51 +29,77 @@ namespace DSEDiagnosticToDataTable
 
             if (this.SessionId.HasValue) dtLog.Columns.Add(ColumnNames.SessionId, typeof(Guid));
 
-            dtLog.Columns.Add(ColumnNames.UTCTimeStamp, typeof(DateTime));
+            dtLog.Columns.Add(ColumnNames.UTCTimeStamp, typeof(DateTime)); //a
             dtLog.Columns.Add(ColumnNames.LogLocalTimeStamp, typeof(DateTime)).AllowDBNull = true;
             dtLog.Columns.Add("Aggregation Period", typeof(TimeSpan));
-            dtLog.Columns.Add(ColumnNames.DataCenter, typeof(string)).AllowDBNull = true;
+            dtLog.Columns.Add(ColumnNames.DataCenter, typeof(string)).AllowDBNull = true;//d
             dtLog.Columns.Add(ColumnNames.NodeIPAddress, typeof(string)).AllowDBNull = true;
-            dtLog.Columns.Add(ColumnNames.KeySpace, typeof(string)).AllowDBNull = true;
+            dtLog.Columns.Add(ColumnNames.KeySpace, typeof(string)).AllowDBNull = true;//f
             dtLog.Columns.Add(ColumnNames.Table, typeof(string)).AllowDBNull = true;
-            dtLog.Columns.Add("Class", typeof(string));
+            dtLog.Columns.Add("Class", typeof(string));//h
             dtLog.Columns.Add("Related Info", typeof(string));
-            dtLog.Columns.Add("HasOrphanedEvents", typeof(bool)).AllowDBNull = true; //Subclass
+            dtLog.Columns.Add("HasOrphanedEvents", typeof(bool)).AllowDBNull = true; //J
             dtLog.Columns.Add("Path", typeof(string)); //Exception Path
-            dtLog.Columns.Add("Exception", typeof(string)).AllowDBNull = true;
-            dtLog.Columns.Add("Last Occurrence (UTC)", typeof(DateTime));
-            dtLog.Columns.Add("Last Occurrence (Local)", typeof(DateTime));
-            dtLog.Columns.Add("Occurrences", typeof(long));//n
-            dtLog.Columns.Add("UOM", typeof(string));//O
-            dtLog.Columns.Add("Duration Max", typeof(decimal)).AllowDBNull = true;//p
+            dtLog.Columns.Add("Exception", typeof(string)).AllowDBNull = true; //l
+
+            dtLog.Columns.Add("Last Occurrence (UTC)", typeof(DateTime)); //m
+            dtLog.Columns.Add("Last Occurrence (Local)", typeof(DateTime)); //n
+
+            dtLog.Columns.Add("Occurrences", typeof(long));//o
+
+            dtLog.Columns.Add("UOM", typeof(string));//p
+
+            dtLog.Columns.Add("Duration Max", typeof(decimal)).AllowDBNull = true;//q
             dtLog.Columns.Add("Duration Min", typeof(decimal)).AllowDBNull = true;
             dtLog.Columns.Add("Duration Mean", typeof(decimal)).AllowDBNull = true;
             dtLog.Columns.Add("Duration StdDevp", typeof(decimal)).AllowDBNull = true;
             dtLog.Columns.Add("Duration Total", typeof(decimal)).AllowDBNull = true;
-            dtLog.Columns.Add("Rate Max", typeof(decimal)).AllowDBNull = true;//u
+
+            dtLog.Columns.Add("Rate Max", typeof(decimal)).AllowDBNull = true;//v
             dtLog.Columns.Add("Rate Min", typeof(decimal)).AllowDBNull = true;
             dtLog.Columns.Add("Rate Mean", typeof(decimal)).AllowDBNull = true;
             dtLog.Columns.Add("Rate StdDevp", typeof(decimal)).AllowDBNull = true;
-            dtLog.Columns.Add("Pending/Tombstone", typeof(long)).AllowDBNull = true;//y
-            dtLog.Columns.Add("Completed/Live", typeof(long)).AllowDBNull = true;//z
+
+            dtLog.Columns.Add("Pending/Tombstone", typeof(long)).AllowDBNull = true;//z
+            dtLog.Columns.Add("Completed/Live", typeof(long)).AllowDBNull = true;//aa
             dtLog.Columns.Add("Blocked", typeof(long)).AllowDBNull = true;
             dtLog.Columns.Add("AllTimeBlocked", typeof(long)).AllowDBNull = true;
-            dtLog.Columns.Add("Eden Max", typeof(decimal)).AllowDBNull = true;//ac
-            dtLog.Columns.Add("Eden Dif", typeof(decimal)).AllowDBNull = true;
-            dtLog.Columns.Add("Old Max", typeof(decimal)).AllowDBNull = true;
-            dtLog.Columns.Add("Old Dif", typeof(decimal)).AllowDBNull = true;
+
+            dtLog.Columns.Add("Eden Max/Threshold Max/Read Rate Max", typeof(decimal)).AllowDBNull = true;//ad
+            dtLog.Columns.Add("Eden Dif/Threshold Min/Read Rate Min", typeof(decimal)).AllowDBNull = true;
+            dtLog.Columns.Add("Old Max/Threshold Mean/Read Rate Mean", typeof(decimal)).AllowDBNull = true;
+            dtLog.Columns.Add("Old Dif/Threshold StdDevp/Read Rate StdDevp", typeof(decimal)).AllowDBNull = true;
             dtLog.Columns.Add("Survivor Max", typeof(decimal)).AllowDBNull = true;                        
             dtLog.Columns.Add("Survivor Dif", typeof(decimal)).AllowDBNull = true;
-            dtLog.Columns.Add("Size Max", typeof(decimal)).AllowDBNull = true;//ai
+
+            dtLog.Columns.Add("Size Max", typeof(decimal)).AllowDBNull = true;//aj
             dtLog.Columns.Add("Size Min", typeof(decimal)).AllowDBNull = true;
             dtLog.Columns.Add("Size Mean", typeof(decimal)).AllowDBNull = true;
             dtLog.Columns.Add("Size StdDevp", typeof(decimal)).AllowDBNull = true;
-            dtLog.Columns.Add("Size Total", typeof(decimal)).AllowDBNull = true;//am
-            dtLog.Columns.Add("Count Max", typeof(long)).AllowDBNull = true;//an
+            dtLog.Columns.Add("Size Total", typeof(decimal)).AllowDBNull = true;//an
+
+            dtLog.Columns.Add("Count Max", typeof(long)).AllowDBNull = true;//ao
             dtLog.Columns.Add("Count Min", typeof(long)).AllowDBNull = true;
             dtLog.Columns.Add("Count Mean", typeof(decimal)).AllowDBNull = true;
             dtLog.Columns.Add("Count StdDevp", typeof(decimal)).AllowDBNull = true;
-            dtLog.Columns.Add("Count Total", typeof(long)).AllowDBNull = true;//ar
+            dtLog.Columns.Add("Count Total", typeof(long)).AllowDBNull = true;//as
+
+            dtLog.Columns.Add("OPS Max", typeof(long)).AllowDBNull = true;//at
+            dtLog.Columns.Add("OPS Min", typeof(long)).AllowDBNull = true;
+            dtLog.Columns.Add("OPS Mean", typeof(decimal)).AllowDBNull = true;
+            dtLog.Columns.Add("OPS StdDevp", typeof(decimal)).AllowDBNull = true; //aw
+
+            dtLog.Columns.Add("Serialized Max", typeof(decimal)).AllowDBNull = true;//ax
+            dtLog.Columns.Add("Serialized Min", typeof(decimal)).AllowDBNull = true;
+            dtLog.Columns.Add("Serialized Mean", typeof(decimal)).AllowDBNull = true;
+            dtLog.Columns.Add("Serialized StdDevp", typeof(decimal)).AllowDBNull = true; //ba
+            dtLog.Columns.Add("Serialized Total", typeof(decimal)).AllowDBNull = true;//bb
+
+            dtLog.Columns.Add("Storage Max", typeof(decimal)).AllowDBNull = true;//bc
+            dtLog.Columns.Add("Storage Min", typeof(decimal)).AllowDBNull = true;
+            dtLog.Columns.Add("Storage Mean", typeof(decimal)).AllowDBNull = true;
+            dtLog.Columns.Add("Storage StdDevp", typeof(decimal)).AllowDBNull = true; //bf
+            dtLog.Columns.Add("Storage Total", typeof(decimal)).AllowDBNull = true;//bg
 
             //dtLog.PrimaryKey = new System.Data.DataColumn[] { dtLog.Columns[ColumnNames.KeySpace], dtLog.Columns["Name"] };
 
@@ -102,13 +128,13 @@ namespace DSEDiagnosticToDataTable
 
             this.Table.BeginLoadData();
             try
-            {               
+            {
                 var aggPeriods = new List<DateTimeRange>();
-               
+
                 #region Determine log Aggregation Period 
                 {
                     var logDateRange = new DateTimeOffsetRange();
-                    
+
                     this.Cluster.Nodes.SelectMany(n => n.LogFiles).ForEach(logFile => logDateRange.SetMinMax(logFile.LogDateRange));
 
                     var beginAggDateTime = logDateRange.Min.UtcDateTime.RoundUp(this.AggregationPeriod) - this.AggregationPeriod;
@@ -127,11 +153,12 @@ namespace DSEDiagnosticToDataTable
                 #region Aggregation Log Events
 
                 //Merge logs from all nodes and determine events used for aggregations
-                var logGrpEvts = from logMMV in this.Cluster.Nodes.SelectMany(n => n.LogEvents)//.AsParallel()
+                var logGrpEvts = from logMMV in this.Cluster.Nodes.SelectMany(n => n.LogEvents.AsParallel())
                                  let logEvt = logMMV.GetValue((Common.Patterns.Collections.MemoryMapperElementCreationTypes)LogCassandraEvent.ElementCreationTypes.EventTypeOnly)
                                  where (logEvt.Type & EventTypes.SingleInstance) != 0
                                          || (logEvt.Type & EventTypes.SessionEnd) == EventTypes.SessionEnd
                                          || (logEvt.Type & EventTypes.SessionDefinedByDuration) == EventTypes.SessionDefinedByDuration
+                                         || (logEvt.Type & EventTypes.AggregateData) == EventTypes.AggregateData
                                          || ((logEvt.Type & EventTypes.SessionBegin) == EventTypes.SessionBegin && (logEvt.Class & EventClasses.Orphaned) == EventClasses.Orphaned)
                                  let aggregationDateTime = aggPeriods.First(p => p.Includes(logEvt.EventTime.UtcDateTime))
                                  let logEvent = logMMV.GetValue((Common.Patterns.Collections.MemoryMapperElementCreationTypes)LogCassandraEvent.ElementCreationTypes.AggregationPeriodOnlyWProps)                                 
@@ -208,13 +235,13 @@ namespace DSEDiagnosticToDataTable
                         {
                             if (analyticsGrp.GCStats.Eden?.Difference.HasValue ?? false)
                             {
-                                dataRow.SetField("Eden Max", Math.Max(analyticsGrp.GCStats.Eden.Before.Max, analyticsGrp.GCStats.Eden.After.Max));
-                                dataRow.SetField("Eden Dif", analyticsGrp.GCStats.Eden.Difference.Sum);
+                                dataRow.SetField("Eden Max/Threshold Max/Read Rate Max", Math.Max(analyticsGrp.GCStats.Eden.Before.Max, analyticsGrp.GCStats.Eden.After.Max));
+                                dataRow.SetField("Eden Dif/Threshold Min/Read Rate Min", analyticsGrp.GCStats.Eden.Difference.Sum);
                             }
                             if (analyticsGrp.GCStats.Old?.Difference.HasValue ?? false)
                             {
-                                dataRow.SetField("Old Max", Math.Max(analyticsGrp.GCStats.Old.Before.Max, analyticsGrp.GCStats.Old.After.Max));
-                                dataRow.SetField("Old Dif", analyticsGrp.GCStats.Old.Difference.Sum);
+                                dataRow.SetField("Old Max/Threshold Mean/Read Rate Mean", Math.Max(analyticsGrp.GCStats.Old.Before.Max, analyticsGrp.GCStats.Old.After.Max));
+                                dataRow.SetField("Old Dif/Threshold StdDevp/Read Rate StdDevp", analyticsGrp.GCStats.Old.Difference.Sum);
                             }
                             if (analyticsGrp.GCStats.Survivor?.Difference.HasValue ?? false)
                             {
@@ -294,6 +321,124 @@ namespace DSEDiagnosticToDataTable
                                 dataRow.SetField("Size Total", analyticsGrp.BatchSizeStats.BatchSizes.Sum);
                             }
                             unitOfMeasure += analyticsGrp.BatchSizeStats.UOM + ',';
+                        }
+                        if (analyticsGrp.FlushStats != null && analyticsGrp.FlushStats.HasValue)
+                        {
+                            if (analyticsGrp.FlushStats.OPS.HasValue)
+                            {
+                                dataRow.SetField("OPS Max", analyticsGrp.FlushStats.OPS.Max);
+                                dataRow.SetField("OPS Min", analyticsGrp.FlushStats.OPS.Min);
+                                dataRow.SetField("OPS Mean", analyticsGrp.FlushStats.OPS.Mean);
+                                dataRow.SetField("OPS StdDevp", analyticsGrp.FlushStats.OPS.StdDev);                                
+                            }
+
+                            if (analyticsGrp.FlushStats.FlushSize.HasValue)
+                            {
+                                dataRow.SetField("Size Max", analyticsGrp.FlushStats.FlushSize.Max);
+                                dataRow.SetField("Size Min", analyticsGrp.FlushStats.FlushSize.Min);
+                                dataRow.SetField("Size Mean", analyticsGrp.FlushStats.FlushSize.Mean);
+                                dataRow.SetField("Size StdDevp", analyticsGrp.FlushStats.FlushSize.StdDev);
+                                dataRow.SetField("Size Total", analyticsGrp.FlushStats.FlushSize.Sum);
+                            }
+
+                            if (analyticsGrp.FlushStats.FlushThreshold.HasValue)
+                            {
+                                dataRow.SetField("Eden Max/Threshold Max/Read Rate Max", analyticsGrp.FlushStats.FlushThreshold.Max);
+                                dataRow.SetField("Eden Dif/Threshold Min/Read Rate Min", analyticsGrp.FlushStats.FlushThreshold.Min);
+                                dataRow.SetField("Old Max/Threshold Mean/Read Rate Mean", analyticsGrp.FlushStats.FlushThreshold.Mean);
+                                dataRow.SetField("Old Dif/Threshold StdDevp/Read Rate StdDevp", analyticsGrp.FlushStats.FlushThreshold.StdDev);                                
+                            }
+
+                            if (analyticsGrp.FlushStats.SerializedSize.HasValue)
+                            {
+                                dataRow.SetField("Serialized Max", analyticsGrp.FlushStats.SerializedSize.Max);
+                                dataRow.SetField("Serialized Min", analyticsGrp.FlushStats.SerializedSize.Min);
+                                dataRow.SetField("Serialized Mean", analyticsGrp.FlushStats.SerializedSize.Mean);
+                                dataRow.SetField("Serialized StdDevp", analyticsGrp.FlushStats.SerializedSize.StdDev);
+                                dataRow.SetField("Serialized Total", analyticsGrp.FlushStats.SerializedSize.Sum);
+                            }
+
+                            if (analyticsGrp.FlushStats.StorageSize.HasValue)
+                            {
+                                dataRow.SetField("Storage Max", analyticsGrp.FlushStats.StorageSize.Max);
+                                dataRow.SetField("Storage Min", analyticsGrp.FlushStats.StorageSize.Min);
+                                dataRow.SetField("Storage Mean", analyticsGrp.FlushStats.StorageSize.Mean);
+                                dataRow.SetField("Storage StdDevp", analyticsGrp.FlushStats.StorageSize.StdDev);
+                                dataRow.SetField("Storage Total", analyticsGrp.FlushStats.StorageSize.Sum);
+                            }
+
+                            unitOfMeasure += analyticsGrp.FlushStats.UOM + ',';
+                        }
+
+                        if (analyticsGrp.CompactionStats != null && analyticsGrp.CompactionStats.HasValue)
+                        {
+                            if (analyticsGrp.CompactionStats.RowOPS.HasValue)
+                            {
+                                dataRow.SetField("OPS Max", analyticsGrp.CompactionStats.RowOPS.Max);
+                                dataRow.SetField("OPS Min", analyticsGrp.CompactionStats.RowOPS.Min);
+                                dataRow.SetField("OPS Mean", analyticsGrp.CompactionStats.RowOPS.Mean);
+                                dataRow.SetField("OPS StdDevp", analyticsGrp.CompactionStats.RowOPS.StdDev);
+                            }
+
+                            if (analyticsGrp.CompactionStats.NewSize.HasValue)
+                            {
+                                dataRow.SetField("Size Max", analyticsGrp.CompactionStats.NewSize.Max);
+                                dataRow.SetField("Size Min", analyticsGrp.CompactionStats.NewSize.Min);
+                                dataRow.SetField("Size Mean", analyticsGrp.CompactionStats.NewSize.Mean);
+                                dataRow.SetField("Size StdDevp", analyticsGrp.CompactionStats.NewSize.StdDev);
+                                dataRow.SetField("Size Total", analyticsGrp.CompactionStats.NewSize.Sum);
+                            }
+
+                            if (analyticsGrp.CompactionStats.OldSize.HasValue)
+                            {
+                                dataRow.SetField("Storage Max", analyticsGrp.CompactionStats.OldSize.Max);
+                                dataRow.SetField("Storage Min", analyticsGrp.CompactionStats.OldSize.Min);
+                                dataRow.SetField("Storage Mean", analyticsGrp.CompactionStats.OldSize.Mean);
+                                dataRow.SetField("Storage StdDevp", analyticsGrp.CompactionStats.OldSize.StdDev);
+                                dataRow.SetField("Storage Total", analyticsGrp.CompactionStats.OldSize.Sum);
+                            }
+
+                            if (analyticsGrp.CompactionStats.ReadRate.HasValue)
+                            {
+                                dataRow.SetField("Eden Max/Threshold Max/Read Rate Max", analyticsGrp.CompactionStats.ReadRate.Max);
+                                dataRow.SetField("Eden Max/Threshold Max/Read Rate Min", analyticsGrp.CompactionStats.ReadRate.Min);
+                                dataRow.SetField("Eden Max/Threshold Max/Read Rate Mean", analyticsGrp.CompactionStats.ReadRate.Mean);
+                                dataRow.SetField("Eden Max/Threshold Max/Read Rate StdDevp", analyticsGrp.CompactionStats.ReadRate.StdDev);                               
+                            }
+
+                            if (analyticsGrp.CompactionStats.WriteRate.HasValue)
+                            {
+                                dataRow.SetField("Rate Max", analyticsGrp.CompactionStats.WriteRate.Max);
+                                dataRow.SetField("Rate Min", analyticsGrp.CompactionStats.WriteRate.Min);
+                                dataRow.SetField("Rate Mean", analyticsGrp.CompactionStats.WriteRate.Mean);
+                                dataRow.SetField("Rate StdDevp", analyticsGrp.CompactionStats.WriteRate.StdDev);
+                            }
+
+                            if (analyticsGrp.CompactionStats.PartitionDifferenceMergeCnt.HasValue)
+                            {
+                                dataRow.SetField("Count Max", analyticsGrp.CompactionStats.PartitionDifferenceMergeCnt.Max);
+                                dataRow.SetField("Count Min", analyticsGrp.CompactionStats.PartitionDifferenceMergeCnt.Min);
+                                dataRow.SetField("Count Mean", analyticsGrp.CompactionStats.PartitionDifferenceMergeCnt.Mean);
+                                dataRow.SetField("Count StdDevp", analyticsGrp.CompactionStats.PartitionDifferenceMergeCnt.StdDev);
+                                dataRow.SetField("Count Total", analyticsGrp.CompactionStats.PartitionDifferenceMergeCnt.Sum);
+                            }
+
+                            unitOfMeasure += analyticsGrp.CompactionStats.UOM + ',';
+                        }
+
+                        if (analyticsGrp.HintHandOffStats != null && analyticsGrp.HintHandOffStats.HasValue)
+                        {
+                            
+                            if (analyticsGrp.HintHandOffStats.HintRows.HasValue)
+                            {
+                                dataRow.SetField("Count Max", analyticsGrp.HintHandOffStats.HintRows.Max);
+                                dataRow.SetField("Count Min", analyticsGrp.HintHandOffStats.HintRows.Min);
+                                dataRow.SetField("Count Mean", analyticsGrp.HintHandOffStats.HintRows.Mean);
+                                dataRow.SetField("Count StdDevp", analyticsGrp.HintHandOffStats.HintRows.StdDev);
+                                dataRow.SetField("Count Total", analyticsGrp.HintHandOffStats.HintRows.Sum);
+                            }
+
+                            unitOfMeasure += analyticsGrp.HintHandOffStats.UOM + ',';
                         }
                     }
 

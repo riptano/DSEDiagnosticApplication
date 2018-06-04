@@ -476,14 +476,15 @@
       },
       "ParseMessage": {
         "RegExStrings": [
-          "^Compacted\\s(?<sstables>\\d+)\\ssstables\\s+to\\s*\\[(?$<SSTABLEPATHS>)\\]\\.\\s+(?<size>[0-9.,]+\\s+[a-z]+)\\s+to\\s+(?<newsize__size>[0-9.,]+)\\s\\([0-9a-z\\ %~,.]+\\)+\\sin\\s+(?$<DURATION>\\s*[a-z/]+)\\s*\\=\\s*(?<iorate>[0-9.,]+\\s*[a-z/]+)\\.\\s+(?<totalpartions>[0-9,]+)\\s+total\\s+partitions\\s+merged\\s+to\\s+(?<mergedpartitions>[0-9,]+)\\.\\s+Partition\\s+merge\\s+counts\\s+were\\s+\\{(?<mergecounts>[0-9:\\ ,]+)\\s*\\}$",
-          "^Compacted\\s+\\((?<ID>[a-f0-9\\-]+)\\)\\s+(?<sstables>\\d+)\\ssstables\\s+to\\s*\\[(?$<SSTABLEPATHS>)\\](?:\\s+to\\s+level\\s*=\\s*(?<level>\\d+))?\\.\\s+(?<size>[0-9.,]+\\s*[a-z]+)\\s+to\\s+(?<newsize_size>[0-9.,]+(\\s*[a-z]+)?)\\s\\([0-9a-z\\ %~,.]+\\)+\\sin\\s+$<!DURATIONwUOM>\\.\\s*Read\\sThroughput\\s+\\=\\s+(?<readrate>[0-9.,]+\\s*[a-z/]+),\\s+Write\\sThroughput\\s+\\=\\s+(?<iorate>[0-9.,]+\\s*[a-z/]+),\\s+Row\\sThroughput\\s+\\=\\s+~?(?<rowsrate>[0-9,]+\\s*[a-z/]+)\\.\\s+(?<totalpartions>[0-9,]+)\\s+total\\s+partitions\\s+merged\\s+to\\s+(?<mergedpartitions>[0-9,]+)\\.\\s+Partition\\s+merge\\s+counts\\s+were\\s+\\{(?<mergecounts>[0-9:\\ ,]+)\\s*\\}$"
+          "^Compacted\\s(?<sstables>\\d+)\\ssstables\\s+to\\s*\\[(?$<SSTABLEPATHS>)\\]\\.\\s+(?<size>[0-9.,]+\\s+[a-z]+)\\s+to\\s+(?<newsize_size>[0-9.,]+(\\s*[a-z]+)?)\\s\\([0-9a-z\\ %~,.]+\\)+\\sin\\s+(?$<DURATION>\\s*[a-z/]+)\\s*\\=\\s*(?<iorate_rate>[0-9.,]+\\s*[a-z/]+)\\.\\s+(?<totalpartions>[0-9,]+)\\s+total\\s+partitions\\s+merged\\s+to\\s+(?<mergedpartitions>[0-9,]+)\\.\\s+Partition\\s+merge\\s+counts\\s+were\\s+\\{(?<mergecounts>[0-9:\\ ,]+)\\s*\\}$",
+          "^Compacted\\s+\\((?<ID>[a-f0-9\\-]+)\\)\\s+(?<sstables>\\d+)\\ssstables\\s+to\\s*\\[(?$<SSTABLEPATHS>)\\](?:\\s+to\\s+level\\s*=\\s*(?<level>\\d+))?\\.\\s+(?<size>[0-9.,]+\\s*[a-z]+)\\s+to\\s+(?<newsize_size>[0-9.,]+(\\s*[a-z]+)?)\\s\\([0-9a-z\\ %~,.]+\\)+\\sin\\s+$<!DURATIONwUOM>\\.\\s*Read\\sThroughput\\s+\\=\\s+(?<readrate_rate>[0-9.,]+\\s*[a-z/]+),\\s+Write\\sThroughput\\s+\\=\\s+(?<iorate_rate>[0-9.,]+\\s*[a-z/]+),\\s+Row\\sThroughput\\s+\\=\\s+~?(?<rowsrate>[0-9,]+)\\s*[a-z/]+\\.\\s+(?<totalpartions>[0-9,]+)\\s+total\\s+partitions\\s+merged\\s+to\\s+(?<mergedpartitions>[0-9,]+)\\.\\s+Partition\\s+merge\\s+counts\\s+were\\s+\\{(?<mergecounts>[0-9:\\ ,]+)\\s*\\}$"
         ]
       },
       "ParseThreadId": null,
       "EventType": "SessionEnd",
       "EventClass": "Compaction",
       "SubClass": null,
+      "AnalyticsGroup": "CompactionStats",
       "Product": "Cassandra",
       "SessionKey": "ThreadId + SSTABLEPATH=>DDLITEMNAME",
       "SessionKeyAction": "ReadRemove",
@@ -529,6 +530,7 @@
       "EventType": "SessionBegin",
       "EventClass": "Compaction",
       "SubClass": null,
+      "AssociateEventToNode": false,
       "Product": "Cassandra",
       "SessionKey": "ThreadId + SSTABLEPATH=>DDLITEMNAME",
       "SessionKeyAction": "Add",
@@ -580,6 +582,7 @@
       "EventType": "SessionBegin",
       "EventClass": "MemtableFlush",
       "SubClass": "ThreadName",
+      "AssociateEventToNode": false,
       "Product": "Cassandra",
       "SessionKey": "ThreadId + DDLITEMNAME",
       "SessionKeyAction": "Add",
@@ -621,7 +624,7 @@
       },
       "ParseMessage": {
         "RegExStrings": [
-          "^Enqueuing\\s+flush\\s+of\\s+Memtable\\-(?$<KEYSPACE>)\\.(?$<DDLITEMNAME>)\\@\\d+\\((?<onheapserialized_bytes>\\d+)\\/(?<onheap_bytes>[0-9.,]+)\\s+\\w+\\/\\w+\\s+\\w+,\\s+(?<operationspersec>[0-9,]+\\s+[a-z]+)\\s*\\)",
+          "^Enqueuing\\s+flush\\s+of\\s+Memtable\\-(?$<KEYSPACE>)\\.(?$<DDLITEMNAME>)\\@\\d+\\((?<serializedheap_bytes>\\d+)\\/(?<onheap_bytes>[0-9.,]+)\\s+\\w+\\/\\w+\\s+\\w+,\\s+(?<operationspersec>[0-9,]+\\s+[a-z]+)\\s*\\)",
           "^Enqueuing\\s+flush\\s+of\\s+(?$<DDLITEMNAME>)\\s*\\:\\s+(?<onheap_bytes>[0-9,.]+[a-z]{0,3})\\s+\\((?<onheappercent>[0-9,.]+\\%)\\)\\s+on-heap,\\s+(?<offheap_bytes>[0-9,.]+[a-z]{0,3})\\s+\\((?<offheappercent>[0-9,.]+\\s*[a-z/%]+)\\)\\s"
         ]
       },
@@ -629,13 +632,15 @@
         "RegExStrings": [
           "^(?<SUBCLASS>stream-in)-(?$<NODE>)$",
           "^(?<SUBCLASS>sharedpool)-(?<tag>.+)",
-          "^(?<SUBCLASS>RMI TCP Connection)\\s*\\(\\d+\\)\\s*\\-\\s*(?<NODE>[^ ]+)$",
-          "^(?<tag>(?<SUBCLASS>mutationStage)-\\d+)$"
+          "^(?<SUBCLASS>RMI TCP Connection)\\s*\\(\\d+\\)\\s*\\-\\s*(?$<NODE>)$",
+          "^(?<tag>(?<SUBCLASS>mutationStage)-\\d+)$",
+          "^(?<SUBCLASS>SolrSecondaryIndex)\\s+[^ ]+\\s+(?<tag>.+)$"
         ]
       },
       "EventType": "SessionBeginOrItem",
       "EventClass": "MemtableFlush",
       "SubClass": "ThreadName",
+      "AssociateEventToNode": false,
       "Product": "Cassandra",
       "SessionKey": "ThreadId + DDLITEMNAME",
       "SessionKeyAction": "Read",
@@ -670,7 +675,10 @@
         "=> DEBUG [SlabPoolCleaner] 2018-04-25 08:07:53,237  ColumnFamilyStore.java:920 - Enqueuing flush of cassandracache: 745.523MiB (18%) on-heap, 0.000KiB (0%) off-heap",
         "DEBUG [PerDiskMemtableFlushWriter_0:33] 2018-04-25 08:07:53,244  Memtable.java:461 - Writing Memtable-cassandracache@1008600417(327.808MiB serialized bytes, 422494 ops, 18%/0% of on/off-heap limit), flushed range = (min(-9223372036854775808), max(9223372036854775807)]",
         "DEBUG [PerDiskMemtableFlushWriter_0:33] 2018-04-25 08:07:54,162  Memtable.java:490 - Completed flushing /opt/cassandra/data01/ghostlocker/cassandracache-cd9b046155cb11e7b3e4f1176ea923d9/mc-14643-big-Data.db (317.980MiB) for commitlog position CommitLogPosition(segmentId=1524586125756, position=9253124)",
-        "DEBUG [MemtableFlushWriter:33] 2018-04-30 12:02:25,534  ColumnFamilyStore.java:1219 - Flushed to [BigTableReader(path='/opt/cassandra/data01/ghostlocker/cassandracache-cd9b046155cb11e7b3e4f1176ea923d9/mc-14643-big-Data.db')] (1 sstables, 146.931KiB), biggest 146.931KiB, smallest 146.931KiB"
+        "DEBUG [MemtableFlushWriter:33] 2018-04-30 12:02:25,534  ColumnFamilyStore.java:1219 - Flushed to [BigTableReader(path='/opt/cassandra/data01/ghostlocker/cassandracache-cd9b046155cb11e7b3e4f1176ea923d9/mc-14643-big-Data.db')] (1 sstables, 146.931KiB), biggest 146.931KiB, smallest 146.931KiB",
+        "=> DEBUG [SolrSecondaryIndex connext_portal.book_of_business_summary_by_agentpartyid index reloader.] 2018-05-18 14:35:19,068  ColumnFamilyStore.java:850 - Enqueuing flush of IndexInfo: 492 (0%) on-heap, 0 (0%) off-heap",
+        "DEBUG [MemtableFlushWriter:2321] 2018-05-18 14:35:19,068  Memtable.java:368 - Writing Memtable-IndexInfo@703573498(0.114KiB serialized bytes, 1 ops, 0%/0% of on/off-heap limit)",
+        "DEBUG [MemtableFlushWriter:2321] 2018-05-18 14:35:19,074  Memtable.java:401 - Completed flushing /data1/data/system/IndexInfo-9f5c6374d48532299a0a5094af9ad1e3/mc-283-big-Data.db (0.132KiB) for commitlog position ReplayPosition(segmentId=1526411169699, position=17554487)"
       ]
     },
     {
@@ -697,7 +705,7 @@
       },
       "ParseMessage": {
         "RegExStrings": [
-          "^Writing\\s+Memtable-\\s*(?:(?$<TABLEVIEWNAME>)\\.(?$<DDLITEMNAME>)|(?$<DDLITEMNAME>))?@\\d+\\((?<serializedheap>[0-9.]+\\s*\\w+)\\s+serialized\\s+bytes,\\s+(?<operationspersec_ops>[0-9,]+)\\s+ops,\\s+(?<onheapthresholdpercent>[0-9.,]+\\s*[a-z/%]+)\\s*/\\s*(?<offheapthresholdpercent>[0-9.,]+\\s*[a-z/%]+)\\s"
+          "^Writing\\s+Memtable-\\s*(?:(?$<TABLEVIEWNAME>)\\.(?$<DDLITEMNAME>)|(?$<DDLITEMNAME>))?@\\d+\\((?<serializedheap>[0-9.]+\\s*\\w+)\\s+serialized\\s+bytes,\\s+(?<operationspersec>[0-9,]+)\\s+ops,\\s+(?<onheapthresholdpercent>[0-9.,]+\\s*[a-z/%]+)\\s*/\\s*(?<offheapthresholdpercent>[0-9.,]+\\s*[a-z/%]+)\\s"
         ]
       },
       "ParseThreadId": null,
@@ -733,7 +741,10 @@
         "DEBUG [SlabPoolCleaner] 2018-04-25 08:07:53,237  ColumnFamilyStore.java:920 - Enqueuing flush of cassandracache: 745.523MiB (18%) on-heap, 0.000KiB (0%) off-heap",
         "=> DEBUG [PerDiskMemtableFlushWriter_0:33] 2018-04-25 08:07:53,244  Memtable.java:461 - Writing Memtable-cassandracache@1008600417(327.808MiB serialized bytes, 422494 ops, 18%/0% of on/off-heap limit), flushed range = (min(-9223372036854775808), max(9223372036854775807)]",
         "DEBUG [PerDiskMemtableFlushWriter_0:33] 2018-04-25 08:07:54,162  Memtable.java:490 - Completed flushing /opt/cassandra/data01/ghostlocker/cassandracache-cd9b046155cb11e7b3e4f1176ea923d9/mc-14643-big-Data.db (317.980MiB) for commitlog position CommitLogPosition(segmentId=1524586125756, position=9253124)",
-        "DEBUG [MemtableFlushWriter:33] 2018-04-30 12:02:25,534  ColumnFamilyStore.java:1219 - Flushed to [BigTableReader(path='/opt/cassandra/data01/ghostlocker/cassandracache-cd9b046155cb11e7b3e4f1176ea923d9/mc-14643-big-Data.db')] (1 sstables, 146.931KiB), biggest 146.931KiB, smallest 146.931KiB"
+        "DEBUG [MemtableFlushWriter:33] 2018-04-30 12:02:25,534  ColumnFamilyStore.java:1219 - Flushed to [BigTableReader(path='/opt/cassandra/data01/ghostlocker/cassandracache-cd9b046155cb11e7b3e4f1176ea923d9/mc-14643-big-Data.db')] (1 sstables, 146.931KiB), biggest 146.931KiB, smallest 146.931KiB",
+        "DEBUG [SolrSecondaryIndex connext_portal.book_of_business_summary_by_agentpartyid index reloader.] 2018-05-18 14:35:19,068  ColumnFamilyStore.java:850 - Enqueuing flush of IndexInfo: 492 (0%) on-heap, 0 (0%) off-heap",
+        "=> DEBUG [MemtableFlushWriter:2321] 2018-05-18 14:35:19,068  Memtable.java:368 - Writing Memtable-IndexInfo@703573498(0.114KiB serialized bytes, 1 ops, 0%/0% of on/off-heap limit)",
+        "DEBUG [MemtableFlushWriter:2321] 2018-05-18 14:35:19,074  Memtable.java:401 - Completed flushing /data1/data/system/IndexInfo-9f5c6374d48532299a0a5094af9ad1e3/mc-283-big-Data.db (0.132KiB) for commitlog position ReplayPosition(segmentId=1526411169699, position=17554487)"
       ]
     },
     {
@@ -768,7 +779,9 @@
       "EventType": "SessionEnd",
       "EventClass": "MemtableFlush",
       "SubClass": null,
+      "AnalyticsGroup": "FlushStats",
       "PropertyInherentOption": "AssocatedNodes, SubClass, TagLogProp",
+      "LogPropertySessionMerge": true,
       "Product": "Cassandra",
       "SessionKey": "ThreadId + SSTABLEPATH=>DDLITEMNAME",
       "Examples": [
@@ -785,7 +798,10 @@
         "DEBUG [SlabPoolCleaner] 2018-04-25 08:07:53,237  ColumnFamilyStore.java:920 - Enqueuing flush of cassandracache: 745.523MiB (18%) on-heap, 0.000KiB (0%) off-heap",
         "DEBUG [PerDiskMemtableFlushWriter_0:33] 2018-04-25 08:07:53,244  Memtable.java:461 - Writing Memtable-cassandracache@1008600417(327.808MiB serialized bytes, 422494 ops, 18%/0% of on/off-heap limit), flushed range = (min(-9223372036854775808), max(9223372036854775807)]",
         "=> DEBUG [PerDiskMemtableFlushWriter_0:33] 2018-04-25 08:07:54,162  Memtable.java:490 - Completed flushing /opt/cassandra/data01/ghostlocker/cassandracache-cd9b046155cb11e7b3e4f1176ea923d9/mc-14643-big-Data.db (317.980MiB) for commitlog position CommitLogPosition(segmentId=1524586125756, position=9253124)",
-        "DEBUG [MemtableFlushWriter:33] 2018-04-30 12:02:25,534  ColumnFamilyStore.java:1219 - Flushed to [BigTableReader(path='/opt/cassandra/data01/ghostlocker/cassandracache-cd9b046155cb11e7b3e4f1176ea923d9/mc-14643-big-Data.db')] (1 sstables, 146.931KiB), biggest 146.931KiB, smallest 146.931KiB"
+        "DEBUG [MemtableFlushWriter:33] 2018-04-30 12:02:25,534  ColumnFamilyStore.java:1219 - Flushed to [BigTableReader(path='/opt/cassandra/data01/ghostlocker/cassandracache-cd9b046155cb11e7b3e4f1176ea923d9/mc-14643-big-Data.db')] (1 sstables, 146.931KiB), biggest 146.931KiB, smallest 146.931KiB",
+        "DEBUG [SolrSecondaryIndex connext_portal.book_of_business_summary_by_agentpartyid index reloader.] 2018-05-18 14:35:19,068  ColumnFamilyStore.java:850 - Enqueuing flush of IndexInfo: 492 (0%) on-heap, 0 (0%) off-heap",
+        "DEBUG [MemtableFlushWriter:2321] 2018-05-18 14:35:19,068  Memtable.java:368 - Writing Memtable-IndexInfo@703573498(0.114KiB serialized bytes, 1 ops, 0%/0% of on/off-heap limit)",
+        "=> DEBUG [MemtableFlushWriter:2321] 2018-05-18 14:35:19,074  Memtable.java:401 - Completed flushing /data1/data/system/IndexInfo-9f5c6374d48532299a0a5094af9ad1e3/mc-283-big-Data.db (0.132KiB) for commitlog position ReplayPosition(segmentId=1526411169699, position=17554487)"
       ]
     },
     {
@@ -818,6 +834,7 @@
       "EventType": "SessionBegin",
       "EventClass": "HintHandOff",
       "SubClass": null,
+      "AssociateEventToNode": false,
       "Product": "Cassandra",
       "SessionLookupAction": "ReadRemoveLabel",
       "SessionLookup": "'CompactionExecutorhints'",
@@ -864,6 +881,7 @@
       "EventType": "SessionItem, SessionIgnore",
       "EventClass": "HintHandOff",
       "SubClass": null,
+      "AssociateEventToNode": false,
       "Product": "Cassandra",
       "SessionKey": "'HintHandoff' + NODE",
       "SessionKeyAction": "Read",
@@ -901,13 +919,14 @@
       },
       "ParseMessage": {
         "RegExStrings": [
-          "^Finished\\s+hinted\\s+handoff\\s+of\\s+(?<rowshandedoff>[0-9,]+)\\s+rows\\s+\\w+\\s+endpoint\\s+/?\\s*(?$<NODE>)$"
+          "^Finished\\s+hinted\\s+handoff\\s+of\\s+(?<rows>[0-9,]+)\\s+rows\\s+\\w+\\s+endpoint\\s+/?\\s*(?$<NODE>)$"
         ]
       },
       "ParseThreadId": null,
       "EventType": "SessionEnd",
       "EventClass": "HintHandOff",
       "SubClass": null,
+      "AnalyticsGroup": "HintHandOffStats",
       "Product": "Cassandra",
       "SessionLookup": "'HintHandoff' + NODE",
       "SessionLookupAction": "ReadRemoveSession",
@@ -946,12 +965,13 @@
       },
       "ParseMessage": {
         "RegExStrings": [
-          "^/*(?<NODE>[^ ]+)\\s+has\\s+(?<droppedhints>[0-9,]+)\\s+dropped\\s+hints"
+          "^/*(?<NODE>[^ ]+)\\s+has\\s+(?<rows>[0-9,]+)\\s+dropped\\s+hints"
         ]
       },
       "ParseThreadId": null,
       "EventType": "SingleInstance",
       "EventClass": "HintHandOff, NodeDetection, Change",
+      "AnalyticsGroup": "HintHandOffStats",
       "SubClass": "'Dropped Hints due to Peer Node Down'",
       "Product": "Cassandra",
       "Examples": [
@@ -1172,7 +1192,7 @@
       },
       "ParseMessage": {
         "RegExStrings": [
-          "^Not\\s+marking\\s+nodes\\s+down\\s+due\\s+to\\s+local\\s+pause\\s+of\\s+(?<DURATION>[0-9,]+)\\s*>\\s*(?<GCPauseThreshold>[0-9,]+)$"
+          "^Not\\s+marking\\s+nodes\\s+down\\s+due\\s+to\\s+local\\s+pause\\s+of\\s+(?<pause_ns>[0-9,]+)\\s*>\\s*(?<GCPauseThreshold_ns>[0-9,]+)$"
         ]
       },
       "ParseThreadId": null,
@@ -1224,6 +1244,7 @@
       "EventType": "SessionBegin",
       "EventClass": "SolrHardCommit",
       "SubClass": "IndexClass",
+      "AssociateEventToNode": false,
       "Product": "Search",
       "SessionKey": "ThreadId",
       "SessionKeyAction": "Add",
@@ -1276,6 +1297,7 @@
       "EventType": "SessionBeginOrItem",
       "EventClass": "SolrHardCommit",
       "SubClass": null,
+      "AssociateEventToNode": false,
       "Product": "Search",
       "SessionKey": "ThreadId",
       "SessionKeyAction": "Read",
@@ -1323,6 +1345,7 @@
       "EventType": "SessionBegin",
       "EventClass": "SolrHardCommit",
       "SubClass": null,
+      "AssociateEventToNode": false,
       "Product": "Search",
       "SessionKey": "ThreadId",
       "SessionKeyAction": "Read",
@@ -1822,6 +1845,8 @@
       "SubClass": null,
       "Product": "Cassandra",
       "AnalyticsGroup": "StatusLoggerPoolStats",
+      "DeltaRunningTotalProperty": [ "nbrcompleted", "nbralltimeblocked" ],
+      "DeltaRunningTotalKey": "SUBCLASS",
       "Examples": [
         "INFO  [Service Thread] 2017-01-16 13:51:39,296  StatusLogger.java:51 - Pool Name                    Active   Pending      Completed   Blocked  All Time Blocked",
         "INFO  [Service Thread] 2017-01-16 13:51:39,296  StatusLogger.java:66 - MutationStage                     0         0      144664687         0                 0",
@@ -2164,6 +2189,86 @@
         "WARN  [SharedPool-Worker-11] 2016-10-24 03:09:39,832  NoSpamLogger.java:94 - Unlogged batch covering 33 partitions detected against tables [usprodofrs.rstpromobydate_3_0_0_4, usprodofrs.rstpromo_3_0_0_4]. You should use a logged batch for atomicity, or asynchronous writes for performance.",
         "WARN [Native-Transport-Requests:30] 2016-08-01 22:58:11,080 BatchStatement.java (line 226) Batch of prepared statements for [clearcore.documents_case] is of size 71809, exceeding specified threshold of 65536 by 6273.",
         "WARN  [Native-Transport-Requests-4] 2018-04-23 15:39:49,679  BatchStatement.java:298 - Batch for [axon.accounts, axon.audit] is of size 69.044KiB, exceeding specified threshold of 64.000KiB by 5.044KiB."
+      ]
+    },
+    {
+      "Description": "Solr Resouce loading (start)",
+      "TagId": 26.0,
+      "MatchVersion": null,
+      "LevelMatch": {
+        "RegExStrings": [
+          "INFO"
+        ]
+      },
+      "ThreadIdMatch": null,
+      "FileNameMatch": {
+        "RegExStrings": [
+          "^SolrCoreResourceManager.java$"
+        ]
+      },
+      "FileLineMatch": null,
+      "MessageMatch": {
+        "RegExStrings": [
+          "^Trying\\sto\\sload\\sresource\\s"
+        ]
+      },
+      "ParseMessage": {
+        "RegExStrings": [
+          "^Trying\\sto\\sload\\sresource\\s(?<tag>(?<solrconfigfile>[^ ]+))\\sfor\\score\\s(?$<DDLITEMNAME>)\\sby\\squerying\\sfrom\\slocal\\snode\\swith\\sCL\\s(?<consistencylevel>[^ ]+)"
+        ]
+      },
+      "ParseThreadId": null,
+      "EventType": "SessionBegin",
+      "EventClass": "Solr, Config",
+      "SubClass": "'Load Resource'",
+      "AssociateEventToNode": false,
+      "Product": "Search",
+      "SessionKey": "ThreadId",
+      "SessionKeyAction": "Add",      
+      "Examples": [
+        "=> INFO  [http-10.13.110.134-8983-1] 2018-05-18 14:35:18,860  SolrCoreResourceManager.java:703 - Trying to load resource solrconfig.xml.bak for core connext_portal.book_of_business_summary_by_agentpartyid by querying from local node with CL QUORUM",
+        "INFO  [http-10.13.110.134-8983-1] 2018-05-18 14:35:18,876  SolrCoreResourceManager.java:718 - Successfully loaded resource solrconfig.xml.bak for core connext_portal.book_of_business_summary_by_agentpartyid by querying from local node.",
+        "INFO  [http-10.13.110.134-8983-1] 2018-05-18 14:35:18,877  SolrCoreResourceManager.java:757 - Successfully loaded resource solrconfig.xml.bak for core connext_portal.book_of_business_summary_by_agentpartyid"
+      ]
+    },
+    {
+      "Description": "Solr Resouce loading (completed)",
+      "TagId": 26.1,
+      "SessionBeginTagId": 26.0,
+      "MatchVersion": null,
+      "LevelMatch": {
+        "RegExStrings": [
+          "INFO"
+        ]
+      },
+      "ThreadIdMatch": null,
+      "FileNameMatch": {
+        "RegExStrings": [
+          "^SolrCoreResourceManager.java$"
+        ]
+      },
+      "FileLineMatch": null,
+      "MessageMatch": {
+        "RegExStrings": [
+          "^Successfully loaded resource\\s[^ ]+\\sfor\\score\\s[^ ]+(?!\\sby\\squerying)"
+        ]
+      },
+      "ParseMessage": {
+        "RegExStrings": [
+          "^Successfully loaded resource (?<tag>(?<solrconfigfile>[^ ]+))\\sfor\\score\\s(?$<DDLITEMNAME>]+)$"
+        ]
+      },
+      "ParseThreadId": null,
+      "EventType": "SessionEnd",
+      "EventClass": "SolrHardCommit",
+      "SubClass": "'Load Resource'",
+      "Product": "Search",
+      "SessionKey": "ThreadId",
+      "SessionKeyAction": "ReadRemove",      
+      "Examples": [
+        "INFO  [http-10.13.110.134-8983-1] 2018-05-18 14:35:18,860  SolrCoreResourceManager.java:703 - Trying to load resource solrconfig.xml.bak for core connext_portal.book_of_business_summary_by_agentpartyid by querying from local node with CL QUORUM",
+        "INFO  [http-10.13.110.134-8983-1] 2018-05-18 14:35:18,876  SolrCoreResourceManager.java:718 - Successfully loaded resource solrconfig.xml.bak for core connext_portal.book_of_business_summary_by_agentpartyid by querying from local node.",
+        "=> INFO  [http-10.13.110.134-8983-1] 2018-05-18 14:35:18,877  SolrCoreResourceManager.java:757 - Successfully loaded resource solrconfig.xml.bak for core connext_portal.book_of_business_summary_by_agentpartyid"
       ]
     }
   ]
