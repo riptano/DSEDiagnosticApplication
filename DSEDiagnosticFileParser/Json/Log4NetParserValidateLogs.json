@@ -3,19 +3,19 @@
   "Parsers": [
     {
       "Description": "Node Down or Join Cluster",
-      "LinkedTagId": 4.0      
+      "LinkedTagId": 4.0
     },
     {
       "Description": "Node Up",
-      "LinkedTagId": 4.1      
+      "LinkedTagId": 4.1
     },
     {
       "Description": "Node Shutdown",
-      "LinkedTagId": 5.0      
+      "LinkedTagId": 5.0
     },
     {
       "Description": "Node Startup",
-      "LinkedTagId": 5.1      
+      "LinkedTagId": 5.1
     },
     {
       "Description": "Node Configuration",
@@ -60,6 +60,34 @@
     {
       "Description": "Hint Handoff (dropped hints node down)",
       "LinkedTagId": 19.0
+    },
+    {
+      "Description": "large partition/row",
+      "LinkedTagId": 20.0
+    },
+    {
+      "Description": "tombstone",
+      "LinkedTagId": 21.0
+    },
+    {
+      "Description": "commit log syncs",
+      "LinkedTagId": 22.0
+    },
+    {
+      "Description": "Aggregation query",
+      "LinkedTagId": 23.0
+    },
+    {
+      "Description": "Gossip stage",
+      "LinkedTagId": 24.0
+    },
+    {
+      "Description": "Batches",
+      "LinkedTagId": 25.0
+    },
+    {
+      "Description": "LeveledCompactionStrategy orphaned SSTable",
+      "LinkedTagId": 27.0
     }
   ]
 }

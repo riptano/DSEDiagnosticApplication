@@ -64,7 +64,7 @@
     {
       "Description": "Drop keyspace, table, columnfamily, or view",
       "LinkedTagId": 12.0
-    },    
+    },
     {
       "Description": "Not Mark Node Down (pause)",
       "LinkedTagId": 18.0
@@ -96,6 +96,10 @@
     {
       "Description": "Batches",
       "LinkedTagId": 25.0
+    },
+    {
+      "Description": "LeveledCompactionStrategy orphaned SSTable",
+      "LinkedTagId": 27.0
     }
   ]
 }

@@ -112,6 +112,10 @@
     {
       "Description": "Batches",
       "LinkedTagId": 25.0
+    },
+    {
+      "Description": "LeveledCompactionStrategy orphaned SSTable",
+      "LinkedTagId": 27.0
     }
   ]
 }
