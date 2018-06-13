@@ -494,7 +494,7 @@ namespace DSEDiagnosticAnalytics
                     {
                         var uom = (UnitOfMeasure) value;
 
-                        if (uomConvertType == UnitOfMeasure.Types.Unknown) return uom.Value;
+                        if (uomConvertType == UnitOfMeasure.Types.Unknown) return uom.UnitType == UnitOfMeasure.Types.Percent ? uom.Value / 100M : uom.Value;
 
                         return uom.ConvertTo(uomConvertType);                        
                     }
@@ -641,14 +641,14 @@ namespace DSEDiagnosticAnalytics
             
             if(flushSize.HasAtLeastOneElement())
             {
-                flushThreshold = assocatedLogEvents.Select(i => i.LogProperties.GetPropDecimalValue("onheappercent")).Where(i => i >= 0);
+                flushThreshold = assocatedLogEvents.Select(i => i.LogProperties.GetPropUOMValue("onheapthresholdpercent")).Where(i => i >= 0);
             }
             else
             {
                 flushSize = assocatedLogEvents.Select(i => i.LogProperties.GetPropUOMValue("offheap", UnitOfMeasure.Types.MiB)).Where(i => i > 0);
                 if (flushSize.HasAtLeastOneElement())
                 {
-                    flushThreshold = assocatedLogEvents.Select(i => i.LogProperties.GetPropDecimalValue("offheappercent")).Where(i => i >= 0);
+                    flushThreshold = assocatedLogEvents.Select(i => i.LogProperties.GetPropUOMValue("offheapthresholdpercent")).Where(i => i >= 0);
                 }
             }
 
@@ -1305,7 +1305,7 @@ namespace DSEDiagnosticAnalytics
                 this.FlushSize = new ItemStatsDecimal(flushSizes);                
                 this.FlushThreshold = new ItemStatsDecimal(flushthresholds);
                 if (this.FlushThreshold.HasValue)
-                    if (this.UOM == null) this.UOM = "CMT"; else this.UOM += ", CMT";
+                    if (this.UOM == null) this.UOM = "MCT"; else this.UOM += ", MCT";
                 this.SerializedSize = new ItemStatsDecimal(serializedSizes);                
                 this.StorageSize = new ItemStatsDecimal(storageSizes);                
                 this.RelatedIORate = new ItemStatsDecimal(relatedIORates);

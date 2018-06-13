@@ -112,8 +112,9 @@ namespace DSEDiagtnosticToExcel
                                                                  workSheet.Cells["F:F"].Style.Numberformat.Format = "#,###,###,##0";                                                                 
                                                                  workSheet.Cells["G:G"].Style.Numberformat.Format = "#,###,###,##0";
                                                                  workSheet.Cells["H:H"].Style.Numberformat.Format = "#,###,###,##0";
+                                                                 workSheet.Cells["I:I"].Style.Numberformat.Format = "#,###,###,##0";
 
-                                                                 workSheet.Cells["A1:H1"].AutoFilter = true;
+                                                                 workSheet.Cells["A1:I1"].AutoFilter = true;
 
                                                                  workSheet.AutoFitColumn();
                                                              },

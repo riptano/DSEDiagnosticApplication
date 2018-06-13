@@ -1823,14 +1823,15 @@
           "^StatusLogger.java$"
         ]
       },
-      "FileLineMatch": {
-        "RegExStrings": [
-          "66|56|75|87|78"
-        ]
-      },
+      "FileLineMatch": null,
       "ThreadIdMatch": {
         "RegExStrings": [
           "^Service Thread$"
+        ]
+      },
+      "MessageMatch": {
+        "RegExStrings": [
+          "(?:(?:CompactionManager|MessagingService)\\s+(?:\\d+|n/a)\\s+(?:\\d+|n/a))|(?:\\w+\\s+\\d+\\s+\\d+\\s+\\d+\\s+\\d+\\s+\\d+)"
         ]
       },
       "ParseMessage": {
@@ -1888,14 +1889,15 @@
           "^StatusLogger.java$"
         ]
       },
-      "FileLineMatch": {
-        "RegExStrings": [
-          "99|105|90|96"
-        ]
-      },
+      "FileLineMatch": null,
       "ThreadIdMatch": {
         "RegExStrings": [
           "^Service Thread$"
+        ]
+      },
+      "MessageMatch": {
+        "RegExStrings": [
+          "\\w+\\s+\\d+\\s+\\s+\\d+\\s+\\w+"
         ]
       },
       "ParseMessage": {
@@ -1929,14 +1931,15 @@
           "^StatusLogger.java$"
         ]
       },
-      "FileLineMatch": {
-        "RegExStrings": [
-          "115|106"
-        ]
-      },
+      "FileLineMatch": null,
       "ThreadIdMatch": {
         "RegExStrings": [
           "^Service Thread$"
+        ]
+      },
+      "MessageMatch": {
+        "RegExStrings": [
+          "$<!DDLITEMNAME>\\s+\\d+,\\d+"
         ]
       },
       "ParseMessage": {
@@ -1960,355 +1963,355 @@
         "INFO  [Service Thread] 2017-01-16 13:51:39,304  StatusLogger.java:115 - system.compaction_history         2765,426871"
       ]
     },
-    {
-      "Description": "large partition/row",
-      "TagId": 20.0,
-      "MatchVersion": null,
-      "LevelMatch": {
-        "RegExStrings": [
-          "WARN"
+      {
+        "Description": "large partition/row",
+        "TagId": 20.0,
+        "MatchVersion": null,
+        "LevelMatch": {
+          "RegExStrings": [
+            "WARN"
+          ]
+        },
+        "FileNameMatch": {
+          "RegExStrings": [
+            "^SSTableWriter.java$",
+            "^CompactionController.java$",
+            "^BigTableWriter.java$"
+          ]
+        },
+        "FileLineMatch": null,
+        "MessageMatch": {
+          "RegExStrings": [
+            "^(?:Compacting|Writing)\\slarge\\s(?:partition|row)"
+          ]
+        },
+        "ParseMessage": {
+          "RegExStrings": [
+            "^(?:Compacting|Writing)\\s+(?<item>large\\s+partition|row)\\s+(?$<DDLITEMNAME>)\\s*\\:\\s*(?<partitionkey>.+)?\\s+\\((?<size>[0-9,.]+\\s*\\w+)"
+          ]
+        },
+        "ParseThreadId": null,
+        "EventType": "SingleInstance",
+        "EventClass": "Compaction,Partition,TableViewIndex,Detection",
+        "SubClass": "item",
+        "AnalyticsGroup": "LargePartitionRowStats",
+        "Product": "Cassandra",
+        "Examples": [
+          "WARN  [CompactionExecutor:6] 2016-06-07 06:57:44,146  SSTableWriter.java:240 - Compacting large partition kinesis_events/event_messages:49c023da-0bb8-46ce-9845-111514b43a63 (186949948 bytes)",
+          "WARN  [MemtableFlushWriter:140] 2016-10-24 03:10:08,287  SSTableWriter.java:241 - Compacting large partition usprodda/digitalasset_3_0_2:US (130225259 bytes)",
+          "WARN  [CompactionExecutor:705441] 2016-10-05 13:09:40,934 SSTableWriter.java:241 - Compacting large partition handled_exception1/summary_pt1h:5670561a6c33dc0f00f11443:2016-10-01-14-00-00:total (280256103 bytes)",
+          "WARN  [ ] 2016-06-07 06:57:44,146  CompactionController.java:240 - Compacting large row billing/account_payables:20160726:FMCC (348583137 bytes)",
+          "WARN  [ ] 2016-06-07 06:57:44,146  BigTableWriter.java:240 - Writing large partition oats/order_cycles:nasusnop01:2017-01-31 (139296027 bytes)",
+          "WARN  [CompactionExecutor:943648] 2018-04-23 09:44:03,812  BigTableWriter.java:211 - Writing large partition axon/audit.parked_at_idx: (111.836MiB) to sstable /dse/dse_data/axon/audit-4584ec70347411e89c4fe548a3a93499/.parked_at_idx/mc-6140-big-Data.db)",
+          "WARN  [PerDiskMemtableFlushWriter_0:33] 2018-04-25 08:07:54,161  BigTableWriter.java:211 - Writing large partition ghostlocker/cassandracache:DmsPlaybackCache (317.980MiB) to sstable /opt/cassandra/data01/ghostlocker/cassandracache-cd9b046155cb11e7b3e4f1176ea923d9/mc-14643-big-Data.db"
         ]
       },
-      "FileNameMatch": {
-        "RegExStrings": [
-          "^SSTableWriter.java$",
-          "^CompactionController.java$",
-          "^BigTableWriter.java$"
+      {
+        "Description": "tombstone",
+        "TagId": 21.0,
+        "MatchVersion": null,
+        "LevelMatch": {
+          "RegExStrings": [
+            "WARN|ERROR"
+          ]
+        },
+        "FileNameMatch": {
+          "RegExStrings": [
+            "^SliceQueryFilter.java$",
+            "^ReadCommand.java$",
+            "^StorageProxy.java$"
+          ]
+        },
+        "FileLineMatch": null,
+        "MessageMatch": {
+          "RegExStrings": [
+            "^Read\\s(?:[0-9,]+)\\slive\\s(?:row(?:s)?\\s)?and\\s(?:[0-9,]+)\\stombstone",
+            "^Scanned\\sover\\s(?:[0-9,]+)\\stombstone"
+          ]
+        },
+        "ParseMessage": {
+          "RegExStrings": [
+            "^(?<item>Read)\\s(?<live_cells>[0-9,]+)\\slive\\sand\\s(?<tombstone_cells>[0-9,]+)\\stombstone(?:s|d)?\\scells\\sin\\s(?<TABLEVIEWNAME>[a-z0-9'\\\\-_$%+=!?<>^*&@/.]+)\\s(?:for\\skey\\:\\s*(?<partitionkey>.+))?\\s*\\(see tombstone_warn_threshold\\)\\.\\s*(?<columns>[0-9,]+)\\scolumns\\s(?:were|was)\\srequested,\\sslices=(?<slices>\\[[^\\[\\]]+\\])",
+            "^(?<item>Scanned)\\sover\\s(?<tombstone_cells>[0-9,]+)\\stombstone(?:s|d)?\\sin\\s(?$<TABLEVIEWNAME>)\\s(?:for\\skey\\:\\s*(?<partitionkey>.+))\\;(?<SUBCLASS>\\squery\\saborted)",
+            "^Read\\s(?<live_cells>[0-9,]+)\\slive\\srows\\sand\\s(?<tombstone_cells>[0-9,]+)\\stombstone(?:s|d)?\\scells\\sfor\\s(?<item>query)\\s+'*$<!CQLSELECT>'*\\s+\\(",
+            "^Scanned\\sover\\s(?<tombstone_cells>[0-9,]+)\\stombstone(?:s|d)?\\sduring\\s(?<item>query)\\s+'*$<!CQLSELECT>'*\\s+\\("
+          ]
+        },
+        "ParseThreadId": null,
+        "EventType": "SingleInstance",
+        "EventClass": "Tombstone,TableViewIndex,Query,Detection",
+        "SubClass": "item",
+        "AnalyticsGroup": "TombstoneStats",
+        "Product": "Cassandra",
+        "Examples": [
+          "WARN [ReadStage:1325219] 2016-07-14 17:41:21,164 SliceQueryFilter.java (line 231) Read 11 live and 1411 tombstoned cells in cma.mls_records_property (see tombstone_warn_threshold). 5000 columns was requested, slices=[-]",
+          "WARN  [SharedPool-Worker-11] 2016-10-24 10:59:18,247  SliceQueryFilter.java:320 - Read 269 live and 5228 tombstone cells in dse_perf.node_slow_log for key: 10.1.44.175:2016-10-20 20\\:00-0400 (see tombstone_warn_threshold). 1000 columns were requested, slices=[-]",
+          "ERROR [SharedPool-Worker-3] 2016-10-24 10:59:29,758  SliceQueryFilter.java:288 - Scanned over 100000 tombstones in dse_perf.node_slow_log for key: 10.1.46.110:2016-10-19 20\\:00-0400; query aborted (see tombstone_failure_threshold).",
+          "WARN  [SharedPool-Worker-9] 2018-04-04 11:25:35,569  ReadCommand.java:508 - Read 111 live rows and 1932 tombstone cells for query SELECT * FROM ghostlocker.userplaybacksession WHERE token(userid) > -1790144883989260466 AND token(userid) <= -1665322144856710922 LIMIT 1000 (see tombstone_warn_threshold)",
+          "ERROR [SharedPool-Worker-3] 2018-05-22 09:45:28,353  StorageProxy.java:1804 - Scanned over 100001 tombstones during query 'SELECT * FROM data_integration_hub.notification_trigger_history WHERE contact_method_type_value = sspears@igroupweb.com LIMIT 300' (last scanned row partion key was ((6180009188, 001, ALIP), f2220626-8b2e-4e5a-9150-2e96bb3cdc07, 51, 2018-05-17 04:24-0500, 44787350-59b4-11e8-a111-1f4247064f64)); query aborted"
         ]
       },
-      "FileLineMatch": null,
-      "MessageMatch": {
-        "RegExStrings": [
-          "^(?:Compacting|Writing)\\slarge\\s(?:partition|row)"
+      {
+        "Description": "commit log syncs",
+        "TagId": 22.0,
+        "MatchVersion": null,
+        "LevelMatch": {
+          "RegExStrings": [
+            "WARN"
+          ]
+        },
+        "FileNameMatch": {
+          "RegExStrings": [
+            "^NoSpamLogger.java$"
+          ]
+        },
+        "FileLineMatch": null,
+        "MessageMatch": {
+          "RegExStrings": [
+            "^Out\\sof\\s[0-9,]+\\scommit\\slog\\ssyncs\\sover\\sthe\\spast"
+          ]
+        },
+        "ParseMessage": {
+          "RegExStrings": [
+            "^Out\\sof\\s(?<nbrlogs>[0-9,]+)\\s[a-z ]+\\spast\\s(?<pastduration>[0-9,.]+\\s*[a-z]+)\\swith\\saverage\\sduration\\sof\\s(:?(?:infinity\\s*[a-z]*)|(?<DURATION>[0-9,.]+\\s*\\w+))\\,\\s(?<logsexceed>[0-9,]+)\\s+[a-z ]+\\scommit\\sinterval[a-z ]+\\s(?<commitinterval>[0-9,.]+\\s*[a-z]+)$"
+          ]
+        },
+        "ParseThreadId": null,
+        "EventType": "SingleInstance",
+        "EventClass": "Commit,Pause,Detection",
+        "SubClass": null,
+        "AnalyticsGroup": "DurationStats",
+        "Product": "Cassandra",
+        "Examples": [
+          "WARN [PERIODIC-COMMIT-LOG-SYNCER] 2017-09-13 20:35:59,729 NoSpamLogger.java:97 - Out of 1 commit log syncs over the past 0.00s with average duration of 72128.48ms, 1 have exceeded the configured commit interval by an average of 62128.48ms",
+          "WARN [PERIODIC-COMMIT-LOG-SYNCER] 2017-09-13 20:35:59,729 NoSpamLogger.java:97 - Out of 0 commit log syncs over the past 0.00s with average duration of Infinityms, 1 have exceeded the configured commit interval by an average of 62.07ms"
         ]
       },
-      "ParseMessage": {
-        "RegExStrings": [
-          "^(?:Compacting|Writing)\\s+(?<item>large\\s+partition|row)\\s+(?$<DDLITEMNAME>)\\s*\\:\\s*(?<partitionkey>.+)?\\s+\\((?<size>[0-9,.]+\\s*\\w+)"
+      {
+        "Description": "Aggregation query",
+        "TagId": 23.0,
+        "MatchVersion": null,
+        "LevelMatch": {
+          "RegExStrings": [
+            "WARN"
+          ]
+        },
+        "FileNameMatch": {
+          "RegExStrings": [
+            "^SelectStatement.java$"
+          ]
+        },
+        "FileLineMatch": null,
+        "MessageMatch": {
+          "RegExStrings": [
+            "^Aggregation\\s+query"
+          ]
+        },
+        "ParseMessage": {
+          "RegExStrings": [
+            "^Aggregation\\s+query\\s+used\\s+without\\s+partition\\s+key$"
+          ]
+        },
+        "ParseThreadId": null,
+        "EventType": "SingleInstance",
+        "EventClass": "Detection,Query,Partition",
+        "SubClass": "'Aggregation query used without partition key'",
+        "Product": "Cassandra",
+        "Examples": [
+          "WARN  [SharedPool-Worker-1] 2018-03-28 03:37:46,099  SelectStatement.java:369 - Aggregation query used without partition key"
         ]
       },
-      "ParseThreadId": null,
-      "EventType": "SingleInstance",
-      "EventClass": "Compaction,Partition,TableViewIndex,Detection",
-      "SubClass": "item",
-      "AnalyticsGroup": "LargePartitionRowStats",
-      "Product": "Cassandra",
-      "Examples": [
-        "WARN  [CompactionExecutor:6] 2016-06-07 06:57:44,146  SSTableWriter.java:240 - Compacting large partition kinesis_events/event_messages:49c023da-0bb8-46ce-9845-111514b43a63 (186949948 bytes)",
-        "WARN  [MemtableFlushWriter:140] 2016-10-24 03:10:08,287  SSTableWriter.java:241 - Compacting large partition usprodda/digitalasset_3_0_2:US (130225259 bytes)",
-        "WARN  [CompactionExecutor:705441] 2016-10-05 13:09:40,934 SSTableWriter.java:241 - Compacting large partition handled_exception1/summary_pt1h:5670561a6c33dc0f00f11443:2016-10-01-14-00-00:total (280256103 bytes)",
-        "WARN  [ ] 2016-06-07 06:57:44,146  CompactionController.java:240 - Compacting large row billing/account_payables:20160726:FMCC (348583137 bytes)",
-        "WARN  [ ] 2016-06-07 06:57:44,146  BigTableWriter.java:240 - Writing large partition oats/order_cycles:nasusnop01:2017-01-31 (139296027 bytes)",
-        "WARN  [CompactionExecutor:943648] 2018-04-23 09:44:03,812  BigTableWriter.java:211 - Writing large partition axon/audit.parked_at_idx: (111.836MiB) to sstable /dse/dse_data/axon/audit-4584ec70347411e89c4fe548a3a93499/.parked_at_idx/mc-6140-big-Data.db)",
-        "WARN  [PerDiskMemtableFlushWriter_0:33] 2018-04-25 08:07:54,161  BigTableWriter.java:211 - Writing large partition ghostlocker/cassandracache:DmsPlaybackCache (317.980MiB) to sstable /opt/cassandra/data01/ghostlocker/cassandracache-cd9b046155cb11e7b3e4f1176ea923d9/mc-14643-big-Data.db"
-      ]
-    },
-    {
-      "Description": "tombstone",
-      "TagId": 21.0,
-      "MatchVersion": null,
-      "LevelMatch": {
-        "RegExStrings": [
-          "WARN|ERROR"
+      {
+        "Description": "Gossip stage",
+        "TagId": 24.0,
+        "MatchVersion": null,
+        "LevelMatch": {
+          "RegExStrings": [
+            "WARN"
+          ]
+        },
+        "FileNameMatch": {
+          "RegExStrings": [
+            "^Gossiper.java$"
+          ]
+        },
+        "FileLineMatch": null,
+        "MessageMatch": {
+          "RegExStrings": [
+            "^Gossip\\s+stage"
+          ]
+        },
+        "ParseMessage": {
+          "RegExStrings": [
+            "^Gossip\\s+stage\\s+has\\s+(?<pendingtasks>\\d+)\\s+pending\\s+tasks;\\s+skipping\\s+status\\s+check\\s+\\(no\\s+nodes\\s+will\\s+be\\s+marked\\s+down\\)$"
+          ]
+        },
+        "ParseThreadId": null,
+        "EventType": "SingleInstance",
+        "EventClass": "Detection,Gossip",
+        "AnalyticsGroup": "GossipPendingStats",
+        "SubClass": "'Pending Gossip Stage (no nodes marked down)'",
+        "Product": "Cassandra",
+        "Examples": [
+          "WARN  [GossipTasks:1] 2018-04-09 16:03:34,543  Gossiper.java:754 - Gossip stage has 4 pending tasks; skipping status check (no nodes will be marked down)",
+          "WARN  [GossipTasks:1] 2017-05-20 03:38:59,863  Gossiper.java:751 - Gossip stage has 1 pending tasks; skipping status check (no nodes will be marked down)"
         ]
       },
-      "FileNameMatch": {
-        "RegExStrings": [
-          "^SliceQueryFilter.java$",
-          "^ReadCommand.java$",
-          "^StorageProxy.java$"
+      {
+        "Description": "Batches",
+        "TagId": 25.0,
+        "MatchVersion": null,
+        "LevelMatch": {
+          "RegExStrings": [
+            "WARN"
+          ]
+        },
+        "FileNameMatch": {
+          "RegExStrings": [
+            "^NoSpamLogger.java$",
+            "^BatchStatement.java$"
+          ]
+        },
+        "FileLineMatch": null,
+        "MessageMatch": {
+          "RegExStrings": [
+            "^Unlogged\\s+batch\\s",
+            "^Batch\\s"
+          ]
+        },
+        "ParseMessage": {
+          "RegExStrings": [
+            "^(?<type>Unlogged)\\sbatch\\scovering\\s(?<nbrpartitions>[0-9,]+)\\spartitions\\s\\w+\\s\\w+\\stables?\\s+\\[(?$<DDLITEMNAMES>)\\]",
+            "^Batch\\s\\w+\\s(?<type>prepared?)\\sstatements?\\s\\w+\\s\\[(?$<DDLITEMNAMES>)\\]\\s\\w+\\s\\w+\\ssize\\s+(?<size_bytes>[0-9,.]+\\s*\\w*)\\s*,\\s",
+            "^Batch\\sfor\\s\\[(?$<DDLITEMNAMES>)\\]\\s\\w+\\s\\w+\\s(?<type>size)\\s+(?<size_bytes>[0-9,.]+\\s*\\w*)\\s*,\\s"
+          ]
+        },
+        "ParseThreadId": null,
+        "EventType": "SingleInstance",
+        "EventClass": "Detection,Batches",
+        "AnalyticsGroup": "BatchStats",
+        "SubClass": "type",
+        "Product": "Cassandra",
+        "Examples": [
+          "WARN  [SharedPool-Worker-11] 2016-10-24 03:09:39,832  NoSpamLogger.java:94 - Unlogged batch covering 33 partitions detected against tables [usprodofrs.rstpromobydate_3_0_0_4, usprodofrs.rstpromo_3_0_0_4]. You should use a logged batch for atomicity, or asynchronous writes for performance.",
+          "WARN [Native-Transport-Requests:30] 2016-08-01 22:58:11,080 BatchStatement.java (line 226) Batch of prepared statements for [clearcore.documents_case] is of size 71809, exceeding specified threshold of 65536 by 6273.",
+          "WARN  [Native-Transport-Requests-4] 2018-04-23 15:39:49,679  BatchStatement.java:298 - Batch for [axon.accounts, axon.audit] is of size 69.044KiB, exceeding specified threshold of 64.000KiB by 5.044KiB."
         ]
       },
-      "FileLineMatch": null,
-      "MessageMatch": {
-        "RegExStrings": [
-          "^Read\\s(?:[0-9,]+)\\slive\\s(?:row(?:s)?\\s)?and\\s(?:[0-9,]+)\\stombstone",
-          "^Scanned\\sover\\s(?:[0-9,]+)\\stombstone"
+      {
+        "Description": "Solr Resouce loading (start)",
+        "TagId": 26.0,
+        "MatchVersion": null,
+        "LevelMatch": {
+          "RegExStrings": [
+            "INFO"
+          ]
+        },
+        "ThreadIdMatch": null,
+        "FileNameMatch": {
+          "RegExStrings": [
+            "^SolrCoreResourceManager.java$"
+          ]
+        },
+        "FileLineMatch": null,
+        "MessageMatch": {
+          "RegExStrings": [
+            "^Trying\\sto\\sload\\sresource\\s"
+          ]
+        },
+        "ParseMessage": {
+          "RegExStrings": [
+            "^Trying\\sto\\sload\\sresource\\s(?<tag>(?<solrconfigfile>[^ ]+))\\sfor\\score\\s(?$<DDLITEMNAME>)\\sby\\squerying\\sfrom\\slocal\\snode\\swith\\sCL\\s(?<consistencylevel>[^ ]+)"
+          ]
+        },
+        "ParseThreadId": null,
+        "EventType": "SessionBegin",
+        "EventClass": "Solr, Config",
+        "SubClass": "'Load Resource'",
+        "AssociateEventToNode": false,
+        "Product": "Search",
+        "SessionKey": "ThreadId",
+        "SessionKeyAction": "Add",
+        "Examples": [
+          "=> INFO  [http-10.13.110.134-8983-1] 2018-05-18 14:35:18,860  SolrCoreResourceManager.java:703 - Trying to load resource solrconfig.xml.bak for core connext_portal.book_of_business_summary_by_agentpartyid by querying from local node with CL QUORUM",
+          "INFO  [http-10.13.110.134-8983-1] 2018-05-18 14:35:18,876  SolrCoreResourceManager.java:718 - Successfully loaded resource solrconfig.xml.bak for core connext_portal.book_of_business_summary_by_agentpartyid by querying from local node.",
+          "INFO  [http-10.13.110.134-8983-1] 2018-05-18 14:35:18,877  SolrCoreResourceManager.java:757 - Successfully loaded resource solrconfig.xml.bak for core connext_portal.book_of_business_summary_by_agentpartyid"
         ]
       },
-      "ParseMessage": {
-        "RegExStrings": [
-          "^(?<item>Read)\\s(?<live_cells>[0-9,]+)\\slive\\sand\\s(?<tombstone_cells>[0-9,]+)\\stombstone(?:s|d)?\\scells\\sin\\s(?<TABLEVIEWNAME>[a-z0-9'\\\\-_$%+=!?<>^*&@/.]+)\\s(?:for\\skey\\:\\s*(?<partitionkey>.+))?\\s*\\(see tombstone_warn_threshold\\)\\.\\s*(?<columns>[0-9,]+)\\scolumns\\s(?:were|was)\\srequested,\\sslices=(?<slices>\\[[^\\[\\]]+\\])",
-          "^(?<item>Scanned)\\sover\\s(?<tombstone_cells>[0-9,]+)\\stombstone(?:s|d)?\\sin\\s(?$<TABLEVIEWNAME>)\\s(?:for\\skey\\:\\s*(?<partitionkey>.+))\\;(?<SUBCLASS>\\squery\\saborted)",
-          "^Read\\s(?<live_cells>[0-9,]+)\\slive\\srows\\sand\\s(?<tombstone_cells>[0-9,]+)\\stombstone(?:s|d)?\\scells\\sfor\\s(?<item>query)\\s+'*$<!CQLSELECT>'*\\s+\\(",
-          "^Scanned\\sover\\s(?<tombstone_cells>[0-9,]+)\\stombstone(?:s|d)?\\sduring\\s(?<item>query)\\s+'*$<!CQLSELECT>'*\\s+\\("
+      {
+        "Description": "Solr Resouce loading (completed)",
+        "TagId": 26.1,
+        "SessionBeginTagId": 26.0,
+        "MatchVersion": null,
+        "LevelMatch": {
+          "RegExStrings": [
+            "INFO"
+          ]
+        },
+        "ThreadIdMatch": null,
+        "FileNameMatch": {
+          "RegExStrings": [
+            "^SolrCoreResourceManager.java$"
+          ]
+        },
+        "FileLineMatch": null,
+        "MessageMatch": {
+          "RegExStrings": [
+            "^Successfully loaded resource\\s[^ ]+\\sfor\\score\\s[^ ]+(?!\\sby\\squerying)"
+          ]
+        },
+        "ParseMessage": {
+          "RegExStrings": [
+            "^Successfully loaded resource (?<tag>(?<solrconfigfile>[^ ]+))\\sfor\\score\\s(?$<DDLITEMNAME>]+)$"
+          ]
+        },
+        "ParseThreadId": null,
+        "EventType": "SessionEnd",
+        "EventClass": "SolrHardCommit",
+        "SubClass": "'Load Resource'",
+        "Product": "Search",
+        "SessionKey": "ThreadId",
+        "SessionKeyAction": "ReadRemove",
+        "Examples": [
+          "INFO  [http-10.13.110.134-8983-1] 2018-05-18 14:35:18,860  SolrCoreResourceManager.java:703 - Trying to load resource solrconfig.xml.bak for core connext_portal.book_of_business_summary_by_agentpartyid by querying from local node with CL QUORUM",
+          "INFO  [http-10.13.110.134-8983-1] 2018-05-18 14:35:18,876  SolrCoreResourceManager.java:718 - Successfully loaded resource solrconfig.xml.bak for core connext_portal.book_of_business_summary_by_agentpartyid by querying from local node.",
+          "=> INFO  [http-10.13.110.134-8983-1] 2018-05-18 14:35:18,877  SolrCoreResourceManager.java:757 - Successfully loaded resource solrconfig.xml.bak for core connext_portal.book_of_business_summary_by_agentpartyid"
         ]
       },
-      "ParseThreadId": null,
-      "EventType": "SingleInstance",
-      "EventClass": "Tombstone,TableViewIndex,Query,Detection",
-      "SubClass": "item",
-      "AnalyticsGroup": "TombstoneStats",
-      "Product": "Cassandra",
-      "Examples": [
-        "WARN [ReadStage:1325219] 2016-07-14 17:41:21,164 SliceQueryFilter.java (line 231) Read 11 live and 1411 tombstoned cells in cma.mls_records_property (see tombstone_warn_threshold). 5000 columns was requested, slices=[-]",
-        "WARN  [SharedPool-Worker-11] 2016-10-24 10:59:18,247  SliceQueryFilter.java:320 - Read 269 live and 5228 tombstone cells in dse_perf.node_slow_log for key: 10.1.44.175:2016-10-20 20\\:00-0400 (see tombstone_warn_threshold). 1000 columns were requested, slices=[-]",
-        "ERROR [SharedPool-Worker-3] 2016-10-24 10:59:29,758  SliceQueryFilter.java:288 - Scanned over 100000 tombstones in dse_perf.node_slow_log for key: 10.1.46.110:2016-10-19 20\\:00-0400; query aborted (see tombstone_failure_threshold).",
-        "WARN  [SharedPool-Worker-9] 2018-04-04 11:25:35,569  ReadCommand.java:508 - Read 111 live rows and 1932 tombstone cells for query SELECT * FROM ghostlocker.userplaybacksession WHERE token(userid) > -1790144883989260466 AND token(userid) <= -1665322144856710922 LIMIT 1000 (see tombstone_warn_threshold)",
-        "ERROR [SharedPool-Worker-3] 2018-05-22 09:45:28,353  StorageProxy.java:1804 - Scanned over 100001 tombstones during query 'SELECT * FROM data_integration_hub.notification_trigger_history WHERE contact_method_type_value = sspears@igroupweb.com LIMIT 300' (last scanned row partion key was ((6180009188, 001, ALIP), f2220626-8b2e-4e5a-9150-2e96bb3cdc07, 51, 2018-05-17 04:24-0500, 44787350-59b4-11e8-a111-1f4247064f64)); query aborted"
-      ]
-    },
-    {
-      "Description": "commit log syncs",
-      "TagId": 22.0,
-      "MatchVersion": null,
-      "LevelMatch": {
-        "RegExStrings": [
-          "WARN"
+      {
+        "Description": "LeveledCompactionStrategy orphaned SSTable",
+        "TagId": 27.0,
+        "MatchVersion": null,
+        "LevelMatch": {
+          "RegExStrings": [
+            "WARN"
+          ]
+        },
+        "FileNameMatch": {
+          "RegExStrings": [
+            "^LeveledCompactionStrategy.java$"
+          ]
+        },
+        "FileLineMatch": null,
+        "MessageMatch": {
+          "RegExStrings": [
+            "^Live\\ssstable\\s"
+          ]
+        },
+        "ParseMessage": {
+          "RegExStrings": [
+            "^Live\\ssstable\\s+(?$<SSTABLEPATH>)\\sfrom\\slevel\\s+(?<fromlevel>[0-9]+)\\sis\\snot\\son\\scorresponding\\slevel\\sin\\sthe\\sleveled\\smanifest"
+          ]
+        },
+        "ParseThreadId": null,
+        "EventType": "SingleInstance",
+        "EventClass": "Detection,Compaction",
+        "AnalyticsGroup": null,
+        "SubClass": "'LeveledCompactionStrategy(possible orphaned)'",
+        "Product": "Cassandra",
+        "Examples": [
+          "WARN  [ValidationExecutor:1917] 2018-05-15 01:28:55,899  LeveledCompactionStrategy.java:285 - Live sstable /u01/cassandra/data/tf/couple_change_history_view-072aa19033f411e68648f53ceed7d33a/mc-164800-big-Data.db from level 0 is not on corresponding level in the leveled manifest. This is not a problem per se, but may indicate an orphaned sstable due to a failed compaction not cleaned up properly."
         ]
-      },
-      "FileNameMatch": {
-        "RegExStrings": [
-          "^NoSpamLogger.java$"
-        ]
-      },
-      "FileLineMatch": null,
-      "MessageMatch": {
-        "RegExStrings": [
-          "^Out\\sof\\s[0-9,]+\\scommit\\slog\\ssyncs\\sover\\sthe\\spast"
-        ]
-      },
-      "ParseMessage": {
-        "RegExStrings": [
-          "^Out\\sof\\s(?<nbrlogs>[0-9,]+)\\s[a-z ]+\\spast\\s(?<pastduration>[0-9,.]+\\s*[a-z]+)\\swith\\saverage\\sduration\\sof\\s(:?(?:infinity\\s*[a-z]*)|(?<DURATION>[0-9,.]+\\s*\\w+))\\,\\s(?<logsexceed>[0-9,]+)\\s+[a-z ]+\\scommit\\sinterval[a-z ]+\\s(?<commitinterval>[0-9,.]+\\s*[a-z]+)$"
-        ]
-      },
-      "ParseThreadId": null,
-      "EventType": "SingleInstance",
-      "EventClass": "Commit,Pause,Detection",
-      "SubClass": null,
-      "AnalyticsGroup": "DurationStats",
-      "Product": "Cassandra",
-      "Examples": [
-        "WARN [PERIODIC-COMMIT-LOG-SYNCER] 2017-09-13 20:35:59,729 NoSpamLogger.java:97 - Out of 1 commit log syncs over the past 0.00s with average duration of 72128.48ms, 1 have exceeded the configured commit interval by an average of 62128.48ms",
-        "WARN [PERIODIC-COMMIT-LOG-SYNCER] 2017-09-13 20:35:59,729 NoSpamLogger.java:97 - Out of 0 commit log syncs over the past 0.00s with average duration of Infinityms, 1 have exceeded the configured commit interval by an average of 62.07ms"
-      ]
-    },
-    {
-      "Description": "Aggregation query",
-      "TagId": 23.0,
-      "MatchVersion": null,
-      "LevelMatch": {
-        "RegExStrings": [
-          "WARN"
-        ]
-      },
-      "FileNameMatch": {
-        "RegExStrings": [
-          "^SelectStatement.java$"
-        ]
-      },
-      "FileLineMatch": null,
-      "MessageMatch": {
-        "RegExStrings": [
-          "^Aggregation\\s+query"
-        ]
-      },
-      "ParseMessage": {
-        "RegExStrings": [
-          "^Aggregation\\s+query\\s+used\\s+without\\s+partition\\s+key$"
-        ]
-      },
-      "ParseThreadId": null,
-      "EventType": "SingleInstance",
-      "EventClass": "Detection,Query,Partition",
-      "SubClass": "'Aggregation query used without partition key'",
-      "Product": "Cassandra",
-      "Examples": [
-        "WARN  [SharedPool-Worker-1] 2018-03-28 03:37:46,099  SelectStatement.java:369 - Aggregation query used without partition key"
-      ]
-    },
-    {
-      "Description": "Gossip stage",
-      "TagId": 24.0,
-      "MatchVersion": null,
-      "LevelMatch": {
-        "RegExStrings": [
-          "WARN"
-        ]
-      },
-      "FileNameMatch": {
-        "RegExStrings": [
-          "^Gossiper.java$"
-        ]
-      },
-      "FileLineMatch": null,
-      "MessageMatch": {
-        "RegExStrings": [
-          "^Gossip\\s+stage"
-        ]
-      },
-      "ParseMessage": {
-        "RegExStrings": [
-          "^Gossip\\s+stage\\s+has\\s+(?<pendingtasks>\\d+)\\s+pending\\s+tasks;\\s+skipping\\s+status\\s+check\\s+\\(no\\s+nodes\\s+will\\s+be\\s+marked\\s+down\\)$"
-        ]
-      },
-      "ParseThreadId": null,
-      "EventType": "SingleInstance",
-      "EventClass": "Detection,Gossip",
-      "AnalyticsGroup": "GossipPendingStats",
-      "SubClass": "'Pending Gossip Stage (no nodes marked down)'",
-      "Product": "Cassandra",
-      "Examples": [
-        "WARN  [GossipTasks:1] 2018-04-09 16:03:34,543  Gossiper.java:754 - Gossip stage has 4 pending tasks; skipping status check (no nodes will be marked down)",
-        "WARN  [GossipTasks:1] 2017-05-20 03:38:59,863  Gossiper.java:751 - Gossip stage has 1 pending tasks; skipping status check (no nodes will be marked down)"
-      ]
-    },
-    {
-      "Description": "Batches",
-      "TagId": 25.0,
-      "MatchVersion": null,
-      "LevelMatch": {
-        "RegExStrings": [
-          "WARN"
-        ]
-      },
-      "FileNameMatch": {
-        "RegExStrings": [
-          "^NoSpamLogger.java$",
-          "^BatchStatement.java$"
-        ]
-      },
-      "FileLineMatch": null,
-      "MessageMatch": {
-        "RegExStrings": [
-          "^Unlogged\\s+batch\\s",
-          "^Batch\\s"
-        ]
-      },
-      "ParseMessage": {
-        "RegExStrings": [
-          "^(?<type>Unlogged)\\sbatch\\scovering\\s(?<nbrpartitions>[0-9,]+)\\spartitions\\s\\w+\\s\\w+\\stables?\\s+\\[(?$<DDLITEMNAMES>)\\]",
-          "^Batch\\s\\w+\\s(?<type>prepared?)\\sstatements?\\s\\w+\\s\\[(?$<DDLITEMNAMES>)\\]\\s\\w+\\s\\w+\\ssize\\s+(?<size_bytes>[0-9,.]+\\s*\\w*)\\s*,\\s",
-          "^Batch\\sfor\\s\\[(?$<DDLITEMNAMES>)\\]\\s\\w+\\s\\w+\\s(?<type>size)\\s+(?<size_bytes>[0-9,.]+\\s*\\w*)\\s*,\\s"
-        ]
-      },
-      "ParseThreadId": null,
-      "EventType": "SingleInstance",
-      "EventClass": "Detection,Batches",
-      "AnalyticsGroup": "BatchStats",
-      "SubClass": "type",
-      "Product": "Cassandra",
-      "Examples": [
-        "WARN  [SharedPool-Worker-11] 2016-10-24 03:09:39,832  NoSpamLogger.java:94 - Unlogged batch covering 33 partitions detected against tables [usprodofrs.rstpromobydate_3_0_0_4, usprodofrs.rstpromo_3_0_0_4]. You should use a logged batch for atomicity, or asynchronous writes for performance.",
-        "WARN [Native-Transport-Requests:30] 2016-08-01 22:58:11,080 BatchStatement.java (line 226) Batch of prepared statements for [clearcore.documents_case] is of size 71809, exceeding specified threshold of 65536 by 6273.",
-        "WARN  [Native-Transport-Requests-4] 2018-04-23 15:39:49,679  BatchStatement.java:298 - Batch for [axon.accounts, axon.audit] is of size 69.044KiB, exceeding specified threshold of 64.000KiB by 5.044KiB."
-      ]
-    },
-    {
-      "Description": "Solr Resouce loading (start)",
-      "TagId": 26.0,
-      "MatchVersion": null,
-      "LevelMatch": {
-        "RegExStrings": [
-          "INFO"
-        ]
-      },
-      "ThreadIdMatch": null,
-      "FileNameMatch": {
-        "RegExStrings": [
-          "^SolrCoreResourceManager.java$"
-        ]
-      },
-      "FileLineMatch": null,
-      "MessageMatch": {
-        "RegExStrings": [
-          "^Trying\\sto\\sload\\sresource\\s"
-        ]
-      },
-      "ParseMessage": {
-        "RegExStrings": [
-          "^Trying\\sto\\sload\\sresource\\s(?<tag>(?<solrconfigfile>[^ ]+))\\sfor\\score\\s(?$<DDLITEMNAME>)\\sby\\squerying\\sfrom\\slocal\\snode\\swith\\sCL\\s(?<consistencylevel>[^ ]+)"
-        ]
-      },
-      "ParseThreadId": null,
-      "EventType": "SessionBegin",
-      "EventClass": "Solr, Config",
-      "SubClass": "'Load Resource'",
-      "AssociateEventToNode": false,
-      "Product": "Search",
-      "SessionKey": "ThreadId",
-      "SessionKeyAction": "Add",
-      "Examples": [
-        "=> INFO  [http-10.13.110.134-8983-1] 2018-05-18 14:35:18,860  SolrCoreResourceManager.java:703 - Trying to load resource solrconfig.xml.bak for core connext_portal.book_of_business_summary_by_agentpartyid by querying from local node with CL QUORUM",
-        "INFO  [http-10.13.110.134-8983-1] 2018-05-18 14:35:18,876  SolrCoreResourceManager.java:718 - Successfully loaded resource solrconfig.xml.bak for core connext_portal.book_of_business_summary_by_agentpartyid by querying from local node.",
-        "INFO  [http-10.13.110.134-8983-1] 2018-05-18 14:35:18,877  SolrCoreResourceManager.java:757 - Successfully loaded resource solrconfig.xml.bak for core connext_portal.book_of_business_summary_by_agentpartyid"
-      ]
-    },
-    {
-      "Description": "Solr Resouce loading (completed)",
-      "TagId": 26.1,
-      "SessionBeginTagId": 26.0,
-      "MatchVersion": null,
-      "LevelMatch": {
-        "RegExStrings": [
-          "INFO"
-        ]
-      },
-      "ThreadIdMatch": null,
-      "FileNameMatch": {
-        "RegExStrings": [
-          "^SolrCoreResourceManager.java$"
-        ]
-      },
-      "FileLineMatch": null,
-      "MessageMatch": {
-        "RegExStrings": [
-          "^Successfully loaded resource\\s[^ ]+\\sfor\\score\\s[^ ]+(?!\\sby\\squerying)"
-        ]
-      },
-      "ParseMessage": {
-        "RegExStrings": [
-          "^Successfully loaded resource (?<tag>(?<solrconfigfile>[^ ]+))\\sfor\\score\\s(?$<DDLITEMNAME>]+)$"
-        ]
-      },
-      "ParseThreadId": null,
-      "EventType": "SessionEnd",
-      "EventClass": "SolrHardCommit",
-      "SubClass": "'Load Resource'",
-      "Product": "Search",
-      "SessionKey": "ThreadId",
-      "SessionKeyAction": "ReadRemove",
-      "Examples": [
-        "INFO  [http-10.13.110.134-8983-1] 2018-05-18 14:35:18,860  SolrCoreResourceManager.java:703 - Trying to load resource solrconfig.xml.bak for core connext_portal.book_of_business_summary_by_agentpartyid by querying from local node with CL QUORUM",
-        "INFO  [http-10.13.110.134-8983-1] 2018-05-18 14:35:18,876  SolrCoreResourceManager.java:718 - Successfully loaded resource solrconfig.xml.bak for core connext_portal.book_of_business_summary_by_agentpartyid by querying from local node.",
-        "=> INFO  [http-10.13.110.134-8983-1] 2018-05-18 14:35:18,877  SolrCoreResourceManager.java:757 - Successfully loaded resource solrconfig.xml.bak for core connext_portal.book_of_business_summary_by_agentpartyid"
-      ]
-    },
-    {
-      "Description": "LeveledCompactionStrategy orphaned SSTable",
-      "TagId": 27.0,
-      "MatchVersion": null,
-      "LevelMatch": {
-        "RegExStrings": [
-          "WARN"
-        ]
-      },
-      "FileNameMatch": {
-        "RegExStrings": [
-          "^LeveledCompactionStrategy.java$"
-        ]
-      },
-      "FileLineMatch": null,
-      "MessageMatch": {
-        "RegExStrings": [
-          "^Live\\ssstable\\s"
-        ]
-      },
-      "ParseMessage": {
-        "RegExStrings": [
-          "^Live\\ssstable\\s+(?$<SSTABLEPATH>)\\sfrom\\slevel\\s+(?<fromlevel>[0-9]+)\\sis\\snot\\son\\scorresponding\\slevel\\sin\\sthe\\sleveled\\smanifest"
-        ]
-      },
-      "ParseThreadId": null,
-      "EventType": "SingleInstance",
-      "EventClass": "Detection,Compaction",
-      "AnalyticsGroup": null,
-      "SubClass": "'LeveledCompactionStrategy(possible orphaned)'",
-      "Product": "Cassandra",
-      "Examples": [
-        "WARN  [ValidationExecutor:1917] 2018-05-15 01:28:55,899  LeveledCompactionStrategy.java:285 - Live sstable /u01/cassandra/data/tf/couple_change_history_view-072aa19033f411e68648f53ceed7d33a/mc-164800-big-Data.db from level 0 is not on corresponding level in the leveled manifest. This is not a problem per se, but may indicate an orphaned sstable due to a failed compaction not cleaned up properly."
+      }
       ]
     }
-  ]
-}

@@ -282,10 +282,8 @@ namespace DSEDiagnosticConsoleApplication
             ConsoleDisplay.Console.AdjustScreenStartBlock();
 
             ConsoleDisplay.Console.WriteLine(" ");
-            ConsoleDisplay.Console.WriteLine("Diagnostic Folder Structure: \"{0}\"", ParserSettings.DiagFolderStruct);
             ConsoleDisplay.Console.WriteLine("Diagnostic Source Folder: \"{0}\"", ParserSettings.DiagnosticPath);
-            ConsoleDisplay.Console.WriteLine("Excel Target File: \"{0}\"", ParserSettings.ExcelFilePath?.ToString()
-                                                                                ?? DetermineExcelTargetFile(null));
+            ConsoleDisplay.Console.WriteLine("Profile: \"{0}\"", ParserSettings.Profile);
 
             ConsoleDisplay.Console.WriteLine(" ");
 

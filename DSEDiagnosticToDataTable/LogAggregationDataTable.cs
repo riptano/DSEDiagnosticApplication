@@ -401,9 +401,9 @@ namespace DSEDiagnosticToDataTable
                             if (analyticsGrp.CompactionStats.ReadRate.HasValue)
                             {
                                 dataRow.SetField("Eden Max/Threshold Max/Read Rate Max", analyticsGrp.CompactionStats.ReadRate.Max);
-                                dataRow.SetField("Eden Max/Threshold Max/Read Rate Min", analyticsGrp.CompactionStats.ReadRate.Min);
-                                dataRow.SetField("Eden Max/Threshold Max/Read Rate Mean", analyticsGrp.CompactionStats.ReadRate.Mean);
-                                dataRow.SetField("Eden Max/Threshold Max/Read Rate StdDevp", analyticsGrp.CompactionStats.ReadRate.StdDev);                               
+                                dataRow.SetField("Eden Dif/Threshold Min/Read Rate Min", analyticsGrp.CompactionStats.ReadRate.Min);
+                                dataRow.SetField("Old Max/Threshold Mean/Read Rate Mean", analyticsGrp.CompactionStats.ReadRate.Mean);
+                                dataRow.SetField("Old Dif/Threshold StdDevp/Read Rate StdDevp", analyticsGrp.CompactionStats.ReadRate.StdDev);                               
                             }
 
                             if (analyticsGrp.CompactionStats.WriteRate.HasValue)

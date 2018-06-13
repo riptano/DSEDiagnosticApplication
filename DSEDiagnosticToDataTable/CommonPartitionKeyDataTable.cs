@@ -34,6 +34,7 @@ namespace DSEDiagnosticToDataTable
             dtPartitionInfo.Columns.Add("Local read count", typeof(long)); //f
             dtPartitionInfo.Columns.Add("Local write count", typeof(long)); //g
             dtPartitionInfo.Columns.Add("Local Total count", typeof(long)); //h
+            dtPartitionInfo.Columns.Add("Partition Keys count", typeof(long)); //i
 
             dtPartitionInfo.DefaultView.ApplyDefaultSort = false;
             dtPartitionInfo.DefaultView.AllowDelete = false;
@@ -73,7 +74,10 @@ namespace DSEDiagnosticToDataTable
                                             Node = s.Node,
                                             Table = s.TableViewIndex,
                                             LocalReads = s.Data.GetPropertyValue("Local read count") ?? 0L,
-                                            LocalWrites = s.Data.GetPropertyValue("Local write count") ?? 0L
+                                            LocalWrites = s.Data.GetPropertyValue("Local write count") ?? 0L,
+                                            PartitionKeys = s.Data.GetPropertyValue("Number of keys (estimate)") 
+                                                                ?? s.Data.GetPropertyValue("Number of partitions (estimate)")
+                                                                ?? 0L
                                         });
 
                 foreach (var cpkStat in this.CommonPKStats.Cast<DSEDiagnosticAnalytics.DataModelDCPK.CommonPartitionKey>())
@@ -117,6 +121,7 @@ namespace DSEDiagnosticToDataTable
                             dataRow.SetField("Local read count", nodeInfo.LocalReads);
                             dataRow.SetField("Local write count", nodeInfo.LocalWrites);
                             dataRow.SetField("Local Total count", ((long) (dynamic) nodeInfo.LocalWrites) + ((long) (dynamic) nodeInfo.LocalReads));
+                            dataRow.SetField("Partition Keys count", nodeInfo.PartitionKeys);
 
                             this.Table.Rows.Add(dataRow);
                             ++nbrItems;

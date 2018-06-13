@@ -58,7 +58,7 @@ namespace DSEDiagnosticFileParser
             {
                 lstPos = regExpression.IndexOf(IdentiferStart, lstPos);
                                 
-                if(lstPos > 0)
+                if(lstPos >= 0)
                 {
                     var endIdPos = regExpression.IndexOf(IdentiferEnd, lstPos + IdentiferStart.Length);
 
