@@ -12,7 +12,7 @@ namespace DSEDiagnosticToDataTable.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "15.5.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "15.7.0.0")]
     internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
         
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
@@ -56,6 +56,42 @@ namespace DSEDiagnosticToDataTable.Properties {
         public bool CommonPartitionsAllowZeroReadWriteCnts {
             get {
                 return ((bool)(this["CommonPartitionsAllowZeroReadWriteCnts"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Read Count")]
+        public string CFStatsReadCountName {
+            get {
+                return ((string)(this["CFStatsReadCountName"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Write Count")]
+        public string CFStatsWriteCountName {
+            get {
+                return ((string)(this["CFStatsWriteCountName"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Local read count")]
+        public string CFStatsLocalReadCountName {
+            get {
+                return ((string)(this["CFStatsLocalReadCountName"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Local write count")]
+        public string CFStatsLocalWriteCountName {
+            get {
+                return ((string)(this["CFStatsLocalWriteCountName"]));
             }
         }
     }

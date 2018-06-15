@@ -81,8 +81,13 @@ namespace DSEDiagnosticToDataTable
 
                     if (stat.Keyspace != null && this.WarnWhenKSTblIsDetected.Any(n => n == stat.Keyspace.Name || (stat.TableViewIndex != null && stat.TableViewIndex.FullName == n)))
                     {
-                        warn = stat.Data.Any(s => ((stat.TableViewIndex == null && (s.Key == "Read Count" || s.Key == "Write Count"))
-                                                    || (stat.TableViewIndex != null && (s.Key == "Local read count" || s.Key == "Local write count"))) && (dynamic)s.Value > 0);
+                        warn = stat.Data.Any(s => ((stat.TableViewIndex == null
+                                                                && (s.Key == Properties.Settings.Default.CFStatsReadCountName
+                                                                        || s.Key == Properties.Settings.Default.CFStatsWriteCountName))
+                                                        || (stat.TableViewIndex != null
+                                                                && (s.Key == Properties.Settings.Default.CFStatsLocalReadCountName
+                                                                        || s.Key == Properties.Settings.Default.CFStatsLocalWriteCountName)))
+                                                    && (dynamic)s.Value > 0);
                     }
 
                     if (!warn && stat.Keyspace != null && this.IgnoreKeySpaces.Any(n => n == stat.Keyspace.Name))
@@ -263,7 +268,11 @@ namespace DSEDiagnosticToDataTable
         private void SetTableIndexInfo(DataRow dataRow, DSEDiagnosticLibrary.IAggregatedStats stat, bool warn)
         {            
             dataRow.SetField("Active", stat.TableViewIndex.IsActive);
-            dataRow.SetField("CQL Type", stat.TableViewIndex.GetType().Name);
+
+            if((stat.Class & DSEDiagnosticLibrary.EventClasses.Solr) != 0 && stat.TableViewIndex is DSEDiagnosticLibrary.ICQLTable)
+                dataRow.SetField("CQL Type", "SolrIndex");
+            else 
+                dataRow.SetField("CQL Type", stat.TableViewIndex.GetType().Name);
             if (stat.TableViewIndex is DSEDiagnosticLibrary.ICQLIndex)
             {
                 var cqlIndex = (DSEDiagnosticLibrary.ICQLIndex)stat.TableViewIndex;

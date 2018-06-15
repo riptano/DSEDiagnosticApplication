@@ -60,14 +60,35 @@ namespace DSEDiagnosticFileParser
                                                             this.Node,
                                                             SourceTypes.JSON,
                                                             EventTypes.AggregateDataTool,
-                                                            EventClasses.PerformanceStats | EventClasses.Node | EventClasses.KeyspaceTableViewIndexStats,
+                                                            EventClasses.Solr | EventClasses.Node | EventClasses.KeyspaceTableViewIndexStats,
                                                             currentDDL,
                                                             DSEInfo.InstanceTypes.Search);
                         this._statsList.Add(statItem);
+                        var uomIndexStorage = UnitOfMeasure.Create(jItem.Value.Value<decimal>(),
+                                                                        UnitOfMeasure.Types.Byte | UnitOfMeasure.Types.Storage);
 
                         statItem.AssociateItem(Properties.Settings.Default.SolrIndexStorageSizeStatAttribute,
-                                                UnitOfMeasure.Create(jItem.Value.Value<decimal>(),
-                                                                        UnitOfMeasure.Types.Byte | UnitOfMeasure.Types.Storage));
+                                                uomIndexStorage);
+
+                        if(!uomIndexStorage.NaN)
+                        {
+                            var assocTblStorage = currentDDL.Node.AggregatedStats.FirstOrDefault(s => s.TableViewIndex == currentDDL);
+                            object totalStorageObj;
+
+                            if(assocTblStorage.Data.TryGetValue(Properties.Settings.Default.CFStatTotalStorage, out totalStorageObj))
+                            {
+                                var uomTblStorage = (UnitOfMeasure)totalStorageObj;
+                                decimal ratio = 1m;
+
+                                if(!uomTblStorage.NaN)                                
+                                {
+                                    ratio = uomIndexStorage.ConvertSizeUOM(DSEDiagnosticLibrary.LibrarySettings.DefaultStorageSizeUnit) / uomTblStorage.ConvertSizeUOM(DSEDiagnosticLibrary.LibrarySettings.DefaultStorageSizeUnit);
+                                }
+
+                                statItem.AssociateItem(Properties.Settings.Default.SolrIndexStorageSizePercentStatAttribute,
+                                                        UnitOfMeasure.Create(ratio, UnitOfMeasure.Types.Percent | UnitOfMeasure.Types.Storage));
+                            }
+                        }
                     }                   
                 }                
             }

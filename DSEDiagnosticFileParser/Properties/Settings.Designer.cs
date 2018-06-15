@@ -1169,5 +1169,23 @@ public static class {0}
                 return ((string)(this["CFStatLiveCellPropName"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("solr index percent storage size ")]
+        public string SolrIndexStorageSizePercentStatAttribute {
+            get {
+                return ((string)(this["SolrIndexStorageSizePercentStatAttribute"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Space used (total)")]
+        public string CFStatTotalStorage {
+            get {
+                return ((string)(this["CFStatTotalStorage"]));
+            }
+        }
     }
 }

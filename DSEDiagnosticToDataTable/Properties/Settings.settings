@@ -14,5 +14,17 @@
     <Setting Name="CommonPartitionsAllowZeroReadWriteCnts" Type="System.Boolean" Scope="Application">
       <Value Profile="(Default)">True</Value>
     </Setting>
+    <Setting Name="CFStatsReadCountName" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Read Count</Value>
+    </Setting>
+    <Setting Name="CFStatsWriteCountName" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Write Count</Value>
+    </Setting>
+    <Setting Name="CFStatsLocalReadCountName" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Local read count</Value>
+    </Setting>
+    <Setting Name="CFStatsLocalWriteCountName" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Local write count</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

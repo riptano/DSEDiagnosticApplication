@@ -1732,5 +1732,11 @@ CREATE TABLE "OpsCenter".rollups300 (
     <Setting Name="CFStatLiveCellPropName" Type="System.String" Scope="Application">
       <Value Profile="(Default)">Maximum live cells per slice (last five minutes)</Value>
     </Setting>
+    <Setting Name="SolrIndexStorageSizePercentStatAttribute" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">solr index percent storage size </Value>
+    </Setting>
+    <Setting Name="CFStatTotalStorage" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Space used (total)</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

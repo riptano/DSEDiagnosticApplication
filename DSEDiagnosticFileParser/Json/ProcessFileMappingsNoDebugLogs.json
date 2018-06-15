@@ -337,7 +337,7 @@
     "FileParsingClass": "DSEDiagnosticFileParser.json_solr_index_size",
     "NodeIdPos": -1,
     "ProcessingTaskOption": "ScanForNode,ParallelProcessing,ParallelProcessFiles",
-    "ProcessPriorityLevel": 200
+    "ProcessPriorityLevel": 180
   },
   {
     "Catagory": "LogFile",
