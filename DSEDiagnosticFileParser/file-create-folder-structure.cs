@@ -107,10 +107,9 @@ namespace DSEDiagnosticFileParser
             : base(catagory, diagnosticDirectory, file, node, defaultClusterName, defaultDCName, targetDSEVersion)
         {
             this.TargetSourceMappings = LibrarySettings.FileCreateFolderTargetSourceMappings;
-            this.TimeStampUTC = DateTime.UtcNow;
         }
 
-        public DateTime TimeStampUTC { get; }
+        public static DateTime TimeStampUTC { get; } = DateTime.UtcNow;
 
         [JsonIgnore]
         public Mappings TargetSourceMappings { get; }
@@ -158,7 +157,7 @@ namespace DSEDiagnosticFileParser
                                                                         this.DiagnosticDirectory,
                                                                         this.Node,
                                                                         this.DefaultClusterName,
-                                                                        this.TimeStampUTC);
+                                                                        TimeStampUTC);
 
             if (targetPath == null) return 0;
             if (targetPath.Item1.Equals(this.File)) return 0;
