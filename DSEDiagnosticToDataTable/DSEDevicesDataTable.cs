@@ -70,25 +70,25 @@ namespace DSEDiagnosticToDataTable
                     dataRow.SetField(ColumnNames.DataCenter, node.DataCenter.Name);
 
                     dataRow.SetField("Data", deviceName = node.DSE.Devices.Data?.FirstOrDefault());
-                    if(deviceName != null) //
+                    if(deviceName != null && node.Machine.Devices.PercentUtilized != null) //
                         dataRow.SetField("Data Utilization", node.Machine.Devices.PercentUtilized
                                                                     .Where(i => i.Key.EndsWith('/' + deviceName) || i.Key.EndsWith('/' + deviceName + '1'))
                                                                     .FirstOrDefault().Value);
 
                     dataRow.SetField("Commit Log", deviceName = node.DSE.Devices.CommitLog);
-                    if (deviceName != null)
+                    if (deviceName != null && node.Machine.Devices.PercentUtilized != null)
                         dataRow.SetField("Commit Utilization", node.Machine.Devices.PercentUtilized
                                                                     .Where(i => i.Key.EndsWith('/' + deviceName) || i.Key.EndsWith('/' + deviceName + '1'))
                                                                     .FirstOrDefault().Value);
 
                     dataRow.SetField("Saved Cache", deviceName = node.DSE.Devices.CommitLog);
-                    if(deviceName != null)
+                    if(deviceName != null && node.Machine.Devices.PercentUtilized != null)
                         dataRow.SetField("Cache Utilization", node.Machine.Devices.PercentUtilized
                                                                     .Where(i => i.Key.EndsWith('/' + deviceName) || i.Key.EndsWith('/' + deviceName + '1'))
                                                                     .FirstOrDefault().Value);
 
                     dataRow.SetField("Other", deviceName = node.DSE.Devices.Others?.FirstOrDefault());
-                    if(deviceName != null)
+                    if(deviceName != null && node.Machine.Devices.PercentUtilized != null)
                         dataRow.SetField("Other Utilization", node.Machine.Devices.PercentUtilized
                                                                     .Where(i => i.Key.EndsWith('/' + deviceName) || i.Key.EndsWith('/' + deviceName + '1'))
                                                                     .FirstOrDefault().Value);
@@ -112,13 +112,13 @@ namespace DSEDiagnosticToDataTable
                         dataRow.SetField(ColumnNames.DataCenter, node.DataCenter.Name);
 
                         dataRow.SetField("Data", deviceName = node.DSE.Devices.Data.ElementAtOrDefault(nIdx));
-                        if (deviceName != null)
+                        if (deviceName != null && node.Machine.Devices.PercentUtilized != null)
                             dataRow.SetField("Data Utilization", node.Machine.Devices.PercentUtilized
                                                                     .Where(i => i.Key.EndsWith('/' + deviceName) || i.Key.EndsWith('/' + deviceName + '1'))
                                                                     .FirstOrDefault().Value);
 
                         dataRow.SetField("Other", deviceName = node.DSE.Devices.Others.ElementAtOrDefault(nIdx));
-                        if (deviceName != null)
+                        if (deviceName != null && node.Machine.Devices.PercentUtilized != null)
                             dataRow.SetField("Other Utilization", node.Machine.Devices.PercentUtilized
                                                                     .Where(i => i.Key.EndsWith('/' + deviceName) || i.Key.EndsWith('/' + deviceName + '1'))
                                                                     .FirstOrDefault().Value);

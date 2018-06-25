@@ -55,84 +55,88 @@ namespace DSEDiagnosticToDataTable
             {
                 DataRow dataRow = null;
                 int nbrItems = 0;
-                
-                foreach (var node in this.Cluster.Nodes)
+                var parallelOptions = new ParallelOptions();
+
+                if(this.CancellationToken != null) parallelOptions.CancellationToken = this.CancellationToken; //Do not set since this will throw and NOT properly caught resulting in the consumer getting the throw
+                parallelOptions.MaxDegreeOfParallelism = System.Environment.ProcessorCount;
+
+                System.Threading.Tasks.Parallel.ForEach(this.Cluster.Nodes, parallelOptions, (node, loopState) =>
                 {
-                    nbrItems = 0;
-                    this.CancellationToken.ThrowIfCancellationRequested();
+                   nbrItems = 0;
+                   this.CancellationToken.ThrowIfCancellationRequested();
 
-                    Logger.Instance.InfoFormat("Checking Node Configuration Changes from Logs for \"{0}\"", node.Id.NodeName());
+                   Logger.Instance.InfoFormat("Checking Node Configuration Changes from Logs for \"{0}\"", node.Id.NodeName());
 
-                    var logConfigLines = from logEvent in node.LogEvents
-                                         let searchEvent = logEvent.GetValue(Common.Patterns.Collections.MemoryMapperElementCreationTypes.SearchView)
-                                         where (searchEvent.Class & DSEDiagnosticLibrary.EventClasses.Config) != 0
-                                                && (searchEvent.Class & DSEDiagnosticLibrary.EventClasses.NodeDetection) != 0
-                                         select logEvent.Value;
-                    IEnumerable<DSEDiagnosticLibrary.IConfigurationLine> nodeConfigs = null;
+                   var logConfigLines = from logEvent in node.LogEvents.AsParallel()
+                                        let searchEvent = logEvent.GetValue(Common.Patterns.Collections.MemoryMapperElementCreationTypes.SearchView)
+                                        where (searchEvent.Class & DSEDiagnosticLibrary.EventClasses.Config) != 0
+                                               && (searchEvent.Class & DSEDiagnosticLibrary.EventClasses.NodeDetection) != 0
+                                        select logEvent.Value;
+                   IEnumerable<DSEDiagnosticLibrary.IConfigurationLine> nodeConfigs = null;
 
-                    if(logConfigLines.HasAtLeastOneElement())
-                    {
-                        nodeConfigs = node.Configurations.Where(c => c.Source == DSEDiagnosticLibrary.SourceTypes.Yaml);
-                    }
+                   if (logConfigLines.HasAtLeastOneElement())
+                   {
+                       nodeConfigs = node.Configurations.Where(c => c.Source == DSEDiagnosticLibrary.SourceTypes.Yaml);
+                   }
 
-                    foreach (var logConfigLine in logConfigLines)
-                    {
-                        this.CancellationToken.ThrowIfCancellationRequested();
+                   foreach (var logConfigLine in logConfigLines)
+                   {
+                       this.CancellationToken.ThrowIfCancellationRequested();
 
-                        foreach(var logConfigItem in logConfigLine.LogProperties)
-                        {
-                            this.CancellationToken.ThrowIfCancellationRequested();
+                       foreach (var logConfigItem in logConfigLine.LogProperties)
+                       {
+                           this.CancellationToken.ThrowIfCancellationRequested();
 
-                            var currMatchItem = nodeConfigs.FirstOrDefault(c => c.PropertyName() == logConfigItem.Key);
-                            string currValue = null;
-                            string logConfigValue;
-                            bool matched = false;
+                           var currMatchItem = nodeConfigs.FirstOrDefault(c => c.PropertyName() == logConfigItem.Key);
+                           string currValue = null;
+                           string logConfigValue;
+                           bool matched = false;
 
-                            if(logConfigItem.Value is DSEDiagnosticLibrary.UnitOfMeasure)
-                            {
-                                logConfigValue  = DSEDiagnosticLibrary.StringHelpers.DetermineProperFormat(((DSEDiagnosticLibrary.UnitOfMeasure)logConfigItem.Value).Value.ToString());
-                            }
-                            else
-                            {
-                                logConfigValue = DSEDiagnosticLibrary.StringHelpers.DetermineProperFormat(logConfigItem.Value?.ToString());
-                            }
+                           if (logConfigItem.Value is DSEDiagnosticLibrary.UnitOfMeasure)
+                           {
+                               logConfigValue = DSEDiagnosticLibrary.StringHelpers.DetermineProperFormat(((DSEDiagnosticLibrary.UnitOfMeasure)logConfigItem.Value).Value.ToString());
+                           }
+                           else
+                           {
+                               logConfigValue = DSEDiagnosticLibrary.StringHelpers.DetermineProperFormat(logConfigItem.Value?.ToString());
+                           }
 
-                            if(string.IsNullOrEmpty(logConfigValue))
-                            {
-                                continue;
-                            }
+                           if (string.IsNullOrEmpty(logConfigValue))
+                           {
+                               continue;
+                           }
 
-                            if(currMatchItem != null)
-                            {
-                                currValue = currMatchItem.NormalizeValue();
-                                matched = currValue == logConfigValue;
-                            }
+                           if (currMatchItem != null)
+                           {
+                               currValue = currMatchItem.NormalizeValue();
+                               matched = currValue == logConfigValue;
+                           }
 
-                            if(!matched)
-                            {
-                                dataRow = this.Table.NewRow();
+                           if (!matched)
+                           {
+                               dataRow = this.Table.NewRow();
 
-                                if (this.SessionId.HasValue) dataRow.SetField(ColumnNames.SessionId, this.SessionId.Value);
+                               if (this.SessionId.HasValue) dataRow.SetField(ColumnNames.SessionId, this.SessionId.Value);
 
-                                dataRow.SetField(ColumnNames.DataCenter, node.DataCenter.Name);
-                                dataRow.SetField(ColumnNames.NodeIPAddress, node.Id.NodeName());
-                                dataRow.SetField("UTC Timestamp", logConfigLine.EventTime.UtcDateTime);
-                                dataRow.SetField("Log Local Timestamp", logConfigLine.EventTime.DateTime);
-                                dataRow.SetFieldToTZOffset("Log Time Zone Offset", logConfigLine.EventTime);
-                                dataRow.SetField("Type", logConfigLine.Source);
-                                dataRow.SetField("Property", currMatchItem?.Property ?? logConfigItem.Key);
-                                dataRow.SetField("Value", logConfigValue);
-                                dataRow.SetField("Current Value", currValue ?? "<Property Missing or Could not be Determined>");
+                               dataRow.SetField(ColumnNames.DataCenter, node.DataCenter.Name);
+                               dataRow.SetField(ColumnNames.NodeIPAddress, node.Id.NodeName());
+                               dataRow.SetField("UTC Timestamp", logConfigLine.EventTime.UtcDateTime);
+                               dataRow.SetField("Log Local Timestamp", logConfigLine.EventTime.DateTime);
+                               dataRow.SetFieldToTZOffset("Log Time Zone Offset", logConfigLine.EventTime);
+                               dataRow.SetField("Type", logConfigLine.Source);
+                               dataRow.SetField("Property", currMatchItem?.Property ?? logConfigItem.Key);
+                               dataRow.SetField("Value", logConfigValue);
+                               dataRow.SetField("Current Value", currValue ?? "<Property Missing or Could not be Determined>");
 
-                                this.Table.Rows.Add(dataRow);                                
-                            }
+                               this.Table.Rows.Add(dataRow);
+                           }
 
-                        }
-                        ++nbrItems;
-                    }
+                       }
+                       ++nbrItems;
+                   }
 
-                    Logger.Instance.InfoFormat("Node Configuration Change Processing for node \"{0}\" completed, Total Nbr Items {1:###,###,##0}", node.Id.NodeName(), nbrItems);
-                }
+                   Logger.Instance.InfoFormat("Node Configuration Change Processing for node \"{0}\" completed, Total Nbr Items {1:###,###,##0}", node.Id.NodeName(), nbrItems);
+                });
             }
             catch (OperationCanceledException)
             {
