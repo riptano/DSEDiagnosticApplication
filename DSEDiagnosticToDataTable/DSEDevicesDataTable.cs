@@ -96,8 +96,8 @@ namespace DSEDiagnosticToDataTable
                     this.Table.Rows.Add(dataRow);
                     ++nbrItems;
 
-                    var dataCount = node.DSE.Devices.Data.Count();
-                    var otherCount = node.DSE.Devices.Others.Count();
+                    var dataCount = node.DSE.Devices.Data?.Count() ?? 0;
+                    var otherCount = node.DSE.Devices.Others?.Count() ?? 0;
                     var maxItems = Math.Max(dataCount, otherCount);
 
                     for(int nIdx = 1; nIdx < maxItems; nIdx++)
