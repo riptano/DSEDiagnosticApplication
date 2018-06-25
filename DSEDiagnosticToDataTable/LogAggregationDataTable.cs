@@ -137,6 +137,8 @@ namespace DSEDiagnosticToDataTable
 
                     this.Cluster.Nodes.SelectMany(n => n.LogFiles).ForEach(logFile => logDateRange.SetMinMax(logFile.LogDateRange));
 
+                    if (logDateRange.IsEmpty()) return this.Table;
+
                     var beginAggDateTime = logDateRange.Min.UtcDateTime.RoundUp(this.AggregationPeriod) - this.AggregationPeriod;
                     var endingAggDateTime = logDateRange.Max.UtcDateTime.RoundUp(this.AggregationPeriod);
 
@@ -153,24 +155,30 @@ namespace DSEDiagnosticToDataTable
                 #region Aggregation Log Events
 
                 //Merge logs from all nodes and determine events used for aggregations
-                var logGrpEvts = from logMMV in this.Cluster.Nodes.SelectMany(n => n.LogEvents.AsParallel())
-                                 let logEvt = logMMV.GetValue((Common.Patterns.Collections.MemoryMapperElementCreationTypes)LogCassandraEvent.ElementCreationTypes.EventTypeOnly)
-                                 where (logEvt.Type & EventTypes.SingleInstance) != 0
-                                         || (logEvt.Type & EventTypes.SessionEnd) == EventTypes.SessionEnd
-                                         || (logEvt.Type & EventTypes.SessionDefinedByDuration) == EventTypes.SessionDefinedByDuration
-                                         || (logEvt.Type & EventTypes.AggregateData) == EventTypes.AggregateData
-                                         || ((logEvt.Type & EventTypes.SessionBegin) == EventTypes.SessionBegin && (logEvt.Class & EventClasses.Orphaned) == EventClasses.Orphaned)
-                                 let aggregationDateTime = aggPeriods.First(p => p.Includes(logEvt.EventTime.UtcDateTime))
-                                 let logEvent = logMMV.GetValue((Common.Patterns.Collections.MemoryMapperElementCreationTypes)LogCassandraEvent.ElementCreationTypes.AggregationPeriodOnlyWProps)                                 
-                                group logEvent by new DSEDiagnosticAnalytics.LogEventGroup(aggregationDateTime,
-                                                                                            logEvent)
+                var logGrpEvts = from logEvent in this.Cluster.Nodes.AsParallel().SelectMany(n => 
+                                                    (from logMMV in n.LogEvents
+                                                     let logEvt = logMMV.GetValue((Common.Patterns.Collections.MemoryMapperElementCreationTypes)LogCassandraEvent.ElementCreationTypes.EventTypeOnly)
+                                                     where (logEvt.Type & EventTypes.SingleInstance) != 0
+                                                             || (logEvt.Type & EventTypes.SessionEnd) == EventTypes.SessionEnd
+                                                             || (logEvt.Type & EventTypes.SessionDefinedByDuration) == EventTypes.SessionDefinedByDuration
+                                                             || (logEvt.Type & EventTypes.AggregateData) == EventTypes.AggregateData
+                                                             || ((logEvt.Type & EventTypes.SessionBegin) == EventTypes.SessionBegin && (logEvt.Class & EventClasses.Orphaned) == EventClasses.Orphaned)
+                                                     select new
+                                                     {
+                                                         AggregationDateTime = aggPeriods.First(p => p.Includes(logEvt.EventTime.UtcDateTime)),
+                                                         LogEvent = logMMV.GetValue((Common.Patterns.Collections.MemoryMapperElementCreationTypes)LogCassandraEvent.ElementCreationTypes.AggregationPeriodOnlyWProps)
+                                                     }))                                                                  
+                                group logEvent by new DSEDiagnosticAnalytics.LogEventGroup(logEvent.AggregationDateTime,
+                                                                                            logEvent.LogEvent)
                                         into g
+                                let grpEvents = g.Select(x => x.LogEvent).OrderBy(e => e.EventTime)
                                  select new { GroupKey = g.Key,
-                                                HasOrphaned = g.Any(e => (e.Class & EventClasses.Orphaned) == EventClasses.Orphaned),
-                                                LastEvent = g.OrderBy(e => e.EventTime).Last(),
-                                                FirstEvent = g.OrderBy(e => e.EventTime).First(),
+                                                HasOrphaned = grpEvents.Any(e => (e.Class & EventClasses.Orphaned) == EventClasses.Orphaned),
+                                                LastEvent = grpEvents.Last(),
+                                                FirstEvent = grpEvents.First(),
                                                 NbrOccurs = g.Count(),
-                                                AnalyticsGroupings = DSEDiagnosticAnalytics.LogEventGrouping.CreateLogEventGrouping(g.Key, g)};
+                                                AnalyticsGroupings = DSEDiagnosticAnalytics.LogEventGrouping.CreateLogEventGrouping(g.Key, grpEvents)
+                                 };
 
                 DataRow dataRow = null;
                 int nbrItems = 0;
