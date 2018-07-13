@@ -859,7 +859,7 @@ namespace DSEDiagnosticAnalytics
 
         public static IEnumerable<LogEventGrouping> CreateLogEventGrouping(LogEventGroup logEventGroup, IEnumerable<ILogEvent> assocatedLogEvents)
         {            
-            return assocatedLogEvents.GroupBy(i => i.AnalyticsGroup).AsParallel()
+            return assocatedLogEvents.GroupBy(i => i.AnalyticsGroup)
                         .Select(logEvtGrp =>
                         {
                             if (string.IsNullOrEmpty(logEvtGrp.Key))

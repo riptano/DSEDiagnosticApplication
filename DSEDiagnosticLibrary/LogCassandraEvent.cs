@@ -375,7 +375,8 @@ namespace DSEDiagnosticLibrary
             SessionTieOutIdOnly = 9,
             EventTypeOnly = 10,
             AggregationPeriodOnly = 11,
-            AggregationPeriodOnlyWProps = 12
+            AggregationPeriodOnlyWProps = 12,
+            AggregationPeriodOnlyWPropsTZ = 13
         }
         
         public LogCassandraEvent(MemoryMapper.ReadElement readView, MemoryMapperElementCreationTypes instanceType)
@@ -442,7 +443,9 @@ namespace DSEDiagnosticLibrary
                                                                                                                                                                                 .Find(f => f.ElementHashCode == e)));
             }
 
-            if (creationType == ElementCreationTypes.AggregationPeriodOnly || creationType == ElementCreationTypes.AggregationPeriodOnlyWProps)
+            if (creationType == ElementCreationTypes.AggregationPeriodOnly
+                    || creationType == ElementCreationTypes.AggregationPeriodOnlyWProps
+                    || creationType == ElementCreationTypes.AggregationPeriodOnlyWPropsTZ)
             {
                 this.Source = (SourceTypes)readView.GetIntValue();
                 this.Type = (EventTypes)readView.GetIntValue();
@@ -455,7 +458,13 @@ namespace DSEDiagnosticLibrary
                 readView.SkipUInt();
                 //IEvents members
                 this.SubClass = readView.GetStringValue().InternString();
-                readView.SkipString();
+                if(creationType == ElementCreationTypes.AggregationPeriodOnlyWPropsTZ)
+                {
+                    strValue = readView.GetStringValue();
+                    this.TimeZone = string.IsNullOrEmpty(strValue) ? null : Common.TimeZones.Find(strValue);
+                }
+                else                
+                    readView.SkipString();
                 this.EventTimeLocal = readView.GetStructValue<DateTime>();
                 this.EventTimeBegin = readView.GetNullableValue<DateTimeOffset>();
                 this.EventTimeEnd = readView.GetNullableValue<DateTimeOffset>();
@@ -463,7 +472,7 @@ namespace DSEDiagnosticLibrary
                 this.Product = (DSEInfo.InstanceTypes)readView.GetIntValue();
                 //Log Members
                 this.AnalyticsGroup = readView.GetStringValue().InternString();
-                if (creationType == ElementCreationTypes.AggregationPeriodOnlyWProps)
+                if (creationType == ElementCreationTypes.AggregationPeriodOnlyWProps || creationType == ElementCreationTypes.AggregationPeriodOnlyWPropsTZ)
                     this.LogProperties = readView.ReadMMElement(this.Cluster, this.DataCenter, this.Node, this.Keyspace);
                 else
                     readView.SkipMMElementKVPStrObj();

@@ -1048,6 +1048,23 @@ namespace DSEDiagnosticFileParser
                             }
                         }
                     }
+                    if (logProperties.ContainsKey("CHANNELID"))
+                    {
+                        var channelIds = logProperties["CHANNELID"];
+
+                        if (channelIds is IEnumerable<object>)
+                        {
+                            ((IEnumerable<object>)channelIds)                                
+                                .ForEach(ep => exceptDescription = exceptDescription.Replace(string.Format("0x{0:x8}", ep), "0X00"));
+                        }
+                        else
+                        {                            
+                            if (channelIds != null)
+                            {
+                                exceptDescription = exceptDescription.Replace(string.Format("0x{0:x8}", channelIds), "0X00");
+                            }
+                        }
+                    }
                 }
 
                 var clsPath = string.Format("{0}({1})", exceptClass ?? logMessage.Level.ToString(), exceptDescription ?? string.Empty);
@@ -2186,7 +2203,8 @@ namespace DSEDiagnosticFileParser
                                         return n.ToString();
                                     })
                                     .Where(n => !this.Node.Equals(n) && n != "127.0.0.1")
-                                    .Select(n => this.Cluster.TryGetNode(n))                                    
+                                    .Select(n => this.Cluster.TryGetNode(n))  
+                                    .Where(n => n != null)
                                     .DuplicatesRemoved(n => n);
                 }                
             }

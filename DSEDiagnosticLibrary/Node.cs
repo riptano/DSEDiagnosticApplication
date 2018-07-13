@@ -1049,6 +1049,8 @@ namespace DSEDiagnosticLibrary
         AnalyticsInfo Analytics { get; }
 
 		IEnumerable<IMMLogValue> LogEvents { get; }
+        IEnumerable<IMMLogValue> LogEventsCache(LogCassandraEvent.ElementCreationTypes creationType, bool presistCache = false);
+        
         INode AssociateItem(IMMLogValue eventItems);
         IMMLogValue AssociateItem(ILogEvent eventItems);
         IEnumerable<IAggregatedStats> AggregatedStats { get; }
@@ -1237,6 +1239,13 @@ namespace DSEDiagnosticLibrary
 
         [JsonIgnore]
         public IEnumerable<IMMLogValue> LogEvents { get { return this._eventsCMM?.ToEnumerable() ?? (IEnumerable<IMMLogValue>) this._eventsCTS; } }
+
+        public IEnumerable<IMMLogValue> LogEventsCache(LogCassandraEvent.ElementCreationTypes creationType, bool presistCache = false)
+        {
+            if(this._eventsCMM == null) return (IEnumerable<IMMLogValue>)this._eventsCTS;
+
+            return this._eventsCMM.ToEnumerableCached((Common.Patterns.Collections.MemoryMapperElementCreationTypes)creationType, presistCache);
+        }
 
         public INode AssociateItem(IMMLogValue eventItems)
         {

@@ -43,12 +43,24 @@ namespace DSEDiagnosticLog4NetParser
 
         void GenerateRegularGrammarElementInt(Dictionary<string, OutputField> elements, string pattern)
         {
-            foreach (PatternToken t in this.TokenizePattern(pattern))
+            var patternTokens = this.TokenizePattern(pattern);
+            var lstItem = patternTokens.LastOrDefault();
+            var lstIdx = patternTokens.Count() - 1;
+            int nIdx = 0;
+
+            if (lstItem.Value == "n" || lstItem.Value == "newline")
+            {
+                lstIdx -= 1;
+            }
+
+            foreach (PatternToken t in patternTokens)
             {
                 if (t.Type == PatternTokenType.Specifier)
-                    this.HandleSpecifier(t);
+                    this.HandleSpecifier(t, lstIdx == nIdx);
                 else
                     this.HandleText(t);
+
+                ++nIdx;
             }
             this.WriteRegularGrammarElement(elements);
         }
@@ -332,7 +344,7 @@ namespace DSEDiagnosticLog4NetParser
             }
         }
 
-        void HandleSpecifier(PatternToken t)
+        void HandleSpecifier(PatternToken t, bool lastToken)
         {
             string captureName;
             string re;
@@ -345,7 +357,7 @@ namespace DSEDiagnosticLog4NetParser
                 case "a":
                 case "appdomain":
                     captureName = "AppDomain";
-                    re = @".*";
+                    re = lastToken ? @".*" : @".*?";
                     break;
                 case "c":
                 case "logger":
@@ -356,7 +368,7 @@ namespace DSEDiagnosticLog4NetParser
                 case "class":
                 case "type":
                     captureName = "Class";
-                    re = @".*"; // * because caller location might not be accessible
+                    re = lastToken ? @".*" : @".*?"; // * because caller location might not be accessible
                     break;
                 case "d":
                 case "date":
@@ -393,13 +405,13 @@ namespace DSEDiagnosticLog4NetParser
                     break;
                 case "exception":
                     captureName = "Exception";
-                    re = @".*";
+                    re = lastToken ? @".*" : @".*?";
                     break;
                 case "file":
                 case "F":
                     captureName = "File";
                     // insert " with Format() because otherwise I would have to remove @ and escape the re heavily
-                    re = string.Format(@"[^\*\?\{0}\<\>\|]*", '"'); // [...]* because caller location might not be accessible
+                    re = string.Format(@"[^\*\?\{0}\<\>\|]*{1}", '"', lastToken ? string.Empty : "?"); // [...]* because caller location might not be accessible
                     break;
                 case "identity":
                 case "u":
@@ -409,7 +421,7 @@ namespace DSEDiagnosticLog4NetParser
                 case "location":
                 case "l":
                     captureName = "Location";
-                    re = @".*"; // * because caller location might not be accessible
+                    re = lastToken ? @".*" : @".*?"; // * because caller location might not be accessible
                     break;
                 case "line":
                 case "L":
@@ -427,12 +439,12 @@ namespace DSEDiagnosticLog4NetParser
                 case "msg":
                 case "m":
                     captureName = "Message";
-                    re = ".*";
+                    re = lastToken ? ".*" : ".*?";
                     break;
                 case "method":
                 case "M":
                     captureName = "Method";
-                    re = ".*";
+                    re = lastToken ? ".*" : ".*?";
                     break;
                 case "mdc":
                 case "property":
@@ -440,7 +452,7 @@ namespace DSEDiagnosticLog4NetParser
                 case "X":
                 case "properties":
                     captureName = "Prop";
-                    re = ".*";
+                    re = lastToken ? ".*" : ".*?";
                     break;
                 case "r":
                 case "timestamp":
@@ -452,7 +464,7 @@ namespace DSEDiagnosticLog4NetParser
                 case "thread":
                 case "t":
                     captureName = "Thread";
-                    re = ".+";
+                    re = lastToken ? ".+" : ".+?";
                     break;
                 case "username":
                 case "w":
@@ -462,7 +474,7 @@ namespace DSEDiagnosticLog4NetParser
                 case "x":
                 case "ndc":
                     captureName = "NDC";
-                    re = @".+";
+                    re = lastToken ? @".+" : @".+?";
                     break;
                 default:
                     return;

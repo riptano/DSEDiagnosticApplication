@@ -798,6 +798,44 @@ CREATE TABLE system.batchlog (
     AND min_index_interval = 128
     AND read_repair_chance = 0.0
     AND speculative_retry = '99.0PERCENTILE';
+    
+CREATE TABLE system.batches (
+    id uuid PRIMARY KEY,
+    mutations blob,
+    version int
+) WITH bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = 'log batches'
+    AND compaction = {'min_threshold': '2', 'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.0
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 0
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 3600000
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+
+CREATE TABLE system.prepared_statements (
+   keyspace_name text,
+   table_name text,
+   prepared_id blob,
+   query_string text,
+   PRIMARY KEY (keyspace_name, table_name, prepared_id)
+   ) WITH bloom_filter_fp_chance = 0.01
+	AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+	AND comment = 'prepared statements'
+	AND compaction = {'min_threshold': '2', 'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+	AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+	AND dclocal_read_repair_chance = 0.0
+	AND default_time_to_live = 0
+	AND gc_grace_seconds = 0
+	AND max_index_interval = 2048
+	AND memtable_flush_period_in_ms = 3600000
+	AND min_index_interval = 128
+	AND read_repair_chance = 0.0
+	AND speculative_retry = '99.0PERCENTILE';
 
 CREATE TABLE system.size_estimates (
     keyspace_name text,
@@ -966,6 +1004,8 @@ CREATE TABLE system.hints (
     AND min_index_interval = 128
     AND read_repair_chance = 0.0
     AND speculative_retry = '99.0PERCENTILE';
+
+
 
 CREATE KEYSPACE dse_leases WITH replication = {'class': 'EverywhereStrategy'} AND durable_writes = true AND PreLoaded = true;
 
@@ -1669,7 +1709,7 @@ CREATE TABLE "OpsCenter".rollups300 (
       <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="LogExceptionRegExMatches" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">(?:/(?&lt;NODE&gt;[^  \]}),]+))|(?:consistency\s+level\s+(?&lt;consistencylevel&gt;[a-z\-_]+))|(?:timeout\:?\s+(?&lt;timeout&gt;[0-9,.\-]+))|(?:sstable\s*(?&lt;SSTABLEPATH&gt;[a-z0-9\-_@#/.,\\ +%]+)[\]})]?)|(?:executing\s+query\s+(?&lt;cql&gt;.+)|(?:(?:\s+|\#)(?&lt;ID&gt;[0-9a-f]{8}\-[0-9a-f]{4}\-[0-9a-f]{4}\-[0-9a-f]{4}\-[0-9a-f]{12})(?:\s|\]))|(?:\s?(?&lt;TOKENRANGE&gt;\(\-?[0-9]+\,\-?[0-9]+\])\,?))</Value>
+      <Value Profile="(Default)">(?:/(?&lt;NODE&gt;[^  \]}),]+))|(?:consistency\s+level\s+(?&lt;consistencylevel&gt;[a-z\-_]+))|(?:timeout\:?\s+(?&lt;timeout&gt;[0-9,.\-]+))|(?:sstable\s*(?&lt;SSTABLEPATH&gt;[a-z0-9\-_@#/.,\\ +%]+)[\]})]?)|(?:executing\s+query\s+(?&lt;cql&gt;.+)|(?:(?:\s+|\#)(?&lt;ID&gt;[0-9a-f]{8}\-[0-9a-f]{4}\-[0-9a-f]{4}\-[0-9a-f]{4}\-[0-9a-f]{12})(?:\s|\]))|(?:\s?(?&lt;TOKENRANGE&gt;\(\-?[0-9]+\,\-?[0-9]+\])\,?)|(?:id\:\s+(?&lt;CHANNELID&gt;0x[0-9a-f]+)))</Value>
     </Setting>
     <Setting Name="DefaultLogLevelHandling" Type="System.String" Scope="Application">
       <Value Profile="(Default)">Warning, Error, Fatal, Exception</Value>

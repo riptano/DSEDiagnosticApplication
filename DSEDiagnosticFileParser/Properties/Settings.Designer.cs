@@ -553,345 +553,447 @@ public static class {0}
             "me_to_live = 0\r\n    AND gc_grace_seconds = 0\r\n    AND max_index_interval = 2048\r" +
             "\n    AND memtable_flush_period_in_ms = 3600000\r\n    AND min_index_interval = 128" +
             "\r\n    AND read_repair_chance = 0.0\r\n    AND speculative_retry = \'99.0PERCENTILE\'" +
-            ";\r\n\r\nCREATE TABLE system.size_estimates (\r\n    keyspace_name text,\r\n    table_na" +
-            "me text,\r\n    range_start text,\r\n    range_end text,\r\n    mean_partition_size bi" +
-            "gint,\r\n    partitions_count bigint,\r\n    PRIMARY KEY (keyspace_name, table_name," +
-            " range_start, range_end)\r\n) WITH CLUSTERING ORDER BY (table_name ASC, range_star" +
-            "t ASC, range_end ASC)\r\n    AND bloom_filter_fp_chance = 0.01\r\n    AND caching = " +
-            "\'{\"keys\":\"ALL\", \"rows_per_partition\":\"NONE\"}\'\r\n    AND comment = \'per-table prim" +
-            "ary range size estimates\'\r\n    AND compaction = {\'class\': \'org.apache.cassandra." +
-            "db.compaction.SizeTieredCompactionStrategy\'}\r\n    AND compression = {\'sstable_co" +
-            "mpression\': \'org.apache.cassandra.io.compress.LZ4Compressor\'}\r\n    AND dclocal_r" +
-            "ead_repair_chance = 0.0\r\n    AND default_time_to_live = 0\r\n    AND gc_grace_seco" +
-            "nds = 0\r\n    AND max_index_interval = 2048\r\n    AND memtable_flush_period_in_ms " +
-            "= 3600000\r\n    AND min_index_interval = 128\r\n    AND read_repair_chance = 0.0\r\n " +
-            "   AND speculative_retry = \'99.0PERCENTILE\';\r\n\r\nCREATE TABLE system.compaction_h" +
-            "istory (\r\n    id uuid PRIMARY KEY,\r\n    bytes_in bigint,\r\n    bytes_out bigint,\r" +
-            "\n    columnfamily_name text,\r\n    compacted_at timestamp,\r\n    keyspace_name tex" +
-            "t,\r\n    rows_merged map<int, bigint>\r\n) WITH bloom_filter_fp_chance = 0.01\r\n    " +
-            "AND caching = \'{\"keys\":\"ALL\", \"rows_per_partition\":\"NONE\"}\'\r\n    AND comment = \'" +
-            "show all compaction history\'\r\n    AND compaction = {\'class\': \'org.apache.cassand" +
-            "ra.db.compaction.SizeTieredCompactionStrategy\'}\r\n    AND compression = {\'sstable" +
-            "_compression\': \'org.apache.cassandra.io.compress.LZ4Compressor\'}\r\n    AND dcloca" +
-            "l_read_repair_chance = 0.0\r\n    AND default_time_to_live = 604800\r\n    AND gc_gr" +
-            "ace_seconds = 0\r\n    AND max_index_interval = 2048\r\n    AND memtable_flush_perio" +
-            "d_in_ms = 3600000\r\n    AND min_index_interval = 128\r\n    AND read_repair_chance " +
-            "= 0.0\r\n    AND speculative_retry = \'99.0PERCENTILE\';\r\n\r\nCREATE TABLE system.comp" +
-            "actions_in_progress (\r\n    id uuid PRIMARY KEY,\r\n    columnfamily_name text,\r\n  " +
-            "  inputs set<int>,\r\n    keyspace_name text\r\n) WITH bloom_filter_fp_chance = 0.01" +
-            "\r\n    AND caching = \'{\"keys\":\"ALL\", \"rows_per_partition\":\"NONE\"}\'\r\n    AND comme" +
-            "nt = \'unfinished compactions\'\r\n    AND compaction = {\'class\': \'org.apache.cassan" +
+            ";\r\n    \r\nCREATE TABLE system.batches (\r\n    id uuid PRIMARY KEY,\r\n    mutations " +
+            "blob,\r\n    version int\r\n) WITH bloom_filter_fp_chance = 0.01\r\n    AND caching = " +
+            "\'{\"keys\":\"ALL\", \"rows_per_partition\":\"NONE\"}\'\r\n    AND comment = \'log batches\'\r\n" +
+            "    AND compaction = {\'min_threshold\': \'2\', \'class\': \'org.apache.cassandra.db.co" +
+            "mpaction.SizeTieredCompactionStrategy\'}\r\n    AND compression = {\'sstable_compres" +
+            "sion\': \'org.apache.cassandra.io.compress.LZ4Compressor\'}\r\n    AND dclocal_read_r" +
+            "epair_chance = 0.0\r\n    AND default_time_to_live = 0\r\n    AND gc_grace_seconds =" +
+            " 0\r\n    AND max_index_interval = 2048\r\n    AND memtable_flush_period_in_ms = 360" +
+            "0000\r\n    AND min_index_interval = 128\r\n    AND read_repair_chance = 0.0\r\n    AN" +
+            "D speculative_retry = \'99.0PERCENTILE\';\r\n\r\nCREATE TABLE system.prepared_statemen" +
+            "ts (\r\n   keyspace_name text,\r\n   table_name text,\r\n   prepared_id blob,\r\n   quer" +
+            "y_string text,\r\n   PRIMARY KEY (keyspace_name, table_name, prepared_id)\r\n   ) WI" +
+            "TH bloom_filter_fp_chance = 0.01\r\n\tAND caching = \'{\"keys\":\"ALL\", \"rows_per_parti" +
+            "tion\":\"NONE\"}\'\r\n\tAND comment = \'prepared statements\'\r\n\tAND compaction = {\'min_th" +
+            "reshold\': \'2\', \'class\': \'org.apache.cassandra.db.compaction.SizeTieredCompaction" +
+            "Strategy\'}\r\n\tAND compression = {\'sstable_compression\': \'org.apache.cassandra.io." +
+            "compress.LZ4Compressor\'}\r\n\tAND dclocal_read_repair_chance = 0.0\r\n\tAND default_ti" +
+            "me_to_live = 0\r\n\tAND gc_grace_seconds = 0\r\n\tAND max_index_interval = 2048\r\n\tAND " +
+            "memtable_flush_period_in_ms = 3600000\r\n\tAND min_index_interval = 128\r\n\tAND read_" +
+            "repair_chance = 0.0\r\n\tAND speculative_retry = \'99.0PERCENTILE\';\r\n\r\nCREATE TABLE " +
+            "system.size_estimates (\r\n    keyspace_name text,\r\n    table_name text,\r\n    rang" +
+            "e_start text,\r\n    range_end text,\r\n    mean_partition_size bigint,\r\n    partiti" +
+            "ons_count bigint,\r\n    PRIMARY KEY (keyspace_name, table_name, range_start, rang" +
+            "e_end)\r\n) WITH CLUSTERING ORDER BY (table_name ASC, range_start ASC, range_end A" +
+            "SC)\r\n    AND bloom_filter_fp_chance = 0.01\r\n    AND caching = \'{\"keys\":\"ALL\", \"r" +
+            "ows_per_partition\":\"NONE\"}\'\r\n    AND comment = \'per-table primary range size est" +
+            "imates\'\r\n    AND compaction = {\'class\': \'org.apache.cassandra.db.compaction.Size" +
+            "TieredCompactionStrategy\'}\r\n    AND compression = {\'sstable_compression\': \'org.a" +
+            "pache.cassandra.io.compress.LZ4Compressor\'}\r\n    AND dclocal_read_repair_chance " +
+            "= 0.0\r\n    AND default_time_to_live = 0\r\n    AND gc_grace_seconds = 0\r\n    AND m" +
+            "ax_index_interval = 2048\r\n    AND memtable_flush_period_in_ms = 3600000\r\n    AND" +
+            " min_index_interval = 128\r\n    AND read_repair_chance = 0.0\r\n    AND speculative" +
+            "_retry = \'99.0PERCENTILE\';\r\n\r\nCREATE TABLE system.compaction_history (\r\n    id u" +
+            "uid PRIMARY KEY,\r\n    bytes_in bigint,\r\n    bytes_out bigint,\r\n    columnfamily_" +
+            "name text,\r\n    compacted_at timestamp,\r\n    keyspace_name text,\r\n    rows_merge" +
+            "d map<int, bigint>\r\n) WITH bloom_filter_fp_chance = 0.01\r\n    AND caching = \'{\"k" +
+            "eys\":\"ALL\", \"rows_per_partition\":\"NONE\"}\'\r\n    AND comment = \'show all compactio" +
+            "n history\'\r\n    AND compaction = {\'class\': \'org.apache.cassandra.db.compaction.S" +
+            "izeTieredCompactionStrategy\'}\r\n    AND compression = {\'sstable_compression\': \'or" +
+            "g.apache.cassandra.io.compress.LZ4Compressor\'}\r\n    AND dclocal_read_repair_chan" +
+            "ce = 0.0\r\n    AND default_time_to_live = 604800\r\n    AND gc_grace_seconds = 0\r\n " +
+            "   AND max_index_interval = 2048\r\n    AND memtable_flush_period_in_ms = 3600000\r" +
+            "\n    AND min_index_interval = 128\r\n    AND read_repair_chance = 0.0\r\n    AND spe" +
+            "culative_retry = \'99.0PERCENTILE\';\r\n\r\nCREATE TABLE system.compactions_in_progres" +
+            "s (\r\n    id uuid PRIMARY KEY,\r\n    columnfamily_name text,\r\n    inputs set<int>," +
+            "\r\n    keyspace_name text\r\n) WITH bloom_filter_fp_chance = 0.01\r\n    AND caching " +
+            "= \'{\"keys\":\"ALL\", \"rows_per_partition\":\"NONE\"}\'\r\n    AND comment = \'unfinished c" +
+            "ompactions\'\r\n    AND compaction = {\'class\': \'org.apache.cassandra.db.compaction." +
+            "SizeTieredCompactionStrategy\'}\r\n    AND compression = {\'sstable_compression\': \'o" +
+            "rg.apache.cassandra.io.compress.LZ4Compressor\'}\r\n    AND dclocal_read_repair_cha" +
+            "nce = 0.0\r\n    AND default_time_to_live = 0\r\n    AND gc_grace_seconds = 0\r\n    A" +
+            "ND max_index_interval = 2048\r\n    AND memtable_flush_period_in_ms = 3600000\r\n   " +
+            " AND min_index_interval = 128\r\n    AND read_repair_chance = 0.0\r\n    AND specula" +
+            "tive_retry = \'99.0PERCENTILE\';\r\n\r\nCREATE TABLE system.schema_columnfamilies (\r\n " +
+            "   keyspace_name text,\r\n    columnfamily_name text,\r\n    bloom_filter_fp_chance " +
+            "double,\r\n    caching text,\r\n    cf_id uuid,\r\n    column_aliases text,\r\n    comme" +
+            "nt text,\r\n    compaction_strategy_class text,\r\n    compaction_strategy_options t" +
+            "ext,\r\n    comparator text,\r\n    compression_parameters text,\r\n    default_time_t" +
+            "o_live int,\r\n    default_validator text,\r\n    dropped_columns map<text, bigint>," +
+            "\r\n    gc_grace_seconds int,\r\n    index_interval int,\r\n    is_dense boolean,\r\n   " +
+            " key_aliases text,\r\n    key_validator text,\r\n    local_read_repair_chance double" +
+            ",\r\n    max_compaction_threshold int,\r\n    max_index_interval int,\r\n    memtable_" +
+            "flush_period_in_ms int,\r\n    min_compaction_threshold int,\r\n    min_index_interv" +
+            "al int,\r\n    read_repair_chance double,\r\n    speculative_retry text,\r\n    subcom" +
+            "parator text,\r\n    type text,\r\n    value_alias text,\r\n    PRIMARY KEY (keyspace_" +
+            "name, columnfamily_name)\r\n) WITH CLUSTERING ORDER BY (columnfamily_name ASC)\r\n  " +
+            "  AND bloom_filter_fp_chance = 0.01\r\n    AND caching = \'{\"keys\":\"ALL\", \"rows_per" +
+            "_partition\":\"NONE\"}\'\r\n    AND comment = \'ColumnFamily definitions\'\r\n    AND comp" +
+            "action = {\'class\': \'org.apache.cassandra.db.compaction.SizeTieredCompactionStrat" +
+            "egy\'}\r\n    AND compression = {\'sstable_compression\': \'org.apache.cassandra.io.co" +
+            "mpress.LZ4Compressor\'}\r\n    AND dclocal_read_repair_chance = 0.0\r\n    AND defaul" +
+            "t_time_to_live = 0\r\n    AND gc_grace_seconds = 604800\r\n    AND max_index_interva" +
+            "l = 2048\r\n    AND memtable_flush_period_in_ms = 3600000\r\n    AND min_index_inter" +
+            "val = 128\r\n    AND read_repair_chance = 0.0\r\n    AND speculative_retry = \'99.0PE" +
+            "RCENTILE\';\r\n\r\nCREATE TABLE system.local (\r\n    key text PRIMARY KEY,\r\n    bootst" +
+            "rapped text,\r\n    broadcast_address inet,\r\n    cluster_name text,\r\n    cql_versi" +
+            "on text,\r\n    data_center text,\r\n    dse_version text,\r\n    gossip_generation in" +
+            "t,\r\n    host_id uuid,\r\n    listen_address inet,\r\n    native_protocol_version tex" +
+            "t,\r\n    partitioner text,\r\n    rack text,\r\n    release_version text,\r\n    rpc_ad" +
+            "dress inet,\r\n    schema_version uuid,\r\n    thrift_version text,\r\n    tokens set<" +
+            "text>,\r\n    truncated_at map<uuid, blob>,\r\n    workload text\r\n) WITH bloom_filte" +
+            "r_fp_chance = 0.01\r\n    AND caching = \'{\"keys\":\"ALL\", \"rows_per_partition\":\"NONE" +
+            "\"}\'\r\n    AND comment = \'information about the local node\'\r\n    AND compaction = " +
+            "{\'class\': \'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy\'}\r\n  " +
+            "  AND compression = {\'sstable_compression\': \'org.apache.cassandra.io.compress.LZ" +
+            "4Compressor\'}\r\n    AND dclocal_read_repair_chance = 0.0\r\n    AND default_time_to" +
+            "_live = 0\r\n    AND gc_grace_seconds = 0\r\n    AND max_index_interval = 2048\r\n    " +
+            "AND memtable_flush_period_in_ms = 3600000\r\n    AND min_index_interval = 128\r\n   " +
+            " AND read_repair_chance = 0.0\r\n    AND speculative_retry = \'99.0PERCENTILE\';\r\n\r\n" +
+            "CREATE TABLE system.hints (\r\n    target_id uuid,\r\n    hint_id timeuuid,\r\n    mes" +
+            "sage_version int,\r\n    mutation blob,\r\n    PRIMARY KEY (target_id, hint_id, mess" +
+            "age_version)\r\n) WITH COMPACT STORAGE\r\n    AND CLUSTERING ORDER BY (hint_id ASC, " +
+            "message_version ASC)\r\n    AND bloom_filter_fp_chance = 0.01\r\n    AND caching = \'" +
+            "{\"keys\":\"ALL\", \"rows_per_partition\":\"NONE\"}\'\r\n    AND comment = \'hints awaiting " +
+            "delivery\'\r\n    AND compaction = {\'enabled\': \'false\', \'class\': \'org.apache.cassan" +
             "dra.db.compaction.SizeTieredCompactionStrategy\'}\r\n    AND compression = {\'sstabl" +
             "e_compression\': \'org.apache.cassandra.io.compress.LZ4Compressor\'}\r\n    AND dcloc" +
             "al_read_repair_chance = 0.0\r\n    AND default_time_to_live = 0\r\n    AND gc_grace_" +
             "seconds = 0\r\n    AND max_index_interval = 2048\r\n    AND memtable_flush_period_in" +
             "_ms = 3600000\r\n    AND min_index_interval = 128\r\n    AND read_repair_chance = 0." +
-            "0\r\n    AND speculative_retry = \'99.0PERCENTILE\';\r\n\r\nCREATE TABLE system.schema_c" +
-            "olumnfamilies (\r\n    keyspace_name text,\r\n    columnfamily_name text,\r\n    bloom" +
-            "_filter_fp_chance double,\r\n    caching text,\r\n    cf_id uuid,\r\n    column_aliase" +
-            "s text,\r\n    comment text,\r\n    compaction_strategy_class text,\r\n    compaction_" +
-            "strategy_options text,\r\n    comparator text,\r\n    compression_parameters text,\r\n" +
-            "    default_time_to_live int,\r\n    default_validator text,\r\n    dropped_columns " +
-            "map<text, bigint>,\r\n    gc_grace_seconds int,\r\n    index_interval int,\r\n    is_d" +
-            "ense boolean,\r\n    key_aliases text,\r\n    key_validator text,\r\n    local_read_re" +
-            "pair_chance double,\r\n    max_compaction_threshold int,\r\n    max_index_interval i" +
-            "nt,\r\n    memtable_flush_period_in_ms int,\r\n    min_compaction_threshold int,\r\n  " +
-            "  min_index_interval int,\r\n    read_repair_chance double,\r\n    speculative_retry" +
-            " text,\r\n    subcomparator text,\r\n    type text,\r\n    value_alias text,\r\n    PRIM" +
-            "ARY KEY (keyspace_name, columnfamily_name)\r\n) WITH CLUSTERING ORDER BY (columnfa" +
-            "mily_name ASC)\r\n    AND bloom_filter_fp_chance = 0.01\r\n    AND caching = \'{\"keys" +
-            "\":\"ALL\", \"rows_per_partition\":\"NONE\"}\'\r\n    AND comment = \'ColumnFamily definiti" +
-            "ons\'\r\n    AND compaction = {\'class\': \'org.apache.cassandra.db.compaction.SizeTie" +
-            "redCompactionStrategy\'}\r\n    AND compression = {\'sstable_compression\': \'org.apac" +
-            "he.cassandra.io.compress.LZ4Compressor\'}\r\n    AND dclocal_read_repair_chance = 0" +
-            ".0\r\n    AND default_time_to_live = 0\r\n    AND gc_grace_seconds = 604800\r\n    AND" +
-            " max_index_interval = 2048\r\n    AND memtable_flush_period_in_ms = 3600000\r\n    A" +
-            "ND min_index_interval = 128\r\n    AND read_repair_chance = 0.0\r\n    AND speculati" +
-            "ve_retry = \'99.0PERCENTILE\';\r\n\r\nCREATE TABLE system.local (\r\n    key text PRIMAR" +
-            "Y KEY,\r\n    bootstrapped text,\r\n    broadcast_address inet,\r\n    cluster_name te" +
-            "xt,\r\n    cql_version text,\r\n    data_center text,\r\n    dse_version text,\r\n    go" +
-            "ssip_generation int,\r\n    host_id uuid,\r\n    listen_address inet,\r\n    native_pr" +
-            "otocol_version text,\r\n    partitioner text,\r\n    rack text,\r\n    release_version" +
-            " text,\r\n    rpc_address inet,\r\n    schema_version uuid,\r\n    thrift_version text" +
-            ",\r\n    tokens set<text>,\r\n    truncated_at map<uuid, blob>,\r\n    workload text\r\n" +
-            ") WITH bloom_filter_fp_chance = 0.01\r\n    AND caching = \'{\"keys\":\"ALL\", \"rows_pe" +
-            "r_partition\":\"NONE\"}\'\r\n    AND comment = \'information about the local node\'\r\n   " +
-            " AND compaction = {\'class\': \'org.apache.cassandra.db.compaction.SizeTieredCompac" +
-            "tionStrategy\'}\r\n    AND compression = {\'sstable_compression\': \'org.apache.cassan" +
-            "dra.io.compress.LZ4Compressor\'}\r\n    AND dclocal_read_repair_chance = 0.0\r\n    A" +
-            "ND default_time_to_live = 0\r\n    AND gc_grace_seconds = 0\r\n    AND max_index_int" +
-            "erval = 2048\r\n    AND memtable_flush_period_in_ms = 3600000\r\n    AND min_index_i" +
-            "nterval = 128\r\n    AND read_repair_chance = 0.0\r\n    AND speculative_retry = \'99" +
-            ".0PERCENTILE\';\r\n\r\nCREATE TABLE system.hints (\r\n    target_id uuid,\r\n    hint_id " +
-            "timeuuid,\r\n    message_version int,\r\n    mutation blob,\r\n    PRIMARY KEY (target" +
-            "_id, hint_id, message_version)\r\n) WITH COMPACT STORAGE\r\n    AND CLUSTERING ORDER" +
-            " BY (hint_id ASC, message_version ASC)\r\n    AND bloom_filter_fp_chance = 0.01\r\n " +
-            "   AND caching = \'{\"keys\":\"ALL\", \"rows_per_partition\":\"NONE\"}\'\r\n    AND comment " +
-            "= \'hints awaiting delivery\'\r\n    AND compaction = {\'enabled\': \'false\', \'class\': " +
-            "\'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy\'}\r\n    AND comp" +
-            "ression = {\'sstable_compression\': \'org.apache.cassandra.io.compress.LZ4Compresso" +
-            "r\'}\r\n    AND dclocal_read_repair_chance = 0.0\r\n    AND default_time_to_live = 0\r" +
-            "\n    AND gc_grace_seconds = 0\r\n    AND max_index_interval = 2048\r\n    AND memtab" +
-            "le_flush_period_in_ms = 3600000\r\n    AND min_index_interval = 128\r\n    AND read_" +
-            "repair_chance = 0.0\r\n    AND speculative_retry = \'99.0PERCENTILE\';\r\n\r\nCREATE KEY" +
-            "SPACE dse_leases WITH replication = {\'class\': \'EverywhereStrategy\'} AND durable_" +
-            "writes = true AND PreLoaded = true;\r\n\r\nCREATE TABLE dse_leases.leases (\r\n    nam" +
-            "e text,\r\n    dc text,\r\n    duration_ms int,\r\n    epoch bigint,\r\n    holder inet," +
-            "\r\n    PRIMARY KEY ((name, dc))\r\n) WITH bloom_filter_fp_chance = 0.01\r\n    AND ca" +
-            "ching = {\'keys\': \'ALL\', \'rows_per_partition\': \'NONE\'}\r\n    AND comment = \'DSE Le" +
-            "ase coordination\'\r\n    AND compaction = {\'class\': \'org.apache.cassandra.db.compa" +
+            "0\r\n    AND speculative_retry = \'99.0PERCENTILE\';\r\n\r\n\r\n\r\nCREATE KEYSPACE dse_leas" +
+            "es WITH replication = {\'class\': \'EverywhereStrategy\'} AND durable_writes = true " +
+            "AND PreLoaded = true;\r\n\r\nCREATE TABLE dse_leases.leases (\r\n    name text,\r\n    d" +
+            "c text,\r\n    duration_ms int,\r\n    epoch bigint,\r\n    holder inet,\r\n    PRIMARY " +
+            "KEY ((name, dc))\r\n) WITH bloom_filter_fp_chance = 0.01\r\n    AND caching = {\'keys" +
+            "\': \'ALL\', \'rows_per_partition\': \'NONE\'}\r\n    AND comment = \'DSE Lease coordinati" +
+            "on\'\r\n    AND compaction = {\'class\': \'org.apache.cassandra.db.compaction.SizeTier" +
+            "edCompactionStrategy\', \'max_threshold\': \'32\', \'min_threshold\': \'4\'}\r\n    AND com" +
+            "pression = {\'chunk_length_in_kb\': \'64\', \'class\': \'org.apache.cassandra.io.compre" +
+            "ss.LZ4Compressor\'}\r\n    AND crc_check_chance = 1.0\r\n    AND dclocal_read_repair_" +
+            "chance = 0.0\r\n    AND default_time_to_live = 0\r\n    AND gc_grace_seconds = 0\r\n  " +
+            "  AND max_index_interval = 2048\r\n    AND memtable_flush_period_in_ms = 3600000\r\n" +
+            "    AND min_index_interval = 128\r\n    AND read_repair_chance = 0.0\r\n    AND spec" +
+            "ulative_retry = \'99PERCENTILE\';\r\n\r\nCREATE TABLE dse_leases.logs (\r\n    name text" +
+            ",\r\n    dc text,\r\n    monitor inet,\r\n    at timestamp,\r\n    new_holder inet,\r\n   " +
+            " old_holder inet,\r\n    PRIMARY KEY ((name, dc), monitor, at)\r\n) WITH CLUSTERING " +
+            "ORDER BY (monitor ASC, at ASC)\r\n    AND bloom_filter_fp_chance = 0.01\r\n    AND c" +
+            "aching = {\'keys\': \'ALL\', \'rows_per_partition\': \'NONE\'}\r\n    AND comment = \'DSE L" +
+            "ease history\'\r\n    AND compaction = {\'class\': \'org.apache.cassandra.db.compactio" +
+            "n.SizeTieredCompactionStrategy\', \'max_threshold\': \'32\', \'min_threshold\': \'4\'}\r\n " +
+            "   AND compression = {\'chunk_length_in_kb\': \'64\', \'class\': \'org.apache.cassandra" +
+            ".io.compress.LZ4Compressor\'}\r\n    AND crc_check_chance = 1.0\r\n    AND dclocal_re" +
+            "ad_repair_chance = 0.0\r\n    AND default_time_to_live = 0\r\n    AND gc_grace_secon" +
+            "ds = 0\r\n    AND max_index_interval = 2048\r\n    AND memtable_flush_period_in_ms =" +
+            " 3600000\r\n    AND min_index_interval = 128\r\n    AND read_repair_chance = 0.0\r\n  " +
+            "  AND speculative_retry = \'99PERCENTILE\';\r\n\r\nCREATE KEYSPACE system_distributed " +
+            "WITH replication = {\'class\': \'EverywhereStrategy\'} AND durable_writes = true AND" +
+            " PreLoaded = true;\r\n\r\nCREATE TABLE system_distributed.repair_history (\r\n    keys" +
+            "pace_name text,\r\n    columnfamily_name text,\r\n    id timeuuid,\r\n    coordinator " +
+            "inet,\r\n    exception_message text,\r\n    exception_stacktrace text,\r\n    finished" +
+            "_at timestamp,\r\n    parent_id timeuuid,\r\n    participants set<inet>,\r\n    range_" +
+            "begin text,\r\n    range_end text,\r\n    started_at timestamp,\r\n    status text,\r\n " +
+            "   PRIMARY KEY ((keyspace_name, columnfamily_name), id)\r\n) WITH CLUSTERING ORDER" +
+            " BY (id ASC)\r\n    AND bloom_filter_fp_chance = 0.01\r\n    AND caching = {\'keys\': " +
+            "\'ALL\', \'rows_per_partition\': \'NONE\'}\r\n    AND comment = \'Repair history\'\r\n    AN" +
+            "D compaction = {\'class\': \'org.apache.cassandra.db.compaction.SizeTieredCompactio" +
+            "nStrategy\', \'max_threshold\': \'32\', \'min_threshold\': \'4\'}\r\n    AND compression = " +
+            "{\'chunk_length_in_kb\': \'64\', \'class\': \'org.apache.cassandra.io.compress.LZ4Compr" +
+            "essor\'}\r\n    AND crc_check_chance = 1.0\r\n    AND dclocal_read_repair_chance = 0." +
+            "0\r\n    AND default_time_to_live = 0\r\n    AND gc_grace_seconds = 0\r\n    AND max_i" +
+            "ndex_interval = 2048\r\n    AND memtable_flush_period_in_ms = 3600000\r\n    AND min" +
+            "_index_interval = 128\r\n    AND read_repair_chance = 0.0\r\n    AND speculative_ret" +
+            "ry = \'99PERCENTILE\';\r\n\r\nCREATE TABLE system_distributed.parent_repair_history (\r" +
+            "\n    parent_id timeuuid PRIMARY KEY,\r\n    columnfamily_names set<text>,\r\n    exc" +
+            "eption_message text,\r\n    exception_stacktrace text,\r\n    finished_at timestamp," +
+            "\r\n    keyspace_name text,\r\n    requested_ranges set<text>,\r\n    started_at times" +
+            "tamp,\r\n    successful_ranges set<text>\r\n) WITH bloom_filter_fp_chance = 0.01\r\n  " +
+            "  AND caching = {\'keys\': \'ALL\', \'rows_per_partition\': \'NONE\'}\r\n    AND comment =" +
+            " \'Repair history\'\r\n    AND compaction = {\'class\': \'org.apache.cassandra.db.compa" +
             "ction.SizeTieredCompactionStrategy\', \'max_threshold\': \'32\', \'min_threshold\': \'4\'" +
             "}\r\n    AND compression = {\'chunk_length_in_kb\': \'64\', \'class\': \'org.apache.cassa" +
             "ndra.io.compress.LZ4Compressor\'}\r\n    AND crc_check_chance = 1.0\r\n    AND dcloca" +
             "l_read_repair_chance = 0.0\r\n    AND default_time_to_live = 0\r\n    AND gc_grace_s" +
             "econds = 0\r\n    AND max_index_interval = 2048\r\n    AND memtable_flush_period_in_" +
             "ms = 3600000\r\n    AND min_index_interval = 128\r\n    AND read_repair_chance = 0.0" +
-            "\r\n    AND speculative_retry = \'99PERCENTILE\';\r\n\r\nCREATE TABLE dse_leases.logs (\r" +
-            "\n    name text,\r\n    dc text,\r\n    monitor inet,\r\n    at timestamp,\r\n    new_hol" +
-            "der inet,\r\n    old_holder inet,\r\n    PRIMARY KEY ((name, dc), monitor, at)\r\n) WI" +
-            "TH CLUSTERING ORDER BY (monitor ASC, at ASC)\r\n    AND bloom_filter_fp_chance = 0" +
-            ".01\r\n    AND caching = {\'keys\': \'ALL\', \'rows_per_partition\': \'NONE\'}\r\n    AND co" +
-            "mment = \'DSE Lease history\'\r\n    AND compaction = {\'class\': \'org.apache.cassandr" +
-            "a.db.compaction.SizeTieredCompactionStrategy\', \'max_threshold\': \'32\', \'min_thres" +
-            "hold\': \'4\'}\r\n    AND compression = {\'chunk_length_in_kb\': \'64\', \'class\': \'org.ap" +
-            "ache.cassandra.io.compress.LZ4Compressor\'}\r\n    AND crc_check_chance = 1.0\r\n    " +
-            "AND dclocal_read_repair_chance = 0.0\r\n    AND default_time_to_live = 0\r\n    AND " +
-            "gc_grace_seconds = 0\r\n    AND max_index_interval = 2048\r\n    AND memtable_flush_" +
-            "period_in_ms = 3600000\r\n    AND min_index_interval = 128\r\n    AND read_repair_ch" +
-            "ance = 0.0\r\n    AND speculative_retry = \'99PERCENTILE\';\r\n\r\nCREATE KEYSPACE syste" +
-            "m_distributed WITH replication = {\'class\': \'EverywhereStrategy\'} AND durable_wri" +
-            "tes = true AND PreLoaded = true;\r\n\r\nCREATE TABLE system_distributed.repair_histo" +
-            "ry (\r\n    keyspace_name text,\r\n    columnfamily_name text,\r\n    id timeuuid,\r\n  " +
-            "  coordinator inet,\r\n    exception_message text,\r\n    exception_stacktrace text," +
-            "\r\n    finished_at timestamp,\r\n    parent_id timeuuid,\r\n    participants set<inet" +
-            ">,\r\n    range_begin text,\r\n    range_end text,\r\n    started_at timestamp,\r\n    s" +
-            "tatus text,\r\n    PRIMARY KEY ((keyspace_name, columnfamily_name), id)\r\n) WITH CL" +
-            "USTERING ORDER BY (id ASC)\r\n    AND bloom_filter_fp_chance = 0.01\r\n    AND cachi" +
-            "ng = {\'keys\': \'ALL\', \'rows_per_partition\': \'NONE\'}\r\n    AND comment = \'Repair hi" +
-            "story\'\r\n    AND compaction = {\'class\': \'org.apache.cassandra.db.compaction.SizeT" +
+            "\r\n    AND speculative_retry = \'99PERCENTILE\';\r\n\r\nCREATE KEYSPACE system_traces W" +
+            "ITH replication = {\'class\': \'EverywhereStrategy\'} AND durable_writes = true AND " +
+            "PreLoaded = true;\r\n\r\nCREATE TABLE system_traces.events (\r\n    session_id uuid,\r\n" +
+            "    event_id timeuuid,\r\n    activity text,\r\n    source inet,\r\n    source_elapsed" +
+            " int,\r\n    thread text,\r\n    PRIMARY KEY (session_id, event_id)\r\n) WITH CLUSTERI" +
+            "NG ORDER BY (event_id ASC)\r\n    AND bloom_filter_fp_chance = 0.01\r\n    AND cachi" +
+            "ng = {\'keys\': \'ALL\', \'rows_per_partition\': \'NONE\'}\r\n    AND comment = \'tracing e" +
+            "vents\'\r\n    AND compaction = {\'class\': \'org.apache.cassandra.db.compaction.SizeT" +
             "ieredCompactionStrategy\', \'max_threshold\': \'32\', \'min_threshold\': \'4\'}\r\n    AND " +
             "compression = {\'chunk_length_in_kb\': \'64\', \'class\': \'org.apache.cassandra.io.com" +
             "press.LZ4Compressor\'}\r\n    AND crc_check_chance = 1.0\r\n    AND dclocal_read_repa" +
             "ir_chance = 0.0\r\n    AND default_time_to_live = 0\r\n    AND gc_grace_seconds = 0\r" +
             "\n    AND max_index_interval = 2048\r\n    AND memtable_flush_period_in_ms = 360000" +
             "0\r\n    AND min_index_interval = 128\r\n    AND read_repair_chance = 0.0\r\n    AND s" +
-            "peculative_retry = \'99PERCENTILE\';\r\n\r\nCREATE TABLE system_distributed.parent_rep" +
-            "air_history (\r\n    parent_id timeuuid PRIMARY KEY,\r\n    columnfamily_names set<t" +
-            "ext>,\r\n    exception_message text,\r\n    exception_stacktrace text,\r\n    finished" +
-            "_at timestamp,\r\n    keyspace_name text,\r\n    requested_ranges set<text>,\r\n    st" +
-            "arted_at timestamp,\r\n    successful_ranges set<text>\r\n) WITH bloom_filter_fp_cha" +
-            "nce = 0.01\r\n    AND caching = {\'keys\': \'ALL\', \'rows_per_partition\': \'NONE\'}\r\n   " +
-            " AND comment = \'Repair history\'\r\n    AND compaction = {\'class\': \'org.apache.cass" +
-            "andra.db.compaction.SizeTieredCompactionStrategy\', \'max_threshold\': \'32\', \'min_t" +
-            "hreshold\': \'4\'}\r\n    AND compression = {\'chunk_length_in_kb\': \'64\', \'class\': \'or" +
-            "g.apache.cassandra.io.compress.LZ4Compressor\'}\r\n    AND crc_check_chance = 1.0\r\n" +
-            "    AND dclocal_read_repair_chance = 0.0\r\n    AND default_time_to_live = 0\r\n    " +
-            "AND gc_grace_seconds = 0\r\n    AND max_index_interval = 2048\r\n    AND memtable_fl" +
-            "ush_period_in_ms = 3600000\r\n    AND min_index_interval = 128\r\n    AND read_repai" +
-            "r_chance = 0.0\r\n    AND speculative_retry = \'99PERCENTILE\';\r\n\r\nCREATE KEYSPACE s" +
-            "ystem_traces WITH replication = {\'class\': \'EverywhereStrategy\'} AND durable_writ" +
-            "es = true AND PreLoaded = true;\r\n\r\nCREATE TABLE system_traces.events (\r\n    sess" +
-            "ion_id uuid,\r\n    event_id timeuuid,\r\n    activity text,\r\n    source inet,\r\n    " +
-            "source_elapsed int,\r\n    thread text,\r\n    PRIMARY KEY (session_id, event_id)\r\n)" +
-            " WITH CLUSTERING ORDER BY (event_id ASC)\r\n    AND bloom_filter_fp_chance = 0.01\r" +
-            "\n    AND caching = {\'keys\': \'ALL\', \'rows_per_partition\': \'NONE\'}\r\n    AND commen" +
-            "t = \'tracing events\'\r\n    AND compaction = {\'class\': \'org.apache.cassandra.db.co" +
-            "mpaction.SizeTieredCompactionStrategy\', \'max_threshold\': \'32\', \'min_threshold\': " +
-            "\'4\'}\r\n    AND compression = {\'chunk_length_in_kb\': \'64\', \'class\': \'org.apache.ca" +
-            "ssandra.io.compress.LZ4Compressor\'}\r\n    AND crc_check_chance = 1.0\r\n    AND dcl" +
-            "ocal_read_repair_chance = 0.0\r\n    AND default_time_to_live = 0\r\n    AND gc_grac" +
-            "e_seconds = 0\r\n    AND max_index_interval = 2048\r\n    AND memtable_flush_period_" +
-            "in_ms = 3600000\r\n    AND min_index_interval = 128\r\n    AND read_repair_chance = " +
-            "0.0\r\n    AND speculative_retry = \'99PERCENTILE\';\r\n\r\nCREATE TABLE system_traces.s" +
-            "essions (\r\n    session_id uuid PRIMARY KEY,\r\n    client inet,\r\n    command text," +
-            "\r\n    coordinator inet,\r\n    duration int,\r\n    parameters map<text, text>,\r\n   " +
-            " request text,\r\n    started_at timestamp\r\n) WITH bloom_filter_fp_chance = 0.01\r\n" +
-            "    AND caching = {\'keys\': \'ALL\', \'rows_per_partition\': \'NONE\'}\r\n    AND comment" +
-            " = \'tracing sessions\'\r\n    AND compaction = {\'class\': \'org.apache.cassandra.db.c" +
-            "ompaction.SizeTieredCompactionStrategy\', \'max_threshold\': \'32\', \'min_threshold\':" +
-            " \'4\'}\r\n    AND compression = {\'chunk_length_in_kb\': \'64\', \'class\': \'org.apache.c" +
-            "assandra.io.compress.LZ4Compressor\'}\r\n    AND crc_check_chance = 1.0\r\n    AND dc" +
-            "local_read_repair_chance = 0.0\r\n    AND default_time_to_live = 0\r\n    AND gc_gra" +
-            "ce_seconds = 0\r\n    AND max_index_interval = 2048\r\n    AND memtable_flush_period" +
-            "_in_ms = 3600000\r\n    AND min_index_interval = 128\r\n    AND read_repair_chance =" +
-            " 0.0\r\n    AND speculative_retry = \'99PERCENTILE\';\r\n\r\nCREATE KEYSPACE dse_perf WI" +
-            "TH replication = {\'class\': \'EverywhereStrategy\'} AND durable_writes = true AND P" +
-            "reLoaded = true;\r\n\r\nCREATE TABLE dse_perf.node_slow_log (\r\n    node_ip inet,\r\n  " +
-            "  date timestamp,\r\n    start_time timeuuid,\r\n    commands list<text>,\r\n    durat" +
-            "ion bigint,\r\n    parameters map<text, text>,\r\n    source_ip inet,\r\n    table_nam" +
-            "es set<text>,\r\n    username text,\r\n    PRIMARY KEY ((node_ip, date), start_time)" +
-            "\r\n) WITH CLUSTERING ORDER BY (start_time DESC)\r\n    AND bloom_filter_fp_chance =" +
-            " 0.01\r\n    AND caching = {\'keys\': \'ALL\', \'rows_per_partition\': \'NONE\'}\r\n    AND " +
-            "comment = \'\'\r\n    AND compaction = {\'class\': \'org.apache.cassandra.db.compaction" +
-            ".SizeTieredCompactionStrategy\', \'max_threshold\': \'32\', \'min_threshold\': \'4\'}\r\n  " +
-            "  AND compression = {\'chunk_length_in_kb\': \'64\', \'class\': \'org.apache.cassandra." +
-            "io.compress.LZ4Compressor\'}\r\n    AND crc_check_chance = 1.0\r\n    AND dclocal_rea" +
-            "d_repair_chance = 0.0\r\n    AND default_time_to_live = 0\r\n    AND gc_grace_second" +
-            "s = 0\r\n    AND max_index_interval = 2048\r\n    AND memtable_flush_period_in_ms = " +
-            "3600000\r\n    AND min_index_interval = 128\r\n    AND read_repair_chance = 0.0\r\n   " +
-            " AND speculative_retry = \'99PERCENTILE\';\r\n\r\nCREATE KEYSPACE dse_system WITH repl" +
-            "ication = {\'class\': \'EverywhereStrategy\'}  AND durable_writes = true AND PreLoad" +
-            "ed = true;\r\n\r\nCREATE TABLE dse_system.encrypted_keys (\r\n    key_file text,\r\n    " +
-            "cipher text,\r\n    strength int,\r\n    key_id timeuuid,\r\n    key text,\r\n    PRIMAR" +
-            "Y KEY (key_file, cipher, strength, key_id)\r\n) WITH CLUSTERING ORDER BY (cipher A" +
-            "SC, strength ASC, key_id ASC)\r\n    AND bloom_filter_fp_chance = 0.01\r\n    AND ca" +
-            "ching = {\'keys\': \'ALL\', \'rows_per_partition\': \'NONE\'}\r\n    AND comment = \'\'\r\n   " +
-            " AND compaction = {\'class\': \'org.apache.cassandra.db.compaction.SizeTieredCompac" +
-            "tionStrategy\', \'max_threshold\': \'32\', \'min_threshold\': \'4\'}\r\n    AND compression" +
-            " = {\'chunk_length_in_kb\': \'64\', \'class\': \'org.apache.cassandra.io.compress.LZ4Co" +
-            "mpressor\'}\r\n    AND crc_check_chance = 1.0\r\n    AND dclocal_read_repair_chance =" +
-            " 0.0\r\n    AND default_time_to_live = 0\r\n    AND gc_grace_seconds = 0\r\n    AND ma" +
-            "x_index_interval = 2048\r\n    AND memtable_flush_period_in_ms = 3600000\r\n    AND " +
-            "min_index_interval = 128\r\n    AND read_repair_chance = 0.0\r\n    AND speculative_" +
-            "retry = \'99PERCENTILE\';\r\n\r\nCREATE TABLE dse_system.leases (\r\n    lease_id text P" +
-            "RIMARY KEY,\r\n    duration int,\r\n    generation bigint,\r\n    owner uuid,\r\n    ts " +
-            "timestamp\r\n) WITH bloom_filter_fp_chance = 0.01\r\n    AND caching = {\'keys\': \'ALL" +
-            "\', \'rows_per_partition\': \'NONE\'}\r\n    AND comment = \'\'\r\n    AND compaction = {\'c" +
-            "lass\': \'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy\', \'max_t" +
-            "hreshold\': \'32\', \'min_threshold\': \'4\'}\r\n    AND compression = {\'chunk_length_in_" +
-            "kb\': \'64\', \'class\': \'org.apache.cassandra.io.compress.LZ4Compressor\'}\r\n    AND c" +
-            "rc_check_chance = 1.0\r\n    AND dclocal_read_repair_chance = 0.0\r\n    AND default" +
-            "_time_to_live = 0\r\n    AND gc_grace_seconds = 1209600\r\n    AND max_index_interva" +
-            "l = 2048\r\n    AND memtable_flush_period_in_ms = 3600000\r\n    AND min_index_inter" +
-            "val = 128\r\n    AND read_repair_chance = 0.0\r\n    AND speculative_retry = \'99PERC" +
-            "ENTILE\';\r\n    \r\nCREATE TABLE dse_system.spark_1_5_master_recovery (\r\n    dc text" +
-            ",\r\n    id text,\r\n    data blob,\r\n    PRIMARY KEY (dc, id)\r\n) WITH read_repair_ch" +
-            "ance = 0.0\r\n   AND dclocal_read_repair_chance = 0.0\r\n   AND gc_grace_seconds = 1" +
-            "209600\r\n   AND bloom_filter_fp_chance = 0.01\r\n   AND caching = { \'keys\' : \'ALL\'," +
-            " \'rows_per_partition\' : \'NONE\' }\r\n   AND comment = \'\'\r\n   AND compaction = { \'cl" +
-            "ass\' : \'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy\', \'max_t" +
-            "hreshold\' : 32, \'min_threshold\' : 4 }\r\n   AND compression = { \'chunk_length_in_k" +
-            "b\' : 64, \'class\' : \'org.apache.cassandra.io.compress.LZ4Compressor\' }\r\n   AND de" +
-            "fault_time_to_live = 0\r\n   AND speculative_retry = \'99PERCENTILE\'\r\n   AND min_in" +
-            "dex_interval = 128\r\n   AND max_index_interval = 2048\r\n   AND crc_check_chance = " +
-            "1.0;\r\n\r\nCREATE TABLE dse_system.spark_1_3_master_recovery (\r\n    dc text,\r\n    i" +
-            "d text,\r\n    data blob,\r\n    PRIMARY KEY (dc, id)\r\n) WITH CLUSTERING ORDER BY (i" +
-            "d ASC)\r\n    AND bloom_filter_fp_chance = 0.01\r\n    AND caching = \'{\"keys\":\"ALL\"," +
-            " \"rows_per_partition\":\"NONE\"}\'\r\n    AND comment = \'\'\r\n    AND compaction = {\'cla" +
-            "ss\': \'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy\'}\r\n    AND" +
-            " compression = {\'sstable_compression\': \'org.apache.cassandra.io.compress.LZ4Comp" +
-            "ressor\'}\r\n    AND dclocal_read_repair_chance = 0.1\r\n    AND default_time_to_live" +
-            " = 0\r\n    AND gc_grace_seconds = 864000\r\n    AND max_index_interval = 2048\r\n    " +
-            "AND memtable_flush_period_in_ms = 0\r\n    AND min_index_interval = 128\r\n    AND r" +
-            "ead_repair_chance = 0.0\r\n    AND speculative_retry = \'99.0PERCENTILE\';\r\n\r\nCREATE" +
-            " TABLE dse_system.registered_leaders (\r\n    army text,\r\n    datacenter text,\r\n  " +
-            "  candidates map<text, inet>,\r\n    required text,\r\n    PRIMARY KEY (army, datace" +
-            "nter)\r\n) WITH CLUSTERING ORDER BY (datacenter ASC)\r\n    AND bloom_filter_fp_chan" +
-            "ce = 0.01\r\n    AND caching = \'{\"keys\":\"ALL\", \"rows_per_partition\":\"NONE\"}\'\r\n    " +
-            "AND comment = \'\'\r\n    AND compaction = {\'class\': \'org.apache.cassandra.db.compac" +
-            "tion.SizeTieredCompactionStrategy\'}\r\n    AND compression = {\'sstable_compression" +
-            "\': \'org.apache.cassandra.io.compress.LZ4Compressor\'}\r\n    AND dclocal_read_repai" +
-            "r_chance = 0.1\r\n    AND default_time_to_live = 0\r\n    AND gc_grace_seconds = 864" +
-            "000\r\n    AND max_index_interval = 2048\r\n    AND memtable_flush_period_in_ms = 0\r" +
-            "\n    AND min_index_interval = 128\r\n    AND read_repair_chance = 0.0\r\n    AND spe" +
-            "culative_retry = \'99.0PERCENTILE\';\r\n\r\nCREATE TABLE dse_system.real_leaders (\r\n  " +
-            "  army text,\r\n    datacenter text,\r\n    address inet,\r\n    PRIMARY KEY (army, da" +
-            "tacenter)\r\n) WITH CLUSTERING ORDER BY (datacenter ASC)\r\n    AND bloom_filter_fp_" +
-            "chance = 0.01\r\n    AND caching = \'{\"keys\":\"ALL\", \"rows_per_partition\":\"NONE\"}\'\r\n" +
-            "    AND comment = \'\'\r\n    AND compaction = {\'class\': \'org.apache.cassandra.db.co" +
-            "mpaction.SizeTieredCompactionStrategy\'}\r\n    AND compression = {\'sstable_compres" +
-            "sion\': \'org.apache.cassandra.io.compress.LZ4Compressor\'}\r\n    AND dclocal_read_r" +
-            "epair_chance = 0.1\r\n    AND default_time_to_live = 0\r\n    AND gc_grace_seconds =" +
-            " 864000\r\n    AND max_index_interval = 2048\r\n    AND memtable_flush_period_in_ms " +
-            "= 0\r\n    AND min_index_interval = 128\r\n    AND read_repair_chance = 0.0\r\n    AND" +
-            " speculative_retry = \'99.0PERCENTILE\';\r\n\r\nCREATE KEYSPACE \"HiveMetaStore\" WITH r" +
-            "eplication = {\'class\': \'EverywhereStrategy\'}  AND durable_writes = true AND PreL" +
-            "oaded = true;\r\n\r\nCREATE TABLE \"HiveMetaStore\".\"MetaStore\" (\r\n    key text,\r\n    " +
-            "entity text,\r\n    value blob,\r\n    PRIMARY KEY (key, entity)\r\n) WITH COMPACT STO" +
-            "RAGE\r\n   AND read_repair_chance = 0.0\r\n   AND dclocal_read_repair_chance = 0.0\r\n" +
-            "   AND gc_grace_seconds = 1209600\r\n   AND bloom_filter_fp_chance = 0.01\r\n   AND " +
-            "caching = { \'keys\' : \'ALL\', \'rows_per_partition\' : \'NONE\' }\r\n   AND comment = \'\'" +
-            "\r\n   AND compaction = { \'class\' : \'org.apache.cassandra.db.compaction.SizeTiered" +
-            "CompactionStrategy\', \'max_threshold\' : 32, \'min_threshold\' : 4 }\r\n   AND compres" +
+            "peculative_retry = \'99PERCENTILE\';\r\n\r\nCREATE TABLE system_traces.sessions (\r\n   " +
+            " session_id uuid PRIMARY KEY,\r\n    client inet,\r\n    command text,\r\n    coordina" +
+            "tor inet,\r\n    duration int,\r\n    parameters map<text, text>,\r\n    request text," +
+            "\r\n    started_at timestamp\r\n) WITH bloom_filter_fp_chance = 0.01\r\n    AND cachin" +
+            "g = {\'keys\': \'ALL\', \'rows_per_partition\': \'NONE\'}\r\n    AND comment = \'tracing se" +
+            "ssions\'\r\n    AND compaction = {\'class\': \'org.apache.cassandra.db.compaction.Size" +
+            "TieredCompactionStrategy\', \'max_threshold\': \'32\', \'min_threshold\': \'4\'}\r\n    AND" +
+            " compression = {\'chunk_length_in_kb\': \'64\', \'class\': \'org.apache.cassandra.io.co" +
+            "mpress.LZ4Compressor\'}\r\n    AND crc_check_chance = 1.0\r\n    AND dclocal_read_rep" +
+            "air_chance = 0.0\r\n    AND default_time_to_live = 0\r\n    AND gc_grace_seconds = 0" +
+            "\r\n    AND max_index_interval = 2048\r\n    AND memtable_flush_period_in_ms = 36000" +
+            "00\r\n    AND min_index_interval = 128\r\n    AND read_repair_chance = 0.0\r\n    AND " +
+            "speculative_retry = \'99PERCENTILE\';\r\n\r\nCREATE KEYSPACE dse_perf WITH replication" +
+            " = {\'class\': \'EverywhereStrategy\'} AND durable_writes = true AND PreLoaded = tru" +
+            "e;\r\n\r\nCREATE TABLE dse_perf.node_slow_log (\r\n    node_ip inet,\r\n    date timesta" +
+            "mp,\r\n    start_time timeuuid,\r\n    commands list<text>,\r\n    duration bigint,\r\n " +
+            "   parameters map<text, text>,\r\n    source_ip inet,\r\n    table_names set<text>,\r" +
+            "\n    username text,\r\n    PRIMARY KEY ((node_ip, date), start_time)\r\n) WITH CLUST" +
+            "ERING ORDER BY (start_time DESC)\r\n    AND bloom_filter_fp_chance = 0.01\r\n    AND" +
+            " caching = {\'keys\': \'ALL\', \'rows_per_partition\': \'NONE\'}\r\n    AND comment = \'\'\r\n" +
+            "    AND compaction = {\'class\': \'org.apache.cassandra.db.compaction.SizeTieredCom" +
+            "pactionStrategy\', \'max_threshold\': \'32\', \'min_threshold\': \'4\'}\r\n    AND compress" +
+            "ion = {\'chunk_length_in_kb\': \'64\', \'class\': \'org.apache.cassandra.io.compress.LZ" +
+            "4Compressor\'}\r\n    AND crc_check_chance = 1.0\r\n    AND dclocal_read_repair_chanc" +
+            "e = 0.0\r\n    AND default_time_to_live = 0\r\n    AND gc_grace_seconds = 0\r\n    AND" +
+            " max_index_interval = 2048\r\n    AND memtable_flush_period_in_ms = 3600000\r\n    A" +
+            "ND min_index_interval = 128\r\n    AND read_repair_chance = 0.0\r\n    AND speculati" +
+            "ve_retry = \'99PERCENTILE\';\r\n\r\nCREATE KEYSPACE dse_system WITH replication = {\'cl" +
+            "ass\': \'EverywhereStrategy\'}  AND durable_writes = true AND PreLoaded = true;\r\n\r\n" +
+            "CREATE TABLE dse_system.encrypted_keys (\r\n    key_file text,\r\n    cipher text,\r\n" +
+            "    strength int,\r\n    key_id timeuuid,\r\n    key text,\r\n    PRIMARY KEY (key_fil" +
+            "e, cipher, strength, key_id)\r\n) WITH CLUSTERING ORDER BY (cipher ASC, strength A" +
+            "SC, key_id ASC)\r\n    AND bloom_filter_fp_chance = 0.01\r\n    AND caching = {\'keys" +
+            "\': \'ALL\', \'rows_per_partition\': \'NONE\'}\r\n    AND comment = \'\'\r\n    AND compactio" +
+            "n = {\'class\': \'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy\'," +
+            " \'max_threshold\': \'32\', \'min_threshold\': \'4\'}\r\n    AND compression = {\'chunk_len" +
+            "gth_in_kb\': \'64\', \'class\': \'org.apache.cassandra.io.compress.LZ4Compressor\'}\r\n  " +
+            "  AND crc_check_chance = 1.0\r\n    AND dclocal_read_repair_chance = 0.0\r\n    AND " +
+            "default_time_to_live = 0\r\n    AND gc_grace_seconds = 0\r\n    AND max_index_interv" +
+            "al = 2048\r\n    AND memtable_flush_period_in_ms = 3600000\r\n    AND min_index_inte" +
+            "rval = 128\r\n    AND read_repair_chance = 0.0\r\n    AND speculative_retry = \'99PER" +
+            "CENTILE\';\r\n\r\nCREATE TABLE dse_system.leases (\r\n    lease_id text PRIMARY KEY,\r\n " +
+            "   duration int,\r\n    generation bigint,\r\n    owner uuid,\r\n    ts timestamp\r\n) W" +
+            "ITH bloom_filter_fp_chance = 0.01\r\n    AND caching = {\'keys\': \'ALL\', \'rows_per_p" +
+            "artition\': \'NONE\'}\r\n    AND comment = \'\'\r\n    AND compaction = {\'class\': \'org.ap" +
+            "ache.cassandra.db.compaction.SizeTieredCompactionStrategy\', \'max_threshold\': \'32" +
+            "\', \'min_threshold\': \'4\'}\r\n    AND compression = {\'chunk_length_in_kb\': \'64\', \'cl" +
+            "ass\': \'org.apache.cassandra.io.compress.LZ4Compressor\'}\r\n    AND crc_check_chanc" +
+            "e = 1.0\r\n    AND dclocal_read_repair_chance = 0.0\r\n    AND default_time_to_live " +
+            "= 0\r\n    AND gc_grace_seconds = 1209600\r\n    AND max_index_interval = 2048\r\n    " +
+            "AND memtable_flush_period_in_ms = 3600000\r\n    AND min_index_interval = 128\r\n   " +
+            " AND read_repair_chance = 0.0\r\n    AND speculative_retry = \'99PERCENTILE\';\r\n    " +
+            "\r\nCREATE TABLE dse_system.spark_1_5_master_recovery (\r\n    dc text,\r\n    id text" +
+            ",\r\n    data blob,\r\n    PRIMARY KEY (dc, id)\r\n) WITH read_repair_chance = 0.0\r\n  " +
+            " AND dclocal_read_repair_chance = 0.0\r\n   AND gc_grace_seconds = 1209600\r\n   AND" +
+            " bloom_filter_fp_chance = 0.01\r\n   AND caching = { \'keys\' : \'ALL\', \'rows_per_par" +
+            "tition\' : \'NONE\' }\r\n   AND comment = \'\'\r\n   AND compaction = { \'class\' : \'org.ap" +
+            "ache.cassandra.db.compaction.SizeTieredCompactionStrategy\', \'max_threshold\' : 32" +
+            ", \'min_threshold\' : 4 }\r\n   AND compression = { \'chunk_length_in_kb\' : 64, \'clas" +
+            "s\' : \'org.apache.cassandra.io.compress.LZ4Compressor\' }\r\n   AND default_time_to_" +
+            "live = 0\r\n   AND speculative_retry = \'99PERCENTILE\'\r\n   AND min_index_interval =" +
+            " 128\r\n   AND max_index_interval = 2048\r\n   AND crc_check_chance = 1.0;\r\n\r\nCREATE" +
+            " TABLE dse_system.spark_1_3_master_recovery (\r\n    dc text,\r\n    id text,\r\n    d" +
+            "ata blob,\r\n    PRIMARY KEY (dc, id)\r\n) WITH CLUSTERING ORDER BY (id ASC)\r\n    AN" +
+            "D bloom_filter_fp_chance = 0.01\r\n    AND caching = \'{\"keys\":\"ALL\", \"rows_per_par" +
+            "tition\":\"NONE\"}\'\r\n    AND comment = \'\'\r\n    AND compaction = {\'class\': \'org.apac" +
+            "he.cassandra.db.compaction.SizeTieredCompactionStrategy\'}\r\n    AND compression =" +
+            " {\'sstable_compression\': \'org.apache.cassandra.io.compress.LZ4Compressor\'}\r\n    " +
+            "AND dclocal_read_repair_chance = 0.1\r\n    AND default_time_to_live = 0\r\n    AND " +
+            "gc_grace_seconds = 864000\r\n    AND max_index_interval = 2048\r\n    AND memtable_f" +
+            "lush_period_in_ms = 0\r\n    AND min_index_interval = 128\r\n    AND read_repair_cha" +
+            "nce = 0.0\r\n    AND speculative_retry = \'99.0PERCENTILE\';\r\n\r\nCREATE TABLE dse_sys" +
+            "tem.registered_leaders (\r\n    army text,\r\n    datacenter text,\r\n    candidates m" +
+            "ap<text, inet>,\r\n    required text,\r\n    PRIMARY KEY (army, datacenter)\r\n) WITH " +
+            "CLUSTERING ORDER BY (datacenter ASC)\r\n    AND bloom_filter_fp_chance = 0.01\r\n   " +
+            " AND caching = \'{\"keys\":\"ALL\", \"rows_per_partition\":\"NONE\"}\'\r\n    AND comment = " +
+            "\'\'\r\n    AND compaction = {\'class\': \'org.apache.cassandra.db.compaction.SizeTiere" +
+            "dCompactionStrategy\'}\r\n    AND compression = {\'sstable_compression\': \'org.apache" +
+            ".cassandra.io.compress.LZ4Compressor\'}\r\n    AND dclocal_read_repair_chance = 0.1" +
+            "\r\n    AND default_time_to_live = 0\r\n    AND gc_grace_seconds = 864000\r\n    AND m" +
+            "ax_index_interval = 2048\r\n    AND memtable_flush_period_in_ms = 0\r\n    AND min_i" +
+            "ndex_interval = 128\r\n    AND read_repair_chance = 0.0\r\n    AND speculative_retry" +
+            " = \'99.0PERCENTILE\';\r\n\r\nCREATE TABLE dse_system.real_leaders (\r\n    army text,\r\n" +
+            "    datacenter text,\r\n    address inet,\r\n    PRIMARY KEY (army, datacenter)\r\n) W" +
+            "ITH CLUSTERING ORDER BY (datacenter ASC)\r\n    AND bloom_filter_fp_chance = 0.01\r" +
+            "\n    AND caching = \'{\"keys\":\"ALL\", \"rows_per_partition\":\"NONE\"}\'\r\n    AND commen" +
+            "t = \'\'\r\n    AND compaction = {\'class\': \'org.apache.cassandra.db.compaction.SizeT" +
+            "ieredCompactionStrategy\'}\r\n    AND compression = {\'sstable_compression\': \'org.ap" +
+            "ache.cassandra.io.compress.LZ4Compressor\'}\r\n    AND dclocal_read_repair_chance =" +
+            " 0.1\r\n    AND default_time_to_live = 0\r\n    AND gc_grace_seconds = 864000\r\n    A" +
+            "ND max_index_interval = 2048\r\n    AND memtable_flush_period_in_ms = 0\r\n    AND m" +
+            "in_index_interval = 128\r\n    AND read_repair_chance = 0.0\r\n    AND speculative_r" +
+            "etry = \'99.0PERCENTILE\';\r\n\r\nCREATE KEYSPACE \"HiveMetaStore\" WITH replication = {" +
+            "\'class\': \'EverywhereStrategy\'}  AND durable_writes = true AND PreLoaded = true;\r" +
+            "\n\r\nCREATE TABLE \"HiveMetaStore\".\"MetaStore\" (\r\n    key text,\r\n    entity text,\r\n" +
+            "    value blob,\r\n    PRIMARY KEY (key, entity)\r\n) WITH COMPACT STORAGE\r\n   AND r" +
+            "ead_repair_chance = 0.0\r\n   AND dclocal_read_repair_chance = 0.0\r\n   AND gc_grac" +
+            "e_seconds = 1209600\r\n   AND bloom_filter_fp_chance = 0.01\r\n   AND caching = { \'k" +
+            "eys\' : \'ALL\', \'rows_per_partition\' : \'NONE\' }\r\n   AND comment = \'\'\r\n   AND compa" +
+            "ction = { \'class\' : \'org.apache.cassandra.db.compaction.SizeTieredCompactionStra" +
+            "tegy\', \'max_threshold\' : 32, \'min_threshold\' : 4 }\r\n   AND compression = { \'chun" +
+            "k_length_in_kb\' : 64, \'class\' : \'org.apache.cassandra.io.compress.LZ4Compressor\'" +
+            " }\r\n   AND default_time_to_live = 0\r\n   AND speculative_retry = \'99PERCENTILE\'\r\n" +
+            "   AND min_index_interval = 128\r\n   AND max_index_interval = 2048\r\n   AND crc_ch" +
+            "eck_chance = 1.0;\r\n\r\nCREATE TABLE \"HiveMetaStore\".sparkmetastore (\r\n    key text" +
+            ",\r\n    entity text,\r\n    value blob,\r\n    PRIMARY KEY (key, entity)\r\n) WITH COMP" +
+            "ACT STORAGE\r\n   AND read_repair_chance = 0.0\r\n   AND dclocal_read_repair_chance " +
+            "= 0.0\r\n   AND gc_grace_seconds = 1209600\r\n   AND bloom_filter_fp_chance = 0.01\r\n" +
+            "   AND caching = { \'keys\' : \'ALL\', \'rows_per_partition\' : \'NONE\' }\r\n   AND comme" +
+            "nt = \'\'\r\n   AND compaction = { \'class\' : \'org.apache.cassandra.db.compaction.Siz" +
+            "eTieredCompactionStrategy\', \'max_threshold\' : 32, \'min_threshold\' : 4 }\r\n   AND " +
+            "compression = { \'chunk_length_in_kb\' : 64, \'class\' : \'org.apache.cassandra.io.co" +
+            "mpress.LZ4Compressor\' }\r\n   AND default_time_to_live = 0\r\n   AND speculative_ret" +
+            "ry = \'99PERCENTILE\'\r\n   AND min_index_interval = 128\r\n   AND max_index_interval " +
+            "= 2048\r\n   AND crc_check_chance = 1.0;\r\n\r\nCREATE KEYSPACE cfs_archive WITH repli" +
+            "cation = {\'class\': \'EverywhereStrategy\'}  AND durable_writes = true AND PreLoade" +
+            "d = true;\r\n\r\nCREATE TABLE cfs_archive.inode (\r\n    key blob,\r\n    \"b@706172656e7" +
+            "45f70617468\" blob,\r\n    \"b@70617468\" blob,\r\n    \"b@73656e74696e656c\" blob,\r\n    " +
+            "PRIMARY KEY (key)\r\n) WITH COMPACT STORAGE\r\n   AND read_repair_chance = 0.0\r\n   A" +
+            "ND dclocal_read_repair_chance = 0.1\r\n   AND gc_grace_seconds = 864000\r\n   AND bl" +
+            "oom_filter_fp_chance = 0.01\r\n   AND caching = { \'keys\' : \'ALL\', \'rows_per_partit" +
+            "ion\' : \'NONE\' }\r\n   AND comment = \'Stores file meta data\'\r\n   AND compaction = {" +
+            " \'class\' : \'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy\', \'m" +
+            "ax_threshold\' : 32, \'min_threshold\' : 4 }\r\n   AND compression = { \'chunk_length_" +
+            "in_kb\' : 64, \'class\' : \'org.apache.cassandra.io.compress.LZ4Compressor\' }\r\n   AN" +
+            "D default_time_to_live = 0\r\n   AND speculative_retry = \'NONE\'\r\n   AND min_index_" +
+            "interval = 128\r\n   AND max_index_interval = 2048\r\n   AND crc_check_chance = 1.0;" +
+            "\r\nCREATE INDEX cfs_archive_parent_path ON cfs_archive.inode (\"b@706172656e745f70" +
+            "617468\");\r\nCREATE INDEX cfs_archive_path ON cfs_archive.inode (\"b@70617468\");\r\nC" +
+            "REATE INDEX cfs_archive_sentinel ON cfs_archive.inode (\"b@73656e74696e656c\");\r\n\r" +
+            "\nCREATE TABLE cfs_archive.sblocks (\r\n    key blob,\r\n    column1 blob,\r\n    value" +
+            " blob,\r\n    PRIMARY KEY (key, column1)\r\n) WITH COMPACT STORAGE\r\n   AND read_repa" +
+            "ir_chance = 0.0\r\n   AND dclocal_read_repair_chance = 0.1\r\n   AND gc_grace_second" +
+            "s = 864000\r\n   AND bloom_filter_fp_chance = 6.8E-5\r\n   AND caching = { \'keys\' : " +
+            "\'ALL\', \'rows_per_partition\' : \'NONE\' }\r\n   AND comment = \'Stores blocks of infor" +
+            "mation associated with a inode\'\r\n   AND compaction = { \'class\' : \'com.datastax.b" +
+            "dp.hadoop.cfs.compaction.CFSCompactionStrategy\', \'max_threshold\' : 64, \'min_thre" +
+            "shold\' : 2 }\r\n   AND compression = { \'enabled\' : \'false\' }\r\n   AND default_time_" +
+            "to_live = 0\r\n   AND speculative_retry = \'NONE\'\r\n   AND min_index_interval = 128\r" +
+            "\n   AND max_index_interval = 2048\r\n   AND crc_check_chance = 1.0;\r\n\r\nCREATE TABL" +
+            "E cfs_archive.cleanup (\r\n    key blob,\r\n    column1 blob,\r\n    value blob,\r\n    " +
+            "PRIMARY KEY (key, column1)\r\n) WITH COMPACT STORAGE\r\n   AND read_repair_chance = " +
+            "0.0\r\n   AND dclocal_read_repair_chance = 0.1\r\n   AND gc_grace_seconds = 864000\r\n" +
+            "   AND bloom_filter_fp_chance = 0.01\r\n   AND caching = { \'keys\' : \'ALL\', \'rows_p" +
+            "er_partition\' : \'NONE\' }\r\n   AND comment = \'Stores blocks row key to perform a c" +
+            "leanup for when jobs fail\'\r\n   AND compaction = { \'class\' : \'org.apache.cassandr" +
+            "a.db.compaction.SizeTieredCompactionStrategy\', \'max_threshold\' : 32, \'min_thresh" +
+            "old\' : 4 }\r\n   AND compression = { \'chunk_length_in_kb\' : 64, \'class\' : \'org.apa" +
+            "che.cassandra.io.compress.LZ4Compressor\' }\r\n   AND default_time_to_live = 0\r\n   " +
+            "AND speculative_retry = \'NONE\'\r\n   AND min_index_interval = 128\r\n   AND max_inde" +
+            "x_interval = 2048\r\n   AND crc_check_chance = 1.0;\r\n\r\nCREATE TABLE cfs_archive.ru" +
+            "les (\r\n    key text,\r\n    compression boolean,\r\n    priority int,\r\n    PRIMARY K" +
+            "EY (key)\r\n) WITH COMPACT STORAGE\r\n   AND read_repair_chance = 0.0\r\n   AND dcloca" +
+            "l_read_repair_chance = 0.1\r\n   AND gc_grace_seconds = 864000\r\n   AND bloom_filte" +
+            "r_fp_chance = 0.01\r\n   AND caching = { \'keys\' : \'ALL\', \'rows_per_partition\' : \'N" +
+            "ONE\' }\r\n   AND comment = \'Stores properties associated with groups of files and " +
+            "directories selected by path patterns\'\r\n   AND compaction = { \'class\' : \'org.apa" +
+            "che.cassandra.db.compaction.SizeTieredCompactionStrategy\', \'max_threshold\' : 32," +
+            " \'min_threshold\' : 4 }\r\n   AND compression = { \'chunk_length_in_kb\' : 64, \'class" +
+            "\' : \'org.apache.cassandra.io.compress.LZ4Compressor\' }\r\n   AND default_time_to_l" +
+            "ive = 0\r\n   AND speculative_retry = \'NONE\'\r\n   AND min_index_interval = 128\r\n   " +
+            "AND max_index_interval = 2048\r\n   AND crc_check_chance = 1.0;\r\n    \r\nCREATE KEYS" +
+            "PACE \"OpsCenter\" WITH replication = {\'class\': \'EverywhereStrategy\'}  AND durable" +
+            "_writes = true AND PreLoaded = true;\r\n\r\nCREATE TABLE \"OpsCenter\".bestpractice_re" +
+            "sults (\r\n    key text,\r\n    column1 varint,\r\n    value blob,\r\n    PRIMARY KEY (k" +
+            "ey, column1)\r\n) WITH COMPACT STORAGE\r\n   AND CLUSTERING ORDER BY (column1 DESC)\r" +
+            "\n   AND read_repair_chance = 0.25\r\n   AND dclocal_read_repair_chance = 0.1\r\n   A" +
+            "ND gc_grace_seconds = 0\r\n   AND bloom_filter_fp_chance = 0.01\r\n   AND caching = " +
+            "{ \'keys\' : \'ALL\', \'rows_per_partition\' : \'NONE\' }\r\n   AND comment = \'{\"version\":" +
+            " [6, 1, 4], \"info\": \"OpsCenter management data.\"}\'\r\n   AND compaction = { \'class" +
+            "\' : \'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy\', \'max_thre" +
+            "shold\' : 32, \'min_threshold\' : 4 }\r\n   AND compression = { \'chunk_length_in_kb\' " +
+            ": 64, \'class\' : \'org.apache.cassandra.io.compress.LZ4Compressor\' }\r\n   AND defau" +
+            "lt_time_to_live = 0\r\n   AND speculative_retry = \'99PERCENTILE\'\r\n   AND min_index" +
+            "_interval = 128\r\n   AND max_index_interval = 2048\r\n   AND crc_check_chance = 1.0" +
+            ";\r\n\r\nCREATE TABLE \"OpsCenter\".rollup_state (\r\n    node text,\r\n    name text,\r\n  " +
+            "  res int,\r\n    avg float,\r\n    histogram blob,\r\n    max float,\r\n    min float,\r" +
+            "\n    ts timestamp,\r\n    type int,\r\n    value float,\r\n    weight float,\r\n    PRIM" +
+            "ARY KEY (node, name, res)\r\n) WITH read_repair_chance = 0.0\r\n   AND dclocal_read_" +
+            "repair_chance = 0.0\r\n   AND gc_grace_seconds = 0\r\n   AND bloom_filter_fp_chance " +
+            "= 0.1\r\n   AND caching = { \'keys\' : \'ALL\', \'rows_per_partition\' : \'NONE\' }\r\n   AN" +
+            "D comment = \'{\"version\": [6, 1, 4], \"info\": \"OpsCenter management data.\"}\'\r\n   A" +
+            "ND compaction = { \'class\' : \'org.apache.cassandra.db.compaction.LeveledCompactio" +
+            "nStrategy\' }\r\n   AND compression = { \'chunk_length_in_kb\' : 64, \'class\' : \'org.a" +
+            "pache.cassandra.io.compress.LZ4Compressor\' }\r\n   AND default_time_to_live = 0\r\n " +
+            "  AND speculative_retry = \'99PERCENTILE\'\r\n   AND min_index_interval = 128\r\n   AN" +
+            "D max_index_interval = 2048\r\n   AND crc_check_chance = 1.0;\r\n\r\nCREATE TABLE \"Ops" +
+            "Center\".settings (\r\n    key blob,\r\n    column1 blob,\r\n    value blob,\r\n    PRIMA" +
+            "RY KEY (key, column1)\r\n) WITH COMPACT STORAGE\r\n   AND read_repair_chance = 1.0\r\n" +
+            "   AND dclocal_read_repair_chance = 0.1\r\n   AND gc_grace_seconds = 864000\r\n   AN" +
+            "D bloom_filter_fp_chance = 0.01\r\n   AND caching = { \'keys\' : \'ALL\', \'rows_per_pa" +
+            "rtition\' : \'NONE\' }\r\n   AND comment = \'{\"version\": [6, 1, 4], \"info\": \"OpsCenter" +
+            " management data.\"}\'\r\n   AND compaction = { \'class\' : \'org.apache.cassandra.db.c" +
+            "ompaction.SizeTieredCompactionStrategy\', \'max_threshold\' : 12, \'min_threshold\' :" +
+            " 8 }\r\n   AND compression = { \'chunk_length_in_kb\' : 64, \'class\' : \'org.apache.ca" +
+            "ssandra.io.compress.LZ4Compressor\' }\r\n   AND default_time_to_live = 0\r\n   AND sp" +
+            "eculative_retry = \'99PERCENTILE\'\r\n   AND min_index_interval = 128\r\n   AND max_in" +
+            "dex_interval = 2048\r\n   AND crc_check_chance = 1.0;\r\n\r\nCREATE TABLE \"OpsCenter\"." +
+            "pdps (\r\n    key text,\r\n    column1 text,\r\n    value blob,\r\n    PRIMARY KEY (key," +
+            " column1)\r\n) WITH COMPACT STORAGE\r\n   AND read_repair_chance = 0.25\r\n   AND dclo" +
+            "cal_read_repair_chance = 0.1\r\n   AND gc_grace_seconds = 0\r\n   AND bloom_filter_f" +
+            "p_chance = 0.01\r\n   AND caching = { \'keys\' : \'ALL\', \'rows_per_partition\' : \'NONE" +
+            "\' }\r\n   AND comment = \'{\"version\": [6, 1, 4], \"info\": \"OpsCenter management data" +
+            ".\"}\'\r\n   AND compaction = { \'class\' : \'org.apache.cassandra.db.compaction.SizeTi" +
+            "eredCompactionStrategy\', \'max_threshold\' : 32, \'min_threshold\' : 4 }\r\n   AND com" +
+            "pression = { \'chunk_length_in_kb\' : 64, \'class\' : \'org.apache.cassandra.io.compr" +
+            "ess.LZ4Compressor\' }\r\n   AND default_time_to_live = 0\r\n   AND speculative_retry " +
+            "= \'99PERCENTILE\'\r\n   AND min_index_interval = 128\r\n   AND max_index_interval = 2" +
+            "048\r\n   AND crc_check_chance = 1.0;\r\n\r\nCREATE TABLE \"OpsCenter\".rollups7200 (\r\n " +
+            "   key text,\r\n    timestamp varint,\r\n    value blob,\r\n    PRIMARY KEY (key, time" +
+            "stamp)\r\n) WITH COMPACT STORAGE\r\n   AND read_repair_chance = 0.25\r\n   AND dclocal" +
+            "_read_repair_chance = 0.1\r\n   AND gc_grace_seconds = 0\r\n   AND bloom_filter_fp_c" +
+            "hance = 0.01\r\n   AND caching = { \'keys\' : \'ALL\', \'rows_per_partition\' : \'NONE\' }" +
+            "\r\n   AND comment = \'{\"version\": [6, 1, 4], \"info\": \"OpsCenter management data.\"}" +
+            "\'\r\n   AND compaction = { \'class\' : \'org.apache.cassandra.db.compaction.SizeTiere" +
+            "dCompactionStrategy\', \'max_threshold\' : 8, \'min_threshold\' : 2 }\r\n   AND compres" +
             "sion = { \'chunk_length_in_kb\' : 64, \'class\' : \'org.apache.cassandra.io.compress." +
             "LZ4Compressor\' }\r\n   AND default_time_to_live = 0\r\n   AND speculative_retry = \'9" +
             "9PERCENTILE\'\r\n   AND min_index_interval = 128\r\n   AND max_index_interval = 2048\r" +
-            "\n   AND crc_check_chance = 1.0;\r\n\r\nCREATE TABLE \"HiveMetaStore\".sparkmetastore (" +
-            "\r\n    key text,\r\n    entity text,\r\n    value blob,\r\n    PRIMARY KEY (key, entity" +
-            ")\r\n) WITH COMPACT STORAGE\r\n   AND read_repair_chance = 0.0\r\n   AND dclocal_read_" +
-            "repair_chance = 0.0\r\n   AND gc_grace_seconds = 1209600\r\n   AND bloom_filter_fp_c" +
-            "hance = 0.01\r\n   AND caching = { \'keys\' : \'ALL\', \'rows_per_partition\' : \'NONE\' }" +
-            "\r\n   AND comment = \'\'\r\n   AND compaction = { \'class\' : \'org.apache.cassandra.db." +
-            "compaction.SizeTieredCompactionStrategy\', \'max_threshold\' : 32, \'min_threshold\' " +
-            ": 4 }\r\n   AND compression = { \'chunk_length_in_kb\' : 64, \'class\' : \'org.apache.c" +
-            "assandra.io.compress.LZ4Compressor\' }\r\n   AND default_time_to_live = 0\r\n   AND s" +
-            "peculative_retry = \'99PERCENTILE\'\r\n   AND min_index_interval = 128\r\n   AND max_i" +
-            "ndex_interval = 2048\r\n   AND crc_check_chance = 1.0;\r\n\r\nCREATE KEYSPACE cfs_arch" +
-            "ive WITH replication = {\'class\': \'EverywhereStrategy\'}  AND durable_writes = tru" +
-            "e AND PreLoaded = true;\r\n\r\nCREATE TABLE cfs_archive.inode (\r\n    key blob,\r\n    " +
-            "\"b@706172656e745f70617468\" blob,\r\n    \"b@70617468\" blob,\r\n    \"b@73656e74696e656" +
-            "c\" blob,\r\n    PRIMARY KEY (key)\r\n) WITH COMPACT STORAGE\r\n   AND read_repair_chan" +
-            "ce = 0.0\r\n   AND dclocal_read_repair_chance = 0.1\r\n   AND gc_grace_seconds = 864" +
-            "000\r\n   AND bloom_filter_fp_chance = 0.01\r\n   AND caching = { \'keys\' : \'ALL\', \'r" +
-            "ows_per_partition\' : \'NONE\' }\r\n   AND comment = \'Stores file meta data\'\r\n   AND " +
-            "compaction = { \'class\' : \'org.apache.cassandra.db.compaction.SizeTieredCompactio" +
-            "nStrategy\', \'max_threshold\' : 32, \'min_threshold\' : 4 }\r\n   AND compression = { " +
-            "\'chunk_length_in_kb\' : 64, \'class\' : \'org.apache.cassandra.io.compress.LZ4Compre" +
-            "ssor\' }\r\n   AND default_time_to_live = 0\r\n   AND speculative_retry = \'NONE\'\r\n   " +
-            "AND min_index_interval = 128\r\n   AND max_index_interval = 2048\r\n   AND crc_check" +
-            "_chance = 1.0;\r\nCREATE INDEX cfs_archive_parent_path ON cfs_archive.inode (\"b@70" +
-            "6172656e745f70617468\");\r\nCREATE INDEX cfs_archive_path ON cfs_archive.inode (\"b@" +
-            "70617468\");\r\nCREATE INDEX cfs_archive_sentinel ON cfs_archive.inode (\"b@73656e74" +
-            "696e656c\");\r\n\r\nCREATE TABLE cfs_archive.sblocks (\r\n    key blob,\r\n    column1 bl" +
-            "ob,\r\n    value blob,\r\n    PRIMARY KEY (key, column1)\r\n) WITH COMPACT STORAGE\r\n  " +
-            " AND read_repair_chance = 0.0\r\n   AND dclocal_read_repair_chance = 0.1\r\n   AND g" +
-            "c_grace_seconds = 864000\r\n   AND bloom_filter_fp_chance = 6.8E-5\r\n   AND caching" +
-            " = { \'keys\' : \'ALL\', \'rows_per_partition\' : \'NONE\' }\r\n   AND comment = \'Stores b" +
-            "locks of information associated with a inode\'\r\n   AND compaction = { \'class\' : \'" +
-            "com.datastax.bdp.hadoop.cfs.compaction.CFSCompactionStrategy\', \'max_threshold\' :" +
-            " 64, \'min_threshold\' : 2 }\r\n   AND compression = { \'enabled\' : \'false\' }\r\n   AND" +
-            " default_time_to_live = 0\r\n   AND speculative_retry = \'NONE\'\r\n   AND min_index_i" +
-            "nterval = 128\r\n   AND max_index_interval = 2048\r\n   AND crc_check_chance = 1.0;\r" +
-            "\n\r\nCREATE TABLE cfs_archive.cleanup (\r\n    key blob,\r\n    column1 blob,\r\n    val" +
-            "ue blob,\r\n    PRIMARY KEY (key, column1)\r\n) WITH COMPACT STORAGE\r\n   AND read_re" +
-            "pair_chance = 0.0\r\n   AND dclocal_read_repair_chance = 0.1\r\n   AND gc_grace_seco" +
-            "nds = 864000\r\n   AND bloom_filter_fp_chance = 0.01\r\n   AND caching = { \'keys\' : " +
-            "\'ALL\', \'rows_per_partition\' : \'NONE\' }\r\n   AND comment = \'Stores blocks row key " +
-            "to perform a cleanup for when jobs fail\'\r\n   AND compaction = { \'class\' : \'org.a" +
-            "pache.cassandra.db.compaction.SizeTieredCompactionStrategy\', \'max_threshold\' : 3" +
-            "2, \'min_threshold\' : 4 }\r\n   AND compression = { \'chunk_length_in_kb\' : 64, \'cla" +
-            "ss\' : \'org.apache.cassandra.io.compress.LZ4Compressor\' }\r\n   AND default_time_to" +
-            "_live = 0\r\n   AND speculative_retry = \'NONE\'\r\n   AND min_index_interval = 128\r\n " +
-            "  AND max_index_interval = 2048\r\n   AND crc_check_chance = 1.0;\r\n\r\nCREATE TABLE " +
-            "cfs_archive.rules (\r\n    key text,\r\n    compression boolean,\r\n    priority int,\r" +
-            "\n    PRIMARY KEY (key)\r\n) WITH COMPACT STORAGE\r\n   AND read_repair_chance = 0.0\r" +
-            "\n   AND dclocal_read_repair_chance = 0.1\r\n   AND gc_grace_seconds = 864000\r\n   A" +
-            "ND bloom_filter_fp_chance = 0.01\r\n   AND caching = { \'keys\' : \'ALL\', \'rows_per_p" +
-            "artition\' : \'NONE\' }\r\n   AND comment = \'Stores properties associated with groups" +
-            " of files and directories selected by path patterns\'\r\n   AND compaction = { \'cla" +
-            "ss\' : \'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy\', \'max_th" +
-            "reshold\' : 32, \'min_threshold\' : 4 }\r\n   AND compression = { \'chunk_length_in_kb" +
-            "\' : 64, \'class\' : \'org.apache.cassandra.io.compress.LZ4Compressor\' }\r\n   AND def" +
-            "ault_time_to_live = 0\r\n   AND speculative_retry = \'NONE\'\r\n   AND min_index_inter" +
-            "val = 128\r\n   AND max_index_interval = 2048\r\n   AND crc_check_chance = 1.0;\r\n   " +
-            " \r\nCREATE KEYSPACE \"OpsCenter\" WITH replication = {\'class\': \'EverywhereStrategy\'" +
-            "}  AND durable_writes = true AND PreLoaded = true;\r\n\r\nCREATE TABLE \"OpsCenter\".b" +
-            "estpractice_results (\r\n    key text,\r\n    column1 varint,\r\n    value blob,\r\n    " +
-            "PRIMARY KEY (key, column1)\r\n) WITH COMPACT STORAGE\r\n   AND CLUSTERING ORDER BY (" +
-            "column1 DESC)\r\n   AND read_repair_chance = 0.25\r\n   AND dclocal_read_repair_chan" +
-            "ce = 0.1\r\n   AND gc_grace_seconds = 0\r\n   AND bloom_filter_fp_chance = 0.01\r\n   " +
-            "AND caching = { \'keys\' : \'ALL\', \'rows_per_partition\' : \'NONE\' }\r\n   AND comment " +
-            "= \'{\"version\": [6, 1, 4], \"info\": \"OpsCenter management data.\"}\'\r\n   AND compact" +
-            "ion = { \'class\' : \'org.apache.cassandra.db.compaction.SizeTieredCompactionStrate" +
-            "gy\', \'max_threshold\' : 32, \'min_threshold\' : 4 }\r\n   AND compression = { \'chunk_" +
-            "length_in_kb\' : 64, \'class\' : \'org.apache.cassandra.io.compress.LZ4Compressor\' }" +
-            "\r\n   AND default_time_to_live = 0\r\n   AND speculative_retry = \'99PERCENTILE\'\r\n  " +
-            " AND min_index_interval = 128\r\n   AND max_index_interval = 2048\r\n   AND crc_chec" +
-            "k_chance = 1.0;\r\n\r\nCREATE TABLE \"OpsCenter\".rollup_state (\r\n    node text,\r\n    " +
-            "name text,\r\n    res int,\r\n    avg float,\r\n    histogram blob,\r\n    max float,\r\n " +
-            "   min float,\r\n    ts timestamp,\r\n    type int,\r\n    value float,\r\n    weight fl" +
-            "oat,\r\n    PRIMARY KEY (node, name, res)\r\n) WITH read_repair_chance = 0.0\r\n   AND" +
-            " dclocal_read_repair_chance = 0.0\r\n   AND gc_grace_seconds = 0\r\n   AND bloom_fil" +
-            "ter_fp_chance = 0.1\r\n   AND caching = { \'keys\' : \'ALL\', \'rows_per_partition\' : \'" +
-            "NONE\' }\r\n   AND comment = \'{\"version\": [6, 1, 4], \"info\": \"OpsCenter management " +
-            "data.\"}\'\r\n   AND compaction = { \'class\' : \'org.apache.cassandra.db.compaction.Le" +
-            "veledCompactionStrategy\' }\r\n   AND compression = { \'chunk_length_in_kb\' : 64, \'c" +
-            "lass\' : \'org.apache.cassandra.io.compress.LZ4Compressor\' }\r\n   AND default_time_" +
-            "to_live = 0\r\n   AND speculative_retry = \'99PERCENTILE\'\r\n   AND min_index_interva" +
-            "l = 128\r\n   AND max_index_interval = 2048\r\n   AND crc_check_chance = 1.0;\r\n\r\nCRE" +
-            "ATE TABLE \"OpsCenter\".settings (\r\n    key blob,\r\n    column1 blob,\r\n    value bl" +
-            "ob,\r\n    PRIMARY KEY (key, column1)\r\n) WITH COMPACT STORAGE\r\n   AND read_repair_" +
-            "chance = 1.0\r\n   AND dclocal_read_repair_chance = 0.1\r\n   AND gc_grace_seconds =" +
+            "\n   AND crc_check_chance = 1.0;\r\n\r\nCREATE TABLE \"OpsCenter\".rollups86400 (\r\n    " +
+            "key text,\r\n    timestamp varint,\r\n    value blob,\r\n    PRIMARY KEY (key, timesta" +
+            "mp)\r\n) WITH COMPACT STORAGE\r\n   AND read_repair_chance = 0.25\r\n   AND dclocal_re" +
+            "ad_repair_chance = 0.1\r\n   AND gc_grace_seconds = 0\r\n   AND bloom_filter_fp_chan" +
+            "ce = 0.01\r\n   AND caching = { \'keys\' : \'ALL\', \'rows_per_partition\' : \'NONE\' }\r\n " +
+            "  AND comment = \'{\"version\": [6, 1, 4], \"info\": \"OpsCenter management data.\"}\'\r\n" +
+            "   AND compaction = { \'class\' : \'org.apache.cassandra.db.compaction.SizeTieredCo" +
+            "mpactionStrategy\', \'max_threshold\' : 8, \'min_threshold\' : 2 }\r\n   AND compressio" +
+            "n = { \'chunk_length_in_kb\' : 64, \'class\' : \'org.apache.cassandra.io.compress.LZ4" +
+            "Compressor\' }\r\n   AND default_time_to_live = 0\r\n   AND speculative_retry = \'99PE" +
+            "RCENTILE\'\r\n   AND min_index_interval = 128\r\n   AND max_index_interval = 2048\r\n  " +
+            " AND crc_check_chance = 1.0;\r\n\r\nCREATE TABLE \"OpsCenter\".backup_reports (\r\n    w" +
+            "eek text,\r\n    event_time timestamp,\r\n    backup_id text,\r\n    type text,\r\n    d" +
+            "estination text,\r\n    deleted_at timestamp,\r\n    full_status text,\r\n    \"keyspac" +
+            "es\" text,\r\n    status text,\r\n    PRIMARY KEY (week, event_time, backup_id, type," +
+            " destination)\r\n) WITH CLUSTERING ORDER BY (event_time DESC, backup_id ASC, type " +
+            "ASC, destination ASC)\r\n   AND read_repair_chance = 0.0\r\n   AND dclocal_read_repa" +
+            "ir_chance = 0.1\r\n   AND gc_grace_seconds = 864000\r\n   AND bloom_filter_fp_chance" +
+            " = 0.01\r\n   AND caching = { \'keys\' : \'ALL\', \'rows_per_partition\' : \'NONE\' }\r\n   " +
+            "AND comment = \'{\"version\": [6, 1, 4], \"info\": \"OpsCenter management data.\"}\'\r\n  " +
+            " AND compaction = { \'class\' : \'org.apache.cassandra.db.compaction.SizeTieredComp" +
+            "actionStrategy\', \'max_threshold\' : 32, \'min_threshold\' : 4 }\r\n   AND compression" +
+            " = { \'chunk_length_in_kb\' : 64, \'class\' : \'org.apache.cassandra.io.compress.LZ4C" +
+            "ompressor\' }\r\n   AND default_time_to_live = 0\r\n   AND speculative_retry = \'99PER" +
+            "CENTILE\'\r\n   AND min_index_interval = 128\r\n   AND max_index_interval = 2048\r\n   " +
+            "AND crc_check_chance = 1.0;\r\n\r\nCREATE TABLE \"OpsCenter\".events_timeline (\r\n    k" +
+            "ey text,\r\n    column1 bigint,\r\n    value blob,\r\n    PRIMARY KEY (key, column1)\r\n" +
+            ") WITH COMPACT STORAGE\r\n   AND read_repair_chance = 0.25\r\n   AND dclocal_read_re" +
+            "pair_chance = 0.1\r\n   AND gc_grace_seconds = 864000\r\n   AND bloom_filter_fp_chan" +
+            "ce = 0.01\r\n   AND caching = { \'keys\' : \'ALL\', \'rows_per_partition\' : \'NONE\' }\r\n " +
+            "  AND comment = \'{\"version\": [6, 1, 4], \"info\": \"OpsCenter management data.\"}\'\r\n" +
+            "   AND compaction = { \'class\' : \'org.apache.cassandra.db.compaction.SizeTieredCo" +
+            "mpactionStrategy\', \'max_threshold\' : 8, \'min_threshold\' : 4 }\r\n   AND compressio" +
+            "n = { \'chunk_length_in_kb\' : 64, \'class\' : \'org.apache.cassandra.io.compress.LZ4" +
+            "Compressor\' }\r\n   AND default_time_to_live = 0\r\n   AND speculative_retry = \'99PE" +
+            "RCENTILE\'\r\n   AND min_index_interval = 128\r\n   AND max_index_interval = 2048\r\n  " +
+            " AND crc_check_chance = 1.0;\r\n\r\nCREATE TABLE \"OpsCenter\".rollups60 (\r\n    key te" +
+            "xt,\r\n    timestamp varint,\r\n    value blob,\r\n    PRIMARY KEY (key, timestamp)\r\n)" +
+            " WITH COMPACT STORAGE\r\n   AND read_repair_chance = 0.25\r\n   AND dclocal_read_rep" +
+            "air_chance = 0.1\r\n   AND gc_grace_seconds = 0\r\n   AND bloom_filter_fp_chance = 0" +
+            ".01\r\n   AND caching = { \'keys\' : \'ALL\', \'rows_per_partition\' : \'NONE\' }\r\n   AND " +
+            "comment = \'{\"version\": [6, 1, 4], \"info\": \"OpsCenter management data.\"}\'\r\n   AND" +
+            " compaction = { \'class\' : \'org.apache.cassandra.db.compaction.SizeTieredCompacti" +
+            "onStrategy\', \'max_threshold\' : 32, \'min_threshold\' : 4 }\r\n   AND compression = {" +
+            " \'chunk_length_in_kb\' : 64, \'class\' : \'org.apache.cassandra.io.compress.LZ4Compr" +
+            "essor\' }\r\n   AND default_time_to_live = 0\r\n   AND speculative_retry = \'99PERCENT" +
+            "ILE\'\r\n   AND min_index_interval = 128\r\n   AND max_index_interval = 2048\r\n   AND " +
+            "crc_check_chance = 1.0;\r\n\r\nCREATE TABLE \"OpsCenter\".events (\r\n    key text,\r\n   " +
+            " action bigint,\r\n    api_source_ip text,\r\n    column_family text,\r\n    event_sou" +
+            "rce text,\r\n    \"keyspace\" text,\r\n    level bigint,\r\n    message text,\r\n    sourc" +
+            "e_node text,\r\n    success boolean,\r\n    target_node text,\r\n    time bigint,\r\n   " +
+            " user text,\r\n    PRIMARY KEY (key)\r\n) WITH COMPACT STORAGE\r\n   AND read_repair_c" +
+            "hance = 0.25\r\n   AND dclocal_read_repair_chance = 0.1\r\n   AND gc_grace_seconds =" +
             " 864000\r\n   AND bloom_filter_fp_chance = 0.01\r\n   AND caching = { \'keys\' : \'ALL\'" +
             ", \'rows_per_partition\' : \'NONE\' }\r\n   AND comment = \'{\"version\": [6, 1, 4], \"inf" +
             "o\": \"OpsCenter management data.\"}\'\r\n   AND compaction = { \'class\' : \'org.apache." +
@@ -900,99 +1002,17 @@ public static class {0}
             "\'org.apache.cassandra.io.compress.LZ4Compressor\' }\r\n   AND default_time_to_live " +
             "= 0\r\n   AND speculative_retry = \'99PERCENTILE\'\r\n   AND min_index_interval = 128\r" +
             "\n   AND max_index_interval = 2048\r\n   AND crc_check_chance = 1.0;\r\n\r\nCREATE TABL" +
-            "E \"OpsCenter\".pdps (\r\n    key text,\r\n    column1 text,\r\n    value blob,\r\n    PRI" +
-            "MARY KEY (key, column1)\r\n) WITH COMPACT STORAGE\r\n   AND read_repair_chance = 0.2" +
-            "5\r\n   AND dclocal_read_repair_chance = 0.1\r\n   AND gc_grace_seconds = 0\r\n   AND " +
-            "bloom_filter_fp_chance = 0.01\r\n   AND caching = { \'keys\' : \'ALL\', \'rows_per_part" +
-            "ition\' : \'NONE\' }\r\n   AND comment = \'{\"version\": [6, 1, 4], \"info\": \"OpsCenter m" +
-            "anagement data.\"}\'\r\n   AND compaction = { \'class\' : \'org.apache.cassandra.db.com" +
-            "paction.SizeTieredCompactionStrategy\', \'max_threshold\' : 32, \'min_threshold\' : 4" +
-            " }\r\n   AND compression = { \'chunk_length_in_kb\' : 64, \'class\' : \'org.apache.cass" +
-            "andra.io.compress.LZ4Compressor\' }\r\n   AND default_time_to_live = 0\r\n   AND spec" +
-            "ulative_retry = \'99PERCENTILE\'\r\n   AND min_index_interval = 128\r\n   AND max_inde" +
-            "x_interval = 2048\r\n   AND crc_check_chance = 1.0;\r\n\r\nCREATE TABLE \"OpsCenter\".ro" +
-            "llups7200 (\r\n    key text,\r\n    timestamp varint,\r\n    value blob,\r\n    PRIMARY " +
-            "KEY (key, timestamp)\r\n) WITH COMPACT STORAGE\r\n   AND read_repair_chance = 0.25\r\n" +
-            "   AND dclocal_read_repair_chance = 0.1\r\n   AND gc_grace_seconds = 0\r\n   AND blo" +
-            "om_filter_fp_chance = 0.01\r\n   AND caching = { \'keys\' : \'ALL\', \'rows_per_partiti" +
-            "on\' : \'NONE\' }\r\n   AND comment = \'{\"version\": [6, 1, 4], \"info\": \"OpsCenter mana" +
-            "gement data.\"}\'\r\n   AND compaction = { \'class\' : \'org.apache.cassandra.db.compac" +
-            "tion.SizeTieredCompactionStrategy\', \'max_threshold\' : 8, \'min_threshold\' : 2 }\r\n" +
-            "   AND compression = { \'chunk_length_in_kb\' : 64, \'class\' : \'org.apache.cassandr" +
-            "a.io.compress.LZ4Compressor\' }\r\n   AND default_time_to_live = 0\r\n   AND speculat" +
-            "ive_retry = \'99PERCENTILE\'\r\n   AND min_index_interval = 128\r\n   AND max_index_in" +
-            "terval = 2048\r\n   AND crc_check_chance = 1.0;\r\n\r\nCREATE TABLE \"OpsCenter\".rollup" +
-            "s86400 (\r\n    key text,\r\n    timestamp varint,\r\n    value blob,\r\n    PRIMARY KEY" +
-            " (key, timestamp)\r\n) WITH COMPACT STORAGE\r\n   AND read_repair_chance = 0.25\r\n   " +
-            "AND dclocal_read_repair_chance = 0.1\r\n   AND gc_grace_seconds = 0\r\n   AND bloom_" +
-            "filter_fp_chance = 0.01\r\n   AND caching = { \'keys\' : \'ALL\', \'rows_per_partition\'" +
-            " : \'NONE\' }\r\n   AND comment = \'{\"version\": [6, 1, 4], \"info\": \"OpsCenter managem" +
-            "ent data.\"}\'\r\n   AND compaction = { \'class\' : \'org.apache.cassandra.db.compactio" +
-            "n.SizeTieredCompactionStrategy\', \'max_threshold\' : 8, \'min_threshold\' : 2 }\r\n   " +
-            "AND compression = { \'chunk_length_in_kb\' : 64, \'class\' : \'org.apache.cassandra.i" +
-            "o.compress.LZ4Compressor\' }\r\n   AND default_time_to_live = 0\r\n   AND speculative" +
-            "_retry = \'99PERCENTILE\'\r\n   AND min_index_interval = 128\r\n   AND max_index_inter" +
-            "val = 2048\r\n   AND crc_check_chance = 1.0;\r\n\r\nCREATE TABLE \"OpsCenter\".backup_re" +
-            "ports (\r\n    week text,\r\n    event_time timestamp,\r\n    backup_id text,\r\n    typ" +
-            "e text,\r\n    destination text,\r\n    deleted_at timestamp,\r\n    full_status text," +
-            "\r\n    \"keyspaces\" text,\r\n    status text,\r\n    PRIMARY KEY (week, event_time, ba" +
-            "ckup_id, type, destination)\r\n) WITH CLUSTERING ORDER BY (event_time DESC, backup" +
-            "_id ASC, type ASC, destination ASC)\r\n   AND read_repair_chance = 0.0\r\n   AND dcl" +
-            "ocal_read_repair_chance = 0.1\r\n   AND gc_grace_seconds = 864000\r\n   AND bloom_fi" +
-            "lter_fp_chance = 0.01\r\n   AND caching = { \'keys\' : \'ALL\', \'rows_per_partition\' :" +
-            " \'NONE\' }\r\n   AND comment = \'{\"version\": [6, 1, 4], \"info\": \"OpsCenter managemen" +
-            "t data.\"}\'\r\n   AND compaction = { \'class\' : \'org.apache.cassandra.db.compaction." +
-            "SizeTieredCompactionStrategy\', \'max_threshold\' : 32, \'min_threshold\' : 4 }\r\n   A" +
-            "ND compression = { \'chunk_length_in_kb\' : 64, \'class\' : \'org.apache.cassandra.io" +
-            ".compress.LZ4Compressor\' }\r\n   AND default_time_to_live = 0\r\n   AND speculative_" +
-            "retry = \'99PERCENTILE\'\r\n   AND min_index_interval = 128\r\n   AND max_index_interv" +
-            "al = 2048\r\n   AND crc_check_chance = 1.0;\r\n\r\nCREATE TABLE \"OpsCenter\".events_tim" +
-            "eline (\r\n    key text,\r\n    column1 bigint,\r\n    value blob,\r\n    PRIMARY KEY (k" +
-            "ey, column1)\r\n) WITH COMPACT STORAGE\r\n   AND read_repair_chance = 0.25\r\n   AND d" +
-            "clocal_read_repair_chance = 0.1\r\n   AND gc_grace_seconds = 864000\r\n   AND bloom_" +
-            "filter_fp_chance = 0.01\r\n   AND caching = { \'keys\' : \'ALL\', \'rows_per_partition\'" +
-            " : \'NONE\' }\r\n   AND comment = \'{\"version\": [6, 1, 4], \"info\": \"OpsCenter managem" +
-            "ent data.\"}\'\r\n   AND compaction = { \'class\' : \'org.apache.cassandra.db.compactio" +
-            "n.SizeTieredCompactionStrategy\', \'max_threshold\' : 8, \'min_threshold\' : 4 }\r\n   " +
-            "AND compression = { \'chunk_length_in_kb\' : 64, \'class\' : \'org.apache.cassandra.i" +
-            "o.compress.LZ4Compressor\' }\r\n   AND default_time_to_live = 0\r\n   AND speculative" +
-            "_retry = \'99PERCENTILE\'\r\n   AND min_index_interval = 128\r\n   AND max_index_inter" +
-            "val = 2048\r\n   AND crc_check_chance = 1.0;\r\n\r\nCREATE TABLE \"OpsCenter\".rollups60" +
-            " (\r\n    key text,\r\n    timestamp varint,\r\n    value blob,\r\n    PRIMARY KEY (key," +
-            " timestamp)\r\n) WITH COMPACT STORAGE\r\n   AND read_repair_chance = 0.25\r\n   AND dc" +
-            "local_read_repair_chance = 0.1\r\n   AND gc_grace_seconds = 0\r\n   AND bloom_filter" +
-            "_fp_chance = 0.01\r\n   AND caching = { \'keys\' : \'ALL\', \'rows_per_partition\' : \'NO" +
-            "NE\' }\r\n   AND comment = \'{\"version\": [6, 1, 4], \"info\": \"OpsCenter management da" +
-            "ta.\"}\'\r\n   AND compaction = { \'class\' : \'org.apache.cassandra.db.compaction.Size" +
-            "TieredCompactionStrategy\', \'max_threshold\' : 32, \'min_threshold\' : 4 }\r\n   AND c" +
-            "ompression = { \'chunk_length_in_kb\' : 64, \'class\' : \'org.apache.cassandra.io.com" +
-            "press.LZ4Compressor\' }\r\n   AND default_time_to_live = 0\r\n   AND speculative_retr" +
-            "y = \'99PERCENTILE\'\r\n   AND min_index_interval = 128\r\n   AND max_index_interval =" +
-            " 2048\r\n   AND crc_check_chance = 1.0;\r\n\r\nCREATE TABLE \"OpsCenter\".events (\r\n    " +
-            "key text,\r\n    action bigint,\r\n    api_source_ip text,\r\n    column_family text,\r" +
-            "\n    event_source text,\r\n    \"keyspace\" text,\r\n    level bigint,\r\n    message te" +
-            "xt,\r\n    source_node text,\r\n    success boolean,\r\n    target_node text,\r\n    tim" +
-            "e bigint,\r\n    user text,\r\n    PRIMARY KEY (key)\r\n) WITH COMPACT STORAGE\r\n   AND" +
-            " read_repair_chance = 0.25\r\n   AND dclocal_read_repair_chance = 0.1\r\n   AND gc_g" +
-            "race_seconds = 864000\r\n   AND bloom_filter_fp_chance = 0.01\r\n   AND caching = { " +
-            "\'keys\' : \'ALL\', \'rows_per_partition\' : \'NONE\' }\r\n   AND comment = \'{\"version\": [" +
-            "6, 1, 4], \"info\": \"OpsCenter management data.\"}\'\r\n   AND compaction = { \'class\' " +
-            ": \'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy\', \'max_thresh" +
-            "old\' : 12, \'min_threshold\' : 8 }\r\n   AND compression = { \'chunk_length_in_kb\' : " +
-            "64, \'class\' : \'org.apache.cassandra.io.compress.LZ4Compressor\' }\r\n   AND default" +
-            "_time_to_live = 0\r\n   AND speculative_retry = \'99PERCENTILE\'\r\n   AND min_index_i" +
-            "nterval = 128\r\n   AND max_index_interval = 2048\r\n   AND crc_check_chance = 1.0;\r" +
-            "\n\r\nCREATE TABLE \"OpsCenter\".rollups300 (\r\n    key text,\r\n    timestamp varint,\r\n" +
-            "    value blob,\r\n    PRIMARY KEY (key, timestamp)\r\n) WITH COMPACT STORAGE\r\n   AN" +
-            "D read_repair_chance = 0.25\r\n   AND dclocal_read_repair_chance = 0.1\r\n   AND gc_" +
-            "grace_seconds = 0\r\n   AND bloom_filter_fp_chance = 0.01\r\n   AND caching = { \'key" +
-            "s\' : \'ALL\', \'rows_per_partition\' : \'NONE\' }\r\n   AND comment = \'{\"version\": [6, 1" +
-            ", 4], \"info\": \"OpsCenter management data.\"}\'\r\n   AND compaction = { \'class\' : \'o" +
-            "rg.apache.cassandra.db.compaction.SizeTieredCompactionStrategy\', \'max_threshold\'" +
-            " : 16, \'min_threshold\' : 4 }\r\n   AND compression = { \'chunk_length_in_kb\' : 64, " +
-            "\'class\' : \'org.apache.cassandra.io.compress.LZ4Compressor\' }\r\n   AND default_tim" +
-            "e_to_live = 0\r\n   AND speculative_retry = \'99PERCENTILE\'\r\n   AND min_index_inter" +
-            "val = 128\r\n   AND max_index_interval = 2048\r\n   AND crc_check_chance = 1.0;")]
+            "E \"OpsCenter\".rollups300 (\r\n    key text,\r\n    timestamp varint,\r\n    value blob" +
+            ",\r\n    PRIMARY KEY (key, timestamp)\r\n) WITH COMPACT STORAGE\r\n   AND read_repair_" +
+            "chance = 0.25\r\n   AND dclocal_read_repair_chance = 0.1\r\n   AND gc_grace_seconds " +
+            "= 0\r\n   AND bloom_filter_fp_chance = 0.01\r\n   AND caching = { \'keys\' : \'ALL\', \'r" +
+            "ows_per_partition\' : \'NONE\' }\r\n   AND comment = \'{\"version\": [6, 1, 4], \"info\": " +
+            "\"OpsCenter management data.\"}\'\r\n   AND compaction = { \'class\' : \'org.apache.cass" +
+            "andra.db.compaction.SizeTieredCompactionStrategy\', \'max_threshold\' : 16, \'min_th" +
+            "reshold\' : 4 }\r\n   AND compression = { \'chunk_length_in_kb\' : 64, \'class\' : \'org" +
+            ".apache.cassandra.io.compress.LZ4Compressor\' }\r\n   AND default_time_to_live = 0\r" +
+            "\n   AND speculative_retry = \'99PERCENTILE\'\r\n   AND min_index_interval = 128\r\n   " +
+            "AND max_index_interval = 2048\r\n   AND crc_check_chance = 1.0;")]
         public string DSESystemDDL {
             get {
                 return ((string)(this["DSESystemDDL"]));
@@ -1039,7 +1059,7 @@ public static class {0}
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute(@"(?:/(?<NODE>[^  \]}),]+))|(?:consistency\s+level\s+(?<consistencylevel>[a-z\-_]+))|(?:timeout\:?\s+(?<timeout>[0-9,.\-]+))|(?:sstable\s*(?<SSTABLEPATH>[a-z0-9\-_@#/.,\\ +%]+)[\]})]?)|(?:executing\s+query\s+(?<cql>.+)|(?:(?:\s+|\#)(?<ID>[0-9a-f]{8}\-[0-9a-f]{4}\-[0-9a-f]{4}\-[0-9a-f]{4}\-[0-9a-f]{12})(?:\s|\]))|(?:\s?(?<TOKENRANGE>\(\-?[0-9]+\,\-?[0-9]+\])\,?))")]
+        [global::System.Configuration.DefaultSettingValueAttribute(@"(?:/(?<NODE>[^  \]}),]+))|(?:consistency\s+level\s+(?<consistencylevel>[a-z\-_]+))|(?:timeout\:?\s+(?<timeout>[0-9,.\-]+))|(?:sstable\s*(?<SSTABLEPATH>[a-z0-9\-_@#/.,\\ +%]+)[\]})]?)|(?:executing\s+query\s+(?<cql>.+)|(?:(?:\s+|\#)(?<ID>[0-9a-f]{8}\-[0-9a-f]{4}\-[0-9a-f]{4}\-[0-9a-f]{4}\-[0-9a-f]{12})(?:\s|\]))|(?:\s?(?<TOKENRANGE>\(\-?[0-9]+\,\-?[0-9]+\])\,?)|(?:id\:\s+(?<CHANNELID>0x[0-9a-f]+)))")]
         public string LogExceptionRegExMatches {
             get {
                 return ((string)(this["LogExceptionRegExMatches"]));

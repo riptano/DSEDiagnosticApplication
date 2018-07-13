@@ -155,21 +155,23 @@ namespace DSEDiagnosticToDataTable
                 #region Aggregation Log Events
 
                 //Merge logs from all nodes and determine events used for aggregations
-                var logGrpEvts = from logEvent in this.Cluster.Nodes.AsParallel().SelectMany(n => 
-                                                    (from logMMV in n.LogEvents
-                                                     let logEvt = logMMV.GetValue((Common.Patterns.Collections.MemoryMapperElementCreationTypes)LogCassandraEvent.ElementCreationTypes.EventTypeOnly)
+                var logGrpEvts = from logEvent in this.Cluster.Nodes.SelectMany(n => 
+                                                    (from logMMV in n.LogEventsCache(LogCassandraEvent.ElementCreationTypes.EventTypeOnly, true)
+                                                     let logEvt = logMMV.Value
                                                      where (logEvt.Type & EventTypes.SingleInstance) != 0
                                                              || (logEvt.Type & EventTypes.SessionEnd) == EventTypes.SessionEnd
                                                              || (logEvt.Type & EventTypes.SessionDefinedByDuration) == EventTypes.SessionDefinedByDuration
                                                              || (logEvt.Type & EventTypes.AggregateData) == EventTypes.AggregateData
                                                              || ((logEvt.Type & EventTypes.SessionBegin) == EventTypes.SessionBegin && (logEvt.Class & EventClasses.Orphaned) == EventClasses.Orphaned)
+                                                     let aggregationDateTime = aggPeriods.First(p => p.Includes(logEvt.EventTime.UtcDateTime))
+                                                     let logEvent = logMMV.GetValue((Common.Patterns.Collections.MemoryMapperElementCreationTypes)LogCassandraEvent.ElementCreationTypes.AggregationPeriodOnlyWProps)
                                                      select new
                                                      {
-                                                         AggregationDateTime = aggPeriods.First(p => p.Includes(logEvt.EventTime.UtcDateTime)),
-                                                         LogEvent = logMMV.GetValue((Common.Patterns.Collections.MemoryMapperElementCreationTypes)LogCassandraEvent.ElementCreationTypes.AggregationPeriodOnlyWProps)
+                                                         AggregationDateTime = aggregationDateTime,
+                                                         GroupKey = new DSEDiagnosticAnalytics.LogEventGroup(aggregationDateTime, logEvent),
+                                                         LogEvent = logEvent
                                                      }))                                                                  
-                                group logEvent by new DSEDiagnosticAnalytics.LogEventGroup(logEvent.AggregationDateTime,
-                                                                                            logEvent.LogEvent)
+                                group logEvent by logEvent.GroupKey
                                         into g
                                 let grpEvents = g.Select(x => x.LogEvent).OrderBy(e => e.EventTime)
                                  select new { GroupKey = g.Key,

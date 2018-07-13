@@ -245,19 +245,12 @@ namespace DSEDiagnosticConsoleApplication
                 Description = "The cluster's hash code."
             });
 
-            if(ParserSettings.LogEventsAreMemoryMapped)
-                this._cmdLineParser.Arguments.Add(new SwitchArgument("DisableLogEventMemoryMapping", false)
-                {
-                    Optional = true,
-                    Description = "If defined the Log Events are NOT mapped into virtual memory (uses physical memory with better performance but can OOM). The default is to map events into virtual memory resulting in smaller physical memory utilizations on the cost of performance."
-                });
-            else
-                this._cmdLineParser.Arguments.Add(new SwitchArgument("EnableLogEventMemoryMapping", false)
-                {
-                    Optional = true,
-                    Description = "If defined the Log Events are mapped into virtual memory."
-                });
-
+            this._cmdLineParser.Arguments.Add(new ValueArgument<bool>("LogEventMemoryMapping")
+            {
+                Optional = true,
+                Description = "If true the Log Events are mapped into virtual memory, if false Log Events are kept in physical memory (better performance but can OOM)."
+            });
+            
             this._cmdLineParser.Arguments.Add(new ValueArgument<string>("Profile")
             {
                 DefaultValue = ParserSettings.Profile,
@@ -643,22 +636,11 @@ namespace DSEDiagnosticConsoleApplication
                             ParserSettings.NodeDefaultTimeZones = items.ToArray();
                         }
                         break;
-                    case "DisableLogEventMemoryMapping":
-                        {
-                            if (((SwitchArgument)item).Value)
-                            {
-                                ParserSettings.LogEventsAreMemoryMapped = false;
-                            }
+                    case "LogEventMemoryMapping":
+                        {                            
+                            ParserSettings.LogEventsAreMemoryMapped = ((ValueArgument<bool>)item).Value;                            
                         }
-                        break;
-                    case "EnableLogEventMemoryMapping":
-                        {
-                            if (((SwitchArgument)item).Value)
-                            {
-                                ParserSettings.LogEventsAreMemoryMapped = true;
-                            }
-                        }
-                        break;
+                        break;                    
                     case "Profile":
                         {
                             var argValue = ((ValueArgument<string>)item).Value;
@@ -687,7 +669,7 @@ namespace DSEDiagnosticConsoleApplication
                             {
                                 DSEDiagnosticFileParser.LibrarySettings.ProcessFileMappingValue = profile.ProcessFileMappings;
                             }                            
-                            if (!results.Any(i => i.LongName == "DisableLogEventMemoryMapping" || i.LongName == "EnableEventMemoryMapping"))
+                            if (!results.Any(i => i.LongName == "LogEventMemoryMapping"))
                             {
                                 ParserSettings.LogEventsAreMemoryMapped = profile.EnableVirtualMemory;
                             }

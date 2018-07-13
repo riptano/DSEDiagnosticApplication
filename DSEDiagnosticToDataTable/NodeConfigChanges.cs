@@ -67,11 +67,11 @@ namespace DSEDiagnosticToDataTable
 
                    Logger.Instance.InfoFormat("Checking Node Configuration Changes from Logs for \"{0}\"", node.Id.NodeName());
 
-                   var logConfigLines = from logEvent in node.LogEvents.AsParallel()
-                                        let searchEvent = logEvent.GetValue(Common.Patterns.Collections.MemoryMapperElementCreationTypes.SearchView)
-                                        where (searchEvent.Class & DSEDiagnosticLibrary.EventClasses.Config) != 0
-                                               && (searchEvent.Class & DSEDiagnosticLibrary.EventClasses.NodeDetection) != 0
-                                        select logEvent.Value;
+                    var logConfigLines = from logEvent in node.LogEventsCache(DSEDiagnosticLibrary.LogCassandraEvent.ElementCreationTypes.EventTypeOnly, true)
+                                         let searchEvent = logEvent.Value
+                                         where (searchEvent.Class & DSEDiagnosticLibrary.EventClasses.Config) != 0
+                                                && (searchEvent.Class & DSEDiagnosticLibrary.EventClasses.NodeDetection) != 0
+                                         select logEvent.GetValue((Common.Patterns.Collections.MemoryMapperElementCreationTypes)DSEDiagnosticLibrary.LogCassandraEvent.ElementCreationTypes.AggregationPeriodOnlyWPropsTZ);
                    IEnumerable<DSEDiagnosticLibrary.IConfigurationLine> nodeConfigs = null;
 
                    if (logConfigLines.HasAtLeastOneElement())

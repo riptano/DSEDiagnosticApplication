@@ -32,7 +32,8 @@ namespace DSEDiagnosticLog4NetParser.Tests
     @"	at com.google.common.cache.LocalCache.get(LocalCache.java:3937) ~[guava-18.0.jar:na]",
     @"Caused by: java.lang.RuntimeException: org.apache.cassandra.exceptions.UnavailableException: Cannot achieve consistency level LOCAL_ONE",
     @"WARN  [SharedPool-Worker-3] 2016-12-09 10:20:41,300  DseAuthenticator.java:411 - Plain text authentication without client / server encryption is strongly discouraged",
-    @"WARN  [SharedPool-Worker-3] 2016-12-09 10:20:41,478  warn.java:411 - warning test message"
+    @"WARN  [SharedPool-Worker-3] 2016-12-09 10:20:41,478  warn.java:411 - warning test message",
+    @"WARN  [SharedPool-Worker-4] 2016-12-09 10:20:41,479  warn.java:411 - Unexpected exception during request; channel = [id: 0x06aaed1c, L:/10.36.100.235:9042 - R:/10.36.28.98:38802]"
             };
 
             var logMessages = new LogMessages(filePath, l);
@@ -43,8 +44,8 @@ namespace DSEDiagnosticLog4NetParser.Tests
                 logMessages.AddMessage(element, ++cnt);
             }
 
-            Assert.AreEqual(5, logMessages.Messages.Count());
-            Assert.AreEqual(new DateTime(2016, 12, 9, 10, 20, 41, 478), logMessages.LogTimeRange.Max.DateTime);
+            Assert.AreEqual(6, logMessages.Messages.Count());
+            Assert.AreEqual(new DateTime(2016, 12, 9, 10, 20, 41, 479), logMessages.LogTimeRange.Max.DateTime);
             Assert.AreEqual(new DateTime(2016, 12, 7, 15, 02, 05, 817), logMessages.LogTimeRange.Min.DateTime);
             Assert.AreEqual(0, logMessages.Messages.ElementAt(0).ExtraMessages.Count());
             Assert.AreEqual(4, logMessages.Messages.ElementAt(2).ExtraMessages.Count());
@@ -52,6 +53,8 @@ namespace DSEDiagnosticLog4NetParser.Tests
                                 logMessages.Messages.ElementAt(2).Message);
             Assert.AreEqual(@"at com.google.common.cache.LocalCache$Segment.get(LocalCache.java:2203) ~[guava-18.0.jar:na]",
                                logMessages.Messages.ElementAt(2).ExtraMessages.ElementAt(1));
+            Assert.AreEqual(@"Unexpected exception during request; channel = [id: 0x06aaed1c, L:/10.36.100.235:9042 - R:/10.36.28.98:38802]",
+                                logMessages.Messages.ElementAt(5).Message);
         }
     }
 }
