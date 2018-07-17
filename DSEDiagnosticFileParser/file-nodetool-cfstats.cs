@@ -280,7 +280,7 @@ namespace DSEDiagnosticFileParser
                                                                     EventClasses.Node | EventClasses.KeyspaceTableViewIndexStats);
                         this._statsList.Add(errorStatItem);
 
-                        errorStatItem.AssociateItem(AggregatedStats.Errors,
+                        errorStatItem.AssociateItem(AggregatedStats.ErrorKSNotFnd,
                                                         new List<string>() { string.Format("Keyspace \"{0}\" not found in DC \"{1}\"",
                                                                                             ksName,
                                                                                             this.Node.DataCenter?.Name ?? "<NoDC>") });
@@ -334,18 +334,29 @@ namespace DSEDiagnosticFileParser
                         skipSection = true;
                         statItem = null;
 
-                        if(statItemCurrentKeyspace != null)
+                        if(statItemCurrentKeyspace == null)
+                        {
+                            var errorStatItem = new AggregatedStats(this.File,
+                                                                    this.Node,
+                                                                    SourceTypes.CFStats,
+                                                                    EventTypes.AggregateDataTool,
+                                                                    EventClasses.Node | EventClasses.KeyspaceTableViewIndexStats);
+                            this._statsList.Add(errorStatItem);
+                            errorStatItem.AssociateItem(AggregatedStats.ErrorCItemNotFnd,
+                                                                        new List<string>() { string.Format("{1} \"{0}\" not found", tableName, attribute) });
+                        }
+                        else
                         {
                             object existingValue;
 
-                            if(statItemCurrentKeyspace.Data.TryGetValue(AggregatedStats.Errors, out existingValue))
+                            if(statItemCurrentKeyspace.Data.TryGetValue(AggregatedStats.ErrorCItemNotFnd, out existingValue))
                             {
-                                ((List<string>)existingValue).Add(string.Format("Table \"{0}\" not found", tableName));
+                                ((List<string>)existingValue).Add(string.Format("{1} \"{0}\" not found", tableName, attribute));
                             }
                             else
                             {
-                                statItemCurrentKeyspace.AssociateItem(AggregatedStats.Errors,
-                                                                        new List<string>() { string.Format("Table \"{0}\" not found", tableName) });
+                                statItemCurrentKeyspace.AssociateItem(AggregatedStats.ErrorCItemNotFnd,
+                                                                        new List<string>() { string.Format("{1} \"{0}\" not found", tableName, attribute) });
                             }
                         }
                     }

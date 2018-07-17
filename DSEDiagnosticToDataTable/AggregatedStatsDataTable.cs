@@ -127,11 +127,21 @@ namespace DSEDiagnosticToDataTable
                             this.Table.Rows.Add(dataRow);
 
                             ++nbrItems;
+                        }                                         
+                    }
+
+                    foreach (var item in stat.Data)
+                    {
+                        this.CancellationToken.ThrowIfCancellationRequested();
+
+                        if(item.Key == DSEDiagnosticLibrary.AggregatedStats.DCNotInKS)
+                        {
+                            continue;
                         }
 
-                        if (stat.Data.TryGetValue(DSEDiagnosticLibrary.AggregatedStats.Errors, out errorValue))
+                        if (item.Key.StartsWith(DSEDiagnosticLibrary.AggregatedStats.Error))
                         {
-                            foreach(var strError in (IList<string>) errorValue)
+                            foreach (var strError in (IList<string>)item.Value)
                             {
                                 this.CancellationToken.ThrowIfCancellationRequested();
 
@@ -150,26 +160,17 @@ namespace DSEDiagnosticToDataTable
                                     this.SetTableIndexInfo(dataRow, stat, warn);
                                 }
 
-                                dataRow.SetField("Attribute", DSEDiagnosticLibrary.AggregatedStats.Errors);
+                                dataRow.SetField("Attribute", item.Key);
                                 dataRow.SetField("Value", strError);
 
                                 this.Table.Rows.Add(dataRow);
 
                                 ++nbrItems;
                             }
-                        }                        
-                    }
 
-                    foreach (var item in stat.Data)
-                    {
-                        this.CancellationToken.ThrowIfCancellationRequested();
-
-                        if(item.Key == DSEDiagnosticLibrary.AggregatedStats.Errors
-                            || item.Key == DSEDiagnosticLibrary.AggregatedStats.DCNotInKS)
-                        {
                             continue;
                         }
-                        
+
                         nbrItems += this.AddAggregatedDataRow(stat, warn, keyspaceName, item.Key, item.Value);
                     }
                 }

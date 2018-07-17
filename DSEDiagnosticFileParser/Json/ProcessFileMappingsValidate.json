@@ -350,6 +350,7 @@
       ".\\nodes\\*\\logs\\cassandra\\debug.log.*",
       ".\\nodes\\*\\logs\\cassandra\\*\\debug.log",
       ".\\nodes\\*\\logs\\cassandra\\*\\debug.log.*",
+      ".\\AdditionalLogs\\*\\system.log.*",
       ".\\AdditionalLogs\\*\\debug.log.*",
       ".\\ArchivedLogs\\*\\system.log.*",
       ".\\ArchivedLogs\\*\\debug.log.*"

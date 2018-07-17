@@ -104,6 +104,7 @@ namespace DSEDiagnosticLibrary
         Query           = 0x400000000,
         Gossip          = 0x800000000,
         Batches         = 0x1000000000,
+        Prepares        = 0x2000000000,
         GCStats = GC | Stats,
         MemtableFlush = Memtable | Flush,
         SolrHardCommit = Solr | Commit,

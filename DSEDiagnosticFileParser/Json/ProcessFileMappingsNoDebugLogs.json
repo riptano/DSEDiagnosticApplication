@@ -346,7 +346,6 @@
       ".\\nodes\\*\\logs\\cassandra\\system.log.*",
       ".\\nodes\\*\\logs\\cassandra\\*\\system.log",
       ".\\nodes\\*\\logs\\cassandra\\*\\system.log.*",
-      ".\\nodes\\*\\logs\\cassandra\\*\\debug.log.*",
       ".\\AdditionalLogs\\*\\system.log.*",
       ".\\ArchivedLogs\\*\\system.log.*"
     ],

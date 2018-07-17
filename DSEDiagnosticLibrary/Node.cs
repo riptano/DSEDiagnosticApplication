@@ -1049,7 +1049,7 @@ namespace DSEDiagnosticLibrary
         AnalyticsInfo Analytics { get; }
 
 		IEnumerable<IMMLogValue> LogEvents { get; }
-        IEnumerable<IMMLogValue> LogEventsCache(LogCassandraEvent.ElementCreationTypes creationType, bool presistCache = false);
+        IEnumerable<IMMLogValue> LogEventsCache(LogCassandraEvent.ElementCreationTypes creationType, bool presistCache = false, bool safeRead = true);
         
         INode AssociateItem(IMMLogValue eventItems);
         IMMLogValue AssociateItem(ILogEvent eventItems);
@@ -1240,9 +1240,9 @@ namespace DSEDiagnosticLibrary
         [JsonIgnore]
         public IEnumerable<IMMLogValue> LogEvents { get { return this._eventsCMM?.ToEnumerable() ?? (IEnumerable<IMMLogValue>) this._eventsCTS; } }
 
-        public IEnumerable<IMMLogValue> LogEventsCache(LogCassandraEvent.ElementCreationTypes creationType, bool presistCache = false)
+        public IEnumerable<IMMLogValue> LogEventsCache(LogCassandraEvent.ElementCreationTypes creationType, bool presistCache = false, bool safeRead = true)
         {
-            if(this._eventsCMM == null) return (IEnumerable<IMMLogValue>)this._eventsCTS;
+            if(this._eventsCMM == null) return safeRead ? (IEnumerable<IMMLogValue>)this._eventsCTS : (IEnumerable<IMMLogValue>)this._eventsCTS.UnSafe;
 
             return this._eventsCMM.ToEnumerableCached((Common.Patterns.Collections.MemoryMapperElementCreationTypes)creationType, presistCache);
         }

@@ -338,26 +338,5 @@
     "NodeIdPos": -1,
     "ProcessingTaskOption": "ScanForNode,ParallelProcessing,ParallelProcessFiles",
     "ProcessPriorityLevel": 180
-  },
-  {
-    "Catagory": "LogFile",
-    "FilePatterns": [
-      ".\\nodes\\*\\logs\\cassandra\\system.log",
-      ".\\nodes\\*\\logs\\cassandra\\system.log.*",
-      ".\\nodes\\*\\logs\\cassandra\\*\\system.log",
-      ".\\nodes\\*\\logs\\cassandra\\*\\system.log.*",
-      ".\\nodes\\*\\logs\\cassandra\\debug.log",
-      ".\\nodes\\*\\logs\\cassandra\\debug.log.*",
-      ".\\nodes\\*\\logs\\cassandra\\*\\debug.log",
-      ".\\nodes\\*\\logs\\cassandra\\*\\debug.log.*",
-      ".\\AdditionalLogs\\*\\debug.log.*",
-      ".\\ArchivedLogs\\*\\system.log.*",
-      ".\\ArchivedLogs\\*\\debug.log.*"
-    ],
-    "FileParsingClass": "DSEDiagnosticFileParser.file_cassandra_log4net_ReadTimeRange",
-    "NodeIdPos": -1,
-    "ProcessingTaskOption": "ScanForNode,ParallelProcessing,ParallelProcessNode,SortFilesByOldest",
-    "ProcessPriorityLevel": 100,
-    "Scheduler": "WorkStealingTaskScheduler"
   }
 ]

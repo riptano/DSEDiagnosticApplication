@@ -67,7 +67,7 @@ namespace DSEDiagnosticToDataTable
 
                    Logger.Instance.InfoFormat("Checking Node Configuration Changes from Logs for \"{0}\"", node.Id.NodeName());
 
-                    var logConfigLines = from logEvent in node.LogEventsCache(DSEDiagnosticLibrary.LogCassandraEvent.ElementCreationTypes.EventTypeOnly, true)
+                    var logConfigLines = from logEvent in node.LogEventsCache(DSEDiagnosticLibrary.LogCassandraEvent.ElementCreationTypes.EventTypeOnly, true, false)
                                          let searchEvent = logEvent.Value
                                          where (searchEvent.Class & DSEDiagnosticLibrary.EventClasses.Config) != 0
                                                 && (searchEvent.Class & DSEDiagnosticLibrary.EventClasses.NodeDetection) != 0

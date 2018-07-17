@@ -41,6 +41,7 @@ namespace DSEDiagnosticFileParser
         List<LogCassandraEvent> _logEvents = new List<LogCassandraEvent>();
         List<Tuple<LogCassandraEvent, LateDDLResolution>> _lateResolutionEvents = new List<Tuple<LogCassandraEvent, LateDDLResolution>>();
         private CLogLineTypeParser[] DebugFlushCompMatchingRegEx = null;
+        private int _nbrNotHandledEvents = 0;
 
         public file_cassandra_log4net(CatagoryTypes catagory,
                                     IDirectoryPath diagnosticDirectory,
@@ -642,7 +643,10 @@ namespace DSEDiagnosticFileParser
                                 if (logEvent != null
                                         && (onLogEventHandler == null
                                                 || LogEventArgs.InvokeEvent(this, logMessage, logEvent, this._orphanedSessionEvents, this._logEvents, onLogEventHandler)))
+                                {
                                     this._logEvents.Add(logEvent);
+                                    ++this._nbrNotHandledEvents;
+                                }
                             }
                         }
                     }
@@ -748,6 +752,15 @@ namespace DSEDiagnosticFileParser
             if(onLogEventHandler != null && this._orphanedSessionEvents.HasAtLeastOneElement())
             {
                 LogEventArgs.InvokeEvent(this, null, null, this._orphanedSessionEvents, this._logEvents, onLogEventHandler);
+            }
+
+            if(Logger.Instance.IsDebugEnabled)
+            {
+                Logger.Instance.DebugFormat("MapperId<{0}>\t{1}\t{2}\tNumber of Unhandled Events {3:###,###,##0}",
+                                                this.MapperId,
+                                                this.Node,
+                                                this.ShortFilePath,
+                                                this._nbrNotHandledEvents);
             }
 
             return (uint) this._result.RunLogResultsTask(this.Node, this._logEvents);
@@ -1883,7 +1896,8 @@ namespace DSEDiagnosticFileParser
                                             out IEnumerable<INode> assocatedNodes,
                                             out IEnumerable<TokenRangeInfo> tokenRanges)
                                             //out string sessionId)
-        {            
+        {
+            AggregatedStats errorNodeAggStat = null;
             var keyspaceName = StringHelpers.RemoveQuotes((string)logProperties.TryGetValue("KEYSPACE"));
             var ddlName = StringHelpers.RemoveQuotes((string)logProperties.TryGetValue("DDLITEMNAME") ?? (string)logProperties.TryGetValue("TABLEVIEWNAME"));
             var ddlSchemaId = (string)logProperties.TryGetValue("DDLSCHEMAID");
@@ -2022,7 +2036,7 @@ namespace DSEDiagnosticFileParser
                         primaryDDL = ddlItems.First();
                         primaryKS = primaryDDL.Keyspace;
                     }
-                    else if (primaryDDL == null)
+                    else if (primaryDDL == null && ddlInstances != null)
                     {
                        var commonTbl = ((ICQLIndex)ddlInstances.First()).Table;
 
@@ -2130,7 +2144,7 @@ namespace DSEDiagnosticFileParser
                         };
                         ddlInstances = null;
                     }
-                    else if(Logger.Instance.IsDebugEnabled)
+                    else
                     {
                         var localPrimaryKS = primaryKS;
 
@@ -2161,14 +2175,40 @@ namespace DSEDiagnosticFileParser
                                 diffNames = names;
                             }
 
-                            Logger.Instance.ErrorFormat("MapperId<{0}>\t{1}\t{2}\tCasandra Log Event at {3:yyyy-MM-dd HH:mm:ss,fff} has mismatch between parsed C* objects from the log vs. DDL C* object instances. There are {4}. They are {{{5}}}. Log line is \"{6}\". DDLItems property for the log instance may contain invalid DDL instances.",
-                                                        this.MapperId,
-                                                        this.Node,
-                                                        this.ShortFilePath,
-                                                        logMessage.LogDateTime,
-                                                        ddlInstancesCnt > ddlNamesCnt ? "multiple resolved C* object (DDL) instances" : "unresolved C* object names",
-                                                        string.Join(", ", diffNames),
-                                                        logMessage.Message);
+                            if (Logger.Instance.IsDebugEnabled)
+                                Logger.Instance.ErrorFormat("MapperId<{0}>\t{1}\t{2}\tCasandra Log Event at {3:yyyy-MM-dd HH:mm:ss,fff} has mismatch between parsed C* objects from the log vs. DDL C* object instances. There are {4}. They are {{{5}}}. Log line is \"{6}\". DDLItems property for the log instance may contain invalid DDL instances.",
+                                                            this.MapperId,
+                                                            this.Node,
+                                                            this.ShortFilePath,
+                                                            logMessage.LogDateTime,
+                                                            ddlInstancesCnt > ddlNamesCnt ? "multiple resolved C* object (DDL) instances" : "unresolved C* object names",
+                                                            string.Join(", ", diffNames),
+                                                            logMessage.Message);
+                            if(errorNodeAggStat == null)
+                            {
+                                errorNodeAggStat = new AggregatedStats(this.File,
+                                                                        this.Node,
+                                                                        SourceTypes.CassandraLog,
+                                                                        EventTypes.AggregateDataTool,
+                                                                        EventClasses.Node | EventClasses.DataModel);
+                            }
+
+                            {
+                                object existingValue;
+                                var errValue = string.Format("DDL has {0} for {1}",
+                                                                            ddlInstancesCnt > ddlNamesCnt
+                                                                                ? "multiple resolved C* object (DDL) instances"
+                                                                                : "unresolved C* object names",
+                                                                            string.Join(", ", diffNames));
+                                if (errorNodeAggStat.Data.TryGetValue(AggregatedStats.ErrorCItemNotFnd, out existingValue))
+                                {
+                                    ((List<string>)existingValue).Add(errValue);
+                                }
+                                else
+                                {
+                                    errorNodeAggStat.AssociateItem(AggregatedStats.ErrorCItemNotFnd, new List<string>() { errValue });
+                                }
+                            }                            
                         }
                     }
                 }
@@ -2193,20 +2233,57 @@ namespace DSEDiagnosticFileParser
 
                 if(assocNodes.HasAtLeastOneElement())
                 {
-                    assocatedNodes = assocNodes.Select(n =>
-                                    {
-                                        if (n is System.Net.IPAddress)
-                                            return nodeItem.ToString();
-                                        else if (n is System.Net.IPEndPoint)
-                                            return ((System.Net.IPEndPoint)n).Address.ToString();
+                    var possibleNodes = assocNodes.Select(n =>
+                                            {
+                                                if (n is System.Net.IPAddress)
+                                                    return nodeItem.ToString();
+                                                else if (n is System.Net.IPEndPoint)
+                                                    return ((System.Net.IPEndPoint)n).Address.ToString();
 
-                                        return n.ToString();
-                                    })
-                                    .Where(n => !this.Node.Equals(n) && n != "127.0.0.1")
-                                    .Select(n => this.Cluster.TryGetNode(n))  
-                                    .Where(n => n != null)
-                                    .DuplicatesRemoved(n => n);
-                }                
+                                                return n.ToString();
+                                            })
+                                            .Where(n => !this.Node.Equals(n) && n != "127.0.0.1")
+                                            .Select(n => new { Name = n, Node = this.Cluster.TryGetNode(n) });
+
+                    assocatedNodes = possibleNodes
+                                        .Where(n => n.Node != null)
+                                        .Select(n => n.Node)
+                                        .DuplicatesRemoved(n => n);
+
+                    var nodesNotFound = possibleNodes
+                                        .Where(n => n.Node == null)
+                                        .Select(n => n.Name)
+                                        .DuplicatesRemoved(n => n);
+
+                    if(nodesNotFound.HasAtLeastOneElement())
+                    {
+                        if (errorNodeAggStat == null)
+                        {
+                            errorNodeAggStat = new AggregatedStats(this.File,
+                                                                    this.Node,
+                                                                    SourceTypes.CassandraLog,
+                                                                    EventTypes.AggregateDataTool,
+                                                                    EventClasses.Node);
+                        }
+                        {
+                            object existingValue;
+                            
+                            if (errorNodeAggStat.Data.TryGetValue(AggregatedStats.ErrorNodeNotFnd, out existingValue))
+                            {
+                                nodesNotFound.ForEach(n =>
+                                                        ((List<string>)existingValue).Add(string.Format("Associated Node \"{0}\" could not be found", n)));                                
+                            }
+                            else
+                            {
+                                errorNodeAggStat.AssociateItem(AggregatedStats.ErrorNodeNotFnd, new List<string>() { string.Format("Associated Node \"{0}\" could not be found", nodesNotFound.First()) });
+
+                                if(errorNodeAggStat.Data.TryGetValue(AggregatedStats.ErrorNodeNotFnd, out existingValue))
+                                    nodesNotFound.Skip(1).ForEach(n =>
+                                                                    ((List<string>)existingValue).Add(string.Format("Associated Node \"{0}\" could not be found", n)));
+                            }
+                        }                        
+                    }
+                }
             }
             #endregion
             #region Tokens
@@ -2248,7 +2325,7 @@ namespace DSEDiagnosticFileParser
             }
             #endregion
 
-            if(Logger.Instance.IsDebugEnabled)
+            #region Check schema 
             {
                 if(primaryDDL == null && (ddlName != null || sstableFilePath != null || ddlSchemaId != null))
                 {
@@ -2259,13 +2336,43 @@ namespace DSEDiagnosticFileParser
 
                     if (!ignoreError)
                     {
-                        Logger.Instance.ErrorFormat("Log Event could not determine the primary DDL since DDLITEMNAME/TABLEVIEWNAME ({0}), SSTABLEPATH ({1}), or DDLSCHEMAID ({2}) was not found. File: {3}\r\nLog Message: {4}",
-                                                    ddlName,
-                                                    sstableFilePath,
-                                                    ddlSchemaId,
-                                                    this.ShortFilePath,
-                                                    logMessage);
+                        if (Logger.Instance.IsDebugEnabled)
+                            Logger.Instance.ErrorFormat("Log Event could not determine the primary DDL since DDLITEMNAME/TABLEVIEWNAME ({0}), SSTABLEPATH ({1}), or DDLSCHEMAID ({2}) was not found. File: {3}\r\nLog Message: {4}",
+                                                        ddlName,
+                                                        sstableFilePath,
+                                                        ddlSchemaId,
+                                                        this.ShortFilePath,
+                                                        logMessage);
                         this.NbrErrors++;
+
+                        if (errorNodeAggStat == null)
+                        {
+                            errorNodeAggStat = new AggregatedStats(this.File,
+                                                                    this.Node,
+                                                                    SourceTypes.CassandraLog,
+                                                                    EventTypes.AggregateDataTool,
+                                                                    EventClasses.Node | EventClasses.DataModel);
+                        }
+
+                        {
+                            object existingValue;
+                            
+                            if (!errorNodeAggStat.Data.TryGetValue(AggregatedStats.ErrorCItemNotFnd, out existingValue))                            
+                            {
+                                errorNodeAggStat.AssociateItem(AggregatedStats.ErrorCItemNotFnd, existingValue = new List<string>());
+                            }
+
+                            if (!string.IsNullOrEmpty(ddlName))
+                                ((List<string>)existingValue).Add(string.Format("Cannot determine primary DDL for DDLItem/Table/View \"{0}\"",
+                                                                                    ddlName));
+                            if (!string.IsNullOrEmpty(sstableFilePath))
+                                ((List<string>)existingValue).Add(string.Format("Cannot determine primary DDL for SSTable Path \"{0}\"",
+                                                                                    sstableFilePath));
+                            if (!string.IsNullOrEmpty(ddlSchemaId))
+                                ((List<string>)existingValue).Add(string.Format("Cannot determine primary DDL for DDL Schema Id \"{0}\"",
+                                                                                    ddlSchemaId));
+                        }
+                        
                     }
                 }
 
@@ -2278,14 +2385,41 @@ namespace DSEDiagnosticFileParser
 
                     if (!ignoreError)
                     {
-                        Logger.Instance.ErrorFormat("Log Event could not determine the primary Keyspace since KEYSPACE ({0}) was not found. File: {1}\r\nLog Message: {2}",
-                                                    keyspaceName,
-                                                    this.ShortFilePath,
-                                                    logMessage);
+                        if (Logger.Instance.IsDebugEnabled)
+                            Logger.Instance.ErrorFormat("Log Event could not determine the primary Keyspace since KEYSPACE ({0}) was not found. File: {1}\r\nLog Message: {2}",
+                                                            keyspaceName,
+                                                            this.ShortFilePath,
+                                                            logMessage);
                         this.NbrErrors++;
+
+                        if (errorNodeAggStat == null)
+                        {
+                            errorNodeAggStat = new AggregatedStats(this.File,
+                                                                    this.Node,
+                                                                    SourceTypes.CassandraLog,
+                                                                    EventTypes.AggregateDataTool,
+                                                                    EventClasses.Node | EventClasses.DataModel);
+                        }
+
+                        {
+                            object existingValue;
+                            var errValue = string.Format("Primary Keyspace \"{0}\" could not be found",
+                                                          keyspaceName);
+                            if (errorNodeAggStat.Data.TryGetValue(AggregatedStats.ErrorKSNotFnd, out existingValue))
+                            {
+                                ((List<string>)existingValue).Add(errValue);
+                            }
+                            else
+                            {
+                                errorNodeAggStat.AssociateItem(AggregatedStats.ErrorKSNotFnd,
+                                                                string.Format("Primary Keyspace \"{0}\" could not be found",
+                                                                                keyspaceName));
+                            }
+                        }                        
                     }
                 }
             }
+            #endregion
         }
 
         private static void UpdateMatchProperties(Regex matchRegEx, Match matchItem, Dictionary<string, object> logProperties, bool appendToPropertyValueOnDupKey = false)

@@ -28,8 +28,11 @@ namespace DSEDiagnosticLibrary
     [JsonObject(MemberSerialization.OptOut)]
     public sealed class AggregatedStats : IAggregatedStats
     {
-        public const string DCNotInKS = "Error (DC Not Defined within KS)";
-        public const string Errors = "Errors";
+        public const string DCNotInKS = "Parser-Error (DC Not Defined within KS)";
+        public const string Error = "Parser-Error";
+        public const string ErrorNodeNotFnd = "Parser-Error (Node not found)";
+        public const string ErrorKSNotFnd = "Parser-Error (Keyspace Not Found)";
+        public const string ErrorCItemNotFnd = "Parser-Error (C* Item Not Found)";
 
         #region Constructors
         private AggregatedStats(IPath filePath,

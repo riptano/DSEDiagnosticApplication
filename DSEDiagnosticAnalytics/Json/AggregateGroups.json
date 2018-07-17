@@ -31,6 +31,10 @@
     "AnalyticsGroup": "BatchStats",
     "AggregateGroupFunctionName": "BatchStats"
   },
+  "PreparesDiscardedStats": {
+    "AnalyticsGroup": "PreparesDiscardedStats",
+    "AggregateGroupFunctionName": "PreparesDiscardedStats"
+  },
   "GCPauseStats": {
     "AnalyticsGroup": "GCPauseStats",
     "AggregateGroupFunctionName": "GCPauseStats"

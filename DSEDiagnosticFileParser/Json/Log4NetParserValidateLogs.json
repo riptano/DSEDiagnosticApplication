@@ -88,6 +88,22 @@
     {
       "Description": "LeveledCompactionStrategy orphaned SSTable",
       "LinkedTagId": 27.0
+    },
+    {
+      "Description": "Materialized View Mutation",
+      "LinkedTagId": 28.0
+    },
+    {
+      "Description": "Discarded Prepared",
+      "LinkedTagId": 29.0
+    },
+    {
+      "Description": "Node Assassinating Start",
+      "LinkedTagId": 30.0
+    },
+    {
+      "Description": "Node Assassinating Finish",
+      "LinkedTagId": 30.1
     }
   ]
 }

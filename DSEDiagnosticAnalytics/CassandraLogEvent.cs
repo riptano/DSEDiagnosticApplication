@@ -623,6 +623,18 @@ namespace DSEDiagnosticAnalytics
                                         new IEnumerable<decimal>[] { sizes });
         }
 
+        public static LogEventGrouping PreparesDiscardedStats(ref LogEventGroup logEventGroup, string analyticsGroup, IEnumerable<ILogEvent> assocatedLogEvents)
+        {
+            var nbrPrepares = assocatedLogEvents.Select(i => i.LogProperties.GetPropLongValue("prepares")).Where(i => i > 0);
+            var sizes = assocatedLogEvents.Select(i => i.LogProperties.GetPropUOMValue("cache", UnitOfMeasure.Types.MiB));
+
+            return new LogEventGrouping(ref logEventGroup,
+                                        assocatedLogEvents,
+                                        LogEventGrouping.GroupingTypes.PreparesDiscard,
+                                        new IEnumerable<long>[] { nbrPrepares },
+                                        new IEnumerable<decimal>[] { sizes });
+        }
+
         public static LogEventGrouping GCPauseStats(ref LogEventGroup logEventGroup, string analyticsGroup, IEnumerable<ILogEvent> assocatedLogEvents)
         {
             var pauseDurations = assocatedLogEvents.Select(i => i.LogProperties.GetPropUOMValue("pause", UnitOfMeasure.Types.MS));
@@ -775,6 +787,7 @@ namespace DSEDiagnosticAnalytics
                     this.Class = logClass.ToString() + '(' + subClass.Trim() + ')';
                 }
 
+
                 if (logEvent.AssociatedNodes != null && logEvent.AssociatedNodes.HasAtLeastOneElement())
                 {
                     if (assocItem == null)
@@ -815,6 +828,21 @@ namespace DSEDiagnosticAnalytics
                         assocItem += ", ";
                     assocItem += "Tag{ " + logEvent.LogProperties["tag"].ToString() + "}";
                 }
+                if (logEvent.LogProperties.ContainsKey("nodetxt"))
+                {
+                    if (assocItem == null)
+                        assocItem = string.Empty;
+                    else
+                        assocItem += ", ";
+
+                    var unknownNode = logEvent.LogProperties["nodetxt"];
+                    if (logEvent.AssociatedNodes == null
+                            || logEvent.AssociatedNodes.IsEmpty()
+                            || !logEvent.AssociatedNodes.Any(n => n.Id.Equals(unknownNode)))
+                    {
+                        assocItem += "UnknownNode{ " + unknownNode.ToString() + "}";
+                    }
+                }
 
                 if (!string.IsNullOrEmpty(assocItem))
                 {
@@ -854,7 +882,8 @@ namespace DSEDiagnosticAnalytics
             BatchStats,
             FlushStats,
             CompactionStats,
-            HintHandOffStats
+            HintHandOffStats,
+            PreparesDiscard,
         }
 
         public static IEnumerable<LogEventGrouping> CreateLogEventGrouping(LogEventGroup logEventGroup, IEnumerable<ILogEvent> assocatedLogEvents)
@@ -959,6 +988,11 @@ namespace DSEDiagnosticAnalytics
                     this.GroupKey = groupKey;
                     this.BatchSizeStats = new BatchSizeItems(longAggreations[0], decimalAggreations[0]);
                     this.HasValue = forceHasValue ? true : this.BatchSizeStats.HasValue;
+                    break;
+                case GroupingTypes.PreparesDiscard:
+                    this.GroupKey = groupKey;
+                    this.PreparesDiscardedStats = new PreparesDiscardedItems(longAggreations[0], decimalAggreations[0]);
+                    this.HasValue = forceHasValue ? true : this.PreparesDiscardedStats.HasValue;
                     break;
                 case GroupingTypes.FlushStats:
                     this.GroupKey = groupKey;
@@ -1397,5 +1431,28 @@ namespace DSEDiagnosticAnalytics
         }
 
         public readonly HintHandOffItems HintHandOffStats;
+
+        public sealed class PreparesDiscardedItems
+        {
+            public PreparesDiscardedItems(IEnumerable<long> nbrPrepares, IEnumerable<decimal> cacheSized)
+            {
+                this.NbrPrepares = new ItemStatsLong(nbrPrepares);
+                if (this.NbrPrepares.HasValue)
+                    this.UOM = "Prepares";
+
+                this.CacheSizes = new ItemStatsDecimal(cacheSized);
+                if (this.CacheSizes.HasValue)
+                    if (this.UOM == null) this.UOM = "MIB"; else this.UOM += ", MiB";
+
+                this.HasValue = this.NbrPrepares.HasValue || this.CacheSizes.HasValue;
+            }
+
+            public readonly bool HasValue;
+            public readonly ItemStatsLong NbrPrepares;
+            public readonly ItemStatsDecimal CacheSizes;
+            public readonly string UOM;
+        }
+
+        public readonly PreparesDiscardedItems PreparesDiscardedStats;
     }
 }

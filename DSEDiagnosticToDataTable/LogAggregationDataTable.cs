@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Common;
 using DSEDiagnosticLibrary;
 using DSEDiagnosticLogger;
+using CTS = Common.Patterns.Collections.ThreadSafe;
 
 namespace DSEDiagnosticToDataTable
 {
@@ -117,6 +118,16 @@ namespace DSEDiagnosticToDataTable
             return dtLog;
         }
 
+        struct LogEvtGroup
+        {
+            public DSEDiagnosticAnalytics.LogEventGroup GroupKey;
+            public bool HasOrphaned;
+            public ILogEvent LastEvent;
+            public ILogEvent FirstEvent;
+            public int NbrOccurs;
+            public IEnumerable<DSEDiagnosticAnalytics.LogEventGrouping> AnalyticsGroupings;
+        }
+
         /// <summary>
         ///
         /// </summary>
@@ -155,7 +166,7 @@ namespace DSEDiagnosticToDataTable
                 #region Aggregation Log Events
 
                 //Merge logs from all nodes and determine events used for aggregations
-                var logGrpEvts = from logEvent in this.Cluster.Nodes.SelectMany(n => 
+                /*var logGrpEvts = from logEvent in this.Cluster.Nodes.AsParallel().SelectMany(n => 
                                                     (from logMMV in n.LogEventsCache(LogCassandraEvent.ElementCreationTypes.EventTypeOnly, true)
                                                      let logEvt = logMMV.Value
                                                      where (logEvt.Type & EventTypes.SingleInstance) != 0
@@ -182,10 +193,56 @@ namespace DSEDiagnosticToDataTable
                                                 AnalyticsGroupings = DSEDiagnosticAnalytics.LogEventGrouping.CreateLogEventGrouping(g.Key, grpEvents)
                                  };
 
+ */
+                this.CancellationToken.ThrowIfCancellationRequested();
+
+                var nodeGrpEvents = new CTS.List<IEnumerable<LogEvtGroup>>(this.Cluster.Nodes.Count());
+                var parallelOptions = new System.Threading.Tasks.ParallelOptions();
+
+                parallelOptions.CancellationToken = this.CancellationToken;
+                parallelOptions.TaskScheduler = new DSEDiagnosticFileParser.Tasks.Schedulers.WorkStealingTaskScheduler(this.Cluster.Nodes.Count());
+               
+                System.Threading.Tasks.Parallel.ForEach(this.Cluster.Nodes, parallelOptions, node =>
+                {
+                    Logger.Instance.InfoFormat("Log Aggregation Processing for {0} Started", node.Id.NodeName());
+
+                    var nodeEvtGrps = (from logMMV in node.LogEventsCache(LogCassandraEvent.ElementCreationTypes.EventTypeOnly, true, false)
+                                        let logEvt = logMMV.Value
+                                        where (logEvt.Type & EventTypes.SingleInstance) != 0
+                                                || (logEvt.Type & EventTypes.SessionEnd) == EventTypes.SessionEnd
+                                                || (logEvt.Type & EventTypes.SessionDefinedByDuration) == EventTypes.SessionDefinedByDuration
+                                                || (logEvt.Type & EventTypes.AggregateData) == EventTypes.AggregateData
+                                                || ((logEvt.Type & EventTypes.SessionBegin) == EventTypes.SessionBegin && (logEvt.Class & EventClasses.Orphaned) == EventClasses.Orphaned)
+                                        let aggregationDateTime = aggPeriods.First(p => p.Includes(logEvt.EventTime.UtcDateTime))
+                                        let logEvent = logMMV.GetValue((Common.Patterns.Collections.MemoryMapperElementCreationTypes)LogCassandraEvent.ElementCreationTypes.AggregationPeriodOnlyWProps)
+                                        let groupKey = new DSEDiagnosticAnalytics.LogEventGroup(aggregationDateTime, logEvent)
+                                        group logEvent by groupKey
+                                            into g
+                                        let grpEvents = g.OrderBy(e => e.EventTime)
+                                        select new LogEvtGroup()
+                                        {
+                                            GroupKey = g.Key,
+                                            HasOrphaned = grpEvents.Any(e => (e.Class & EventClasses.Orphaned) == EventClasses.Orphaned),
+                                            LastEvent = grpEvents.Last(),
+                                            FirstEvent = grpEvents.First(),
+                                            NbrOccurs = g.Count(),
+                                            AnalyticsGroupings = DSEDiagnosticAnalytics.LogEventGrouping.CreateLogEventGrouping(g.Key, grpEvents)
+                                        }).ToArray();
+
+                    Logger.Instance.InfoFormat("Log Aggregation Processing for {0} completed with {1:###,###,##0}", node.Id.NodeName(), nodeEvtGrps.Length);
+
+                    nodeGrpEvents.Add(nodeEvtGrps);
+                }
+                );
+
+                this.CancellationToken.ThrowIfCancellationRequested();
+
                 DataRow dataRow = null;
                 int nbrItems = 0;
 
-                foreach (var logGrpEvt in logGrpEvts
+                Logger.Instance.InfoFormat("Log Aggregation Processing Started for Sort/Datatable for {0} nodes", nodeGrpEvents.UnSafe.Count);
+
+                foreach (var logGrpEvt in nodeGrpEvents.UnSafe.SelectMany(e => e)
                                             .OrderBy(i => i.GroupKey.AggregationDateTime)
                                                 .ThenBy(i => i.FirstEvent.EventTime)
                                                 .ThenBy(i => i.LastEvent.EventTime))
@@ -331,6 +388,26 @@ namespace DSEDiagnosticToDataTable
                                 dataRow.SetField("Size Total", analyticsGrp.BatchSizeStats.BatchSizes.Sum);
                             }
                             unitOfMeasure += analyticsGrp.BatchSizeStats.UOM + ',';
+                        }
+                        if (analyticsGrp.PreparesDiscardedStats != null && analyticsGrp.PreparesDiscardedStats.HasValue)
+                        {
+                            if (analyticsGrp.PreparesDiscardedStats.NbrPrepares.HasValue)
+                            {
+                                dataRow.SetField("Count Max", analyticsGrp.PreparesDiscardedStats.NbrPrepares.Max);
+                                dataRow.SetField("Count Min", analyticsGrp.PreparesDiscardedStats.NbrPrepares.Min);
+                                dataRow.SetField("Count Mean", analyticsGrp.PreparesDiscardedStats.NbrPrepares.Mean);
+                                dataRow.SetField("Count StdDevp", analyticsGrp.PreparesDiscardedStats.NbrPrepares.StdDev);
+                                dataRow.SetField("Count Total", analyticsGrp.PreparesDiscardedStats.NbrPrepares.Sum);
+                            }
+                            if (analyticsGrp.PreparesDiscardedStats.CacheSizes.HasValue)
+                            {
+                                dataRow.SetField("Size Max", analyticsGrp.PreparesDiscardedStats.CacheSizes.Max);
+                                dataRow.SetField("Size Min", analyticsGrp.PreparesDiscardedStats.CacheSizes.Min);
+                                dataRow.SetField("Size Mean", analyticsGrp.PreparesDiscardedStats.CacheSizes.Mean);
+                                dataRow.SetField("Size StdDevp", analyticsGrp.PreparesDiscardedStats.CacheSizes.StdDev);
+                                dataRow.SetField("Size Total", analyticsGrp.PreparesDiscardedStats.CacheSizes.Sum);
+                            }
+                            unitOfMeasure += analyticsGrp.PreparesDiscardedStats.UOM + ',';
                         }
                         if (analyticsGrp.FlushStats != null && analyticsGrp.FlushStats.HasValue)
                         {
