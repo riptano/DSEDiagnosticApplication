@@ -2116,99 +2116,106 @@ namespace DSEDiagnosticFileParser
                         primaryKS = possibleKS;
                     }
                 }
-
-                var ddlInstancesCnt = ddlInstances == null ? 0 : ddlInstances.Count();
-                var ddlNamesCnt = (ddlNames == null ? 0 : ddlNames.Count())
+               
+                var ddlInstancesCnt = ddlInstances == null ? 0 : ddlInstances.Count;
+                var ddlNamesCnt = (ddlNames == null ? 0 : ddlNames.Count)
                                     + (solrDDLNames == null ? 0 : solrDDLNames.Count)
                                     + (sstableDDLInstance == null ? 0 : sstableDDLInstance.Count());
 
                 if (ddlInstancesCnt != ddlNamesCnt)
                 {
-                    if (primaryKS == null && ddlInstancesCnt > ddlNamesCnt)
-                    {
-                        var names = new List<string>();
-                        if (ddlNames != null)
-                        {
-                            names.AddRange(ddlNames);
-                        }
-                        if (solrDDLNames != null)
-                        {
-                            names.AddRange(solrDDLNames);
-                        }
+                    ddlNamesCnt = (ddlNames == null ? 0 : ddlNames.DuplicatesRemoved(s => s).Count())
+                                    + (solrDDLNames == null ? 0 : solrDDLNames.DuplicatesRemoved(s => s).Count())
+                                    + (sstableDDLInstance == null ? 0 : sstableDDLInstance.Count());
 
-                        lateDDLresolution = new LateDDLResolution()
-                        {
-                            KSName = keyspaceName,
-                            DDLSSTableName = sstableFilePath ?? ddlName,
-                            DDLNames = names
-                        };
-                        ddlInstances = null;
-                    }
-                    else
+                    if (ddlInstancesCnt != ddlNamesCnt)
                     {
-                        var localPrimaryKS = primaryKS;
-
-                        if (localPrimaryKS == null || !LibrarySettings.IgnoreWarningsErrosInKeySpaces.Any(k => k == localPrimaryKS.Name))
+                        if (primaryKS == null && ddlInstancesCnt > ddlNamesCnt)
                         {
-                            var instanceNames = ddlInstances?.Select(d => localPrimaryKS == null ? d.Name : d.FullName);
                             var names = new List<string>();
-
                             if (ddlNames != null)
                             {
-                                names.AddRange(primaryKS == null ? ddlNames : ddlNames.Select(s => s.Contains('.') ? s : localPrimaryKS.Name + '.' + s));
+                                names.AddRange(ddlNames);
                             }
                             if (solrDDLNames != null)
                             {
-                                names.AddRange(primaryKS == null ? solrDDLNames : solrDDLNames.Select(s => s.Contains('.') ? s : localPrimaryKS.Name + '.' + s));
-                            }
-                            if (sstableFilePaths != null)
-                            {
-                                names.AddRange(sstableDDLInstance.Select(d => localPrimaryKS == null ? d.Name : d.FullName));
+                                names.AddRange(solrDDLNames);
                             }
 
-                            var diffNames = ddlInstancesCnt > ddlNamesCnt
-                                                ? instanceNames.Complement(names)
-                                                : names.Complement(instanceNames ?? Enumerable.Empty<string>());
-
-                            if (diffNames.IsEmpty())
+                            lateDDLresolution = new LateDDLResolution()
                             {
-                                diffNames = names;
-                            }
+                                KSName = keyspaceName,
+                                DDLSSTableName = sstableFilePath ?? ddlName,
+                                DDLNames = names
+                            };
+                            ddlInstances = null;
+                        }
+                        else
+                        {
+                            var localPrimaryKS = primaryKS;
 
-                            if (Logger.Instance.IsDebugEnabled)
-                                Logger.Instance.ErrorFormat("MapperId<{0}>\t{1}\t{2}\tCasandra Log Event at {3:yyyy-MM-dd HH:mm:ss,fff} has mismatch between parsed C* objects from the log vs. DDL C* object instances. There are {4}. They are {{{5}}}. Log line is \"{6}\". DDLItems property for the log instance may contain invalid DDL instances.",
-                                                            this.MapperId,
-                                                            this.Node,
-                                                            this.ShortFilePath,
-                                                            logMessage.LogDateTime,
-                                                            ddlInstancesCnt > ddlNamesCnt ? "multiple resolved C* object (DDL) instances" : "unresolved C* object names",
-                                                            string.Join(", ", diffNames),
-                                                            logMessage.Message);
-                            if(errorNodeAggStat == null)
+                            if (localPrimaryKS == null || !LibrarySettings.IgnoreWarningsErrosInKeySpaces.Any(k => k == localPrimaryKS.Name))
                             {
-                                errorNodeAggStat = new AggregatedStats(this.File,
-                                                                        this.Node,
-                                                                        SourceTypes.CassandraLog,
-                                                                        EventTypes.AggregateDataTool,
-                                                                        EventClasses.Node | EventClasses.DataModel);
-                            }
+                                var instanceNames = ddlInstances?.Select(d => localPrimaryKS == null ? d.Name : d.FullName);
+                                var names = new List<string>();
 
-                            {
-                                object existingValue;
-                                var errValue = string.Format("DDL has {0} for {1}",
-                                                                            ddlInstancesCnt > ddlNamesCnt
-                                                                                ? "multiple resolved C* object (DDL) instances"
-                                                                                : "unresolved C* object names",
-                                                                            string.Join(", ", diffNames));
-                                if (errorNodeAggStat.Data.TryGetValue(AggregatedStats.ErrorCItemNotFnd, out existingValue))
+                                if (ddlNames != null)
                                 {
-                                    ((List<string>)existingValue).Add(errValue);
+                                    names.AddRange(primaryKS == null ? ddlNames : ddlNames.Select(s => s.Contains('.') ? s : localPrimaryKS.Name + '.' + s));
                                 }
-                                else
+                                if (solrDDLNames != null)
                                 {
-                                    errorNodeAggStat.AssociateItem(AggregatedStats.ErrorCItemNotFnd, new List<string>() { errValue });
+                                    names.AddRange(primaryKS == null ? solrDDLNames : solrDDLNames.Select(s => s.Contains('.') ? s : localPrimaryKS.Name + '.' + s));
                                 }
-                            }                            
+                                if (sstableFilePaths != null)
+                                {
+                                    names.AddRange(sstableDDLInstance.Select(d => localPrimaryKS == null ? d.Name : d.FullName));
+                                }
+
+                                var diffNames = ddlInstancesCnt > ddlNamesCnt
+                                                    ? instanceNames.Complement(names)
+                                                    : names.Complement(instanceNames ?? Enumerable.Empty<string>());
+
+                                if (diffNames.IsEmpty())
+                                {
+                                    diffNames = names;
+                                }
+
+                                if (Logger.Instance.IsDebugEnabled)
+                                    Logger.Instance.ErrorFormat("MapperId<{0}>\t{1}\t{2}\tCasandra Log Event at {3:yyyy-MM-dd HH:mm:ss,fff} has mismatch between parsed C* objects from the log vs. DDL C* object instances. There are {4}. They are {{{5}}}. Log line is \"{6}\". DDLItems property for the log instance may contain invalid DDL instances.",
+                                                                this.MapperId,
+                                                                this.Node,
+                                                                this.ShortFilePath,
+                                                                logMessage.LogDateTime,
+                                                                ddlInstancesCnt > ddlNamesCnt ? "multiple resolved C* object (DDL) instances" : "unresolved C* object names",
+                                                                string.Join(", ", diffNames),
+                                                                logMessage.Message);
+                                if (errorNodeAggStat == null)
+                                {
+                                    errorNodeAggStat = new AggregatedStats(this.File,
+                                                                            this.Node,
+                                                                            SourceTypes.CassandraLog,
+                                                                            EventTypes.AggregateDataTool,
+                                                                            EventClasses.Node | EventClasses.DataModel);
+                                }
+
+                                {
+                                    object existingValue;
+                                    var errValue = string.Format("DDL has {0} for {1}",
+                                                                                ddlInstancesCnt > ddlNamesCnt
+                                                                                    ? "multiple resolved C* object (DDL) instances"
+                                                                                    : "unresolved C* object names",
+                                                                                string.Join(", ", diffNames));
+                                    if (errorNodeAggStat.Data.TryGetValue(AggregatedStats.ErrorCItemNotFnd, out existingValue))
+                                    {
+                                        ((List<string>)existingValue).Add(errValue);
+                                    }
+                                    else
+                                    {
+                                        errorNodeAggStat.AssociateItem(AggregatedStats.ErrorCItemNotFnd, new List<string>() { errValue });
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -2236,7 +2243,7 @@ namespace DSEDiagnosticFileParser
                     var possibleNodes = assocNodes.Select(n =>
                                             {
                                                 if (n is System.Net.IPAddress)
-                                                    return nodeItem.ToString();
+                                                    return n.ToString();
                                                 else if (n is System.Net.IPEndPoint)
                                                     return ((System.Net.IPEndPoint)n).Address.ToString();
 

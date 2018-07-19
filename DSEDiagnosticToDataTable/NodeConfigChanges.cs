@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Data;
 using DSEDiagnosticLogger;
 using Common;
+using CTS = Common.Patterns.Collections.ThreadSafe;
 
 namespace DSEDiagnosticToDataTable
 {
@@ -43,6 +44,17 @@ namespace DSEDiagnosticToDataTable
             return dtConfig;
         }
 
+        struct NodeConfigChange
+        {
+            public string DataCenter;
+            public string Node;
+            public DSEDiagnosticLibrary.ILogEvent LogEvent;
+            public string ConfigProperty;
+            public DSEDiagnosticLibrary.IConfigurationLine CurrentConfigLine;
+            public string CurrentValue;
+            public string LogConfigValue;
+        }
+
         /// <summary>
         ///
         /// </summary>
@@ -56,6 +68,7 @@ namespace DSEDiagnosticToDataTable
                 DataRow dataRow = null;
                 int nbrItems = 0;
                 var parallelOptions = new ParallelOptions();
+                var configChanges = new CTS.List<IEnumerable<NodeConfigChange>>();
 
                 if(this.CancellationToken != null) parallelOptions.CancellationToken = this.CancellationToken; //Do not set since this will throw and NOT properly caught resulting in the consumer getting the throw
                 parallelOptions.MaxDegreeOfParallelism = System.Environment.ProcessorCount;
@@ -81,8 +94,10 @@ namespace DSEDiagnosticToDataTable
 
                    foreach (var logConfigLine in logConfigLines)
                    {
-                       this.CancellationToken.ThrowIfCancellationRequested();
+                        var nodeConfigChanges = new List<NodeConfigChange>();
 
+                        this.CancellationToken.ThrowIfCancellationRequested();
+                    
                        foreach (var logConfigItem in logConfigLine.LogProperties)
                        {
                            this.CancellationToken.ThrowIfCancellationRequested();
@@ -114,29 +129,45 @@ namespace DSEDiagnosticToDataTable
 
                            if (!matched)
                            {
-                               dataRow = this.Table.NewRow();
-
-                               if (this.SessionId.HasValue) dataRow.SetField(ColumnNames.SessionId, this.SessionId.Value);
-
-                               dataRow.SetField(ColumnNames.DataCenter, node.DataCenter.Name);
-                               dataRow.SetField(ColumnNames.NodeIPAddress, node.Id.NodeName());
-                               dataRow.SetField("UTC Timestamp", logConfigLine.EventTime.UtcDateTime);
-                               dataRow.SetField("Log Local Timestamp", logConfigLine.EventTime.DateTime);
-                               dataRow.SetFieldToTZOffset("Log Time Zone Offset", logConfigLine.EventTime);
-                               dataRow.SetField("Type", logConfigLine.Source);
-                               dataRow.SetField("Property", currMatchItem?.Property ?? logConfigItem.Key);
-                               dataRow.SetField("Value", logConfigValue);
-                               dataRow.SetField("Current Value", currValue ?? "<Property Missing or Could not be Determined>");
-
-                               this.Table.Rows.Add(dataRow);
+                                nodeConfigChanges.Add(new NodeConfigChange()
+                                {
+                                    DataCenter = node.DataCenter.Name,
+                                    Node = node.Id.NodeName(),
+                                    LogEvent = logConfigLine,
+                                    CurrentConfigLine = currMatchItem,
+                                    ConfigProperty = logConfigItem.Key,
+                                    CurrentValue = currValue,
+                                    LogConfigValue = logConfigValue
+                                });                              
                            }
 
                        }
-                       ++nbrItems;
+
+                        configChanges.Add(nodeConfigChanges);
+                        ++nbrItems;
                    }
 
                    Logger.Instance.InfoFormat("Node Configuration Change Processing for node \"{0}\" completed, Total Nbr Items {1:###,###,##0}", node.Id.NodeName(), nbrItems);
                 });
+
+                foreach (var configChange in configChanges.UnSafe.SelectMany(c => c))
+                {
+                    dataRow = this.Table.NewRow();
+
+                    if (this.SessionId.HasValue) dataRow.SetField(ColumnNames.SessionId, this.SessionId.Value);
+
+                    dataRow.SetField(ColumnNames.DataCenter, configChange.DataCenter);
+                    dataRow.SetField(ColumnNames.NodeIPAddress, configChange.Node);
+                    dataRow.SetField("UTC Timestamp", configChange.LogEvent.EventTime.UtcDateTime);
+                    dataRow.SetField("Log Local Timestamp", configChange.LogEvent.EventTime.DateTime);
+                    dataRow.SetFieldToTZOffset("Log Time Zone Offset", configChange.LogEvent.EventTime);
+                    dataRow.SetField("Type", configChange.LogEvent.Source);
+                    dataRow.SetField("Property", configChange.CurrentConfigLine?.Property ?? configChange.ConfigProperty);
+                    dataRow.SetField("Value", configChange.LogConfigValue);
+                    dataRow.SetField("Current Value", configChange.CurrentValue ?? "<Property Missing or Could not be Determined>");
+
+                    this.Table.Rows.Add(dataRow);
+                }                
             }
             catch (OperationCanceledException)
             {
