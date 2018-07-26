@@ -25,6 +25,7 @@ namespace DSEDiagnosticConsoleApplication
         static public ConsoleDisplay ConsoleExcelWorkbook = null;
         static public ConsoleDisplay ConsoleWarnings = null;
         static public ConsoleDisplay ConsoleErrors = null;
+        static public ConsoleDisplay ConsoleExceptions = null;
 
         #endregion
 
@@ -68,7 +69,7 @@ namespace DSEDiagnosticConsoleApplication
         private static void DiagnosticFile_OnException(object sender, DSEDiagnosticFileParser.ExceptionEventArgs eventArgs)
         {
             Logger.Instance.Error("Exception within DSEDiagnosticFileParser", eventArgs.Exception);
-            ConsoleErrors.Increment("Exception within DSEDiagnosticFileParser");
+            ConsoleExceptions?.Increment("Exception within DSEDiagnosticFileParser");
         }
 
         private static void DiagnosticFile_OnProgression(object sender, DSEDiagnosticFileParser.ProgressionEventArgs eventArgs)
@@ -150,8 +151,11 @@ namespace DSEDiagnosticConsoleApplication
             foreach (var item in eventArgs.LogInfo.LoggingEvents)
             {
                 if(item.Level == log4net.Core.Level.Error || item.Level == log4net.Core.Level.Fatal)
-                {                    
-                    ConsoleErrors?.Increment(string.Format(@"Log: {0:yyyy-MM-dd\ HH\:mm\:ss.fff}", item.TimeStamp));
+                {     
+                    if(item.ExceptionObject == null)
+                        ConsoleErrors?.Increment(string.Format(@"Log: {0:yyyy-MM-dd\ HH\:mm\:ss.fff}", item.TimeStamp));
+                    else
+                        ConsoleExceptions?.Increment(item.ExceptionObject.GetType().Name);
                 }
                 else if(item.Level == log4net.Core.Level.Warn)
                 {
@@ -296,6 +300,7 @@ namespace DSEDiagnosticConsoleApplication
             ConsoleExcelWorkbook = new ConsoleDisplay("Excel WorkBook: {0}  Working: {1} Task: {2}");
             ConsoleWarnings = new ConsoleDisplay("Warnings: {0} Last: {2}", 2, false);
             ConsoleErrors = new ConsoleDisplay("Errors: {0} Last: {2}", 2, false);
+            ConsoleExceptions = new ConsoleDisplay("Exceptions: {0} Last: {2}", 2, false);
 
             ConsoleDisplay.Console.ReserveRwWriteConsoleSpace(ConsoleDisplay.ConsoleRunningTimerTag, 2, -1);
             ConsoleDisplay.Console.ReserveRwWriteConsoleSpace("Prompt", 2, -1);

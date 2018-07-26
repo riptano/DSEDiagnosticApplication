@@ -103,7 +103,7 @@ namespace DSEDiagnosticConsoleApplication
                 var loadAppInfo = new DSEDiagtnosticToExcel.ApplicationInfoExcel(excelResults);
 
                 loadAppInfo.ApplicationInfo.Aborted = AlreadyCanceled || tasks.Any(t => t.IsCanceled);
-                loadAppInfo.ApplicationInfo.Errors = (int)ConsoleErrors.Counter;
+                loadAppInfo.ApplicationInfo.Errors = (int)ConsoleErrors.Counter + (int)ConsoleExceptions.Counter;
                 loadAppInfo.ApplicationInfo.Warnings = (int)ConsoleWarnings.Counter;
                 loadAppInfo.ApplicationInfo.ApplicationArgs = CommandLineArgsString;
                 loadAppInfo.ApplicationInfo.ApplicationAssemblyDir = Common.Functions.Instance.AssemblyDir;
