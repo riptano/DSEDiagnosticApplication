@@ -315,6 +315,12 @@ namespace DSEDiagnosticFileParser
 
                     currentDDL = currentKeyspace.TryGetDDL(itemName);
 
+                    //Fixes issue where CFStats returns a concatenated name (e.g., idp.sso_idp_client_ndxidp.sso_idp_client_ndx)
+                    if (currentDDL == null && itemName.Length % 2 == 0)
+                    {                        
+                        currentDDL = currentKeyspace.TryGetDDL(itemName.Substring(0, itemName.Length / 2));
+                    }
+
                     if (currentDDL == null)
                     {
                         var tableName = currentKeyspace.Name + '.' + itemName;

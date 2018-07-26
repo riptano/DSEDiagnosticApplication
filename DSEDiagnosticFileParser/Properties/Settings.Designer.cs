@@ -1207,5 +1207,14 @@ public static class {0}
                 return ((string)(this["CFStatTotalStorage"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("SSTables in each level")]
+        public string CFStatsLCSLevels {
+            get {
+                return ((string)(this["CFStatsLCSLevels"]));
+            }
+        }
     }
 }

@@ -420,6 +420,16 @@ namespace DSEDiagnosticFileParser
             LogLinesHash.Clear();
         }
 
+        /// <summary>
+        /// A collection of keyspace names and if a warning or error occurred for that keyspace it will be ignored.       
+        /// </summary>
+        [JsonIgnore]
+        public IEnumerable<string> IgnoreWarningsErrosInKeySpaces
+        {
+            get;
+            set;
+        } = LibrarySettings.IgnoreWarningsErrosInKeySpaces;
+
         public override uint ProcessFile()
         {
             this.CancellationToken.ThrowIfCancellationRequested();
@@ -2181,38 +2191,86 @@ namespace DSEDiagnosticFileParser
                                     diffNames = names;
                                 }
 
-                                if (Logger.Instance.IsDebugEnabled)
-                                    Logger.Instance.ErrorFormat("MapperId<{0}>\t{1}\t{2}\tCasandra Log Event at {3:yyyy-MM-dd HH:mm:ss,fff} has mismatch between parsed C* objects from the log vs. DDL C* object instances. There are {4}. They are {{{5}}}. Log line is \"{6}\". DDLItems property for the log instance may contain invalid DDL instances.",
-                                                                this.MapperId,
-                                                                this.Node,
-                                                                this.ShortFilePath,
-                                                                logMessage.LogDateTime,
-                                                                ddlInstancesCnt > ddlNamesCnt ? "multiple resolved C* object (DDL) instances" : "unresolved C* object names",
-                                                                string.Join(", ", diffNames),
-                                                                logMessage.Message);
-                                if (errorNodeAggStat == null)
+                                bool signalError = true;
+                                var fndKSTblNames = diffNames.Where(n => n.Contains('.'));
+
+                                if (fndKSTblNames.HasAtLeastOneElement())
                                 {
-                                    errorNodeAggStat = new AggregatedStats(this.File,
-                                                                            this.Node,
-                                                                            SourceTypes.CassandraLog,
-                                                                            EventTypes.AggregateDataTool,
-                                                                            EventClasses.Node | EventClasses.DataModel);
+                                    var ddlItems = fndKSTblNames.SelectMany(i => Cluster.TryGetTableIndexViewsbyString(i, this.Cluster))
+                                                    .Where(i => i != null);
+                                    var nbrFndItems = ddlItems.Count();
+
+                                    if(nbrFndItems > 0)
+                                    {
+                                        if(ddlInstances == null)
+                                        {
+                                            ddlInstances = new List<IDDLStmt>(ddlItems.DuplicatesRemoved(i => i.FullName));
+                                        }
+                                        else
+                                        {
+                                            ddlInstances.AddRange(ddlItems.DuplicatesRemoved(i => i.FullName));
+                                        }
+
+                                        if(primaryKS == null)
+                                        {
+                                            IKeyspace commonKS = ddlInstances.First().Keyspace;
+
+                                            if (ddlInstances.All(i => i == commonKS))
+                                                primaryKS = commonKS;
+                                        }
+                                        if (primaryDDL == null)
+                                            primaryDDL = ddlInstances.Count == 1 ? ddlInstances.First() : null;
+
+                                        signalError = nbrFndItems != diffNames.Count();
+
+                                        if(signalError)
+                                        {
+                                            var instances = ddlInstances;
+                                            diffNames = diffNames.Where(n => !instances.Any(i => i.FullName == n || i.Name == n));
+
+                                            signalError = diffNames.HasAtLeastOneElement();
+                                        }
+                                    }
                                 }
 
+                                if (signalError
+                                        && (this.IgnoreWarningsErrosInKeySpaces == null
+                                                || !this.IgnoreWarningsErrosInKeySpaces.Any(k => diffNames.Any(n => n.StartsWith(k + ".")))))
                                 {
-                                    object existingValue;
-                                    var errValue = string.Format("DDL has {0} for {1}",
-                                                                                ddlInstancesCnt > ddlNamesCnt
-                                                                                    ? "multiple resolved C* object (DDL) instances"
-                                                                                    : "unresolved C* object names",
-                                                                                string.Join(", ", diffNames));
-                                    if (errorNodeAggStat.Data.TryGetValue(AggregatedStats.ErrorCItemNotFnd, out existingValue))
+
+                                    if (Logger.Instance.IsDebugEnabled)
+                                        Logger.Instance.ErrorFormat("MapperId<{0}>\t{1}\t{2}\tCasandra Log Event at {3:yyyy-MM-dd HH:mm:ss,fff} has mismatch between parsed C* objects from the log vs. DDL C* object instances. There are {4}. They are {{{5}}}. Log line is \"{6}\". DDLItems property for the log instance may contain invalid DDL instances.",
+                                                                    this.MapperId,
+                                                                    this.Node,
+                                                                    this.ShortFilePath,
+                                                                    logMessage.LogDateTime,
+                                                                    ddlInstancesCnt > ddlNamesCnt ? "multiple resolved C* object (DDL) instances" : "unresolved C* object names",
+                                                                    string.Join(", ", diffNames),
+                                                                    logMessage.Message);
+                                    if (errorNodeAggStat == null)
                                     {
-                                        ((List<string>)existingValue).Add(errValue);
+                                        errorNodeAggStat = new AggregatedStats(this.File,
+                                                                                this.Node,
+                                                                                SourceTypes.CassandraLog,
+                                                                                EventTypes.AggregateDataTool,
+                                                                                EventClasses.Node | EventClasses.DataModel);
                                     }
-                                    else
+
                                     {
-                                        errorNodeAggStat.AssociateItem(AggregatedStats.ErrorCItemNotFnd, new List<string>() { errValue });
+                                        object existingValue;
+                                        var errValue = string.Format("DDL has {0} for {1}",
+                                                                                    ddlInstancesCnt > ddlNamesCnt
+                                                                                        ? "multiple resolved C* object (DDL) instances"
+                                                                                        : "unresolved C* object names",
+                                                                                    string.Join(", ", diffNames));
+                                        if (errorNodeAggStat.Data.TryGetValue(AggregatedStats.ErrorCItemNotFnd, out existingValue))
+                                        {
+                                            ((List<string>)existingValue).Add(errValue);
+                                        }
+                                        else
+                                        {
+                                            errorNodeAggStat.AssociateItem(AggregatedStats.ErrorCItemNotFnd, new List<string>() { errValue });
+                                        }
                                     }
                                 }
                             }
@@ -2341,6 +2399,20 @@ namespace DSEDiagnosticFileParser
                     if(!ignoreError)
                         ignoreError = ddlSchemaId != null && Cluster.Keyspaces.Any(k => k.DDLs.OfType<ICQLTable>().Any(d => d.Id.ToString() == ddlSchemaId));
 
+                    if(!ignoreError && this.IgnoreWarningsErrosInKeySpaces != null)
+                    {
+                        if (ddlName != null)
+                        {
+                            ignoreError = this.IgnoreWarningsErrosInKeySpaces.Any(i => ddlName.StartsWith(i + "."));
+                            if (ignoreError) ddlName = null;
+                        }
+                        if (sstableFilePath != null)
+                        {
+                            ignoreError = this.IgnoreWarningsErrosInKeySpaces.Any(i => sstableFilePath.StartsWith("/" + i + "/"));
+                            if (ignoreError) sstableFilePath = null;
+                        }
+                    }
+
                     if (!ignoreError)
                     {
                         if (Logger.Instance.IsDebugEnabled)
@@ -2388,7 +2460,7 @@ namespace DSEDiagnosticFileParser
                     bool ignoreError = Cluster.Keyspaces.Any(k => k.Name == keyspaceName);
 
                     if (!ignoreError)
-                        ignoreError = LibrarySettings.IgnoreWarningsErrosInKeySpaces.Any(k => k == keyspaceName);
+                        ignoreError = this.IgnoreWarningsErrosInKeySpaces.Any(k => k == keyspaceName);
 
                     if (!ignoreError)
                     {

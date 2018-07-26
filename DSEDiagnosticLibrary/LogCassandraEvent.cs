@@ -22,6 +22,19 @@ namespace DSEDiagnosticLibrary
         static readonly IEnumerable<IMMLogValue> EmptyParents = Enumerable.Empty<IMMLogValue>();
         static readonly IEnumerable<TokenRangeInfo> EmptyTokenRanges = Enumerable.Empty<TokenRangeInfo>();
 
+        static Guid GenerateLogId(string logId)
+        {
+            if(!string.IsNullOrEmpty(logId))
+                try
+                {
+                    return new Guid(logId);
+                }
+                catch
+                {}
+
+            return Guid.NewGuid();
+        }
+
         public LogCassandraEvent(IFilePath logFile,
                                     INode node,
                                     uint lineNbr,
@@ -53,7 +66,7 @@ namespace DSEDiagnosticLibrary
             if (string.IsNullOrEmpty(logMessage)) throw new ArgumentNullException("logMessage cannot be null");
 
             this.Source = SourceTypes.CassandraLog;
-            this.Id = string.IsNullOrEmpty(logId) ? Guid.NewGuid() : new Guid(logId);
+            this.Id = GenerateLogId(logId);
             this.Path = logFile;
             this.Node = node;
 #if DEBUG

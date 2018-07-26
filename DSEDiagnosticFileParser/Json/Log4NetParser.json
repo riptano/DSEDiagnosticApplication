@@ -1831,12 +1831,12 @@
       },
       "MessageMatch": {
         "RegExStrings": [
-          "(?:(?:CompactionManager|MessagingService)\\s+(?:\\d+|n/a)\\s+(?:\\d+|n/a))|(?:\\w+\\s+\\d+\\s+\\d+\\s+\\d+\\s+\\d+\\s+\\d+)"
+          "(?:(?:CompactionManager|MessagingService)\\s+(?:\\d+|n/a)\\s+(?:\\d+|n/a))|(?:(?:\\w|#)+\\s+\\d+\\s+\\d+\\s+\\d+\\s+\\d+\\s+\\d+)"
         ]
       },
       "ParseMessage": {
         "RegExStrings": [
-          "(?<SUBCLASS>[a-z]+)\\s+(?<nbractive>[0-9,]+)\\s+(?<nbrpending>[0-9,]+)\\s+(?<nbrcompleted>[0-9,]+)\\s+(?<nbrblocked>[0-9,]+)\\s+(?<nbralltimeblocked>[0-9,]+)",
+          "(?<SUBCLASS>(?:\\w|#)+)\\s+(?<nbractive>[0-9,]+)\\s+(?<nbrpending>[0-9,]+)\\s+(?<nbrcompleted>[0-9,]+)\\s+(?<nbrblocked>[0-9,]+)\\s+(?<nbralltimeblocked>[0-9,]+)",
           "(?<SUBCLASS>(CompactionManager|MessagingService))\\s+(?<nbractive>[0-9,/na]+)\\s+(?<nbrpending>[0-9,/na]+)"
         ]
       },
@@ -1872,7 +1872,8 @@
         "INFO  [Service Thread] 2017-01-16 13:51:39,301  StatusLogger.java:66 - MemtablePostFlush                 0         0          64922         0                 0",
         "INFO  [Service Thread] 2017-01-16 13:51:39,302  StatusLogger.java:66 - MemtableReclaimMemory             0         0          49178         0                 0",
         "INFO  [Service Thread] 2017-01-16 13:51:39,302  StatusLogger.java:75 - CompactionManager                 0         0",
-        "INFO  [Service Thread] 2017-01-16 13:51:39,302  StatusLogger.java:87 - MessagingService                n/a       0/0"
+        "INFO  [Service Thread] 2017-01-16 13:51:39,302  StatusLogger.java:87 - MessagingService                n/a       0/0",
+        "INFO  [Service Thread] 2017-01-16 13:51:39,302  StatusLogger.java.51 - PerDiskMemtableFlushWriter_0      0         0           1067         0                 0"
       ]
     },
     {
@@ -1902,7 +1903,7 @@
       },
       "ParseMessage": {
         "RegExStrings": [
-          "(?<SUBCLASS>[a-z]+Cache)\\s+(?<size_bytes>[0-9,]+)\\s+(?<capacity_bytes>[0-9,]+)\\s+(?<keystosave>[a-z]+)"
+          "(?<SUBCLASS>\\w+Cache)\\s+(?<size_bytes>[0-9,]+)\\s+(?<capacity_bytes>[0-9,]+)\\s+(?<keystosave>[a-z]+)"
         ]
       },
       "ParseThreadId": null,
