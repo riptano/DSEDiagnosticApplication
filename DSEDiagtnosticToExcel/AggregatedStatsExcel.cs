@@ -77,9 +77,13 @@ namespace DSEDiagtnosticToExcel
                                                                  workSheet.AutoFitColumn(workSheet.Cells["A:N"]);
 
                                                                  var table = workSheet.Tables.FirstOrDefault(t => t.Name == "AggregatedStatsTable");
+                                                                 var rowCnt = this.DataTable.Rows.Count;
+
+                                                                 if (rowCnt == 0) rowCnt = 1;
+
                                                                  if (table == null)
                                                                  {
-                                                                     using (var tblRange = workSheet.Cells[string.Format("A1:N{0}",this.DataTable.Rows.Count + 2)])
+                                                                     using (var tblRange = workSheet.Cells[string.Format("A1:N{0}",rowCnt + 2)])
                                                                      {
                                                                          table = workSheet.Tables.Add(tblRange, "AggregatedStatsTable");
 
@@ -91,7 +95,7 @@ namespace DSEDiagtnosticToExcel
                                                                  else
                                                                  {
                                                                      var oldaddy = table.Address;
-                                                                     var newaddy = new ExcelAddressBase(oldaddy.Start.Row, oldaddy.Start.Column, this.DataTable.Rows.Count + 2, oldaddy.End.Column);
+                                                                     var newaddy = new ExcelAddressBase(oldaddy.Start.Row, oldaddy.Start.Column, rowCnt + 2, oldaddy.End.Column);
 
                                                                      //Edit the raw XML by searching for all references to the old address
                                                                      table.TableXml.InnerXml = table.TableXml.InnerXml.Replace(oldaddy.ToString(), newaddy.ToString());
