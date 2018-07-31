@@ -450,28 +450,100 @@ namespace DSEDiagnosticFileParser
                 statItem.AssociateItem(attribute, propValue);
             }
 
-            var calcTombstoneLiveRatio = from item in this._statsList
-                                         where item.TableViewIndex != null && item.TableViewIndex is ICQLTable
-                                         let tombstones = item.Data.Where(i => i.Key == Properties.Settings.Default.CFStatTombstonePropName)
-                                                                .DefaultIfEmpty().Sum(i => (decimal)((dynamic)i.Value))
-                                         let liveCells = item.Data.Where(i => i.Key == Properties.Settings.Default.CFStatLiveCellPropName)
-                                                                .DefaultIfEmpty().Sum(i => (decimal)((dynamic)i.Value))
-                                         select new
-                                         {
-                                             Stat = item,
-                                             TombstoneLivePercent = tombstones == 0 && liveCells == 0
-                                                                                ? 0
-                                                                                : tombstones / (tombstones + liveCells)
-                                         };
+            var calcRatios = from item in this._statsList
+                                where item.TableViewIndex != null && item.TableViewIndex is ICQLTable
+                                let tblAttribs = (from a in item.Data
+                                                where a.Key == Properties.Settings.Default.CFStatTombstonePropName
+                                                        || a.Key == Properties.Settings.Default.CFStatLiveCellPropName
+                                                        || a.Key == Properties.Settings.Default.CFStatsLocalReadCount
+                                                        || a.Key == Properties.Settings.Default.CFStatsLocalWriteCout
+                                                        || a.Key == Properties.Settings.Default.CFStatsLCSLevels
+                                                group a by a.Key into g
+                                                select new { Key = g.Key, Values = g.Select(i => i.Value)})
+                                let tombstones = tblAttribs.Where(i => i.Key == Properties.Settings.Default.CFStatTombstonePropName)
+                                                    .SelectMany(i => i.Values)
+                                                    .DefaultIfEmpty().Sum(i => (decimal)((dynamic)i))
+                                let liveCells = tblAttribs.Where(i => i.Key == Properties.Settings.Default.CFStatLiveCellPropName)
+                                                    .SelectMany(i => i.Values)
+                                                    .DefaultIfEmpty().Sum(i => (decimal)((dynamic)i))
+                                let readCells = tblAttribs.Where(i => i.Key == Properties.Settings.Default.CFStatsLocalReadCount)
+                                                    .SelectMany(i => i.Values)
+                                                    .DefaultIfEmpty().Sum(i => (decimal)((dynamic)i))
+                                let writtenCells = tblAttribs.Where(i => i.Key == Properties.Settings.Default.CFStatsLocalWriteCout)
+                                                    .SelectMany(i => i.Values)
+                                                    .DefaultIfEmpty().Sum(i => (decimal)((dynamic)i))
+                                let LCSLevel = tblAttribs.Where(i => i.Key == Properties.Settings.Default.CFStatsLCSLevels)
+                                                    .Select(i => PercentLCSBackup(i.Values.Cast<string>()))
+                                                    .FirstOrDefault()
+                                let LCSSplitLevels = tblAttribs.Where(i => i.Key == Properties.Settings.Default.CFStatsLCSLevels)
+                                                        .SelectMany(i => i.Values)
+                                                        .Where(i => ((string)i).Contains('/'))
+                                let totalReadsWrites = tblAttribs.Where(i => i.Key == Properties.Settings.Default.CFStatsLocalReadCount
+                                                                                || i.Key == Properties.Settings.Default.CFStatsLocalWriteCout)
+                                                        .SelectMany(i => i.Values)
+                                                    .DefaultIfEmpty().Sum(i => (decimal)((dynamic)i))
+                                select new
+                                {
+                                    Stat = item,
+                                    TombstoneLivePercent = tombstones == 0 && liveCells == 0
+                                                                    ? 0
+                                                                    : tombstones / (tombstones + liveCells),
+                                    ReadPercent = totalReadsWrites == 0 ? 0 : readCells / totalReadsWrites,
+                                    WritePercent = totalReadsWrites == 0 ? 0 : writtenCells / totalReadsWrites,
+                                    LCSLevel = LCSLevel.ActualLevel == 0 ? 0m : (LCSLevel.IdealLevel == 0 ? 1m : (decimal) LCSLevel.ActualLevel/ (decimal) LCSLevel.IdealLevel),
+                                    LCSSplitLevels = string.Join(", ", LCSSplitLevels),
+                                    LCSNbrSplits = LCSLevel.SplitLevels
+                                };
 
-            foreach (var stat in calcTombstoneLiveRatio)
+            foreach (var stat in calcRatios)
             {
-                stat.Stat.AssociateItem("Tombstone/Live Percent", stat.TombstoneLivePercent);
+                stat.Stat.AssociateItem(Properties.Settings.Default.TombstoneLiveCellRatioAttrib, stat.TombstoneLivePercent);
+                stat.Stat.AssociateItem(Properties.Settings.Default.ReadPercentAttrib, stat.ReadPercent);
+                stat.Stat.AssociateItem(Properties.Settings.Default.WritePercentAttrib, stat.WritePercent);
+                stat.Stat.AssociateItem(Properties.Settings.Default.LCSSplitLevelsAttrib, stat.LCSSplitLevels);
+                stat.Stat.AssociateItem(Properties.Settings.Default.LCSBackRatioAttrib, stat.LCSLevel);
+                stat.Stat.AssociateItem(Properties.Settings.Default.LCSNbrSplitLevelsAttrib, stat.LCSNbrSplits);
             }
 
              this.Processed = true;
             return (uint) this._statsList.Count;
         }
-    }
+
+        struct LCSLevelSplit
+        {
+            public LCSLevelSplit(string level)
+                : this()
+            {
+                long numLvl;
+                var splitValue = level.Split('/');
+
+                if (splitValue.Length > 1)
+                {
+                    if (long.TryParse(splitValue[0], out numLvl))
+                        ActualLevel = numLvl;
+                    if (long.TryParse(splitValue[1], out numLvl))
+                        IdealLevel = numLvl;
+                    SplitLevels = level.Count(c => c == '/');
+                }
+                else if (long.TryParse(splitValue[0], out numLvl))
+                    IdealLevel = numLvl;
+            }
+
+            public long IdealLevel;
+            public long ActualLevel;
+            public int SplitLevels;
+        }
+        static LCSLevelSplit PercentLCSBackup(IEnumerable<string> lcsLevels)
+        {
+            var levels = from l in (lcsLevels.SelectMany(l => l.Trim(new char[] { '[', ']', ' ' }).Split(','))
+                                        .Select(l => new LCSLevelSplit(l)))
+                         group l by 1 into g
+                         select new LCSLevelSplit() { ActualLevel = g.DefaultIfEmpty().Sum(a => a.ActualLevel),
+                                                        IdealLevel = g.DefaultIfEmpty().Sum(i => i.IdealLevel),
+                                                        SplitLevels = g.DefaultIfEmpty().Sum(i => i.SplitLevels) };
+
+            return levels.FirstOrDefault();
+        }
+    }      
 }
 

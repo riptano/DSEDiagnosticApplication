@@ -305,5 +305,23 @@ namespace DSEDiagtnosticToExcel.Properties {
                 return ((bool)(this["ExcelSaveWorkSheet"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("SSTables in each level")]
+        public string CFStatsLCSLevels {
+            get {
+                return ((string)(this["CFStatsLCSLevels"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("LeveledCompactionStrategy")]
+        public string LCL {
+            get {
+                return ((string)(this["LCL"]));
+            }
+        }
     }
 }

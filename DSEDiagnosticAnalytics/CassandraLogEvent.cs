@@ -282,13 +282,13 @@ namespace DSEDiagnosticAnalytics
                                                         });
                 object dataValue;
 
-                if(aggStat.Data.TryGetValue("Partition large", out dataValue))
+                if(aggStat.Data.TryGetValue(Properties.Settings.Default.PartitionLargeAttrib, out dataValue))
                 {
                     ((List<UnitOfMeasure>)dataValue).Add(partitionSize);
                 }
                 else
                 {
-                    aggStat.AssociateItem("Partition large", new List<UnitOfMeasure>() { partitionSize });                    
+                    aggStat.AssociateItem(Properties.Settings.Default.PartitionLargeAttrib, new List<UnitOfMeasure>() { partitionSize });                    
                 }
             }
 
@@ -310,13 +310,13 @@ namespace DSEDiagnosticAnalytics
                 var tombstones = (long) ((dynamic)eventArgs.LogEvent.LogProperties["tombstone_cells"]);
                 object dataValue;
 
-                if (nodeStat.Data.TryGetValue("Tombstones Read", out dataValue))
+                if (nodeStat.Data.TryGetValue(Properties.Settings.Default.TombstonesReadAttrib, out dataValue))
                 {
                     ((List<long>)dataValue).Add(tombstones);
                 }
                 else
                 {
-                    nodeStat.AssociateItem("Tombstones Read", new List<long>() { tombstones });                    
+                    nodeStat.AssociateItem(Properties.Settings.Default.TombstonesReadAttrib, new List<long>() { tombstones });                    
                 }
                
                 dynamic reads;
@@ -329,13 +329,13 @@ namespace DSEDiagnosticAnalytics
                     if(tombstones > 0 || reads > 0)                       
                         percent = (decimal) tombstones/(((decimal)tombstones) + reads);
 
-                    if (nodeStat.Data.TryGetValue("Tombstone/Live Percent", out dataValue))
+                    if (nodeStat.Data.TryGetValue(Properties.Settings.Default.TombstoneLiveCellRatioAttrib, out dataValue))
                     {
                         ((List<decimal>)dataValue).Add(percent);
                     }
                     else
                     {
-                        nodeStat.AssociateItem("Tombstone/Live Percent", new List<decimal>() { percent });                        
+                        nodeStat.AssociateItem(Properties.Settings.Default.TombstoneLiveCellRatioAttrib, new List<decimal>() { percent });                        
                     }
                 }
             }

@@ -1210,10 +1210,82 @@ public static class {0}
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Local read count")]
+        public string CFStatsLocalReadCount {
+            get {
+                return ((string)(this["CFStatsLocalReadCount"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Local write count")]
+        public string CFStatsLocalWriteCout {
+            get {
+                return ((string)(this["CFStatsLocalWriteCout"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("SSTables in each level")]
         public string CFStatsLCSLevels {
             get {
                 return ((string)(this["CFStatsLCSLevels"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Tombstone/Live Percent")]
+        public string TombstoneLiveCellRatioAttrib {
+            get {
+                return ((string)(this["TombstoneLiveCellRatioAttrib"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Local Read Percentage")]
+        public string ReadPercentAttrib {
+            get {
+                return ((string)(this["ReadPercentAttrib"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Local Write Percentage")]
+        public string WritePercentAttrib {
+            get {
+                return ((string)(this["WritePercentAttrib"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("LCS Level BuildUp Ratio")]
+        public string LCSBackRatioAttrib {
+            get {
+                return ((string)(this["LCSBackRatioAttrib"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("SSTables in each split level")]
+        public string LCSSplitLevelsAttrib {
+            get {
+                return ((string)(this["LCSSplitLevelsAttrib"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("LCS Nbr Split Levels")]
+        public string LCSNbrSplitLevelsAttrib {
+            get {
+                return ((string)(this["LCSNbrSplitLevelsAttrib"]));
             }
         }
     }

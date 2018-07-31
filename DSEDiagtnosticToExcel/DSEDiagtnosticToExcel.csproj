@@ -64,6 +64,7 @@
     <Compile Include="AggregatedStatsExcel.cs" />
     <Compile Include="CommonPartitionKeyExcel.cs" />
     <Compile Include="DSEDevicesExcel.cs" />
+    <Compile Include="LCSLevelsExcel.cs" />
     <Compile Include="LogAggregationExcel.cs" />
     <Compile Include="LogInformationExcel.cs" />
     <Compile Include="MultiInstanceExcel.cs" />

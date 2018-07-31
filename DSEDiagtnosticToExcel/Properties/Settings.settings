@@ -632,5 +632,11 @@
     <Setting Name="ExcelSaveWorkSheet" Type="System.Boolean" Scope="Application">
       <Value Profile="(Default)">False</Value>
     </Setting>
+    <Setting Name="CFStatsLCSLevels" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">SSTables in each level</Value>
+    </Setting>
+    <Setting Name="LCL" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">LeveledCompactionStrategy</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

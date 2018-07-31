@@ -1778,5 +1778,32 @@ CREATE TABLE "OpsCenter".rollups300 (
     <Setting Name="CFStatTotalStorage" Type="System.String" Scope="Application">
       <Value Profile="(Default)">Space used (total)</Value>
     </Setting>
+    <Setting Name="CFStatsLocalReadCount" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Local read count</Value>
+    </Setting>
+    <Setting Name="CFStatsLocalWriteCout" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Local write count</Value>
+    </Setting>
+    <Setting Name="CFStatsLCSLevels" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">SSTables in each level</Value>
+    </Setting>
+    <Setting Name="TombstoneLiveCellRatioAttrib" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Tombstone/Live Percent</Value>
+    </Setting>
+    <Setting Name="ReadPercentAttrib" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Local Read Percentage</Value>
+    </Setting>
+    <Setting Name="WritePercentAttrib" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Local Write Percentage</Value>
+    </Setting>
+    <Setting Name="LCSBackRatioAttrib" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">LCS Level BuildUp Ratio</Value>
+    </Setting>
+    <Setting Name="LCSSplitLevelsAttrib" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">SSTables in each split level</Value>
+    </Setting>
+    <Setting Name="LCSNbrSplitLevelsAttrib" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">LCS Nbr Split Levels</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

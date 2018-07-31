@@ -1113,7 +1113,11 @@ namespace DSEDiagnosticLibrary
                 uof = uof.Substring(0, uof.Length - 1);
             }
 
-            switch (uof.Trim().ToLower())
+            uof = uof.Trim();
+
+            if (uof == string.Empty) return uofType;
+
+            switch (uof.ToLower())
             {
                 case "bit":
                 case "bits":
@@ -1232,8 +1236,9 @@ namespace DSEDiagnosticLibrary
             }
             
             Types parsedType;
-            if (!uof.All(c => char.IsDigit(c)) &&
-                    Enum.TryParse<Types>(uof, true, out parsedType))
+            if (uof[0] == '-' || char.IsDigit(uof[0]))
+            { }
+            else if (Enum.TryParse<Types>(uof, true, out parsedType))
             {
                 return parsedType | uofType;
             }
