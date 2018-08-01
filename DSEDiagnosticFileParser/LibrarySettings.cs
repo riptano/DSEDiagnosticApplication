@@ -95,10 +95,10 @@ namespace DSEDiagnosticFileParser
 
                 if (jsonStringOrFile[0] == '{' || jsonStringOrFile.IndexOf('{') > 0)
                 {
-                    string removeComments;
-                    DSEDiagnosticLibrary.StringHelpers.RemoveInLineComment(jsonStringOrFile, out removeComments);
+                    //string removeComments = jsonStringOrFile;
+                    //DSEDiagnosticLibrary.StringHelpers.RemoveInLineComment(jsonStringOrFile, out removeComments);
 
-                    return JsonConvert.DeserializeObject<T>(removeComments);
+                    return JsonConvert.DeserializeObject<T>(jsonStringOrFile);
                 }
 
                 IFilePath jsonPath = null;

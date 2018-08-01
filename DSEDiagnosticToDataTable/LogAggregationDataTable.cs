@@ -527,6 +527,45 @@ namespace DSEDiagnosticToDataTable
 
                             unitOfMeasure += analyticsGrp.HintHandOffStats.UOM + ',';
                         }
+
+                        if (analyticsGrp.MaximumMemoryUsageReachedStats != null && analyticsGrp.MaximumMemoryUsageReachedStats.HasValue)
+                        {
+
+                            if (analyticsGrp.MaximumMemoryUsageReachedStats.MaxMemory.HasValue)
+                            {
+                                dataRow.SetField("Size Max", analyticsGrp.MaximumMemoryUsageReachedStats.MaxMemory.Max);
+                                dataRow.SetField("Size Min", analyticsGrp.MaximumMemoryUsageReachedStats.MaxMemory.Min);
+                                dataRow.SetField("Size Mean", analyticsGrp.MaximumMemoryUsageReachedStats.MaxMemory.Mean);
+                                dataRow.SetField("Size StdDevp", analyticsGrp.MaximumMemoryUsageReachedStats.MaxMemory.StdDev);
+                                dataRow.SetField("Size Total", analyticsGrp.MaximumMemoryUsageReachedStats.MaxMemory.Sum);
+                            }
+
+                            //if (analyticsGrp.MaximumMemoryUsageReachedStats.ChuckMemory.HasValue)
+                            //{
+                            //    dataRow.SetField("Size Max", analyticsGrp.MaximumMemoryUsageReachedStats.ChuckMemory.Max);
+                            //    dataRow.SetField("Size Min", analyticsGrp.MaximumMemoryUsageReachedStats.ChuckMemory.Min);
+                            //    dataRow.SetField("Size Mean", analyticsGrp.MaximumMemoryUsageReachedStats.ChuckMemory.Mean);
+                            //    dataRow.SetField("Size StdDevp", analyticsGrp.MaximumMemoryUsageReachedStats.ChuckMemory.StdDev);
+                            //    dataRow.SetField("Size Total", analyticsGrp.MaximumMemoryUsageReachedStats.ChuckMemory.Sum);
+                            //}
+
+                            unitOfMeasure += analyticsGrp.MaximumMemoryUsageReachedStats.UOM + ',';
+                        }
+
+                        if (analyticsGrp.FreeDeviceStorageStats != null && analyticsGrp.FreeDeviceStorageStats.HasValue)
+                        {
+
+                            if (analyticsGrp.FreeDeviceStorageStats.FreeStorage.HasValue)
+                            {
+                                dataRow.SetField("Storage Max", analyticsGrp.FreeDeviceStorageStats.FreeStorage.Max);
+                                dataRow.SetField("Storage Min", analyticsGrp.FreeDeviceStorageStats.FreeStorage.Min);
+                                dataRow.SetField("Storage Mean", analyticsGrp.FreeDeviceStorageStats.FreeStorage.Mean);
+                                dataRow.SetField("Storage StdDevp", analyticsGrp.FreeDeviceStorageStats.FreeStorage.StdDev);
+                                dataRow.SetField("Storage Total", analyticsGrp.FreeDeviceStorageStats.FreeStorage.Sum);
+                            }
+                            
+                            unitOfMeasure += analyticsGrp.FreeDeviceStorageStats.UOM + ',';
+                        }
                     }
 
                     dataRow.SetField("UOM", unitOfMeasure.TrimEnd(','));

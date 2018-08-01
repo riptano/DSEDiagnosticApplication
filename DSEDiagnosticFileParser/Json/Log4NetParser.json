@@ -2464,7 +2464,7 @@
     },
     {
       "Description": "Nodes seems to be down",
-      "TagId": 30.0,
+      "TagId": 31.0,
       "MatchVersion": null,
       "LevelMatch": {
         "RegExStrings": [
@@ -2495,6 +2495,146 @@
       "Product": "Cassandra",
       "Examples": [
         "WARN  [main] 2018-07-09 19:01:39,780  DseDaemon.java:796 - The following nodes seems to be down: [/173.37.133.207, /173.37.133.206]. Some Cassandra operations may fail with UnavailableException."
+      ]
+    },
+    {
+      "Description": "Maximum memory usage reached (partition)",
+      "TagId": 32.0,
+      "MatchVersion": null,
+      "LevelMatch": {
+        "RegExStrings": [
+          "INFO"
+        ]
+      },
+      "FileNameMatch": {
+        "RegExStrings": [
+          "^NoSpamLogger.java$"
+        ]
+      },
+      "FileLineMatch": null,
+      "MessageMatch": {
+        "RegExStrings": [
+          "^Maximum\\s+memory\\s+usage\\s+reached"
+        ]
+      },
+      "ParseMessage": {
+        "RegExStrings": [
+          "^\\w+\\s+\\w+\\s+\\w+\\s+\\w+\\s+\\(\\s*(?<max_memory>[0-9,.]+\\s*\\w+)\\s*\\),\\s+cannot\\sallocate\\schunk\\sof\\s+(?<chuck_memory>[0-9,.]+\\s*\\w+)"
+        ]
+      },
+      "ParseThreadId": null,
+      "EventType": "SingleInstance",
+      "EventClass": "Detection,Node,Compaction,Partition",
+      "AnalyticsGroup": "MaximumMemoryUsageReachedStats",
+      "SubClass": "'Maximum Memory Reached Partition'",
+      "Product": "Cassandra",
+      "Examples": [
+        "INFO  [RMI TCP Connection(34857)-127.0.0.1] 2018-07-20 04:33:45,512  NoSpamLogger.java:94 - Maximum memory usage reached (512.000MiB), cannot allocate chunk of 1.000MiB"
+      ]
+    },
+    {
+      "Description": "Plain text authenticatior",
+      "TagId": 33.0,
+      "MatchVersion": null,
+      "LevelMatch": {
+        "RegExStrings": [
+          "WARN"
+        ]
+      },
+      "FileNameMatch": {
+        "RegExStrings": [
+          "^DseAuthenticator.java$"
+        ]
+      },
+      "FileLineMatch": null,
+      "MessageMatch": {
+        "RegExStrings": [
+          "^Plain\\s+text\\s+authentication\\s+without\\s+"
+        ]
+      },
+      "ParseMessage": {
+        "RegExStrings": [
+          "^\\w+\\s+\\w+\\s+\\w+\\s+\\w+\\s+client\\s*/\\s*server\\s+encryption\\s+is\\s+strongly\\s+discouraged"
+        ]
+      },
+      "ParseThreadId": null,
+      "EventType": "SingleInstance",
+      "EventClass": "Detection,Node,Authenticator",
+      "AnalyticsGroup": null,
+      "SubClass": "'Plain Text Authentication'",
+      "Product": "Cassandra",
+      "Examples": [
+        "WARN  [Native-Transport-Requests-2] 2018-07-20 04:30:50,105  DseAuthenticator.java:659 - Plain text authentication without client / server encryption is strongly discouraged"
+      ]
+    },
+    {
+      "Description": "Free Data Volumes",
+      "TagId": 34.0,
+      "MatchVersion": null,
+      "LevelMatch": {
+        "RegExStrings": [
+          "WARN"
+        ]
+      },
+      "FileNameMatch": {
+        "RegExStrings": [
+          "^DatabaseDescriptor.java$"
+        ]
+      },
+      "FileLineMatch": null,
+      "MessageMatch": {
+        "RegExStrings": [
+          "^Only\\s+[0-9,.]+\\s*\\w+\\s+free\\s+across\\s+all\\s+data\\s+volumes"
+        ]
+      },
+      "ParseMessage": {
+        "RegExStrings": [
+          "^Only\\s+(?<free_storage>[0-9,.]+\\s*\\w+)\\s+free\\s+across\\s+all\\s+data\\s+volumes\\.\\s+Consider\\s+adding\\s+more\\s+capacity\\s+to\\s+your\\s+cluster"
+        ]
+      },
+      "ParseThreadId": null,
+      "EventType": "SingleInstance",
+      "EventClass": "Detection,Node,Device",
+      "AnalyticsGroup": "FreeDeviceStorageStats",
+      "SubClass": "'Free Data Volumes'",
+      "Product": "Cassandra",
+      "Examples": [
+        "WARN  [main] 2018-07-23 21:49:57,147  DatabaseDescriptor.java:541 - Only 17.370GiB free across all data volumes. Consider adding more capacity to your cluster or removing obsolete snapshots"
+      ]
+    },
+    {
+      "Description": "silent shutdown",
+      "TagId": 35.0,
+      "MatchVersion": null,
+      "LevelMatch": {
+        "RegExStrings": [
+          "WARN"
+        ]
+      },
+      "FileNameMatch": {
+        "RegExStrings": [
+          "^Gossiper.java$"
+        ]
+      },
+      "FileLineMatch": null,
+      "MessageMatch": {
+        "RegExStrings": [
+          "^No local state, state is in silent shutdown, or node hasn't joined, not announcing shutdown"
+        ]
+      },
+      "ParseMessage": {
+        "RegExStrings": [
+          "^No local state"
+        ]
+      },
+      "ParseThreadId": null,
+      "EventType": "SingleInstance",
+      "EventClass": "Detection,Node",
+      "AnalyticsGroup": null,
+      "SubClass": "'Silent Shutdown'",
+      "Product": "Cassandra",
+      "Examples": [
+        "WARN  [StorageServiceShutdownHook] 2018-07-23 21:50:14,726  Gossiper.java:1538 - No local state, state is in silent shutdown, or node hasn't joined, not announcing shutdown"
       ]
     }
   ]

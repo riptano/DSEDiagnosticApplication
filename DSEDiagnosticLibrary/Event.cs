@@ -105,6 +105,8 @@ namespace DSEDiagnosticLibrary
         Gossip          = 0x800000000,
         Batches         = 0x1000000000,
         Prepares        = 0x2000000000,
+        Authenticator   = 0x4000000000,
+        Device          = 0x8000000000,
         GCStats = GC | Stats,
         MemtableFlush = Memtable | Flush,
         SolrHardCommit = Solr | Commit,

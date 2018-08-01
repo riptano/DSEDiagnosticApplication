@@ -132,6 +132,26 @@
     {
       "Description": "Node Assassinating Finish",
       "LinkedTagId": 30.1
+    },
+    {
+      "Description": "Nodes seems to be down",
+      "LinkedTagId": 31.0
+    },
+    {
+      "Description": "Maximum memory usage reached (paetition)",
+      "LinkedTagId": 32.0
+    },
+    {
+      "Description": "Plain text authenticatior",
+      "LinkedTagId": 33.0
+    },
+    {
+      "Description": "Free Data Volumes",
+      "LinkedTagId": 34.0
+    },
+    {
+      "Description": "silent shutdown",
+      "LinkedTagId": 35.0
     }
   ]
 }

@@ -50,5 +50,13 @@
   "HintHandOffStats": {
     "AnalyticsGroup": "HintHandOffStats",
     "AggregateGroupFunctionName": "HintHandOffStats"
+  },
+  "MaximumMemoryUsageReachedStats": {
+    "AnalyticsGroup": "MaximumMemoryUsageReachedStats",
+    "AggregateGroupFunctionName": "MaximumMemoryUsageReachedStats"
+  },
+  "FreeDeviceStorageStats": {
+    "AnalyticsGroup": "FreeDeviceStorageStats",
+    "AggregateGroupFunctionName": "FreeDeviceStorageStats"
   }
 }

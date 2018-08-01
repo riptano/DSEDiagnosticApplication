@@ -698,6 +698,27 @@ namespace DSEDiagnosticAnalytics
                                         LogEventGrouping.GroupingTypes.HintHandOffStats,
                                         rows);
         }
+
+        public static LogEventGrouping MaximumMemoryUsageReachedStats(ref LogEventGroup logEventGroup, string analyticsGroup, IEnumerable<ILogEvent> assocatedLogEvents)
+        {
+            var maxSize = assocatedLogEvents.Select(i => i.LogProperties.GetPropUOMValue("max")).Where(i => i >= 0);
+            var chuckSize = assocatedLogEvents.Select(i => i.LogProperties.GetPropUOMValue("chuck")).Where(i => i >= 0);
+
+            return new LogEventGrouping(ref logEventGroup,
+                                        assocatedLogEvents,
+                                        LogEventGrouping.GroupingTypes.MaximumMemoryUsageReachedStats,
+                                        maxSize, chuckSize);
+        }
+
+        public static LogEventGrouping FreeDeviceStorageStats(ref LogEventGroup logEventGroup, string analyticsGroup, IEnumerable<ILogEvent> assocatedLogEvents)
+        {
+            var storage = assocatedLogEvents.Select(i => i.LogProperties.GetPropUOMValue("free")).Where(i => i >= 0);
+            
+            return new LogEventGrouping(ref logEventGroup,
+                                        assocatedLogEvents,
+                                        LogEventGrouping.GroupingTypes.FreeDeviceStorageStats,
+                                        storage);
+        }
     }
 
     public struct LogEventGroup
@@ -884,6 +905,8 @@ namespace DSEDiagnosticAnalytics
             CompactionStats,
             HintHandOffStats,
             PreparesDiscard,
+            MaximumMemoryUsageReachedStats,
+            FreeDeviceStorageStats
         }
 
         public static IEnumerable<LogEventGrouping> CreateLogEventGrouping(LogEventGroup logEventGroup, IEnumerable<ILogEvent> assocatedLogEvents)
@@ -1022,6 +1045,16 @@ namespace DSEDiagnosticAnalytics
                     this.DurationStats = new DurationStatItems(assocatedLogEvents);
                     this.HintHandOffStats = new HintHandOffItems(longAggreations[0]);
                     this.HasValue = forceHasValue ? true : (this.DurationStats?.HasValue ?? false) || this.HintHandOffStats.HasValue;
+                    break;
+                case GroupingTypes.MaximumMemoryUsageReachedStats:
+                    this.GroupKey = groupKey;
+                    this.MaximumMemoryUsageReachedStats = new MaximumMemoryUsageReached(decimalAggreations[0], decimalAggreations[1]);
+                    this.HasValue = forceHasValue ? true : this.MaximumMemoryUsageReachedStats.HasValue;
+                    break;
+                case GroupingTypes.FreeDeviceStorageStats:
+                    this.GroupKey = groupKey;
+                    this.FreeDeviceStorageStats = new FreeDeviceStorage(decimalAggreations[0]);
+                    this.HasValue = forceHasValue ? true : this.FreeDeviceStorageStats.HasValue;
                     break;
                 default:
                     break;
@@ -1454,5 +1487,46 @@ namespace DSEDiagnosticAnalytics
         }
 
         public readonly PreparesDiscardedItems PreparesDiscardedStats;
+
+        public sealed class MaximumMemoryUsageReached 
+        {
+            public MaximumMemoryUsageReached(IEnumerable<decimal> maxMemory, IEnumerable<decimal> chuckSize)
+            {
+                this.MaxMemory = new ItemStatsDecimal(maxMemory);
+                if (this.MaxMemory.HasValue)
+                    this.UOM = "MiB";
+
+                this.ChuckMemory = new ItemStatsDecimal(chuckSize);
+                if (this.ChuckMemory.HasValue)
+                    if (this.UOM == null) this.UOM = "MIB";
+
+                this.HasValue = this.MaxMemory.HasValue || this.ChuckMemory.HasValue;
+            }
+
+            public readonly bool HasValue;
+            public readonly ItemStatsDecimal MaxMemory;
+            public readonly ItemStatsDecimal ChuckMemory;
+            public readonly string UOM;
+        }
+
+        public readonly MaximumMemoryUsageReached MaximumMemoryUsageReachedStats;
+
+        public sealed class FreeDeviceStorage
+        {
+            public FreeDeviceStorage(IEnumerable<decimal> storage)
+            {
+                this.FreeStorage = new ItemStatsDecimal(storage);
+                if (this.FreeStorage.HasValue)
+                    this.UOM = "MiB";
+
+                this.HasValue = this.FreeStorage.HasValue;
+            }
+
+            public readonly bool HasValue;
+            public readonly ItemStatsDecimal FreeStorage;           
+            public readonly string UOM;
+        }
+
+        public readonly FreeDeviceStorage FreeDeviceStorageStats;
     }
 }
