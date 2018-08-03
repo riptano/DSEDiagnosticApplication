@@ -20,6 +20,13 @@ namespace DSEDiagnosticLibrary.Tests
             Assert.IsTrue(NodeIdentifier.ValidNodeIdName("hostname.ds.one.us"));
             Assert.IsTrue(NodeIdentifier.ValidNodeIdName("hostname.com"));
             Assert.IsFalse(NodeIdentifier.ValidNodeIdName("localhost"));
+            Assert.IsFalse(NodeIdentifier.ValidNodeIdName("localhost6"));
+            Assert.IsFalse(NodeIdentifier.ValidNodeIdName("localhost.a.b.c"));
+            Assert.IsFalse(NodeIdentifier.ValidNodeIdName("localhost6.a.b.c"));
+            Assert.IsFalse(NodeIdentifier.ValidNodeIdName("ip6-localhost"));
+            Assert.IsFalse(NodeIdentifier.ValidNodeIdName("localhost-6"));
+            Assert.IsFalse(NodeIdentifier.ValidNodeIdName("ip6-loopback"));
+            Assert.IsFalse(NodeIdentifier.ValidNodeIdName("loopback"));
             Assert.IsFalse(NodeIdentifier.ValidNodeIdName("0.0.0.0"));
             Assert.IsFalse(NodeIdentifier.ValidNodeIdName("127.0.0.1"));
             Assert.IsFalse(NodeIdentifier.ValidNodeIdName("::1"));

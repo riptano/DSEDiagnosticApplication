@@ -216,7 +216,10 @@ namespace DSEDiagnosticLibrary
                      || possibleNodeName == "0.0.0.0"
                      || possibleNodeName == "::1"
                      || possibleNodeName == "0:0:0:0:0:0:0:1"
-                     || possibleNodeName.ToLower().StartsWith("localhost"))
+                     || possibleNodeName.ToLower().StartsWith("localhost")
+                     || possibleNodeName.ToLower().EndsWith("localhost")
+                     || possibleNodeName.ToLower().StartsWith("loopback")
+                     || possibleNodeName.ToLower().EndsWith("loopback"))
             {
                 return false;
             }
