@@ -161,30 +161,30 @@ namespace DSEDiagnosticConsoleApplication.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("[\r\n{\"ProfileName\":\"AllFilesLogs\",\"Log4NetParser\":\".\\\\Json\\\\Log4NetParser.json\",\"P" +
-            "rocessFileMappings\":\".\\\\Json\\\\ProcessFileMappings.json\",\"EnableVirtualMemory\":tr" +
-            "ue, \"DefaultLogLevelHandling\":\"Warning, Error, Fatal, Exception\", \"DebugLogProce" +
-            "ssingTypes\":\"OnlyFlushCompactionMsgs\"},\r\n{\"ProfileName\":\"NoLogs\",\"Log4NetParser\"" +
-            ":\".\\\\Json\\\\Log4NetParser.json\",\"ProcessFileMappings\":\".\\\\Json\\\\ProcessFileMappin" +
-            "gsNoLogs.json\",\"EnableVirtualMemory\":true, \"DefaultLogLevelHandling\":null, \"Debu" +
-            "gLogProcessingTypes\":\"Disabled\"},\r\n{\"ProfileName\":\"Validate\",\"Log4NetParser\":\".\\" +
-            "\\Json\\\\Log4NetParserValidateLogs.json\",\"ProcessFileMappings\":\".\\\\Json\\\\ProcessFi" +
-            "leMappingsValidate.json\",\"EnableVirtualMemory\":false, \"DefaultLogLevelHandling\":" +
-            "\"Fatal, Exception\", \"DebugLogProcessingTypes\":\"OnlyLogDateRange\"},\r\n{\"ProfileNam" +
-            "e\":\"Decompression\",\"Log4NetParser\":\".\\\\Json\\\\Log4NetParserValidateLogs.json\",\"Pr" +
-            "ocessFileMappings\":\".\\\\Json\\\\Unzip-ProcessFileMappings.json\",\"EnableVirtualMemor" +
-            "y\":false, \"DefaultLogLevelHandling\":\"Fatal, Exception\", \"DebugLogProcessingTypes" +
-            "\":\"Disabled\"},\r\n{\"ProfileName\":\"CreateOpsCenterStruct\",\"Log4NetParser\":\".\\\\Json\\" +
-            "\\Log4NetParserValidateLogs.json\",\"ProcessFileMappings\":\".\\\\Json\\\\ProcessFileMapp" +
-            "ings-CreateOpsCenterCopy.json\",\"EnableVirtualMemory\":false, \"DefaultLogLevelHand" +
-            "ling\":\"Fatal, Exception\", \"DebugLogProcessingTypes\":\"Disabled\"},\r\n{\"ProfileName\"" +
-            ":\"AllNoFlushComp\",\"Log4NetParser\":\".\\\\Json\\\\Log4NetParserLogsNoFlushComp.json\",\"" +
-            "ProcessFileMappings\":\".\\\\Json\\\\ProcessFileMappingsNoDebugLogs.json\",\"EnableVirtu" +
-            "alMemory\":true, \"DefaultLogLevelHandling\":\"Warning, Error, Fatal, Exception\", \"D" +
-            "ebugLogProcessingTypes\":\"Disable\"},\r\n{\"ProfileName\":\"ValidateWLogs\",\"Log4NetPars" +
-            "er\":\".\\\\Json\\\\Log4NetParserLogsNoFlushCompGC.json\",\"ProcessFileMappings\":\".\\\\Jso" +
-            "n\\\\ProcessFileMappingsValidate.json\",\"EnableVirtualMemory\":false, \"DefaultLogLev" +
-            "elHandling\":\"Fatal, Exception\", \"DebugLogProcessingTypes\":\"OnlyLogDateRange\"}\r\n]" +
-            "")]
+            "rocessFileMappings\":\".\\\\Json\\\\ProcessFileMappings.json\",\"EnableVirtualMemory\":fa" +
+            "lse, \"DefaultLogLevelHandling\":\"Warning, Error, Fatal, Exception\", \"DebugLogProc" +
+            "essingTypes\":\"OnlyFlushCompactionMsgs\"},\r\n{\"ProfileName\":\"NoLogs\",\"Log4NetParser" +
+            "\":\".\\\\Json\\\\Log4NetParser.json\",\"ProcessFileMappings\":\".\\\\Json\\\\ProcessFileMappi" +
+            "ngsNoLogs.json\",\"EnableVirtualMemory\":false, \"DefaultLogLevelHandling\":null, \"De" +
+            "bugLogProcessingTypes\":\"Disabled\"},\r\n{\"ProfileName\":\"Validate\",\"Log4NetParser\":\"" +
+            ".\\\\Json\\\\Log4NetParserValidateLogs.json\",\"ProcessFileMappings\":\".\\\\Json\\\\Process" +
+            "FileMappingsValidate.json\",\"EnableVirtualMemory\":false, \"DefaultLogLevelHandling" +
+            "\":\"Fatal, Exception\", \"DebugLogProcessingTypes\":\"OnlyLogDateRange\"},\r\n{\"ProfileN" +
+            "ame\":\"Decompression\",\"Log4NetParser\":\".\\\\Json\\\\Log4NetParserValidateLogs.json\",\"" +
+            "ProcessFileMappings\":\".\\\\Json\\\\Unzip-ProcessFileMappings.json\",\"EnableVirtualMem" +
+            "ory\":false, \"DefaultLogLevelHandling\":\"Fatal, Exception\", \"DebugLogProcessingTyp" +
+            "es\":\"Disabled\"},\r\n{\"ProfileName\":\"CreateOpsCenterStruct\",\"Log4NetParser\":\".\\\\Jso" +
+            "n\\\\Log4NetParserValidateLogs.json\",\"ProcessFileMappings\":\".\\\\Json\\\\ProcessFileMa" +
+            "ppings-CreateOpsCenterCopy.json\",\"EnableVirtualMemory\":false, \"DefaultLogLevelHa" +
+            "ndling\":\"Fatal, Exception\", \"DebugLogProcessingTypes\":\"Disabled\"},\r\n{\"ProfileNam" +
+            "e\":\"AllNoFlushComp\",\"Log4NetParser\":\".\\\\Json\\\\Log4NetParserLogsNoFlushComp.json\"" +
+            ",\"ProcessFileMappings\":\".\\\\Json\\\\ProcessFileMappingsNoDebugLogs.json\",\"EnableVir" +
+            "tualMemory\":false, \"DefaultLogLevelHandling\":\"Warning, Error, Fatal, Exception\"," +
+            " \"DebugLogProcessingTypes\":\"Disable\"},\r\n{\"ProfileName\":\"ValidateWLogs\",\"Log4NetP" +
+            "arser\":\".\\\\Json\\\\Log4NetParserLogsNoFlushCompGC.json\",\"ProcessFileMappings\":\".\\\\" +
+            "Json\\\\ProcessFileMappingsValidate.json\",\"EnableVirtualMemory\":false, \"DefaultLog" +
+            "LevelHandling\":\"Fatal, Exception\", \"DebugLogProcessingTypes\":\"OnlyLogDateRange\"}" +
+            "\r\n]")]
         public string Profiles {
             get {
                 return ((string)(this["Profiles"]));
