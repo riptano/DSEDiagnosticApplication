@@ -94,22 +94,11 @@ namespace DSEDiagnosticLibrary
 
             strIPAddressOrHostName = strIPAddressOrHostName?.Trim();
 
-            if (!string.IsNullOrEmpty(strIPAddressOrHostName))
+            if (ValidNodeIdName(strIPAddressOrHostName))
 			{
                 if (tryParseAsIPAddress && IPAddress.TryParse(strIPAddressOrHostName, out ipAddress))
                 {
-                    var ipAddressStr = ipAddress.ToString();
-
-                    if (ipAddressStr == "127.0.0.1"
-                            || ipAddressStr == "::1"
-                            || ipAddressStr == "0:0:0:0:0:0:0:1")
-                    {
-                        ipAddress = null;
-                    }
-                    else
-                    {
-                        this.AddIPAddress(ipAddress);
-                    }
+                    this.AddIPAddress(ipAddress);                    
                 }
                 else
                 {
@@ -162,16 +151,6 @@ namespace DSEDiagnosticLibrary
 
 			return ipAddress;
 		}
-
-        public bool IsValid()
-        {
-            if(this.Addresses.Count() == 1)
-            {
-                return ValidNodeIdName(this.Addresses.First().ToString());
-            }
-
-            return this.HostName?.ToLower() != "localhost";
-        }
 
         /// <summary>
         /// Returns Nodes IP4 address first, Host Name second, and IP6 address only if other two not defined.
@@ -237,7 +216,7 @@ namespace DSEDiagnosticLibrary
                      || possibleNodeName == "0.0.0.0"
                      || possibleNodeName == "::1"
                      || possibleNodeName == "0:0:0:0:0:0:0:1"
-                     || possibleNodeName.ToLower() == "localhost")
+                     || possibleNodeName.ToLower().StartsWith("localhost"))
             {
                 return false;
             }
@@ -1050,7 +1029,8 @@ namespace DSEDiagnosticLibrary
 
 		IEnumerable<IMMLogValue> LogEvents { get; }
         IEnumerable<IMMLogValue> LogEventsCache(LogCassandraEvent.ElementCreationTypes creationType, bool presistCache = false, bool safeRead = true);
-        
+        IEnumerable<IMMLogValue> LogEventsRead(LogCassandraEvent.ElementCreationTypes creationType, bool safeRead = true);
+
         INode AssociateItem(IMMLogValue eventItems);
         IMMLogValue AssociateItem(ILogEvent eventItems);
         IEnumerable<IAggregatedStats> AggregatedStats { get; }
@@ -1245,6 +1225,13 @@ namespace DSEDiagnosticLibrary
             if(this._eventsCMM == null) return safeRead ? (IEnumerable<IMMLogValue>)this._eventsCTS : (IEnumerable<IMMLogValue>)this._eventsCTS.UnSafe;
 
             return this._eventsCMM.ToEnumerableCached((Common.Patterns.Collections.MemoryMapperElementCreationTypes)creationType, presistCache);
+        }
+
+        public IEnumerable<IMMLogValue> LogEventsRead(LogCassandraEvent.ElementCreationTypes creationType, bool safeRead = true)
+        {
+            if (this._eventsCMM == null) return safeRead ? (IEnumerable<IMMLogValue>)this._eventsCTS : (IEnumerable<IMMLogValue>)this._eventsCTS.UnSafe;
+
+            return this._eventsCMM.ToEnumerable((Common.Patterns.Collections.MemoryMapperElementCreationTypes)creationType);
         }
 
         public INode AssociateItem(IMMLogValue eventItems)

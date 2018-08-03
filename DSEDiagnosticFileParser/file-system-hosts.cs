@@ -58,12 +58,9 @@ namespace DSEDiagnosticFileParser
 
                 if (hostList.Length <= 1) continue;
                 
-                var node = hostList[0] == "127.0.0.1"
-                                || hostList[0] == "0:0:0:0:0:0:0:1"
-                                || hostList[0] == "::1"
-                                || hostList[0] == "fe00::0"
-                            ? this.Node
-                            : Cluster.TryGetNode(hostList[0], this.DefaultDataCenterName, this.DefaultClusterName);
+                var node = NodeIdentifier.ValidNodeIdName(hostList[0])                                
+                            ? Cluster.TryGetNode(hostList[0], this.DefaultDataCenterName, this.DefaultClusterName)
+                            : this.Node;
                 
                 if (node != null)
                 {
@@ -71,7 +68,7 @@ namespace DSEDiagnosticFileParser
 
                     foreach (var hostName in hostList.Skip(1))
                     {
-                        if (hostName.ToLower() == "localhost") continue;
+                        if (!NodeIdentifier.ValidNodeIdName(hostName)) continue;
 
                         node.Id.SetIPAddressOrHostName(hostName);
                         ++nbrGenerated;               

@@ -205,7 +205,7 @@ namespace DSEDiagnosticToDataTable
                 System.Threading.Tasks.Parallel.ForEach(this.Cluster.Nodes, parallelOptions, node =>
                 {
                     Logger.Instance.InfoFormat("Log Aggregation Processing for {0} Started", node.Id.NodeName());
-
+                    
                     var nodeEvtGrps = (from logMMV in node.LogEventsCache(LogCassandraEvent.ElementCreationTypes.EventTypeOnly, true, false)
                                         let logEvt = logMMV.Value
                                         where (logEvt.Type & EventTypes.SingleInstance) != 0
@@ -241,7 +241,7 @@ namespace DSEDiagnosticToDataTable
                 int nbrItems = 0;
 
                 Logger.Instance.InfoFormat("Log Aggregation Processing Started for Sort/Datatable for {0} nodes", nodeGrpEvents.UnSafe.Count);
-
+                
                 foreach (var logGrpEvt in nodeGrpEvents.UnSafe.SelectMany(e => e)
                                             .OrderBy(i => i.GroupKey.AggregationDateTime)
                                                 .ThenBy(i => i.FirstEvent.EventTime)

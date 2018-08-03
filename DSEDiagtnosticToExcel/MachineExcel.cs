@@ -144,6 +144,12 @@ namespace DSEDiagtnosticToExcel
                                                                 workSheet.Cells["AH1:AO2"].Style.Border.Left.Style = OfficeOpenXml.Style.ExcelBorderStyle.Medium;
                                                                 workSheet.Cells["AH1:AO2"].Style.Border.Right.Style = OfficeOpenXml.Style.ExcelBorderStyle.Medium;
 
+                                                                workSheet.Cells["AP1:AP1"].Style.WrapText = true;
+                                                                workSheet.Cells["AP1:AP1"].Merge = true;
+                                                                workSheet.Cells["AP1:AP1"].Value = "Host Names";
+                                                                workSheet.Cells["AP1:AP2"].Style.Border.Left.Style = OfficeOpenXml.Style.ExcelBorderStyle.Medium;
+                                                                workSheet.Cells["AP1:AP2"].Style.Border.Right.Style = OfficeOpenXml.Style.ExcelBorderStyle.Medium;
+
                                                                 workSheet.Cells["E:E"].Style.Numberformat.Format = "#,###,###,##0";
                                                                 workSheet.Cells["F:F"].Style.Numberformat.Format = "#,###,###,##0";
                                                                 workSheet.Cells["K:K"].Style.Numberformat.Format = "#,###,###,##0.00";
@@ -177,7 +183,7 @@ namespace DSEDiagtnosticToExcel
                                                                 workSheet.Cells["AN:AN"].Style.Numberformat.Format = "#,###,###,##0";
                                                                 workSheet.Cells["AO:AO"].Style.Numberformat.Format = "#,###,###,##0";
 
-                                                                workSheet.Cells["A2:AO2"].AutoFilter = true;
+                                                                workSheet.Cells["A2:AP2"].AutoFilter = true;
                                                                 
                                                                 workSheet.AutoFitColumn();
                                                             },

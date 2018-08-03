@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Data;
 using DSEDiagnosticLogger;
+using Common;
 
 namespace DSEDiagnosticToDataTable
 {
@@ -71,6 +72,7 @@ namespace DSEDiagnosticToDataTable
             dtOSMachineInfo.Columns.Add("Precision (us)", typeof(decimal)); //am
             dtOSMachineInfo.Columns.Add("Frequency (ppm)", typeof(decimal));
             dtOSMachineInfo.Columns.Add("Tolerance (ppm)", typeof(decimal)); //ao
+            dtOSMachineInfo.Columns.Add("Host Names", typeof(string)).AllowDBNull = true; //ap
 
             dtOSMachineInfo.DefaultView.ApplyDefaultSort = false;
             dtOSMachineInfo.DefaultView.AllowDelete = false;
@@ -170,6 +172,8 @@ namespace DSEDiagnosticToDataTable
                                 .SetFieldToDecimal("Frequency (ppm)", node.Machine.NTP.Frequency)
                                 .SetFieldToDecimal("Tolerance (ppm)", node.Machine.NTP.Tolerance);
                         if (node.Machine.NTP.TimeConstant.HasValue) dataRow.SetField("Time Constant", node.Machine.NTP.TimeConstant.Value);
+
+                        if(node.Id.HostNames != null && node.Id.HostNames.HasAtLeastOneElement()) dataRow.SetField("Host Names", string.Join(", ", node.Id.HostNames));
 
                         this.Table.Rows.Add(dataRow);
                         ++nbrItems;
