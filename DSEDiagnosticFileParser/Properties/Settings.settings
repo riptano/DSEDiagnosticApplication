@@ -1709,7 +1709,7 @@ CREATE TABLE "OpsCenter".rollups300 (
       <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="LogExceptionRegExMatches" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">(?:/(?&lt;NODE&gt;[^  \]}),]+))|(?:consistency\s+level\s+(?&lt;consistencylevel&gt;[a-z\-_]+))|(?:timeout\:?\s+(?&lt;timeout&gt;[0-9,.\-]+))|(?:sstable\s*(?&lt;SSTABLEPATH&gt;[a-z0-9\-_@#/.,\\ +%]+)[\]})]?)|(?:executing\s+query\s+(?&lt;cql&gt;.+)|(?:(?:\s+|\#)(?&lt;ID&gt;[0-9a-f]{8}\-[0-9a-f]{4}\-[0-9a-f]{4}\-[0-9a-f]{4}\-[0-9a-f]{12})(?:\s|\]))|(?:\s?(?&lt;TOKENRANGE&gt;\(\-?[0-9]+\,\-?[0-9]+\])\,?)|(?:id\:\s+(?&lt;CHANNELID&gt;0x[0-9a-f]+)))</Value>
+      <Value Profile="(Default)">(?:/(?(?=[a-z0-9. ]+/)(?&lt;PATH&gt;[^  \]}),]+)|(?&lt;NODE&gt;[^  \]}),]+)))|(?:consistency\s+level\s+(?&lt;consistencylevel&gt;[a-z\-_]+))|(?:timeout\:?\s+(?&lt;timeout&gt;[0-9,.\-]+))|(?:sstable\s*(?&lt;SSTABLEPATH&gt;[a-z0-9\-_@#/.,\\ +%]+)[\]})]?)|(?:executing\s+query\s+(?&lt;cql&gt;.+)|(?:(?:\s+|\#)(?&lt;ID&gt;[0-9a-f]{8}\-[0-9a-f]{4}\-[0-9a-f]{4}\-[0-9a-f]{4}\-[0-9a-f]{12})(?:\s|\]))|(?:\s?(?&lt;TOKENRANGE&gt;\(\-?[0-9]+\,\-?[0-9]+\])\,?)|(?:id\:\s+(?&lt;CHANNELID&gt;0x[0-9a-f]+)))</Value>
     </Setting>
     <Setting Name="DefaultLogLevelHandling" Type="System.String" Scope="Application">
       <Value Profile="(Default)">Warning, Error, Fatal, Exception</Value>
