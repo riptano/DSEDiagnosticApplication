@@ -141,9 +141,9 @@ namespace DSEDiagnosticToDataTable
 
                         if (item.Key.StartsWith(DSEDiagnosticLibrary.AggregatedStats.Error))
                         {
-                            foreach (var strError in (IList<string>)item.Value)
+                            if (item.Value is string)
                             {
-                                this.CancellationToken.ThrowIfCancellationRequested();
+                                var strError = (string)item.Value;
 
                                 dataRow = this.Table.NewRow();
 
@@ -167,7 +167,35 @@ namespace DSEDiagnosticToDataTable
 
                                 ++nbrItems;
                             }
+                            else
+                            {
+                                foreach (var strError in (IList<string>)item.Value)
+                                {
+                                    this.CancellationToken.ThrowIfCancellationRequested();
 
+                                    dataRow = this.Table.NewRow();
+
+                                    if (this.SessionId.HasValue) dataRow.SetField(ColumnNames.SessionId, this.SessionId.Value);
+
+                                    dataRow.SetField(ColumnNames.Source, stat.Source.ToString());
+                                    dataRow.SetField(ColumnNames.DataCenter, stat.DataCenter.Name);
+                                    dataRow.SetField(ColumnNames.NodeIPAddress, stat.Node.Id.NodeName());
+                                    dataRow.SetField(ColumnNames.KeySpace, keyspaceName);
+                                    dataRow.SetField("Type", stat.Class.ToString());
+
+                                    if (stat.TableViewIndex != null)
+                                    {
+                                        this.SetTableIndexInfo(dataRow, stat, warn);
+                                    }
+
+                                    dataRow.SetField("Attribute", item.Key);
+                                    dataRow.SetField("Value", strError);
+
+                                    this.Table.Rows.Add(dataRow);
+
+                                    ++nbrItems;
+                                }
+                            }
                             continue;
                         }
 
