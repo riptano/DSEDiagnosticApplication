@@ -1167,7 +1167,7 @@ namespace DSEDiagnosticLibrary
                     return Types.NS | uofType;
                 case "milliseconds":
                 case "millisecond":
-                case "ms":
+                case "ms":                
                     return Types.MS | uofType;
                 case "seconds":
                 case "second":
@@ -1199,6 +1199,7 @@ namespace DSEDiagnosticLibrary
                 case "microsecond":
                 case "microseconds":
                 case "micro":
+                case "micros":
                 case "us":
                     return Types.us | uofType;
                 case "nan":
