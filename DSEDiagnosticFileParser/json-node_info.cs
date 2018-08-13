@@ -112,7 +112,7 @@ namespace DSEDiagnosticFileParser
                     }
                 }
 
-                nodeInfo.TryGetValue("ec2").TryGetValue("instance-type").NullSafeSet<string>(v => this.Node.Machine.InstanceType = v);
+                nodeInfo.TryGetValue("ec2").TryGetValue("instance-type").NullSafeSet<string>(v => this.Node.Machine.CloudVMType = v);
                 nodeInfo.TryGetValue("ec2").TryGetValue("placement").NullSafeSet<string>(v => this.Node.Machine.Placement = v);
                 nodeInfo.TryGetValue("num_procs").EmptySafeSet<uint>(this.Node.Machine.CPU.Cores, v => this.Node.Machine.CPU.Cores = v);
                 nodeInfo.TryGetValue("vnodes").NullSafeSet<bool>(v => this.Node.DSE.VNodesEnabled = v);

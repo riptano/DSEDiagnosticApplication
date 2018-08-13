@@ -26,7 +26,7 @@ namespace DSEDiagnosticToDataTable
             dtOSMachineInfo.Columns.Add(ColumnNames.DataCenter, typeof(string));
             dtOSMachineInfo.PrimaryKey = new System.Data.DataColumn[] { dtOSMachineInfo.Columns[ColumnNames.NodeIPAddress] };
 
-            dtOSMachineInfo.Columns.Add("Instance Type", typeof(string)).AllowDBNull = true;//c
+            dtOSMachineInfo.Columns.Add("Cloud-VM Type", typeof(string)).AllowDBNull = true;//c
             dtOSMachineInfo.Columns.Add("CPU Architecture", typeof(string));
             dtOSMachineInfo.Columns.Add("Cores", typeof(int)).AllowDBNull = true; //e
             dtOSMachineInfo.Columns.Add("Physical Memory (MB)", typeof(int)); //f
@@ -114,7 +114,7 @@ namespace DSEDiagnosticToDataTable
                         dataRow.SetField(ColumnNames.NodeIPAddress, node.Id.NodeName());
                         dataRow.SetField(ColumnNames.DataCenter, dataCenter.Name);
 
-                        dataRow.SetField("Instance Type", node.Machine.InstanceType?.ToString());
+                        dataRow.SetField("Cloud-VM Type", node.Machine.CloudVMType?.ToString());
                         dataRow.SetField("CPU Architecture", node.Machine.CPU.Architecture);
                         if(node.Machine.CPU.Cores.HasValue) dataRow.SetField("Cores", (int) node.Machine.CPU.Cores.Value);
                         dataRow.SetFieldToInt("Physical Memory (MB)", node.Machine.Memory.PhysicalMemory, DSEDiagnosticLibrary.UnitOfMeasure.Types.MiB);
