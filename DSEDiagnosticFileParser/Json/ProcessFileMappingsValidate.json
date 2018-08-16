@@ -292,6 +292,14 @@
     "ProcessPriorityLevel": 500
   },
   {
+    "Catagory": "CommandOutputFile",
+    "FilePatterns": [ ".\\nodes\\*\\nodetool\\version" ],
+    "FileParsingClass": "DSEDiagnosticFileParser.file_nodetool_version",
+    "NodeIdPos": -1,
+    "ProcessingTaskOption": "ScanForNode,ParallelProcessing,ParallelProcessFiles",
+    "ProcessPriorityLevel": 500
+  },
+  {
     "Catagory": "SystemOutputFile",
     "FilePatterns": [ ".\\nodes\\*\\conf\\location.json" ],
     "FileParsingClass": "DSEDiagnosticFileParser.json_location",

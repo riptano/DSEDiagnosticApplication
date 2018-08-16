@@ -123,7 +123,7 @@ namespace DSEDiagnosticFileParser
                 switch (lineCommand)
                 {
                     case "gossip active":
-                        this.Node.DSE.GossipEnabled =  bool.Parse(lineValue);
+                        this.Node.DSE.GossipEnabled = bool.Parse(lineValue);
                         break;
                     case "thrift active":
                         this.Node.DSE.ThriftEnabled = bool.Parse(lineValue);
@@ -151,7 +151,7 @@ namespace DSEDiagnosticFileParser
                         this.Node.DSE.OffHeap = UnitOfMeasure.Create(lineValue, UnitOfMeasure.Types.MiB | UnitOfMeasure.Types.Memory);
                         break;
                     case "id":
-                        if(this.Node.DSE.HostId == null)
+                        if (this.Node.DSE.HostId == null)
                         {
                             ((Node)this.Node).DSE.HostId = new Guid(lineValue);
                         }
@@ -162,14 +162,14 @@ namespace DSEDiagnosticFileParser
                     case "data center":
                         if (this.Node.DataCenter == null)
                         {
-                            if(Cluster.AssociateDataCenterToNode(lineValue, this.Node) != null)
+                            if (Cluster.AssociateDataCenterToNode(lineValue, this.Node) != null)
                             {
                                 ++nbrGenerated;
                             }
                         }
                         break;
                     case "rack":
-                        if(string.IsNullOrEmpty(this.Node.DSE.Rack))
+                        if (string.IsNullOrEmpty(this.Node.DSE.Rack))
                         {
                             ((Node)this.Node).DSE.Rack = lineValue;
                         }
@@ -203,10 +203,85 @@ namespace DSEDiagnosticFileParser
                 }
             }
 
+            DateTimeOffset? captureDateTime = DetermineNodeCaptureDateTime(this.Node, this.ShortFilePath, this.DiagnosticDirectory);
+
+            if (captureDateTime.HasValue)
+            {
+                this.Node.DSE.CaptureTimestamp = captureDateTime;
+
+                if (Logger.Instance.IsDebugEnabled)
+                {
+                    Logger.Instance.InfoFormat("Node \"{0}\" using a Capture Date of {1}",
+                                                this.Node,
+                                                this.Node.DSE.CaptureTimestamp.HasValue
+                                                    ? this.Node.DSE.CaptureTimestamp.Value.ToString(@"yyyy-MM-dd HH:mm:ss zzz")
+                                                    : "<Unkown>");
+                }
+            }
+
             this.Node.UpdateDSENodeToolDateRange();
 
             this.Processed = true;
             return nbrGenerated;
+        }
+
+        public static DateTimeOffset? DetermineNodeCaptureDateTime(INode node, IFilePath filePath, IDirectoryPath sourceDir)
+        {
+            DateTimeOffset? captureDateTime = null;
+
+            if (LibrarySettings.CaptureTimeFrameMatches != null
+                    && !node.DSE.CaptureTimestamp.HasValue)
+            {
+                var strFile = filePath.PathResolved;
+
+                if (sourceDir != null)
+                {
+                    var strDir = sourceDir.PathResolved;
+                    int lastPos = 0;
+
+                    for(; lastPos < strDir.Length; ++lastPos)
+                    {
+                        if(strDir[lastPos] != strFile[lastPos]) break;
+                    }
+
+                    if(lastPos > 0)
+                    {
+                        strFile = strFile.Substring(lastPos);
+                    }
+                }
+
+                try
+                {
+                    var directories = strFile.Split(System.IO.Path.DirectorySeparatorChar);
+                    
+                    for (int nIdx = directories.Length - 1; nIdx >= 0; --nIdx)
+                    {
+                        var dirItem = directories[nIdx];
+                        var regexMatch = LibrarySettings.CaptureTimeFrameMatches.Match(dirItem);
+
+                        if (regexMatch.Success)
+                        {
+                            var year = regexMatch.Groups["year"].Value;
+                            var month = regexMatch.Groups["month"].Value;
+                            var day = regexMatch.Groups["day"].Value;
+                            var hour = regexMatch.Groups["hour"].Value;
+                            var min = regexMatch.Groups["min"].Value;
+                            var second = regexMatch.Groups["second"].Value;
+                            var diagTZ = regexMatch.Groups["timezone"].Value;
+                            DateTime diagDateTime = new DateTime(int.Parse(year), int.Parse(month), int.Parse(day),
+                                                                    int.Parse(hour), int.Parse(min), int.Parse(second));
+                            var tzInstance = StringHelpers.FindTimeZone(diagTZ);
+
+                            captureDateTime = tzInstance == null ? diagDateTime.ConvertToOffset() : Common.TimeZones.ConvertToOffset(diagDateTime, tzInstance);                            
+                            break;
+                        }
+                    }
+                }
+                catch
+                { }
+            }
+
+            return captureDateTime;
         }
     }
 }

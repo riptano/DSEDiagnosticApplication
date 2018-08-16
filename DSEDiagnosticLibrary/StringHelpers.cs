@@ -465,12 +465,13 @@ namespace DSEDiagnosticLibrary
 
             return nResult;
         }
-
+       
         static public Common.Patterns.TimeZoneInfo.IZone FindTimeZone(string ianaName)
         {
             return string.IsNullOrEmpty(ianaName)
                             ? null
                             : Common.TimeZones.Find(ianaName, Common.Patterns.TimeZoneInfo.ZoneNameTypes.IANATZName)
+                                ?? Common.TimeZones.Find(ianaName, Common.Patterns.TimeZoneInfo.ZoneNameTypes.AbbreviatedName)
                                 ?? Common.TimeZones.Find(ianaName, Common.Patterns.TimeZoneInfo.ZoneNameTypes.FormattedName);            
         }
 

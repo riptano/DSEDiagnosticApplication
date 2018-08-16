@@ -121,7 +121,7 @@ namespace DSEDiagnosticConsoleApplication
             {
                 DefaultValue = ParserSettings.DiagFolderStructOptions.OpsCtrDiagStruct,
                 Optional = true,
-                Description = "Structure of the folders and file names used to determine the context of each file."
+                Description = "Structure of the folders and file names used to determine the context of each file. Values are: OpsCtrDiagStruct (default), NodeAgentDiagStruct, IndivFiles, and NodeSubFldStruct"
             });
 
             this._cmdLineParser.Arguments.Add(new ValueArgument<DateTimeOffset?>('T', "DiagCaptureTime")

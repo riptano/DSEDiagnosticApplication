@@ -1288,5 +1288,25 @@ public static class {0}
                 return ((string)(this["LCSNbrSplitLevelsAttrib"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("-(?<year>\\d{1,4})-(?<month>\\d{1,2})-(?<day>\\d{1,2})-(?<hour>\\d{1,2})-(?<min>\\d{1," +
+            "2})-(?<second>\\d{1,2})-(?<timezone>\\w+)")]
+        public string CaptureTimeFrameRegEx {
+            get {
+                return ((string)(this["CaptureTimeFrameRegEx"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("(?<cluster>.+)-diagnostics-(?<year>\\d{2,4})_(?<month>\\d{1,2})_(?<day>\\d{1,2})_(?<" +
+            "hour>\\d{1,2})_(?<min>\\d{1,2})_(?<second>\\d{1,2})_(?<timezone>\\w+)")]
+        public string ClusterCaptureTimeFrameRegEx {
+            get {
+                return ((string)(this["ClusterCaptureTimeFrameRegEx"]));
+            }
+        }
     }
 }

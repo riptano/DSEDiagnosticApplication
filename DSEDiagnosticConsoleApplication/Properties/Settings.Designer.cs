@@ -77,25 +77,6 @@ namespace DSEDiagnosticConsoleApplication.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("^(?<CLUSTERNAME>.+)-diagnostics-(?<TS>\\d{4}_\\d{2}_\\d{2}_\\d{2}_\\d{2}_\\d{2})_(?<TZ>" +
-            "\\w{3})$")]
-        public string OpsCenterDiagFolderRegEx {
-            get {
-                return ((string)(this["OpsCenterDiagFolderRegEx"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("yyyy_MM_dd_HH_mm_ss")]
-        public string OpsCenterDiagFolderDateTimeFmt {
-            get {
-                return ((string)(this["OpsCenterDiagFolderDateTimeFmt"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("^(?<STARTTS>[0-9 \\-:./+]+)?\\s*(?<STARTTZ>[A-Z0-9_/]+)?\\s*,?\\s*(?<ENDTS>[0-9 \\-:./" +
             "+]+)?\\s*(?<ENDTZ>[A-Z0-9_/]+)?$")]
         public string CLParserLogTimeRangeRegEx {

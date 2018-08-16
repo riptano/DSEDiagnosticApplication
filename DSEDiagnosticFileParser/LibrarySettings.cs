@@ -16,8 +16,8 @@ namespace DSEDiagnosticFileParser
         public static RegExLexicon RegExLexiconValues = RegExLexicon.Instance;
         public static bool DetectDuplicatedLogEvents = Properties.Settings.Default.DetectDuplicatedLogEvents;
         public static Tuple<string, string>[] ExtractFilesWithExtensions = JsonConvert.DeserializeObject<Tuple<string, string>[]>(Properties.Settings.Default.ExtractFilesWithExtensions);
-        public static FileMapper[] ProcessFileMappings = ReadJsonFileIntoObject<FileMapper[]>(Properties.Settings.Default.ProcessFileMappings);        
-        public static Dictionary<string,RegExParseString> DiagnosticFileRegExAssocations = ReadJsonFileIntoObject<Dictionary<string, RegExParseString>>(Properties.Settings.Default.DiagnosticFileRegExAssocations);
+        public static FileMapper[] ProcessFileMappings = ReadJsonFileIntoObject<FileMapper[]>(Properties.Settings.Default.ProcessFileMappings);
+        public static Dictionary<string, RegExParseString> DiagnosticFileRegExAssocations = ReadJsonFileIntoObject<Dictionary<string, RegExParseString>>(Properties.Settings.Default.DiagnosticFileRegExAssocations);
         public static string[] ObscureFiledValues = Properties.Settings.Default.ObscureFiledValues.ToArray();
         public static Dictionary<string, string> SnitchFileMappings = CreateDictionary(Properties.Settings.Default.SnitchFileMappings);
         public static string Log4NetConversionPattern = Properties.Settings.Default.Log4NetConversionPattern;
@@ -30,7 +30,9 @@ namespace DSEDiagnosticFileParser
         public static file_cassandra_log4net.DefaultLogLevelHandlers DefaultLogLevelHandling = DSEDiagnosticLibrary.LibrarySettings.ParseEnum<file_cassandra_log4net.DefaultLogLevelHandlers>(Properties.Settings.Default.DefaultLogLevelHandling);
         public static file_cassandra_log4net.DebugLogProcessingTypes DebugLogProcessing = DSEDiagnosticLibrary.LibrarySettings.ParseEnum<file_cassandra_log4net.DebugLogProcessingTypes>(Properties.Settings.Default.DebugLogProcessing);
         public static IEnumerable<string> IgnoreWarningsErrosInKeySpaces = Properties.Settings.Default.IgnoreWarningsErrosInKeySpaces.ToArray();
-
+        public static System.Text.RegularExpressions.Regex CaptureTimeFrameMatches = string.IsNullOrEmpty(Properties.Settings.Default.CaptureTimeFrameRegEx) ? null : new System.Text.RegularExpressions.Regex(Properties.Settings.Default.CaptureTimeFrameRegEx, System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.Compiled | System.Text.RegularExpressions.RegexOptions.Singleline);
+        public static DateTimeOffsetRange CaptureDateTimeRange = null;
+        public static System.Text.RegularExpressions.Regex ClusterCaptureTimeFrameMatches = string.IsNullOrEmpty(Properties.Settings.Default.ClusterCaptureTimeFrameRegEx) ? null : new System.Text.RegularExpressions.Regex(Properties.Settings.Default.ClusterCaptureTimeFrameRegEx, System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.Compiled | System.Text.RegularExpressions.RegexOptions.Singleline);
 
         public static DateTimeOffsetRange LogRestrictedTimeRange
         {
@@ -141,6 +143,62 @@ namespace DSEDiagnosticFileParser
             return MasterLog4NetParserCache == null
                     ? MasterLog4NetParserCache = ReadJsonFileIntoObject<CLogTypeParser>(MasterLog4NetParserPathJSON)
                     : MasterLog4NetParserCache;
+        }
+
+        public static Tuple<string, DateTimeOffset, string> DetermineClusterCaptureInfo(string strInfo)
+        {
+            var regexMatch = LibrarySettings.ClusterCaptureTimeFrameMatches.Match(strInfo);
+
+            if (regexMatch.Success)
+            {
+                var cluster = regexMatch.Groups["cluster"].Value;
+                var year = regexMatch.Groups["year"].Value;
+                var month = regexMatch.Groups["month"].Value;
+                var day = regexMatch.Groups["day"].Value;
+                var hour = regexMatch.Groups["hour"].Value;
+                var min = regexMatch.Groups["min"].Value;
+                var second = regexMatch.Groups["second"].Value;
+                var diagTZ = regexMatch.Groups["timezone"].Value;
+                DateTime diagDateTime = new DateTime(int.Parse(year), int.Parse(month), int.Parse(day),
+                                                        int.Parse(hour), int.Parse(min), int.Parse(second));
+                var tzInstance = DSEDiagnosticLibrary.StringHelpers.FindTimeZone(diagTZ);
+
+                return new Tuple<string, DateTimeOffset, string>(cluster,
+                                                                    tzInstance == null
+                                                                        ? new DateTimeOffset(diagDateTime, TimeSpan.Zero)
+                                                                        : Common.TimeZones.ConvertToOffset(diagDateTime, tzInstance),
+                                                                    tzInstance == null ? "UTC?" : diagTZ);
+
+            }
+
+            return null;
+        }
+
+        public static Tuple<DateTimeOffset, string> DetermineNodeCaptureInfo(string strInfo)
+        {
+            var regexMatch = LibrarySettings.CaptureTimeFrameMatches.Match(strInfo);
+
+            if (regexMatch.Success)
+            {
+                var year = regexMatch.Groups["year"].Value;
+                var month = regexMatch.Groups["month"].Value;
+                var day = regexMatch.Groups["day"].Value;
+                var hour = regexMatch.Groups["hour"].Value;
+                var min = regexMatch.Groups["min"].Value;
+                var second = regexMatch.Groups["second"].Value;
+                var diagTZ = regexMatch.Groups["timezone"].Value;
+                DateTime diagDateTime = new DateTime(int.Parse(year), int.Parse(month), int.Parse(day),
+                                                        int.Parse(hour), int.Parse(min), int.Parse(second));
+                var tzInstance = DSEDiagnosticLibrary.StringHelpers.FindTimeZone(diagTZ);
+
+                return new Tuple<DateTimeOffset, string>(tzInstance == null 
+                                                            ? new DateTimeOffset(diagDateTime, TimeSpan.Zero)
+                                                            : Common.TimeZones.ConvertToOffset(diagDateTime, tzInstance),
+                                                            tzInstance == null ? "UTC?" : diagTZ);
+               
+            }
+
+            return null;
         }
     }
 }

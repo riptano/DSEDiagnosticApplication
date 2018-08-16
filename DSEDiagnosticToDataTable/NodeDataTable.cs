@@ -150,6 +150,12 @@ namespace DSEDiagnosticToDataTable
 
                             dataRow.SetFieldToTZOffset("Time Zone Offset", node.DSE.NodeToolDateRange);
                         }
+                        else if(node.DSE.CaptureTimestamp.HasValue)
+                        {
+                            dataRow.SetField("End NodeTool Range", node.DSE.CaptureTimestamp.Value.DateTime);
+
+                            dataRow.SetFieldToTZOffset("Time Zone Offset", node.DSE.CaptureTimestamp.Value);
+                        }
 
                         dataRow.SetFieldToTimeSpan("Uptime", node.DSE.Uptime);
                                 //.SetFieldToTimeSpan("Uptime", node.DSE.Uptime, @"d\ hh\:mm");

@@ -8,11 +8,19 @@
     "ProcessPriorityLevel": 1000
   },
   {
+    "Catagory": "CommandOutputFile",
+    "FilePatterns": [ ".\\*\\describecluster" ],
+    "FileParsingClass": "DSEDiagnosticFileParser.file_nodetool_describecluster",
+    "NodeIdPos": -1,
+    "ProcessingTaskOption": "ScanForNode,ParallelProcessingWithinPriorityLevel,ParallelProcessFiles",
+    "ProcessPriorityLevel": 950
+  },
+  {
     "Catagory": "TransformFile",
     "FilePatterns": [ ".\\*\\*" ],
     "FileParsingClass": "DSEDiagnosticFileParser.file_create_folder_structure",
     "NodeIdPos": -1,
     "ProcessingTaskOption": "ScanForNode,ParallelProcessFiles",
-    "ProcessPriorityLevel": 950
+    "ProcessPriorityLevel": 850
   }
 ]

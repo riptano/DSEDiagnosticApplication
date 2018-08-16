@@ -888,6 +888,17 @@ namespace DSEDiagnosticLibrary
         public UnitOfMeasure StorageUsed;
         public UnitOfMeasure StorageUtilization;
         public string HealthRating;
+        [JsonProperty(PropertyName = "CaptureTimestamp")]
+        private DateTimeOffset? _captureTimestamp = null;
+        [JsonIgnore]
+        public DateTimeOffset? CaptureTimestamp
+        {
+            get { return this._captureTimestamp.HasValue ? this._captureTimestamp.Value : NodeToolCaptureTimestamp; }
+            set
+            {
+                this._captureTimestamp = value;
+            }
+        }
         public DateTimeOffsetRange NodeToolDateRange;
         public UnitOfMeasure Uptime;
         public UnitOfMeasure Heap;
@@ -1320,24 +1331,24 @@ namespace DSEDiagnosticLibrary
             var machineTZ = this.Machine.TimeZone;
 
             if(!this.DSE.Uptime.NaN
-                && DSEInfo.NodeToolCaptureTimestamp.HasValue)
+                && this.DSE.CaptureTimestamp.HasValue)
             {
                 DateTimeOffset refDTO;
 
                 if (machineTZ == null)
                 {
-                    refDTO = DSEInfo.NodeToolCaptureTimestamp.Value;
+                    refDTO = this.DSE.CaptureTimestamp.Value;
                 }
                 else
                 {
                     try
                     {
-                        refDTO = Common.TimeZones.Convert(DSEInfo.NodeToolCaptureTimestamp.Value, machineTZ);
+                        refDTO = Common.TimeZones.Convert(this.DSE.CaptureTimestamp.Value, machineTZ);
                     }
                     catch(System.Exception)
                     {
                         System.Threading.Thread.Sleep(1);
-                        refDTO = Common.TimeZones.Convert(DSEInfo.NodeToolCaptureTimestamp.Value, machineTZ);
+                        refDTO = Common.TimeZones.Convert(this.DSE.CaptureTimestamp.Value, machineTZ);
                     }
                 }
 

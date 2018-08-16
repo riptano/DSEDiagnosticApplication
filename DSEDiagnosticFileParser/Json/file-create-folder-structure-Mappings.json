@@ -82,6 +82,15 @@
       "TargetReplacePathString": "^.\\${directoryname}\\nodes\\${node}\\cassandra-cli\\${filename}"
     },
     {
+      "FolderStructureType": "DRIVER",
+      "SourceMatchRegEx": {
+        "RegExStrings": [
+          "(?:\\\\(?:[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}(?:_|-)?)?(?<filename>schema)(?:(?:_|-)[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3})?)$"
+        ]
+      },
+      "TargetReplacePathString": "^.\\${directoryname}\\nodes\\${node}\\driver\\${filename}"
+    },
+    {
       "FolderStructureType": "NTP",
       "SourceMatchRegEx": {
         "RegExStrings": [

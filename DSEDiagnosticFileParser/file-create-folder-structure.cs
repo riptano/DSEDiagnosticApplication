@@ -14,6 +14,8 @@ namespace DSEDiagnosticFileParser
     [JsonObject(MemberSerialization.OptOut)]
     public sealed class file_create_folder_structure : DiagnosticFile
     {
+        static DateTime CurrentUTCTime = DateTime.UtcNow;
+
         public sealed class Mapping
         {
             public string FolderStructureType;
@@ -108,9 +110,7 @@ namespace DSEDiagnosticFileParser
         {
             this.TargetSourceMappings = LibrarySettings.FileCreateFolderTargetSourceMappings;
         }
-
-        public static DateTime TimeStampUTC { get; } = DateTime.UtcNow;
-
+        
         [JsonIgnore]
         public Mappings TargetSourceMappings { get; }
 
@@ -156,8 +156,12 @@ namespace DSEDiagnosticFileParser
             var targetPath = this.TargetSourceMappings.MatchAndReplace(this.File,
                                                                         this.DiagnosticDirectory,
                                                                         this.Node,
-                                                                        this.DefaultClusterName,
-                                                                        TimeStampUTC);
+                                                                        this.DefaultClusterName ?? this.Node.Cluster.Name,
+                                                                        LibrarySettings.CaptureDateTimeRange == null || LibrarySettings.CaptureDateTimeRange.IsEmpty()
+                                                                            ? (DSEInfo.NodeToolCaptureTimestamp.HasValue
+                                                                                        ? DSEInfo.NodeToolCaptureTimestamp.Value.UtcDateTime
+                                                                                        : (this.Node.DSE.CaptureTimestamp.HasValue ? this.Node.DSE.CaptureTimestamp.Value.UtcDateTime : CurrentUTCTime))
+                                                                            : LibrarySettings.CaptureDateTimeRange.Max.UtcDateTime);
 
             if (targetPath == null) return 0;
             if (targetPath.Item1.Equals(this.File)) return 0;
