@@ -236,17 +236,11 @@ namespace DSEDiagnosticFileParser
 
                 if (sourceDir != null)
                 {
-                    var strDir = sourceDir.PathResolved;
-                    int lastPos = 0;
+                    var diffPos = strFile.IndexWhenDifferent(sourceDir.PathResolved);
 
-                    for(; lastPos < strDir.Length; ++lastPos)
+                    if(diffPos > 0 && diffPos < strFile.Length)
                     {
-                        if(strDir[lastPos] != strFile[lastPos]) break;
-                    }
-
-                    if(lastPos > 0)
-                    {
-                        strFile = strFile.Substring(lastPos);
+                        strFile = strFile.Substring(diffPos);
                     }
                 }
 
