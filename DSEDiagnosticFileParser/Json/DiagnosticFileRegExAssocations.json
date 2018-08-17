@@ -51,5 +51,11 @@
       "^create\\s+trigger\\s+(?:if\\s+not\\s+exists\\s+)?([a-z0-9\\-_$%+=@!?<>^*&.\\'\\\"]+)\\s+on\\s+([a-z0-9\\-_$%+=@!?<>^*&.\\'\\\"]+)\\s+using\\s+(.+)\\s*\\;?$",
       "^CREATE\\s+(?:OR\\s+REPLACE\\s+)?FUNCTION\\s+(?:IF\\s+NOT\\s+EXISTS\\s+)?([a-z0-9\\-_$%+=@!?<>^*&.\\'\\\"]+)\\s*(?:\\(\\s*([^)]+)\\))\\s*(CALLED|RETURNS\\s+NULL)\\s+ON\\s+NULL\\s+INPUT\\s+RETURNS\\s+[^ ]+\\s+LANGUAGE\\s+([^ ]+)\\s+AS\\s+(?<del>'|\\$\\$)(.+)\\k<del>\\;?"
     ]
+  },
+  "file_nodetool_proxyhistograms": {
+    "RegExStrings": [
+      "^\\s*\\(?(?<readlatencyUOM>\\w+)\\)?\\s+\\(?(?<writelatencyUOM>\\w+)\\)?\\s+\\(?(?<rangelatencyUOM>\\w+)\\)?\\s*\\(?(?<CASreadlatencyUOM>\\w+)?\\)?\\s*\\(?(?<CASwritelatencyUOM>\\w+)?\\)?\\s*\\(?(?<CASviewwritelatencyUOM>\\w+)?\\)?",
+      "^\\s*(?<percentile>[0-9a-z%]+)\\s+(?<readlatency>[0-9.,]+)\\s+(?<writelatency>[0-9.,]+)\\s+(?<rangelatency>[0-9.,]+)\\s*(?<CASreadlatency>[0-9.,]+)?\\s*(?<CASwritelatency>[0-9.,]+)?\\s*(?<CASviewwritelatency>[0-9.,]+)?"
+    ]     
   }
 }

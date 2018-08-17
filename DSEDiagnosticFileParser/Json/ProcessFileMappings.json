@@ -316,6 +316,14 @@
     "ProcessPriorityLevel": 500
   },
   {
+    "Catagory": "CommandOutputFile",
+    "FilePatterns": [ ".\\nodes\\*\\nodetool\\proxyhistograms" ],
+    "FileParsingClass": "DSEDiagnosticFileParser.file_nodetool_proxyhistograms",
+    "NodeIdPos": -1,
+    "ProcessingTaskOption": "ScanForNode,ParallelProcessing,ParallelProcessFiles",
+    "ProcessPriorityLevel": 500
+  },
+  {
     "Catagory": "SystemOutputFile",
     "FilePatterns": [ ".\\nodes\\*\\os-metrics\\disk_space.json" ],
     "FileParsingClass": "DSEDiagnosticFileParser.json_disk_space",

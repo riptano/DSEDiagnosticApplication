@@ -268,6 +268,10 @@ namespace DSEDiagnosticToDataTable
                 {
                     dataRow.SetField("Value", uom.ConvertSizeUOM(DSEDiagnosticLibrary.UnitOfMeasure.Types.MiB));                       
                 }
+                else if (!uom.NaN && (uom.UnitType & DSEDiagnosticLibrary.UnitOfMeasure.Types.TimeUnits) != 0)
+                {
+                    dataRow.SetField("Value", uom.ConvertTimeUOM(DSEDiagnosticLibrary.UnitOfMeasure.Types.MS));
+                }
                 else
                 {
                     dataRow.SetField("Value", dataRow["Raw Value"]);
