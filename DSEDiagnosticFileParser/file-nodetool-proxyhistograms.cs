@@ -152,7 +152,7 @@ namespace DSEDiagnosticFileParser
                         for(int nIdx = 1; nIdx < regExMatch.Groups.Count; ++nIdx)
                         {
                             if (regExMatch.Groups[nIdx].Success)
-                                uoms[nIdx] = regExMatch.Groups[nIdx].Value;
+                                uoms[nIdx-1] = regExMatch.Groups[nIdx].Value;
                         }
                         continue;
                     }
