@@ -86,7 +86,7 @@ namespace DSEDiagnosticLog4NetParser
 
         private List<string> _errors = new List<string>();
         public IEnumerable<string> Errors { get { return this._errors; } }
-
+      
         public LogMessage AddMessage(string logLine, uint logLinePos, bool ignoreErros = false)
         {
             logLine = logLine?.Trim();
@@ -109,7 +109,7 @@ namespace DSEDiagnosticLog4NetParser
                 else if (this._lastMessage != null)
                 {
                     if (LogLevels.Any(l => logLine.StartsWith(l, StringComparison.InvariantCultureIgnoreCase)))
-                    {
+                    {                        
                         if (!ignoreErros)
                         {
                             var error = string.Format("{0}\t{1}\tInvalid line detected in Log4Net Log file at line number {3}. Line ignored. Line is: {2}",
@@ -122,12 +122,24 @@ namespace DSEDiagnosticLog4NetParser
                         }
                         return null;
                     }
-
+                   
                     this._lastMessage.AddExtraMessage(logLine);
                     return this._lastMessage;
                 }
                 else
                 {
+                    if (logLine.Length > 4)
+                    {
+                        var nbrCtrlChars = logLine.Count(c => IsControlChar(c));
+
+                        if (nbrCtrlChars > 0)
+                        {
+                            throw new System.IO.InvalidDataException(string.Format("A Binary file was detected which is not a valid Log4Net Log file for node \"{0}\" for file \"{1}\"",
+                                                                        this.Node.Id.NodeName(),
+                                                                        this.LogFile.Name));
+                        }                    
+                    }
+
                     if (!ignoreErros)
                     {
                         var error = string.Format("{0}\t{1}\tInvalid line detected in Log4Net Log file at line number {3}. Line ignored. Line is: {2}",
@@ -140,7 +152,7 @@ namespace DSEDiagnosticLog4NetParser
                     }
                     return null;
                 }
-
+                
                 this._lastMessage = logMessage;
 
                 #region Log TimeStamp or Time
@@ -401,7 +413,7 @@ namespace DSEDiagnosticLog4NetParser
         bool _logTimestampValue = false;
         DateTimeOffset _startingLogDateTime;
         DateTimeOffset _endingLogDateTime;
-        Common.Patterns.TimeZoneInfo.IZone _timeZoneInstance = null;
+        Common.Patterns.TimeZoneInfo.IZone _timeZoneInstance = null;       
 
         static Regex CreateRegEx(string field, IDictionary<string, Log4NetPatternImporter.OutputField> outputFields)
         {
@@ -438,6 +450,20 @@ namespace DSEDiagnosticLog4NetParser
                                                                         this.Log4NetConversionPattern,
                                                                         this.LogFile.PathResolved));
             }
+        }
+
+        private static bool IsControlChar(char ch)
+        {
+            return (ch > ControlChars.NUL && ch < ControlChars.BS)
+                || (ch > ControlChars.CR && ch < ControlChars.SUB);
+        }
+
+        static class ControlChars
+        {
+            public static char NUL = (char)0; // Null char
+            public static char BS = (char)8; // Back Space
+            public static char CR = (char)13; // Carriage Return
+            public static char SUB = (char)26; // Substitute
         }
         #endregion
     }

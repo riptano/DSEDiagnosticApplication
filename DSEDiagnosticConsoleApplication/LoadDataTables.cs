@@ -20,7 +20,8 @@ namespace DSEDiagnosticConsoleApplication
             {
                 var cluster = DSEDiagnosticLibrary.Cluster.GetCurrentOrMaster();
 
-                if (cluster.IsMaster)
+                if (cluster.IsMaster
+                        && cluster.Nodes.HasAtLeastOneElement())
                 {
                     Logger.Instance.Debug("Load Data table is waiting on non-Master cluster");
                     ConsoleParsingDataTable.Increment("Load Data table is waiting on non-Master cluster");

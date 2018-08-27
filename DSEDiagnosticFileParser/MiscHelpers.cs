@@ -53,7 +53,11 @@ namespace DSEDiagnosticFileParser
 
             extractedFolder = extractToParentFolder
                                 ? filePath.ParentDirectoryPath
-                                : (IDirectoryPath) filePath.ParentDirectoryPath.MakeChild(filePath.FileNameWithoutExtension);
+                                : (IDirectoryPath) filePath.ParentDirectoryPath.MakeChild(extractFileInfo?.Item2 != "gz"
+                                                                                            ? filePath.FileNameWithoutExtension
+                                                                                            : (filePath.FileName.EndsWith(".tar.gz", StringComparison.OrdinalIgnoreCase)
+                                                                                                ? filePath.FileName.Substring(0, filePath.FileName.Length - 7)
+                                                                                                : filePath.FileNameWithoutExtension));
 
             if (extractFileInfo != null && filePath.Exist())
             {
@@ -211,8 +215,8 @@ namespace DSEDiagnosticFileParser
                 }
                 catch (System.Exception ex)
                 {
-                    if ((ex is ICSharpCode.SharpZipLib.Tar.TarException || ex is System.ArgumentOutOfRangeException)
-                            && (ex.Message == "Header checksum is invalid" || ex.Message.StartsWith("Cannot be less than zero")))
+                    if ((ex is ICSharpCode.SharpZipLib.Tar.TarException || ex is System.ArgumentOutOfRangeException || ex is ICSharpCode.SharpZipLib.GZip.GZipException)
+                            && (ex.Message == "Header checksum is invalid" || ex.Message == "Header CRC value mismatch" || ex.Message.StartsWith("Cannot be less than zero")))
                     {
                         Logger.Instance.InfoFormat("Invalid GZ header checksum detected for File \"{0}\". Trying \"msgz\" format...",
                                                         filePath.PathResolved);
@@ -759,7 +763,7 @@ namespace DSEDiagnosticFileParser
         }
 
         /// <summary>
-        ///
+        /// sets outExpr if jtoken value is not null
         /// </summary>
         /// <typeparam name="TClass"></typeparam>
         /// <typeparam name="TProperty"></typeparam>
@@ -791,6 +795,16 @@ namespace DSEDiagnosticFileParser
             return false;
         }
 
+        /// <summary>
+        /// sets outExpr if jtoken value is not null
+        /// </summary>
+        /// <typeparam name="TClass"></typeparam>
+        /// <typeparam name="TProperty"></typeparam>
+        /// <param name="jtoken"></param>
+        /// <param name="index"></param>
+        /// <param name="outObj"></param>
+        /// <param name="outExpr"></param>
+        /// <returns></returns>
         public static bool NullSafeSet<TClass, TProperty>(this JToken jtoken, int index, TClass outObj, Expression<Func<TClass, TProperty>> outExpr)
         {
             if (jtoken != null)
@@ -810,6 +824,14 @@ namespace DSEDiagnosticFileParser
             return false;
         }
 
+        /// <summary>
+        /// calls setOutput if jtoken value is not null
+        /// </summary>
+        /// <typeparam name="JValue"></typeparam>
+        /// <param name="jtoken"></param>
+        /// <param name="index"></param>
+        /// <param name="setOutput"></param>
+        /// <returns></returns>
         public static bool NullSafeSet<JValue>(this JToken jtoken, int index, Action<JValue> setOutput)
         {
             if (jtoken != null)
@@ -826,6 +848,15 @@ namespace DSEDiagnosticFileParser
             return false;
         }
 
+        /// <summary>
+        /// calls setOutput if jtoken value is not null or calls onNullValue if jtoken value is null.
+        /// </summary>
+        /// <typeparam name="JValue"></typeparam>
+        /// <param name="jtoken"></param>
+        /// <param name="index"></param>
+        /// <param name="setOutput"></param>
+        /// <param name="onNullValue"></param>
+        /// <returns></returns>
         public static bool NullSafeSet<JValue>(this JToken jtoken, int index, Action<JValue> setOutput, Action onNullValue)
             where JValue : struct
         {
@@ -847,6 +878,13 @@ namespace DSEDiagnosticFileParser
             return false;
         }
 
+        /// <summary>
+        /// calls setOutput if jtoken value is not null
+        /// </summary>
+        /// <typeparam name="JValue"></typeparam>
+        /// <param name="jtoken"></param>
+        /// <param name="setOutput"></param>
+        /// <returns></returns>
         public static bool NullSafeSet<JValue>(this JToken jtoken, Action<JValue> setOutput)            
         {
             if (jtoken != null)
@@ -863,6 +901,14 @@ namespace DSEDiagnosticFileParser
             return false;
         }
 
+        /// <summary>
+        /// calls setOutput if jtoken value is not null or call onNullValue id jtoken value is null
+        /// </summary>
+        /// <typeparam name="JValue"></typeparam>
+        /// <param name="jtoken"></param>
+        /// <param name="setOutput"></param>
+        /// <param name="onNullValue"></param>
+        /// <returns></returns>
         public static bool NullSafeSet<JValue>(this JToken jtoken, Action<JValue> setOutput, Action onNullValue)
             where JValue : struct
         {
@@ -884,6 +930,15 @@ namespace DSEDiagnosticFileParser
             return false;
         }
 
+        /// <summary>
+        /// Only calls setOutput if inputValue is null and jToken value is not null.
+        /// </summary>
+        /// <typeparam name="JValue"></typeparam>
+        /// <param name="jtoken"></param>
+        /// <param name="nIndex"></param>
+        /// <param name="inputValue"></param>
+        /// <param name="setOutput"></param>
+        /// <returns></returns>
         public static bool EmptySafeSet<JValue>(this JToken jtoken, int nIndex, JValue inputValue, Action<JValue> setOutput)
             where JValue : class
         {
@@ -898,6 +953,14 @@ namespace DSEDiagnosticFileParser
             return false;
         }
 
+        /// <summary>
+        /// Only calls setOutput if inputValue is null or string.empty and jToken value is not null.
+        /// </summary>
+        /// <param name="jtoken"></param>
+        /// <param name="nIndex"></param>
+        /// <param name="inputValue"></param>
+        /// <param name="setOutput"></param>
+        /// <returns></returns>
         public static bool EmptySafeSet(this JToken jtoken, int nIndex, string inputValue, Action<string> setOutput)
         {
             if (jtoken != null)
@@ -911,6 +974,15 @@ namespace DSEDiagnosticFileParser
             return false;
         }
 
+        /// <summary>
+        /// Only calls setOutput if inputValue does not have a value and jToken value is not null.
+        /// </summary>
+        /// <typeparam name="JValue"></typeparam>
+        /// <param name="jtoken"></param>
+        /// <param name="nIndex"></param>
+        /// <param name="inputValue"></param>
+        /// <param name="setOutput"></param>
+        /// <returns></returns>
         public static bool EmptySafeSet<JValue>(this JToken jtoken, int nIndex, Nullable<JValue> inputValue, Action<JValue> setOutput)
             where JValue : struct
         {
@@ -926,6 +998,14 @@ namespace DSEDiagnosticFileParser
         }
 
 
+        /// <summary>
+        /// Only calls setOutput if inputValue is null and jToken value is not null.
+        /// </summary>
+        /// <typeparam name="JValue"></typeparam>
+        /// <param name="jtoken"></param>
+        /// <param name="inputValue"></param>
+        /// <param name="setOutput"></param>
+        /// <returns></returns>
         public static bool EmptySafeSet<JValue>(this JToken jtoken, JValue inputValue, Action<JValue> setOutput)
             where JValue : class
         {
@@ -940,6 +1020,13 @@ namespace DSEDiagnosticFileParser
             return false;
         }
 
+        /// <summary>
+        /// Only calls setOutput if inputValue is null or string.empty and jToken value is not null.
+        /// </summary>
+        /// <param name="jtoken"></param>
+        /// <param name="inputValue"></param>
+        /// <param name="setOutput"></param>
+        /// <returns></returns>
         public static bool EmptySafeSet(this JToken jtoken, string inputValue, Action<string> setOutput)
         {
             if (jtoken != null)
@@ -953,6 +1040,14 @@ namespace DSEDiagnosticFileParser
             return false;
         }
 
+        /// <summary>
+        /// Only calls setOutput if inputValue does not have a value and jToken value is not null.
+        /// </summary>
+        /// <typeparam name="JValue"></typeparam>
+        /// <param name="jtoken"></param>
+        /// <param name="inputValue"></param>
+        /// <param name="setOutput"></param>
+        /// <returns></returns>
         public static bool EmptySafeSet<JValue>(this JToken jtoken, Nullable<JValue> inputValue, Action<JValue> setOutput)
             where JValue : struct
         {

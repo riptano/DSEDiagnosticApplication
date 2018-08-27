@@ -18,7 +18,8 @@ namespace DSEDiagnosticConsoleApplication
             {
                 var cluster = DSEDiagnosticLibrary.Cluster.GetCurrentOrMaster();
 
-                if (cluster.IsMaster)
+                if (cluster.IsMaster
+                        && cluster.Nodes.HasAtLeastOneElement())
                 {
                     Logger.Instance.Debug("Load Excel is waiting on non-Master cluster");
                     ConsoleExcelWorkbook.Increment("Load Excel is waiting on non-Master cluster");

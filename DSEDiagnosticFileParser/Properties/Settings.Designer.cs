@@ -12,7 +12,7 @@ namespace DSEDiagnosticFileParser.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "15.7.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "15.8.0.0")]
     internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
         
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
@@ -26,7 +26,7 @@ namespace DSEDiagnosticFileParser.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("[{\"item1\":\".zip\",\"item2\":\"zip\"},{\"item1\":\".tar\",\"item2\":\"tar\"},{\"item1\":\".gz\",\"it" +
-            "em2\":\"gz\"}] ")]
+            "em2\":\"gz\"},{\"item1\":\".msgz\",\"item2\":\"msgz\"}]")]
         public string ExtractFilesWithExtensions {
             get {
                 return ((string)(this["ExtractFilesWithExtensions"]));

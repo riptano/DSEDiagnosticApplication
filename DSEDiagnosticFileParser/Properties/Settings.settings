@@ -3,7 +3,7 @@
   <Profiles />
   <Settings>
     <Setting Name="ExtractFilesWithExtensions" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">[{"item1":".zip","item2":"zip"},{"item1":".tar","item2":"tar"},{"item1":".gz","item2":"gz"}] </Value>
+      <Value Profile="(Default)">[{"item1":".zip","item2":"zip"},{"item1":".tar","item2":"tar"},{"item1":".gz","item2":"gz"},{"item1":".msgz","item2":"msgz"}]</Value>
     </Setting>
     <Setting Name="ProcessFileMappings" Type="System.String" Scope="Application">
       <Value Profile="(Default)">.\ProcessFileMappings.json,.\Json\ProcessFileMappings.json,[cpld]\Json\ProcessFileMappings.json,[cpld]\ProcessFileMappings.json,[ApplicationRunTimeDirectory]\Json\ProcessFileMappings.json,[ApplicationRunTimeDirectory]\ProcessFileMappings.json,.\Json\ProcessFileMappings.json,.\ProcessFileMappings.json</Value>

@@ -116,7 +116,7 @@
 [
   {
     "Catagory": "ZipFile",
-    "FilePatterns": [ ".\\*.tar", ".\\*.tar.gz", ".\\*.zip", ".\\*.gz", ".\\*\\*.tar", ".\\*\\*.tar.gz", ".\\*\\*.zip", ".\\*\\*.gz" ],
+    "FilePatterns": [ ".\\*.tar", ".\\*.tar.gz", ".\\*.zip", ".\\*.gz", ".\\*\\*.tar", ".\\*\\*.tar.gz", ".\\*\\*.zip", ".\\*\\*.gz", ".\\*\\*.msgz", ".\\*.msgz" ],
     "FileParsingClass": "DSEDiagnosticFileParser.file_unzip",
     "NodeIdPos": 0,
     "ProcessingTaskOption": "IgnoreNode",

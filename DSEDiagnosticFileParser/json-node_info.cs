@@ -117,13 +117,9 @@ namespace DSEDiagnosticFileParser
                 nodeInfo.TryGetValue("num_procs").EmptySafeSet<uint>(this.Node.Machine.CPU.Cores, v => this.Node.Machine.CPU.Cores = v);
                 nodeInfo.TryGetValue("vnodes").NullSafeSet<bool>(v => this.Node.DSE.VNodesEnabled = v);
                 nodeInfo.TryGetValue("os").EmptySafeSet(this.Node.Machine.OS, v => this.Node.Machine.OS = v);
-                this.NbrItemsParsed += 4;
+                nodeInfo.TryGetValue("hostname").NullSafeSet<string>(v => this.Node.Id.SetIPAddressOrHostName(v, false));
 
-                if (string.IsNullOrEmpty(this.Node.Id.HostName))
-                {
-                    nodeInfo.TryGetValue("hostname").NullSafeSet<string>(v => this.Node.Id.SetIPAddressOrHostName(v, false) );
-                    this.NbrItemsParsed += 1;
-                }
+                this.NbrItemsParsed += 6;                                
 
                 if(this.Node.DataCenter == null)
                 {
