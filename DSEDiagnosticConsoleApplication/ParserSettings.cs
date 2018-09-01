@@ -357,6 +357,12 @@ namespace DSEDiagnosticConsoleApplication
             set;
         }
 
+        public static bool BatchMode
+        {
+            get;
+            set;
+        }
+
         #endregion
     }
 }

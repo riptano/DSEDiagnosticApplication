@@ -292,6 +292,11 @@ namespace DSEDiagnosticConsoleApplication
                 Description = "Old Excel Worksheet Format Used"
             });
 
+            this._cmdLineParser.Arguments.Add(new SwitchArgument('B', "Batch", false)
+            {
+                Description = "Enables Batch Mode, which basically disables prompts"
+            });
+
             this._cmdLineParser.Arguments.Add(new SwitchArgument("Debug", false)
             {
                 Description = "Debug Mode"
@@ -734,6 +739,9 @@ namespace DSEDiagnosticConsoleApplication
                         break;
                     case "OldExcelWS":
                         ParserSettings.OldExcelWorksheets = ((SwitchArgument)item).Value;
+                        break;
+                    case "Batch":
+                        ParserSettings.BatchMode = ((SwitchArgument)item).Value;
                         break;
                     case "Debug":
                         this.Debug = ((SwitchArgument)item).Value;
