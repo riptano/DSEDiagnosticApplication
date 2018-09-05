@@ -198,5 +198,14 @@ namespace DSEDiagnosticConsoleApplication.Properties {
                 return ((string)(this["AppendFilePathForAddLogArgument"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool TraceExceptions {
+            get {
+                return ((bool)(this["TraceExceptions"]));
+            }
+        }
     }
 }

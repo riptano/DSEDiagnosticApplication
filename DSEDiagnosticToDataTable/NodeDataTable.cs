@@ -91,7 +91,7 @@ namespace DSEDiagnosticToDataTable
             dtNodeInfo.DefaultView.AllowDelete = false;
             dtNodeInfo.DefaultView.AllowEdit = false;
             dtNodeInfo.DefaultView.AllowNew = false;
-            dtNodeInfo.DefaultView.Sort = string.Format("[{0}] ASC, [{1}] ASC", ColumnNames.NodeIPAddress, ColumnNames.DataCenter);
+            dtNodeInfo.DefaultView.Sort = string.Format("[{0}] ASC, [{1}] ASC",  ColumnNames.DataCenter, ColumnNames.NodeIPAddress);
 
             return dtNodeInfo;
         }

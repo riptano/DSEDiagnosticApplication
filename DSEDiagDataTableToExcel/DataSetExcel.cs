@@ -274,6 +274,10 @@ namespace DataTableToExcel
             {
                 workSheet.Cells.AutoFitColumns();
             }
+            catch (System.ArithmeticException)
+            { }
+            catch (System.ArgumentOutOfRangeException)
+            { }
             catch (System.Exception ex)
             {
                 Logger.Instance.Error(string.Format("Excel AutoFitColumns Exception Occurred in Worksheet \"{0}\". Worksheet was loaded/updated but NOT auto-formatted...", workSheet.Name), ex);

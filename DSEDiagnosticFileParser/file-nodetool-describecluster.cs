@@ -89,7 +89,8 @@ namespace DSEDiagnosticFileParser
 
             if(!string.IsNullOrEmpty(clusterName))
             {
-                Cluster.NameClusterAssociatewItem(this.Node, clusterName);
+                var cluster = Cluster.NameClusterAssociatewItem(this.Node, clusterName);
+                if (cluster != null && cluster.DiagnosticDirectory == null) cluster.DiagnosticDirectory = this.DiagnosticDirectory;
             }
             if(!string.IsNullOrEmpty(snitch)
                     && string.IsNullOrEmpty(this.Node.DSE.EndpointSnitch))

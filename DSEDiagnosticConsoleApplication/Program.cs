@@ -31,6 +31,50 @@ namespace DSEDiagnosticConsoleApplication
 
         #region Exception/Progression Handlers
 
+        private static void TraceException(object exception, DSEDiagnosticLogger.Logger.Log4NetInfo lastLogLine)
+        {
+            if (exception == null) return;
+
+            if (exception is System.Exception) TraceException((System.Exception)exception, lastLogLine);
+            else System.Diagnostics.Trace.Write(exception);
+        }
+        private static void TraceException(System.Exception exception, DSEDiagnosticLogger.Logger.Log4NetInfo lastLogLine, bool writeLastLogLine = true)
+        {
+            if (exception == null) return;
+
+            lock (lastLogLine.LoggingEvents)
+            {                
+                System.Diagnostics.Trace.Indent();
+
+                if (writeLastLogLine)
+                    System.Diagnostics.Trace.WriteLine(string.Format("Last Logged Line: {0}",
+                                                                      lastLogLine.LoggingEvents == null
+                                                                          ? string.Empty
+                                                                          : string.Join("\r\n\t", lastLogLine.LoggingEvents.Select(m => m.RenderedMessage))));
+
+                System.Diagnostics.Trace.WriteLine(string.Format("{0}: {1}", exception.GetType().FullName, exception.Message));
+                var stackTrace = new System.Diagnostics.StackTrace(exception, true);
+
+                foreach (var stack in stackTrace.GetFrames())
+                {
+                    System.Diagnostics.Trace.WriteLine(string.Format("\tat {0} in {1}:line {2}: Column {3}",
+                                                                    stack.GetMethod(),
+                                                                    stack.GetFileName(),
+                                                                    stack.GetFileLineNumber(),
+                                                                    stack.GetFileColumnNumber()));
+
+                }
+
+                if (exception.InnerException != null)
+                {
+                    System.Diagnostics.Trace.WriteLine(string.Format("Inner Exception {0}: {1}", exception.InnerException.GetType().FullName, exception.InnerException.Message));
+                    TraceException(exception.InnerException, lastLogLine, false);
+                }
+
+                System.Diagnostics.Trace.Unindent();
+            }
+        }
+
         private static void Console_CancelKeyPress(object sender, ConsoleCancelEventArgs e)
         {
             Logger.Instance.Warn("Application Aborted");
@@ -43,14 +87,14 @@ namespace DSEDiagnosticConsoleApplication
                 IFilePath diagFile;
 
                 if (ParserSettings.DiagnosticPath.MakeFile(string.Format("Aborted-{0:yyyy-MM-dd-HH-mm-ss}",
-                                                                            DateTime.Now),
+                                                                            RunDateTime),
                                                                 "log",
                                                                 out diagFile))
                 {
                     System.Diagnostics.Trace.Listeners.Add(new System.Diagnostics.TextWriterTraceListener(diagFile.PathResolved));
                     System.Diagnostics.Trace.AutoFlush = true;
                     //System.Diagnostics.Trace.Indent();
-                    System.Diagnostics.Trace.Fail("Execution Aborted");
+                    System.Diagnostics.Trace.TraceError("Execution Aborted");
                     //System.Diagnostics.Trace.Unindent();
                     System.Diagnostics.Trace.Flush();
                 }
@@ -67,7 +111,41 @@ namespace DSEDiagnosticConsoleApplication
 
             ConsoleDisplay.Console.SetReWriteToWriterPosition();
             ConsoleDisplay.Console.WriteLine();
+                        
+            ConsoleDisplay.Console.WriteLine();
 
+            if (ParserSettings.TraceExceptions)
+            {
+                IFilePath diagFile;
+
+                if (ParserSettings.DiagnosticPath != null
+                    && ParserSettings.DiagnosticPath.Exist()
+                    && ParserSettings.DiagnosticPath.MakeFile(string.Format("UnhandledException-{0:yyyy-MM-dd-HH-mm-ss}-{1}",
+                                                                            RunDateTime,
+                                                                            e.ExceptionObject is System.Exception ? ((System.Exception)e.ExceptionObject).GetType().Name : "Unknown"),
+                                                                "log",
+                                                                out diagFile))
+                {
+                    System.Diagnostics.Trace.Listeners.Add(new System.Diagnostics.TextWriterTraceListener(diagFile.PathResolved));
+                    System.Diagnostics.Trace.TraceError("Unhandled Exception");                    
+                    TraceException(e.ExceptionObject, LastLogLine);                    
+                    System.Diagnostics.Trace.WriteLine("Execution Halted");
+                    System.Diagnostics.Trace.Flush();
+                }
+                else
+                {
+                    System.Diagnostics.Trace.Listeners.Add(new System.Diagnostics.TextWriterTraceListener(string.Format("./DSEDiagnosticConsoleApplication-UnhandledException-{0:yyyy-MM-dd-HH-mm-ss}-{1}.log",
+                                                                                                                            RunDateTime,
+                                                                                                                            e.ExceptionObject is System.Exception
+                                                                                                                                ? ((System.Exception)e.ExceptionObject).GetType().Name
+                                                                                                                                : "Unknown")));
+                    System.Diagnostics.Trace.TraceError("Unhandled Exception");                    
+                    TraceException(e.ExceptionObject, LastLogLine);
+                    System.Diagnostics.Trace.WriteLine("Execution Halted");                    
+                    System.Diagnostics.Trace.Flush();
+                }
+            }
+            
             Logger.Instance.FatalFormat("Unhandled Exception Occurred! Exception Is \"{0}\" ({1}) Terminating Processing...",
                                             e.ExceptionObject?.GetType(),
                                             e.ExceptionObject is System.Exception ? ((System.Exception)e.ExceptionObject).Message : "<Not an Exception Object>");
@@ -78,76 +156,37 @@ namespace DSEDiagnosticConsoleApplication
                 ConsoleDisplay.Console.WriteLine("Unhandled Exception of \"{0}\" occurred", ((System.Exception)e.ExceptionObject).GetType().Name);
                 ConsoleDisplay.Console.WriteLine("Unhandled Exception Message \"{0}\"", ((System.Exception)e.ExceptionObject).Message);
             }
-
             Logger.Instance.Info("DSEDiagnosticConsoleApplication Main Ended due to unhandled exception");
             Logger.Flush();
 
-            ConsoleDisplay.Console.WriteLine();
-            if (ParserSettings.BatchMode)
-            {
-                IFilePath diagFile;
-
-                if (ParserSettings.DiagnosticPath != null
-                    && ParserSettings.DiagnosticPath.Exist()
-                    && ParserSettings.DiagnosticPath.MakeFile(string.Format("UnhandledException-{0:yyyy-MM-dd-HH-mm-ss}-{1}",
-                                                                            DateTime.Now,
-                                                                            e.ExceptionObject is System.Exception ? ((System.Exception)e.ExceptionObject).GetType().Name : "Unknown"),
-                                                                "log",
-                                                                out diagFile))
-                {
-                    System.Diagnostics.Trace.Listeners.Add(new System.Diagnostics.TextWriterTraceListener(diagFile.PathResolved));
-                    System.Diagnostics.Trace.AutoFlush = true;
-                    //System.Diagnostics.Trace.Indent();
-                    System.Diagnostics.Trace.TraceError("Unhandled Exception", e.ExceptionObject);
-                    System.Diagnostics.Trace.Fail("Execution Halted");
-                    //System.Diagnostics.Trace.Unindent();
-                    System.Diagnostics.Trace.Flush();
-                }
-                else
-                {
-                    System.Diagnostics.Trace.Listeners.Add(new System.Diagnostics.TextWriterTraceListener(string.Format("./DSEDiagnosticConsoleApplication-UnhandledException-{0:yyyy-MM-dd-HH-mm-ss}-{1}.log",
-                                                                                                                            DateTime.Now,
-                                                                                                                            e.ExceptionObject is System.Exception
-                                                                                                                                ? ((System.Exception)e.ExceptionObject).GetType().Name
-                                                                                                                                : "Unknown")));
-                    System.Diagnostics.Trace.AutoFlush = true;
-                    //System.Diagnostics.Trace.Indent();
-                    System.Diagnostics.Trace.TraceError("Unhandled Exception", e.ExceptionObject);
-                    System.Diagnostics.Trace.Fail("Execution Halted");
-                    //System.Diagnostics.Trace.Unindent();
-                    System.Diagnostics.Trace.Flush();
-                }
-            }
-            else
+            if(!ParserSettings.BatchMode)                
                 Common.ConsoleHelper.Prompt("Press Return to Exit (Unhandled Exception)", ConsoleColor.Gray, ConsoleColor.DarkRed);
 
             Environment.Exit(-1);
         }
 
         private static void DiagnosticFile_OnException(object sender, DSEDiagnosticFileParser.ExceptionEventArgs eventArgs)
-        {
-            Logger.Instance.Error("Exception within DSEDiagnosticFileParser", eventArgs.Exception);
-            ConsoleExceptions?.Increment("Exception within DSEDiagnosticFileParser");
-
-            if (ParserSettings.BatchMode
+        {           
+            if (ParserSettings.TraceExceptions
                     && ParserSettings.DiagnosticPath != null)
             {
                 IFilePath diagFile;
 
                 if (ParserSettings.DiagnosticPath.MakeFile(string.Format("Exception-{0:yyyy-MM-dd-HH-mm-ss}-{1}",
-                                                                            DateTime.Now,
+                                                                            RunDateTime,
                                                                             eventArgs.Exception != null ? eventArgs.Exception.GetType().Name : "Unknown"),
                                                                 "log",
                                                                 out diagFile))
                 {
                     System.Diagnostics.Trace.Listeners.Add(new System.Diagnostics.TextWriterTraceListener(diagFile.PathResolved));
-                    System.Diagnostics.Trace.AutoFlush = true;
-                    //System.Diagnostics.Trace.Indent();
-                    System.Diagnostics.Trace.TraceError("Exception", eventArgs.Exception);
-                    //System.Diagnostics.Trace.Unindent();
+                    System.Diagnostics.Trace.TraceError("Exception");                                           
+                    TraceException(eventArgs.Exception, LastLogLine);
                     System.Diagnostics.Trace.Flush();
                 }
             }
+
+            Logger.Instance.Error("Exception within DSEDiagnosticFileParser", eventArgs.Exception);
+            ConsoleExceptions?.Increment("Exception within DSEDiagnosticFileParser");
         }
 
         private static void DiagnosticFile_OnProgression(object sender, DSEDiagnosticFileParser.ProgressionEventArgs eventArgs)
@@ -224,8 +263,10 @@ namespace DSEDiagnosticConsoleApplication
             }
         }
 
+        private static DSEDiagnosticLogger.Logger.Log4NetInfo LastLogLine;
+
         private static void Instance_OnLoggingEvent(DSEDiagnosticLogger.Logger sender, DSEDiagnosticLogger.LoggingEventArgs eventArgs)
-        {
+        {            
             foreach (var item in eventArgs.LogInfo.LoggingEvents)
             {
                 if(item.Level == log4net.Core.Level.Error || item.Level == log4net.Core.Level.Fatal)
@@ -241,6 +282,7 @@ namespace DSEDiagnosticConsoleApplication
                 }
 
             }
+            LastLogLine = eventArgs.LogInfo;
         }
 
         private static string DetermineExcelTargetFile(DSEDiagnosticLibrary.Cluster cluster)

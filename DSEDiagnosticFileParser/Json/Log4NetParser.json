@@ -2636,6 +2636,111 @@
       "Examples": [
         "WARN  [StorageServiceShutdownHook] 2018-07-23 21:50:14,726  Gossiper.java:1538 - No local state, state is in silent shutdown, or node hasn't joined, not announcing shutdown"
       ]
+    },
+    {
+      "Description": "query timed out",
+      "TagId": 36.0,
+      "MatchVersion": null,
+      "LevelMatch": {
+        "RegExStrings": [
+          "WARN"
+        ]
+      },
+      "FileNameMatch": {
+        "RegExStrings": [
+          "^LeaderManagerWatcher.java$"
+        ]
+      },
+      "FileLineMatch": null,
+      "MessageMatch": {
+        "RegExStrings": [
+          "^Local query timed out"
+        ]
+      },
+      "ParseMessage": {
+        "RegExStrings": [
+          "^Local query timed out;[a-z0-9? /]+-\\s+(?<exception>[a-z0-9.\\-_]+)\\s*:\\s+(?<message>.+)"
+        ]
+      },
+      "ParseThreadId": null,
+      "EventType": "SingleInstance",
+      "EventClass": "Detection,Query,TimeOut,Node",
+      "AnalyticsGroup": null,
+      "SubClass": "exception",
+      "Product": "Cassandra",
+      "Examples": [
+        "WARN  [pool-15-thread-1] 2018-08-28 10:24:15,178  LeaderManagerWatcher.java:521 - Local query timed out; is this node under heavy load/starting up?  - org.apache.cassandra.exceptions.ReadTimeoutException: Operation timed out - received only 0 responses."
+      ]
+    },
+    {
+      "Description": "degraded mode",
+      "TagId": 37.0,
+      "MatchVersion": null,
+      "LevelMatch": {
+        "RegExStrings": [
+          "WARN"
+        ]
+      },
+      "FileNameMatch": {
+        "RegExStrings": [
+          "^SigarLibrary.java$"
+        ]
+      },
+      "FileLineMatch": null,
+      "MessageMatch": {
+        "RegExStrings": [
+          "^Cassandra server running in degraded mode"
+        ]
+      },
+      "ParseMessage": {
+        "RegExStrings": [
+          "^Cassandra server running in degraded mode\\.\\s+(?<message>.+)"
+        ]
+      },
+      "ParseThreadId": null,
+      "EventType": "SingleInstance",
+      "EventClass": "Detection,Node,Performance",
+      "AnalyticsGroup": null,
+      "SubClass": "message",
+      "Product": "Cassandra",
+      "Examples": [
+        "WARN  [main] 2018-08-28 11:09:19,969  SigarLibrary.java:174 - Cassandra server running in degraded mode. Is swap disabled? : false,  Address space adequate? : true,  nofile limit adequate? : true, nproc limit adequate? : true"
+      ]
+    },
+    {
+      "Description": "read cardinality failure",
+      "TagId": 38.0,
+      "MatchVersion": null,
+      "LevelMatch": {
+        "RegExStrings": [
+          "WARN"
+        ]
+      },
+      "FileNameMatch": {
+        "RegExStrings": [
+          "^SSTableReader.java$"
+        ]
+      },
+      "FileLineMatch": null,
+      "MessageMatch": {
+        "RegExStrings": [
+          "^Reading cardinality from"
+        ]
+      },
+      "ParseMessage": {
+        "RegExStrings": [
+          "Reading cardinality from\\s+(?<metadb>[0-9a-z.\\-_]+)\\s+failed\\s+\\w+\\s+(?<SSTABLEPATH>[a-z0-9\\-_@#/.\\ +%]+)"
+        ]
+      },
+      "ParseThreadId": null,
+      "EventType": "SingleInstance",
+      "EventClass": "Detection,Node,MetaData,SSTable",
+      "AnalyticsGroup": null,
+      "SubClass": "'Failed Read ' + metadb",
+      "Product": "Cassandra",
+      "Examples": [
+        "WARN  [RMI TCP Connection(21506)-10.89.136.55] 2018-08-31 02:17:05,061  SSTableReader.java:272 - Reading cardinality from Statistics.db failed for /data/cassandra/data/ngcfwcdbks/clsfn_item_attr_info/ngcfwcdbks-clsfn_item_attr_info-ka-2648641-Data.db"
+      ]
     }
   ]
     }

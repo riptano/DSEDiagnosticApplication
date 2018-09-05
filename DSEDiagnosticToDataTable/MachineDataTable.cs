@@ -78,7 +78,7 @@ namespace DSEDiagnosticToDataTable
             dtOSMachineInfo.DefaultView.AllowDelete = false;
             dtOSMachineInfo.DefaultView.AllowEdit = false;
             dtOSMachineInfo.DefaultView.AllowNew = false;
-            dtOSMachineInfo.DefaultView.Sort = string.Format("[{0}] ASC, [{1}] ASC", ColumnNames.NodeIPAddress, ColumnNames.DataCenter);
+            dtOSMachineInfo.DefaultView.Sort = string.Format("[{0}] ASC, [{1}] ASC", ColumnNames.DataCenter, ColumnNames.NodeIPAddress);
 
             return dtOSMachineInfo;
         }

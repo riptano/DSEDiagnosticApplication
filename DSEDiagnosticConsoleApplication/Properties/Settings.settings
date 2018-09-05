@@ -77,5 +77,8 @@
     <Setting Name="AppendFilePathForAddLogArgument" Type="System.String" Scope="Application">
       <Value Profile="(Default)">.\*\*.log.*</Value>
     </Setting>
+    <Setting Name="TraceExceptions" Type="System.Boolean" Scope="Application">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

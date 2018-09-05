@@ -71,6 +71,8 @@ namespace DSEDiagnosticLibrary
         public string Name { get; }
         public bool IsMaster { get; private set; }
 
+        public IDirectoryPath DiagnosticDirectory { get; set; }
+
         [JsonProperty(PropertyName="DataCenters")]
         private IEnumerable<IDataCenter> datamemberDataCenters
         {

@@ -357,11 +357,26 @@ namespace DSEDiagnosticConsoleApplication
             set;
         }
 
+        private static bool batchMode = false;
         public static bool BatchMode
+        {
+            get { return batchMode; }
+            set
+            {
+                batchMode = value;
+
+                if (batchMode)
+                    TraceExceptions = true;
+                else
+                    TraceExceptions = Properties.Settings.Default.TraceExceptions;                
+            }
+        }
+
+        public static bool TraceExceptions
         {
             get;
             set;
-        }
+        } = Properties.Settings.Default.TraceExceptions;
 
         #endregion
     }

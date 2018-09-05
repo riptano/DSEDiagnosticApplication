@@ -549,7 +549,10 @@ namespace DSEDiagnosticFileParser
             switch (propvaluePair.Item1.ToLower())
             {
                 case "cluster_name":
-                    Cluster.NameClusterAssociatewItem(this.Node, propvaluePair.Item2);
+                    {
+                        var cluster = Cluster.NameClusterAssociatewItem(this.Node, propvaluePair.Item2);
+                        if (cluster != null && cluster.DiagnosticDirectory == null) cluster.DiagnosticDirectory = this.DiagnosticDirectory;
+                    }
                     break;
                 case "num_tokens":
                     if (!this.Node.DSE.NbrTokens.HasValue)

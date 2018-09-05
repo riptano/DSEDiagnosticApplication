@@ -109,7 +109,16 @@ namespace DSEDiagnosticToDataTable
                         dataRow.SetField("Start Range (Log File)", logInfo.LogFileRange.Min.DateTime);
                         dataRow.SetField("End Range (Log File)", logInfo.LogFileRange.Max.DateTime);
                         dataRow.SetField("Duration (Log File)", logInfo.LogFileRange.TimeSpan());
-                        dataRow.SetField("File Path", logInfo.Path.PathResolved);
+                        if (logInfo.Cluster?.DiagnosticDirectory != null && logInfo.Path.IsAbsolutePath)
+                        {
+                            IRelativePath relativePath;
+                            if(logInfo.Path.MakePathFrom((IDirectoryPathAbsolute)logInfo.Cluster.DiagnosticDirectory, out relativePath))
+                                dataRow.SetField("File Path", relativePath.PathResolved);
+                            else
+                                dataRow.SetField("File Path", logInfo.Path.PathResolved);
+                        }
+                        else
+                            dataRow.SetField("File Path", logInfo.Path.PathResolved);
                         dataRow.SetField("Gap Timespan", logInfo.Gap);
                     }
 

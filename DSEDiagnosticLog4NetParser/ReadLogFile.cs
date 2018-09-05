@@ -341,15 +341,15 @@ namespace DSEDiagnosticLog4NetParser
         /// </returns>
         private short LogFileWithinTimeRange(LogMessage logMessage, LogMessages logMessages, StreamReader streamReader)
         {
-            if (this.LogTimeFrame == null || this.LogTimeFrame.IsBetween(logMessage.LogDateTime))
+            if (this.LogTimeFrame == null || this.LogTimeFrame.IsBetween(logMessage.LogDateTimewTZOffset))
             {
                 return 1;
             }
 
-            if (logMessage.LogDateTime > this.LogTimeFrame.Max)
+            if (logMessage.LogDateTimewTZOffset > this.LogTimeFrame.Max)
             {
                 DSEDiagnosticLogger.Logger.Instance.DebugFormat("Reminding Log File skipped because Log Entries ({0}) exceed Log Time Range of {1} for File \"{2}\"",
-                                                                    logMessage.LogDateTime,
+                                                                    logMessage.LogDateTimewTZOffset,
                                                                     this.LogTimeFrame,
                                                                     this.LogFile);
 
@@ -421,7 +421,7 @@ namespace DSEDiagnosticLog4NetParser
                 }
 
                 DSEDiagnosticLogger.Logger.Instance.DebugFormat("Forwarding Log File where first Log Entries ({0}) is before log Time Range of {1} but last entry ({3}) is within range for File \"{2}\"",
-                                                                logMessage.LogDateTime,
+                                                                logMessage.LogDateTimewTZOffset,
                                                                 this.LogTimeFrame,
                                                                 this.LogFile,
                                                                 lastDateTime);
@@ -435,7 +435,7 @@ namespace DSEDiagnosticLog4NetParser
                 DSEDiagnosticLogger.Logger.Instance.DebugFormat("Log File \"{0}\" will be skipped since it does not meet log range of {1}. Log Entries Range is from {2} to {3}",
                                                                    this.LogFile,
                                                                    this.LogTimeFrame,
-                                                                   logMessage.LogDateTime,
+                                                                   logMessage.LogDateTimewTZOffset,
                                                                    lastDateTime);
             }
 

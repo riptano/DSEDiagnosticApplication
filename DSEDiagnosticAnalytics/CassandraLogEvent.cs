@@ -281,7 +281,7 @@ namespace DSEDiagnosticAnalytics
                                                             return stat;
                                                         });
                 object dataValue;
-
+                
                 if(aggStat.Data.TryGetValue(Properties.Settings.Default.PartitionLargeAttrib, out dataValue))
                 {
                     ((List<UnitOfMeasure>)dataValue).Add(partitionSize);

@@ -669,6 +669,11 @@ namespace DSEDiagnosticFileParser
                     {
                         logEvent = this.PorcessMatch(logMessage, matchItem);
 
+                        if (logEvent != null && this.DuplicateLogEventFound(logMessage))
+                        {
+                            return;
+                        }
+
                         if (logEvent != null
                                 && (onLogEventHandler == null
                                         || LogEventArgs.InvokeEvent(this, logMessage, logEvent, this._orphanedSessionEvents, this._logEvents, onLogEventHandler)))
@@ -698,12 +703,7 @@ namespace DSEDiagnosticFileParser
                                 }
                             }
                         }
-                    }
-
-                    if (logEvent != null && this.DuplicateLogEventFound(logMessage))
-                    {
-                        return;
-                    }
+                    }                    
                 };
 
                 using (var logMessages = logFileInstance.ProcessLogFile())

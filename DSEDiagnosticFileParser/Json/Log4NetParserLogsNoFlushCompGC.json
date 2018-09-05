@@ -136,6 +136,18 @@
     {
       "Description": "silent shutdown",
       "LinkedTagId": 35.0
+    },
+    {
+      "Description": "query timed out",
+      "LinkedTagId": 36.0
+    },
+    {
+      "Description": "degraded mode",
+      "LinkedTagId": 37.0
+    },
+    {
+      "Description": "read cardinality failure",
+      "LinkedTagId": 38.0
     }
   ]
 }

@@ -294,7 +294,12 @@ namespace DSEDiagnosticConsoleApplication
 
             this._cmdLineParser.Arguments.Add(new SwitchArgument('B', "Batch", false)
             {
-                Description = "Enables Batch Mode, which basically disables prompts"
+                Description = "Enables Batch Mode, which basically disables prompts and enables Exception Tracing"
+            });
+
+            this._cmdLineParser.Arguments.Add(new SwitchArgument("TraceException", false)
+            {
+                Description = ParserSettings.TraceExceptions ? "Disables exception tracing" : "Enables exception tracing where any exceptions are logged to a separate unique log file for this run"
             });
 
             this._cmdLineParser.Arguments.Add(new SwitchArgument("Debug", false)
@@ -742,6 +747,9 @@ namespace DSEDiagnosticConsoleApplication
                         break;
                     case "Batch":
                         ParserSettings.BatchMode = ((SwitchArgument)item).Value;
+                        break;
+                    case "TraceException":
+                        ParserSettings.TraceExceptions = !ParserSettings.TraceExceptions;
                         break;
                     case "Debug":
                         this.Debug = ((SwitchArgument)item).Value;

@@ -202,6 +202,7 @@ namespace DSEDiagnosticFileParser
             if(!string.IsNullOrEmpty(defaultClusterName))
             {
                 defaultCluster = Cluster.TryGetAddCluster(defaultClusterName);
+                defaultCluster.DiagnosticDirectory = this.DiagnosticDirectory;
             }
             if(!string.IsNullOrEmpty(defaultDCName))
             {
@@ -577,6 +578,8 @@ namespace DSEDiagnosticFileParser
                 }
 
                 var cluster = Cluster.TryGetAddCluster(clusterName, clusterHashCode);
+
+                cluster.DiagnosticDirectory = diagnosticDirectory;
 
                 if(Logger.Instance.IsDebugEnabled && cluster != null)
                 {
