@@ -435,38 +435,47 @@ namespace DSEDiagnosticLibrary
                 type = ConfigTypeMapper.FindConfigType(configFile);
             }
 
-            var currentConfig = node?.DataCenter.ConfigurationMatch(property, value, type);
+            IConfigurationLine currentConfig;
 
-            if(currentConfig == null)
+            if (node?.DataCenter == null)
             {
-                ((DataCenter)node.DataCenter).AssociateItem(currentConfig = new YamlConfigurationLine(configFile, node, lineNbr, property, value, type, source));
+                currentConfig = new YamlConfigurationLine(configFile, node, lineNbr, property, value, type, source);
             }
             else
             {
-                lock(currentConfig)
+                currentConfig = node.DataCenter.ConfigurationMatch(property, value, type);
+
+                if (currentConfig == null)
                 {
-                    if(currentConfig.DataCenter is DataCenter)
+                    ((DataCenter)node.DataCenter).AssociateItem(currentConfig = new YamlConfigurationLine(configFile, node, lineNbr, property, value, type, source));
+                }
+                else
+                {
+                    lock (currentConfig)
                     {
-                        var placeHolderDC = new PlaceholderDataCenter((DataCenter)currentConfig.DataCenter, currentConfig.DataCenter.Name, "CommonConfig");
-                        var configNode = new Node(placeHolderDC, currentConfig.Node.Id.Clone(true, true));
+                        if (currentConfig.DataCenter is DataCenter)
+                        {
+                            var placeHolderDC = new PlaceholderDataCenter((DataCenter)currentConfig.DataCenter, currentConfig.DataCenter.Name, "CommonConfig");
+                            var configNode = new Node(placeHolderDC, currentConfig.Node.Id.Clone(true, true));
 
-                        if (node.Id.Addresses.HasAtLeastOneElement())
-                            configNode.Id.AddIPAddress(node.Id.Addresses.First());
+                            if (node.Id.Addresses.HasAtLeastOneElement())
+                                configNode.Id.AddIPAddress(node.Id.Addresses.First());
+                            else
+                                configNode.Id.SetIPAddressOrHostName(node.Id.HostName, false);
+
+                            placeHolderDC.AddNode(node);
+                            placeHolderDC.AddNode(currentConfig.Node);
+                            ((YamlConfigurationLine)currentConfig).Node = configNode;
+                        }
                         else
-                            configNode.Id.SetIPAddressOrHostName(node.Id.HostName, false);
+                        {
+                            ((PlaceholderDataCenter)currentConfig.DataCenter).AddNode(node);
 
-                        placeHolderDC.AddNode(node);
-                        placeHolderDC.AddNode(currentConfig.Node);
-                        ((YamlConfigurationLine)currentConfig).Node = configNode;
-                    }
-                    else
-                    {
-                        ((PlaceholderDataCenter)currentConfig.DataCenter).AddNode(node);
-
-                        if (node.Id.Addresses.HasAtLeastOneElement())
-                            currentConfig.Node.Id.AddIPAddress(node.Id.Addresses.First());
-                        else
-                            currentConfig.Node.Id.SetIPAddressOrHostName(node.Id.HostName, false);
+                            if (node.Id.Addresses.HasAtLeastOneElement())
+                                currentConfig.Node.Id.AddIPAddress(node.Id.Addresses.First());
+                            else
+                                currentConfig.Node.Id.SetIPAddressOrHostName(node.Id.HostName, false);
+                        }
                     }
                 }
             }

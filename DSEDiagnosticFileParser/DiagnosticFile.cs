@@ -147,6 +147,7 @@ namespace DSEDiagnosticFileParser
         }
 
         volatile static bool SystemDDLInitialized = false;
+        volatile static protected bool RingFileRead = false;
 
         static DiagnosticFile()
         {

@@ -132,7 +132,8 @@ namespace DSEDiagnosticFileParser
                 if(string.Empty == line
                     || line.StartsWith("Address")
                     || line.StartsWith("Server ID")
-                    || line.StartsWith("Note:"))
+                    || line.StartsWith("Note:")
+                    || line.StartsWith("Warning:"))
                 {
                     usesTokens = line.EndsWith("Token");
                     continue;
@@ -332,6 +333,7 @@ namespace DSEDiagnosticFileParser
             }
 
             this.Processed = true;
+            if (nbrGenerated > 0) RingFileRead = true;
             return nbrGenerated;
         }
     }

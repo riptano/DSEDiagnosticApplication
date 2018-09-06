@@ -187,6 +187,7 @@ namespace DSEDiagnosticFileParser
             }
 
             this.Processed = true;
+            if (nbrGenerated > 0) RingFileRead = true;
             return nbrGenerated;
         }
     }
