@@ -159,7 +159,7 @@
     "FilePatterns": [ ".\\opscenterd\\node_info.json" ],
     "FileParsingClass": "DSEDiagnosticFileParser.json_node_info",
     "NodeIdPos": -1,
-    "ProcessingTaskOption": "AllNodesInCluster,IgnoreNode",
+    "ProcessingTaskOption": "IgnoreNode,OnlyOnce",
     "ProcessPriorityLevel": 900
   },
   {

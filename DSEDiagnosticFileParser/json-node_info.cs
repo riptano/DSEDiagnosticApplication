@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Common;
 using DSEDiagnosticLibrary;
+using DSEDiagnosticLogger;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 
@@ -26,50 +27,123 @@ namespace DSEDiagnosticFileParser
 
         public override IResult GetResult()
         {
-            return new EmptyResult(this.File, null, null, this.Node);
+            return new EmptyResult(this.File, this.Node?.Cluster, this.Node?.DataCenter, this.Node);
         }
 
         public override uint ProcessJSON(JObject jObject)
         {
-            JToken nodeInfo = null;
+            var values = jObject.TryGetValues();
             uint nbrGenerated = 0;
 
-            foreach (var ipAdress in this.Node.Id.Addresses)
+            if (values == null)
+            {
+                this.Processed = true;
+                return nbrGenerated;
+            }
+
+            JObject nodeInfo;
+            INode node;
+            string dcName;
+            IDataCenter currentDC;
+
+            foreach (var keyValuePair in jObject.TryGetValues())
             {
                 this.CancellationToken.ThrowIfCancellationRequested();
 
-                ++this.NbrItemsParsed;
-                nodeInfo = jObject.TryGetValue(ipAdress.ToString());
+                nodeInfo = keyValuePair.Value;
+                dcName = nodeInfo.TryGetValue("dc")?.Value<string>() ?? this.DefaultDataCenterName;
 
-                if (nodeInfo != null)
-                    break;
-            }
+                if (string.IsNullOrEmpty(dcName))
+                {
+                    if (!string.IsNullOrEmpty(keyValuePair.Key))
+                    {
+                        Logger.Instance.WarnFormat("FileMapper<{1}>\t<NoNodeId>\t{0}\tNode \"{2}\" was defined in OpsCenter node_info.json file but it had no DataCenter defined  Node Ignored",
+                                                            this.ShortFilePath,
+                                                            this.MapperId,
+                                                            keyValuePair.Key);
+                        this.NbrWarnings++;
+                    }
+                    continue;
+                }
+                else
+                {
+                    if(RingFileRead)
+                    {
+                        currentDC = Cluster.TryGetDataCenter(dcName, this.DefaultClusterName);
 
-            if (nodeInfo != null)
-            {
+                        if(currentDC == null)
+                        {
+                            currentDC = Cluster.TryGetAddDataCenter(dcName + "(?)", this.DefaultClusterName);
+                            Logger.Instance.WarnFormat("FileMapper<{1}>\t<NoNodeId>\t{0}\tDataCenter \"{2}\" was not detected in ring file but defined in OpsCenter node_info.json file. Assuming a valid Data Center... ",
+                                                            this.ShortFilePath,
+                                                            this.MapperId,
+                                                            dcName);
+                            this.NbrWarnings++;
+                        }
+                    }
+                    else
+                    {
+                        currentDC = Cluster.TryGetAddDataCenter(dcName, this.DefaultClusterName);
+                    }
+                }               
+
+                if (RingFileRead)
+                {
+                    node = currentDC.TryGetNode(keyValuePair.Key);
+
+                    if (node == null || node.DataCenter == null)
+                    {
+                        if(!currentDC.Name.EndsWith("(?)"))
+                        {
+                            currentDC = Cluster.TryGetAddDataCenter(currentDC.Name + "(?)", this.DefaultClusterName);
+                        }
+
+                        if(node == null)
+                        {
+                            node = Cluster.TryGetAddNode(keyValuePair.Key, currentDC);
+                        }
+                        else if(node.DataCenter == null)
+                        {                            
+                            Cluster.AssociateDataCenterToNode(currentDC.Name, node);
+                        }
+
+                        Logger.Instance.WarnFormat("FileMapper<{1}>\t{2}\t{0}\tNode \"{3}\" in DataCenter \"{4}\" was not detected in ring file but defined in OpsCenter node_info.json file. Assuming a valid Node... ",
+                                                            this.ShortFilePath,
+                                                            this.MapperId,
+                                                            node,
+                                                            keyValuePair.Key,
+                                                            dcName);
+                        this.NbrWarnings++;
+                    }
+                }
+                else
+                {
+                    node = Cluster.TryGetAddNode(keyValuePair.Key, currentDC);
+                }
+                
                 {
                     var jasonDSEVersions = nodeInfo.TryGetValue("node_version");
 
                     if (jasonDSEVersions != null)
                     {
-                        jasonDSEVersions.TryGetValue("dse").NullSafeSet<string>(v => this.Node.DSE.Versions.DSE = new Version(v));
-                        jasonDSEVersions.TryGetValue("cassandra").NullSafeSet<string>(v => this.Node.DSE.Versions.Cassandra = new Version(v));
-                        jasonDSEVersions.TryGetValue("search").NullSafeSet<string>(v => this.Node.DSE.Versions.Search = new Version(v));
-                        jasonDSEVersions.TryGetValue("spark").TryGetValue("version").NullSafeSet<string>(v => this.Node.DSE.Versions.Analytics = new Version(v));
+                        jasonDSEVersions.TryGetValue("dse").NullSafeSet<string>(v => node.DSE.Versions.DSE = new Version(v));
+                        jasonDSEVersions.TryGetValue("cassandra").NullSafeSet<string>(v => node.DSE.Versions.Cassandra = new Version(v));
+                        jasonDSEVersions.TryGetValue("search").NullSafeSet<string>(v => node.DSE.Versions.Search = new Version(v));
+                        jasonDSEVersions.TryGetValue("spark").TryGetValue("version").NullSafeSet<string>(v => node.DSE.Versions.Analytics = new Version(v));
 
-                        if(this.Node.DSE.Versions.Search != null)
+                        if (node.DSE.Versions.Search != null)
                         {
-                            this.Node.DSE.InstanceType |= DSEInfo.InstanceTypes.Search;
+                            node.DSE.InstanceType |= DSEInfo.InstanceTypes.Search;
                         }
-                        if (this.Node.DSE.Versions.Analytics != null)
+                        if (node.DSE.Versions.Analytics != null)
                         {
-                            this.Node.DSE.InstanceType |= DSEInfo.InstanceTypes.Analytics;
+                            node.DSE.InstanceType |= DSEInfo.InstanceTypes.Analytics;
                         }
-                        if (this.Node.DSE.Versions.Analytics == null
-                                && this.Node.DSE.Versions.Search == null
-                                && this.Node.DSE.Versions.Cassandra != null)
+                        if (node.DSE.Versions.Analytics == null
+                                && node.DSE.Versions.Search == null
+                                && node.DSE.Versions.Cassandra != null)
                         {
-                            this.Node.DSE.InstanceType |= DSEInfo.InstanceTypes.Cassandra;
+                            node.DSE.InstanceType |= DSEInfo.InstanceTypes.Cassandra;
                         }
 
                         this.NbrItemsParsed += 4;
@@ -79,10 +153,10 @@ namespace DSEDiagnosticFileParser
                 {
                     var jsonDeviceLocations = nodeInfo.TryGetValue("devices");
 
-                    if(jsonDeviceLocations != null)
+                    if (jsonDeviceLocations != null)
                     {
-                        jsonDeviceLocations.TryGetValue("commitlog").NullSafeSet<string>(v => this.Node.DSE.Devices.CommitLog = v);
-                        jsonDeviceLocations.TryGetValue("saved_caches").NullSafeSet<string>(v => this.Node.DSE.Devices.SavedCache = v);
+                        jsonDeviceLocations.TryGetValue("commitlog").NullSafeSet<string>(v => node.DSE.Devices.CommitLog = v);
+                        jsonDeviceLocations.TryGetValue("saved_caches").NullSafeSet<string>(v => node.DSE.Devices.SavedCache = v);
 
                         var items = jsonDeviceLocations.TryGetValue("data");
 
@@ -94,7 +168,7 @@ namespace DSEDiagnosticFileParser
                             {
                                 itemValues.Add(item.Value<string>());
                             }
-                            this.Node.DSE.Devices.Data = itemValues.ToArray();                            
+                            node.DSE.Devices.Data = itemValues.ToArray();
                         }
 
                         items = jsonDeviceLocations.TryGetValue("other");
@@ -107,40 +181,29 @@ namespace DSEDiagnosticFileParser
                             {
                                 itemValues.Add(item.Value<string>());
                             }
-                            this.Node.DSE.Devices.Others = itemValues.ToArray();                            
+                            node.DSE.Devices.Others = itemValues.ToArray();
                         }
                     }
                 }
 
-                nodeInfo.TryGetValue("ec2").TryGetValue("instance-type").NullSafeSet<string>(v => this.Node.Machine.CloudVMType = v);
-                nodeInfo.TryGetValue("ec2").TryGetValue("placement").NullSafeSet<string>(v => this.Node.Machine.Placement = v);
-                nodeInfo.TryGetValue("num_procs").EmptySafeSet<uint>(this.Node.Machine.CPU.Cores, v => this.Node.Machine.CPU.Cores = v);
-                nodeInfo.TryGetValue("vnodes").NullSafeSet<bool>(v => this.Node.DSE.VNodesEnabled = v);
-                nodeInfo.TryGetValue("os").EmptySafeSet(this.Node.Machine.OS, v => this.Node.Machine.OS = v);
-                nodeInfo.TryGetValue("hostname").NullSafeSet<string>(v => this.Node.Id.SetIPAddressOrHostName(v, false));
+                nodeInfo.TryGetValue("ec2").TryGetValue("instance-type").NullSafeSet<string>(v => node.Machine.CloudVMType = v);
+                nodeInfo.TryGetValue("ec2").TryGetValue("placement").NullSafeSet<string>(v => node.Machine.Placement = v);
+                nodeInfo.TryGetValue("num_procs").EmptySafeSet<uint>(node.Machine.CPU.Cores, v => node.Machine.CPU.Cores = v);
+                nodeInfo.TryGetValue("vnodes").NullSafeSet<bool>(v => node.DSE.VNodesEnabled = v);
+                nodeInfo.TryGetValue("os").EmptySafeSet(node.Machine.OS, v => node.Machine.OS = v);
+                nodeInfo.TryGetValue("hostname").NullSafeSet<string>(v => node.Id.SetIPAddressOrHostName(v, false));
 
-                this.NbrItemsParsed += 6;                                
+                this.NbrItemsParsed += 6;                
 
-                if(this.Node.DataCenter == null)
+                if (string.IsNullOrEmpty(node.DSE.Rack))
                 {
-                    var dcName = nodeInfo.TryGetValue("dc")?.Value<string>();
-
-                    if (!string.IsNullOrEmpty(dcName))
-                    {
-                        if (Cluster.AssociateDataCenterToNode(dcName, this.Node) != null)
-                        {
-                            ++nbrGenerated;
-                        }                        
-                    }
-                }
-
-                if (string.IsNullOrEmpty(this.Node.DSE.Rack))
-                {
-                    ((Node)this.Node).DSE.Rack = nodeInfo.TryGetValue("rack")?.Value<string>();
+                    ((Node)node).DSE.Rack = nodeInfo.TryGetValue("rack")?.Value<string>();
                     this.NbrItemsParsed += 1;
                 }
-            }
 
+                ++this.NbrItemsParsed;
+            }
+            
             this.Processed = true;
             return nbrGenerated;
         }
