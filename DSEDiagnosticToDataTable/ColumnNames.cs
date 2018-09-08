@@ -27,8 +27,9 @@ namespace DSEDiagnosticToDataTable
         public const string NodeConfigChanges = "DSENodeConfigChanges";
         public const string CQLDLL = "CQLDDL";
         public const string Keyspaces = "Keyspaces";
-        public const string Machine = "Server";
-        public const string Node = "Node";
+        public const string Machine = "Servers";
+        public const string Node = "Nodes";
+        public const string DataCenters = "DataCenters";
         public const string TokenRanges = "TokenRanges";
         public const string CFStats = "CFStats";
         public const string AggregatedStats = "AggregatedStats";

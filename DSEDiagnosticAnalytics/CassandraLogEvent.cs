@@ -288,7 +288,21 @@ namespace DSEDiagnosticAnalytics
                 }
                 else
                 {
-                    aggStat.AssociateItem(Properties.Settings.Default.PartitionLargeAttrib, new List<UnitOfMeasure>() { partitionSize });                    
+                    try
+                    {
+                        aggStat.AssociateItem(Properties.Settings.Default.PartitionLargeAttrib, new List<UnitOfMeasure>() { partitionSize });
+                    }
+                    catch (System.ArgumentException)
+                    {
+                        if (aggStat.Data.TryGetValue(Properties.Settings.Default.PartitionLargeAttrib, out dataValue))
+                        {
+                            ((List<UnitOfMeasure>)dataValue).Add(partitionSize);
+                        }
+                        else
+                        {
+                            throw;
+                        }
+                    }                        
                 }
             }
 

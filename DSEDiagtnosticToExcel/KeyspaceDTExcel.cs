@@ -141,7 +141,7 @@ namespace DSEDiagtnosticToExcel
                                                                 workSheet.Cells[dtKeySpace.Rows.Count + 2, 15].FormulaR1C1 = string.Format("sum(O2:O{0})", dtKeySpace.Rows.Count + 1);
                                                                 workSheet.Cells[dtKeySpace.Rows.Count + 2, 16].FormulaR1C1 = string.Format("sum(P2:P{0})", dtKeySpace.Rows.Count + 1);
                                                                 workSheet.Cells[dtKeySpace.Rows.Count + 2, 17].FormulaR1C1 = string.Format("sum(Q2:Q{0})", dtKeySpace.Rows.Count + 1);
-                                                                workSheet.Cells[dtKeySpace.Rows.Count + 2, 18].FormulaR1C1 = string.Format("sum(R2:R{0})", dtKeySpace.Rows.Count + 1);
+                                                                workSheet.Cells[dtKeySpace.Rows.Count + 2, 18].FormulaR1C1 = string.Format("sum(r2:r{0})", dtKeySpace.Rows.Count + 1);
                                                                 workSheet.Cells[dtKeySpace.Rows.Count + 2, 19].FormulaR1C1 = string.Format("sum(S2:S{0})", dtKeySpace.Rows.Count + 1);
                                                                 workSheet.Cells[dtKeySpace.Rows.Count + 2, 20].FormulaR1C1 = string.Format("sum(T2:T{0})", dtKeySpace.Rows.Count + 1);
                                                                 workSheet.Cells[dtKeySpace.Rows.Count + 2, 21].FormulaR1C1 = string.Format("sum(U2:U{0})", dtKeySpace.Rows.Count + 1);

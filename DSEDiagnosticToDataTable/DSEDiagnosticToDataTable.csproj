@@ -67,6 +67,7 @@
     <Compile Include="LogInformationDataTable.cs" />
     <Compile Include="MultiInstanceDataTable.cs" />
     <Compile Include="NodeConfigChanges.cs" />
+    <Compile Include="DataCenterDataTable.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>

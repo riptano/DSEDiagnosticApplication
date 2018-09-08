@@ -12,7 +12,7 @@ namespace DSEDiagnosticToDataTable.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "15.7.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "15.8.0.0")]
     internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
         
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
@@ -92,6 +92,33 @@ namespace DSEDiagnosticToDataTable.Properties {
         public string CFStatsLocalWriteCountName {
             get {
                 return ((string)(this["CFStatsLocalWriteCountName"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Space used (total)")]
+        public string CFStatsSpaceUsed {
+            get {
+                return ((string)(this["CFStatsSpaceUsed"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("SSTable count")]
+        public string CFStatsSSTableCount {
+            get {
+                return ((string)(this["CFStatsSSTableCount"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Number of keys (estimate)")]
+        public string CFStatsNbrKeys {
+            get {
+                return ((string)(this["CFStatsNbrKeys"]));
             }
         }
     }

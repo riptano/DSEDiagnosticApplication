@@ -261,20 +261,23 @@ namespace DSEDiagnosticToDataTable
                 {
                     dataRow.SetFieldToDecimal("Raw Value", uom);                    
                 }
-
-                dataRow.SetField("Unit of Measure", uom.UnitType.ToString());
-
+                
                 if (!uom.NaN && (uom.UnitType & DSEDiagnosticLibrary.UnitOfMeasure.Types.SizeUnits) != 0)
                 {
-                    dataRow.SetField("Value", uom.ConvertSizeUOM(DSEDiagnosticLibrary.UnitOfMeasure.Types.MiB));                       
+                    dataRow.SetField("Value", uom.ConvertSizeUOM(DSEDiagnosticLibrary.UnitOfMeasure.Types.MiB));
+                    dataRow.SetField("Unit of Measure",
+                                       ((uom.UnitType & ~DSEDiagnosticLibrary.UnitOfMeasure.Types.SizeUnits) | DSEDiagnosticLibrary.UnitOfMeasure.Types.MiB).ToString());
                 }
                 else if (!uom.NaN && (uom.UnitType & DSEDiagnosticLibrary.UnitOfMeasure.Types.TimeUnits) != 0)
                 {
                     dataRow.SetField("Value", uom.ConvertTimeUOM(DSEDiagnosticLibrary.UnitOfMeasure.Types.MS));
+                    dataRow.SetField("Unit of Measure", 
+                                        ((uom.UnitType & ~DSEDiagnosticLibrary.UnitOfMeasure.Types.TimeUnits) | DSEDiagnosticLibrary.UnitOfMeasure.Types.MS).ToString());
                 }
                 else
                 {
                     dataRow.SetField("Value", dataRow["Raw Value"]);
+                    dataRow.SetField("Unit of Measure", uom.UnitType.ToString());
                 }
                 dataRow.SetField("NumericValue", dataRow["Value"]);
             }

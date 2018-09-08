@@ -73,7 +73,7 @@ namespace DSEDiagnosticFileParser
 
                         if(currentDC == null)
                         {
-                            currentDC = Cluster.TryGetAddDataCenter(dcName + "(?)", this.DefaultClusterName);
+                            currentDC = Cluster.TryGetAddDataCenter(dcName + Properties.Settings.Default.UnknownDCSuffix, this.DefaultClusterName);
                             Logger.Instance.WarnFormat("FileMapper<{1}>\t<NoNodeId>\t{0}\tDataCenter \"{2}\" was not detected in ring file but defined in OpsCenter node_info.json file. Assuming a valid Data Center... ",
                                                             this.ShortFilePath,
                                                             this.MapperId,
@@ -92,12 +92,7 @@ namespace DSEDiagnosticFileParser
                     node = currentDC.TryGetNode(keyValuePair.Key);
 
                     if (node == null || node.DataCenter == null)
-                    {
-                        if(!currentDC.Name.EndsWith("(?)"))
-                        {
-                            currentDC = Cluster.TryGetAddDataCenter(currentDC.Name + "(?)", this.DefaultClusterName);
-                        }
-
+                    {                        
                         if(node == null)
                         {
                             node = Cluster.TryGetAddNode(keyValuePair.Key, currentDC);
@@ -114,6 +109,7 @@ namespace DSEDiagnosticFileParser
                                                             keyValuePair.Key,
                                                             dcName);
                         this.NbrWarnings++;
+                        node.DSE.Statuses = DSEInfo.DSEStatuses.Unknown;
                     }
                 }
                 else

@@ -69,6 +69,7 @@
     <Compile Include="LogInformationExcel.cs" />
     <Compile Include="MultiInstanceExcel.cs" />
     <Compile Include="NodeConfigChangesExcel.cs" />
+    <Compile Include="DataCenterExcel.cs" />
     <Compile Include="TPStatsExcel.cs" />
     <Compile Include="CFStatsExcel.cs" />
     <Compile Include="ConfigExcel.cs" />

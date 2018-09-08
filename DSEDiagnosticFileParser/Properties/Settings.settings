@@ -1811,5 +1811,8 @@ CREATE TABLE "OpsCenter".rollups300 (
     <Setting Name="ClusterCaptureTimeFrameRegEx" Type="System.String" Scope="Application">
       <Value Profile="(Default)">(?&lt;cluster&gt;.+)-diagnostics-(?&lt;year&gt;\d{2,4})_(?&lt;month&gt;\d{1,2})_(?&lt;day&gt;\d{1,2})_(?&lt;hour&gt;\d{1,2})_(?&lt;min&gt;\d{1,2})_(?&lt;second&gt;\d{1,2})_(?&lt;timezone&gt;\w+)</Value>
     </Setting>
+    <Setting Name="UnknownDCSuffix" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">(?)</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

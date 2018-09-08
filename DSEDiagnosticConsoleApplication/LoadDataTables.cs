@@ -48,7 +48,8 @@ namespace DSEDiagnosticConsoleApplication
                     new DSEDiagnosticToDataTable.MultiInstanceDataTable(cluster, cancellationSource, sessionGuid),
                     new DSEDiagnosticToDataTable.NodeConfigChanges(cluster, cancellationSource, sessionGuid),
                     new DSEDiagnosticToDataTable.LogAggregationDataTable(cluster, cancellationSource, ParserSettings.IgnoreKeySpaces.ToArray(), ParserSettings.LogAggregationPeriod, sessionGuid),
-                    new DSEDiagnosticToDataTable.DSEDevicesDataTable(cluster, cancellationSource, sessionGuid)
+                    new DSEDiagnosticToDataTable.DSEDevicesDataTable(cluster, cancellationSource, sessionGuid),
+                    new DSEDiagnosticToDataTable.DataCenterDataTable(cluster, cancellationSource, ParserSettings.IgnoreKeySpaces.ToArray(), sessionGuid)
                 };
 
                 loadDataTables.ForEach(ldtInstance =>
@@ -129,7 +130,7 @@ namespace DSEDiagnosticConsoleApplication
                                                                             dataTables[nIdx].DefaultView.AllowNew = false;
                                                                             dataTables[nIdx].DefaultView.Sort = dataViewProps[nIdx].Item1;
                                                                             dataTables[nIdx].DefaultView.RowFilter = dataViewProps[nIdx].Item2;
-                                                                            dataTables[nIdx].DefaultView.RowStateFilter = dataViewProps[nIdx].Item3;
+                                                                            dataTables[nIdx].DefaultView.RowStateFilter = dataViewProps[nIdx].Item3;                                                                            
                                                                         }
 
                                                                         return dataSet;
