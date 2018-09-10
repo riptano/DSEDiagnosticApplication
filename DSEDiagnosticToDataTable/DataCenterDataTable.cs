@@ -286,7 +286,7 @@ namespace DSEDiagnosticToDataTable
                         }
 
                         {
-                            var devices = from node in dcNodes
+                            var devices = (from node in dcNodes
                                           let device = node.DSE.Devices.Data?.FirstOrDefault()
                                           let percentUtilized = node.Machine.Devices.PercentUtilized
                                           where device != null
@@ -297,7 +297,7 @@ namespace DSEDiagnosticToDataTable
                                               DevicePercent = percentUtilized
                                                                 .Where(i => i.Key.EndsWith('/' + device) || i.Key.EndsWith('/' + device + '1'))
                                                                 .FirstOrDefault().Value
-                                          };
+                                          }).ToArray();
 
                             if (devices.HasAtLeastOneElement())
                             {
@@ -316,7 +316,7 @@ namespace DSEDiagnosticToDataTable
                             }
                         }
 
-                        var dcStats = statCollection.Where(i => i.DC.Equals(dataCenter));
+                        var dcStats = statCollection.Where(i => i.DC.Equals(dataCenter)).ToArray();
 
                         if (dcStats.HasAtLeastOneElement())
                         {
