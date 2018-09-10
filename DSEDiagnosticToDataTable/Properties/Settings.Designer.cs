@@ -121,5 +121,14 @@ namespace DSEDiagnosticToDataTable.Properties {
                 return ((string)(this["CFStatsNbrKeys"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Number of partitions (estimate)")]
+        public string CFStatsNbrKeys1 {
+            get {
+                return ((string)(this["CFStatsNbrKeys1"]));
+            }
+        }
     }
 }

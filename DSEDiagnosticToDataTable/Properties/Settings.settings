@@ -35,5 +35,8 @@
     <Setting Name="CFStatsNbrKeys" Type="System.String" Scope="Application">
       <Value Profile="(Default)">Number of keys (estimate)</Value>
     </Setting>
+    <Setting Name="CFStatsNbrKeys1" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Number of partitions (estimate)</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

@@ -196,7 +196,8 @@ namespace DSEDiagnosticToDataTable
                                                                                                             || a.Key == Properties.Settings.Default.CFStatsSSTableCount
                                                                                                             || a.Key == Properties.Settings.Default.CFStatsLocalReadCountName 
                                                                                                             || a.Key == Properties.Settings.Default.CFStatsLocalWriteCountName 
-                                                                                                            || a.Key == Properties.Settings.Default.CFStatsNbrKeys)
+                                                                                                            || a.Key == Properties.Settings.Default.CFStatsNbrKeys
+                                                                                                            || a.Key == Properties.Settings.Default.CFStatsNbrKeys1)
                                                                                                         && a.Value != null))
                                      select new {
                                                     DC = grpData.Key.DataCenter,
