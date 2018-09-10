@@ -92,6 +92,8 @@ namespace DSEDiagnosticToDataTable
                             .AllowDBNull();
             dtDCInfo.Columns.Add("SSTables Avg", typeof(decimal))
                             .AllowDBNull();
+            dtDCInfo.Columns.Add("SSTables StdDev", typeof(double))
+                            .AllowDBNull();
             dtDCInfo.Columns.Add("SSTables Total", typeof(long))
                             .AllowDBNull();
             dtDCInfo.Columns.Add("SSTables Total (User)", typeof(long))
@@ -104,13 +106,19 @@ namespace DSEDiagnosticToDataTable
                             .AllowDBNull();
             dtDCInfo.Columns.Add("Distribution Storage To", typeof(decimal))
                             .AllowDBNull();
+            dtDCInfo.Columns.Add("Distribution Storage StdDev", typeof(double))
+                            .AllowDBNull();
             dtDCInfo.Columns.Add("Distribution Keys From", typeof(decimal))
                             .AllowDBNull();
             dtDCInfo.Columns.Add("Distribution Keys To", typeof(decimal))
                             .AllowDBNull();
+            dtDCInfo.Columns.Add("Distribution Keys StdDev", typeof(double))
+                            .AllowDBNull();
             dtDCInfo.Columns.Add("Distribution SSTables From", typeof(decimal))
                             .AllowDBNull();
             dtDCInfo.Columns.Add("Distribution SSTables To", typeof(decimal))
+                            .AllowDBNull();
+            dtDCInfo.Columns.Add("Distribution SSTables StdDev", typeof(double))
                             .AllowDBNull();
 
             //Counts
@@ -124,6 +132,8 @@ namespace DSEDiagnosticToDataTable
                             .AllowDBNull();
             dtDCInfo.Columns.Add("Reads Avg", typeof(decimal))
                             .AllowDBNull();
+            dtDCInfo.Columns.Add("Reads StdDev", typeof(double))
+                           .AllowDBNull();
             dtDCInfo.Columns.Add("Reads Total", typeof(ulong))
                             .AllowDBNull();
             dtDCInfo.Columns.Add("Reads Total (User)", typeof(ulong))
@@ -139,6 +149,8 @@ namespace DSEDiagnosticToDataTable
             dtDCInfo.Columns.Add("Writes Min-Node", typeof(string))
                             .AllowDBNull();
             dtDCInfo.Columns.Add("Writes Avg", typeof(decimal))
+                            .AllowDBNull();
+            dtDCInfo.Columns.Add("Writes StdDev", typeof(double))
                             .AllowDBNull();
             dtDCInfo.Columns.Add("Writes Total", typeof(ulong))
                             .AllowDBNull();
@@ -172,14 +184,15 @@ namespace DSEDiagnosticToDataTable
                 Logger.Instance.InfoFormat("Loading DataCenter Information");
                 this.CancellationToken.ThrowIfCancellationRequested();
 
-                var statCollection = from attrib in this.Cluster.Nodes.SelectMany(d => d.AggregatedStats)
+                var statCollection = from attrib in this.Cluster.Nodes.SelectMany(d => ((DSEDiagnosticLibrary.Node)d).AggregatedStatsUnSafe)
                                      where attrib.DataCenter != null
                                             && attrib.Node != null
                                             && attrib.Class.HasFlag(DSEDiagnosticLibrary.EventClasses.KeyspaceTableViewIndexStats | DSEDiagnosticLibrary.EventClasses.Node)
                                      group attrib by new { attrib.DataCenter,
                                                             attrib.Node,
                                                             attrib.Keyspace } into grpData
-                                     let grpDataValues = grpData.SelectMany(d => d.Data.Where(a => (a.Key == Properties.Settings.Default.CFStatsSpaceUsed
+                                     let grpDataValues = grpData.SelectMany(d => ((DSEDiagnosticLibrary.AggregatedStats)d).DataUnSafe
+                                                                                        .Where(a => (a.Key == Properties.Settings.Default.CFStatsSpaceUsed
                                                                                                             || a.Key == Properties.Settings.Default.CFStatsSSTableCount
                                                                                                             || a.Key == Properties.Settings.Default.CFStatsLocalReadCountName 
                                                                                                             || a.Key == Properties.Settings.Default.CFStatsLocalWriteCountName 
@@ -311,12 +324,19 @@ namespace DSEDiagnosticToDataTable
                             var dcTotReads = (ulong)dcStats.Sum(i => i.ReadTotal);
                             var dcTotWrites = (ulong)dcStats.Sum(i => i.WriteTotal);
                             var dcTotKeys = (ulong)dcStats.Sum(i => i.KeyTotal);
+                            var totalsNodes = dcStats.GroupBy(i => i.Node)
+                                                    .Select(i => new { Node = i.Key,
+                                                                        StorageTotal = i.DefaultIfEmpty().Sum(d => d.StorageTotal),
+                                                                        SSTablesTotal = i.DefaultIfEmpty().Sum(d => d.SSTablesTotal),
+                                                                        ReadTotal = i.DefaultIfEmpty().Sum(d => d.ReadTotal),
+                                                                        WriteTotal = i.DefaultIfEmpty().Sum(d => d.WriteTotal),
+                                                                        KeyTotal = i.DefaultIfEmpty().Sum(d => d.KeyTotal) });
 
                             if (dcTotStorage > 0)
-                            {                                
-                                var maxNode = dcStats.Max((instance) => instance.StorageTotal, (ignore, instance) => instance);
-                                var minNode = dcStats.Where(d => d.StorageTotal > 0).Min((instance) => instance.StorageTotal, (ignore, instance) => instance);
-                                var avgValue = dcStats.Average(i => i.StorageTotal);
+                            {
+                                var maxNode = totalsNodes.Max((instance) => instance.StorageTotal, (ignore, instance) => instance);
+                                var minNode = totalsNodes.Min((instance) => instance.StorageTotal, (ignore, instance) => instance);
+                                var avgValue = totalsNodes.Average(i => i.StorageTotal);
 
                                 dataRow.SetField("Storage Max", maxNode.StorageTotal);
                                 dataRow.SetField("Storage Max-Node", maxNode.Node.Id.NodeName());
@@ -337,15 +357,17 @@ namespace DSEDiagnosticToDataTable
 
                             if (dcTotSSTables > 0)
                             {
-                                var maxNode = dcStats.Max((instance) => instance.SSTablesTotal, (ignore, instance) => instance);
-                                var minNode = dcStats.Where(d => d.SSTablesTotal > 0).Min((instance) => instance.SSTablesTotal, (ignore, instance) => instance);
-                                var avgValue = dcStats.Average(i => i.SSTablesTotal);
+                                var maxNode = totalsNodes.Max((instance) => instance.SSTablesTotal, (ignore, instance) => instance);
+                                var minNode = totalsNodes.Min((instance) => instance.SSTablesTotal, (ignore, instance) => instance);
+                                var avgValue = totalsNodes.Average(i => i.SSTablesTotal);
+                                var stddevValue = totalsNodes.Select(i => i.SSTablesTotal).StandardDeviation();
 
                                 dataRow.SetField("SSTables Max", maxNode.SSTablesTotal);
                                 dataRow.SetField("SSTables Max-Node", maxNode.Node.Id.NodeName());
                                 dataRow.SetField("SSTables Min", minNode.SSTablesTotal);
                                 dataRow.SetField("SSTables Min-Node", minNode.Node.Id.NodeName());
                                 dataRow.SetField("SSTables Avg", avgValue);
+                                dataRow.SetField("SSTables StdDev", stddevValue);
                                 dataRow.SetField("SSTables Total", dcTotSSTables);
                                 dataRow.SetField("SSTables Percent", (decimal) dcTotSSTables / (decimal) clusterTotSSTables);
 
@@ -360,40 +382,51 @@ namespace DSEDiagnosticToDataTable
 
                             if (dcTotStorage > 0)
                             {
-                                var maxNode = dcStats.Max(d => d.StorageTotal / dcTotStorage);
-                                var minNode = dcStats.Where(d => d.StorageTotal > 0).Min(d => d.StorageTotal / dcTotStorage);
+                                var storeageValues = totalsNodes.Select(d => d.StorageTotal / dcTotStorage);
+                                var maxNode = storeageValues.Max();
+                                var minNode = storeageValues.Min();
+                                var stdDevNode = storeageValues.StandardDeviation();
 
                                 dataRow.SetField("Distribution Storage From", maxNode);
                                 dataRow.SetField("Distribution Storage To", minNode);
+                                dataRow.SetField("Distribution Storage StdDev", stdDevNode);
                             }
                             if (dcTotSSTables > 0)
                             {
-                                var maxNode = dcStats.Max(d => (decimal) d.SSTablesTotal / (decimal) dcTotSSTables);
-                                var minNode = dcStats.Where(d => d.SSTablesTotal > 0).Min(d => (decimal)d.SSTablesTotal / (decimal) dcTotSSTables);
+                                var storeageValues = totalsNodes.Select(d => (decimal)d.SSTablesTotal / (decimal)dcTotSSTables);
+                                var maxNode = storeageValues.Max();
+                                var minNode = storeageValues.Min();
+                                var stdDevNode = storeageValues.StandardDeviation();
 
                                 dataRow.SetField("Distribution SSTables From", maxNode);
                                 dataRow.SetField("Distribution SSTables To", minNode);
+                                dataRow.SetField("Distribution SSTables StdDev", stdDevNode);                                
                             }
                             if (dcTotKeys > 0)
                             {
-                                var maxNode = dcStats.Max(d => (decimal) d.KeyTotal / (decimal) dcTotKeys);
-                                var minNode = dcStats.Where(d => d.KeyTotal > 0).Min(d => (decimal) d.KeyTotal / (decimal) dcTotKeys);
+                                var storeageValues = totalsNodes.Select(d => (decimal)d.KeyTotal / (decimal)dcTotKeys);
+                                var maxNode = storeageValues.Max();
+                                var minNode = storeageValues.Min();
+                                var stdDevNode = storeageValues.StandardDeviation();
 
                                 dataRow.SetField("Distribution Keys From", maxNode);
                                 dataRow.SetField("Distribution Keys To", minNode);
+                                dataRow.SetField("Distribution Keys StdDev", stdDevNode);
                             }
 
                             if (dcTotReads > 0)
                             {
-                                var maxNode = dcStats.Max((instance) => instance.ReadTotal, (ignore, instance) => instance);
-                                var minNode = dcStats.Where(d => d.ReadTotal > 0).Min((instance) => instance.ReadTotal, (ignore, instance) => instance);
-                                var avgValue = dcStats.Average(i => i.ReadTotal);
+                                var maxNode = totalsNodes.Max((instance) => instance.ReadTotal, (ignore, instance) => instance);
+                                var minNode = totalsNodes.Min((instance) => instance.ReadTotal, (ignore, instance) => instance);
+                                var avgValue = totalsNodes.Average(i => i.ReadTotal);
+                                var stdDevNode = totalsNodes.Select(i => i.ReadTotal).StandardDeviationP();
 
                                 dataRow.SetField("Reads Max", (ulong)maxNode.ReadTotal);
                                 dataRow.SetField("Reads Max-Node", maxNode.Node.Id.NodeName());
                                 dataRow.SetField("Reads Min", (ulong)minNode.ReadTotal);
                                 dataRow.SetField("Reads Min-Node", minNode.Node.Id.NodeName());
                                 dataRow.SetField("Reads Avg", avgValue);
+                                dataRow.SetField("Reads StdDev", avgValue);
                                 dataRow.SetField("Reads Total", dcTotReads);
                                 dataRow.SetField("Reads Percent", (decimal) dcTotReads / (decimal) clusterTotReads);
 
@@ -408,15 +441,17 @@ namespace DSEDiagnosticToDataTable
 
                             if (dcTotWrites > 0)
                             {
-                                var maxNode = dcStats.Max((instance) => instance.WriteTotal, (ignore, instance) => instance);
-                                var minNode = dcStats.Where(d => d.WriteTotal > 0).Min((instance) => instance.WriteTotal, (ignore, instance) => instance);
-                                var avgValue = dcStats.Average(i => i.WriteTotal);
+                                var maxNode = totalsNodes.Max((instance) => instance.WriteTotal, (ignore, instance) => instance);
+                                var minNode = totalsNodes.Min((instance) => instance.WriteTotal, (ignore, instance) => instance);
+                                var avgValue = totalsNodes.Average(i => i.WriteTotal);
+                                var stdDevNode = totalsNodes.Select(i => i.WriteTotal).StandardDeviationP();
 
                                 dataRow.SetField("Writes Max", (ulong)maxNode.ReadTotal);
                                 dataRow.SetField("Writes Max-Node", maxNode.Node.Id.NodeName());
                                 dataRow.SetField("Writes Min", (ulong)minNode.ReadTotal);
                                 dataRow.SetField("Writes Min-Node", minNode.Node.Id.NodeName());
                                 dataRow.SetField("Writes Avg", avgValue);
+                                dataRow.SetField("Writes StdDev", stdDevNode);
                                 dataRow.SetField("Writes Total", dcTotWrites);
                                 dataRow.SetField("Writes Percent", (decimal) dcTotWrites / (decimal) clusterTotWrites);
 

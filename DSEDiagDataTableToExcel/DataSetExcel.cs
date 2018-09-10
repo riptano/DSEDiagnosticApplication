@@ -268,6 +268,24 @@ namespace DataTableToExcel
             }
         }
 
+        static public ExcelRange[] ExcelRange(this ExcelWorksheet workSheet, params DataColumn[] autoFitRanges)
+        {
+            var columnLetterPairs = autoFitRanges
+                                        .Select(c => c.GetExcelColumnLetter())
+                                        .SelectWithPrevious((first, second) => new Tuple<string, string>(first, second));
+
+            return columnLetterPairs.Select(l => workSheet.Cells[l.Item1 + ":" + l.Item2]).ToArray();
+        }
+
+        static public ExcelRange[] ExcelRange(this ExcelWorksheet workSheet, int excelRow, params DataColumn[] autoFitRanges)
+        {
+            var columnLetterPairs = autoFitRanges
+                                        .Select(c => c.GetExcelColumnLetter())
+                                        .SelectWithPrevious((first, second) => new Tuple<string, string>(first, second));
+
+            return columnLetterPairs.Select(l => workSheet.Cells[string.Format("{0}{2}:{1}{2}", l.Item1, l.Item2, excelRow)]).ToArray();
+        }
+
         static public void AutoFitColumn(this ExcelWorksheet workSheet)
         {
             try

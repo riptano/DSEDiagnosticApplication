@@ -11,11 +11,27 @@ using CTS = Common.Patterns.Collections.ThreadSafe;
 namespace DSEDiagnosticLibrary
 {
     [JsonObject(MemberSerialization.OptOut)]
+	public sealed class ColumnStats
+    {
+        public uint Collections;
+        public uint Blobs;
+        public uint Static;
+        public uint Frozen;
+        public uint Tuple;
+        public uint UDT;
+    }
+
+    [JsonObject(MemberSerialization.OptOut)]
 	public sealed class KeyspaceStats
 	{
+        public KeyspaceStats()
+        {
+            this.ColumnStat = new ColumnStats();
+        }
 
 		public uint Tables;
         public uint Columns;
+        public ColumnStats ColumnStat;
         public uint SecondaryIndexes;
         public uint UserDefinedTypes;
         public uint MaterialViews;
@@ -47,6 +63,14 @@ namespace DSEDiagnosticLibrary
         /// </summary>
         public uint TWCS;
         public uint OtherStrategies;
+
+        public TimeSpan MaxGCGrace = TimeSpan.MinValue;
+        public TimeSpan MaxTTL = TimeSpan.MinValue;
+
+        public decimal MaxReadRepairChance = decimal.MinValue;
+        public decimal MaxReadRepairDCChance = decimal.MinValue;
+
+        public uint NbrOrderBys;
 	}
 
     [JsonObject(MemberSerialization.OptOut)]
@@ -352,6 +376,19 @@ namespace DSEDiagnosticLibrary
                 }
 
                 this.Stats.Columns += (uint)((ICQLTable)ddl).Columns.Sum(c => c is ICQLUserDefinedType ? ((ICQLUserDefinedType)c).Columns.Count() : 1);
+                this.Stats.ColumnStat.Blobs += (uint)((ICQLTable)ddl).Columns.Count(c => c.CQLType.IsBlob);
+                this.Stats.ColumnStat.Collections += (uint)((ICQLTable)ddl).Columns.Count(c => c.CQLType.IsCollection);
+                this.Stats.ColumnStat.Frozen += (uint)((ICQLTable)ddl).Columns.Count(c => c.CQLType.IsFrozen);
+                this.Stats.ColumnStat.Static += (uint)((ICQLTable)ddl).Columns.Count(c => c.IsStatic);
+                this.Stats.ColumnStat.Tuple += (uint)((ICQLTable)ddl).Columns.Count(c => c.CQLType.IsTuple);
+                this.Stats.ColumnStat.UDT += (uint)((ICQLTable)ddl).Columns.Count(c => c is ICQLUserDefinedType);
+                this.Stats.MaxGCGrace = this.Stats.MaxGCGrace.Max((TimeSpan)(((ICQLTable)ddl).GetPropertyValue("gc_grace_seconds") ?? TimeSpan.MinValue));
+                this.Stats.MaxTTL = this.Stats.MaxTTL.Max((TimeSpan)(((ICQLTable)ddl).GetPropertyValue("default_time_to_live") ?? TimeSpan.MinValue));
+                this.Stats.MaxReadRepairChance = Math.Max(this.Stats.MaxReadRepairChance, (decimal)(((ICQLTable)ddl).GetPropertyValue("read_repair_chance") ?? decimal.MinValue));
+                this.Stats.MaxReadRepairDCChance = Math.Max(this.Stats.MaxReadRepairDCChance, (decimal)(((ICQLTable)ddl).GetPropertyValue("dclocal_read_repair_chance") ?? decimal.MinValue));
+
+                if (((ICQLTable)ddl).OrderByCols.HasAtLeastOneElement())
+                    ++this.Stats.NbrOrderBys;
             }
             else if (ddl is ICQLUserDefinedType)
             {

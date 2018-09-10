@@ -69,7 +69,7 @@ namespace DSEDiagnosticToDataTable
                 DataRow dataRow = null;
                 int nbrItems = 0;
                 var statCollection = this.Cluster.Nodes
-                                        .SelectMany(d => d.AggregatedStats);
+                                        .SelectMany(d => ((DSEDiagnosticLibrary.Node)d).AggregatedStatsUnSafe);
                 bool warn = false;
 
                 Logger.Instance.InfoFormat("Loading {0} Aggregated Stats", statCollection.Count());

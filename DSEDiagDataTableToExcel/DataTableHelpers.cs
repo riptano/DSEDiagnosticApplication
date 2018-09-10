@@ -265,6 +265,20 @@ namespace DataTableToExcel
                 if (dataColumn.ExtendedProperties.Count == 0) continue;
                 var currentLastRow = lastRow;
 
+                if (dataColumn.ExtendedProperties.ContainsKey("TotalColumn"))
+                {
+                    bool addTotLine = (bool)dataColumn.ExtendedProperties["TotalColumn"];
+
+                    workSheet.Cells[lastRow + 1, dataColumn.Ordinal + 1]
+                                .FormulaR1C1 = string.Format("=sum(R{0}C{1}:R{2}C{1})", wsHeaderRow + 1, dataColumn.Ordinal + 1, lastRow);
+
+                    if (addTotLine)
+                    {
+                        workSheet.Cells[lastRow + 1, dataColumn.Ordinal + 1].Style.Border.Top.Style = OfficeOpenXml.Style.ExcelBorderStyle.Medium;
+                    }
+                    ++currentLastRow;
+                }
+
                 foreach (var item in dataColumn.ExtendedProperties.Keys)
                 {
                     if(item != null && item is string)
@@ -284,25 +298,7 @@ namespace DataTableToExcel
 
                             workSheet.Cells[lastRow + 1, dataColumn.Ordinal + 1]
                                        .Formula = string.Format(formula, wsHeaderRow + 1, lastRow);
-                        }
-                        else if (key == "TotalColumn")
-                        {
-                            bool addTotLine = (bool)dataColumn.ExtendedProperties["TotalColumn"];
-                            
-                            workSheet.Cells[lastRow + 1, dataColumn.Ordinal + 1]
-                                        .FormulaR1C1 = string.Format("=sum(R{0}C{1}:R{2}C{1})", wsHeaderRow + 1, dataColumn.Ordinal + 1, lastRow);
-
-                            if (addTotLine)
-                            {
-                                workSheet.Cells[lastRow + 1, dataColumn.Ordinal + 1].Style.Border.Top.Style = OfficeOpenXml.Style.ExcelBorderStyle.Medium;
-                            }
-                            ++currentLastRow;
-                        }
-                        else if (key == "NumericStyle")
-                        {
-                            workSheet.Cells[wsHeaderRow + 1, dataColumn.Ordinal + 1, currentLastRow, dataColumn.Ordinal + 1]
-                                        .Style.Numberformat.Format = (string)dataColumn.ExtendedProperties["NumericStyle"];
-                        }
+                        }                                              
                         else if (key.StartsWith("HeaderText"))
                         {
                             var grpInfo = (Tuple<string,int,bool>) dataColumn.ExtendedProperties[key];
@@ -321,7 +317,13 @@ namespace DataTableToExcel
                             }
                         }
                     }
-                }                
+                }
+                
+                if (dataColumn.ExtendedProperties.ContainsKey("NumericStyle"))
+                {
+                    workSheet.Cells[wsHeaderRow + 1, dataColumn.Ordinal + 1, currentLastRow, dataColumn.Ordinal + 1]
+                                .Style.Numberformat.Format = (string)dataColumn.ExtendedProperties["NumericStyle"];
+                }
             }
 
             if(dataTable.ExtendedProperties.Count > 0)
@@ -355,6 +357,106 @@ namespace DataTableToExcel
                     }
                 }
             }
+        }
+
+        static public void AltFileFillRow(this OfficeOpenXml.ExcelWorksheet workSheet,
+                                            int startRow,
+                                            DataColumn changeRowTest,
+                                            DataColumn changeRowTest1 = null,
+                                            DataColumn partalRowTest = null,
+                                            DataColumn emptyRowFromCol = null,
+                                            DataColumn emptyRowToCol = null)
+        {
+            int? endRowTest = workSheet.Dimension?.End?.Row;
+
+            if (!endRowTest.HasValue || endRowTest.Value < startRow) return;
+
+            var endRow = endRowTest.Value;
+
+            string lastValue = string.Empty;
+            string currentValue;
+            bool formatOn = false;
+            int testCol = changeRowTest.Ordinal + 1;
+            int testCol1 = changeRowTest1?.Ordinal + 1 ?? -1;
+            Tuple<int, int> partalFill = null;
+            Tuple<int, int> partalEmptyFill = null;
+            Tuple<int, int> partalFillBack = null;
+            int partialTestCol = -1;
+
+            if(partalRowTest != null && (emptyRowFromCol != null || emptyRowToCol != null))
+            {
+                var endCol = workSheet.Dimension.End.Column;
+                partialTestCol = partalRowTest.Ordinal + 1;
+
+                if(emptyRowFromCol != null && emptyRowFromCol.Ordinal > 0)
+                {
+                    partalFill = new Tuple<int, int>(1, emptyRowFromCol.Ordinal);
+                }
+                if (emptyRowToCol != null && emptyRowToCol.Ordinal + 1 < endCol)
+                {
+                    partalFillBack = new Tuple<int, int>(emptyRowToCol.Ordinal + 2, endCol);
+                }
+                partalEmptyFill = new Tuple<int, int>(emptyRowFromCol == null ? emptyRowToCol.Ordinal + 1 : emptyRowFromCol.Ordinal + 1,
+                                                      emptyRowToCol == null ? emptyRowFromCol.Ordinal + 1 : emptyRowToCol.Ordinal + 1);
+            }
+            
+            for (int nRow = startRow; nRow <= endRow; ++nRow)
+            {
+                if (workSheet.Cells[nRow, testCol]?.Value != null)
+                {
+                    if (testCol1 > 0)
+                        currentValue = string.Format("{0}|{1}", workSheet.Cells[nRow, testCol].Value, workSheet.Cells[nRow, testCol1]?.Value);
+                    else
+                        currentValue = workSheet.Cells[nRow, testCol].Value.ToString();
+
+                    if (lastValue == null)
+                    {
+                        lastValue = currentValue;
+                        formatOn = false;
+                    }
+                    else if (lastValue != currentValue)
+                    {
+                        lastValue = currentValue;
+                        formatOn = !formatOn;
+                    }
+
+                    workSheet.Row(nRow).Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.None;
+                    if (formatOn)
+                    {                        
+                        if (partialTestCol > 0 && workSheet.Cells[nRow, partialTestCol].Value == null)
+                        {
+                            //workSheet.Cells[string.Format("A{0}:D{0}", nRow)].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                            if (partalFill != null)
+                            {
+                                workSheet.Cells[nRow, partalFill.Item1, nRow, partalFill.Item2].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                                workSheet.Cells[nRow, partalFill.Item1, nRow, partalFill.Item2].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
+                            }
+                            if (partalFillBack != null)
+                            {
+                                workSheet.Cells[nRow, partalFillBack.Item1, nRow, partalFillBack.Item2].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                                workSheet.Cells[nRow, partalFillBack.Item1, nRow, partalFillBack.Item2].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
+                            }
+
+                            workSheet.Cells[nRow, partalEmptyFill.Item1, nRow, partalEmptyFill.Item2].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.DarkGrid;
+                            workSheet.Cells[nRow, partalEmptyFill.Item1, nRow, partalEmptyFill.Item2].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.DarkGray);
+                        }
+                        else
+                        {
+                            workSheet.Row(nRow).Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                            workSheet.Row(nRow).Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
+                        }
+                    }
+                    else
+                    {
+                        if (partialTestCol > 0 && workSheet.Cells[nRow, partialTestCol].Value == null)
+                        {
+                            //workSheet.Cells[string.Format("A{0}:D{0}", nRow)].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;                            
+                            workSheet.Cells[nRow, partalEmptyFill.Item1, nRow, partalEmptyFill.Item2].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.LightGrid;
+                            workSheet.Cells[nRow, partalEmptyFill.Item1, nRow, partalEmptyFill.Item2].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.WhiteSmoke);
+                        }                         
+                    }                    
+                }
+            }            
         }
     }
 }

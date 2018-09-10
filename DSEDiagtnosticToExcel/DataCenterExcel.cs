@@ -47,47 +47,9 @@ namespace DSEDiagtnosticToExcel
                                                                     case WorkBookProcessingStage.PreSave:
                                                                         {
                                                                             var workSheet = excelPackage.Workbook.Worksheets[WorkSheetName];
-                                                                            var rangeAddress = loadRange == null ? null : workSheet?.Cells[loadRange];
 
-                                                                            if (rangeAddress != null)
-                                                                            {
-                                                                                var startRow = rangeAddress.Start.Row;
-                                                                                var endRow = rangeAddress.End.Row;
-                                                                                string lastValue = string.Empty;
-                                                                                string currentValue;
-                                                                                bool formatOn = false;
-
-                                                                                for (int nRow = startRow; nRow <= endRow; ++nRow)
-                                                                                {
-                                                                                    if (workSheet.Cells[nRow, 1] != null)
-                                                                                    {
-                                                                                        currentValue = workSheet.Cells[nRow, 1].Value as string;
-                                                                                        if (currentValue != null)
-                                                                                        {
-                                                                                            if (lastValue == null)
-                                                                                            {
-                                                                                                lastValue = currentValue;
-                                                                                                formatOn = false;
-                                                                                            }
-                                                                                            else if (lastValue != currentValue)
-                                                                                            {
-                                                                                                lastValue = currentValue;
-                                                                                                formatOn = !formatOn;
-                                                                                            }
-
-                                                                                            if (formatOn)
-                                                                                            {
-                                                                                                workSheet.Row(nRow).Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                                                                                                workSheet.Row(nRow).Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
-                                                                                            }
-                                                                                            else
-                                                                                            {
-                                                                                                workSheet.Row(nRow).Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.None;
-                                                                                            }
-                                                                                        }
-                                                                                    }
-                                                                                }
-                                                                            }
+                                                                            workSheet.AltFileFillRow(4,
+                                                                                                       this.DataTable.GetColumn(DSEDiagnosticToDataTable.ColumnNames.DataCenter));
 
                                                                             this.CallActionEvent("Loaded");
                                                                         }
@@ -107,7 +69,7 @@ namespace DSEDiagtnosticToExcel
                                                                 workSheet.Cells["1:3"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
                                                                 //workSheet.Cells["1:1"].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
 
-                                                                this.DataTable.GetColumn("Data Center")
+                                                                this.DataTable.GetColumn(DSEDiagnosticToDataTable.ColumnNames.DataCenter)
                                                                                 .SetCaption("Name");
                                                                 
                                                                 this.DataTable.SetGroupHeader("Total", -1, false,
@@ -212,6 +174,9 @@ namespace DSEDiagtnosticToExcel
                                                                    this.DataTable.GetColumn("SSTables Avg")
                                                                                     .SetCaption("Avg")
                                                                                     .SetNumericFormat("#,###,###,##0.00"),
+                                                                   this.DataTable.GetColumn("SSTables StdDev")
+                                                                                    .SetCaption("StdDev")
+                                                                                    .SetNumericFormat("#,###,###,##0.00"),
                                                                    this.DataTable.GetColumn("SSTables Total")
                                                                                     .SetCaption("Total")
                                                                                     .SetNumericFormat("#,###,###,##0")
@@ -232,7 +197,10 @@ namespace DSEDiagtnosticToExcel
                                                                                         .SetNumericFormat("##0.00%"),
                                                                        this.DataTable.GetColumn("Distribution Storage To")
                                                                                         .SetCaption("To")
-                                                                                        .SetNumericFormat("##0.00%") 
+                                                                                        .SetNumericFormat("##0.00%"),
+                                                                       this.DataTable.GetColumn("Distribution Storage StdDev")
+                                                                                        .SetCaption("StdDev")
+                                                                                        .SetNumericFormat("###,##0.00")
                                                                                         ),
                                                                     this.DataTable.SetGroupHeader("Keys", -1, true,
                                                                        this.DataTable.GetColumn("Distribution Keys From")
@@ -240,15 +208,21 @@ namespace DSEDiagtnosticToExcel
                                                                                         .SetNumericFormat("##0.00%"),
                                                                        this.DataTable.GetColumn("Distribution Keys To")
                                                                                         .SetCaption("To")
-                                                                                        .SetNumericFormat("##0.00%")
+                                                                                        .SetNumericFormat("##0.00%"),
+                                                                       this.DataTable.GetColumn("Distribution Keys StdDev")
+                                                                                        .SetCaption("StdDev")
+                                                                                        .SetNumericFormat("###,##0.00")
                                                                                         ),
                                                                     this.DataTable.SetGroupHeader("SSTables", -1, true,
                                                                        this.DataTable.GetColumn("Distribution SSTables From")
                                                                                         .SetCaption("From")
-                                                                                        .SetNumericFormat("##0.00%"),//aj
+                                                                                        .SetNumericFormat("##0.00%"),
                                                                        this.DataTable.GetColumn("Distribution SSTables To")
                                                                                         .SetCaption("To")
-                                                                                        .SetNumericFormat("##0.00%")
+                                                                                        .SetNumericFormat("##0.00%"),
+                                                                       this.DataTable.GetColumn("Distribution SSTables StdDev")
+                                                                                        .SetCaption("StdDev")
+                                                                                        .SetNumericFormat("###,##0.00")
                                                                 ));
 
                                                                 //Counts
@@ -266,6 +240,9 @@ namespace DSEDiagtnosticToExcel
                                                                                         .SetCaption("Min-Node"),
                                                                        this.DataTable.GetColumn("Reads Avg")
                                                                                         .SetCaption("Avg")
+                                                                                        .SetNumericFormat("#,###,###,##0.00"),
+                                                                       this.DataTable.GetColumn("Reads StdDev")
+                                                                                        .SetCaption("StdDev")
                                                                                         .SetNumericFormat("#,###,###,##0.00"),
                                                                        this.DataTable.GetColumn("Reads Total")
                                                                                         .SetCaption("Total")
@@ -292,6 +269,9 @@ namespace DSEDiagtnosticToExcel
                                                                                         .SetCaption("Min-Node"),
                                                                        this.DataTable.GetColumn("Writes Avg")
                                                                                         .SetCaption("Avg")
+                                                                                        .SetNumericFormat("##0.00%"),
+                                                                       this.DataTable.GetColumn("Writes StdDev")
+                                                                                        .SetCaption("StdDev")
                                                                                         .SetNumericFormat("##0.00%"),
                                                                        this.DataTable.GetColumn("Writes Total")
                                                                                         .SetCaption("Total")

@@ -353,6 +353,9 @@ namespace DSEDiagnosticLibrary
         [JsonIgnore]
         public IDictionary<string, object> Data { get { return this._data; } }
 
+        [JsonIgnore]
+        public IDictionary<string, object> DataUnSafe { get { return this._data.UnSafe; } }
+
         public IAggregatedStats AssociateItem(string key, object value)
         {
             this._data.Add(key, value);

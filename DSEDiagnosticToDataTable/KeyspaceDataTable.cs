@@ -26,28 +26,47 @@ namespace DSEDiagnosticToDataTable
 
             if (this.SessionId.HasValue) dtKeySpace.Columns.Add(ColumnNames.SessionId, typeof(Guid));
 
-            dtKeySpace.Columns.Add("Name", typeof(string));//a
-            dtKeySpace.Columns.Add("Replication Strategy", typeof(string));
+            dtKeySpace.Columns.Add("Name", typeof(string));
             dtKeySpace.Columns.Add(ColumnNames.DataCenter, typeof(string));
-            dtKeySpace.Columns.Add("Replication Factor", typeof(int));//d
-            dtKeySpace.Columns.Add("Tables", typeof(int)).AllowDBNull = true;//e
-            dtKeySpace.Columns.Add("Views", typeof(int)).AllowDBNull = true;//f
-            dtKeySpace.Columns.Add("Columns", typeof(int)).AllowDBNull = true;//g
-            dtKeySpace.Columns.Add("Secondary Indexes", typeof(int)).AllowDBNull = true;//h
+            dtKeySpace.Columns.Add("Replication Strategy", typeof(string));            
+            dtKeySpace.Columns.Add("Replication Factor", typeof(int));
+
+            dtKeySpace.Columns.Add("Tables", typeof(int)).AllowDBNull = true;
+            dtKeySpace.Columns.Add("Views", typeof(int)).AllowDBNull = true;
+            dtKeySpace.Columns.Add("Secondary Indexes", typeof(int)).AllowDBNull = true;
             dtKeySpace.Columns.Add("solr Indexes", typeof(int)).AllowDBNull = true;
             dtKeySpace.Columns.Add("SAS Indexes", typeof(int)).AllowDBNull = true;
             dtKeySpace.Columns.Add("Custom Indexes", typeof(int)).AllowDBNull = true;
-            dtKeySpace.Columns.Add("Functions", typeof(int)).AllowDBNull = true;//l
+            dtKeySpace.Columns.Add("Functions", typeof(int)).AllowDBNull = true;
             dtKeySpace.Columns.Add("Triggers", typeof(int)).AllowDBNull = true;
-            dtKeySpace.Columns.Add("Total", typeof(int)).AllowDBNull = true;//n
-            dtKeySpace.Columns.Add("Active", typeof(int)).AllowDBNull = true;//o
-            dtKeySpace.Columns.Add("STCS", typeof(int)).AllowDBNull = true;//p
-            dtKeySpace.Columns.Add("LCS", typeof(int)).AllowDBNull = true;//q
-            dtKeySpace.Columns.Add("DTCS", typeof(int)).AllowDBNull = true;//r
-            dtKeySpace.Columns.Add("TCS", typeof(int)).AllowDBNull = true;//s
-            dtKeySpace.Columns.Add("TWCS", typeof(int)).AllowDBNull = true;//t
-            dtKeySpace.Columns.Add("Other Strategies", typeof(int)).AllowDBNull = true;//u
-            dtKeySpace.Columns.Add("DDL", typeof(string));//v
+            dtKeySpace.Columns.Add("Total", typeof(int)).AllowDBNull = true;
+            dtKeySpace.Columns.Add("Active", typeof(int)).AllowDBNull = true;
+
+            dtKeySpace.Columns.Add("STCS", typeof(int)).AllowDBNull = true;
+            dtKeySpace.Columns.Add("LCS", typeof(int)).AllowDBNull = true;
+            dtKeySpace.Columns.Add("DTCS", typeof(int)).AllowDBNull = true;
+            dtKeySpace.Columns.Add("TCS", typeof(int)).AllowDBNull = true;
+            dtKeySpace.Columns.Add("TWCS", typeof(int)).AllowDBNull = true;
+            dtKeySpace.Columns.Add("Other Strategies", typeof(int)).AllowDBNull = true;
+
+            dtKeySpace.Columns.Add("Column Total", typeof(int)).AllowDBNull = true;
+            dtKeySpace.Columns.Add("Column Collections", typeof(int)).AllowDBNull = true;
+            dtKeySpace.Columns.Add("Column Blobs", typeof(int)).AllowDBNull = true;
+            dtKeySpace.Columns.Add("Column Static", typeof(int)).AllowDBNull = true;
+            dtKeySpace.Columns.Add("Column Frozen", typeof(int)).AllowDBNull = true;
+            dtKeySpace.Columns.Add("Column Tuple", typeof(int)).AllowDBNull = true;
+            dtKeySpace.Columns.Add("Column UDT", typeof(int)).AllowDBNull = true;
+
+            dtKeySpace.Columns.Add("Read-Repair Chance (Max)", typeof(decimal)).AllowDBNull = true;
+            dtKeySpace.Columns.Add("Read-Repair DC Chance", typeof(decimal)).AllowDBNull = true;
+            //dtKeySpace.Columns.Add("Read-Repair Policy (Majority)", typeof(string)).AllowDBNull = true;
+
+            dtKeySpace.Columns.Add("GC Grace (Max)", typeof(TimeSpan)).AllowDBNull = true;
+            dtKeySpace.Columns.Add("TTL (Max)", typeof(TimeSpan)).AllowDBNull = true;
+
+            dtKeySpace.Columns.Add("OrderBy", typeof(int)).AllowDBNull = true;
+
+            dtKeySpace.Columns.Add("DDL", typeof(string));
 
             dtKeySpace.PrimaryKey = new System.Data.DataColumn[] { dtKeySpace.Columns["Name"], dtKeySpace.Columns[ColumnNames.DataCenter] };
 
@@ -126,8 +145,7 @@ namespace DSEDiagnosticToDataTable
                             dataRow["Replication Strategy"] = keySpace.ReplicationStrategy;
                             dataRow["Data Center"] = replication.DataCenter.Name;
                             dataRow["Replication Factor"] = (int)replication.RF;
-                            dataRow.SetFieldStringLimit("DDL", keySpace.DDL);
-
+                            
                             if (firstRepl)
                             {
                                 firstRepl = false;
@@ -159,7 +177,7 @@ namespace DSEDiagnosticToDataTable
         {
             dataRow["Tables"] = (int)keySpace.Stats.Tables;
             dataRow["Views"] = (int)keySpace.Stats.MaterialViews;
-            dataRow["Columns"] = (int)keySpace.Stats.Columns;
+            dataRow["Column Total"] = (int)keySpace.Stats.Columns;
             dataRow["Secondary Indexes"] = (int)keySpace.Stats.SecondaryIndexes;
             dataRow["solr Indexes"] = (int)keySpace.Stats.SolrIndexes;
             dataRow["SAS Indexes"] = (int)keySpace.Stats.SasIIIndexes;
@@ -174,13 +192,34 @@ namespace DSEDiagnosticToDataTable
                                         + keySpace.Stats.CustomIndexes
                                         + keySpace.Stats.Functions
                                         + keySpace.Stats.Triggers);
+
             dataRow["STCS"] = (int)keySpace.Stats.STCS;
             dataRow["LCS"] = (int)keySpace.Stats.LCS;
             dataRow["DTCS"] = (int)keySpace.Stats.DTCS;
             dataRow["TCS"] = (int)keySpace.Stats.TCS;
             dataRow["TWCS"] = (int)keySpace.Stats.TWCS;
             dataRow["Other Strategies"] = (int)keySpace.Stats.OtherStrategies;
+
             dataRow["Active"] = (int)keySpace.Stats.NbrActive;
+            dataRow.SetFieldStringLimit("DDL", keySpace.DDL);
+
+            dataRow["Column Collections"] = (int)keySpace.Stats.ColumnStat.Collections;
+            dataRow["Column Blobs"] = (int)keySpace.Stats.ColumnStat.Blobs;
+            dataRow["Column Static"] = (int)keySpace.Stats.ColumnStat.Static;
+            dataRow["Column Frozen"] = (int)keySpace.Stats.ColumnStat.Frozen;
+            dataRow["Column Tuple"] = (int)keySpace.Stats.ColumnStat.Tuple;
+            dataRow["Column UDT"] = (int)keySpace.Stats.ColumnStat.UDT;
+            if(keySpace.Stats.MaxReadRepairChance >= 0)
+                dataRow["Read-Repair Chance (Max)"] = keySpace.Stats.MaxReadRepairChance;
+            if(keySpace.Stats.MaxReadRepairDCChance >= 0)
+                dataRow["Read-Repair DC Chance"] = keySpace.Stats.MaxReadRepairDCChance;
+            //dataRow["Read-Repair Policy (Majority)"] = (int)keySpace.Stats.
+            if(keySpace.Stats.MaxGCGrace > TimeSpan.MinValue)
+                dataRow["GC Grace (Max)"] = keySpace.Stats.MaxGCGrace;
+            if(keySpace.Stats.MaxTTL > TimeSpan.MinValue)
+                dataRow["TTL (Max)"] = keySpace.Stats.MaxTTL;
+
+            dataRow["OrderBy"] = keySpace.Stats.NbrOrderBys;
         }
 
     }

@@ -1280,6 +1280,8 @@ namespace DSEDiagnosticLibrary
         private CTS.List<IAggregatedStats> _aggregatedStats = new CTS.List<IAggregatedStats>();
         [JsonIgnore]
         public IEnumerable<IAggregatedStats> AggregatedStats { get { return this._aggregatedStats; } }
+        public IEnumerable<IAggregatedStats> AggregatedStatsUnSafe { get { return this._aggregatedStats.UnSafe; } }
+
         public INode AssociateItem(IAggregatedStats aggregatedStat)
         {
             this._aggregatedStats.Add(aggregatedStat);

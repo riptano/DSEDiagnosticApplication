@@ -69,7 +69,7 @@ namespace DSEDiagnosticConsoleApplication
                         taskDataTable.Then(result => ConsoleParsingDataTable.TaskEnd(result.TableName));
                     }
                 });
-
+                
                 datatableTasks.Add(aggStatsTask[0].ContinueWith((task, ignore) =>
                                                         {
                                                             var clusterInstance = DSEDiagnosticLibrary.Cluster.GetCurrentOrMaster();

@@ -47,48 +47,10 @@ namespace DSEDiagtnosticToExcel
                                                                     case WorkBookProcessingStage.PreSave:
                                                                         {
                                                                             var workSheet = excelPackage.Workbook.Worksheets[WorkSheetName];
-                                                                            var rangeAddress = loadRange == null ? null : workSheet?.Cells[loadRange];
 
-                                                                            if (rangeAddress != null)
-                                                                            {
-                                                                                var startRow = rangeAddress.Start.Row;
-                                                                                var endRow = rangeAddress.End.Row;
-                                                                                string lastValue = string.Empty;
-                                                                                string currentValue;
-                                                                                bool formatOn = false;
-                                                                                
-                                                                                for (int nRow = startRow; nRow <= endRow; ++nRow)
-                                                                                {
-                                                                                    if (workSheet.Cells[nRow, 1] != null)
-                                                                                    {
-                                                                                        currentValue = workSheet.Cells[nRow, 1].Value as string;
-                                                                                        if (currentValue != null)
-                                                                                        {
-                                                                                            if (lastValue == null)
-                                                                                            {
-                                                                                                lastValue = currentValue;
-                                                                                                formatOn = false;
-                                                                                            }
-                                                                                            else if (lastValue != currentValue)
-                                                                                            {
-                                                                                                lastValue = currentValue;
-                                                                                                formatOn = !formatOn;
-                                                                                            }
-
-                                                                                            if (formatOn)
-                                                                                            {
-                                                                                                workSheet.Row(nRow).Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                                                                                                workSheet.Row(nRow).Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
-                                                                                            }
-                                                                                            else
-                                                                                            {
-                                                                                                workSheet.Row(nRow).Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.None;
-                                                                                            }
-                                                                                        }
-                                                                                    }   
-                                                                                }                                                                                
-                                                                            }
-
+                                                                            workSheet.AltFileFillRow(3,
+                                                                                                       this.DataTable.GetColumn("Multi-Instance Server Id"));
+                                                                            
                                                                             this.CallActionEvent("Loaded");
                                                                         }
                                                                         break;
