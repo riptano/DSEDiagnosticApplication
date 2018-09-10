@@ -184,7 +184,7 @@ namespace DSEDiagnosticToDataTable
                 Logger.Instance.InfoFormat("Loading DataCenter Information");
                 this.CancellationToken.ThrowIfCancellationRequested();
 
-                var statCollection = from attrib in this.Cluster.Nodes.SelectMany(d => ((DSEDiagnosticLibrary.Node)d).AggregatedStatsUnSafe)
+                var statCollection = (from attrib in this.Cluster.Nodes.SelectMany(d => ((DSEDiagnosticLibrary.Node)d).AggregatedStatsUnSafe)
                                      where attrib.DataCenter != null
                                             && attrib.Node != null
                                             && attrib.Class.HasFlag(DSEDiagnosticLibrary.EventClasses.KeyspaceTableViewIndexStats | DSEDiagnosticLibrary.EventClasses.Node)
@@ -224,7 +224,7 @@ namespace DSEDiagnosticToDataTable
                                                                             .Select(a => (decimal)(dynamic)a.Value)
                                                                             .DefaultIfEmpty()
                                                                             .Sum()
-                                                };
+                                                }).ToArray();
 
                 var clusterTotStorage = statCollection.Sum(i => i.StorageTotal);
                 var clusterTotSSTables = statCollection.Sum(i => i.SSTablesTotal);
@@ -245,18 +245,19 @@ namespace DSEDiagnosticToDataTable
 
                     dataRow.SetField(ColumnNames.DataCenter, dataCenter.Name);
 
-                    var totNodes = dataCenter.Nodes.Count();
+                    var dcNodes = dataCenter.Nodes.ToArray();
+                    var totNodes = dcNodes.Count();
 
                     dataRow.SetField("Total Nodes", totNodes);
 
                     if (totNodes > 0)
                     {                        
                         {
-                            var nbrCassandra = dataCenter.Nodes.Count(i => i.DSE.InstanceType.HasFlag(DSEDiagnosticLibrary.DSEInfo.InstanceTypes.Cassandra));
-                            var nbrSearch = dataCenter.Nodes.Count(i => i.DSE.InstanceType.HasFlag(DSEDiagnosticLibrary.DSEInfo.InstanceTypes.Search));
-                            var nbrAnalytics = dataCenter.Nodes.Count(i => i.DSE.InstanceType.HasFlag(DSEDiagnosticLibrary.DSEInfo.InstanceTypes.Analytics));
-                            var nbrGraph = dataCenter.Nodes.Count(i => i.DSE.InstanceType.HasFlag(DSEDiagnosticLibrary.DSEInfo.InstanceTypes.Graph));
-                            var nbrMI = dataCenter.Nodes.Count(i => i.DSE.InstanceType.HasFlag(DSEDiagnosticLibrary.DSEInfo.InstanceTypes.MultiInstance));
+                            var nbrCassandra = dcNodes.Count(i => i.DSE.InstanceType.HasFlag(DSEDiagnosticLibrary.DSEInfo.InstanceTypes.Cassandra));
+                            var nbrSearch = dcNodes.Count(i => i.DSE.InstanceType.HasFlag(DSEDiagnosticLibrary.DSEInfo.InstanceTypes.Search));
+                            var nbrAnalytics = dcNodes.Count(i => i.DSE.InstanceType.HasFlag(DSEDiagnosticLibrary.DSEInfo.InstanceTypes.Analytics));
+                            var nbrGraph = dcNodes.Count(i => i.DSE.InstanceType.HasFlag(DSEDiagnosticLibrary.DSEInfo.InstanceTypes.Graph));
+                            var nbrMI = dcNodes.Count(i => i.DSE.InstanceType.HasFlag(DSEDiagnosticLibrary.DSEInfo.InstanceTypes.MultiInstance));
 
                             if (nbrCassandra > 0)
                                 dataRow.SetField("Cassandra", nbrCassandra);
@@ -276,8 +277,8 @@ namespace DSEDiagnosticToDataTable
                         }
 
                         {
-                            var nbrUp = dataCenter.Nodes.Count(i => i.DSE.Statuses == DSEDiagnosticLibrary.DSEInfo.DSEStatuses.Up);
-                            var nbrDown = dataCenter.Nodes.Count(i => i.DSE.Statuses == DSEDiagnosticLibrary.DSEInfo.DSEStatuses.Down);
+                            var nbrUp = dcNodes.Count(i => i.DSE.Statuses == DSEDiagnosticLibrary.DSEInfo.DSEStatuses.Up);
+                            var nbrDown = dcNodes.Count(i => i.DSE.Statuses == DSEDiagnosticLibrary.DSEInfo.DSEStatuses.Down);
 
                             dataRow.SetField("Status Up", nbrUp);
                             dataRow.SetField("Status Down", nbrDown);
@@ -285,7 +286,7 @@ namespace DSEDiagnosticToDataTable
                         }
 
                         {
-                            var devices = from node in dataCenter.Nodes
+                            var devices = from node in dcNodes
                                           let device = node.DSE.Devices.Data?.FirstOrDefault()
                                           let percentUtilized = node.Machine.Devices.PercentUtilized
                                           where device != null
@@ -330,7 +331,7 @@ namespace DSEDiagnosticToDataTable
                                                                         SSTablesTotal = i.DefaultIfEmpty().Sum(d => d.SSTablesTotal),
                                                                         ReadTotal = i.DefaultIfEmpty().Sum(d => d.ReadTotal),
                                                                         WriteTotal = i.DefaultIfEmpty().Sum(d => d.WriteTotal),
-                                                                        KeyTotal = i.DefaultIfEmpty().Sum(d => d.KeyTotal) });
+                                                                        KeyTotal = i.DefaultIfEmpty().Sum(d => d.KeyTotal) }).ToArray();
 
                             if (dcTotStorage > 0)
                             {
