@@ -247,7 +247,7 @@ namespace DSEDiagnosticToDataTable
             {                
                 this.SetTableIndexInfo(dataRow, stat, warn);
             }
-
+            
             dataRow.SetField("Attribute", propName);
 
             if (propValue is DSEDiagnosticLibrary.UnitOfMeasure)

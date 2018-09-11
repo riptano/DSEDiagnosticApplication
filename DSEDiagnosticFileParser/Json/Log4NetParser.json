@@ -2741,6 +2741,77 @@
       "Examples": [
         "WARN  [RMI TCP Connection(21506)-10.89.136.55] 2018-08-31 02:17:05,061  SSTableReader.java:272 - Reading cardinality from Statistics.db failed for /data/cassandra/data/ngcfwcdbks/clsfn_item_attr_info/ngcfwcdbks-clsfn_item_attr_info-ka-2648641-Data.db"
       ]
+    },
+    {
+      "Description": "Insufficient Space to Compact",
+      "TagId": 39.0,
+      "MatchVersion": null,
+      "LevelMatch": {
+        "RegExStrings": [
+          "WARN"
+        ]
+      },
+      "FileNameMatch": {
+        "RegExStrings": [
+          "^CompactionTask.java$"
+        ]
+      },
+      "FileLineMatch": null,
+      "MessageMatch": {
+        "RegExStrings": [
+          "^insufficient space to compact"
+        ]
+      },
+      "ParseMessage": {
+        "RegExStrings": [
+          "insufficient\\sspace\\sto\\scompact\\s\\w+\\s\\w+\\s\\w+\\.\\s+(?<spacerequired_storage>[0-9,.]+\\s*\\w*)\\s+required,\\s+(?:BigTableReader\\s*\\(\\s*path\\s*=\\s*'?(?$<SSTABLEPATH>)'?\\s*\\),?\\s*)+"
+        ]
+      },
+      "ParseThreadId": null,
+      "EventType": "SingleInstance",
+      "EventClass": "Detection,Node,Compaction",
+      "AnalyticsGroup": null,
+      "SubClass": "'Insufficient Space'",
+      "Product": "Cassandra",
+      "Examples": [
+        "WARN  [CompactionExecutor:102572] 2018-08-30 18:31:35,105  CompactionTask.java:98 - insufficient space to compact all requested files. 447067.12MB required, BigTableReader(path='/data/cassandra/data/ngcfwcdbks/clsfn_item_attr_info-f9a5abb123bf11e8b4e697b5a63b8411/mc-12319-big-Data.db'), BigTableReader(path='/data/cassandra/data/ngcfwcdbks/clsfn_item_attr_info-f9a5abb123bf11e8b4e697b5a63b8411/mc-17787-big-Data.db'), BigTableReader(path='/data/cassandra/data/ngcfwcdbks/clsfn_item_attr_info-f9a5abb123bf11e8b4e697b5a63b8411/mc-16416-big-Data.db'), BigTableReader(path='/data/cassandra/data/ngcfwcdbks/clsfn_item_attr_info-f9a5abb123bf11e8b4e697b5a63b8411/mc-16474-big-Data.db')"
+      ]
+    },
+    {
+      "Description": "Not enough space for compaction",
+      "TagId": 40.0,
+      "MatchVersion": null,
+      "LevelMatch": {
+        "RegExStrings": [
+          "WARN"
+        ]
+      },
+      "FileNameMatch": {
+        "RegExStrings": [
+          "^CompactionTask.java$"
+        ]
+      },
+      "FileLineMatch": null,
+      "MessageMatch": {
+        "RegExStrings": [
+          "^Not enough space for compaction"
+        ]
+      },
+      "ParseMessage": {
+        "RegExStrings": [
+          "Not\\s+enough\\s+space\\s+for\\s+compaction,\\s+(?<spacerequired_storage>[0-9,.]+\\s*\\w*)+\\s+estimated"
+        ]
+      },
+      "ParseThreadId": null,
+      "EventType": "SingleInstance",
+      "EventClass": "Detection,Node,Compaction",
+      "AnalyticsGroup": null,
+      "SubClass": "'Insufficient Space'",
+      "Product": "Cassandra",
+      "IgnoreEvent": true,
+      "Examples": [
+        "WARN  [CompactionExecutor:102572] 2018-08-30 18:31:35,105  CompactionTask.java:318 - Not enough space for compaction, 447067.12MB estimated.  Reducing scope."
+      ]
     }
   ]
     }

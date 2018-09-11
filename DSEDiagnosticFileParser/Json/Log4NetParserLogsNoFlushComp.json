@@ -164,6 +164,14 @@
     {
       "Description": "read cardinality failure",
       "LinkedTagId": 38.0
+    },
+    {
+      "Description": "Insufficient Space to Compact",
+      "LinkedTagId": 39.0
+    },
+    {
+      "Description": "Not enough space for compaction",
+      "LinkedTagId": 40.0
     }
   ]
 }

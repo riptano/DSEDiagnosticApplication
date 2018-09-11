@@ -20,5 +20,8 @@
     <Setting Name="TombstoneLiveCellRatioAttrib" Type="System.String" Scope="User">
       <Value Profile="(Default)">Tombstone/Live Percent</Value>
     </Setting>
+    <Setting Name="CompactionInsufficientSpace" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Compaction Insufficient Space</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

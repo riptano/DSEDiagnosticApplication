@@ -255,7 +255,7 @@ namespace DSEDiagnosticAnalytics
 
         public IFilePath LogFilePath { get { return this.EventParser?.File; } }
 
-        public static CTS.Dictionary<INode, AggregatedStats> AggregatedStats = new CTS.Dictionary<INode, AggregatedStats>();
+        public static CTS.Dictionary<Tuple<INode,EventClasses>, AggregatedStats> AggregatedStats = new CTS.Dictionary<Tuple<INode, EventClasses>, AggregatedStats>();
 
         public void LogEventCallBack(DSEDiagnosticFileParser.file_cassandra_log4net sender, DSEDiagnosticFileParser.file_cassandra_log4net.LogEventArgs eventArgs)
         {
@@ -268,16 +268,17 @@ namespace DSEDiagnosticAnalytics
                     && eventArgs.LogEvent.LogProperties.ContainsKey("size"))
             {
                 var partitionSize = (UnitOfMeasure) eventArgs.LogEvent.LogProperties["size"];
+                var evtClass = EventClasses.Partition | EventClasses.Node | EventClasses.KeyspaceTableViewIndexStats;
 
-                var aggStat = AggregatedStats.GetOrAdd(sender.Node, sndNode =>
+                var aggStat = AggregatedStats.GetOrAdd(new Tuple<INode,EventClasses>(sender.Node, evtClass), sndNode =>
                                                         {
                                                             var stat = new AggregatedStats(sender.File,
-                                                                                                sndNode,
+                                                                                                sndNode.Item1,
                                                                                                 SourceTypes.CassandraLog,
                                                                                                 EventTypes.AggregateDataTool,
-                                                                                                EventClasses.Partition | EventClasses.Node | EventClasses.KeyspaceTableViewIndexStats,
+                                                                                                sndNode.Item2,
                                                                                                 eventArgs.LogEvent.TableViewIndex);
-                                                            sndNode.AssociateItem(stat);
+                                                            //sndNode.Item1.AssociateItem(stat);
                                                             return stat;
                                                         });
                 object dataValue;
@@ -310,17 +311,20 @@ namespace DSEDiagnosticAnalytics
                     && eventArgs.LogEvent.TableViewIndex != null
                     && eventArgs.LogEvent.LogProperties.ContainsKey("tombstone_cells"))
             {
-                var nodeStat = AggregatedStats.GetOrAdd(sender.Node, sndNode =>
+                var evtClass = EventClasses.Tombstone | EventClasses.Node | EventClasses.KeyspaceTableViewIndexStats;
+
+                var nodeStat = AggregatedStats.GetOrAdd(new Tuple<INode, EventClasses>(sender.Node, evtClass), sndNode =>
                 {
                     var stat = new AggregatedStats(sender.File,
-                                                        sndNode,
+                                                        sndNode.Item1,
                                                         SourceTypes.CassandraLog,
                                                         EventTypes.AggregateDataTool,
-                                                        EventClasses.Partition | EventClasses.Node | EventClasses.KeyspaceTableViewIndexStats,
+                                                        sndNode.Item2,
                                                         eventArgs.LogEvent.TableViewIndex);
-                    sndNode.AssociateItem(stat);
+                   //sndNode.Item1.AssociateItem(stat);
                     return stat;
                 });
+                
                 var tombstones = (long) ((dynamic)eventArgs.LogEvent.LogProperties["tombstone_cells"]);
                 object dataValue;
 
@@ -353,7 +357,64 @@ namespace DSEDiagnosticAnalytics
                     }
                 }
             }
-            
+
+            if ((eventArgs.LogEvent.Class & EventClasses.Compaction) == EventClasses.Compaction
+                    && eventArgs.LogEvent.SubClass == "Insufficient Space"
+                    && eventArgs.LogEvent.LogProperties.ContainsKey("spacerequired"))
+            {
+                var spaceRequired = (UnitOfMeasure)eventArgs.LogEvent.LogProperties["spacerequired"];
+                var evtClass = EventClasses.Compaction | EventClasses.Node;
+
+                if(eventArgs.LogEvent.TableViewIndex == null)
+                {
+                    if(eventArgs.LogEvent.Keyspace != null)
+                    {
+                        evtClass |= EventClasses.Keyspace;
+                    }
+                }
+                else
+                {
+                    evtClass |= EventClasses.KeyspaceTableViewIndexStats;
+                }
+
+                var aggStat = AggregatedStats.GetOrAdd(new Tuple<INode, EventClasses>(sender.Node, evtClass), sndNode =>
+                {
+                    var stat = new AggregatedStats(sender.File,
+                                                        sndNode.Item1,
+                                                        SourceTypes.CassandraLog,
+                                                        EventTypes.AggregateDataTool,
+                                                        sndNode.Item2,
+                                                        (IDDL) eventArgs.LogEvent.TableViewIndex ?? eventArgs.LogEvent.Keyspace);
+
+                    //sndNode.Item1.AssociateItem(stat);
+                    return stat;
+                });                
+                object dataValue;
+
+                if (aggStat.Data.TryGetValue(Properties.Settings.Default.CompactionInsufficientSpace, out dataValue))
+                {
+                    ((List<UnitOfMeasure>)dataValue).Add(spaceRequired);
+                }
+                else
+                {
+                    try
+                    {
+                        aggStat.AssociateItem(Properties.Settings.Default.CompactionInsufficientSpace, new List<UnitOfMeasure>() { spaceRequired });
+                    }
+                    catch (System.ArgumentException)
+                    {
+                        if (aggStat.Data.TryGetValue(Properties.Settings.Default.CompactionInsufficientSpace, out dataValue))
+                        {
+                            ((List<UnitOfMeasure>)dataValue).Add(spaceRequired);
+                        }
+                        else
+                        {
+                            throw;
+                        }
+                    }
+                }
+            }
+
         }
 
         public override IEnumerable<IAggregatedStats> ComputeStats()
