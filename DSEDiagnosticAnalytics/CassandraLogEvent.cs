@@ -794,6 +794,16 @@ namespace DSEDiagnosticAnalytics
                                         LogEventGrouping.GroupingTypes.FreeDeviceStorageStats,
                                         storage);
         }
+
+        public static LogEventGrouping CompactionInsufficientSpaceStats(ref LogEventGroup logEventGroup, string analyticsGroup, IEnumerable<ILogEvent> assocatedLogEvents)
+        {
+            var storage = assocatedLogEvents.Select(i => i.LogProperties.GetPropUOMValue("Insufficient Space")).Where(i => i >= 0);
+
+            return new LogEventGrouping(ref logEventGroup,
+                                        assocatedLogEvents,
+                                        LogEventGrouping.GroupingTypes.CompactionInsufficientSpaceStats,
+                                        storage);
+        }
     }
 
     public struct LogEventGroup
@@ -981,7 +991,8 @@ namespace DSEDiagnosticAnalytics
             HintHandOffStats,
             PreparesDiscard,
             MaximumMemoryUsageReachedStats,
-            FreeDeviceStorageStats
+            FreeDeviceStorageStats,
+            CompactionInsufficientSpaceStats
         }
 
         public static IEnumerable<LogEventGrouping> CreateLogEventGrouping(LogEventGroup logEventGroup, IEnumerable<ILogEvent> assocatedLogEvents)
@@ -1130,6 +1141,11 @@ namespace DSEDiagnosticAnalytics
                     this.GroupKey = groupKey;
                     this.FreeDeviceStorageStats = new FreeDeviceStorage(decimalAggreations[0]);
                     this.HasValue = forceHasValue ? true : this.FreeDeviceStorageStats.HasValue;
+                    break;
+                case GroupingTypes.CompactionInsufficientSpaceStats:
+                    this.GroupKey = groupKey;
+                    this.CompactionInsufficientSpaceStats = new CompactionInsufficientSpace(decimalAggreations[0]);
+                    this.HasValue = forceHasValue ? true : this.CompactionInsufficientSpaceStats.HasValue;
                     break;
                 default:
                     break;
@@ -1603,5 +1619,23 @@ namespace DSEDiagnosticAnalytics
         }
 
         public readonly FreeDeviceStorage FreeDeviceStorageStats;
+
+        public sealed class CompactionInsufficientSpace
+        {
+            public CompactionInsufficientSpace(IEnumerable<decimal> storage)
+            {
+                this.RemainingStorage = new ItemStatsDecimal(storage);
+                if (this.RemainingStorage.HasValue)
+                    this.UOM = "MiB";
+
+                this.HasValue = this.RemainingStorage.HasValue;
+            }
+
+            public readonly bool HasValue;
+            public readonly ItemStatsDecimal RemainingStorage;
+            public readonly string UOM;
+        }
+
+        public readonly CompactionInsufficientSpace CompactionInsufficientSpaceStats;
     }
 }

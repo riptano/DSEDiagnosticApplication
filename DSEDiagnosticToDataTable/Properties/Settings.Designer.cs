@@ -130,5 +130,14 @@ namespace DSEDiagnosticToDataTable.Properties {
                 return ((string)(this["CFStatsNbrKeys1"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Compaction Insufficient Space")]
+        public string CFStatsCompactionInsufficientSpace {
+            get {
+                return ((string)(this["CFStatsCompactionInsufficientSpace"]));
+            }
+        }
     }
 }

@@ -115,7 +115,7 @@ namespace DSEDiagtnosticToExcel
                                                                     );
 
                                                                 //Device Utilization 
-                                                                this.DataTable.SetGroupHeader("Device Utilization", -2, true,
+                                                                this.DataTable.SetGroupHeader("Storage Utilization", -2, true,
                                                                     this.DataTable.GetColumn("DU Max")
                                                                                     .SetCaption("Max")
                                                                                     .SetNumericFormat("##0.00%"),
@@ -131,8 +131,15 @@ namespace DSEDiagtnosticToExcel
                                                                                     .SetNumericFormat("##0.00%")
                                                                     );
 
-                                                                //Storage
-                                                                this.DataTable.SetGroupHeader("Storage (MB)", -2, true,
+                                                                this.DataTable.SetGroupHeader("Insufficient Space", -1, true,
+                                                                   this.DataTable.GetColumn("DU Insufficient Space")
+                                                                                   .SetCaption("Warnings")
+                                                                                   .SetNumericFormat("#,###,###")
+                                                                                   .TotalColumn()
+                                                                                   );
+
+                                                               //Storage
+                                                               this.DataTable.SetGroupHeader("Storage (MB)", -2, true,
                                                                     this.DataTable.GetColumn("Storage Max")
                                                                                     .SetCaption("Max")
                                                                                     .SetNumericFormat("#,###,###,##0.0000"),
@@ -285,12 +292,24 @@ namespace DSEDiagtnosticToExcel
                                                                                         .SetCaption("Percent-Cluster")
                                                                                         .SetNumericFormat("##0.00%")
                                                                  ));
-                                                                
+
+                                                                this.DataTable.SetGroupHeader(" ", -1, true,
+                                                                       this.DataTable.GetColumn("Batch Percent")                                                                                        
+                                                                                        .SetNumericFormat("##0.00%")
+                                                                                        .TotalColumn(),
+                                                                       this.DataTable.GetColumn("LWT Percent")
+                                                                                        .SetNumericFormat("##0.00%")
+                                                                                        .TotalColumn()
+                                                                                        );
+
                                                                 workSheet.UpdateWorksheet(this.DataTable, 3);
 
                                                                 workSheet.View.FreezePanes(4, 2);
-                                                                workSheet.Cells["A3:BB3"].AutoFilter = true;   
-                                                                                                                                
+                                                                workSheet.ExcelRange(3,
+                                                                                      this.DataTable.GetColumn(DSEDiagnosticToDataTable.ColumnNames.DataCenter),
+                                                                                      this.DataTable.GetColumn("LWT Percent"))
+                                                                            .First().AutoFilter = true;
+
                                                                 workSheet.AutoFitColumn();
                                                             },
                                                             -1,

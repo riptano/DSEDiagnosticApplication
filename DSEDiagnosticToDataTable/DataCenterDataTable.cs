@@ -62,6 +62,8 @@ namespace DSEDiagnosticToDataTable
                             .AllowDBNull();
             dtDCInfo.Columns.Add("DU Avg", typeof(decimal))
                             .AllowDBNull();
+            dtDCInfo.Columns.Add("DU Insufficient Space", typeof(long))
+                            .AllowDBNull();
 
             //Storage
             dtDCInfo.Columns.Add("Storage Max", typeof(decimal))
@@ -158,6 +160,10 @@ namespace DSEDiagnosticToDataTable
                             .AllowDBNull();
             dtDCInfo.Columns.Add("Writes Percent", typeof(decimal))
                             .AllowDBNull();
+            dtDCInfo.Columns.Add("Batch Percent", typeof(decimal))
+                            .AllowDBNull();
+            dtDCInfo.Columns.Add("LWT Percent", typeof(decimal))
+                            .AllowDBNull();
 
             dtDCInfo.DefaultView.ApplyDefaultSort = false;
             dtDCInfo.DefaultView.AllowDelete = false;
@@ -187,7 +193,8 @@ namespace DSEDiagnosticToDataTable
                 var statCollection = (from attrib in this.Cluster.Nodes.SelectMany(d => ((DSEDiagnosticLibrary.Node)d).AggregatedStatsUnSafe)
                                      where attrib.DataCenter != null
                                             && attrib.Node != null
-                                            && attrib.Class.HasFlag(DSEDiagnosticLibrary.EventClasses.KeyspaceTableViewIndexStats | DSEDiagnosticLibrary.EventClasses.Node)
+                                            && attrib.TableViewIndex != null
+                                            && attrib.Class.HasFlag(DSEDiagnosticLibrary.EventClasses.Node)
                                      group attrib by new { attrib.DataCenter,
                                                             attrib.Node,
                                                             attrib.Keyspace } into grpData
@@ -199,7 +206,18 @@ namespace DSEDiagnosticToDataTable
                                                                                                             || a.Key == Properties.Settings.Default.CFStatsNbrKeys
                                                                                                             || a.Key == Properties.Settings.Default.CFStatsNbrKeys1)
                                                                                                         && a.Value != null))
-                                     select new {
+                                      let grpLWTValues = grpData.Where(i => i.TableViewIndex.FullName == "system.paxos")
+                                                               .SelectMany(d => ((DSEDiagnosticLibrary.AggregatedStats)d).DataUnSafe
+                                                                                        .Where(a => (a.Key == Properties.Settings.Default.CFStatsLocalWriteCountName)
+                                                                                                        && a.Value != null))
+                                      let grpBatchesValues = grpData.Where(i => i.TableViewIndex.FullName == "system.batches")
+                                                                        .SelectMany(d => ((DSEDiagnosticLibrary.AggregatedStats)d).DataUnSafe
+                                                                                                    .Where(a => (a.Key == Properties.Settings.Default.CFStatsLocalWriteCountName)
+                                                                                                                    && a.Value != null))
+                                       let grpNbrCompSpaceWarnings = grpData.SelectMany(d => ((DSEDiagnosticLibrary.AggregatedStats)d).DataUnSafe
+                                                                        .Where(a => (a.Key == Properties.Settings.Default.CFStatsCompactionInsufficientSpace)
+                                                                                        && a.Value != null))
+                                      select new {
                                                     DC = grpData.Key.DataCenter,
                                                     Node = grpData.Key.Node,
                                                     Keyspace = grpData.Key.Keyspace,
@@ -224,8 +242,15 @@ namespace DSEDiagnosticToDataTable
                                                     KeyTotal = grpDataValues.Where(a => a.Key == Properties.Settings.Default.CFStatsNbrKeys)
                                                                             .Select(a => (decimal)(dynamic)a.Value)
                                                                             .DefaultIfEmpty()
-                                                                            .Sum()
-                                                }).ToArray();
+                                                                            .Sum(),
+                                                    LWTTotal = grpLWTValues.Select(a => (long)(dynamic)a.Value)
+                                                                            .DefaultIfEmpty()
+                                                                            .Sum(),
+                                                    BatchesTotal = grpBatchesValues.Select(a => (long)(dynamic)a.Value)
+                                                                            .DefaultIfEmpty()
+                                                                            .Sum(),
+                                                    NbrCompStorageWarnings = grpNbrCompSpaceWarnings.Count()
+                                      }).ToArray();
 
                 var clusterTotStorage = statCollection.Sum(i => i.StorageTotal);
                 var clusterTotSSTables = statCollection.Sum(i => i.SSTablesTotal);
@@ -314,7 +339,7 @@ namespace DSEDiagnosticToDataTable
                                 dataRow.SetField("DU Min", minDevice.DevicePercent);
                                 dataRow.SetField("DU Min-Node", minDevice.Node.Id.NodeName());
                                 dataRow.SetField("DU Avg", avgDevice);
-                            }
+                            }                           
                         }
 
                         var dcStats = statCollection.Where(i => i.DC.Equals(dataCenter)).ToArray();
@@ -333,6 +358,13 @@ namespace DSEDiagnosticToDataTable
                                                                         ReadTotal = i.DefaultIfEmpty().Sum(d => d.ReadTotal),
                                                                         WriteTotal = i.DefaultIfEmpty().Sum(d => d.WriteTotal),
                                                                         KeyTotal = i.DefaultIfEmpty().Sum(d => d.KeyTotal) }).ToArray();
+
+                            {
+                                var dcInsufficientSpace = dcStats.Sum(i => i.NbrCompStorageWarnings);
+
+                                if (dcInsufficientSpace > 0)
+                                    dataRow.SetField("DU Insufficient Space", dcInsufficientSpace);
+                            }
 
                             if (dcTotStorage > 0)
                             {
@@ -464,6 +496,17 @@ namespace DSEDiagnosticToDataTable
                                     if (dcUserTot > 0)
                                         dataRow.SetField("Writes Total (User)", dcUserTot);
                                 }
+                            }
+
+                            {
+                                var dcLWTTot = dcStats.Sum(i => i.LWTTotal);
+                                var dcBatchTot = dcStats.Sum(i => i.BatchesTotal);
+
+                                if (dcLWTTot > 0)
+                                    dataRow.SetField("LWT Percent", (decimal) dcLWTTot / (decimal) dcTotWrites);
+
+                                if (dcBatchTot > 0)
+                                    dataRow.SetField("Batch Percent", (decimal)dcBatchTot / (decimal)dcTotWrites);
                             }
                         }
                     }
