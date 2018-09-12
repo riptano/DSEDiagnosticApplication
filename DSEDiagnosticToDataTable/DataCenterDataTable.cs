@@ -12,14 +12,11 @@ namespace DSEDiagnosticToDataTable
 {
     public sealed class DataCenterDataTable : DataTableLoad
     {
-        public DataCenterDataTable(DSEDiagnosticLibrary.Cluster cluster, CancellationTokenSource cancellationSource = null, string[] ignoreKeySpaces = null, Guid? sessionId = null)
+        public DataCenterDataTable(DSEDiagnosticLibrary.Cluster cluster, CancellationTokenSource cancellationSource = null, Guid? sessionId = null)
             : base(cluster, cancellationSource, sessionId)
-        {
-            this.IgnoreKeySpaces = ignoreKeySpaces ?? new string[0];
+        {            
         }
-
-        public string[] IgnoreKeySpaces { get; }
-
+        
         public override DataTable CreateInitializationTable()
         {
             var dtDCInfo = new DataTable(TableNames.DataCenters, TableNames.Namespace);
@@ -206,11 +203,12 @@ namespace DSEDiagnosticToDataTable
                                                                                                             || a.Key == Properties.Settings.Default.CFStatsNbrKeys
                                                                                                             || a.Key == Properties.Settings.Default.CFStatsNbrKeys1)
                                                                                                         && a.Value != null))
-                                      let grpLWTValues = grpData.Where(i => i.TableViewIndex.FullName == "system.paxos")
+                                      let grpLWTValues = grpData.Where(i => i.TableViewIndex.FullName == Properties.Settings.Default.SystemLWTTableName)
                                                                .SelectMany(d => ((DSEDiagnosticLibrary.AggregatedStats)d).DataUnSafe
                                                                                         .Where(a => (a.Key == Properties.Settings.Default.CFStatsLocalWriteCountName)
                                                                                                         && a.Value != null))
-                                      let grpBatchesValues = grpData.Where(i => i.TableViewIndex.FullName == "system.batches")
+                                      let grpBatchesValues = grpData.Where(i => i.TableViewIndex.FullName == Properties.Settings.Default.SystemBatchLogTableName
+                                                                                    || i.TableViewIndex.FullName == Properties.Settings.Default.SystemBatchTableName)
                                                                         .SelectMany(d => ((DSEDiagnosticLibrary.AggregatedStats)d).DataUnSafe
                                                                                                     .Where(a => (a.Key == Properties.Settings.Default.CFStatsLocalWriteCountName)
                                                                                                                     && a.Value != null))
@@ -379,10 +377,9 @@ namespace DSEDiagnosticToDataTable
                                 dataRow.SetField("Storage Avg", avgValue);
                                 dataRow.SetField("Storage Total", dcTotStorage);
                                 dataRow.SetField("Storage Percent", dcTotStorage / clusterTotStorage);
-
-                                if(this.IgnoreKeySpaces.Length > 0)
+                                
                                 {
-                                    var dcUserTot = dcStats.Where(i => !this.IgnoreKeySpaces.Any(k => k == i.Keyspace.Name)).DefaultIfEmpty().Sum(i => i.StorageTotal);
+                                    var dcUserTot = dcStats.Where(i => !i.Keyspace.IsSystemKeyspace && !i.Keyspace.IsDSEKeyspace).DefaultIfEmpty().Sum(i => i.StorageTotal);
 
                                     if(dcUserTot > 0)
                                         dataRow.SetField("Storage Total (User)", dcUserTot);
@@ -404,10 +401,9 @@ namespace DSEDiagnosticToDataTable
                                 dataRow.SetField("SSTables StdDev", stddevValue);
                                 dataRow.SetField("SSTables Total", dcTotSSTables);
                                 dataRow.SetField("SSTables Percent", (decimal) dcTotSSTables / (decimal) clusterTotSSTables);
-
-                                if (this.IgnoreKeySpaces.Length > 0)
+                                
                                 {
-                                    var dcUserTot = dcStats.Where(i => !this.IgnoreKeySpaces.Any(k => k == i.Keyspace.Name)).DefaultIfEmpty().Sum(i => i.SSTablesTotal);
+                                    var dcUserTot = dcStats.Where(i => !i.Keyspace.IsSystemKeyspace && !i.Keyspace.IsDSEKeyspace).DefaultIfEmpty().Sum(i => i.SSTablesTotal);
 
                                     if (dcUserTot > 0)
                                         dataRow.SetField("SSTables Total (User)", dcUserTot);
@@ -463,10 +459,9 @@ namespace DSEDiagnosticToDataTable
                                 dataRow.SetField("Reads StdDev", avgValue);
                                 dataRow.SetField("Reads Total", dcTotReads);
                                 dataRow.SetField("Reads Percent", (decimal) dcTotReads / (decimal) clusterTotReads);
-
-                                if (this.IgnoreKeySpaces.Length > 0)
+                                
                                 {
-                                    var dcUserTot = dcStats.Where(i => !this.IgnoreKeySpaces.Any(k => k == i.Keyspace.Name)).DefaultIfEmpty().Sum(i => i.ReadTotal);
+                                    var dcUserTot = dcStats.Where(i => !i.Keyspace.IsSystemKeyspace && !i.Keyspace.IsDSEKeyspace).DefaultIfEmpty().Sum(i => i.ReadTotal);
 
                                     if (dcUserTot > 0)
                                         dataRow.SetField("Reads Total (User)", dcUserTot);
@@ -488,10 +483,9 @@ namespace DSEDiagnosticToDataTable
                                 dataRow.SetField("Writes StdDev", stdDevNode);
                                 dataRow.SetField("Writes Total", dcTotWrites);
                                 dataRow.SetField("Writes Percent", (decimal) dcTotWrites / (decimal) clusterTotWrites);
-
-                                if (this.IgnoreKeySpaces.Length > 0)
+                               
                                 {
-                                    var dcUserTot = dcStats.Where(i => !this.IgnoreKeySpaces.Any(k => k == i.Keyspace.Name)).DefaultIfEmpty().Sum(i => i.WriteTotal);
+                                    var dcUserTot = dcStats.Where(i => !i.Keyspace.IsSystemKeyspace && !i.Keyspace.IsDSEKeyspace).DefaultIfEmpty().Sum(i => i.WriteTotal);
 
                                     if (dcUserTot > 0)
                                         dataRow.SetField("Writes Total (User)", dcUserTot);

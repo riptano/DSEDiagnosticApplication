@@ -45,6 +45,7 @@
   &lt;string&gt;system_auth&lt;/string&gt;
   &lt;string&gt;dse_security&lt;/string&gt;
   &lt;string&gt;system.batches&lt;/string&gt;
+  &lt;string&gt;system.batchlog&lt;/string&gt;
   &lt;string&gt;system.hints&lt;/string&gt;
 &lt;/ArrayOfString&gt;</Value>
     </Setting>

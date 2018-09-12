@@ -104,6 +104,7 @@ namespace DSEDiagnosticConsoleApplication.Properties {
   <string>system_auth</string>
   <string>dse_security</string>
   <string>system.batches</string>
+  <string>system.batchlog</string>
   <string>system.hints</string>
 </ArrayOfString>")]
         public global::System.Collections.Specialized.StringCollection WarnWhenKSTblIsDetected {

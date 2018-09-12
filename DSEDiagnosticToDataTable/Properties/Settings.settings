@@ -41,5 +41,14 @@
     <Setting Name="CFStatsCompactionInsufficientSpace" Type="System.String" Scope="Application">
       <Value Profile="(Default)">Compaction Insufficient Space</Value>
     </Setting>
+    <Setting Name="SystemBatchTableName" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">system.batches</Value>
+    </Setting>
+    <Setting Name="SystemLWTTableName" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">system.paxos</Value>
+    </Setting>
+    <Setting Name="SystemBatchLogTableName" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">system.batchlog</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

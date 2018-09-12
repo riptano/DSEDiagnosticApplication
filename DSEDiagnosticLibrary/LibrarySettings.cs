@@ -33,7 +33,7 @@ namespace DSEDiagnosticLibrary
         public static string CounterRegExStr = Properties.Settings.Default.CounterRegEx;
         public static string[] SystemKeyspaces = Properties.Settings.Default.SystemKeyspaces.ToArray();
         public static string[] DSEKeyspaces = Properties.Settings.Default.DSEKeyspaces.ToArray();
-        public static string[] PerformanceKeyspaces = Properties.Settings.Default.DSEKeyspaces.ToArray();
+        public static string[] PerformanceKeyspaces = Properties.Settings.Default.PerformanceKeyspaces.ToArray();
         public static string[] TablesUsageFlag = Properties.Settings.Default.TablesUsageFlag.ToArray();
         public static string[] IsSasIIIndexClasses = Properties.Settings.Default.IsSasIIIndexClasses.ToArray();
         public static string[] IsSolrIndexClass = Properties.Settings.Default.IsSolrIndexClass.ToArray();

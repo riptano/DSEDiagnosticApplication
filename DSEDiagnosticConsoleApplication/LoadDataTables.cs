@@ -49,7 +49,7 @@ namespace DSEDiagnosticConsoleApplication
                     new DSEDiagnosticToDataTable.NodeConfigChanges(cluster, cancellationSource, sessionGuid),
                     new DSEDiagnosticToDataTable.LogAggregationDataTable(cluster, cancellationSource, ParserSettings.IgnoreKeySpaces.ToArray(), ParserSettings.LogAggregationPeriod, sessionGuid),
                     new DSEDiagnosticToDataTable.DSEDevicesDataTable(cluster, cancellationSource, sessionGuid),
-                    new DSEDiagnosticToDataTable.DataCenterDataTable(cluster, cancellationSource, ParserSettings.IgnoreKeySpaces.ToArray(), sessionGuid)
+                    new DSEDiagnosticToDataTable.DataCenterDataTable(cluster, cancellationSource, sessionGuid)
                 };
 
                 loadDataTables.ForEach(ldtInstance =>

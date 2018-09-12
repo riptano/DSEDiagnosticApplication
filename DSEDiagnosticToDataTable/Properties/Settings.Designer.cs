@@ -139,5 +139,32 @@ namespace DSEDiagnosticToDataTable.Properties {
                 return ((string)(this["CFStatsCompactionInsufficientSpace"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("system.batches")]
+        public string SystemBatchTableName {
+            get {
+                return ((string)(this["SystemBatchTableName"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("system.paxos")]
+        public string SystemLWTTableName {
+            get {
+                return ((string)(this["SystemLWTTableName"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("system.batchlog")]
+        public string SystemBatchLogTableName {
+            get {
+                return ((string)(this["SystemBatchLogTableName"]));
+            }
+        }
     }
 }
