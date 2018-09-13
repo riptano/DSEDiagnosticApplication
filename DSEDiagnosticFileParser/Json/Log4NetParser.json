@@ -1988,7 +1988,7 @@
       },
       "ParseMessage": {
         "RegExStrings": [
-          "^(?:Compacting|Writing)\\s+(?<item>large\\s+partition|row)\\s+(?$<DDLITEMNAME>)\\s*\\:\\s*(?<partitionkey>.+)?\\s+\\((?<size>[0-9,.]+\\s*\\w+)"
+          "^(?:Compacting|Writing)\\s+(?<item>large\\s+(?:partition|row))\\s+(?$<DDLITEMNAME>)\\s*\\:\\s*(?<partitionkey>.+)?\\s+\\((?<size>[0-9,.]+\\s*\\w+)"
         ]
       },
       "ParseThreadId": null,

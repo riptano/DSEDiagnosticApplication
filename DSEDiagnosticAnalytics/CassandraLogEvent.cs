@@ -268,7 +268,14 @@ namespace DSEDiagnosticAnalytics
                     && eventArgs.LogEvent.LogProperties.ContainsKey("size"))
             {
                 var partitionSize = (UnitOfMeasure) eventArgs.LogEvent.LogProperties["size"];
-                var evtClass = EventClasses.Partition | EventClasses.Node | EventClasses.KeyspaceTableViewIndexStats;
+                var largeRow = eventArgs.LogEvent.SubClass.EndsWith("row", StringComparison.InvariantCultureIgnoreCase);
+                var attribName = largeRow ? Properties.Settings.Default.RowLargeAttrrib : Properties.Settings.Default.PartitionLargeAttrib;
+                var evtClass = EventClasses.Node | EventClasses.KeyspaceTableViewIndexStats;
+
+                if (largeRow)
+                    evtClass |= EventClasses.Row;
+                else
+                    evtClass |= EventClasses.Partition;
 
                 var aggStat = AggregatedStats.GetOrAdd(new Tuple<INode,EventClasses>(sender.Node, evtClass), sndNode =>
                                                         {
@@ -283,7 +290,7 @@ namespace DSEDiagnosticAnalytics
                                                         });
                 object dataValue;
                 
-                if(aggStat.Data.TryGetValue(Properties.Settings.Default.PartitionLargeAttrib, out dataValue))
+                if(aggStat.Data.TryGetValue(attribName, out dataValue))
                 {
                     ((List<UnitOfMeasure>)dataValue).Add(partitionSize);
                 }
@@ -291,11 +298,11 @@ namespace DSEDiagnosticAnalytics
                 {
                     try
                     {
-                        aggStat.AssociateItem(Properties.Settings.Default.PartitionLargeAttrib, new List<UnitOfMeasure>() { partitionSize });
+                        aggStat.AssociateItem(attribName, new List<UnitOfMeasure>() { partitionSize });
                     }
                     catch (System.ArgumentException)
                     {
-                        if (aggStat.Data.TryGetValue(Properties.Settings.Default.PartitionLargeAttrib, out dataValue))
+                        if (aggStat.Data.TryGetValue(attribName, out dataValue))
                         {
                             ((List<UnitOfMeasure>)dataValue).Add(partitionSize);
                         }
@@ -935,19 +942,28 @@ namespace DSEDiagnosticAnalytics
                     assocItem += "Tag{ " + logEvent.LogProperties["tag"].ToString() + "}";
                 }
                 if (logEvent.LogProperties.ContainsKey("nodetxt"))
-                {
-                    if (assocItem == null)
-                        assocItem = string.Empty;
-                    else
-                        assocItem += ", ";
-
+                {                    
                     var unknownNode = logEvent.LogProperties["nodetxt"];
-                    if (logEvent.AssociatedNodes == null
-                            || logEvent.AssociatedNodes.IsEmpty()
-                            || !logEvent.AssociatedNodes.Any(n => n.Id.Equals(unknownNode)))
+
+                    if (unknownNode != null)
                     {
-                        assocItem += "UnknownNode{ " + unknownNode.ToString() + "}";
-                    }
+                        var unknownNodes = (unknownNode is string
+                                                ? ((string)unknownNode).Split(',')
+                                                : ((IEnumerable<object>)unknownNode).Cast<string>().ToArray())
+                                        .Select(u => u?.Trim())
+                                        .Where(u => !string.IsNullOrEmpty(u) && logEvent.Cluster?.TryGetNode(u) == null)
+                                        .Select(u => u[0] == '/' ? u.Substring(1) : u);
+
+                        if (unknownNodes.HasAtLeastOneElement())
+                        {
+                            if (assocItem == null)
+                                assocItem = string.Empty;
+                            else
+                                assocItem += ", ";
+
+                            assocItem += "UnknownNode{ " + string.Join(", ", unknownNodes.DuplicatesRemoved(u => u)) + "}";
+                        }
+                    }             
                 }
 
                 if (!string.IsNullOrEmpty(assocItem))

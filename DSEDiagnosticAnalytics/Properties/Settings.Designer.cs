@@ -88,5 +88,14 @@ namespace DSEDiagnosticAnalytics.Properties {
                 return ((string)(this["CompactionInsufficientSpace"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Row large")]
+        public string RowLargeAttrrib {
+            get {
+                return ((string)(this["RowLargeAttrrib"]));
+            }
+        }
     }
 }

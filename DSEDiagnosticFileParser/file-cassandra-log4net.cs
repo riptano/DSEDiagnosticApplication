@@ -2346,7 +2346,20 @@ namespace DSEDiagnosticFileParser
                                     nodesNotFound.Skip(1).ForEach(n =>
                                                                     ((List<string>)existingValue).Add(string.Format("Associated Node \"{0}\" could not be found", n)));
                             }
-                        }                        
+
+                            if (logProperties.TryGetValue("nodetxt", out existingValue))
+                            {
+                                if(existingValue is IEnumerable<object>)
+                                    existingValue = string.Join(", ", (IEnumerable<object>)existingValue) + ", " + string.Join(", ", nodesNotFound);
+                                else
+                                    existingValue = existingValue.ToString() + ", " + string.Join(", ", nodesNotFound);
+                                logProperties["nodetxt"] = existingValue;
+                            }
+                            else
+                            {
+                                logProperties.Add("nodetxt", string.Join(", ", nodesNotFound));                                
+                            }                            
+                        }
                     }
                 }
             }

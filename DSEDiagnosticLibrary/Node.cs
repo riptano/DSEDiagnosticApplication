@@ -424,6 +424,15 @@ namespace DSEDiagnosticLibrary
 
 		public bool Equals(string other)
 		{
+            other = other?.Trim();
+
+            if (string.IsNullOrEmpty(other)) return false;
+
+            if(other[0] == '/')
+            {
+                other = other.Substring(1);
+            }
+
             if (this._hostnames.Any(n => HostNameEqual(n, other))) return true;
 
             if (this._addresses.HasAtLeastOneElement())
