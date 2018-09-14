@@ -207,6 +207,8 @@ namespace DSEDiagnosticLibrary
             IPAddressOrHostNameEmbeddedScan = IPAddressScan | HostNameScan | NodeNameEmbedded
         }
 
+        private static readonly Regex IgnoreIP6Addresses = new Regex(Properties.Settings.Default.IgnoreIP6AddressRegEx, RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
         public static bool ValidNodeIdName(string possibleNodeName)
         {
             possibleNodeName = possibleNodeName?.Trim();
@@ -216,6 +218,7 @@ namespace DSEDiagnosticLibrary
                      || possibleNodeName == "0.0.0.0"
                      || possibleNodeName == "::1"
                      || possibleNodeName == "0:0:0:0:0:0:0:1"
+                     || IgnoreIP6Addresses.IsMatch(possibleNodeName)
                      || possibleNodeName.ToLower().StartsWith("localhost")
                      || possibleNodeName.ToLower().EndsWith("localhost")
                      || possibleNodeName.ToLower().StartsWith("loopback")

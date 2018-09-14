@@ -160,5 +160,8 @@
     <Setting Name="DebugLogFileName" Type="System.String" Scope="Application">
       <Value Profile="(Default)">debug</Value>
     </Setting>
+    <Setting Name="IgnoreIP6AddressRegEx" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">^f[ef]\d+::\d+$</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

@@ -87,7 +87,11 @@ namespace DSEDiagnosticFileParser
                     {
                         if (hostList.Skip(1).Any(hn => NodeIdentifier.ValidNodeIdName(hn) && this.Node.Id.HostNameExists(hn)))
                         {
-                            Logger.Instance.InfoFormat("FileMapper<{1}>\t{0}\t{2}\tAdded IP Address \"{3}\" from host file", node.Id, this.MapperId, this.ShortFilePath, hostList[0]);
+                            Logger.Instance.InfoFormat("FileMapper<{1}>\t{0}\t{2}\tAdded IP Address \"{3}\" from host file",
+                                                        this.Node.Id,
+                                                        this.MapperId,
+                                                        this.ShortFilePath,
+                                                        hostList[0]);
                             this.Node.Id.SetIPAddressOrHostName(hostList[0]);
                             ++nbrGenerated;
                             node = this.Node;

@@ -1814,5 +1814,8 @@ CREATE TABLE "OpsCenter".rollups300 (
     <Setting Name="UnknownDCSuffix" Type="System.String" Scope="Application">
       <Value Profile="(Default)">(?)</Value>
     </Setting>
+    <Setting Name="IgnoreIP6AddressRegEx" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">^f(?:e|f)\d+::\d+$</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

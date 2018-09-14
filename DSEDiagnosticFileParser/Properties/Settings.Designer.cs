@@ -1317,5 +1317,14 @@ public static class {0}
                 return ((string)(this["UnknownDCSuffix"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("^f(?:e|f)\\d+::\\d+$")]
+        public string IgnoreIP6AddressRegEx {
+            get {
+                return ((string)(this["IgnoreIP6AddressRegEx"]));
+            }
+        }
     }
 }

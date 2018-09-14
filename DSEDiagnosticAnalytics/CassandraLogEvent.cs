@@ -949,7 +949,9 @@ namespace DSEDiagnosticAnalytics
                     {
                         var unknownNodes = (unknownNode is string
                                                 ? ((string)unknownNode).Split(',')
-                                                : ((IEnumerable<object>)unknownNode).Cast<string>().ToArray())
+                                                : (unknownNode is IEnumerable<object>
+                                                        ? ((IEnumerable<object>)unknownNode).Cast<string>().ToArray()
+                                                        : new string[] { unknownNode.ToString() }))
                                         .Select(u => u?.Trim())
                                         .Where(u => !string.IsNullOrEmpty(u) && logEvent.Cluster?.TryGetNode(u) == null)
                                         .Select(u => u[0] == '/' ? u.Substring(1) : u);

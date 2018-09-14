@@ -326,11 +326,8 @@ namespace DSEDiagnosticToDataTable
 
                             if (devices.HasAtLeastOneElement())
                             {
-                                var maxValue = devices.Max(d => d.DevicePercent);
-                                var minValue = devices.Where(d => d.DevicePercent > 0).DefaultIfEmpty().Min(d => d.DevicePercent);
-
-                                var maxDevice = devices.FirstOrDefault(i => i.DevicePercent == maxValue);
-                                var minDevice = devices.FirstOrDefault(i => i.DevicePercent == minValue);
+                                var maxDevice = devices.Max((instance) => instance.DevicePercent, (ignore, instance) => instance);
+                                var minDevice = devices.Min((instance) => instance.DevicePercent, (ignore, instance) => instance);
                                 var avgDevice = devices.Average(i => i.DevicePercent);
 
                                 dataRow.SetField("DU Max", maxDevice.DevicePercent);

@@ -85,6 +85,9 @@ namespace DSEDiagnosticFileParser
 
             Note: Non-system keyspaces don't have the same replication settings, effective ownership information is meaningless
              */
+            /*
+             163.172.100.109  rack_203B_I_2Up     Normal  58.06 GB        ?                   8290454800264538868
+             */
 
             string line = null;
             string[] regExSplit = null;
@@ -131,11 +134,16 @@ namespace DSEDiagnosticFileParser
                 //null,10.14.150.223,RAC1,Up,Normal,19.55 GB,?,9212160192835661072
                 if (regExSplit.Length <= 7)
                 {
-                    Logger.Instance.ErrorFormat("FileMapper<{2}>\t<NoNodeId>\t{0}\tInvalid Line \"{1}\" found in nodetool Ring File.",
+                    regExSplit = this.RegExParser.Split(line, 3); //File Line (one more try)
+
+                    if (regExSplit.Length <= 7)
+                    {
+                        Logger.Instance.ErrorFormat("FileMapper<{2}>\t<NoNodeId>\t{0}\tInvalid Line \"{1}\" found in nodetool Ring File.",
                                                 this.ShortFilePath,
                                                 line,
                                                 this.MapperId);
-                    ++this.NbrErrors;
+                        ++this.NbrErrors;
+                    }
                 }
                 else
                 {
