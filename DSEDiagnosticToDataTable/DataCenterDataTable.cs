@@ -237,7 +237,8 @@ namespace DSEDiagnosticToDataTable
                                                                             .Select(a => (decimal)(dynamic)a.Value)
                                                                             .DefaultIfEmpty()
                                                                             .Sum(),
-                                                    KeyTotal = grpDataValues.Where(a => a.Key == Properties.Settings.Default.CFStatsNbrKeys)
+                                                    KeyTotal = grpDataValues.Where(a => a.Key == Properties.Settings.Default.CFStatsNbrKeys
+                                                                                            || a.Key == Properties.Settings.Default.CFStatsNbrKeys1)
                                                                             .Select(a => (decimal)(dynamic)a.Value)
                                                                             .DefaultIfEmpty()
                                                                             .Sum(),
