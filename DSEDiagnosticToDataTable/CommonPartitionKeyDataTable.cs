@@ -73,10 +73,10 @@ namespace DSEDiagnosticToDataTable
                                             DC = s.DataCenter,
                                             Node = s.Node,
                                             Table = s.TableViewIndex,
-                                            LocalReads = s.Data.GetPropertyValue("Local read count") ?? 0L,
-                                            LocalWrites = s.Data.GetPropertyValue("Local write count") ?? 0L,
-                                            PartitionKeys = s.Data.GetPropertyValue("Number of keys (estimate)") 
-                                                                ?? s.Data.GetPropertyValue("Number of partitions (estimate)")
+                                            LocalReads = s.Data.GetPropertyValue(Properties.Settings.Default.CFStatsLocalReadCountName) ?? 0L,
+                                            LocalWrites = s.Data.GetPropertyValue(Properties.Settings.Default.CFStatsLocalWriteCountName) ?? 0L,
+                                            PartitionKeys = s.Data.GetPropertyValue(Properties.Settings.Default.CFStatsNbrKeys) 
+                                                                ?? s.Data.GetPropertyValue(Properties.Settings.Default.CFStatsNbrKeys1)
                                                                 ?? 0L
                                         });
 
