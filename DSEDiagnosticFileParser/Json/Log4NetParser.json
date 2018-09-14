@@ -2812,6 +2812,42 @@
       "Examples": [
         "WARN  [CompactionExecutor:102572] 2018-08-30 18:31:35,105  CompactionTask.java:318 - Not enough space for compaction, 447067.12MB estimated.  Reducing scope."
       ]
+    },
+    {
+      "Description": "Logged Batch TTL warning",
+      "TagId": 41.0,
+      "MatchVersion": null,
+      "LevelMatch": {
+        "RegExStrings": [
+          "WARN"
+        ]
+      },
+      "FileNameMatch": {
+        "RegExStrings": [
+          "^NoSpamLogger.java$"
+        ]
+      },
+      "FileLineMatch": null,
+      "MessageMatch": {
+        "RegExStrings": [
+          "^Executing a LOGGED BATCH on table"
+        ]
+      },
+      "ParseMessage": {
+        "RegExStrings": [
+          "Executing\\sa\\s(?<batchtype>[a-z ]+)\\s+on\\s+table\\s+\\[(?$<DDLITEMNAMES>)\\],\\s+configured\\s+with\\s+a\\s+gc_grace_seconds\\s+of\\s+(?<gc_grace_seconds>[0-9.,]+)\\.\\s"
+        ]
+      },
+      "ParseThreadId": null,
+      "EventType": "SingleInstance",
+      "EventClass": "Detection,Node,Batches",
+      "AnalyticsGroup": null,
+      "SubClass": "batchtype + ' gc_grace_seconds is low for replay ' + gc_grace_seconds",
+      "Product": "Cassandra",
+      "IgnoreEvent": true,
+      "Examples": [
+        "WARN  [Native-Transport-Requests-1] 2018-09-10 13:08:08,084  NoSpamLogger.java:97 - Executing a LOGGED BATCH on table [guest_profiles_bookings.profile_bookings], configured with a gc_grace_seconds of 0. The gc_grace_seconds is used to TTL batchlog entries, so setting gc_grace_seconds too low on tables involved in an atomic batch might cause batchlog entries to expire before being replayed."
+      ]
     }
   ]
     }

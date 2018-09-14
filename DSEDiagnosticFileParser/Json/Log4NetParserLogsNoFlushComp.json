@@ -172,6 +172,10 @@
     {
       "Description": "Not enough space for compaction",
       "LinkedTagId": 40.0
+    },
+    {
+      "Description": "Logged Batch TTL warning",
+      "LinkedTagId": 41.0
     }
   ]
 }
