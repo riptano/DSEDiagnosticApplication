@@ -277,7 +277,8 @@ namespace DSEDiagnosticFileParser
                                 node.DSE.Statuses = DSEInfo.DSEStatuses.Up;
                             }
 
-                            if ((grpItem = matchesLine.Groups["LOAD"]).Success)
+                            if ((grpItem = matchesLine.Groups["LOAD"]).Success
+                                    && node.DSE.StorageUsed == null)
                             {
                                 node.DSE.StorageUsed = new UnitOfMeasure(grpItem.Value, UnitOfMeasure.Types.Storage);
                             }

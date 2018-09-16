@@ -332,6 +332,14 @@
     "ProcessPriorityLevel": 500
   },
   {
+    "Catagory": "CommandOutputFile",
+    "FilePatterns": [ ".\\nodes\\*\\nodetool\\describecluster" ],
+    "FileParsingClass": "DSEDiagnosticFileParser.file_nodetool_describecluster",
+    "NodeIdPos": -1,
+    "ProcessingTaskOption": "ScanForNode,ParallelProcessing,ParallelProcessFiles",
+    "ProcessPriorityLevel": 500
+  },
+  {
     "Catagory": "CQLFile",
     "FilePatterns": [ ".\\nodes\\*\\cqlsh\\describe_schema", ".\\nodes\\*\\driver\\schema" ],
     "FileParsingClass": "DSEDiagnosticFileParser.cql_ddl",

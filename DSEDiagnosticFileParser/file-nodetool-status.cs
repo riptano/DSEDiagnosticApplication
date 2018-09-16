@@ -93,7 +93,8 @@ namespace DSEDiagnosticFileParser
 
                     node.DSE.HostId = new Guid(regExMatch.Groups[7].Value);
                     node.DSE.Rack = regExMatch.Groups[8].Value;
-                    node.DSE.StorageUsed = UnitOfMeasure.Create(regExMatch.Groups[3].Value, regExMatch.Groups[4].Value, UnitOfMeasure.Types.Storage);
+                    if(node.DSE.StorageUsed == null)
+                        node.DSE.StorageUsed = UnitOfMeasure.Create(regExMatch.Groups[3].Value, regExMatch.Groups[4].Value, UnitOfMeasure.Types.Storage);
 
                     switch(regExMatch.Groups[1].Value[0])
                     {

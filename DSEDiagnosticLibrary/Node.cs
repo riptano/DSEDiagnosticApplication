@@ -844,6 +844,7 @@ namespace DSEDiagnosticLibrary
             public Version Search;
             public Version Analytics;
             public Version OpsCenterAgent;
+            public Guid? Schema;
 
             public static Version Parse(string version)
             {
@@ -858,7 +859,25 @@ namespace DSEDiagnosticLibrary
                 }
                 return new Version(string.Join(".", parts.Select(i => i.Trim())));
             }
-		}
+
+            public static Guid? ParseSchema(string version)
+            {
+                version = version?.Trim();
+                if (string.IsNullOrEmpty(version)) return null;
+                Guid schemaVersion;
+
+                try
+                {
+                    schemaVersion = new Guid(version);    
+                }
+                catch
+                {
+                    return null;
+                }
+              
+                return schemaVersion;
+            }
+        }
         
         [JsonObject(MemberSerialization.OptOut)]
         public sealed class DirectoryLocations

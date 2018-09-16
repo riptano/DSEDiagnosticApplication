@@ -32,82 +32,150 @@ namespace DSEDiagtnosticToExcel
 
         public override Tuple<IFilePath, string, int> Load()
         {
-           var nbrRows = DataTableToExcel.Helpers.WorkBook(this.ExcelTargetWorkbook.PathResolved, this.WorkSheetName, this.DataTable,
-                                                           (stage, orgFilePath, targetFilePath, workSheetName, excelPackage, excelDataTable, rowCount, loadRange) =>
-                                                            {
-                                                                switch (stage)
-                                                                {
-                                                                    case WorkBookProcessingStage.PreProcess:
-                                                                    case WorkBookProcessingStage.PrepareFileName:
-                                                                    case WorkBookProcessingStage.PreProcessDataTable:
-                                                                        break;
-                                                                    case WorkBookProcessingStage.PreLoad:
-                                                                        this.CallActionEvent("Begin Loading");
-                                                                        break;
-                                                                    case WorkBookProcessingStage.PreSave:
-                                                                        {
-                                                                            var workSheet = excelPackage.Workbook.Worksheets[WorkSheetName];
+            var nbrRows = DataTableToExcel.Helpers.WorkBook(this.ExcelTargetWorkbook.PathResolved, this.WorkSheetName, this.DataTable,
+                                                            (stage, orgFilePath, targetFilePath, workSheetName, excelPackage, excelDataTable, rowCount, loadRange) =>
+                                                             {
+                                                                 switch (stage)
+                                                                 {
+                                                                     case WorkBookProcessingStage.PreProcess:
+                                                                     case WorkBookProcessingStage.PrepareFileName:
+                                                                     case WorkBookProcessingStage.PreProcessDataTable:
+                                                                         break;
+                                                                     case WorkBookProcessingStage.PreLoad:
+                                                                         this.CallActionEvent("Begin Loading");
+                                                                         break;
+                                                                     case WorkBookProcessingStage.PreSave:
+                                                                         {
+                                                                             var workSheet = excelPackage.Workbook.Worksheets[WorkSheetName];
 
-                                                                            workSheet.AltFileFillRow(3,
-                                                                                                       this.DataTable.GetColumn(DSEDiagnosticToDataTable.ColumnNames.NodeIPAddress));
-                                                                            
-                                                                            this.CallActionEvent("Loaded");
-                                                                        }
-                                                                        break;
-                                                                    case WorkBookProcessingStage.Saved:
-                                                                        this.CallActionEvent("Workbook Saved");
-                                                                        break;
-                                                                    case WorkBookProcessingStage.PostProcess:
-                                                                        break;
-                                                                    default:
-                                                                        break;
-                                                                }
-                                                            },
-                                                            workSheet =>
-                                                            {
-                                                                workSheet.Cells["1:1"].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.LightGray;
-                                                                workSheet.Cells["1:1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-                                                                //workSheet.Cells["1:1"].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
-                                                                workSheet.View.FreezePanes(3, 2);
+                                                                             workSheet.AltFileFillRow(3,
+                                                                                                        this.DataTable.GetColumn(DSEDiagnosticToDataTable.ColumnNames.DataCenter));
 
-                                                                workSheet.Cells["G1:L1"].Style.WrapText = true;
-                                                                workSheet.Cells["G1:L1"].Merge = true;
-                                                                workSheet.Cells["G1:L1"].Value = "Versions";
-                                                                workSheet.Cells["G1:G2"].Style.Border.Left.Style = OfficeOpenXml.Style.ExcelBorderStyle.Medium;
-                                                                workSheet.Cells["L1:L2"].Style.Border.Right.Style = OfficeOpenXml.Style.ExcelBorderStyle.Medium;
+                                                                             this.CallActionEvent("Loaded");
+                                                                         }
+                                                                         break;
+                                                                     case WorkBookProcessingStage.Saved:
+                                                                         this.CallActionEvent("Workbook Saved");
+                                                                         break;
+                                                                     case WorkBookProcessingStage.PostProcess:
+                                                                         break;
+                                                                     default:
+                                                                         break;
+                                                                 }
+                                                             },
+                                                             workSheet =>
+                                                             {
+                                                             workSheet.Cells["1:1"].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.LightGray;
+                                                             workSheet.Cells["1:1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                                                            //workSheet.Cells["1:1"].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
+                                                            workSheet.View.FreezePanes(3, 3);
 
+                                                             this.DataTable.GetColumn(DSEDiagnosticToDataTable.ColumnNames.NodeIPAddress);
+                                                             this.DataTable.GetColumn(DSEDiagnosticToDataTable.ColumnNames.DataCenter);
 
-                                                                workSheet.Cells["A2:AN2"].AutoFilter = true;                                                               
-                                                                workSheet.Cells["M:M"].Style.Numberformat.Format = "#,###,###,##0.00";
-                                                                workSheet.Cells["N:N"].Style.Numberformat.Format = "##0.00%";
-                                                                workSheet.Cells["O:O"].Style.Numberformat.Format = "0.00";
-                                                                
-                                                                workSheet.Cells["Q:Q"].Style.Numberformat.Format = Properties.Settings.Default.ExcelDateTimeFormat;
-                                                                workSheet.Cells["R:R"].Style.Numberformat.Format = Properties.Settings.Default.ExcelDateTimeFormat;
-                                                                workSheet.Cells["S:S"].Style.Numberformat.Format = Properties.Settings.Default.ExcelTimeSpanFormat; // "0.00";
-                                                               
-                                                                workSheet.Cells["T:T"].Style.Numberformat.Format = Properties.Settings.Default.ExcelDateTimeFormat;
-                                                                workSheet.Cells["U:U"].Style.Numberformat.Format = Properties.Settings.Default.ExcelDateTimeFormat;
-                                                                workSheet.Cells["V:V"].Style.Numberformat.Format = Properties.Settings.Default.ExcelTimeSpanFormat;
-                                                                workSheet.Cells["W:W"].Style.Numberformat.Format = Properties.Settings.Default.ExcelTimeSpanFormat;
-                                                                workSheet.Cells["X:X"].Style.Numberformat.Format = "#,###,###,##0";
-                                                                workSheet.Cells["Y:Y"].Style.Numberformat.Format = Properties.Settings.Default.ExcelDateTimeFormat;
-                                                                workSheet.Cells["Z:Z"].Style.Numberformat.Format = Properties.Settings.Default.ExcelDateTimeFormat;
-                                                                workSheet.Cells["AA:AA"].Style.Numberformat.Format = Properties.Settings.Default.ExcelTimeSpanFormat;
-                                                                workSheet.Cells["AB:AB"].Style.Numberformat.Format = Properties.Settings.Default.ExcelTimeSpanFormat;
-                                                                workSheet.Cells["AC:AC"].Style.Numberformat.Format = "#,###,###,##0";
+                                                             this.DataTable.GetColumn("Rack");
+                                                             this.DataTable.GetColumn("Status");
+                                                             this.DataTable.GetColumn("Instance Type");
+                                                             this.DataTable.GetColumn("Cluster Name");
 
-                                                                workSheet.Cells["AE:AE"].Style.Numberformat.Format = "#,###,###,##0.00";
-                                                                workSheet.Cells["AF:AF"].Style.Numberformat.Format = "#,###,###,##0";
-                                                                workSheet.Cells["AG:AG"].Style.Numberformat.Format = "#,###,###,##0";
-                                                                workSheet.Cells["AH:AH"].Style.Numberformat.Format = "#,###,###,##0.0000%";
+                                                            //DataStax Versions
+                                                            this.DataTable.SetGroupHeader("Versions", -2, true,
+                                                                this.DataTable.GetColumn("DSE"),
+                                                                this.DataTable.GetColumn("Cassandra"),
+                                                                this.DataTable.GetColumn("Search"),
+                                                                this.DataTable.GetColumn("Spark"),
+                                                                this.DataTable.GetColumn("Agent"),
+                                                                this.DataTable.GetColumn("Schema")
+                                                            );
 
-                                                                //workSheet.InsertColumn(11, 1);
-                                                                //workSheet.Column(10).Hidden = true;
-                                                                //workSheet.Cells["J1"].Value = "Uptime (Days)";
-                                                                //workSheet.Cells["K1"].Value = "Uptime";
-                                                                //workSheet.Cells[string.Format("K2:K{0}", dtRingInfo.Rows.Count + 2)].FormulaR1C1 = "CONCATENATE(TEXT(FLOOR(J2,1),\"@\"),\" \",TEXT(J2,\"hh:mm:ss\"))";
+                                                             this.DataTable.GetColumn("VNodes");
 
+                                                             this.DataTable.GetColumn("Storage Used (MB)")
+                                                                            .SetNumericFormat("#,###,###,##0.00");
+                                                             this.DataTable.GetColumn("Storage Utilization")
+                                                                            .SetNumericFormat("##0.00%");
+                                                             //this.DataTable.GetColumn("Health Rating")
+                                                             //             .SetNumericFormat("0.00");
+
+                                                             this.DataTable.GetColumn("Time Zone Offset");
+
+                                                             this.DataTable.SetGroupHeader("Aggregated", -2, true,
+                                                                this.DataTable.GetColumn("Start NodeTool Range")
+                                                                                .SetCaption("Start")
+                                                                                .SetNumericFormat(Properties.Settings.Default.ExcelDateTimeFormat),
+                                                                this.DataTable.GetColumn("End NodeTool Range")
+                                                                                .SetCaption("End")
+                                                                                .SetNumericFormat(Properties.Settings.Default.ExcelDateTimeFormat),
+                                                                this.DataTable.GetColumn("Uptime")
+                                                                                .SetNumericFormat(Properties.Settings.Default.ExcelTimeSpanFormat) 
+                                                                 );
+
+                                                                 this.DataTable.SetGroupHeader("System Log", -2, true,
+                                                                    this.DataTable.GetColumn("Log Min Timestamp")
+                                                                                    .SetCaption("Start")
+                                                                                    .SetNumericFormat(Properties.Settings.Default.ExcelDateTimeFormat),
+                                                                    this.DataTable.GetColumn("Log Max Timestamp")
+                                                                                    .SetCaption("End")
+                                                                                    .SetNumericFormat(Properties.Settings.Default.ExcelDateTimeFormat),
+                                                                    this.DataTable.GetColumn("Log Duration")
+                                                                                    .SetCaption("Duration")
+                                                                                    .SetNumericFormat(Properties.Settings.Default.ExcelTimeSpanFormat),
+                                                                    this.DataTable.GetColumn("Log Timespan Difference")
+                                                                                    .SetCaption("Gaps")
+                                                                                    .SetNumericFormat(Properties.Settings.Default.ExcelTimeSpanFormat)
+                                                                                    .TotalColumn(),
+                                                                    this.DataTable.GetColumn("Log Nbr Files")
+                                                                                    .SetCaption("Nbr Files")
+                                                                                    .SetNumericFormat("#,###,###,##0")
+                                                                                    .TotalColumn()
+                                                                                );
+
+                                                                this.DataTable.SetGroupHeader("Debug Log", -2, true,
+                                                                    this.DataTable.GetColumn("Debug Log Min Timestamp")
+                                                                                    .SetCaption("Start")
+                                                                                    .SetNumericFormat(Properties.Settings.Default.ExcelDateTimeFormat),
+                                                                    this.DataTable.GetColumn("Debug Log Max Timestamp")
+                                                                                    .SetCaption("End")
+                                                                                    .SetNumericFormat(Properties.Settings.Default.ExcelDateTimeFormat),
+                                                                    this.DataTable.GetColumn("Debug Log Duration")
+                                                                                    .SetCaption("Duration")
+                                                                                    .SetNumericFormat(Properties.Settings.Default.ExcelTimeSpanFormat),
+                                                                    this.DataTable.GetColumn("Debug Log Timespan Difference")
+                                                                                    .SetCaption("Gap")
+                                                                                    .SetNumericFormat(Properties.Settings.Default.ExcelTimeSpanFormat)
+                                                                                    .TotalColumn(),
+                                                                    this.DataTable.GetColumn("Debug Log Nbr Files")
+                                                                                    .SetCaption("Nbr Files")
+                                                                                    .SetNumericFormat("#,###,###,##0")
+                                                                                    .TotalColumn()
+                                                                                    );
+
+                                                                this.DataTable.GetColumn("Heap Memory (MB)")
+                                                                                .SetNumericFormat("#,###,###,##0.00");
+                                                                this.DataTable.GetColumn("Off Heap Memory (MB)")
+                                                                                .SetNumericFormat("#,###,###,##0.00");
+                                                                this.DataTable.GetColumn("Nbr VNodes")
+                                                                                .SetNumericFormat("###");                                                                
+                                                                this.DataTable.GetColumn("Percent Repaired")
+                                                                                .SetNumericFormat("#,###,###,##0.0000%");
+                                                                this.DataTable.GetColumn("Repair Service Enabled");
+                                                                this.DataTable.GetColumn("Seed Node");
+                                                                this.DataTable.GetColumn("Gossip Enabled");
+                                                                this.DataTable.GetColumn("Thrift Enabled");
+                                                                this.DataTable.GetColumn("Native Transport Enabled");
+                                                                this.DataTable.GetColumn("Multi-Instance Server Id");
+                                                                this.DataTable.GetColumn("Key Cache Information");
+                                                                this.DataTable.GetColumn("Row Cache Information");
+                                                                this.DataTable.GetColumn("Counter Cache Information");
+                                                                this.DataTable.GetColumn("Chunk Cache Information");
+
+                                                                 workSheet.UpdateWorksheet(this.DataTable, 2);
+
+                                                                 workSheet.ExcelRange(2,
+                                                                                       this.DataTable.GetColumn(DSEDiagnosticToDataTable.ColumnNames.NodeIPAddress),
+                                                                                       this.DataTable.GetColumn("Multi-Instance Server Id"))
+                                                                             .First().AutoFilter = true;
+                                                                                                                             
                                                                 workSheet.AutoFitColumn();
                                                             },
                                                             -1,

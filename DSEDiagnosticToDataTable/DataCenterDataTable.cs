@@ -48,6 +48,9 @@ namespace DSEDiagnosticToDataTable
             dtDCInfo.Columns.Add("Status Unknown", typeof(long))
                             .AllowDBNull();
 
+            dtDCInfo.Columns.Add("DSE Version", typeof(string))
+                            .AllowDBNull();
+
             //Device Utilization 
             dtDCInfo.Columns.Add("DU Max", typeof(decimal))
                             .AllowDBNull();
@@ -336,6 +339,20 @@ namespace DSEDiagnosticToDataTable
                                 dataRow.SetField("DU Min-Node", minDevice.Node.Id.NodeName());
                                 dataRow.SetField("DU Avg", avgDevice);
                             }                           
+                        }
+
+                        {
+                            var dseVersion = dcNodes.GroupBy(n => n.DSE.Versions.DSE).Select(g => g.Key).Where(g => g != null);
+                            var dseSchema = dcNodes.GroupBy(n => n.DSE.Versions.Schema).Select(g => g.Key).Where(g => g.HasValue);
+
+                            if (dseVersion.Count() > 1) dataRow.SetField("DSE Version", "MisMatched");
+                            else if (dseVersion.HasAtLeastOneElement())
+                            {
+                                if(dseSchema.Count() > 1)
+                                    dataRow.SetField("DSE Version", "MisMatched");
+                                else
+                                    dataRow.SetField("DSE Version", dseVersion.First().ToString());
+                            }
                         }
 
                         var dcStats = statCollection.Where(i => i.DC.Equals(dataCenter)).ToArray();

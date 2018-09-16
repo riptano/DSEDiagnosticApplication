@@ -132,7 +132,7 @@ namespace DSEDiagnosticFileParser
                         this.Node.DSE.NativeTransportEnabled = bool.Parse(lineValue);
                         break;
                     case "load":
-                        this.Node.DSE.StorageUsed = UnitOfMeasure.Create(lineValue, UnitOfMeasure.Types.Storage);
+                        if(this.Node.DSE.StorageUsed == null) this.Node.DSE.StorageUsed = UnitOfMeasure.Create(lineValue, UnitOfMeasure.Types.Storage);
                         break;
                     case "generation no":
                         //dataRow["Number of Restarts"] = int.Parse(lineValue);
