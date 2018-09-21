@@ -121,7 +121,10 @@ namespace DSEDiagnosticLibrary
                     }
                     else
                     {
-                        this.Value = ConvertToDecimal(uofValues.Groups[1].Value);
+                        if(uofValues.Groups[2].Value.Any(c => c == '%'))                        
+                            this.Value = ConvertToDecimal(uofValues.Groups[1].Value) / 100m;                        
+                        else
+                            this.Value = ConvertToDecimal(uofValues.Groups[1].Value);
                         this.UnitType = ConvertToType(uofValues.Groups[2].Value, uofType);
                     }
                 }
@@ -1111,6 +1114,12 @@ namespace DSEDiagnosticLibrary
             if(uof.Last() == '.')
             {
                 uof = uof.Substring(0, uof.Length - 1);
+            }
+
+            if (uof.Last() == '%')
+            {
+                uof = uof.Substring(0, uof.Length - 1);
+                uofType |= Types.Percent;
             }
 
             uof = uof.Trim();

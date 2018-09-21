@@ -1046,7 +1046,7 @@ namespace DSEDiagnosticFileParser
                 if (matches != null)
                 {
                     foreach (Match match in matches)
-                    {
+                    {                        
                         UpdateMatchProperties(LibrarySettings.LogExceptionRegExMatches, match, logProperties, true);
                     }
 

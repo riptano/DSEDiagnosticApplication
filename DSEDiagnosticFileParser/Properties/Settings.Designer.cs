@@ -1059,7 +1059,7 @@ public static class {0}
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute(@"(?:/(?(?=[a-z0-9. ]+/)(?<PATH>[^  \]}),]+)|(?<NODE>[^  \]}),]+)))|(?:consistency\s+level\s+(?<consistencylevel>[a-z\-_]+))|(?:timeout\:?\s+(?<timeout>[0-9,.\-]+))|(?:sstable\s*(?<SSTABLEPATH>[a-z0-9\-_@#/.,\\ +%]+)[\]})]?)|(?:executing\s+query\s+(?<cql>.+)|(?:(?:\s+|\#)(?<ID>[0-9a-f]{8}\-[0-9a-f]{4}\-[0-9a-f]{4}\-[0-9a-f]{4}\-[0-9a-f]{12})(?:\s|\]))|(?:\s?(?<TOKENRANGE>\(\-?[0-9]+\,\-?[0-9]+\])\,?)|(?:id\:\s+(?<CHANNELID>0x[0-9a-f]+)))")]
+        [global::System.Configuration.DefaultSettingValueAttribute(@"(?<PATH>/[^ \]}),]{3,})|(?<NODE>\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(?::\d+)?)|(?<NODE>(?:[0-9a-f/]+::?){2,}[0-9a-f/]+)|(?<NODE>::[0-9a-f/]+)|(?<NODE>\[(?:[0-9a-f/]+::?)+\{2,}[0-9a-f/]+\]:\d+)|(?:consistency\s+level\s+(?<consistencylevel>[a-z\-_]+))|(?:timeout\:?\s+(?<timeout>[0-9,.\-]+))|(?:sstable\s*(?<SSTABLEPATH>[a-z0-9\-_@#/.,\\ +%]+)[\]})]?)|(?:executing\s+query\s+(?<cql>.+)|(?:(?:\s+|\#)(?<ID>[0-9a-f]{8}\-[0-9a-f]{4}\-[0-9a-f]{4}\-[0-9a-f]{4}\-[0-9a-f]{12})(?:\s|\]))|(?:\s?(?<TOKENRANGE>\(\-?[0-9]+\,\-?[0-9]+\])\,?)|(?:id\:\s+(?<CHANNELID>0x[0-9a-f]+)))")]
         public string LogExceptionRegExMatches {
             get {
                 return ((string)(this["LogExceptionRegExMatches"]));

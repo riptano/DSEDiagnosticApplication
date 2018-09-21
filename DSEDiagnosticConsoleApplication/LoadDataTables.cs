@@ -23,16 +23,35 @@ namespace DSEDiagnosticConsoleApplication
                 if (cluster.IsMaster
                         && cluster.Nodes.HasAtLeastOneElement())
                 {
-                    Logger.Instance.Debug("Load Data table is waiting on non-Master cluster");
-                    ConsoleParsingDataTable.Increment("Load Data table is waiting on non-Master cluster");
-                    Common.Patterns.Threading.LockFree.SpinWait(() =>
-                    {
-                        System.Threading.Thread.Sleep(500);
-                        return !(cluster = DSEDiagnosticLibrary.Cluster.GetCurrentOrMaster()).IsMaster;
-                    });
+                    System.Threading.Thread.Sleep(500);
+                    cluster = DSEDiagnosticLibrary.Cluster.GetCurrentOrMaster();
 
-                    ConsoleParsingDataTable.TaskEnd("Load Data table is waiting on non-Master cluster");
-                    Logger.Instance.DebugFormat("Load Data table is using Cluster \"{0}\"", cluster.Name);
+                    if (cluster.IsMaster)
+                    {
+                        if (diagParserTask.IsCompleted)
+                        {                          
+                            Logger.Instance.Error("File Parsing tasks has completed but Cluster has not been properly defined! This usually indicates some type of issues with the diagnostic files.");
+                            ConsoleErrors.Increment("File Parsing Issues detected. Cluster not properly defined!");
+                        }
+                        else if (diagParserTask.IsFaulted || diagParserTask.IsCanceled)
+                        {
+                            Logger.Instance.Warn("File Parsing tasks failed or was canceled! Cluster not properly defined.");
+                            ConsoleWarnings.Increment("File Parsing tasks failed or was canceled! Cluster not properly defined.");
+                        }
+                        else
+                        {
+                            Logger.Instance.Debug("Load Data table is waiting on non-Master cluster");
+                            ConsoleParsingDataTable.Increment("Load Data table is waiting on non-Master cluster");
+                            Common.Patterns.Threading.LockFree.SpinWait(() =>
+                            {
+                                System.Threading.Thread.Sleep(500);
+                                return !(cluster = DSEDiagnosticLibrary.Cluster.GetCurrentOrMaster()).IsMaster;
+                            });
+
+                            ConsoleParsingDataTable.TaskEnd("Load Data table is waiting on non-Master cluster");
+                            Logger.Instance.DebugFormat("Load Data table is using Cluster \"{0}\"", cluster.Name);
+                        }
+                    }
                 }
 
                 var loadDataTables = new DSEDiagnosticToDataTable.IDataTable[]

@@ -86,6 +86,8 @@ namespace DSEDiagnosticLog4NetParser
 
         private List<string> _errors = new List<string>();
         public IEnumerable<string> Errors { get { return this._errors; } }
+
+        public int NbrInvalidLines { get; private set; }
       
         public LogMessage AddMessage(string logLine, uint logLinePos, bool ignoreErros = false)
         {
@@ -109,16 +111,28 @@ namespace DSEDiagnosticLog4NetParser
                 else if (this._lastMessage != null)
                 {
                     if (LogLevels.Any(l => logLine.StartsWith(l, StringComparison.InvariantCultureIgnoreCase)))
-                    {                        
+                    {
                         if (!ignoreErros)
-                        {
-                            var error = string.Format("{0}\t{1}\tInvalid line detected in Log4Net Log file at line number {3}. Line ignored. Line is: {2}",
-                                                    this.Node,
-                                                    this.LogFile.PathResolved,
-                                                    logLine,
-                                                    logLinePos);
-                            Logger.Instance.Warn(error);
-                            this._errors.Add(error);
+                        {                            
+                            if (logLinePos != 0 || this.NbrInvalidLines == 0)
+                            {
+                                var error = string.Format("{0}\t{1}\tInvalid line detected in Log4Net Log file at line number {3}. Line ignored. Line is: {2}",
+                                                        this.Node,
+                                                        this.LogFile.PathResolved,
+                                                        logLine,
+                                                        logLinePos);
+                                Logger.Instance.Warn(error);
+                                this._errors.Add(error);                                
+                            }
+                            else if(logLinePos == 0)
+                            {
+                                ++this.NbrInvalidLines;
+                                throw new System.IO.InvalidDataException(string.Format("An invalid log format was detected which is not a valid Log4Net Log file for node \"{0}\" for file \"{1}\"",
+                                                                        this.Node.Id.NodeName(),
+                                                                        this.LogFile.Name));
+                            }
+
+                            ++this.NbrInvalidLines;
                         }
                         return null;
                     }
@@ -141,14 +155,26 @@ namespace DSEDiagnosticLog4NetParser
                     }
 
                     if (!ignoreErros)
-                    {
-                        var error = string.Format("{0}\t{1}\tInvalid line detected in Log4Net Log file at line number {3}. Line ignored. Line is: {2}",
+                    {                        
+                        if (logLinePos != 0 || this.NbrInvalidLines == 0)
+                        {
+                            var error = string.Format("{0}\t{1}\tInvalid line detected in Log4Net Log file at line number {3}. Line ignored. Line is: {2}",
                                                 this.Node,
                                                 this.LogFile.PathResolved,
                                                 logLine,
                                                 logLinePos);
-                        Logger.Instance.Warn(error);
-                        this._errors.Add(error);
+                            Logger.Instance.Warn(error);
+                            this._errors.Add(error);                           
+                        }
+                        else if(logLinePos == 0 && this.NbrInvalidLines > 10)
+                        {
+                            ++this.NbrInvalidLines;
+                            throw new System.IO.InvalidDataException(string.Format("An invalid log format was detected which is not a valid Log4Net Log file for node \"{0}\" for file \"{1}\"",
+                                                                        this.Node.Id.NodeName(),
+                                                                        this.LogFile.Name));
+                        }
+
+                        ++this.NbrInvalidLines;                        
                     }
                     return null;
                 }

@@ -21,16 +21,35 @@ namespace DSEDiagnosticConsoleApplication
                 if (cluster.IsMaster
                         && cluster.Nodes.HasAtLeastOneElement())
                 {
-                    Logger.Instance.Debug("Load Excel is waiting on non-Master cluster");
-                    ConsoleExcelWorkbook.Increment("Load Excel is waiting on non-Master cluster");
-                    Common.Patterns.Threading.LockFree.SpinWait(() =>
-                    {
-                        System.Threading.Thread.Sleep(500);
-                        return !(cluster = DSEDiagnosticLibrary.Cluster.GetCurrentOrMaster()).IsMaster;
-                    });
+                    System.Threading.Thread.Sleep(500);
+                    cluster = DSEDiagnosticLibrary.Cluster.GetCurrentOrMaster();
 
-                    ConsoleExcelWorkbook.TaskEnd("Load Excel is waiting on non-Master cluster");
-                    Logger.Instance.DebugFormat("Load Excel is using Cluster \"{0}\"", cluster.Name);
+                    if (cluster.IsMaster)
+                    {
+                        if (diagParserTask.IsCompleted && loadAllDataTableTask.IsCompleted)
+                        {
+                            Logger.Instance.Error("File Parsing/DataTable tasks has completed but Cluster has not been properly defined! This usually indicates some type of issues with the diagnostic files.");
+                            ConsoleErrors.Increment("File Parsing/DataTable Issues detected. Cluster not properly defined!");
+                        }
+                        else if (diagParserTask.IsFaulted || diagParserTask.IsCanceled || loadAllDataTableTask.IsFaulted || loadAllDataTableTask.IsCanceled)
+                        {
+                            Logger.Instance.Warn("File Parsing/DataTable tasks failed or was canceled! Cluster not properly defined.");
+                            ConsoleWarnings.Increment("File Parsing/DataTable tasks failed or was canceled! Cluster not properly defined.");
+                        }
+                        else
+                        {
+                            Logger.Instance.Debug("Load Excel is waiting on non-Master cluster");
+                            ConsoleExcelWorkbook.Increment("Load Excel is waiting on non-Master cluster");
+                            Common.Patterns.Threading.LockFree.SpinWait(() =>
+                            {
+                                System.Threading.Thread.Sleep(500);
+                                return !(cluster = DSEDiagnosticLibrary.Cluster.GetCurrentOrMaster()).IsMaster;
+                            });
+
+                            ConsoleExcelWorkbook.TaskEnd("Load Excel is waiting on non-Master cluster");
+                            Logger.Instance.DebugFormat("Load Excel is using Cluster \"{0}\"", cluster.Name);
+                        }
+                    }
                 }
 
                 string processTF = string.Empty;

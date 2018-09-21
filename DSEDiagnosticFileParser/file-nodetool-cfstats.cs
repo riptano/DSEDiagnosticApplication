@@ -396,12 +396,14 @@ namespace DSEDiagnosticFileParser
                     else
                     {
                         var UOM = UOMKeywords.FirstOrDefault(u => attribute.IndexOf(u.Item1, StringComparison.CurrentCultureIgnoreCase) >= 0);
-                        var propValueSplit = attrValue.Split(' ');
+                        var propValueSplit = attrValue.Split(' ', '%');
 
                         if (Common.StringFunctions.ParseIntoNumeric(propValueSplit[0], out numValue, true))
                         {
                             if (UOM != null || attrValueUOM != UnitOfMeasure.Types.Unknown || propValueSplit.Length > 1)
                             {
+                                if (propValueSplit.Length == 2 && propValueSplit[1].Any(c => c == '%')) numValue = ((decimal)(dynamic)numValue) / 100m;
+
                                 propValue = UnitOfMeasure.Create(((dynamic)numValue),
                                                                     (UOM?.Item2 ?? UnitOfMeasure.Types.Unknown) | attrValueUOM,
                                                                     propValueSplit.Length > 1 ? propValueSplit[1].Trim() : null,

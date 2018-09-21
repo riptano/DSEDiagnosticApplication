@@ -3,7 +3,7 @@
   <Profiles />
   <Settings>
     <Setting Name="ExcelPackageMaxRowsLimit" Type="System.Int32" Scope="Application">
-      <Value Profile="(Default)">1000000</Value>
+      <Value Profile="(Default)">1048500</Value>
     </Setting>
     <Setting Name="ExcelWorkBookFileExtension" Type="System.String" Scope="Application">
       <Value Profile="(Default)">.xlsx</Value>
