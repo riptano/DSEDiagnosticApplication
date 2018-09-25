@@ -1136,6 +1136,45 @@
       ]
     },
     {
+      "Description": "Node not able to start",
+      "TagId": 5.2,
+      "SessionBeginTagId": 5.0,
+      "MatchVersion": null,
+      "LevelMatch": {
+        "RegExStrings": [
+          "INFO"
+        ]
+      },
+      "ThreadIdMatch": null,
+      "FileNameMatch": {
+        "RegExStrings": [
+          "^DseDaemon.java$"
+        ]
+      },
+      "FileLineMatch": null,
+      "MessageMatch": {
+        "RegExStrings": [
+          "^Unable to start DSE server"
+        ]
+      },
+      "ParseMessage": {
+        "RegExStrings": [
+          "^(?<SUBCLASS>Unable\\s+to\\s+start\\s+\\w+)\\s+\\w+\\.$"
+        ]
+      },
+      "ParseThreadId": null,
+      "EventType": "SessionEnd",
+      "EventClass": "NodeDetection, Change",
+      "SubClass": null,
+      "Product": "Cassandra",
+      "SessionKey": "EventClass + 'Shutdown'",
+      "SessionKeyAction": "ReadRemove",
+      "Examples": [
+        "INFO  [Daemon shutdown] 2017-05-01 15:20:06,377  DseDaemon.java:542 - DSE shutdown complete.",
+        "=> INFO  [main] 2017-05-16 13:39:58,892  DseDaemon.java:8469 - Unable to start DSE server."
+      ]
+    },
+    {
       "Description": "Node Configuration",
       "TagId": 6.0,
       "MatchVersion": null,
@@ -2845,9 +2884,123 @@
       "AnalyticsGroup": null,
       "SubClass": "batchtype + ' gc_grace_seconds is low for replay ' + gc_grace_seconds",
       "Product": "Cassandra",
-      "IgnoreEvent": true,
+      "IgnoreEvent": false,
       "Examples": [
         "WARN  [Native-Transport-Requests-1] 2018-09-10 13:08:08,084  NoSpamLogger.java:97 - Executing a LOGGED BATCH on table [guest_profiles_bookings.profile_bookings], configured with a gc_grace_seconds of 0. The gc_grace_seconds is used to TTL batchlog entries, so setting gc_grace_seconds too low on tables involved in an atomic batch might cause batchlog entries to expire before being replayed."
+      ]
+    },
+    {
+      "Description": "Nodes seems to be down",
+      "TagId": 42.0,
+      "MatchVersion": null,
+      "LevelMatch": {
+        "RegExStrings": [
+          "WARN"
+        ]
+      },
+      "FileNameMatch": {
+        "RegExStrings": [
+          "^DseDaemon.java$"
+        ]
+      },
+      "FileLineMatch": null,
+      "MessageMatch": {
+        "RegExStrings": [
+          "^The following nodes seems to be down:"
+        ]
+      },
+      "ParseMessage": {
+        "RegExStrings": [
+          "^The\\s+following\\s+nodes\\s+seems\\s+to\\s+be\\s+down:\\s+\\[(?:(?<NODE>[^ ,\\]]+)\\s*,*\\s*)+\\]"
+        ]
+      },
+      "ParseThreadId": null,
+      "EventType": "SingleInstance",
+      "EventClass": "Detection,Node,Drops",
+      "AnalyticsGroup": null,
+      "SubClass": "'Nodes detected down'",
+      "Product": "Cassandra",
+      "IgnoreEvent": false,
+      "Examples": [
+        "WARN  [main] 2018-08-23 01:01:52,616  DseDaemon.java:796 - The following nodes seems to be down: [/192.168.36.108]. Some Cassandra operations may fail with UnavailableException."
+      ]
+    },
+    {
+      "Description": "FileSystem Error",
+      "TagId": 43.0,
+      "MatchVersion": null,
+      "LevelMatch": {
+        "RegExStrings": [
+          "WARN"
+        ]
+      },
+      "FileNameMatch": {
+        "RegExStrings": [
+          "^CLibrary.java$"
+        ]
+      },
+      "FileLineMatch": null,
+      "MessageMatch": {
+        "RegExStrings": [
+          "^open"
+        ]
+      },
+      "ParseMessage": {
+        "RegExStrings": [
+          "(?<type>open)\\((?$<SSTABLEPATH>)\\,?\\s*(?<mode>[a-z0-9_\\-]+)\\s*\\)\\s*(?<errtype>failed),\\s*errno\\s*\\((?<errno>\\d+)\\)"
+        ]
+      },
+      "ParseThreadId": null,
+      "EventType": "SingleInstance",
+      "EventClass": "Detection,Node,FileSystem",
+      "AnalyticsGroup": null,
+      "SubClass": "type + ' ' + errtype",
+      "Product": "Cassandra",
+      "IgnoreEvent": false,
+      "Examples": [
+        "WARN  [MemtableFlushWriter:56] 2018-08-23 17:15:15,761  CLibrary.java:280 - open(/var/lib/cassandra/data_dse_murmur3/nms_status_ts/crypto_status_block-c06c1db17e2911e8b1817f703432290d, O_RDONLY) failed, errno (24)."
+      ]
+    },
+    {
+      "Description": "Transaction Failure",
+      "TagId": 44.0,
+      "MatchVersion": null,
+      "LevelMatch": {
+        "RegExStrings": [
+          "ERROR"
+        ]
+      },
+      "FileNameMatch": {
+        "RegExStrings": [
+          "^LogTransaction.java$"
+        ]
+      },
+      "FileLineMatch": null,
+      "MessageMatch": {
+        "RegExStrings": [
+          "^\\[",
+          "^Unable to delete",
+          "^Failed to abort"
+        ]
+      },
+      "ParseMessage": {
+        "RegExStrings": [
+          "\\[(?$<SSTABLEPATHS>)\\]\\s+\\w+\\s+(?<type>not\\s+completed,\\s+trying\\s+to\\s+abort)",
+          "(?<type>Unable\\s+to\\s+delete)\\s+(?$<SSTABLEPATH>)\\s+as\\s+it\\s+(?<type2>does\\s+not\\s+exist)",
+          "(?<type>Failed to abort)\\s+\\[(?$<SSTABLEPATHS>)\\]"
+        ]
+      },
+      "ParseThreadId": null,
+      "EventType": "SingleInstance",
+      "EventClass": "Detection,Node,FileSystem,Memtable",
+      "AnalyticsGroup": null,
+      "SubClass": "type + ' ' + type2",
+      "Product": "Cassandra",
+      "IgnoreEvent": false,
+      "Examples": [
+        "ERROR [MemtableFlushWriter:55] 2018-08-23 17:15:15,762  LogTransaction.java:246 - [/var/lib/cassandra/data_dse_murmur3/nms_status_ts/arclight_protocol_log_event-a9feff217e2911e8b1817f703432290d/mc_txn_flush_1a44b210-a6f8-11e8-bb55-09812d4c56c4.log]  was not completed, trying to abort it now",
+        "ERROR [MemtableFlushWriter:53] 2018-08-23 17:15:15,760  LogTransaction.java:205 - Unable to delete /var/lib/cassandra/data_dse_murmur3/nms_status_ts/osd_air_channel_utilization_block-98f45b317e2911e8b1817f703432290d/mc_txn_flush_1a443ce0-a6f8-11e8-bb55-09812d4c56c4.log as it does not exist",
+        "ERROR [MemtableFlushWriter:54] 2018-08-23 17:15:15,760  LogTransaction.java:249 - Failed to abort [/var/lib/cassandra/data_dse_murmur3/nms_status_ts/login_vmt_status_block-9d55e0917e2911e8b1817f703432290d/mc_txn_flush_1a443ce1-a6f8-11e8-bb55-09812d4c56c4.log]"
       ]
     }
   ]

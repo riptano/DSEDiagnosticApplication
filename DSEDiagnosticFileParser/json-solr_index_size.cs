@@ -80,7 +80,7 @@ namespace DSEDiagnosticFileParser
                                 var uomTblStorage = (UnitOfMeasure)totalStorageObj;
                                 decimal ratio = 1m;
 
-                                if(!uomTblStorage.NaN)                                
+                                if(!uomTblStorage.NaN && uomTblStorage.Value > 0)                                
                                 {
                                     ratio = uomIndexStorage.ConvertSizeUOM(DSEDiagnosticLibrary.LibrarySettings.DefaultStorageSizeUnit) / uomTblStorage.ConvertSizeUOM(DSEDiagnosticLibrary.LibrarySettings.DefaultStorageSizeUnit);
                                 }

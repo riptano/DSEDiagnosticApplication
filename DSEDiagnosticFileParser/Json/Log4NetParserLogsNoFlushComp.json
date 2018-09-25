@@ -30,6 +30,10 @@
       "LinkedTagId": 5.1
     },
     {
+      "Description": "Node not able to start",
+      "LinkedTagId": 5.2
+    },
+    {
       "Description": "Node Configuration",
       "LinkedTagId": 6.0
     },
@@ -176,6 +180,18 @@
     {
       "Description": "Logged Batch TTL warning",
       "LinkedTagId": 41.0
+    },
+    {
+      "Description": "Nodes seems to be down",
+      "LinkedTagId": 42.0
+    },
+    {
+      "Description": "FileSystem Error",
+      "LinkedTagId": 43.0
+    },
+    {
+      "Description": "Transaction Failure",
+      "LinkedTagId": 44.0
     }
   ]
 }
