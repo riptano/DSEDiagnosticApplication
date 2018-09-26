@@ -198,7 +198,7 @@ namespace DSEDiagnosticConsoleApplication
             {
                 DefaultValue = ParserSettings.Log4NetConversionPattern,
                 Optional = true,
-                Description = "The definition that defines the format of a Log Line. This definition must follow the Apache Log PatternLayout configuration."
+                Description = "The definition that defines the format of a Log Line. This definition must follow the Apache Log PatternLayout configuration. See https://logging.apache.org/log4j/2.x/manual/configuration.html#Loggers"
             });
 
             this._cmdLineParser.Arguments.Add(new ValueArgument<string>("DSEVersion")
