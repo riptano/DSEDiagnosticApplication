@@ -262,7 +262,7 @@ namespace DSEDiagnosticConsoleApplication
             {
                 DefaultValue = ParserSettings.LogAggregationPeriod,
                 Optional = true,
-                Description = "Log Aggregation Period in DD:HH:MM format"
+                Description = "Log Aggregation Period in HH:MM:SS format"
             });
 
             this._cmdLineParser.Arguments.Add(new ValueArgument<bool>("ExcelPackageCache")

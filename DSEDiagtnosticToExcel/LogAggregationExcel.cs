@@ -130,13 +130,20 @@ namespace DSEDiagtnosticToExcel
                                                                  var table = workSheet.Tables.FirstOrDefault(t => t.Name == "AggregatedLogTable");
                                                                  var rowCnt = this.DataTable.Rows.Count;
 
-                                                                 if (rowCnt == 0) rowCnt = 1;
+                                                                 if (rowCnt == 0)
+                                                                 {
+                                                                     rowCnt = 1;
+                                                                 }
+                                                                 else
+                                                                 {
+                                                                     rowCnt = workSheet.Dimension.End.Row;
+                                                                 }
 
                                                                  if (table == null)
                                                                  {
                                                                      using (var tblRange = workSheet.Cells[string.Format("A1:BG{0}", rowCnt + 2)])
                                                                      {
-                                                                         table = workSheet.Tables.Add(tblRange, "AggregatedLogTable");
+                                                                         table = workSheet.Tables.Add(tblRange, workSheet.Name == this.WorkSheetName ?  "AggregatedLogTable" : workSheet.Name + "Table");
 
                                                                          table.ShowFilter = true;
                                                                          table.ShowHeader = true;

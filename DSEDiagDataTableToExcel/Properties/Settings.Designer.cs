@@ -25,7 +25,7 @@ namespace DataTableToExcel.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("1048500")]
+        [global::System.Configuration.DefaultSettingValueAttribute("1000000")]
         public int ExcelPackageMaxRowsLimit {
             get {
                 return ((int)(this["ExcelPackageMaxRowsLimit"]));

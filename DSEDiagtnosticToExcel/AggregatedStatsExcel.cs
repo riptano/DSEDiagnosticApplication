@@ -79,13 +79,20 @@ namespace DSEDiagtnosticToExcel
                                                                  var table = workSheet.Tables.FirstOrDefault(t => t.Name == "AggregatedStatsTable");
                                                                  var rowCnt = this.DataTable.Rows.Count;
 
-                                                                 if (rowCnt == 0) rowCnt = 1;
+                                                                 if (rowCnt == 0)
+                                                                 {
+                                                                     rowCnt = 1;
+                                                                 }
+                                                                 else
+                                                                 {
+                                                                     rowCnt = workSheet.Dimension.End.Row;
+                                                                 }
 
                                                                  if (table == null)
                                                                  {
                                                                      using (var tblRange = workSheet.Cells[string.Format("A1:N{0}",rowCnt + 2)])
                                                                      {
-                                                                         table = workSheet.Tables.Add(tblRange, "AggregatedStatsTable");
+                                                                         table = workSheet.Tables.Add(tblRange, workSheet.Name == this.WorkSheetName ? "AggregatedStatsTable" : workSheet.Name + "Table");
 
                                                                          table.ShowFilter = true;
                                                                          table.ShowHeader = true;

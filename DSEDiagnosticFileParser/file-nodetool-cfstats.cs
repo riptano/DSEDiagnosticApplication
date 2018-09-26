@@ -463,7 +463,7 @@ namespace DSEDiagnosticFileParser
                                                            || a.Key == Properties.Settings.Default.CFStatsLCSLevels
                                                            || a.Key == Properties.Settings.Default.CFStatTotalStorage
                                                    group a by a.Key into g
-                                                   select new { Key = g.Key, Values = g.Select(i => i.Value).ToArray() }).ToArray()
+                                                   select new { Key = g.Key, Values = g.Select(i => i.Value).Where(i => i != null).ToArray() }).ToArray()
                                  let tombstones = tblAttribs.Where(i => i.Key == Properties.Settings.Default.CFStatTombstonePropName)
                                                      .SelectMany(i => i.Values)
                                                      .DefaultIfEmpty().Sum(i => (decimal)((dynamic)i))

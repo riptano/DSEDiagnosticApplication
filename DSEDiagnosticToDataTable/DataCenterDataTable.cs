@@ -193,6 +193,7 @@ namespace DSEDiagnosticToDataTable
                 var statCollection = (from attrib in this.Cluster.Nodes.SelectMany(d => ((DSEDiagnosticLibrary.Node)d).AggregatedStatsUnSafe)
                                      where attrib.DataCenter != null
                                             && attrib.Node != null
+                                            && attrib.Keyspace != null
                                             && attrib.TableViewIndex != null
                                             && attrib.Class.HasFlag(DSEDiagnosticLibrary.EventClasses.Node)
                                      group attrib by new { attrib.DataCenter,

@@ -223,6 +223,7 @@ namespace DSEDiagnosticConsoleApplication
             if (EnableWriters)
             {
                 timer.Change(100, Timeout.Infinite);
+                StopTimer = false;
 
                 ConsoleWriter.ReWriteInfo rewriteInfo;
                 if (!consoleWriter.TryGetReWriteInformation(ConsoleRunningTimerTag, out rewriteInfo))
@@ -235,16 +236,24 @@ namespace DSEDiagnosticConsoleApplication
         public static void End()
         {
             timer.Change(Timeout.Infinite, Timeout.Infinite);
+            StopTimer = true;
             consoleWriter.ClearSpinner();
             //consoleWriter.DisableSpinner();
         }
 
         public static ConsoleWriter Console { get { return consoleWriter; } }
         static long TimerEntry = 0;
+        static bool StopTimer = false;
 
         static void TimerCallback(object state)
         {
             var consoleWriter = (ConsoleWriter)state;
+
+            if (StopTimer)
+            {
+                timer.Change(Timeout.Infinite, Timeout.Infinite);
+                return;
+            }
 
             //timer.Change(Timeout.Infinite, Timeout.Infinite);
             consoleWriter.ReWrite(ConsoleRunningTimerTag, @"Running Time: {0:d\.hh\:mm\:ss}", DateTime.Now - ConsoleStartTime);

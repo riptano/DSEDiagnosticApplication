@@ -135,7 +135,7 @@ namespace DSEDiagnosticToDataTable
         /// <exception cref="Exception">Should re-thrown any exception except for OperationCanceledException</exception>
         public override DataTable LoadTable()
         {
-            Logger.Instance.InfoFormat("Log Aggregation Processing Started");
+            Logger.Instance.InfoFormat("Log Aggregation Processing Started. Aggregation Period of {0}", this.AggregationPeriod);
 
             this.Table.BeginLoadData();
             try
