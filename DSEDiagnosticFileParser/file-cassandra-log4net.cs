@@ -143,7 +143,7 @@ namespace DSEDiagnosticFileParser
 
             if (Logger.Instance.IsDebugEnabled)
             {
-                Logger.Instance.DebugFormat("Loaded class \"{0}\"(File({1}), RestrictedDateRange({6}), LogDebugProcessing({2}), DetectDuplicatedLog({3}), CheckOverLappingDateRanges({4}), OnlyFlushCompactionMsgs({5}), DefaultLogLevelHandling({7}) )",
+                Logger.Instance.DebugFormat("Loaded class \"{0}\"(File({1}), RestrictedDateRange({6}), LogDebugProcessing({2}), DetectDuplicatedLog({3}), CheckOverLappingDateRanges({4}), OnlyFlushCompactionMsgs({5}), DefaultLogLevelHandling({7}), IgnoreParsingErrors({8}) )",
                                             this.GetType().Name,
                                             this.ShortFilePath,
                                             this.DebugLogProcessing,
@@ -151,7 +151,8 @@ namespace DSEDiagnosticFileParser
                                             this.CheckOverlappingDateRange,
                                             this.DebugFlushCompMatchingRegEx != null,
                                             this.LogRestrictedTimeRange,
-                                            this.DefaultLogLevelHandling);
+                                            this.DefaultLogLevelHandling,
+                                            this.IgnoreParsingErrors);
                 Logger.Instance.DebugFormat("Log Line Parser TagId: {0}",
                                                 string.Join(", ", this._parser.Select(i => i.TagId)));
             }
@@ -281,6 +282,12 @@ namespace DSEDiagnosticFileParser
             get;
             set;
         } = Properties.Settings.Default.LogCheckOverlappingDateRange;
+
+        public bool IgnoreParsingErrors
+        {
+            get;
+            set;
+        } = LibrarySettings.LogIgnoreParsingErrors;
 
         public object Tag { get; set; }
 
@@ -478,7 +485,7 @@ namespace DSEDiagnosticFileParser
                     || (this.Node.LogFiles != null
                             && this.Node.LogFiles.HasAtLeastOneElement()))
             {
-                var fileInfoResult = file_cassandra_log4net_ReadTimeRange.DeteremineLogFileInfo(this.File, this.Node, this.CancellationToken, this.LogRestrictedTimeRange, this.IsDebugFile);
+                var fileInfoResult = file_cassandra_log4net_ReadTimeRange.DeteremineLogFileInfo(this.File, this.Node, this.CancellationToken, this.LogRestrictedTimeRange, this.IsDebugFile, this.IgnoreParsingErrors);
                 var logFileInfo = fileInfoResult.Item1;
                 
                 if (logFileInfo == null)
@@ -566,7 +573,7 @@ namespace DSEDiagnosticFileParser
             DateTimeOffset? logLineDateRangeBegin = null;
             DateTimeOffset logLineDateRangeLast = DateTimeOffset.MinValue;
 
-            using (var logFileInstance = new ReadLogFile(this.File, LibrarySettings.Log4NetConversionPattern, this.CancellationToken, this.Node, this.LogRestrictedTimeRange))
+            using (var logFileInstance = new ReadLogFile(this.File, LibrarySettings.Log4NetConversionPattern, this.CancellationToken, this.Node, this.LogRestrictedTimeRange, this.IgnoreParsingErrors))
             {
                 Tuple<Regex, Match, Regex, Match, CLogLineTypeParser> matchItem;
                 LogCassandraEvent logEvent;

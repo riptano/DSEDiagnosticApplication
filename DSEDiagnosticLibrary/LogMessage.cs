@@ -81,7 +81,7 @@ namespace DSEDiagnosticLibrary
         int Errors { get; }
         CancellationToken CancellationToken { get; set; }
         bool Completed { get; }
-
+        bool IgnoreErrors { get; set; }
         /// <summary>
         /// If defined the time frame log entries will be parsed. The Time Frame will be in the Node&apos;s timezone.
         /// </summary>

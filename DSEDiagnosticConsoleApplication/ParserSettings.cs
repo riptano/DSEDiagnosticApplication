@@ -357,6 +357,12 @@ namespace DSEDiagnosticConsoleApplication
             set;
         }
 
+        public static bool LogIgnoreParsingErrors
+        {
+            get { return DSEDiagnosticFileParser.LibrarySettings.LogIgnoreParsingErrors; }
+            set { DSEDiagnosticFileParser.LibrarySettings.LogIgnoreParsingErrors = value; }
+        }
+
         private static bool batchMode = false;
         public static bool BatchMode
         {

@@ -33,6 +33,7 @@ namespace DSEDiagnosticFileParser
         public static System.Text.RegularExpressions.Regex CaptureTimeFrameMatches = string.IsNullOrEmpty(Properties.Settings.Default.CaptureTimeFrameRegEx) ? null : new System.Text.RegularExpressions.Regex(Properties.Settings.Default.CaptureTimeFrameRegEx, System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.Compiled | System.Text.RegularExpressions.RegexOptions.Singleline);
         public static DateTimeOffsetRange CaptureDateTimeRange = null;
         public static System.Text.RegularExpressions.Regex ClusterCaptureTimeFrameMatches = string.IsNullOrEmpty(Properties.Settings.Default.ClusterCaptureTimeFrameRegEx) ? null : new System.Text.RegularExpressions.Regex(Properties.Settings.Default.ClusterCaptureTimeFrameRegEx, System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.Compiled | System.Text.RegularExpressions.RegexOptions.Singleline);
+        public static bool LogIgnoreParsingErrors = Properties.Settings.Default.LogIgnoreParsingErrors;
 
         public static DateTimeOffsetRange LogRestrictedTimeRange
         {

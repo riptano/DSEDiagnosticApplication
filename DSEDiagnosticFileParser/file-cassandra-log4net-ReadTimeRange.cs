@@ -22,6 +22,12 @@ namespace DSEDiagnosticFileParser
             set;
         } = LibrarySettings.LogRestrictedTimeRange;
 
+        public bool IgnoreParsingErrors
+        {
+            get;
+            set;
+        } = LibrarySettings.LogIgnoreParsingErrors;
+
         public file_cassandra_log4net_ReadTimeRange(CatagoryTypes catagory,
                                                         IDirectoryPath diagnosticDirectory,
                                                         IFilePath file,
@@ -148,12 +154,12 @@ namespace DSEDiagnosticFileParser
             return this._result;
         }
 
-        public static Tuple<LogFileInfo,int> DeteremineLogFileInfo(IFilePath logFile, INode node, System.Threading.CancellationToken cancellationToken, DateTimeOffsetRange logTimeRange, bool? isDebugFile)
+        public static Tuple<LogFileInfo,int> DeteremineLogFileInfo(IFilePath logFile, INode node, System.Threading.CancellationToken cancellationToken, DateTimeOffsetRange logTimeRange, bool? isDebugFile, bool ignoreParsingErrors)
         {
             LogFileInfo logFileInfo = null;
             int nbrItemsParsed = 0;
 
-            using (var logFileInstance = new ReadLogFile(logFile, LibrarySettings.Log4NetConversionPattern, cancellationToken, node, logTimeRange))
+            using (var logFileInstance = new ReadLogFile(logFile, LibrarySettings.Log4NetConversionPattern, cancellationToken, node, logTimeRange, ignoreParsingErrors))
             {
                 using (var logMessages = logFileInstance.ReadLogFileTimeRange())
                 {
@@ -178,7 +184,7 @@ namespace DSEDiagnosticFileParser
         public override uint ProcessFile()
         {
             this.CancellationToken.ThrowIfCancellationRequested();
-            var logFileInfoResult = DeteremineLogFileInfo(this.File, this.Node, this.CancellationToken, this.LogRestrictedTimeRange, null);
+            var logFileInfoResult = DeteremineLogFileInfo(this.File, this.Node, this.CancellationToken, this.LogRestrictedTimeRange, null, this.IgnoreParsingErrors);
             LogFileInfo logFileInfo = logFileInfoResult.Item1;
 
             this.NbrItemsParsed = logFileInfoResult.Item2;

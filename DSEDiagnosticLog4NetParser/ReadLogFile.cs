@@ -13,11 +13,16 @@ namespace DSEDiagnosticLog4NetParser
     public sealed class ReadLogFile : IReadLogFile
     {
         public ReadLogFile() { }
-        public ReadLogFile(IFilePath logFilePath, string log4netConversionPattern, INode node = null, DateTimeOffsetRange logTimeFrame = null)
+        public ReadLogFile(IFilePath logFilePath,
+                            string log4netConversionPattern,
+                            INode node = null,
+                            DateTimeOffsetRange logTimeFrame = null,
+                            bool ignoreErrors = false)
         {
             this.LogFile = logFilePath;
             this.Log4NetConversionPattern = log4netConversionPattern;
             this.Node = node;
+            this.IgnoreErrors = ignoreErrors;
 
             this.Node?.UpdateDSENodeToolDateRange();
 
@@ -66,8 +71,13 @@ namespace DSEDiagnosticLog4NetParser
             }
         }
 
-        public ReadLogFile(IFilePath logFilePath, string log4netConversionPattern, CancellationToken cancellationToken, INode node = null, DateTimeOffsetRange logTimeFrame = null)
-            : this(logFilePath, log4netConversionPattern, node, logTimeFrame)
+        public ReadLogFile(IFilePath logFilePath,
+                            string log4netConversionPattern,
+                            CancellationToken cancellationToken,
+                            INode node = null,
+                            DateTimeOffsetRange logTimeFrame = null,
+                            bool ignoreErrors = false)
+            : this(logFilePath, log4netConversionPattern, node, logTimeFrame, ignoreErrors)
         {
             this.CancellationToken = cancellationToken;
         }
@@ -129,6 +139,7 @@ namespace DSEDiagnosticLog4NetParser
         public CancellationToken CancellationToken { get; set; }
 
         public bool Completed { get; private set; }
+        public bool IgnoreErrors { get; set; }
 
         /// <summary>
         /// If defined the time frame log entries will be parsed. The Time Frame will be in the Node&apos;s timezone.
@@ -185,7 +196,7 @@ namespace DSEDiagnosticLog4NetParser
 
                     this.CancellationToken.ThrowIfCancellationRequested();
                     
-                    logMessage = logMessages.AddMessage(logLine, ++this.LinesRead);
+                    logMessage = logMessages.AddMessage(logLine, ++this.LinesRead, this.IgnoreErrors);
 
                     if (logMessage == null)
                     {
@@ -285,7 +296,7 @@ namespace DSEDiagnosticLog4NetParser
                 LogMessage logMessage = null;
                 string logLine = readStream.ReadLine();
 
-                while(logLine != null && (logMessage = logMessages.AddMessage(logLine, 0)) == null)
+                while(logLine != null && (logMessage = logMessages.AddMessage(logLine, 0, this.IgnoreErrors)) == null)
                 {
                     logLine = readStream.ReadLine();
                 }

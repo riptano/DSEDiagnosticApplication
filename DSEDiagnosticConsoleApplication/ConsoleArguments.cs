@@ -292,6 +292,11 @@ namespace DSEDiagnosticConsoleApplication
                 Description = "Old Excel Worksheet Format Used"
             });
 
+            this._cmdLineParser.Arguments.Add(new SwitchArgument("LogIgnoreParsingErrors", false)
+            {
+                Description = "If defined, all parsing errors related to logs will be ignored. Warning: If defined unexpected results may occur including abnormal termination of the application, exceptions, and/or invalid/missing log event generation."
+            });
+
             this._cmdLineParser.Arguments.Add(new SwitchArgument('B', "Batch", false)
             {
                 Description = "Enables Batch Mode, which basically disables prompts and enables Exception Tracing"
@@ -744,6 +749,9 @@ namespace DSEDiagnosticConsoleApplication
                         break;
                     case "OldExcelWS":
                         ParserSettings.OldExcelWorksheets = ((SwitchArgument)item).Value;
+                        break;
+                    case "LogIgnoreParsingErrors":
+                        ParserSettings.LogIgnoreParsingErrors = ((SwitchArgument)item).Value;
                         break;
                     case "Batch":
                         ParserSettings.BatchMode = ((SwitchArgument)item).Value;

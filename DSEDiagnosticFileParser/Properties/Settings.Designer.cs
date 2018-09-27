@@ -1326,5 +1326,14 @@ public static class {0}
                 return ((string)(this["IgnoreIP6AddressRegEx"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool LogIgnoreParsingErrors {
+            get {
+                return ((bool)(this["LogIgnoreParsingErrors"]));
+            }
+        }
     }
 }
