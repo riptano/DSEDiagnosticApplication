@@ -37,7 +37,7 @@
     --ClusterHashCode [Default Value "0"] The cluster's hash code.
     --LogEventMemoryMapping [Default Value "False"] If true the Log Events are mapped into virtual memory, if false Log Events are kept in physical memory (better performance but can OOM).
     --Profile [Default Value "Validate"] The Profile used to parse, transform, and analysis the data. Profile Names: "AllFilesLogs, NoLogs, Validate, Decompression, CreateOpsCenterStruct, AllNoFlushComp, ValidateWLogs"
-    --LogAggrPeriod [Default Value "00:30:00"] Log Aggregation Period in DD:HH:MM format
+    --LogAggrPeriod [Default Value "00:30:00"] Log Aggregation Period in HH:MM:SS format
     --ExcelPackageCache [Default Value "True"] Enables/Disables the Excel Package caching. If disabled each time a worksheet is generated the workbook is saved and reloaded (Excel Package is deleted and recreated).
     --ExcelWorkSheetSave [Default Value "False"] Enables/Disables the saving of a workbook each time a worksheet is added/modified. If ExcelPackageCache is disabled this is always enabled.
     --IgnoreLogTagEvent [Default Value "<none>", Multiple Allowed] A Log Event Tag Id that will cause that associated log event to be ignored during parsing. If an integral value (i.e., 10, no decimal) and a session event, all items in that session are ignored. Multiple arguments can be defined.
