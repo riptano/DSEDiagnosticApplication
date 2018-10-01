@@ -292,7 +292,7 @@ namespace DSEDiagnosticConsoleApplication
                 Description = "Old Excel Worksheet Format Used"
             });
 
-            this._cmdLineParser.Arguments.Add(new SwitchArgument("LogIgnoreParsingErrors", false)
+            this._cmdLineParser.Arguments.Add(new SwitchArgument("LogIgnoreParsingErrors", ParserSettings.LogIgnoreParsingErrors)
             {
                 Description = "If defined, all parsing errors related to logs will be ignored. Warning: If defined unexpected results may occur including abnormal termination of the application, exceptions, and/or invalid/missing log event generation."
             });
