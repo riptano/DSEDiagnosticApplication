@@ -327,7 +327,7 @@ namespace DSEDiagnosticConsoleApplication
             Logger.Instance.InfoFormat("DSEDiagnosticConsoleApplication Main Start with Args: {0}", CommandLineArgsString);
             DSEDiagnosticFileParser.DiagnosticFile.OnException += DiagnosticFile_OnException;
             DSEDiagnosticFileParser.DiagnosticFile.OnProgression += DiagnosticFile_OnProgression;
-            Logger.Instance.OnLoggingEvent += Instance_OnLoggingEvent;
+            Logger.Instance.OnLoggingEvent += Instance_OnLoggingEvent;            
 
             #region Arguments
             {
@@ -372,7 +372,7 @@ namespace DSEDiagnosticConsoleApplication
                     Common.ConsoleHelper.Prompt("Press Return to Exit", ConsoleColor.Gray, ConsoleColor.DarkRed);
                     return 1;
                 }
-
+                
                 if (ParserSettings.ExcelFilePath != null
                         && ParserSettings.ExcelFilePath.IsRelativePath
                         && ParserSettings.DiagnosticPath.IsAbsolutePath)
@@ -432,6 +432,7 @@ namespace DSEDiagnosticConsoleApplication
             #endregion
 
             GCMonitor.GetInstance().StartGCMonitoring();
+            var logFilePath = Logger.Instance.GetSetEnvVarLoggerFile();
 
             #endregion
 
@@ -455,12 +456,13 @@ namespace DSEDiagnosticConsoleApplication
             ConsoleDisplay.End();
 
             GCMonitor.GetInstance().StopGCMonitoring();
-
+            
             Logger.Instance.Info("DSEDiagnosticConsoleApplication Main End");
 
-            ConsoleDisplay.Console.SetReWriteToWriterPosition();
+            ConsoleDisplay.Console.SetReWriteToWriterPosition();           
+            ConsoleDisplay.Console.WriteLine("Logged to file \"{0}\"", logFilePath);
             ConsoleDisplay.Console.WriteLine();
-            if(!ParserSettings.BatchMode)
+            if (!ParserSettings.BatchMode)
                 Common.ConsoleHelper.Prompt("Press Return to Exit", ConsoleColor.Gray, ConsoleColor.DarkRed);
 
             #endregion

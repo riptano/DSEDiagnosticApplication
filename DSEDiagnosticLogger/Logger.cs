@@ -62,6 +62,21 @@ namespace DSEDiagnosticLogger
         #endregion
 
         #region Log4Net Methods
+
+        public string GetSetEnvVarLoggerFile(bool setEnvValue = true)
+        {
+            var rootAppender = Log4NetInstance.Logger.Repository.GetAppenders()
+                                          .OfType<log4net.Appender.FileAppender>()
+                                         .FirstOrDefault();
+
+            string filename = rootAppender != null ? rootAppender.File : string.Empty;
+
+            if(setEnvValue)
+                Environment.SetEnvironmentVariable("DSEDiagnosticLoggerFilePath", filename, EnvironmentVariableTarget.User);
+
+            return filename;
+        }
+
         //
         // Summary:
         //     Checks if this logger is enabled for the log4net.Core.Level.Debug level.
