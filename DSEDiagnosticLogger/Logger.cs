@@ -77,6 +77,15 @@ namespace DSEDiagnosticLogger
             return filename;
         }
 
+        public void SetDebugLevel()
+        {
+            if(((log4net.Repository.Hierarchy.Hierarchy)Log4NetInstance.Logger.Repository).Root.Level != log4net.Core.Level.Debug)
+            {
+                ((log4net.Repository.Hierarchy.Hierarchy)Log4NetInstance.Logger.Repository).Root.Level = log4net.Core.Level.Debug;
+                ((log4net.Repository.Hierarchy.Hierarchy)Log4NetInstance.Logger.Repository).RaiseConfigurationChanged(EventArgs.Empty);
+            }            
+        }
+
         //
         // Summary:
         //     Checks if this logger is enabled for the log4net.Core.Level.Debug level.

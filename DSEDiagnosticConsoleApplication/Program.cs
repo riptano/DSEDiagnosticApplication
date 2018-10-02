@@ -27,6 +27,13 @@ namespace DSEDiagnosticConsoleApplication
         static public ConsoleDisplay ConsoleErrors = null;
         static public ConsoleDisplay ConsoleExceptions = null;
 
+        public enum DebugMenuItems
+        {
+            DebugMode = 1,
+            DebugModeConsole = 2,
+            NormalMode = 3,
+            ExitProgram = 4
+        }
         #endregion
 
         #region Exception/Progression Handlers
@@ -319,6 +326,10 @@ namespace DSEDiagnosticConsoleApplication
                                             Common.Functions.Instance.CurrentUserName,
                                             Common.Functions.Instance.ApplicationRunTimeDir);
 
+#if DEBUG
+            Logger.Instance.SetDebugLevel();
+#endif
+
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
             System.Console.CancelKeyPress += Console_CancelKeyPress;
 
@@ -349,26 +360,50 @@ namespace DSEDiagnosticConsoleApplication
 
                     if (consoleArgs.Debug)
                     {
-                        DebugMode = true;
-                        Common.ConsoleHelper.Prompt("Attach Debugger and Press Return to Continue", ConsoleColor.Gray, ConsoleColor.DarkRed);
-                        ConsoleDisplay.DisableAllConsoleWriter();
+                        Logger.Instance.SetDebugLevel();
+                        ConsoleDisplay.Console.WriteLine("Application Log Level set to Debug");
+                        Common.ConsoleHelper.PrintToConsole("Attach Remote Debugger before Menu Selection", ConsoleColor.Gray, ConsoleColor.DarkRed);
+                        ConsoleDisplay.Console.WriteLine();
+
+                        var consoleMenu = new Common.ConsoleMenu<DebugMenuItems>();
+                        consoleMenu.Header = "Input Debug Option Number and Press <Enter>";
+                        
+                        switch(consoleMenu.ShowMenu())
+                        {
+                            case DebugMenuItems.DebugMode:
+                                DebugMode = true;
+                                ConsoleDisplay.DisableAllConsoleWriter();
+                                break;
+                            case DebugMenuItems.DebugModeConsole:
+                                DebugMode = true;
+                                break;
+                            case DebugMenuItems.ExitProgram:
+                                Logger.Instance.Debug("Debug Mode Application Exit");
+                                return 1;
+                            case DebugMenuItems.NormalMode:
+                            default:
+                                break;
+                        }
+                        
+                        if(DebugMode) Logger.Instance.Debug("Debug Mode Enabled");
+
                     }
                 }
                 catch (CommandLineParser.Exceptions.CommandLineException e)
                 {
+                    //consoleArgs.ShowUsage();
+                    //ConsoleDisplay.Console.WriteLine();
                     ConsoleDisplay.Console.WriteLine(e.Message);
-                    ConsoleDisplay.Console.WriteLine("CommandLine: '{0}'", CommandLineArgsString);
-
-                    consoleArgs.ShowUsage();
+                    ConsoleDisplay.Console.WriteLine("CommandLine: '{0}'", CommandLineArgsString);                    
                     Common.ConsoleHelper.Prompt("Press Return to Exit", ConsoleColor.Gray, ConsoleColor.DarkRed);
                     return 1;
                 }
                 catch (System.Exception e)
                 {
+                    //consoleArgs.ShowUsage();
+                    //ConsoleDisplay.Console.WriteLine();
                     ConsoleDisplay.Console.WriteLine(e.Message);
                     ConsoleDisplay.Console.WriteLine("CommandLine: '{0}'", CommandLineArgsString);
-
-                    consoleArgs.ShowUsage();
                     Common.ConsoleHelper.Prompt("Press Return to Exit", ConsoleColor.Gray, ConsoleColor.DarkRed);
                     return 1;
                 }
