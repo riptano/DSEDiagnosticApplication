@@ -51,16 +51,7 @@ namespace DSEDiagnosticConsoleApplication
                         }
                     }
                 }
-
-                string processTF = string.Empty;
-
-                if(DSEDiagnosticFileParser.LibrarySettings.LogRestrictedTimeRange != null && !DSEDiagnosticFileParser.LibrarySettings.LogRestrictedTimeRange.IsEmpty())
-                {
-                    processTF = string.Format("-{0:yyMMdd}To{1:MMdd}",
-                                                DSEDiagnosticFileParser.LibrarySettings.LogRestrictedTimeRange.Min.UtcDateTime,
-                                                DSEDiagnosticFileParser.LibrarySettings.LogRestrictedTimeRange.Max.UtcDateTime);
-                }
-
+                
                 ParserSettings.ExcelFilePath = Common.Path.PathUtils.BuildFilePath(DetermineExcelTargetFile(cluster));
             }
 

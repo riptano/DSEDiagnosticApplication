@@ -155,6 +155,19 @@ namespace DSEDiagnosticConsoleApplication
         public static string SettingValues()
         {
             StringBuilder settingsValues = new StringBuilder();
+            var settingValueList = SettingValueList();
+
+            foreach (var settingItem in settingValueList)
+            {               
+                settingsValues.AppendLine(string.Format("\t{0} ({1}): {2}", settingItem.Item1, settingItem.Item2, settingItem.Item3));
+            }
+
+            return settingsValues.ToString();
+        }
+
+        public static IEnumerable<Tuple<string,string,string>> SettingValueList()
+        {
+            var settingsValues = new List<Tuple<string,string,string>>();
             var fields = typeof(ParserSettings).GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
 
             foreach (var fld in fields)
@@ -167,7 +180,7 @@ namespace DSEDiagnosticConsoleApplication
                                                         string.Join(", ", fld.FieldType.GenericTypeArguments.Select(t => t.Name)))
                                     : fld.FieldType.Name;
 
-                settingsValues.AppendLine(string.Format("\t{0} ({1}): {2}", fld.Name, strType, strItem));
+                settingsValues.Add(new Tuple<string,string,string>(fld.Name, strType, strItem));
             }
 
             var props = typeof(ParserSettings).GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
@@ -182,10 +195,10 @@ namespace DSEDiagnosticConsoleApplication
                                                         string.Join(", ", prop.PropertyType.GenericTypeArguments.Select(t => t.Name)))
                                     : prop.PropertyType.Name;
 
-                settingsValues.AppendLine(string.Format("\t{0} ({1}): {2}", prop.Name, strType, strItem));
+                settingsValues.Add(new Tuple<string, string, string>(prop.Name, strType, strItem));
             }
 
-            return settingsValues.ToString();
+            return settingsValues;
         }
         #endregion
 

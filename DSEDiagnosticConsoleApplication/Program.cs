@@ -303,6 +303,11 @@ namespace DSEDiagnosticConsoleApplication
                                             DSEDiagnosticFileParser.LibrarySettings.LogRestrictedTimeRange.Max.UtcDateTime);
             }
 
+            if(ParserSettings.LogAggregationPeriod.TotalMinutes > 0)
+            {
+                processTF += string.Format("LogBy{0}Mins", ParserSettings.LogAggregationPeriod.TotalMinutes);
+            }
+
             return string.Format(Properties.Settings.Default.ExcelFileNameGeneratedStringFormat,
                                     ParserSettings.DiagnosticPath,
                                     cluster == null ? "<clustername>" : (cluster.IsMaster ? "MasterCluster" : cluster.Name),
