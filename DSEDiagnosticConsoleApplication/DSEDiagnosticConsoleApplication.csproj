@@ -185,6 +185,9 @@
       <Link>dseHealthAssessment3Template.xlsm</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="..\dseHealthAssessmentLogEventChatsTemplate.xlsm">
+      <Link>dseHealthAssessmentLogEventChatsTemplate.xlsm</Link>
+    </None>
     <None Include="App.config" />
     <None Include="JSON\DSEDiagConsoleApp-OpsCtr-ProcessFileMappings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
