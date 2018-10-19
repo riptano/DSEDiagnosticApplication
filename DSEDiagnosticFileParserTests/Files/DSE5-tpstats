@@ -1,0 +1,45 @@
+Pool Name                         Active   Pending      Completed   Blocked  All time blocked
+ReadStage                              0         0        5513721         0                 0
+ContinuousPagingStage                  0         0              0         0                 0
+MiscStage                              0         0              0         0                 0
+CompactionExecutor                     0         0        6601592         0                 0
+MutationStage                          0         0     3447789863         0                 0
+GossipStage                            0         0       16776867         0                 0
+RequestResponseStage                   0         0     4883544609         0                 0
+ReadRepairStage                        0         0          61000         0                 0
+CounterMutationStage                   0         0              0         0                 0
+MemtablePostFlush                      0         0         794787         0                 0
+ValidationExecutor                     0         0          76820         0                 0
+MemtableFlushWriter                    0         0         743742         0                 0
+ViewMutationStage                      0         0              0         0                 0
+CacheCleanupExecutor                   0         0              0         0                 0
+MemtableReclaimMemory                  0         0         743742         0                 0
+PendingRangeCalculator                 0         0             47         0                 0
+AntiCompactionExecutor                 0         0           4288         0                 0
+SecondaryIndexManagement               0         0              0         0                 0
+HintsDispatcher                        3         3         133132         0                 0
+PerDiskMemtableFlushWriter_1           0         0         743499         0                 0
+Native-Transport-Requests              2         0     2005109179         0            497842
+PerDiskMemtableFlushWriter_2           0         0         743499         0                 0
+MigrationStage                         0         0            273         0                 0
+PerDiskMemtableFlushWriter_0           0         0         743742         0                 0
+Sampler                                0         0              0         0                 0
+PerDiskMemtableFlushWriter_5           0         0         743499         0                 0
+InternalResponseStage                  0         0      299111604         0                 0
+PerDiskMemtableFlushWriter_3           0         0         743499         0                 0
+PerDiskMemtableFlushWriter_4           0         0         743499         0                 0
+AntiEntropyStage                       0         0         245838         0                 0
+
+Message type           Dropped                  Latency waiting in queue (micros)                                    
+                                             50%               95%               99%               Max
+READ                         0              0.00              0.00              0.00              0.00
+RANGE_SLICE                  0              0.00              0.00              0.00         557074.61
+_TRACE                   25471               N/A               N/A               N/A               N/A
+HINT                        26              0.00              0.00              0.00          10090.81
+MUTATION                     6              0.00              0.00              0.00         802187.44
+COUNTER_MUTATION             0               N/A               N/A               N/A               N/A
+BATCH_STORE                  0               N/A               N/A               N/A               N/A
+BATCH_REMOVE                 0               N/A               N/A               N/A               N/A
+REQUEST_RESPONSE             0              0.00              0.00              0.00         668489.53
+PAGED_RANGE                  0               N/A               N/A               N/A               N/A
+READ_REPAIR                  0              0.00              0.00              0.00              0.00

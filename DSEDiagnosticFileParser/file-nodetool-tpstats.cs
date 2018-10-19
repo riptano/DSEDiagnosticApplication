@@ -127,6 +127,14 @@ namespace DSEDiagnosticFileParser
             REQUEST_RESPONSE             0              0.00              0.00              0.00          12108.97
             PAGED_RANGE                  0               N/A               N/A               N/A               N/A
             READ_REPAIR                  0              0.00              0.00              0.00              0.00
+
+            Pool Name                                     Active      Pending (w/Backpressure)   Delayed      Completed   Blocked  All time blocked
+            AntiEntropyStage                                   0                       0 (N/A)       N/A           1183         0                 0
+            TPC/all/AUTHENTICATION                             0                     N/A (N/A)       N/A            142       N/A               N/A
+            
+            Message type            Dropped                  Latency waiting in queue (micros)                                    
+                                                             50%               95%               99%               Max
+            RANGE_SLICE                   0                  0.00           5242.88           5242.88           6291.46
             */
 
             string line;
@@ -172,7 +180,7 @@ namespace DSEDiagnosticFileParser
 
                     if (name.Success && props.Success)
                     {
-                        if (props.Captures.Count == 5 && !extendDroppedProp)
+                        if (props.Captures.Count == 5 && !extendDroppedProp) //Pool Name                    Active   Pending      Completed   Blocked  All time blocked
                         {
                             if (poolProperties == null)
                             {
@@ -188,8 +196,44 @@ namespace DSEDiagnosticFileParser
                             {
                                 for (int nIdx = 0; nIdx < 5; ++nIdx)
                                 {
-                                    //Attribute Key: "Pool Name.MutationStage.Active"
-                                    statItem.AssociateItem(propType + '.' + name.Value.Trim() + '.' + poolProperties[nIdx], long.Parse(props.Captures[nIdx].Value.Trim()));
+                                    var poolNumStr = props.Captures[nIdx].Value.Trim();
+
+                                    if (!string.IsNullOrEmpty(poolNumStr) && poolNumStr != "N/A")
+                                    {
+                                        //Attribute Key: "Pool Name.MutationStage.Active"
+                                        statItem.AssociateItem(propType + '.' + name.Value.Trim() + '.' + poolProperties[nIdx], long.Parse(poolNumStr));
+                                    }
+                                }
+                                continue;
+                            }
+                        }
+                        else if (props.Captures.Count == 7 && !extendDroppedProp)
+                        {
+                            if (poolProperties == null)
+                            {
+                                propType = name.Value.Trim();
+                                poolProperties = new string[7];
+                                for (int nIdx = 0; nIdx < 7; ++nIdx)
+                                {
+                                    poolProperties[nIdx] = props.Captures[nIdx].Value.Trim();
+                                }
+                                continue;
+                            }
+                            else
+                            {
+                                for (int nIdx = 0; nIdx < 7; ++nIdx)
+                                {
+                                    var poolName = poolProperties[nIdx][0] == '(' ? poolProperties[nIdx - 1] + poolProperties[nIdx] : poolProperties[nIdx];
+                                    var poolNumStr = props.Captures[nIdx].Value.Trim();
+
+                                    if (poolNumStr[0] == '(')
+                                        poolNumStr = poolNumStr.Trim('(', ')');
+
+                                    if (!string.IsNullOrEmpty(poolNumStr) && poolNumStr != "N/A")
+                                    {
+                                        //Attribute Key: "Pool Name.MutationStage.Active"
+                                        statItem.AssociateItem(propType + '.' + name.Value.Trim() + '.' + poolName, long.Parse(poolNumStr));
+                                    }
                                 }
                                 continue;
                             }
@@ -208,10 +252,10 @@ namespace DSEDiagnosticFileParser
                             }
                             continue;
                         }
-                        else if(props.Captures.Count == 2 && !extendDroppedProp) //Dropped                  Latency waiting in queue (micros)  
+                        else if((props.Captures.Count == 3 || props.Captures.Count == 2) && !extendDroppedProp) //Dropped                  Latency waiting in queue (micros)  
                         {
                             var uomValue = this.RegExParser.Match(line, 1);
-                            var uomGrp = regExMatch.Groups["uom"];
+                            var uomGrp = uomValue.Groups["uom"];
 
                             if (uomValue.Success && uomGrp.Success)
                             {
@@ -236,10 +280,10 @@ namespace DSEDiagnosticFileParser
                                 }
                             });
 
-                            checkValue(tpName + ".Latency.Waiting.50%", props.Captures[1].Value.Trim());
-                            checkValue(tpName + ".Latency.Waiting.95%", props.Captures[2].Value.Trim());
-                            checkValue(tpName + ".Latency.Waiting.99%", props.Captures[3].Value.Trim());
-                            checkValue(tpName + ".Latency.Waiting.Max", props.Captures[4].Value.Trim());
+                            checkValue(tpName + ".Queue.Latency.Waiting.50%", props.Captures[1].Value.Trim());
+                            checkValue(tpName + ".Queue.Latency.Waiting.95%", props.Captures[2].Value.Trim());
+                            checkValue(tpName + ".Queue.Latency.Waiting.99%", props.Captures[3].Value.Trim());
+                            checkValue(tpName + ".Queue.Latency.Waiting.Max", props.Captures[4].Value.Trim());
 
                             continue;
                         }

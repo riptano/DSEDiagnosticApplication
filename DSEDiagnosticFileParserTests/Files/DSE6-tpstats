@@ -1,0 +1,67 @@
+Pool Name                                     Active      Pending (w/Backpressure)   Delayed      Completed   Blocked  All time blocked
+AntiEntropyStage                                   0                       0 (N/A)       N/A           1183         0                 0
+AuthzStage                                         0                       0 (N/A)       N/A            382         0                 0
+BackgroundIoStage                                  0                       0 (N/A)       N/A        2268908         0                 0
+CompactionExecutor                                 0                       0 (N/A)       N/A         427784         0                 0
+GossipStage                                        0                       0 (N/A)       N/A         705887         0                 0
+HintsDispatcher                                    0                       0 (N/A)       N/A            803         0                 0
+InternalResponseStage                              0                       0 (N/A)       N/A            249         0                 0
+MemtableFlushWriter                                0                       0 (N/A)       N/A           6806         0                 0
+MemtablePostFlush                                  0                       0 (N/A)       N/A          11894         0                 0
+MemtableReclaimMemory                              0                       0 (N/A)       N/A           6806         0                 0
+MigrationStage                                     0                       0 (N/A)       N/A           1134         0                 0
+PendingRangeCalculator                             0                       0 (N/A)       N/A             13         0                 0
+PerDiskMemtableFlushWriter_0                       0                       0 (N/A)       N/A           5906         0                 0
+ReadRepairStage                                    0                       0 (N/A)       N/A        6075854         0                 0
+Repair-Task                                        0                       0 (N/A)       N/A              3         0                 0
+SecondaryIndexManagement                           0                       0 (N/A)       N/A              4         0                 0
+TPC/all/AUTHENTICATION                             0                     N/A (N/A)       N/A            142       N/A               N/A
+TPC/all/AUTHORIZATION                              0                     N/A (N/A)       N/A        9415095       N/A               N/A
+TPC/all/EVENTLOOP_SPIN                             0                     N/A (N/A)       N/A    10286220941       N/A               N/A
+TPC/all/EXECUTE_STATEMENT                          0                     N/A (N/A)       N/A           3999       N/A               N/A
+TPC/all/HINT_DISPATCH                              0                       0 (N/A)       N/A        7418735       N/A                 0
+TPC/all/HINT_RESPONSE                              0                     N/A (N/A)       N/A       13420471       N/A               N/A
+TPC/all/LWT_COMMIT                                 0                       0 (N/A)       N/A             48       N/A                 0
+TPC/all/LWT_PREPARE                                0                       0 (N/A)       N/A             48       N/A                 0
+TPC/all/LWT_PROPOSE                                0                       0 (N/A)       N/A             48       N/A                 0
+TPC/all/READ_DEFERRED                              0                       0 (N/A)       N/A      103805319       N/A                 0
+TPC/all/READ_DISK_ASYNC                            0                     N/A (N/A)       N/A       19540158       N/A               N/A
+TPC/all/READ_INTERNAL                              0                     N/A (N/A)       N/A          72900       N/A               N/A
+TPC/all/READ_LOCAL                                 0                       0 (N/A)       N/A       54932920       N/A                 0
+TPC/all/READ_RANGE_INTERNAL                        0                     N/A (N/A)       N/A          12906       N/A               N/A
+TPC/all/READ_RANGE_LOCAL                           0                       0 (N/A)       N/A             28       N/A                 0
+TPC/all/READ_RANGE_REMOTE                          0                       0 (N/A)       N/A           2309       N/A                 0
+TPC/all/READ_RANGE_SWITCH_FOR_RESPONSE             0                     N/A (N/A)       N/A          19165       N/A               N/A
+TPC/all/READ_REMOTE                                0                       0 (N/A)       N/A       70860295       N/A                 0
+TPC/all/READ_SPECULATE                             0                     N/A (N/A)       N/A         238158       N/A               N/A
+TPC/all/READ_SWITCH_FOR_RESPONSE                   0                     N/A (N/A)       N/A      100715067       N/A               N/A
+TPC/all/TIMED_TIMEOUT                              0                     N/A (N/A)       N/A        6463583       N/A               N/A
+TPC/all/TIMED_UNKNOWN                              0                     N/A (N/A)       N/A       13263605       N/A               N/A
+TPC/all/UNKNOWN                                    0                     N/A (N/A)       N/A       70654808       N/A               N/A
+TPC/all/WRITE_AWAIT_COMMITLOG_SEGMENT              0                     N/A (N/A)       N/A           3842       N/A               N/A
+TPC/all/WRITE_DEFRAGMENT                           0                       0 (N/A)       N/A         766290       N/A                 0
+TPC/all/WRITE_INTERNAL                             0                     N/A (N/A)       N/A           1279       N/A               N/A
+TPC/all/WRITE_LOCAL                                0                       0 (N/A)       N/A       88615620       N/A                 0
+TPC/all/WRITE_REMOTE                               0                       0 (N/A)       N/A      204287041       N/A                 0
+TPC/all/WRITE_SWITCH_FOR_MEMTABLE                  0                     N/A (N/A)       N/A       51306537       N/A               N/A
+TPC/all/WRITE_SWITCH_FOR_RESPONSE                  0                     N/A (N/A)       N/A      330728617       N/A               N/A
+ValidationExecutor                                 0                       0 (N/A)       N/A            221         0                 0
+ViewBuildExecutor                                  0                       0 (N/A)       N/A           5248         0                 0
+
+Message type            Dropped                  Latency waiting in queue (micros)                                    
+                                              50%               95%               99%               Max
+RANGE_SLICE                   0              0.00           5242.88           5242.88           6291.46
+SNAPSHOT                      0               N/A               N/A               N/A               N/A
+HINT                          0              0.00              0.00              0.00              0.00
+COUNTER_MUTATION              0               N/A               N/A               N/A               N/A
+LWT                           0              0.00              0.00              0.00              0.00
+BATCH_STORE                   0               N/A               N/A               N/A               N/A
+VIEW_MUTATION                 0               N/A               N/A               N/A               N/A
+READ                          0              0.00            917.50            917.50           1048.58
+OTHER                         0            917.50            917.50            917.50           1048.58
+REPAIR                        0              0.00            917.50            917.50           1048.58
+SCHEMA                        0              0.00            917.50            917.50           1048.58
+MUTATION                    812              0.00            917.50            917.50         167772.16
+NODESYNC                      0               N/A               N/A               N/A               N/A
+READ_REPAIR                   0              0.00            917.50            917.50           1048.58
+TRUNCATE                      0               N/A               N/A               N/A               N/A

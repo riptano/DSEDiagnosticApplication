@@ -248,7 +248,7 @@ namespace DSEDiagnosticLibrary
         public Cluster Cluster { get; }
         public IDataCenter DataCenter { get; }
         public INode Node { get; }
-        public int Items { get; } = 1;
+        public int Items { get { return this._data.Count; } }
         public uint LineNbr { get; } = 0;
 
         #endregion

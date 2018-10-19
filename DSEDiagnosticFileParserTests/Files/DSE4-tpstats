@@ -1,0 +1,36 @@
+Pool Name                    Active   Pending      Completed   Blocked  All time blocked
+MutationStage                     0         0      488331040         0                 0
+ViewMutationStage                 0         0              0         0                 0
+ReadStage                         1         0     3950045924         0                 0
+RequestResponseStage              0         0     2602457511         0                 0
+ReadRepairStage                   0         0         121119         0                 0
+CounterMutationStage              0         0              0         0                 0
+MiscStage                         0         0              0         0                 0
+CompactionExecutor                0         0        1084206         0                 0
+MemtableReclaimMemory             0         0          68644         0                 0
+PendingRangeCalculator            0         0             10         0                 0
+GossipStage                       0         0        2387155         0                 0
+SecondaryIndexManagement          0         0              0         0                 0
+HintsDispatcher                   0         0             14         0                 0
+MigrationStage                    0         0             12         0                 0
+MemtablePostFlush                 0         0         197600         0                 0
+ValidationExecutor                0         0         194856         0                 0
+Sampler                           0         0              0         0                 0
+MemtableFlushWriter               0         0          68644         0                 0
+InternalResponseStage             0         0         107965         0                 0
+AntiEntropyStage                  0         0         684844         0                 0
+CacheCleanupExecutor              0         0              0         0                 0
+Native-Transport-Requests         5         0     4061267941         0             34550
+
+Message type           Dropped
+READ                         0
+RANGE_SLICE                  0
+_TRACE                       0
+HINT                         0
+MUTATION                     0
+COUNTER_MUTATION             0
+BATCH_STORE                  0
+BATCH_REMOVE                 0
+REQUEST_RESPONSE             0
+PAGED_RANGE                  0
+READ_REPAIR                  0

@@ -87,6 +87,7 @@
     <Compile Include="CLogLineTypeParser_Test.cs" />
     <Compile Include="cql_ddlTests.cs" />
     <Compile Include="file_cassandra_log4netTests.cs" />
+    <Compile Include="file_nodetool_tpstats.cs" />
     <Compile Include="file_dsetool_ringTests.cs" />
     <Compile Include="file_system_hostsTests.cs" />
     <Compile Include="file_yamlTests.cs" />
@@ -121,10 +122,19 @@
     <None Include="Files\dse.yaml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Files\DSE4-tpstats">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Files\DSE5-ring">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Files\DSE5-ring1">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Files\DSE5-tpstats">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Files\DSE6-tpstats">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="JSon\solr_index_size.json">
