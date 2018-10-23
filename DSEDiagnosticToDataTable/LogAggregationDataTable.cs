@@ -579,6 +579,30 @@ namespace DSEDiagnosticToDataTable
 
                             unitOfMeasure += analyticsGrp.CompactionInsufficientSpaceStats.UOM + ',';
                         }
+
+                        if (analyticsGrp.DropStats != null && analyticsGrp.DropStats.HasValue)
+                        {
+
+                            if (analyticsGrp.DropStats.InternalDrops.HasValue) // || analyticsGrp.DropStats.CrossNodeDrops.HasValue)
+                            {
+                                dataRow.SetField("Count Max", analyticsGrp.DropStats.InternalDrops.Max);
+                                dataRow.SetField("Count Min", analyticsGrp.DropStats.InternalDrops.Min);
+                                dataRow.SetField("Count Mean", analyticsGrp.DropStats.InternalDrops.Mean);
+                                dataRow.SetField("Count StdDevp", analyticsGrp.DropStats.InternalDrops.StdDev);
+                                dataRow.SetField("Count Total", analyticsGrp.DropStats.InternalDrops.Sum);
+                            }
+
+                            if (analyticsGrp.DropStats.InternalMeanLatencies.HasValue) // || analyticsGrp.DropStats.CrossNodeDrops.HasValue)
+                            {
+                                dataRow.SetField("Duration Max", analyticsGrp.DropStats.InternalMeanLatencies.Max);
+                                dataRow.SetField("Duration Min", analyticsGrp.DropStats.InternalMeanLatencies.Min);
+                                dataRow.SetField("Duration Mean", analyticsGrp.DropStats.InternalMeanLatencies.Mean);
+                                dataRow.SetField("Duration StdDevp", analyticsGrp.DropStats.InternalMeanLatencies.StdDev);
+                                dataRow.SetField("Duration Total", analyticsGrp.DropStats.InternalMeanLatencies.Sum);
+                            }
+
+                            unitOfMeasure += analyticsGrp.DropStats.UOM + ',';
+                        }
                     }
 
                     dataRow.SetField("UOM", unitOfMeasure.TrimEnd(','));

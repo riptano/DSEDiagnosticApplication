@@ -1273,7 +1273,7 @@ namespace DSEDiagnosticFileParser
                 {
                     var runningTotKey = runningTotKeyPrefix == null ? deltaProp : runningTotKeyPrefix + '-' + deltaProp;
 
-                    if (logProperties.TryGetValue(deltaProp, out propValue) && propValue != null)
+                    if (logProperties.TryGetValue(deltaProp, out propValue) && propValue != null && propValue.IsNumber())
                     {
                         if(this.Node.Analytics.RunningTotalProperties.TryGetValue(runningTotKey, out runningTot))
                         {

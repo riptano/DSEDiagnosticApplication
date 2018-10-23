@@ -176,6 +176,18 @@
     {
       "Description": "Transaction Failure",
       "LinkedTagId": 44.0
+    },
+    {
+      "Description": "Gossip marked as unavailable",
+      "LinkedTagId": 45.0
+    },
+    {
+      "Description": "Drops",
+      "LinkedTagId": 46.0
+    },
+    {
+      "Description": "RejectedExecutionException",
+      "LinkedTagId": 47.0
     }
   ]
 }

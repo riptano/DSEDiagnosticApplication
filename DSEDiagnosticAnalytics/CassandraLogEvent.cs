@@ -811,6 +811,21 @@ namespace DSEDiagnosticAnalytics
                                         LogEventGrouping.GroupingTypes.CompactionInsufficientSpaceStats,
                                         storage);
         }
+
+        public static LogEventGrouping DropStats(ref LogEventGroup logEventGroup, string analyticsGroup, IEnumerable<ILogEvent> assocatedLogEvents)
+        {
+            var drpInternal = assocatedLogEvents.Select(i => i.LogProperties.GetPropLongValue("drpinteral")).Where(i => i > 0);
+            var drpCrossNode = assocatedLogEvents.Select(i => i.LogProperties.GetPropLongValue("drpcrossnode")).Where(i => i > 0);
+            var drpLatInternal = assocatedLogEvents.Select(i => i.LogProperties.GetPropUOMValue("drpmeanlatencyinteral")).Where(i => i > 0);
+            var drpLatCrossNode = assocatedLogEvents.Select(i => i.LogProperties.GetPropUOMValue("drpmeanlatencycrossnode")).Where(i => i > 0);
+
+            return new LogEventGrouping(ref logEventGroup,
+                                        assocatedLogEvents,
+                                        LogEventGrouping.GroupingTypes.DropStats,
+                                        new IEnumerable<long>[] { drpInternal, drpCrossNode },
+                                        new IEnumerable<decimal>[] { drpLatInternal, drpLatCrossNode });
+        }
+
     }
 
     public struct LogEventGroup
@@ -1010,7 +1025,8 @@ namespace DSEDiagnosticAnalytics
             PreparesDiscard,
             MaximumMemoryUsageReachedStats,
             FreeDeviceStorageStats,
-            CompactionInsufficientSpaceStats
+            CompactionInsufficientSpaceStats,
+            DropStats
         }
 
         public static IEnumerable<LogEventGrouping> CreateLogEventGrouping(LogEventGroup logEventGroup, IEnumerable<ILogEvent> assocatedLogEvents)
@@ -1164,6 +1180,14 @@ namespace DSEDiagnosticAnalytics
                     this.GroupKey = groupKey;
                     this.CompactionInsufficientSpaceStats = new CompactionInsufficientSpace(decimalAggreations[0]);
                     this.HasValue = forceHasValue ? true : this.CompactionInsufficientSpaceStats.HasValue;
+                    break;
+                case GroupingTypes.DropStats:
+                    this.GroupKey = groupKey;
+                    this.DropStats = new Drops(longAggreations[0],
+                                                longAggreations[1],
+                                                decimalAggreations[0],
+                                                decimalAggreations[1]);
+                    this.HasValue = forceHasValue ? true : this.DropStats.HasValue;
                     break;
                 default:
                     break;
@@ -1655,5 +1679,32 @@ namespace DSEDiagnosticAnalytics
         }
 
         public readonly CompactionInsufficientSpace CompactionInsufficientSpaceStats;
+
+        public sealed class Drops
+        {
+            public Drops(IEnumerable<long> internalDrops, IEnumerable<long> crossnodeDrops, IEnumerable<decimal> intenralLatencies, IEnumerable<decimal> crossnodeLatencies)
+            {
+                this.InternalDrops = new ItemStatsLong(internalDrops.Concat(crossnodeDrops));
+                //this.CrossNodeDrops = new ItemStatsLong(crossnodeDrops);
+                this.InternalMeanLatencies = new ItemStatsDecimal(intenralLatencies.Concat(crossnodeLatencies));
+                //this.CrossNodeMeanLatencies = new ItemStatsDecimal(crossnodeLatencies);
+
+                if (this.InternalDrops.HasValue) // || this.CrossNodeDrops.HasValue)
+                    this.UOM = "Dropped Messages";
+                if (this.InternalMeanLatencies.HasValue) // || this.CrossNodeMeanLatencies.HasValue)
+                    this.UOM = string.IsNullOrEmpty(this.UOM) ? "MS" : this.UOM + ", MS";
+
+                this.HasValue = this.InternalDrops.HasValue || /*this.CrossNodeDrops.HasValue ||*/ this.InternalMeanLatencies.HasValue /*|| this.CrossNodeMeanLatencies.HasValue*/;
+            }
+
+            public readonly bool HasValue;
+            public readonly ItemStatsLong InternalDrops;
+            //public readonly ItemStatsLong CrossNodeDrops;
+            public readonly ItemStatsDecimal InternalMeanLatencies;
+            //public readonly ItemStatsDecimal CrossNodeMeanLatencies;
+            public readonly string UOM;
+        }
+
+        public readonly Drops DropStats;
     }
 }

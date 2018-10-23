@@ -339,7 +339,7 @@ namespace DSEDiagnosticLibrary
             // C* 3.X -- /mnt/dse/data1/<keyspace>/<column family>-<uuid>/mb-1-big-Data.db
             // C* 3.X -- /mnt/dse/data1/<keyspace>/<column family>-<uuid>/.<secondary index>/mb-1-big-Data.db
             //
-            // Where <version> can be 'jb', 'ka', 'ja', and 'ic' and [tmp marker] can be 'tmp'
+            // Where <version> can be 'jb', 'ka', 'ja', 'ic', 'bti' and [tmp marker] can be 'tmp'
             var sstableFilePathParts = sstableFilePath.Split('/');
 
             if (sstableFilePathParts.Length >= 3)
@@ -363,7 +363,8 @@ namespace DSEDiagnosticLibrary
                     }
                     else if (sstableFilePathParts.Last().Length > ksName.Length + columnFamily.Length + 1
                                 && sstableFilePathParts.Last()[ksName.Length + columnFamily.Length + 1] == '.'
-                                && !sstableFilePathParts.Last().StartsWith("mc-"))
+                                && !sstableFilePathParts.Last().StartsWith("mc-")
+                                && !sstableFilePathParts.Last().StartsWith("aa-"))
                     {
                         var lastNode = sstableFilePathParts.Last();
                         int tmpPos = -1;
@@ -385,7 +386,7 @@ namespace DSEDiagnosticLibrary
                         }
                         else
                         {
-                            throw new ArgumentException(string.Format("Could not find the Secondary Index name in SSTable '{0}' within path node '{1}'",
+                            throw new ArgumentException(string.Format("Could not find the Secondary Index name in SSTable '{0}' within path node '{1}'. This can indicate a DSE SSTable Name syntax change.",
                                                                         sstableFilePath,
                                                                         lastNode));
                         }

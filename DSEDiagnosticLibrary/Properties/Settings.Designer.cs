@@ -217,6 +217,9 @@ namespace DSEDiagnosticLibrary.Properties {
   <string>HiveMetaStore</string>
   <string>cfs_archive</string>
   <string>cfs</string>
+  <string>dsefs</string>
+  <string>dse_system_local</string>
+  <string>dse_analytics</string>
 </ArrayOfString>")]
         public global::System.Collections.Specialized.StringCollection DSEKeyspaces {
             get {
@@ -296,6 +299,7 @@ namespace DSEDiagnosticLibrary.Properties {
   <string>jb</string>
   <string>ja</string>
   <string>ic</string>
+  <string>bti</string>
 </ArrayOfString>")]
         public global::System.Collections.Specialized.StringCollection SSTableVersionMarkers {
             get {

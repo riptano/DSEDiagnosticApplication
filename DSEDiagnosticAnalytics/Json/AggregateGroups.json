@@ -62,5 +62,9 @@
   "CompactionInsufficientSpaceStats": {
     "AnalyticsGroup": "CompactionInsufficientSpaceStats",
     "AggregateGroupFunctionName": "CompactionInsufficientSpaceStats"
+  },
+  "DropStats": {
+    "AnalyticsGroup": "DropStats",
+    "AggregateGroupFunctionName": "DropStats"
   }
 }

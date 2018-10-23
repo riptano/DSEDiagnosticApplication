@@ -980,6 +980,21 @@ namespace DSEDiagnosticFileParser
                 return new CQLColumnType(typeName.ToLower(), subTypes, colType);
             }
 
+            {
+                var ksUDTPair = StringHelpers.SplitTableName(colType, null);
+
+                if(!string.IsNullOrEmpty(ksUDTPair.Item1))
+                {
+                    var newKS = keyspace.DataCenter.TryGetKeyspace(ksUDTPair.Item1);
+
+                    if(newKS != null)
+                    {
+                        keyspace = newKS;
+                        colType = ksUDTPair.Item2;
+                    }
+                }
+            }
+
             var udtInstance = CQLUserDefinedType.TryGet(keyspace, colType);
             bool isUDT = false;
 

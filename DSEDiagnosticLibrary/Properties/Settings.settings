@@ -97,6 +97,9 @@
   &lt;string&gt;HiveMetaStore&lt;/string&gt;
   &lt;string&gt;cfs_archive&lt;/string&gt;
   &lt;string&gt;cfs&lt;/string&gt;
+  &lt;string&gt;dsefs&lt;/string&gt;
+  &lt;string&gt;dse_system_local&lt;/string&gt;
+  &lt;string&gt;dse_analytics&lt;/string&gt;
 &lt;/ArrayOfString&gt;</Value>
     </Setting>
     <Setting Name="PerformanceKeyspaces" Type="System.Collections.Specialized.StringCollection" Scope="Application">
@@ -143,6 +146,7 @@
   &lt;string&gt;jb&lt;/string&gt;
   &lt;string&gt;ja&lt;/string&gt;
   &lt;string&gt;ic&lt;/string&gt;
+  &lt;string&gt;bti&lt;/string&gt;
 &lt;/ArrayOfString&gt;</Value>
     </Setting>
     <Setting Name="SSTableColumnFamilyRegEx" Type="System.String" Scope="Application">

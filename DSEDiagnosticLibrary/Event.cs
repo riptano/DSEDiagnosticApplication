@@ -112,6 +112,8 @@ namespace DSEDiagnosticLibrary
         SSTable         = 0x40000000000,
         Row             = 0x80000000000,
         FileSystem      = 0x100000000000,
+        Message         = 0x200000000000,
+        Unavailable     = 0x400000000000,
         GCStats = GC | Stats,
         MemtableFlush = Memtable | Flush,
         SolrHardCommit = Solr | Commit,

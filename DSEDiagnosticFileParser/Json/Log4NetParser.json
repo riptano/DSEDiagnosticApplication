@@ -1501,7 +1501,8 @@
       },
       "FileNameMatch": {
         "RegExStrings": [
-          "^ShardRouter.java$"
+          "^ShardRouter.java$",
+          "^Router.java$"
         ]
       },
       "MessageMatch": {
@@ -1871,13 +1872,15 @@
       },
       "MessageMatch": {
         "RegExStrings": [
-          "(?:(?:CompactionManager|MessagingService)\\s+(?:\\d+|n/a)\\s+(?:\\d+|n/a))|(?:(?:\\w|#)+\\s+\\d+\\s+\\d+\\s+\\d+\\s+\\d+\\s+\\d+)"
+          "(?:(?:CompactionManager|MessagingService)\\s+(?:\\d+|n/a)\\s+(?:\\d+|n/a))|(?:(?:\\w|#)+\\s+\\d+\\s+\\d+\\s+\\d+\\s+\\d+\\s+\\d+)",
+          "(?:(?:\\w|#)+\\s+(?:\\d+|(?:N/A))\\s+(?:\\d+|(?:N/A))\\s+\\((?:\\d+|(?:N/A))\\)\\s+(?:\\d+|(?:N/A))\\s+(?:\\d+|(?:N/A))\\s+(?:\\d+|(?:N/A))\\s+(?:\\d+|(?:N/A)))"
         ]
       },
       "ParseMessage": {
         "RegExStrings": [
           "(?<SUBCLASS>(?:\\w|#)+)\\s+(?<nbractive>[0-9,]+)\\s+(?<nbrpending>[0-9,]+)\\s+(?<nbrcompleted>[0-9,]+)\\s+(?<nbrblocked>[0-9,]+)\\s+(?<nbralltimeblocked>[0-9,]+)",
-          "(?<SUBCLASS>(CompactionManager|MessagingService))\\s+(?<nbractive>[0-9,/na]+)\\s+(?<nbrpending>[0-9,/na]+)"
+          "(?<SUBCLASS>(CompactionManager|MessagingService))\\s+(?<nbractive>[0-9,/na]+)\\s+(?<nbrpending>[0-9,/na]+)",
+          "(?<SUBCLASS>(?:\\w|#)+)\\s+(?<nbractive>[0-9,]+|(?:N/A))\\s+(?<nbrpending>[0-9,]+|(?:N/A))\\s+\\((?<nbrpendingbackpessure>[0-9,]+|(?:N/A))\\)\\s+(?<nbrDelayed>[0-9,]+|(?:N/A))\\s+(?<nbrcompleted>[0-9,]+|(?:N/A))\\s+(?<nbrblocked>[0-9,]+|(?:N/A))\\s+(?<nbralltimeblocked>[0-9,]+|(?:N/A))"
         ]
       },
       "ParseThreadId": null,
@@ -1913,7 +1916,12 @@
         "INFO  [Service Thread] 2017-01-16 13:51:39,302  StatusLogger.java:66 - MemtableReclaimMemory             0         0          49178         0                 0",
         "INFO  [Service Thread] 2017-01-16 13:51:39,302  StatusLogger.java:75 - CompactionManager                 0         0",
         "INFO  [Service Thread] 2017-01-16 13:51:39,302  StatusLogger.java:87 - MessagingService                n/a       0/0",
-        "INFO  [Service Thread] 2017-01-16 13:51:39,302  StatusLogger.java.51 - PerDiskMemtableFlushWriter_0      0         0           1067         0                 0"
+        "INFO  [Service Thread] 2017-01-16 13:51:39,302  StatusLogger.java.51 - PerDiskMemtableFlushWriter_0      0         0           1067         0                 0",
+        "INFO  [ScheduledTasks:1] 2018-10-09 17:30:12,394  StatusLogger.java:78 - Pool Name                                     Active      Pending (w/Backpressure)   Delayed      Completed   Blocked  All Time Blocked",
+        "INFO  [ScheduledTasks:1] 2018-10-09 17:30:12,431  StatusLogger.java:86 - AuthzStage                                         0                       0 (N/A)       N/A             20         0                 0",
+        "INFO  [ScheduledTasks:1] 2018-10-09 17:30:12,431  StatusLogger.java:86 - ReadRepairStage                                    0                       0 (N/A)       N/A        6382766         0                 0",
+        "INFO  [ScheduledTasks:1] 2018-10-09 17:30:12,431  StatusLogger.java:86 - RequestResponseStage                               0                       0 (N/A)       N/A          21135         0                 0",
+        "INFO  [ScheduledTasks:1] 2018-10-09 17:30:12,435  StatusLogger.java:86 - TPC/0/AUTHENTICATION                               0                     N/A (N/A)       N/A              0       N/A               N/A"
       ]
     },
     {
@@ -2529,7 +2537,7 @@
       },
       "ParseThreadId": null,
       "EventType": "SingleInstance",
-      "EventClass": "Detection,Node,Drops",
+      "EventClass": "Detection,Node,Unavailable",
       "AnalyticsGroup": null,
       "SubClass": "'Node Detected Down'",
       "Product": "Cassandra",
@@ -3001,6 +3009,118 @@
         "ERROR [MemtableFlushWriter:55] 2018-08-23 17:15:15,762  LogTransaction.java:246 - [/var/lib/cassandra/data_dse_murmur3/nms_status_ts/arclight_protocol_log_event-a9feff217e2911e8b1817f703432290d/mc_txn_flush_1a44b210-a6f8-11e8-bb55-09812d4c56c4.log]  was not completed, trying to abort it now",
         "ERROR [MemtableFlushWriter:53] 2018-08-23 17:15:15,760  LogTransaction.java:205 - Unable to delete /var/lib/cassandra/data_dse_murmur3/nms_status_ts/osd_air_channel_utilization_block-98f45b317e2911e8b1817f703432290d/mc_txn_flush_1a443ce0-a6f8-11e8-bb55-09812d4c56c4.log as it does not exist",
         "ERROR [MemtableFlushWriter:54] 2018-08-23 17:15:15,760  LogTransaction.java:249 - Failed to abort [/var/lib/cassandra/data_dse_murmur3/nms_status_ts/login_vmt_status_block-9d55e0917e2911e8b1817f703432290d/mc_txn_flush_1a443ce1-a6f8-11e8-bb55-09812d4c56c4.log]"
+      ]
+    },
+    {
+      "Description": "Gossip marked as unavailable",
+      "TagId": 45.0,
+      "MatchVersion": null,
+      "LevelMatch": {
+        "RegExStrings": [
+          "ERROR"
+        ]
+      },
+      "FileNameMatch": {
+        "RegExStrings": [
+          "^LocationService.scala$"
+        ]
+      },
+      "FileLineMatch": null,
+      "MessageMatch": {
+        "RegExStrings": [
+          "Gossip\\s+to\\s+[^ ]+\\s+failed"
+        ]
+      },
+      "ParseMessage": {
+        "RegExStrings": [
+          "Gossip\\s+to\\s+(?$<NODE>)\\s+failed\\.\\s+Node\\s+will\\s+be\\s+marked\\s+as\\s+unavailable"
+        ]
+      },
+      "ParseThreadId": null,
+      "EventType": "SingleInstance",
+      "EventClass": "Detection,Node,Gossip,Unavailable",
+      "AnalyticsGroup": null,
+      "SubClass": "'unavailable'",
+      "Product": "Cassandra",
+      "IgnoreEvent": false,
+      "Examples": [
+        "ERROR [dsefs-netty-worker-1] 2018-10-10 06:04:23,249  LocationService.scala:492 - Gossip to 10.95.19.55:5599 failed. Node will be marked as unavailable."
+      ]
+    },
+    {
+      "Description": "Drops",
+      "TagId": 46.0,
+      "MatchVersion": null,
+      "LevelMatch": {
+        "RegExStrings": [
+          "INFO"
+        ]
+      },
+      "FileNameMatch": {
+        "RegExStrings": [
+          "^DroppedMessages.java$",
+          "^MessagingService.java$"
+        ]
+      },
+      "FileLineMatch": null,
+      "MessageMatch": {
+        "RegExStrings": [
+          "messages were dropped"
+        ]
+      },
+      "ParseMessage": {
+        "RegExStrings": [
+          "(?<action>\\w+) messages were dropped in last (?<thresholdinteral>[0-9,.]+\\s*\\w+): (?<drpinteral>[0-9,]+) internal and (?<drpcrossnode>[0-9,]+) cross node\\.?\\s*(?:Mean internal dropped latency: (?<drpmeanlatencyinteral>[0-9,.]+\\s*\\w+) and Mean cross-node dropped latency: (?<drpmeanlatencycrossnode>[0-9,.]+\\s*\\w+))*"
+        ]
+      },
+      "ParseThreadId": null,
+      "EventType": "SingleInstance",
+      "EventClass": "Detection,Node,Drops,Message",
+      "AnalyticsGroup": "DropStats",
+      "SubClass": "'Dropped ' + action + ' Messages'",
+      "Product": "Cassandra",
+      "IgnoreEvent": false,
+      "Examples": [
+        "INFO  [ScheduledTasks:1] 2018-10-09 17:30:12,394  DroppedMessages.java:104 - MUTATION messages were dropped in last 5000 ms: 6 internal and 21 cross node. Mean internal dropped latency: 3718 ms and Mean cross-node dropped latency: 4317 ms",
+        "INFO  [ScheduledTasks:1] 2018-10-09 17:30:12,394  DroppedMessages.java:104 - READ messages were dropped in last 5000 ms: 71 internal and 79 cross node. Mean internal dropped latency: 5624 ms and Mean cross-node dropped latency: 5528 ms",
+        "INFO  [ScheduledTasks:1] 2017-07-20 08:02:52,511 MessagingService.java:946 - MUTATION messages were dropped in last 5000 ms: 822 for internal timeout and 2152 for cross node timeout"
+
+      ]
+    },
+    {
+      "Description": "RejectedExecutionException",
+      "TagId": 47.0,
+      "MatchVersion": null,
+      "LevelMatch": {
+        "RegExStrings": [
+          "ERROR"
+        ]
+      },
+      "FileNameMatch": {
+        "RegExStrings": [
+          "^MessagingService.java$"
+        ]
+      },
+      "FileLineMatch": null,
+      "MessageMatch": {
+        "RegExStrings": [
+          "(?:java.util.concurrent.)?RejectedExecutionException"
+        ]
+      },
+      "ParseMessage": {
+        "RegExStrings": [
+          "(?:java.util.concurrent.)?RejectedExecutionException while receiving (?<action>[^ ]+) from (?$<NODE>), caused by: (?<cause>.+)"
+        ]
+      },
+      "ParseThreadId": null,
+      "EventType": "SingleInstance",
+      "EventClass": "Detection,Node,Drops,Message",
+      "AnalyticsGroup": null,
+      "SubClass": "action + ' Rejected ' + cause",
+      "Product": "Cassandra",
+      "IgnoreEvent": false,
+      "Examples": [
+        "ERROR [MessagingService-Incoming-/10.95.19.147] 2018-10-10 04:07:59,166  MessagingService.java:825 - java.util.concurrent.RejectedExecutionException while receiving HINTS.HINT from /10.95.19.147, caused by: Too many pending remote requests!"
       ]
     }
   ]

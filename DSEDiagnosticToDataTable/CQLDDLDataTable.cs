@@ -134,13 +134,13 @@ namespace DSEDiagnosticToDataTable
                         else if (ddlItem is DSEDiagnosticLibrary.ICQLUserDefinedType)
                         {
                             dataRow["Name"] = ddlItem.Name + " (Type)";
-                            dataRow["Collections"] = ((DSEDiagnosticLibrary.ICQLUserDefinedType)ddlItem).Columns.Count(c => c.CQLType.IsCollection);
+                            dataRow["Collections"] = ((DSEDiagnosticLibrary.ICQLUserDefinedType)ddlItem).Columns.Count(c => c.CQLType.HasCollection);
                             dataRow["Counters"] = ((DSEDiagnosticLibrary.ICQLUserDefinedType)ddlItem).Columns.Count(c => c.CQLType.IsCounter);
-                            dataRow["Blobs"] = ((DSEDiagnosticLibrary.ICQLUserDefinedType)ddlItem).Columns.Count(c => c.CQLType.IsBlob);
+                            dataRow["Blobs"] = ((DSEDiagnosticLibrary.ICQLUserDefinedType)ddlItem).Columns.Count(c => c.CQLType.HasBlob);
                             dataRow["Static"] = ((DSEDiagnosticLibrary.ICQLUserDefinedType)ddlItem).Columns.Count(c => c.IsStatic);
-                            dataRow["Frozen"] = ((DSEDiagnosticLibrary.ICQLUserDefinedType)ddlItem).Columns.Count(c => c.CQLType.IsFrozen);
-                            dataRow["Tuple"] = ((DSEDiagnosticLibrary.ICQLUserDefinedType)ddlItem).Columns.Count(c => c.CQLType.IsTuple);
-                            dataRow["UDT"] = ((DSEDiagnosticLibrary.ICQLUserDefinedType)ddlItem).Columns.Count(c => c.CQLType.IsUDT);
+                            dataRow["Frozen"] = ((DSEDiagnosticLibrary.ICQLUserDefinedType)ddlItem).Columns.Count(c => c.CQLType.HasFrozen);
+                            dataRow["Tuple"] = ((DSEDiagnosticLibrary.ICQLUserDefinedType)ddlItem).Columns.Count(c => c.CQLType.HasTuple);
+                            dataRow["UDT"] = ((DSEDiagnosticLibrary.ICQLUserDefinedType)ddlItem).Columns.Count(c => c.CQLType.HasUDT);
                         }
                         else if (ddlItem is DSEDiagnosticLibrary.ICQLTable)
                         {
