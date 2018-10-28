@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
+using System.Runtime.CompilerServices;
 
 namespace DSEDiagnosticFileParser
 {
@@ -27,16 +28,19 @@ namespace DSEDiagnosticFileParser
 
         public readonly string[] RegExStrings;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public string[] Split(string input, int regexIndex = 0)
         {
             return this._compiledRegEx[regexIndex].Split(input);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Match Match(string input, int regexIndex = 0)
         {
             return this._compiledRegEx[regexIndex].Match(input);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsMatch(string input, int regexIndex = 0)
         {
             return this._compiledRegEx[regexIndex].IsMatch(input);
@@ -47,6 +51,7 @@ namespace DSEDiagnosticFileParser
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Match MatchFirstSuccessful(string input)
         {
             Match result = null;
@@ -73,16 +78,17 @@ namespace DSEDiagnosticFileParser
         /// <returns>
         /// If a successful match; the match instance, otherwise null.
         /// </returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Match MatchFirstSuccessful(string input, out Regex regEx)
         {
             Match result = null;
-            for(int nIdx = 0; nIdx < this._compiledRegEx.Length; ++nIdx)
+            foreach(var regexTry in this._compiledRegEx)
             {
-                result = this._compiledRegEx[nIdx].Match(input);
+                result = regexTry.Match(input);
 
                 if (result.Success)
                 {
-                    regEx = this._compiledRegEx[nIdx];
+                    regEx = regexTry;
                     return result;
                 }
             }
@@ -96,6 +102,7 @@ namespace DSEDiagnosticFileParser
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsMatchAny(string input)
         {
             return this._compiledRegEx.Any(m => m.IsMatch(input));
@@ -109,6 +116,7 @@ namespace DSEDiagnosticFileParser
         /// if no matches found, null. Otherwise the Regex instance.
         /// </param>
         /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsMatchAny(string input, out Regex regEx)
         {
             return (regEx = this._compiledRegEx.FirstOrDefault(m => m.IsMatch(input))) != null;
@@ -127,13 +135,14 @@ namespace DSEDiagnosticFileParser
         /// <returns>
         /// A new string based on the replacementString and the RegEx. Null if no regEx items are matched.
         /// </returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public string IsMatchAnyAndReplace(string input, string replacementString)
         {
-            for (int nIdx = 0; nIdx < this._compiledRegEx.Length; ++nIdx)
+            foreach (var regexTry in this._compiledRegEx)
             {
-                if (this._compiledRegEx[nIdx].IsMatch(input))
+                if (regexTry.IsMatch(input))
                 {
-                    var replacedStr =  this._compiledRegEx[nIdx].Replace(input, replacementString);
+                    var replacedStr = regexTry.Replace(input, replacementString);
 
                     if(replacementString[0] == '^')
                     {
@@ -169,19 +178,21 @@ namespace DSEDiagnosticFileParser
         /// <returns>
         /// A new string based on the replacementEvaluator and the RegEx. Null if no regEx items are matched.
         /// </returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public string IsMatchAnyAndReplace(string input, MatchEvaluator replacementEvaluator)
         {
-            for (int nIdx = 0; nIdx < this._compiledRegEx.Length; ++nIdx)
+            foreach (var regexTry in this._compiledRegEx)
             {
-                if (this._compiledRegEx[nIdx].IsMatch(input))
+                if (regexTry.IsMatch(input))
                 {
-                    return this._compiledRegEx[nIdx].Replace(input, replacementEvaluator);
+                    return regexTry.Replace(input, replacementEvaluator);
                 }
             }
 
             return null;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Regex GetRegEx(int regexIndex = 0)
         {
             return this._compiledRegEx[regexIndex];

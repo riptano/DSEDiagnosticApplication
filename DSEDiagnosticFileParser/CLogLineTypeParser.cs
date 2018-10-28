@@ -1254,6 +1254,22 @@ namespace DSEDiagnosticFileParser
             return this._toStringCache == null ? this._toStringCache = Newtonsoft.Json.JsonConvert.SerializeObject(this) : this._toStringCache;
         }
 
+        private string _toShortStringCache = null;
+        public string ToShortString()
+        {
+            if (this._toShortStringCache == null)
+                this._toShortStringCache = string.Format("{{{{\"TagId\":{0},\"Description\":\"{1}\",\"SessionBeginTagId\":{2},\"EventType\":{3},\"EventClass\":{4},\"RunningCount\":{{0}},\"IsClone\":{5},\"LinkedTagId\":{6} }}}}",
+                                                                this.TagId,
+                                                                this.Description,
+                                                                this.SessionBeginTagId,
+                                                                this.EventType,
+                                                                this.EventClass,
+                                                                this.IsClone,
+                                                                this.LinkedTagId);
+
+            return string.Format(this._toShortStringCache, this.RunningCount);
+        }
+
         #endregion
 
         #region Private Methods
@@ -1786,7 +1802,7 @@ namespace DSEDiagnosticFileParser
                     {
                         Logger.Instance.WarnFormat("Parsing of Log line \"{0}\" was matched but parsing failed for \"{1}\". Log Line parsing for this line will be skipped.",
                                                      logEvent.ToString(),
-                                                     parserItem.ToString());                        
+                                                     parserItem.ToShortString());                        
                     }
                 }               
             }//);

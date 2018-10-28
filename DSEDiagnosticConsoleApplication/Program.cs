@@ -85,7 +85,7 @@ namespace DSEDiagnosticConsoleApplication
         private static void Console_CancelKeyPress(object sender, ConsoleCancelEventArgs e)
         {
             Logger.Instance.Warn("Application Aborted");
-            Program.ConsoleErrors.Increment("Aborted");
+            Program.ConsoleErrors?.Increment("Aborted");
 
             if (ParserSettings.BatchMode
                     && ParserSettings.DiagnosticPath != null

@@ -53,7 +53,28 @@ namespace DSEDiagnosticFileParser
                 }
             }
 
-            return jsonObject == null ? 0 : this.ProcessJSON(jsonObject);
+            uint itemsProcessed = 0;
+
+            if(jsonObject != null)
+            {
+                try
+                {
+                    itemsProcessed = this.ProcessJSON(jsonObject);
+                }
+                catch (Newtonsoft.Json.JsonException ex)
+                {
+                    DSEDiagnosticLogger.Logger.Instance.Error(string.Format("FileMapper<{2}>\t{0}\t{1}\tJSON Exception detected for File Class \"{3}\"",
+                                                                                this.Node,
+                                                                                this.File.PathResolved,
+                                                                                this.MapperId,
+                                                                                this.GetType().Name),
+                                                                ex);
+                    this.Exception = ex;
+                    this.NbrErrors += 1;                   
+                }
+            }
+
+            return(itemsProcessed);
         }
 
         public abstract uint ProcessJSON(JObject jObject);

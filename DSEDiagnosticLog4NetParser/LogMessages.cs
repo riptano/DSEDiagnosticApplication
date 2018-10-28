@@ -8,6 +8,7 @@ using System.Globalization;
 using Common;
 using DSEDiagnosticLibrary;
 using DSEDiagnosticLogger;
+using System.Runtime.CompilerServices;
 
 namespace DSEDiagnosticLog4NetParser
 {
@@ -334,6 +335,7 @@ namespace DSEDiagnosticLog4NetParser
             return logMessage;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void SetEndingTimeRange(DateTimeOffset possibleEndDateTime)
         {
             if (this._endingLogDateTime < possibleEndDateTime)
@@ -342,6 +344,7 @@ namespace DSEDiagnosticLog4NetParser
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void SetStartingTimeRange(DateTimeOffset possibleStartDateTime)
         {
             if (this._startingLogDateTime == DateTimeOffset.MinValue)
@@ -350,16 +353,19 @@ namespace DSEDiagnosticLog4NetParser
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void SetStartingTime(DateTimeOffset startDateTime)
         {
             this._startingLogDateTime = startDateTime;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void SetEndingTime(DateTimeOffset endDateTime)
         {
             this._endingLogDateTime = endDateTime;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal bool RemoveMessage(LogMessage removeMsg = null)
         {
             bool bResult = false;

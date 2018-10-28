@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using DSEDiagnosticLibrary;
 
@@ -40,6 +41,7 @@ namespace DSEDiagnosticLog4NetParser
 
         public uint LogLinePosition { get; set; }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void AddExtraMessage(string extraMessage)
         {
             extraMessage = extraMessage?.Trim();
