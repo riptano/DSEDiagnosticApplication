@@ -938,7 +938,7 @@ namespace DSEDiagnosticAnalytics
                         assocItem = string.Empty;
                     else
                         assocItem += ", ";
-                    assocItem += "PartitionKey{ " + logEvent.LogProperties["partitionkey"].ToString() + "}";
+                    assocItem += "PartitionKey{ " + (logEvent.LogProperties["partitionkey"]?.ToString() ?? string.Empty) + "}";
                 }
                 if (logEvent.LogProperties.ContainsKey("whereclause"))
                 {
@@ -946,7 +946,7 @@ namespace DSEDiagnosticAnalytics
                         assocItem = string.Empty;
                     else
                         assocItem += ", ";
-                    assocItem += "WhereClause{ " + logEvent.LogProperties["whereclause"].ToString() + "}";
+                    assocItem += "WhereClause{ " + (logEvent.LogProperties["whereclause"]?.ToString() ?? string.Empty) + "}";
                 }
                 if (logEvent.LogProperties.ContainsKey("tag"))
                 {
@@ -954,7 +954,7 @@ namespace DSEDiagnosticAnalytics
                         assocItem = string.Empty;
                     else
                         assocItem += ", ";
-                    assocItem += "Tag{ " + logEvent.LogProperties["tag"].ToString() + "}";
+                    assocItem += "Tag{ " + (logEvent.LogProperties["tag"]?.ToString() ?? string.Empty) + "}";
                 }
                 if (logEvent.LogProperties.ContainsKey("nodetxt"))
                 {                    
