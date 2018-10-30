@@ -315,6 +315,23 @@ namespace DSEDiagnosticToDataTable
                                 dataRow.SetField("Survivor Max", Math.Max(analyticsGrp.GCStats.Survivor.Before.Max, analyticsGrp.GCStats.Survivor.After.Max));
                                 dataRow.SetField("Survivor Dif", analyticsGrp.GCStats.Survivor.Difference.Sum);
                             }
+
+                            if (analyticsGrp.GCStats.GCOccurrences.HasValue)
+                            {
+                                dataRow.SetField("Count Max", analyticsGrp.GCStats.GCOccurrences.Max);
+                                dataRow.SetField("Count Min", analyticsGrp.GCStats.GCOccurrences.Min);
+                                dataRow.SetField("Count Mean", analyticsGrp.GCStats.GCOccurrences.Mean);
+                                dataRow.SetField("Count StdDevp", analyticsGrp.GCStats.GCOccurrences.StdDev);
+                                dataRow.SetField("Count Total", analyticsGrp.GCStats.GCOccurrences.Sum);
+                            }
+                            if (analyticsGrp.GCStats.GCOccurrenceDuration.HasValue)
+                            {
+                                dataRow.SetField("OPS Max", analyticsGrp.GCStats.GCOccurrenceDuration.Max);
+                                dataRow.SetField("OPS Min", analyticsGrp.GCStats.GCOccurrenceDuration.Min);
+                                dataRow.SetField("OPS Mean", analyticsGrp.GCStats.GCOccurrenceDuration.Mean);
+                                dataRow.SetField("OPS StdDevp", analyticsGrp.GCStats.GCOccurrenceDuration.StdDev);
+                            }
+
                             unitOfMeasure += analyticsGrp.GCStats.UOM + ',';
                         }
                         if(analyticsGrp.PoolMemTblOPSStats != null && analyticsGrp.PoolMemTblOPSStats.HasValue)

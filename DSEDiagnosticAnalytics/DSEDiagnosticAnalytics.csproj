@@ -65,6 +65,7 @@
     <Compile Include="AnalyzeData.cs" />
     <Compile Include="CassandraLogEvent.cs" />
     <Compile Include="DataModelDCPK.cs" />
+    <Compile Include="GCStat.cs" />
     <Compile Include="IAnalytics.cs" />
     <Compile Include="LibrarySettings.cs" />
     <Compile Include="LogFileStats.cs" />

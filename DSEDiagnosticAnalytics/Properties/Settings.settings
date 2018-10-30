@@ -26,5 +26,14 @@
     <Setting Name="RowLargeAttrrib" Type="System.String" Scope="Application">
       <Value Profile="(Default)">Row large</Value>
     </Setting>
+    <Setting Name="GCTimeFrameDetection" Type="System.TimeSpan" Scope="Application">
+      <Value Profile="(Default)">00:05:00</Value>
+    </Setting>
+    <Setting Name="GCBackToBackToleranceMS" Type="System.Double" Scope="Application">
+      <Value Profile="(Default)">150</Value>
+    </Setting>
+    <Setting Name="GCTimeFrameDetectionThreholdMin" Type="System.Double" Scope="Application">
+      <Value Profile="(Default)">1.25</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

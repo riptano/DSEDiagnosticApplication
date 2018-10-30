@@ -50,6 +50,10 @@ namespace DSEDiagnosticLibrary
         /// </summary>
         SessionDefinedByDuration = SessionItem | 0x0008 | 0x0010 | 0x0200,
         /// <summary>
+        /// Defined a session that spans a time range. It will have a begin and end timestamp. Typically this is considered one event.
+        /// </summary>
+        SessionSpan = SessionItem | 0x0008 | 0x0010 | 0x0400,
+        /// <summary>
         ///  Statistical data that is typically aggregated over some time period (e.g., node uptime, Log Period, etc.)
         /// </summary>
         AggregateData = 0x1000,

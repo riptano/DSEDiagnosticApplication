@@ -257,6 +257,30 @@ namespace DSEDiagnosticAnalytics
 
         public static CTS.Dictionary<Tuple<INode,EventClasses>, AggregatedStats> AggregatedStats = new CTS.Dictionary<Tuple<INode, EventClasses>, AggregatedStats>();
 
+        public static CTS.Dictionary<INode, Tuple<GCStat,GCStat>> GCStats = new CTS.Dictionary<INode, Tuple<GCStat, GCStat>>();
+
+        public static void CleanUp()
+        {
+            if (LibrarySettings.GCBackToBackToleranceMS > 0
+                    || LibrarySettings.GCTimeFrameDetection > TimeSpan.Zero)
+            {
+                System.Threading.Tasks.Parallel.ForEach(GCStats, gcStat =>
+                //foreach (var gcStat in GCStats)
+                {
+                try
+                {
+                    gcStat.Value.Item1.TestAddEvent(null);
+                    gcStat.Value.Item2.TestAddEvent(null);
+                }
+                catch
+                { }
+                }   );
+            }
+
+            GCStats.Clear();
+            AggregatedStats.Clear();
+        }
+
         public void LogEventCallBack(DSEDiagnosticFileParser.file_cassandra_log4net sender, DSEDiagnosticFileParser.file_cassandra_log4net.LogEventArgs eventArgs)
         {
             if (eventArgs.LogEvent == null) return;
@@ -267,7 +291,7 @@ namespace DSEDiagnosticAnalytics
                     && eventArgs.LogEvent.TableViewIndex != null
                     && eventArgs.LogEvent.LogProperties.ContainsKey("size"))
             {
-                var partitionSize = (UnitOfMeasure) eventArgs.LogEvent.LogProperties["size"];
+                var partitionSize = (UnitOfMeasure)eventArgs.LogEvent.LogProperties["size"];
                 var largeRow = eventArgs.LogEvent.SubClass.EndsWith("row", StringComparison.InvariantCultureIgnoreCase);
                 var attribName = largeRow ? Properties.Settings.Default.RowLargeAttrrib : Properties.Settings.Default.PartitionLargeAttrib;
                 var evtClass = EventClasses.Node | EventClasses.KeyspaceTableViewIndexStats;
@@ -277,20 +301,20 @@ namespace DSEDiagnosticAnalytics
                 else
                     evtClass |= EventClasses.Partition;
 
-                var aggStat = AggregatedStats.GetOrAdd(new Tuple<INode,EventClasses>(sender.Node, evtClass), sndNode =>
-                                                        {
-                                                            var stat = new AggregatedStats(sender.File,
-                                                                                                sndNode.Item1,
-                                                                                                SourceTypes.CassandraLog,
-                                                                                                EventTypes.AggregateDataTool,
-                                                                                                sndNode.Item2,
-                                                                                                eventArgs.LogEvent.TableViewIndex);
+                var aggStat = AggregatedStats.GetOrAdd(new Tuple<INode, EventClasses>(sender.Node, evtClass), sndNode =>
+                                                         {
+                                                             var stat = new AggregatedStats(sender.File,
+                                                                                                 sndNode.Item1,
+                                                                                                 SourceTypes.CassandraLog,
+                                                                                                 EventTypes.AggregateDataTool,
+                                                                                                 sndNode.Item2,
+                                                                                                 eventArgs.LogEvent.TableViewIndex);
                                                             //sndNode.Item1.AssociateItem(stat);
                                                             return stat;
-                                                        });
+                                                         });
                 object dataValue;
-                
-                if(aggStat.Data.TryGetValue(attribName, out dataValue))
+
+                if (aggStat.Data.TryGetValue(attribName, out dataValue))
                 {
                     ((List<UnitOfMeasure>)dataValue).Add(partitionSize);
                 }
@@ -310,7 +334,7 @@ namespace DSEDiagnosticAnalytics
                         {
                             throw;
                         }
-                    }                        
+                    }
                 }
             }
 
@@ -328,11 +352,11 @@ namespace DSEDiagnosticAnalytics
                                                         EventTypes.AggregateDataTool,
                                                         sndNode.Item2,
                                                         eventArgs.LogEvent.TableViewIndex);
-                   //sndNode.Item1.AssociateItem(stat);
+                    //sndNode.Item1.AssociateItem(stat);
                     return stat;
                 });
-                
-                var tombstones = (long) ((dynamic)eventArgs.LogEvent.LogProperties["tombstone_cells"]);
+
+                var tombstones = (long)((dynamic)eventArgs.LogEvent.LogProperties["tombstone_cells"]);
                 object dataValue;
 
                 if (nodeStat.Data.TryGetValue(Properties.Settings.Default.TombstonesReadAttrib, out dataValue))
@@ -341,18 +365,18 @@ namespace DSEDiagnosticAnalytics
                 }
                 else
                 {
-                    nodeStat.AssociateItem(Properties.Settings.Default.TombstonesReadAttrib, new List<long>() { tombstones });                    
+                    nodeStat.AssociateItem(Properties.Settings.Default.TombstonesReadAttrib, new List<long>() { tombstones });
                 }
-               
+
                 dynamic reads;
 
-                if(eventArgs.LogEvent.LogProperties.TryGetValue("live_cells", out reads))
+                if (eventArgs.LogEvent.LogProperties.TryGetValue("live_cells", out reads))
                 {
-                    var readsValue = (decimal) reads;
+                    var readsValue = (decimal)reads;
                     decimal percent = 0;
 
-                    if(tombstones > 0 || reads > 0)                       
-                        percent = (decimal) tombstones/(((decimal)tombstones) + reads);
+                    if (tombstones > 0 || reads > 0)
+                        percent = (decimal)tombstones / (((decimal)tombstones) + reads);
 
                     if (nodeStat.Data.TryGetValue(Properties.Settings.Default.TombstoneLiveCellRatioAttrib, out dataValue))
                     {
@@ -360,7 +384,7 @@ namespace DSEDiagnosticAnalytics
                     }
                     else
                     {
-                        nodeStat.AssociateItem(Properties.Settings.Default.TombstoneLiveCellRatioAttrib, new List<decimal>() { percent });                        
+                        nodeStat.AssociateItem(Properties.Settings.Default.TombstoneLiveCellRatioAttrib, new List<decimal>() { percent });
                     }
                 }
             }
@@ -372,9 +396,9 @@ namespace DSEDiagnosticAnalytics
                 var spaceRequired = (UnitOfMeasure)eventArgs.LogEvent.LogProperties["spacerequired"];
                 var evtClass = EventClasses.Compaction | EventClasses.Node;
 
-                if(eventArgs.LogEvent.TableViewIndex == null)
+                if (eventArgs.LogEvent.TableViewIndex == null)
                 {
-                    if(eventArgs.LogEvent.Keyspace != null)
+                    if (eventArgs.LogEvent.Keyspace != null)
                     {
                         evtClass |= EventClasses.Keyspace;
                     }
@@ -391,11 +415,11 @@ namespace DSEDiagnosticAnalytics
                                                         SourceTypes.CassandraLog,
                                                         EventTypes.AggregateDataTool,
                                                         sndNode.Item2,
-                                                        (IDDL) eventArgs.LogEvent.TableViewIndex ?? eventArgs.LogEvent.Keyspace);
+                                                        (IDDL)eventArgs.LogEvent.TableViewIndex ?? eventArgs.LogEvent.Keyspace);
 
                     //sndNode.Item1.AssociateItem(stat);
                     return stat;
-                });                
+                });
                 object dataValue;
 
                 if (aggStat.Data.TryGetValue(Properties.Settings.Default.CompactionInsufficientSpace, out dataValue))
@@ -420,6 +444,23 @@ namespace DSEDiagnosticAnalytics
                         }
                     }
                 }
+            }
+
+            if ((LibrarySettings.GCBackToBackToleranceMS > 0
+                    || LibrarySettings.GCTimeFrameDetection > TimeSpan.Zero)
+                    && (eventArgs.LogEvent.Class & EventClasses.GC) == EventClasses.GC
+                    && ((eventArgs.LogEvent.Type & EventTypes.SessionEnd) == EventTypes.SessionEnd
+                            || (eventArgs.LogEvent.Type & EventTypes.SingleInstance) == EventTypes.SingleInstance)
+                    && eventArgs.LogEvent.EventTimeEnd.HasValue)
+            {
+                var gcStat = GCStats.GetOrAdd(sender.Node, sndNode =>
+                {
+                    var stat = new Tuple<GCStat,GCStat>(new GCStat(sndNode, GCStat.GCStatTypes.BackToBack), new GCStat(sndNode, GCStat.GCStatTypes.TimeFrame));                    
+                    return stat;
+                });
+
+                gcStat.Item1.TestAddEvent(eventArgs.LogEvent);
+                gcStat.Item2.TestAddEvent(eventArgs.LogEvent);
             }
 
         }
@@ -671,16 +712,34 @@ namespace DSEDiagnosticAnalytics
             var poolOldGenToItems = assocatedLogEvents.Select(i => i.LogProperties.GetPropUOMValue("oldgento", UnitOfMeasure.Types.MiB)).Where(i => i >= 0M);
             var poolSurvivorFromItems = assocatedLogEvents.Select(i => i.LogProperties.GetPropUOMValue("survivorspacefrom", UnitOfMeasure.Types.MiB)).Where(i => i >= 0M);
             var poolSurvivorToItems = assocatedLogEvents.Select(i => i.LogProperties.GetPropUOMValue("survivorspaceto", UnitOfMeasure.Types.MiB)).Where(i => i >= 0M);
+            var occurrenceCounts = assocatedLogEvents.Select(i => i.LogProperties.GetPropLongValue("occurrences")).Where(i => i >= 0L);
+            IEnumerable<long> occurrenceDuration = null;
+
+            if(occurrenceCounts.HasAtLeastOneElement())
+            {
+                var occurrenceMax = assocatedLogEvents.Select(i => i.LogProperties.GetPropLongValue("durationmax")).Where(i => i >= 0L);
+                var occurrenceMin = assocatedLogEvents.Select(i => i.LogProperties.GetPropLongValue("durationmin")).Where(i => i >= 0L);
+
+                occurrenceDuration = occurrenceMax.Concat(occurrenceMin);
+            }
 
             return new LogEventGrouping(ref logEventGroup,
                                         assocatedLogEvents,
-                                        LogEventGrouping.GroupingTypes.GCStats,                                        
-                                        poolEdenFromItems,
-                                        poolEdenToItems,
-                                        poolOldGenFromItems,
-                                        poolOldGenToItems,
-                                        poolSurvivorFromItems,
-                                        poolSurvivorToItems);
+                                        LogEventGrouping.GroupingTypes.GCStats,
+                                        new IEnumerable<long>[]
+                                        {
+                                            occurrenceCounts,
+                                            occurrenceDuration
+                                        },
+                                        new IEnumerable<decimal>[]
+                                        {
+                                            poolEdenFromItems,
+                                            poolEdenToItems,
+                                            poolOldGenFromItems,
+                                            poolOldGenToItems,
+                                            poolSurvivorFromItems,
+                                            poolSurvivorToItems
+                                        });
         }
 
         public static LogEventGrouping GossipPendingStats(ref LogEventGroup logEventGroup, string analyticsGroup, IEnumerable<ILogEvent> assocatedLogEvents)
@@ -1119,7 +1178,9 @@ namespace DSEDiagnosticAnalytics
                                                     decimalAggreations[2],
                                                     decimalAggreations[3],
                                                     decimalAggreations[4],
-                                                    decimalAggreations[5]);
+                                                    decimalAggreations[5],
+                                                    longAggreations[0],
+                                                    longAggreations[1]);
                     this.HasValue = forceHasValue ? true : (this.DurationStats?.HasValue ?? false) || this.GCStats.HasValue;
                     break;
                 case GroupingTypes.GossipPendingStats:
@@ -1211,6 +1272,17 @@ namespace DSEDiagnosticAnalytics
         {
         }
 
+        public LogEventGrouping(ref LogEventGroup groupKey,
+                                IEnumerable<ILogEvent> assocatedLogEvents,
+                                GroupingTypes type,
+                                IEnumerable<long> longAggreation,
+                                params IEnumerable<decimal>[] decimalAggreations)
+            : this(ref groupKey, assocatedLogEvents, type,
+                    longAggreation != null && longAggreation.HasAtLeastOneElement() ? new IEnumerable<long>[] { longAggreation } : null,
+                    decimalAggreations)
+        {
+        }
+
         /// <summary>
         /// Duration
         /// </summary>
@@ -1241,7 +1313,7 @@ namespace DSEDiagnosticAnalytics
                     this.HasValue = true;
                 }
             }
-            
+
             public readonly bool HasValue;
             public readonly long Max;
             public readonly long Min;
@@ -1378,7 +1450,9 @@ namespace DSEDiagnosticAnalytics
 
             public GCStatItems(IEnumerable<decimal> beforeEden, IEnumerable<decimal> afterEden,
                                 IEnumerable<decimal> beforeOld, IEnumerable<decimal> afterOld,
-                                IEnumerable<decimal> beforeSurvivor, IEnumerable<decimal> afterSurvivor)               
+                                IEnumerable<decimal> beforeSurvivor, IEnumerable<decimal> afterSurvivor,
+                                IEnumerable<long> gcOccurrences,
+                                IEnumerable<long> gcOccurrenceDurations)               
             {               
                 if(beforeEden != null && beforeEden.HasAtLeastOneElement())
                     this.Eden = new GCBeforeAfterItems(beforeEden, afterEden);
@@ -1386,16 +1460,45 @@ namespace DSEDiagnosticAnalytics
                     this.Old = new GCBeforeAfterItems(beforeOld, afterOld);
                 if(beforeSurvivor != null && beforeSurvivor.HasAtLeastOneElement())
                     this.Survivor = new GCBeforeAfterItems(beforeSurvivor, afterSurvivor);
-                this.HasValue = (this.Eden != null && this.Eden.HasValue)
-                                    | (this.Old != null && this.Old.HasValue)
-                                    | (this.Survivor != null && this.Survivor.HasValue);
+                if (gcOccurrences != null && gcOccurrences.HasAtLeastOneElement())
+                    this.GCOccurrences = new ItemStatsLong(gcOccurrences);
+
+                if (gcOccurrenceDurations != null && gcOccurrenceDurations.HasAtLeastOneElement())
+                    this.GCOccurrenceDuration = new ItemStatsLong(gcOccurrenceDurations);
+                
+                if ((this.Eden != null && this.Eden.HasValue)
+                        | (this.Old != null && this.Old.HasValue)
+                        | (this.Survivor != null && this.Survivor.HasValue))
+                {
+                    this.UOM = "MiB";
+                    this.HasValue = true;
+                    if (this.GCOccurrences.HasValue)
+                    {
+                        this.UOM += ", Occurrences";
+                        if (this.GCOccurrenceDuration.HasValue)
+                        {
+                            this.UOM += ", MS";
+                        }
+                    }
+                }
+                else if (this.GCOccurrences.HasValue)
+                {
+                    this.HasValue = true;
+                    this.UOM = "Occurrences";
+                    if (this.GCOccurrenceDuration.HasValue)
+                    {
+                        this.UOM += ", MS";
+                    }
+                }                
             }
 
             public readonly bool HasValue;            
             public readonly GCBeforeAfterItems Eden;
             public readonly GCBeforeAfterItems Old;
             public readonly GCBeforeAfterItems Survivor;
-            public readonly string UOM = "MiB";
+            public readonly ItemStatsLong GCOccurrences;
+            public readonly ItemStatsLong GCOccurrenceDuration;
+            public readonly string UOM;
         }
 
         public readonly GCStatItems GCStats;

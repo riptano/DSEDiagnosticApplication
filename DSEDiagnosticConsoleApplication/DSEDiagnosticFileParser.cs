@@ -117,8 +117,7 @@ namespace DSEDiagnosticConsoleApplication
                                                                                                     : ParserSettings.OnlyNodes
                                                                                                         .Select(n => DSEDiagnosticLibrary.NodeIdentifier.Create(n)));
 
-            diagParserTask.Then(ignore => { ConsoleTasksReadFiles.Terminate(); ConsoleLogReadFiles.Terminate(); ConsoleDeCompressFiles.Terminate(); });
-            diagParserTask.Then(ignore =>
+            diagParserTask.Then(task =>
             {
                 foreach (var uaNode in DSEDiagnosticLibrary.Cluster.GetUnAssocaitedNodes())
                 {
@@ -128,6 +127,9 @@ namespace DSEDiagnosticConsoleApplication
                     }
                 }
             });
+            diagParserTask.ContinueWith(task => DSEDiagnosticAnalytics.CassandraLogEvent.CleanUp(),
+                                            TaskContinuationOptions.OnlyOnRanToCompletion);
+            diagParserTask.Then(ignore => { ConsoleTasksReadFiles.Terminate(); ConsoleLogReadFiles.Terminate(); ConsoleDeCompressFiles.Terminate(); });
 
             diagParserTask.ContinueWith(task => CanceledFaultProcessing(task.Exception),
                                             TaskContinuationOptions.OnlyOnFaulted);

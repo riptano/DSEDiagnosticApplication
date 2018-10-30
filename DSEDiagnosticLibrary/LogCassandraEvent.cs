@@ -175,6 +175,66 @@ namespace DSEDiagnosticLibrary
 
         public LogCassandraEvent(IFilePath logFile,
                                    INode node,
+                                   EventClasses logEventClass,
+                                   DateTime logLocalTime,
+                                   DateTimeOffset logStartTimewOffset,
+                                   double durationMS,
+                                   EventTypes eventType,
+                                   string logMessage,
+                                   DateTimeOffset? logEndTimewOffset = null,
+                                   uint lineNbr = 0,                                   
+                                   string logId = null,
+                                   string subClass = null,
+                                   IEnumerable<ILogEvent> parentEvents = null,
+                                   IZone timeZone = null,
+                                   IKeyspace keyspace = null,
+                                   IDDLStmt tableviewindexItem = null,
+                                   IReadOnlyDictionary<string, object> logProperties = null,
+                                   IEnumerable<string> ssTables = null,
+                                   IEnumerable<IDDLStmt> ddlItems = null,
+                                   IEnumerable<INode> assocatedNodes = null,
+                                   IEnumerable<TokenRangeInfo> tokenRanges = null,
+                                   string sessionTieOutId = null,
+                                   DSEInfo.InstanceTypes product = DSEInfo.InstanceTypes.Cassandra,
+                                   bool assocateToNode = false,
+                                   string analyticsGroup = null,
+                                   bool tempEvent = false)
+            :  this(logFile,
+                        node,
+                        lineNbr,
+                        logEventClass,
+                        logLocalTime,
+                        logStartTimewOffset,
+                        logMessage,
+                        eventType,
+                        logId,
+                        subClass,
+                        parentEvents,
+                        timeZone,
+                        keyspace,
+                        tableviewindexItem,
+                        null,
+                        logProperties,
+                        ssTables,
+                        ddlItems,
+                        assocatedNodes,
+                        tokenRanges,
+                        sessionTieOutId,
+                        product,
+                        assocateToNode,
+                        analyticsGroup,
+                        tempEvent)
+        {
+            this.Duration = TimeSpan.FromMilliseconds(durationMS);
+            if (logEndTimewOffset.HasValue)
+            {
+                this.EventTimeBegin = logStartTimewOffset;
+                this.EventTimeEnd = logEndTimewOffset.Value;
+            }
+        }
+
+        public LogCassandraEvent(IFilePath logFile,
+                                   INode node,
                                    uint lineNbr,
                                    EventClasses logEventClass,
                                    DateTime logLocalTime,

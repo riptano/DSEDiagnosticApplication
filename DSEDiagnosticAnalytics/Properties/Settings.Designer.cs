@@ -97,5 +97,32 @@ namespace DSEDiagnosticAnalytics.Properties {
                 return ((string)(this["RowLargeAttrrib"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("00:05:00")]
+        public global::System.TimeSpan GCTimeFrameDetection {
+            get {
+                return ((global::System.TimeSpan)(this["GCTimeFrameDetection"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("150")]
+        public double GCBackToBackToleranceMS {
+            get {
+                return ((double)(this["GCBackToBackToleranceMS"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1.25")]
+        public double GCTimeFrameDetectionThreholdMin {
+            get {
+                return ((double)(this["GCTimeFrameDetectionThreholdMin"]));
+            }
+        }
     }
 }
