@@ -367,11 +367,11 @@ namespace DSEDiagnosticToDataTable
                             var dcTotKeys = (ulong)dcStats.Sum(i => i.KeyTotal);
                             var totalsNodes = dcStats.GroupBy(i => i.Node)
                                                     .Select(i => new { Node = i.Key,
-                                                                        StorageTotal = i.DefaultIfEmpty().Sum(d => d.StorageTotal),
-                                                                        SSTablesTotal = i.DefaultIfEmpty().Sum(d => d.SSTablesTotal),
-                                                                        ReadTotal = i.DefaultIfEmpty().Sum(d => d.ReadTotal),
-                                                                        WriteTotal = i.DefaultIfEmpty().Sum(d => d.WriteTotal),
-                                                                        KeyTotal = i.DefaultIfEmpty().Sum(d => d.KeyTotal) }).ToArray();
+                                                                        StorageTotal = i.Select(d => d.StorageTotal).DefaultIfEmpty().Sum(),
+                                                                        SSTablesTotal = i.Select(d => d.SSTablesTotal).DefaultIfEmpty().Sum(),
+                                                                        ReadTotal = i.Select(d => d.ReadTotal).DefaultIfEmpty().Sum(),
+                                                                        WriteTotal = i.Select(d => d.WriteTotal).DefaultIfEmpty().Sum(),
+                                                                        KeyTotal = i.Select(d => d.KeyTotal).DefaultIfEmpty().Sum() }).ToArray();
 
                             {
                                 var dcInsufficientSpace = dcStats.Sum(i => i.NbrCompStorageWarnings);
@@ -395,7 +395,8 @@ namespace DSEDiagnosticToDataTable
                                 dataRow.SetField("Storage Percent", dcTotStorage / clusterTotStorage);
                                 
                                 {
-                                    var dcUserTot = dcStats.Where(i => !i.Keyspace.IsSystemKeyspace && !i.Keyspace.IsDSEKeyspace).DefaultIfEmpty().Sum(i => i.StorageTotal);
+                                    var dcUserTot = dcStats.Where(i => !i.Keyspace.IsSystemKeyspace && !i.Keyspace.IsDSEKeyspace)
+                                                        .Select(i => i.StorageTotal).DefaultIfEmpty().Sum();
 
                                     if(dcUserTot > 0)
                                         dataRow.SetField("Storage Total (User)", dcUserTot);
@@ -419,7 +420,8 @@ namespace DSEDiagnosticToDataTable
                                 dataRow.SetField("SSTables Percent", (decimal) dcTotSSTables / (decimal) clusterTotSSTables);
                                 
                                 {
-                                    var dcUserTot = dcStats.Where(i => !i.Keyspace.IsSystemKeyspace && !i.Keyspace.IsDSEKeyspace).DefaultIfEmpty().Sum(i => i.SSTablesTotal);
+                                    var dcUserTot = dcStats.Where(i => !i.Keyspace.IsSystemKeyspace && !i.Keyspace.IsDSEKeyspace)
+                                                        .Select(i => i.SSTablesTotal).DefaultIfEmpty().Sum();
 
                                     if (dcUserTot > 0)
                                         dataRow.SetField("SSTables Total (User)", dcUserTot);
@@ -477,7 +479,8 @@ namespace DSEDiagnosticToDataTable
                                 dataRow.SetField("Reads Percent", (decimal) dcTotReads / (decimal) clusterTotReads);
                                 
                                 {
-                                    var dcUserTot = dcStats.Where(i => !i.Keyspace.IsSystemKeyspace && !i.Keyspace.IsDSEKeyspace).DefaultIfEmpty().Sum(i => i.ReadTotal);
+                                    var dcUserTot = dcStats.Where(i => !i.Keyspace.IsSystemKeyspace && !i.Keyspace.IsDSEKeyspace)
+                                                        .Select(i => i.ReadTotal).DefaultIfEmpty().Sum();
 
                                     if (dcUserTot > 0)
                                         dataRow.SetField("Reads Total (User)", dcUserTot);
@@ -501,7 +504,8 @@ namespace DSEDiagnosticToDataTable
                                 dataRow.SetField("Writes Percent", (decimal) dcTotWrites / (decimal) clusterTotWrites);
                                
                                 {
-                                    var dcUserTot = dcStats.Where(i => !i.Keyspace.IsSystemKeyspace && !i.Keyspace.IsDSEKeyspace).DefaultIfEmpty().Sum(i => i.WriteTotal);
+                                    var dcUserTot = dcStats.Where(i => !i.Keyspace.IsSystemKeyspace && !i.Keyspace.IsDSEKeyspace)
+                                                        .Select(i => i.WriteTotal).DefaultIfEmpty().Sum();
 
                                     if (dcUserTot > 0)
                                         dataRow.SetField("Writes Total (User)", dcUserTot);

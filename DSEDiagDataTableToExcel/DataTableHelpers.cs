@@ -112,6 +112,27 @@ namespace DataTableToExcel
         }
 
         /// <summary>
+        /// Sets Column Width. If negative, a columns width attribute is removed.
+        /// </summary>
+        /// <param name="dataColumn"></param>
+        /// <param name="colWidth"></param>
+        /// <returns></returns>
+        public static DataColumn SetWidth(this DataColumn dataColumn, int colWidth)
+        {
+            if (dataColumn.ExtendedProperties.ContainsKey("ColumnWidth"))
+            {
+                if (colWidth < 0)
+                    dataColumn.ExtendedProperties.Remove("ColumnWidth");
+                else
+                    dataColumn.ExtendedProperties["ColumnWidth"] = colWidth;
+            }
+            else
+                dataColumn.ExtendedProperties.Add("ColumnWidth", colWidth);
+
+            return dataColumn;
+        }
+
+        /// <summary>
         /// Sets a formula using a R1C1 content. Placeholders can be uses where &apos;{0}&apos; is the first row in the worksheet, &apos;{1}&apos; is the last row in the worksheet, and &apos;{2}&apos; is this data column&apos;s position in the worksheet.
         /// <param name="dataColumn"></param>
         /// <param name="r1c1Formula"></param>
@@ -298,7 +319,14 @@ namespace DataTableToExcel
 
                             workSheet.Cells[lastRow + 1, dataColumn.Ordinal + 1]
                                        .Formula = string.Format(formula, wsHeaderRow + 1, lastRow);
-                        }                                              
+                        }
+                        else if (key == "ColumnWidth")
+                        {                            
+                            var colWidth = (int)dataColumn.ExtendedProperties["ColumnWidth"];
+
+                            if(colWidth >= 0)
+                                workSheet.Column(dataColumn.Ordinal + 1).Width = colWidth;
+                        }
                         else if (key.StartsWith("HeaderText"))
                         {
                             var grpInfo = (Tuple<string,int,bool>) dataColumn.ExtendedProperties[key];
@@ -356,6 +384,30 @@ namespace DataTableToExcel
                         }
                     }
                 }
+            }
+        }
+
+        static public void ApplyColumnAttribs(this OfficeOpenXml.ExcelWorksheet workSheet, DataTable dataTable)
+        {
+            foreach (DataColumn dataColumn in dataTable.Columns)
+            {                
+                if (dataColumn.ExtendedProperties.Count == 0) continue;
+                
+                foreach (var item in dataColumn.ExtendedProperties.Keys)
+                {
+                    if (item != null && item is string)
+                    {
+                        var key = (string)item;
+
+                        if (key == "ColumnWidth")
+                        {
+                            var colWidth = (int)dataColumn.ExtendedProperties["ColumnWidth"];
+
+                            if (colWidth >= 0)
+                                workSheet.Column(dataColumn.Ordinal + 1).Width = colWidth;
+                        }                        
+                    }
+                }                
             }
         }
 

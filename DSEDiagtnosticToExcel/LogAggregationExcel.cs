@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Common;
 using OfficeOpenXml;
 using DataTableToExcel;
+using DT = DSEDiagnosticToDataTable;
 
 namespace DSEDiagtnosticToExcel
 {
@@ -55,78 +56,146 @@ namespace DSEDiagtnosticToExcel
                                                                 }
                                                             },
                                                              workSheet =>
-                                                             {
+                                                             {                                                                 
                                                                  workSheet.Cells["1:1"].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.LightGray;
                                                                  workSheet.Cells["1:1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
                                                                  //workBook.Cells["1:1"].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
                                                                  workSheet.View.FreezePanes(2, 1);
                                                                  
-                                                                 workSheet.Cells["A:A"].Style.Numberformat.Format = Properties.Settings.Default.ExcelDateTimeFormat;
-                                                                 workSheet.Cells["B:B"].Style.Numberformat.Format = Properties.Settings.Default.ExcelDateTimeFormat;
-                                                                 workSheet.Cells["C:C"].Style.Numberformat.Format = Properties.Settings.Default.ExcelTimeSpanFormat;
-                                                                 workSheet.Cells["M:M"].Style.Numberformat.Format = Properties.Settings.Default.ExcelDateTimeFormat;
-                                                                 workSheet.Cells["N:N"].Style.Numberformat.Format = Properties.Settings.Default.ExcelDateTimeFormat;
-                                                                 workSheet.Cells["O:O"].Style.Numberformat.Format = "#,###,###,##0";
+                                                                 this.DataTable.GetColumn(DT.ColumnNames.UTCTimeStamp)
+                                                                    .SetNumericFormat(Properties.Settings.Default.ExcelDateTimeFormat);
+                                                                 this.DataTable.GetColumn(DT.ColumnNames.LogLocalTimeStamp)
+                                                                    .SetNumericFormat(Properties.Settings.Default.ExcelDateTimeFormat);
+                                                                 this.DataTable.GetColumn(DT.LogAggregationDataTable.Columns.AggregationPeriod)
+                                                                    .SetNumericFormat(Properties.Settings.Default.ExcelTimeSpanFormat);
+                                                                 //this.DataTable.GetColumn(DT.ColumnNames.DataCenter);
+                                                                 //this.DataTable.GetColumn(DT.ColumnNames.NodeIPAddress);
+                                                                 //this.DataTable.GetColumn(DT.ColumnNames.KeySpace);
+                                                                 //this.DataTable.GetColumn(DT.ColumnNames.Table);
+                                                                 this.DataTable.GetColumn(DT.LogAggregationDataTable.Columns.Class)
+                                                                    .SetWidth(35);
+                                                                 this.DataTable.GetColumn(DT.LogAggregationDataTable.Columns.RelatedInfo)
+                                                                    .SetWidth(20);
+                                                                 this.DataTable.GetColumn(DT.LogAggregationDataTable.Columns.HasOrphanedEvents);
+                                                                 this.DataTable.GetColumn(DT.LogAggregationDataTable.Columns.Path)
+                                                                    .SetWidth(20);
+                                                                 this.DataTable.GetColumn(DT.LogAggregationDataTable.Columns.Exception)
+                                                                    .SetWidth(25);
+                                                                 
+                                                                 this.DataTable.GetColumn(DT.LogAggregationDataTable.Columns.LastOccurrenceUTC)
+                                                                    .SetNumericFormat(Properties.Settings.Default.ExcelDateTimeFormat);
+                                                                 this.DataTable.GetColumn(DT.LogAggregationDataTable.Columns.LastOccurrenceLocal)
+                                                                    .SetNumericFormat(Properties.Settings.Default.ExcelDateTimeFormat);
 
-                                                                 workSheet.Cells["Q:Q"].Style.Numberformat.Format = "#,###,###,##0.000";
-                                                                 workSheet.Cells["R:R"].Style.Numberformat.Format = "#,###,###,##0.000";
-                                                                 workSheet.Cells["S:S"].Style.Numberformat.Format = "#,###,###,##0.000";
-                                                                 workSheet.Cells["T:T"].Style.Numberformat.Format = "#,###,###,##0.000";
-                                                                 workSheet.Cells["U:U"].Style.Numberformat.Format = "#,###,###,##0.000";
-                                                                 workSheet.Cells["V:V"].Style.Numberformat.Format = "#,###,###,##0.000";
-                                                                 workSheet.Cells["W:W"].Style.Numberformat.Format = "#,###,###,##0.000";
-                                                                 workSheet.Cells["X:X"].Style.Numberformat.Format = "#,###,###,##0.000";
-                                                                 workSheet.Cells["Y:Y"].Style.Numberformat.Format = "#,###,###,##0.000";
+                                                                 this.DataTable.GetColumn(DT.LogAggregationDataTable.Columns.Occurrences)
+                                                                    .SetNumericFormat("#,###,###,##0");
 
-                                                                 workSheet.Cells["Z:Z"].Style.Numberformat.Format = "#,###,###,##0";
-                                                                 workSheet.Cells["AA:AA"].Style.Numberformat.Format = "#,###,###,##0";
-                                                                 workSheet.Cells["AB:AB"].Style.Numberformat.Format = "#,###,###,##0";
-                                                                 workSheet.Cells["AC:AC"].Style.Numberformat.Format = "#,###,###,##0";
+                                                                 this.DataTable.GetColumn(DT.LogAggregationDataTable.Columns.UOM)
+                                                                    .SetWidth(20);
+                                                                 
+                                                                 this.DataTable.GetColumn(DT.LogAggregationDataTable.Columns.DurationMax)
+                                                                    .SetNumericFormat("#,###,###,##0.000");
+                                                                 this.DataTable.GetColumn(DT.LogAggregationDataTable.Columns.DurationMin)
+                                                                    .SetNumericFormat("#,###,###,##0.000");
+                                                                 this.DataTable.GetColumn(DT.LogAggregationDataTable.Columns.DurationMean)
+                                                                    .SetNumericFormat("#,###,###,##0.000");
+                                                                 this.DataTable.GetColumn(DT.LogAggregationDataTable.Columns.DurationStdDevp)
+                                                                    .SetNumericFormat("#,###,###,##0.000");
+                                                                 this.DataTable.GetColumn(DT.LogAggregationDataTable.Columns.DurationTotal)
+                                                                    .SetNumericFormat("#,###,###,##0.000");
 
-                                                                 workSheet.Cells["AD:AD"].Style.Numberformat.Format = "#,###,###,##0.00####";
-                                                                 workSheet.Cells["AE:AE"].Style.Numberformat.Format = "#,###,###,##0.00####";
-                                                                 workSheet.Cells["AF:AF"].Style.Numberformat.Format = "#,###,###,##0.00####";
-                                                                 workSheet.Cells["AG:AG"].Style.Numberformat.Format = "#,###,###,##0.00####";
-                                                                 workSheet.Cells["AH:AH"].Style.Numberformat.Format = "#,###,###,##0.00####";
-                                                                 workSheet.Cells["AI:AI"].Style.Numberformat.Format = "#,###,###,##0.00####";
+                                                                 this.DataTable.GetColumn(DT.LogAggregationDataTable.Columns.RateMax)
+                                                                    .SetNumericFormat("#,###,###,##0.000");
+                                                                 this.DataTable.GetColumn(DT.LogAggregationDataTable.Columns.RateMin)
+                                                                    .SetNumericFormat("#,###,###,##0.000");
+                                                                 this.DataTable.GetColumn(DT.LogAggregationDataTable.Columns.RateMean)
+                                                                    .SetNumericFormat("#,###,###,##0.000");
+                                                                 this.DataTable.GetColumn(DT.LogAggregationDataTable.Columns.RateStdDevp)
+                                                                    .SetNumericFormat("#,###,###,##0.000");
+                                                                 
+                                                                 this.DataTable.GetColumn(DT.LogAggregationDataTable.Columns.PendingTombstone)
+                                                                    .SetNumericFormat("#,###,###,##0");
+                                                                 this.DataTable.GetColumn(DT.LogAggregationDataTable.Columns.CompletedLive)
+                                                                    .SetNumericFormat("#,###,###,##0");
+                                                                 this.DataTable.GetColumn(DT.LogAggregationDataTable.Columns.Blocked)
+                                                                    .SetNumericFormat("#,###,###,##0");
+                                                                 this.DataTable.GetColumn(DT.LogAggregationDataTable.Columns.AllTimeBlocked)
+                                                                    .SetNumericFormat("#,###,###,##0");
+                                                                 
+                                                                 this.DataTable.GetColumn(DT.LogAggregationDataTable.Columns.EdenThresholdReadRateMax)
+                                                                    .SetNumericFormat("#,###,###,##0.00####")
+                                                                    .SetCaption("Eden Max|Threshold Max|Read Rate Max");
+                                                                 this.DataTable.GetColumn(DT.LogAggregationDataTable.Columns.EdenThresholdReadRateMin)
+                                                                    .SetNumericFormat("#,###,###,##0.00####")
+                                                                    .SetCaption("Eden Dif|Threshold Min|Read Rate Min");
+                                                                 this.DataTable.GetColumn(DT.LogAggregationDataTable.Columns.OldThresholdReadRateMean)
+                                                                    .SetNumericFormat("#,###,###,##0.00####")
+                                                                    .SetCaption("Old Max|Threshold Mean|Read Rate Mean");
+                                                                 this.DataTable.GetColumn(DT.LogAggregationDataTable.Columns.OldThresholdReadRateStdDevp)
+                                                                    .SetNumericFormat("#,###,###,##0.00####")
+                                                                    .SetCaption("Old Dif|Threshold StdDevp|Read Rate StdDevp");
+                                                                 this.DataTable.GetColumn(DT.LogAggregationDataTable.Columns.SurvivorMax)
+                                                                    .SetNumericFormat("#,###,###,##0.00####");
+                                                                 this.DataTable.GetColumn(DT.LogAggregationDataTable.Columns.SurvivorDif)
+                                                                    .SetNumericFormat("#,###,###,##0.00####");
+                                                                
+                                                                 this.DataTable.GetColumn(DT.LogAggregationDataTable.Columns.SizeMax)
+                                                                    .SetNumericFormat("#,###,###,##0.00####");
+                                                                 this.DataTable.GetColumn(DT.LogAggregationDataTable.Columns.SizeMin)
+                                                                    .SetNumericFormat("#,###,###,##0.00####");
+                                                                 this.DataTable.GetColumn(DT.LogAggregationDataTable.Columns.SizeMean)
+                                                                    .SetNumericFormat("#,###,###,##0.00####");
+                                                                 this.DataTable.GetColumn(DT.LogAggregationDataTable.Columns.SizeStdDevp)
+                                                                    .SetNumericFormat("#,###,###,##0.00####");
+                                                                 this.DataTable.GetColumn(DT.LogAggregationDataTable.Columns.SizeTotal)
+                                                                    .SetNumericFormat("#,###,###,##0.00####");
 
-                                                                 workSheet.Cells["AJ:AJ"].Style.Numberformat.Format = "#,###,###,##0.00####";
-                                                                 workSheet.Cells["AK:AK"].Style.Numberformat.Format = "#,###,###,##0.00####";
-                                                                 workSheet.Cells["AL:AL"].Style.Numberformat.Format = "#,###,###,##0.00####";
-                                                                 workSheet.Cells["AM:AM"].Style.Numberformat.Format = "#,###,###,##0.00####";
-                                                                 workSheet.Cells["AN:AN"].Style.Numberformat.Format = "#,###,###,##0.00####";
+                                                                 this.DataTable.GetColumn(DT.LogAggregationDataTable.Columns.CountMax)
+                                                                    .SetNumericFormat("#,###,###,##0");
+                                                                 this.DataTable.GetColumn(DT.LogAggregationDataTable.Columns.CountMin)
+                                                                    .SetNumericFormat("#,###,###,##0");
+                                                                 this.DataTable.GetColumn(DT.LogAggregationDataTable.Columns.CountMean)
+                                                                    .SetNumericFormat("#,###,###,##0.00");
+                                                                 this.DataTable.GetColumn(DT.LogAggregationDataTable.Columns.CountStdDevp)
+                                                                    .SetNumericFormat("#,###,###,##0.00");
+                                                                 this.DataTable.GetColumn(DT.LogAggregationDataTable.Columns.CountTotal)
+                                                                    .SetNumericFormat("#,###,###,##0");
 
-                                                                 workSheet.Cells["AO:AO"].Style.Numberformat.Format = "#,###,###,##0";
-                                                                 workSheet.Cells["AP:AP"].Style.Numberformat.Format = "#,###,###,##0";
-                                                                 workSheet.Cells["AQ:AQ"].Style.Numberformat.Format = "#,###,###,##0.00";
-                                                                 workSheet.Cells["AR:AR"].Style.Numberformat.Format = "#,###,###,##0.00";
-                                                                 workSheet.Cells["AS:AS"].Style.Numberformat.Format = "#,###,###,##0";
+                                                                 this.DataTable.GetColumn(DT.LogAggregationDataTable.Columns.OPSMax)
+                                                                    .SetNumericFormat("#,###,###,##0");
+                                                                 this.DataTable.GetColumn(DT.LogAggregationDataTable.Columns.OPSMin)
+                                                                    .SetNumericFormat("#,###,###,##0");
+                                                                 this.DataTable.GetColumn(DT.LogAggregationDataTable.Columns.OPSMean)
+                                                                    .SetNumericFormat("#,###,###,##0.00");
+                                                                 this.DataTable.GetColumn(DT.LogAggregationDataTable.Columns.OPSStdDevp)
+                                                                    .SetNumericFormat("#,###,###,##0.00");
+                                                                
+                                                                 this.DataTable.GetColumn(DT.LogAggregationDataTable.Columns.SerializedMax)
+                                                                    .SetNumericFormat("#,###,###,##0.00####");
+                                                                 this.DataTable.GetColumn(DT.LogAggregationDataTable.Columns.SerializedMin)
+                                                                    .SetNumericFormat("#,###,###,##0.00####");
+                                                                 this.DataTable.GetColumn(DT.LogAggregationDataTable.Columns.SerializedMean)
+                                                                    .SetNumericFormat("#,###,###,##0.00####");
+                                                                 this.DataTable.GetColumn(DT.LogAggregationDataTable.Columns.SerializedStdDevp)
+                                                                    .SetNumericFormat("#,###,###,##0.00####");
+                                                                 this.DataTable.GetColumn(DT.LogAggregationDataTable.Columns.SerializedTotal)
+                                                                    .SetNumericFormat("#,###,###,##0.00####");
 
-                                                                 workSheet.Cells["AT:AT"].Style.Numberformat.Format = "#,###,###,##0";
-                                                                 workSheet.Cells["AU:AU"].Style.Numberformat.Format = "#,###,###,##0";
-                                                                 workSheet.Cells["AV:AV"].Style.Numberformat.Format = "#,###,###,##0.00";
-                                                                 workSheet.Cells["AW:AW"].Style.Numberformat.Format = "#,###,###,##0.00";
+                                                                 this.DataTable.GetColumn(DT.LogAggregationDataTable.Columns.StorageMax)
+                                                                    .SetNumericFormat("#,###,###,##0.00####");
+                                                                 this.DataTable.GetColumn(DT.LogAggregationDataTable.Columns.StorageMin)
+                                                                    .SetNumericFormat("#,###,###,##0.00####");
+                                                                 this.DataTable.GetColumn(DT.LogAggregationDataTable.Columns.StorageMean)
+                                                                    .SetNumericFormat("#,###,###,##0.00####");
+                                                                 this.DataTable.GetColumn(DT.LogAggregationDataTable.Columns.StorageStdDevp)
+                                                                    .SetNumericFormat("#,###,###,##0.00####");
+                                                                 this.DataTable.GetColumn(DT.LogAggregationDataTable.Columns.StorageTotal)
+                                                                    .SetNumericFormat("#,###,###,##0.00####");
 
-                                                                 workSheet.Cells["AX:AX"].Style.Numberformat.Format = "#,###,###,##0.00####";
-                                                                 workSheet.Cells["AY:AY"].Style.Numberformat.Format = "#,###,###,##0.00####";
-                                                                 workSheet.Cells["AZ:AZ"].Style.Numberformat.Format = "#,###,###,##0.00####";
-                                                                 workSheet.Cells["BA:BA"].Style.Numberformat.Format = "#,###,###,##0.00####";
-                                                                 workSheet.Cells["BB:BB"].Style.Numberformat.Format = "#,###,###,##0.00####";
+                                                                 workSheet.UpdateWorksheet(this.DataTable, 1);
 
-                                                                 workSheet.Cells["BC:BC"].Style.Numberformat.Format = "#,###,###,##0.00####";
-                                                                 workSheet.Cells["BD:BD"].Style.Numberformat.Format = "#,###,###,##0.00####";
-                                                                 workSheet.Cells["BE:BE"].Style.Numberformat.Format = "#,###,###,##0.00####";
-                                                                 workSheet.Cells["BF:BF"].Style.Numberformat.Format = "#,###,###,##0.00####";
-                                                                 workSheet.Cells["BG:BG"].Style.Numberformat.Format = "#,###,###,##0.00####";
-
-                                                                 //workSheet.Cells["A1:AR1"].AutoFilter = true;
-
-                                                                 workSheet.AutoFitColumn(workSheet.Cells["A:H"], workSheet.Cells["J:J"], workSheet.Cells["M:BG"]);
-                                                                 workSheet.Column(7).Width = 8; //h
-                                                                 workSheet.Column(9).Width = 9; //I
-                                                                 workSheet.Column(11).Width = 11; //K
-                                                                 workSheet.Column(12).Width = 12; //L
-
+                                                                 workSheet.AutoFitColumn(this.DataTable);
+                                                                 
                                                                  var table = workSheet.Tables.FirstOrDefault(t => t.Name == "AggregatedLogTable");
                                                                  var rowCnt = this.DataTable.Rows.Count;
 

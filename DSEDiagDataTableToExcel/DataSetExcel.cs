@@ -243,6 +243,11 @@ namespace DataTableToExcel
     {
         static public void AutoFitColumn(this ExcelWorksheet workSheet, params ExcelRange[] autoFitRanges)
         {
+            AutoFitColumn(workSheet, null, autoFitRanges);
+        }
+
+        static public void AutoFitColumn(this ExcelWorksheet workSheet, DataTable dataTable, params ExcelRange[] autoFitRanges)
+        {
             try
             {
                 if (autoFitRanges == null || autoFitRanges.Length == 0)
@@ -262,32 +267,120 @@ namespace DataTableToExcel
                     }
                 }
             }
+            catch (System.ArithmeticException)
+            { }
+            catch (System.ArgumentOutOfRangeException)
+            { }
             catch (System.Exception ex)
             {
-                Logger.Instance.Error(string.Format("Excel Cell Range AutoFitColumns Exception Occurred in Worksheet \"{0}\". Worksheet was loaded/updated but NOT auto-formatted...", workSheet.Name), ex);
+                Logger.Instance.Error(string.Format("Excel AutoFitColumns Exception Occurred in Worksheet \"{0}\". Worksheet was loaded/updated but NOT auto-formatted...", workSheet.Name), ex);
+            }
+
+            if (dataTable != null)
+            {
+                workSheet.ApplyColumnAttribs(dataTable);
             }
         }
 
-        static public ExcelRange[] ExcelRange(this ExcelWorksheet workSheet, params DataColumn[] autoFitRanges)
+        static public ExcelRange[] ExcelRange(this ExcelWorksheet workSheet, params DataColumn[] dcRanges)
         {
-            var columnLetterPairs = autoFitRanges
-                                        .Select(c => c.GetExcelColumnLetter())
-                                        .SelectWithPrevious((first, second) => new Tuple<string, string>(first, second));
+            var columnPairs = new List<Tuple<string, string>>();
+            
+            for (int nIdx = 0; nIdx < dcRanges.Length; ++nIdx)
+            {
+                columnPairs.Add(new Tuple<string, string>(dcRanges[nIdx].GetExcelColumnLetter(),
+                                                            (dcRanges.ElementAtOrDefault(++nIdx) ?? dcRanges[nIdx-1]).GetExcelColumnLetter()));
+            }
+                                        
 
-            return columnLetterPairs.Select(l => workSheet.Cells[l.Item1 + ":" + l.Item2]).ToArray();
+            return columnPairs.Select(l => workSheet.Cells[l.Item1 + ":" + l.Item2]).ToArray();
         }
 
-        static public ExcelRange[] ExcelRange(this ExcelWorksheet workSheet, int excelRow, params DataColumn[] autoFitRanges)
+        static public ExcelRange[] ExcelRange(this ExcelWorksheet workSheet, int excelRow, params DataColumn[] dcRanges)
         {
-            var columnLetterPairs = autoFitRanges
-                                        .Select(c => c.GetExcelColumnLetter())
-                                        .SelectWithPrevious((first, second) => new Tuple<string, string>(first, second));
+            var columnPairs = new List<Tuple<string, string>>();
 
-            return columnLetterPairs.Select(l => workSheet.Cells[string.Format("{0}{2}:{1}{2}", l.Item1, l.Item2, excelRow)]).ToArray();
+            for (int nIdx = 0; nIdx < dcRanges.Length; ++nIdx)
+            {
+                columnPairs.Add(new Tuple<string, string>(dcRanges[nIdx].GetExcelColumnLetter(),
+                                                            (dcRanges.ElementAtOrDefault(++nIdx) ?? dcRanges[nIdx - 1]).GetExcelColumnLetter()));
+            }
+
+            return columnPairs.Select(l => workSheet.Cells[string.Format("{0}{2}:{1}{2}", l.Item1, l.Item2, excelRow)]).ToArray();
         }
 
-        static public void AutoFitColumn(this ExcelWorksheet workSheet)
+        static public void AutoFitColumn(this ExcelWorksheet workSheet, DataTable dataTable = null)
         {
+            if(dataTable != null)
+            {
+                var colsWidths = new List<DataColumn>();
+                var dtcols = new List<DataColumn>();
+
+                foreach (DataColumn dataColumn in dataTable.Columns)
+                {
+                    dtcols.Add(dataColumn);
+
+                    if (dataColumn.ExtendedProperties.Count == 0) continue;
+
+                    foreach (var item in dataColumn.ExtendedProperties.Keys)
+                    {
+                        if (item != null && item is string)
+                        {
+                            var key = (string)item;
+
+                            if (key == "ColumnWidth")
+                            {
+                                var colWidth = (int)dataColumn.ExtendedProperties["ColumnWidth"];
+
+                                if (colWidth >= 0)
+                                    colsWidths.Add(dataColumn);
+                            }
+                        }
+                    }
+                }
+
+                if(colsWidths.HasAtLeastOneElement())
+                {
+                    var colRange = new List<DataColumn>();
+                    DataColumn lstCol = null;
+                    bool begRange = true;
+
+                    foreach (var tblCol in dtcols)
+                    {
+                        if(colsWidths.Contains(tblCol))
+                        {
+                            if (lstCol != null)
+                            {
+                                colRange.Add(lstCol);
+                                begRange = true;
+                                lstCol = null;
+                            }
+                            continue;
+                        }
+                        lstCol = tblCol;
+
+                        if(begRange)
+                        {
+                            colRange.Add(lstCol);
+                            begRange = false;
+                        }
+                    }
+
+                    if(lstCol != null)
+                        colRange.Add(lstCol);
+
+                    if (colRange.HasAtLeastOneElement())
+                    {
+                        if(colRange.Count % 2 != 0)
+                            colRange.Add(lstCol);
+
+                        workSheet.AutoFitColumn(dataTable, workSheet.ExcelRange(colRange.ToArray()));
+                    }
+
+                    return;
+                }
+            }
+
             try
             {
                 workSheet.Cells.AutoFitColumns();
@@ -299,6 +392,11 @@ namespace DataTableToExcel
             catch (System.Exception ex)
             {
                 Logger.Instance.Error(string.Format("Excel AutoFitColumns Exception Occurred in Worksheet \"{0}\". Worksheet was loaded/updated but NOT auto-formatted...", workSheet.Name), ex);
+            }
+
+            if(dataTable != null)
+            {
+                workSheet.ApplyColumnAttribs(dataTable);
             }
         }
 

@@ -70,13 +70,13 @@ namespace DSEDiagtnosticToExcel
                                                             //workSheet.Cells["1:1"].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
                                                             workSheet.View.FreezePanes(3, 3);
 
-                                                             this.DataTable.GetColumn(DSEDiagnosticToDataTable.ColumnNames.NodeIPAddress);
-                                                             this.DataTable.GetColumn(DSEDiagnosticToDataTable.ColumnNames.DataCenter);
+                                                             //this.DataTable.GetColumn(DSEDiagnosticToDataTable.ColumnNames.NodeIPAddress);
+                                                             //this.DataTable.GetColumn(DSEDiagnosticToDataTable.ColumnNames.DataCenter);
 
-                                                             this.DataTable.GetColumn("Rack");
-                                                             this.DataTable.GetColumn("Status");
-                                                             this.DataTable.GetColumn("Instance Type");
-                                                             this.DataTable.GetColumn("Cluster Name");
+                                                             //this.DataTable.GetColumn("Rack");
+                                                             //this.DataTable.GetColumn("Status");
+                                                             //this.DataTable.GetColumn("Instance Type");
+                                                             //this.DataTable.GetColumn("Cluster Name");
 
                                                             //DataStax Versions
                                                             this.DataTable.SetGroupHeader("Versions", -2, true,
@@ -88,7 +88,7 @@ namespace DSEDiagtnosticToExcel
                                                                 this.DataTable.GetColumn("Schema")
                                                             );
 
-                                                             this.DataTable.GetColumn("VNodes");
+                                                             //this.DataTable.GetColumn("VNodes");
 
                                                              this.DataTable.GetColumn("Storage Used (MB)")
                                                                             .SetNumericFormat("#,###,###,##0.00");
@@ -97,7 +97,7 @@ namespace DSEDiagtnosticToExcel
                                                              //this.DataTable.GetColumn("Health Rating")
                                                              //             .SetNumericFormat("0.00");
 
-                                                             this.DataTable.GetColumn("Time Zone Offset");
+                                                             //this.DataTable.GetColumn("Time Zone Offset");
 
                                                              this.DataTable.SetGroupHeader("Aggregated", -2, true,
                                                                 this.DataTable.GetColumn("Start NodeTool Range")
@@ -158,16 +158,16 @@ namespace DSEDiagtnosticToExcel
                                                                                 .SetNumericFormat("###");                                                                
                                                                 this.DataTable.GetColumn("Percent Repaired")
                                                                                 .SetNumericFormat("#,###,###,##0.0000%");
-                                                                this.DataTable.GetColumn("Repair Service Enabled");
-                                                                this.DataTable.GetColumn("Seed Node");
-                                                                this.DataTable.GetColumn("Gossip Enabled");
-                                                                this.DataTable.GetColumn("Thrift Enabled");
-                                                                this.DataTable.GetColumn("Native Transport Enabled");
-                                                                this.DataTable.GetColumn("Multi-Instance Server Id");
-                                                                this.DataTable.GetColumn("Key Cache Information");
-                                                                this.DataTable.GetColumn("Row Cache Information");
-                                                                this.DataTable.GetColumn("Counter Cache Information");
-                                                                this.DataTable.GetColumn("Chunk Cache Information");
+                                                                //this.DataTable.GetColumn("Repair Service Enabled");
+                                                                //this.DataTable.GetColumn("Seed Node");
+                                                                //this.DataTable.GetColumn("Gossip Enabled");
+                                                                //this.DataTable.GetColumn("Thrift Enabled");
+                                                                //this.DataTable.GetColumn("Native Transport Enabled");
+                                                                //this.DataTable.GetColumn("Multi-Instance Server Id");
+                                                                //this.DataTable.GetColumn("Key Cache Information");
+                                                                //this.DataTable.GetColumn("Row Cache Information");
+                                                                //this.DataTable.GetColumn("Counter Cache Information");
+                                                                //this.DataTable.GetColumn("Chunk Cache Information");
 
                                                                  workSheet.UpdateWorksheet(this.DataTable, 2);
 
