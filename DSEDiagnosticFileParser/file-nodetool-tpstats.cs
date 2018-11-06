@@ -272,20 +272,20 @@ namespace DSEDiagnosticFileParser
                             var tpName = name.Value.Trim();
                             statItem.AssociateItem(tpName + '.' + propType, long.Parse(props.Captures[0].Value.Trim()));
 
-                            var checkValue = (Action<string, string>)((latName, capValue) =>
+                            void checkValue(string latName, string capValue)
                             {
-                                if(!string.IsNullOrEmpty(capValue) && capValue != "N/A")
+                                if (!string.IsNullOrEmpty(capValue) && capValue != "N/A")
                                 {
                                     statItem.AssociateItem(latName, new UnitOfMeasure(capValue, uom, UnitOfMeasure.Types.Time));
                                 }
-                            });
+                            }
 
                             checkValue(tpName + ".Queue.Latency.Waiting.50%", props.Captures[1].Value.Trim());
                             checkValue(tpName + ".Queue.Latency.Waiting.95%", props.Captures[2].Value.Trim());
                             checkValue(tpName + ".Queue.Latency.Waiting.99%", props.Captures[3].Value.Trim());
                             checkValue(tpName + ".Queue.Latency.Waiting.Max", props.Captures[4].Value.Trim());
 
-                            continue;
+                            continue;                            
                         }
                     }
                 }
@@ -298,7 +298,7 @@ namespace DSEDiagnosticFileParser
             }
 
             this.Processed = true;
-            return (uint) this._statsList.Count;
+            return (uint) this._statsList.Count;            
         }
     }
 }

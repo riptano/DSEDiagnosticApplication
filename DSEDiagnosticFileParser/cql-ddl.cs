@@ -219,8 +219,8 @@ namespace DSEDiagnosticFileParser
 
 
         private List<IDDL> _ddlList = new List<IDDL>();
-        private List<IKeyspace> _localKS = new List<IKeyspace>();
-        private bool _isPreLoaded = false;
+        private readonly List<IKeyspace> _localKS = new List<IKeyspace>();
+        private readonly bool _isPreLoaded = false;
 
         private IKeyspace _usingKeySpace = null;
 
@@ -244,9 +244,8 @@ namespace DSEDiagnosticFileParser
                 line = fileLine.Trim();
 
                 if (multipleLineComment)
-                {
-                    string newLine;
-                    int inlinecomment = StringHelpers.RemoveInLineComment(line, out newLine, -1, true);
+                {                    
+                    int inlinecomment = StringHelpers.RemoveInLineComment(line, out string newLine, -1, true);
 
                     if (inlinecomment == 0)
                     {
@@ -280,9 +279,8 @@ namespace DSEDiagnosticFileParser
                         continue;
                     }
 
-                    {
-                        string newLine;
-                        int inlinecomment = StringHelpers.RemoveInLineComment(line, out newLine, -1, true);
+                    {                       
+                        int inlinecomment = StringHelpers.RemoveInLineComment(line, out string newLine, -1, true);
 
                         if (inlinecomment != 0)
                         {
@@ -901,11 +899,10 @@ namespace DSEDiagnosticFileParser
             }
 
             if (primarykeyCol)
-            {
-                string ignore;
+            {                
                 List<string> pkValues = new List<string>();
 
-                Common.StringFunctions.ParseIntoFuncationParams(columnSplits.Last().Replace(" ", string.Empty), out ignore, out pkValues);
+                Common.StringFunctions.ParseIntoFuncationParams(columnSplits.Last().Replace(" ", string.Empty), out string ignore, out pkValues);
 
                 if (pkValues[0][0] == '(')
                 {
@@ -969,11 +966,10 @@ namespace DSEDiagnosticFileParser
             IEnumerable<CQLColumnType> subTypes = null;
 
             if (hasSubTypesd)
-            {
-                string typeName;
+            {                
                 var typeParams = new List<string>();
 
-                Common.StringFunctions.ParseIntoGenericTypeParams(colType.Replace(" ", string.Empty), out typeName, out typeParams);
+                Common.StringFunctions.ParseIntoGenericTypeParams(colType.Replace(" ", string.Empty), out string typeName, out typeParams);
 
                 subTypes = typeParams.Select(i => ProcessColumnType(i, keyspace));
 

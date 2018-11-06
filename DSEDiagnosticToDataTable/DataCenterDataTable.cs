@@ -221,8 +221,8 @@ namespace DSEDiagnosticToDataTable
                                                                                         && a.Value != null))
                                       select new {
                                                     DC = grpData.Key.DataCenter,
-                                                    Node = grpData.Key.Node,
-                                                    Keyspace = grpData.Key.Keyspace,
+                                                    grpData.Key.Node,
+                                                    grpData.Key.Keyspace,
                                                     StorageTotal = grpDataValues.Where(a => a.Key == Properties.Settings.Default.CFStatsSpaceUsed)
                                                                             .Select(a => (DSEDiagnosticLibrary.UnitOfMeasure) a.Value)                                                                                                
                                                                             .Where(a => !a.NaN)

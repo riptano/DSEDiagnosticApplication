@@ -312,9 +312,8 @@ namespace DSEDiagnosticAnalytics
                                                             //sndNode.Item1.AssociateItem(stat);
                                                             return stat;
                                                          });
-                object dataValue;
-
-                if (aggStat.Data.TryGetValue(attribName, out dataValue))
+                
+                if (aggStat.Data.TryGetValue(attribName, out object dataValue))
                 {
                     ((List<UnitOfMeasure>)dataValue).Add(partitionSize);
                 }
@@ -357,9 +356,8 @@ namespace DSEDiagnosticAnalytics
                 });
 
                 var tombstones = (long)((dynamic)eventArgs.LogEvent.LogProperties["tombstone_cells"]);
-                object dataValue;
-
-                if (nodeStat.Data.TryGetValue(Properties.Settings.Default.TombstonesReadAttrib, out dataValue))
+                
+                if (nodeStat.Data.TryGetValue(Properties.Settings.Default.TombstonesReadAttrib, out object dataValue))
                 {
                     ((List<long>)dataValue).Add(tombstones);
                 }
@@ -367,10 +365,8 @@ namespace DSEDiagnosticAnalytics
                 {
                     nodeStat.AssociateItem(Properties.Settings.Default.TombstonesReadAttrib, new List<long>() { tombstones });
                 }
-
-                dynamic reads;
-
-                if (eventArgs.LogEvent.LogProperties.TryGetValue("live_cells", out reads))
+                
+                if (eventArgs.LogEvent.LogProperties.TryGetValue("live_cells", out dynamic reads))
                 {
                     var readsValue = (decimal)reads;
                     decimal percent = 0;
@@ -420,9 +416,8 @@ namespace DSEDiagnosticAnalytics
                     //sndNode.Item1.AssociateItem(stat);
                     return stat;
                 });
-                object dataValue;
-
-                if (aggStat.Data.TryGetValue(Properties.Settings.Default.CompactionInsufficientSpace, out dataValue))
+                
+                if (aggStat.Data.TryGetValue(Properties.Settings.Default.CompactionInsufficientSpace, out object dataValue))
                 {
                     ((List<UnitOfMeasure>)dataValue).Add(spaceRequired);
                 }
@@ -544,10 +539,8 @@ namespace DSEDiagnosticAnalytics
         }
        
         public static long IsPositive(this IReadOnlyDictionary<string,object> propTable, string key)
-        {
-            object value;
-
-            if(propTable.TryGetValue(key, out value))
+        {            
+            if(propTable.TryGetValue(key, out object value))
             {
                 if (value.IsNumber())
                 {
@@ -564,10 +557,8 @@ namespace DSEDiagnosticAnalytics
         }
 
         public static long IsPositiveZero(this IReadOnlyDictionary<string, object> propTable, string key)
-        {
-            object value;
-
-            if (propTable.TryGetValue(key, out value))
+        {            
+            if (propTable.TryGetValue(key, out object value))
             {
                 if (value.IsNumber())
                 {
@@ -584,10 +575,8 @@ namespace DSEDiagnosticAnalytics
         }
 
         public static long GetPropLongValue(this IReadOnlyDictionary<string, object> propTable, string key)
-        {
-            object value;
-
-            if (propTable.TryGetValue(key, out value) && value.IsNumber())
+        {            
+            if (propTable.TryGetValue(key, out object value) && value.IsNumber())
             {
                 return (long)((dynamic)value);                
             }
@@ -595,10 +584,8 @@ namespace DSEDiagnosticAnalytics
         }
 
         public static decimal GetPropDecimalValue(this IReadOnlyDictionary<string, object> propTable, string key)
-        {
-            object value;
-
-            if (propTable.TryGetValue(key, out value) && value.IsNumber())
+        {           
+            if (propTable.TryGetValue(key, out object value) && value.IsNumber())
             {
                 return (decimal)((dynamic)value);               
             }
@@ -606,17 +593,13 @@ namespace DSEDiagnosticAnalytics
         }
 
         public static decimal GetPropUOMValue(this IReadOnlyDictionary<string, object> propTable, string key, UnitOfMeasure.Types uomConvertType = UnitOfMeasure.Types.Unknown)
-        {
-            object value;
-
-            if (propTable.TryGetValue(key, out value))
+        {            
+            if (propTable.TryGetValue(key, out object value))
             {
                 if(value != null)
                 {
-                    if(value is UnitOfMeasure)
-                    {
-                        var uom = (UnitOfMeasure) value;
-
+                    if(value is UnitOfMeasure uom)
+                    {                        
                         if (uomConvertType == UnitOfMeasure.Types.Unknown) return uom.UnitType == UnitOfMeasure.Types.Percent ? uom.Value / 100M : uom.Value;
 
                         return uom.ConvertTo(uomConvertType);                        
@@ -632,10 +615,8 @@ namespace DSEDiagnosticAnalytics
         }
 
         public static long IsOffSetValue(this IReadOnlyDictionary<string, object> propTable, string key, ref long offsetValue)
-        {
-            object value;
-
-            if (propTable.TryGetValue(key, out value) && value.IsNumber())
+        {           
+            if (propTable.TryGetValue(key, out object value) && value.IsNumber())
             {
                 long num = (long)((dynamic)value);
 
@@ -1100,10 +1081,8 @@ namespace DSEDiagnosticAnalytics
                                                             LogEventGrouping.GroupingTypes.DurationStats,
                                                             null, null, true);
                             }
-
-                            AggregateGroups aggregateGroup;
-
-                            if(LibrarySettings.AggregateGroups.TryGetValue(logEvtGrp.Key, out aggregateGroup))
+                            
+                            if(LibrarySettings.AggregateGroups.TryGetValue(logEvtGrp.Key, out AggregateGroups aggregateGroup))
                             {
                                 return aggregateGroup.AggregateGroupFunction(ref logEventGroup, logEvtGrp.Key, logEvtGrp);
                             }
