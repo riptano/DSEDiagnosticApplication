@@ -11,6 +11,7 @@ using DSEDiagnosticLogger;
 
 namespace DSEDiagnosticFileParser
 {
+    #pragma warning disable IDE1006 // Naming Styles
     public class cql_ddl : DiagnosticFile
     {
 

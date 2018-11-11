@@ -108,10 +108,8 @@ namespace DataTableToExcel
         static public IReadOnlyList<KeyValuePair<IFilePath, ExcelPkgCache>> Caches { get { return _Caches.ToList(); } }
 
         static public ExcelPackage GetExcelPackage(IFilePath excelPath)
-        {
-            ExcelPkgCache cache;
-
-            if(_Caches.TryGetValue(excelPath, out cache))
+        {            
+            if(_Caches.TryGetValue(excelPath, out ExcelPkgCache cache))
             {
                 return cache.ExcelPackage;
             }
@@ -120,10 +118,8 @@ namespace DataTableToExcel
         }
 
         static public ExcelPkgCache GetExcelPackageCache(IFilePath excelPath)
-        {
-            ExcelPkgCache cache;
-
-            if (_Caches.TryGetValue(excelPath, out cache))
+        {            
+            if (_Caches.TryGetValue(excelPath, out ExcelPkgCache cache))
             {
                 return cache;
             }
@@ -142,10 +138,8 @@ namespace DataTableToExcel
         }
 
         static public ExcelPkgCache RemoveExcelPackageCache(IFilePath excelPath, bool saveFile = false, bool disposePackage = true)
-        {
-            ExcelPkgCache cache = null;
-
-            if(_Caches.TryRemove(excelPath, out cache))
+        {           
+            if(_Caches.TryRemove(excelPath, out ExcelPkgCache cache))
             {
                 if (saveFile) cache.Save();
                 if (disposePackage) cache.DisposeForce();

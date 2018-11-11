@@ -19,9 +19,8 @@ namespace DSEDiagnosticLog4NetParser
         public LogMessages(IFilePath logFile, string log4netConversionPattern, INode node = null)
         {
             if (string.IsNullOrEmpty(log4netConversionPattern)) throw new ArgumentNullException("log4netConversionPattern");
-            if (logFile == null) throw new ArgumentNullException("logFile");
-
-            this.LogFile = logFile;
+            
+            this.LogFile = logFile ?? throw new ArgumentNullException("logFile");
             this.Log4NetConversionPattern = log4netConversionPattern;
 
             var log4netImporter = Log4NetPatternImporter.GenerateRegularGrammarElement(this.Log4NetConversionPattern);
@@ -184,10 +183,8 @@ namespace DSEDiagnosticLog4NetParser
 
                 #region Log TimeStamp or Time
                 if (this._logTimestampValue)
-                {
-                    long timeStamp;
-
-                    if (long.TryParse(lineMatch.Groups["Timestamp"].Value.Trim(), out timeStamp))
+                {                    
+                    if (long.TryParse(lineMatch.Groups["Timestamp"].Value.Trim(), out long timeStamp))
                     {
                         logMessage.LogTimeSpan = TimeSpan.FromMilliseconds(timeStamp);
                     }
@@ -208,11 +205,9 @@ namespace DSEDiagnosticLog4NetParser
                     }
                 }
                 else
-                {
-                    DateTime timeStamp;
-
+                {                    
                     if (string.IsNullOrEmpty(this._datetimeFormat)
-                            ? DateTime.TryParse(lineMatch.Groups["Time"].Value.Trim(), out timeStamp)
+                            ? DateTime.TryParse(lineMatch.Groups["Time"].Value.Trim(), out DateTime timeStamp)
                             : DateTime.TryParseExact(lineMatch.Groups["Time"].Value.Trim(),
                                                         this._datetimeFormat,
                                                         CultureInfo.InvariantCulture,
@@ -265,10 +260,8 @@ namespace DSEDiagnosticLog4NetParser
                 }
                 #endregion
                 #region Log Level
-                {
-                    LogLevels logLevel;
-
-                    if (Enum.TryParse(lineMatch.Groups["Level"].Value.Trim(), true, out logLevel))
+                {                    
+                    if (Enum.TryParse(lineMatch.Groups["Level"].Value.Trim(), true, out LogLevels logLevel))
                     {
                         logMessage.Level = logLevel;
                     }
@@ -290,10 +283,8 @@ namespace DSEDiagnosticLog4NetParser
                 }
                 #endregion
                 #region Log File Line
-                {
-                    int fileLine;
-
-                    if (int.TryParse(lineMatch.Groups["Line"].Value.Trim(), out fileLine))
+                {                    
+                    if (int.TryParse(lineMatch.Groups["Line"].Value.Trim(), out int fileLine))
                     {
                         logMessage.FileLine = fileLine;
                     }
@@ -449,9 +440,7 @@ namespace DSEDiagnosticLog4NetParser
 
         static Regex CreateRegEx(string field, IDictionary<string, Log4NetPatternImporter.OutputField> outputFields)
         {
-            Log4NetPatternImporter.OutputField outputField;
-
-            if (outputFields.TryGetValue(field, out outputField))
+            if (outputFields.TryGetValue(field, out Log4NetPatternImporter.OutputField outputField))
             {
                 return new Regex(outputField.Code.ToString(),
                                     RegexOptions.Compiled
@@ -464,9 +453,7 @@ namespace DSEDiagnosticLog4NetParser
 
         void DetermineLogDateTime(IDictionary<string, Log4NetPatternImporter.OutputField> outputFields)
         {
-            Log4NetPatternImporter.OutputField outputField;
-
-            if (outputFields.TryGetValue("Time", out outputField))
+            if (outputFields.TryGetValue("Time", out Log4NetPatternImporter.OutputField outputField))
             {
                 this._logTimestampValue = false;
                 this._datetimeFormat = outputField.Code?.ToString();
