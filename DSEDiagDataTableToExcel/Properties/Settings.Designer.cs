@@ -40,5 +40,14 @@ namespace DataTableToExcel.Properties {
                 return ((string)(this["ExcelWorkBookFileExtension"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("(?:{\\s*\\d+\\s*})|(?<DCNameInd>{(?<DCName>[a-z0-9_\\-|+! ]+)})")]
+        public string TranslateFormula {
+            get {
+                return ((string)(this["TranslateFormula"]));
+            }
+        }
     }
 }

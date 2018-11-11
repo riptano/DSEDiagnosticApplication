@@ -815,10 +815,12 @@ namespace DSEDiagnosticAnalytics
         {
             var rows = assocatedLogEvents.Select(i => i.LogProperties.GetPropLongValue("rows")).Where(i => i > 0);
 
-            return new LogEventGrouping(ref logEventGroup,
-                                        assocatedLogEvents,
-                                        LogEventGrouping.GroupingTypes.HintHandOffStats,
-                                        rows);
+            return rows.IsEmpty()
+                        ? null
+                        : new LogEventGrouping(ref logEventGroup,
+                                                assocatedLogEvents,
+                                                LogEventGrouping.GroupingTypes.HintHandOffStats,
+                                                rows);
         }
 
         public static LogEventGrouping MaximumMemoryUsageReachedStats(ref LogEventGroup logEventGroup, string analyticsGroup, IEnumerable<ILogEvent> assocatedLogEvents)

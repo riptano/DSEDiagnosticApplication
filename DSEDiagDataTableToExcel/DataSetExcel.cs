@@ -7,6 +7,9 @@ using System.Data;
 using System.Threading.Tasks;
 using OfficeOpenXml;
 using Common;
+using OfficeOpenXml.ConditionalFormatting;
+using System.Runtime.Serialization.Json;
+using System.Xml;
 
 namespace DataTableToExcel
 {
@@ -239,8 +242,1204 @@ namespace DataTableToExcel
 
     }
 
+    public sealed class ConditionalFormatValue
+    {
+        public enum Types
+        {
+
+            //
+            // Summary:
+            //     Formula
+            Formula = 0,
+            //
+            // Summary:
+            //     Maximum Value
+            Max = 1,
+            //
+            // Summary:
+            //     Minimum Value
+            Min = 2,
+            //
+            // Summary:
+            //     Number Value
+            Num = 3,
+            //
+            // Summary:
+            //     Percent
+            Percent = 4,
+            //
+            // Summary:
+            //     Percentile
+            Percentile = 5,
+
+            Automatic = 15,
+            NoValue = 16
+        }
+
+        public enum RuleTypes
+        {
+
+            //
+            // Summary:
+            //     This conditional formatting rule highlights cells that are above the average
+            //     for all values in the range.
+            //
+            // Remarks:
+            //     AboveAverage Excel CF Rule Type
+            AboveAverage = 0,
+            //
+            // Summary:
+            //     This conditional formatting rule highlights cells that are above or equal the
+            //     average for all values in the range.
+            //
+            // Remarks:
+            //     AboveAverage Excel CF Rule Type
+            AboveOrEqualAverage = 1,
+            //
+            // Summary:
+            //     This conditional formatting rule highlights cells that are below the average
+            //     for all values in the range.
+            //
+            // Remarks:
+            //     AboveAverage Excel CF Rule Type
+            BelowAverage = 2,
+            //
+            // Summary:
+            //     This conditional formatting rule highlights cells that are below or equal the
+            //     average for all values in the range.
+            //
+            // Remarks:
+            //     AboveAverage Excel CF Rule Type
+            BelowOrEqualAverage = 3,
+            //
+            // Summary:
+            //     This conditional formatting rule highlights cells that are above the standard
+            //     deviationa for all values in the range. AboveAverage Excel CF Rule Type
+            AboveStdDev = 4,
+            //
+            // Summary:
+            //     This conditional formatting rule highlights cells that are below the standard
+            //     deviationa for all values in the range.
+            //
+            // Remarks:
+            //     AboveAverage Excel CF Rule Type
+            BelowStdDev = 5,
+            //
+            // Summary:
+            //     This conditional formatting rule highlights cells whose values fall in the bottom
+            //     N bracket as specified.
+            //
+            // Remarks:
+            //     Top10 Excel CF Rule Type
+            Bottom = 6,
+            //
+            // Summary:
+            //     This conditional formatting rule highlights cells whose values fall in the bottom
+            //     N percent as specified.
+            //
+            // Remarks:
+            //     Top10 Excel CF Rule Type
+            BottomPercent = 7,
+            //
+            // Summary:
+            //     This conditional formatting rule highlights cells whose values fall in the top
+            //     N bracket as specified.
+            //
+            // Remarks:
+            //     Top10 Excel CF Rule Type
+            Top = 8,
+            //
+            // Summary:
+            //     This conditional formatting rule highlights cells whose values fall in the top
+            //     N percent as specified.
+            //
+            // Remarks:
+            //     Top10 Excel CF Rule Type
+            TopPercent = 9,
+            //
+            // Summary:
+            //     This conditional formatting rule highlights cells containing dates in the last
+            //     7 days.
+            //
+            // Remarks:
+            //     TimePeriod Excel CF Rule Type
+            Last7Days = 10,
+            //
+            // Summary:
+            //     This conditional formatting rule highlights cells containing dates in the last
+            //     month.
+            //
+            // Remarks:
+            //     TimePeriod Excel CF Rule Type
+            LastMonth = 11,
+            //
+            // Summary:
+            //     This conditional formatting rule highlights cells containing dates in the last
+            //     week.
+            //
+            // Remarks:
+            //     TimePeriod Excel CF Rule Type
+            LastWeek = 12,
+            //
+            // Summary:
+            //     This conditional formatting rule highlights cells containing dates in the next
+            //     month.
+            //
+            // Remarks:
+            //     TimePeriod Excel CF Rule Type
+            NextMonth = 13,
+            //
+            // Summary:
+            //     This conditional formatting rule highlights cells containing dates in the next
+            //     week.
+            //
+            // Remarks:
+            //     TimePeriod Excel CF Rule Type
+            NextWeek = 14,
+            //
+            // Summary:
+            //     This conditional formatting rule highlights cells containing dates in this month.
+            //
+            // Remarks:
+            //     TimePeriod Excel CF Rule Type
+            ThisMonth = 15,
+            //
+            // Summary:
+            //     This conditional formatting rule highlights cells containing dates in this week.
+            //
+            // Remarks:
+            //     TimePeriod Excel CF Rule Type
+            ThisWeek = 16,
+            //
+            // Summary:
+            //     This conditional formatting rule highlights cells containing today dates.
+            //
+            // Remarks:
+            //     TimePeriod Excel CF Rule Type
+            Today = 17,
+            //
+            // Summary:
+            //     This conditional formatting rule highlights cells containing tomorrow dates.
+            //
+            // Remarks:
+            //     TimePeriod Excel CF Rule Type
+            Tomorrow = 18,
+            //
+            // Summary:
+            //     This conditional formatting rule highlights cells containing yesterday dates.
+            //
+            // Remarks:
+            //     TimePeriod Excel CF Rule Type
+            Yesterday = 19,
+            //
+            // Summary:
+            //     This conditional formatting rule highlights cells in the range that begin with
+            //     the given text.
+            //
+            // Remarks:
+            //     Equivalent to using the LEFT() sheet function and comparing values.
+            BeginsWith = 20,
+            //
+            // Summary:
+            //     This conditional formatting rule highlights cells in the range between the given
+            //     two formulas.
+            //
+            // Remarks:
+            //     CellIs Excel CF Rule Type
+            Between = 21,
+            //
+            // Summary:
+            //     This conditional formatting rule highlights cells that are completely blank.
+            //
+            // Remarks:
+            //     Equivalent of using LEN(TRIM()). This means that if the cell contains only characters
+            //     that TRIM() would remove, then it is considered blank. An empty cell is also
+            //     considered blank.
+            ContainsBlanks = 22,
+            //
+            // Summary:
+            //     This conditional formatting rule highlights cells with formula errors.
+            //
+            // Remarks:
+            //     Equivalent to using ISERROR() sheet function to determine if there is a formula
+            //     error.
+            ContainsErrors = 23,
+            //
+            // Summary:
+            //     This conditional formatting rule highlights cells in the range that begin with
+            //     the given text.
+            //
+            // Remarks:
+            //     Equivalent to using the LEFT() sheet function and comparing values.
+            ContainsText = 24,
+            //
+            // Summary:
+            //     This conditional formatting rule highlights duplicated values.
+            //
+            // Remarks:
+            //     DuplicateValues Excel CF Rule Type
+            DuplicateValues = 25,
+            //
+            // Summary:
+            //     This conditional formatting rule highlights cells ending with given text.
+            //
+            // Remarks:
+            //     Equivalent to using the RIGHT() sheet function and comparing values.
+            EndsWith = 26,
+            //
+            // Summary:
+            //     This conditional formatting rule highlights cells equals to with given formula.
+            //
+            // Remarks:
+            //     CellIs Excel CF Rule Type
+            Equal = 27,
+            //
+            // Summary:
+            //     This conditional formatting rule contains a formula to evaluate. When the formula
+            //     result is true, the cell is highlighted.
+            //
+            // Remarks:
+            //     Expression Excel CF Rule Type
+            Expression = 28,
+            //
+            // Summary:
+            //     This conditional formatting rule highlights cells greater than the given formula.
+            //
+            // Remarks:
+            //     CellIs Excel CF Rule Type
+            GreaterThan = 29,
+            //
+            // Summary:
+            //     This conditional formatting rule highlights cells greater than or equal the given
+            //     formula.
+            //
+            // Remarks:
+            //     CellIs Excel CF Rule Type
+            GreaterThanOrEqual = 30,
+            //
+            // Summary:
+            //     This conditional formatting rule highlights cells less than the given formula.
+            //
+            // Remarks:
+            //     CellIs Excel CF Rule Type
+            LessThan = 31,
+            //
+            // Summary:
+            //     This conditional formatting rule highlights cells less than or equal the given
+            //     formula.
+            //
+            // Remarks:
+            //     CellIs Excel CF Rule Type
+            LessThanOrEqual = 32,
+            //
+            // Summary:
+            //     This conditional formatting rule highlights cells outside the range in given
+            //     two formulas.
+            //
+            // Remarks:
+            //     CellIs Excel CF Rule Type
+            NotBetween = 33,
+            //
+            // Summary:
+            //     This conditional formatting rule highlights cells that does not contains the
+            //     given formula.
+            //
+            // Remarks:
+            //     CellIs Excel CF Rule Type
+            NotContains = 34,
+            //
+            // Summary:
+            //     This conditional formatting rule highlights cells that are not blank.
+            //
+            // Remarks:
+            //     Equivalent of using LEN(TRIM()). This means that if the cell contains only characters
+            //     that TRIM() would remove, then it is considered blank. An empty cell is also
+            //     considered blank.
+            NotContainsBlanks = 35,
+            //
+            // Summary:
+            //     This conditional formatting rule highlights cells without formula errors.
+            //
+            // Remarks:
+            //     Equivalent to using ISERROR() sheet function to determine if there is a formula
+            //     error.
+            NotContainsErrors = 36,
+            //
+            // Summary:
+            //     This conditional formatting rule highlights cells that do not contain the given
+            //     text.
+            //
+            // Remarks:
+            //     Equivalent to using the SEARCH() sheet function.
+            NotContainsText = 37,
+            //
+            // Summary:
+            //     This conditional formatting rule highlights cells not equals to with given formula.
+            //
+            // Remarks:
+            //     CellIs Excel CF Rule Type
+            NotEqual = 38,
+            //
+            // Summary:
+            //     This conditional formatting rule highlights unique values in the range.
+            //
+            // Remarks:
+            //     UniqueValues Excel CF Rule Type
+            UniqueValues = 39,
+            //
+            // Summary:
+            //     Three Color Scale (Low, Middle and High Color Scale)
+            //
+            // Remarks:
+            //     ColorScale Excel CF Rule Type
+            ThreeColorScale = 40,
+            //
+            // Summary:
+            //     Two Color Scale (Low and High Color Scale)
+            //
+            // Remarks:
+            //     ColorScale Excel CF Rule Type
+            TwoColorScale = 41,
+            //
+            // Summary:
+            //     This conditional formatting rule applies a 3 set icons to cells according to
+            //     their values.
+            //
+            // Remarks:
+            //     IconSet Excel CF Rule Type
+            ThreeIconSet = 42,
+            //
+            // Summary:
+            //     This conditional formatting rule applies a 4 set icons to cells according to
+            //     their values.
+            //
+            // Remarks:
+            //     IconSet Excel CF Rule Type
+            FourIconSet = 43,
+            //
+            // Summary:
+            //     This conditional formatting rule applies a 5 set icons to cells according to
+            //     their values.
+            //
+            // Remarks:
+            //     IconSet Excel CF Rule Type
+            FiveIconSet = 44,
+            //
+            // Summary:
+            //     This conditional formatting rule displays a gradated data bar in the range of
+            //     cells.
+            //
+            // Remarks:
+            //     DataBar Excel CF Rule Type
+            DataBar = 45
+        }
+
+        public Types Type { get; set; } = Types.Num;
+        public Types SubType { get; set; } = Types.Num;
+
+        public RuleTypes RuleType { get; set; } = RuleTypes.Equal;
+        public RuleTypes SubRuleType { get; set; } = RuleTypes.Equal;
+
+        public double Value { get; set; }
+        public string FormulaText { get; set; }
+        public string FormulaTextBetween { get; set; }
+
+        public System.Drawing.Color Color { get; set; } = System.Drawing.Color.Empty;
+
+        public bool ShowValue { get; set; } = true;
+        public bool StopIfTrue { get; set; } = false;
+
+        public int Priority { get; set; } = 1;
+
+        public bool IncludeTotalRow { get; set; }
+
+        public override string ToString()
+        {
+            var ser = new DataContractJsonSerializer(typeof(ConditionalFormatValue));
+            var output = string.Empty;
+
+            using (var ms = new System.IO.MemoryStream())
+            {
+                ser.WriteObject(ms, this);
+                output = Encoding.Unicode.GetString(ms.ToArray());
+            }
+
+            return output;
+        }
+    }
+
     public static class Helpers
     {
+        private static String HexConverter(System.Drawing.Color c)
+        {
+            return c.R.ToString("X2") + c.G.ToString("X2") + c.B.ToString("X2");
+        }
+
+        static public void CreateDataBarAutomatic(ExcelWorksheet workSheet, ExcelRange formatRange, ConditionalFormatValue condFormatValue)
+        {
+            var condFmtId = Guid.NewGuid();
+            var barColor = condFormatValue.Color;
+            var condFmt = workSheet.ConditionalFormatting.AddDatabar(formatRange, barColor);
+
+            condFmt.ShowValue = condFormatValue.ShowValue;
+            condFmt.StopIfTrue = condFormatValue.StopIfTrue;
+            condFmt.Priority = condFormatValue.Priority;
+
+            {
+                var ns = new System.Xml.XmlNamespaceManager(workSheet.WorksheetXml.NameTable);
+                ns.AddNamespace("d", workSheet.WorksheetXml.DocumentElement.NamespaceURI);
+
+                {
+                    var dataBarNode = workSheet.WorksheetXml.SelectSingleNode(string.Format("//d:conditionalFormatting[@sqref='{0}']//d:dataBar", formatRange), ns);
+                    var parentNode = dataBarNode.ParentNode;
+
+                    parentNode.RemoveChild(dataBarNode);
+
+                    var newDataBarNode = parentNode.OwnerDocument.CreateNode(XmlNodeType.Element, "dataBar", workSheet.WorksheetXml.DocumentElement.NamespaceURI);
+                    var newDataBarElement = (System.Xml.XmlElement)newDataBarNode;
+
+                    parentNode.AppendChild(newDataBarNode);
+
+                    var newcfvoNode = newDataBarNode.OwnerDocument.CreateNode(XmlNodeType.Element, "cfvo", workSheet.WorksheetXml.DocumentElement.NamespaceURI);
+                    var newcfvoElement = (System.Xml.XmlElement)newcfvoNode;
+
+                    newDataBarNode.AppendChild(newcfvoNode);
+                    newcfvoElement.SetAttribute("type", "min");
+
+                    newcfvoNode = newDataBarNode.OwnerDocument.CreateNode(XmlNodeType.Element, "cfvo", workSheet.WorksheetXml.DocumentElement.NamespaceURI);
+                    newcfvoElement = (System.Xml.XmlElement)newcfvoNode;
+
+                    newDataBarNode.AppendChild(newcfvoNode);
+                    newcfvoElement.SetAttribute("type", "max");
+
+                    var newcolorNode = newDataBarNode.OwnerDocument.CreateNode(XmlNodeType.Element, "color", workSheet.WorksheetXml.DocumentElement.NamespaceURI);
+                    var newcolorElement = (System.Xml.XmlElement)newcolorNode;
+
+                    newDataBarNode.AppendChild(newcolorNode);
+                    newcolorElement.SetAttribute("rgb", HexConverter(barColor));
+                }
+
+                {
+                    var cfRuleNode = workSheet.WorksheetXml.SelectSingleNode(string.Format("//d:conditionalFormatting[@sqref='{0}']//d:cfRule", formatRange), ns);
+                    var extLstWs = cfRuleNode.SelectSingleNode("//d:extList", ns);
+
+                    if (extLstWs == null)
+                    {
+                        extLstWs = cfRuleNode.OwnerDocument.CreateNode(XmlNodeType.Element, "extLst", workSheet.WorksheetXml.DocumentElement.NamespaceURI);
+
+                        extLstWs.InnerXml = string.Format(@"<ext uri=""{{B025F937-C7B1-47D3-B67F-A62EFF666E3E}}""
+														xmlns:x14=""http://schemas.microsoft.com/office/spreadsheetml/2009/9/main"">
+														<x14:id>{{{0}}}</x14:id>
+													</ext>",
+                                                            condFmtId);
+
+                        cfRuleNode.AppendChild(extLstWs);
+                    }
+                    else
+                    {
+                        var extWs = extLstWs.OwnerDocument.CreateNode(XmlNodeType.Element, "ext", "http://schemas.microsoft.com/office/spreadsheetml/2009/9/main");
+
+                        extLstWs.AppendChild(extWs);
+
+                        ((System.Xml.XmlElement)extWs).SetAttribute("uri",
+                                                                    "http://schemas.microsoft.com/office/spreadsheetml/2009/9/main",
+                                                                    "{B025F937-C7B1-47D3-B67F-A62EFF666E3E}");
+
+                        var extId = extWs.OwnerDocument.CreateNode(XmlNodeType.Element, "id", "http://schemas.microsoft.com/office/spreadsheetml/2009/9/main");
+
+                        extId.InnerXml = string.Format("{{{0}}}", condFmtId);
+
+                        extWs.AppendChild(extId);
+                    }
+                }
+            }
+
+            {
+                var xdoc = workSheet.WorksheetXml;
+                var nsm = new System.Xml.XmlNamespaceManager(workSheet.WorksheetXml.NameTable);
+                nsm.AddNamespace("default", workSheet.WorksheetXml.DocumentElement.NamespaceURI);
+                nsm.AddNamespace("x14", "http://schemas.microsoft.com/office/spreadsheetml/2009/9/main");
+                nsm.AddNamespace("xm", "http://schemas.microsoft.com/office/excel/2006/main");
+
+                var condFormattingsNode = xdoc.SelectSingleNode("//x14:conditionalFormattings", nsm);
+
+                if (condFormattingsNode == null)
+                {
+                    var extLstWs = xdoc.CreateNode(XmlNodeType.Element, "extLst", workSheet.WorksheetXml.DocumentElement.NamespaceURI);
+
+                    extLstWs.InnerXml = string.Format(@"<ext uri=""{{78C0D931-6437-407d-A8EE-F0AAD7539E65}}"" 
+                                        xmlns:x14=""http://schemas.microsoft.com/office/spreadsheetml/2009/9/main"">
+                                    <x14:conditionalFormattings>
+                                    <x14:conditionalFormatting xmlns:xm=""http://schemas.microsoft.com/office/excel/2006/main"">
+                                    <x14:cfRule type=""dataBar"" id=""{{{0}}}"">
+	                                        <x14:dataBar minLength=""0"" maxLength=""100"" border=""1"" negativeBarBorderColorSameAsPositive=""0"">
+	                                        <x14:cfvo type=""autoMin""/>
+											<x14:cfvo type = ""autoMax""/>
+											<x14:borderColor rgb = ""{1}""/>
+											<x14:negativeFillColor rgb = ""FFFF0000""/>
+											<x14:negativeBorderColor rgb = ""FFFF0000""/>
+											<x14:axisColor rgb = ""FF000000""/>
+											 </x14:dataBar>
+                                    </x14:cfRule>
+                                    <xm:sqref>{2}</xm:sqref>
+                                    </x14:conditionalFormatting>                                    
+                                    </x14:conditionalFormattings>
+                                </ext>",
+                                    condFmtId,
+                                    HexConverter(barColor),
+                                    formatRange);
+                    var wsNode = xdoc.SelectSingleNode("/default:worksheet", nsm);
+                    wsNode.AppendChild(extLstWs);
+                }
+                else
+                {
+                    var condFormatNode = xdoc.CreateNode(XmlNodeType.Element, "x14:conditionalFormatting", "http://schemas.microsoft.com/office/spreadsheetml/2009/9/main");
+
+                    condFormatNode.InnerXml = string.Format(@"<x14:cfRule type=""dataBar"" id=""{{{0}}}"" xmlns:x14=""http://schemas.microsoft.com/office/spreadsheetml/2009/9/main"">
+						                                        <x14:dataBar minLength=""0"" maxLength=""100"" border=""1"" negativeBarBorderColorSameAsPositive=""0"">
+						                                        <x14:cfvo type=""autoMin""/>
+																<x14:cfvo type = ""autoMax""/>
+																<x14:borderColor rgb = ""{1}""/>
+																<x14:negativeFillColor rgb = ""FFFF0000""/>
+																<x14:negativeBorderColor rgb = ""FFFF0000""/>
+																<x14:axisColor rgb = ""FF000000""/>
+																 </x14:dataBar>
+					                                    </x14:cfRule>
+					                                    <xm:sqref xmlns:xm=""http://schemas.microsoft.com/office/excel/2006/main"">{2}</xm:sqref>",
+                                                        condFmtId,
+                                                        HexConverter(condFmt.Color),
+                                                        formatRange);
+
+                    condFormattingsNode.AppendChild(condFormatNode);
+                }
+
+            }
+        }
+
+        static public void CreateConditionalFormat(this ExcelWorksheet workSheet, ExcelRange formatRange, params ConditionalFormatValue[] condFormatValues)
+        {
+            if (condFormatValues.Length == 1)
+            {
+                if (condFormatValues[0].RuleType == ConditionalFormatValue.RuleTypes.DataBar)
+                {
+                    if(condFormatValues[0].Type == ConditionalFormatValue.Types.Automatic)
+                        CreateDataBarAutomatic(workSheet, formatRange, condFormatValues[0]);
+                    else
+                    {
+                        var condFmt = workSheet.ConditionalFormatting.AddDatabar(formatRange, condFormatValues[0].Color);
+
+                        condFmt.ShowValue = condFormatValues[0].ShowValue;
+                        condFmt.StopIfTrue = condFormatValues[0].StopIfTrue;
+                        condFmt.Priority = condFormatValues[0].Priority;
+                    }
+
+                    return;
+                }
+            }
+            else if (condFormatValues.Length == 2)
+            {
+                if (condFormatValues[0].RuleType == ConditionalFormatValue.RuleTypes.DataBar
+                        && condFormatValues[1].RuleType == ConditionalFormatValue.RuleTypes.DataBar
+                        && condFormatValues[0].Color == condFormatValues[1].Color)
+                {
+                    var condFmt = workSheet.ConditionalFormatting.AddDatabar(formatRange, condFormatValues[0].Color);
+
+                    condFmt.ShowValue = condFormatValues[0].ShowValue || condFormatValues[1].ShowValue;
+                    condFmt.StopIfTrue = condFormatValues[0].StopIfTrue || condFormatValues[1].StopIfTrue;
+                    condFmt.Priority = Math.Min(condFormatValues[0].Priority, condFormatValues[1].Priority);
+
+                    if (condFormatValues[0].Type == ConditionalFormatValue.Types.Max)
+                    {
+                        if(condFormatValues[0].SubType == ConditionalFormatValue.Types.NoValue)
+                        {
+                            condFmt.HighValue.Type = eExcelConditionalFormattingValueObjectType.Max;
+                        }
+                        else
+                        {
+                            condFmt.HighValue.Type = (eExcelConditionalFormattingValueObjectType)condFormatValues[0].SubType;
+                            condFmt.HighValue.Formula = condFormatValues[0].FormulaText;
+                            condFmt.HighValue.Value = condFormatValues[0].Value;
+                        }                        
+                        condFmt.HighValue.GreaterThanOrEqualTo = condFormatValues[0].SubRuleType == ConditionalFormatValue.RuleTypes.GreaterThanOrEqual;
+
+                        if (condFormatValues[1].SubType == ConditionalFormatValue.Types.NoValue)
+                        {
+                            condFmt.LowValue.Type = eExcelConditionalFormattingValueObjectType.Min;
+                        }
+                        else
+                        {
+                            condFmt.LowValue.Type = (eExcelConditionalFormattingValueObjectType)condFormatValues[1].SubType;
+                            condFmt.LowValue.Formula = condFormatValues[1].FormulaText;
+                            condFmt.LowValue.Value = condFormatValues[1].Value;
+                        }
+                        
+                        condFmt.LowValue.GreaterThanOrEqualTo = condFormatValues[1].SubRuleType == ConditionalFormatValue.RuleTypes.GreaterThanOrEqual;
+                    }
+                    else if (condFormatValues[1].Type == ConditionalFormatValue.Types.Max)
+                    {
+                        if (condFormatValues[1].SubType == ConditionalFormatValue.Types.NoValue)
+                        {
+                            condFmt.HighValue.Type = eExcelConditionalFormattingValueObjectType.Max;
+                        }
+                        else
+                        {
+                            condFmt.HighValue.Type = (eExcelConditionalFormattingValueObjectType)condFormatValues[1].SubType;
+                            condFmt.HighValue.Formula = condFormatValues[1].FormulaText;
+                            condFmt.HighValue.Value = condFormatValues[1].Value;
+                        }                       
+                        condFmt.HighValue.GreaterThanOrEqualTo = condFormatValues[1].SubRuleType == ConditionalFormatValue.RuleTypes.GreaterThanOrEqual;
+
+                        if (condFormatValues[0].SubType == ConditionalFormatValue.Types.NoValue)
+                        {
+                            condFmt.LowValue.Type = eExcelConditionalFormattingValueObjectType.Min;
+                        }
+                        else
+                        {
+                            condFmt.LowValue.Type = (eExcelConditionalFormattingValueObjectType)condFormatValues[0].SubType;
+                            condFmt.LowValue.Formula = condFormatValues[0].FormulaText;
+                            condFmt.LowValue.Value = condFormatValues[0].Value;
+                        }
+                        
+                        condFmt.LowValue.GreaterThanOrEqualTo = condFormatValues[0].SubRuleType == ConditionalFormatValue.RuleTypes.GreaterThanOrEqual;
+                    }
+                    else
+                    {
+                        throw new ArgumentException("Invalid DataBar Parameters");
+                    }
+                    return;
+                }
+                else if (condFormatValues[0].RuleType == ConditionalFormatValue.RuleTypes.TwoColorScale
+                            && condFormatValues[1].RuleType == ConditionalFormatValue.RuleTypes.TwoColorScale)
+                {
+                    var condFmt = workSheet.ConditionalFormatting.AddTwoColorScale(formatRange);
+
+                    condFmt.StopIfTrue = condFormatValues[0].StopIfTrue || condFormatValues[1].StopIfTrue;
+                    condFmt.Priority = Math.Min(condFormatValues[0].Priority, condFormatValues[1].Priority);
+
+                    if (condFormatValues[0].Type == ConditionalFormatValue.Types.Max)
+                    {
+                        if (condFormatValues[0].SubType == ConditionalFormatValue.Types.NoValue)
+                        {
+                            condFmt.HighValue.Type = eExcelConditionalFormattingValueObjectType.Max;
+                        }
+                        else
+                        {
+                            condFmt.HighValue.Type = (eExcelConditionalFormattingValueObjectType)condFormatValues[0].SubType;
+                            condFmt.HighValue.Formula = condFormatValues[0].FormulaText;
+                            condFmt.HighValue.Value = condFormatValues[0].Value;
+                        }                        
+                        condFmt.HighValue.Color = condFormatValues[0].Color;
+
+                        if (condFormatValues[1].SubType == ConditionalFormatValue.Types.NoValue)
+                        {
+                            condFmt.LowValue.Type = eExcelConditionalFormattingValueObjectType.Min;
+                        }
+                        else
+                        {
+                            condFmt.LowValue.Type = (eExcelConditionalFormattingValueObjectType)condFormatValues[1].SubType;
+                            condFmt.LowValue.Formula = condFormatValues[1].FormulaText;
+                            condFmt.LowValue.Value = condFormatValues[1].Value;
+                        }
+                        condFmt.LowValue.Color = condFormatValues[1].Color;
+                    }
+                    else if (condFormatValues[1].Type == ConditionalFormatValue.Types.Max)
+                    {
+                        if (condFormatValues[1].SubType == ConditionalFormatValue.Types.NoValue)
+                        {
+                            condFmt.HighValue.Type = eExcelConditionalFormattingValueObjectType.Max;
+                        }
+                        else
+                        {
+                            condFmt.HighValue.Type = (eExcelConditionalFormattingValueObjectType)condFormatValues[1].SubType;
+                            condFmt.HighValue.Formula = condFormatValues[1].FormulaText;
+                            condFmt.HighValue.Value = condFormatValues[1].Value;
+                        }
+                        condFmt.HighValue.Color = condFormatValues[1].Color;
+
+                        if (condFormatValues[0].SubType == ConditionalFormatValue.Types.NoValue)
+                        {
+                            condFmt.LowValue.Type = eExcelConditionalFormattingValueObjectType.Min;
+                        }
+                        else
+                        {
+                            condFmt.LowValue.Type = (eExcelConditionalFormattingValueObjectType)condFormatValues[0].SubType;
+                            condFmt.LowValue.Formula = condFormatValues[0].FormulaText;
+                            condFmt.LowValue.Value = condFormatValues[0].Value;
+                        }
+                        condFmt.LowValue.Color = condFormatValues[0].Color;
+                    }
+                    else
+                    {
+                        throw new ArgumentException("Invalid TwoColorScale Parameters");
+                    }
+                    return;
+                }
+            }
+            else if (condFormatValues.Length == 3)
+            {
+                if (condFormatValues[0].RuleType == ConditionalFormatValue.RuleTypes.ThreeColorScale
+                            && condFormatValues[1].RuleType == ConditionalFormatValue.RuleTypes.ThreeColorScale
+                            && condFormatValues[2].RuleType == ConditionalFormatValue.RuleTypes.ThreeColorScale)
+                {
+                    var condFmt = workSheet.ConditionalFormatting.AddThreeColorScale(formatRange);
+
+                    condFmt.StopIfTrue = condFormatValues[0].StopIfTrue || condFormatValues[1].StopIfTrue || condFormatValues[2].StopIfTrue;
+                    condFmt.Priority = Math.Min(condFormatValues[0].Priority, Math.Min(condFormatValues[1].Priority, condFormatValues[2].Priority));
+
+                    foreach (var condFmtValue in condFormatValues)
+                    {
+                        if (condFmtValue.Type == ConditionalFormatValue.Types.Max)
+                        {
+                            if (condFmtValue.SubType == ConditionalFormatValue.Types.NoValue)
+                            {
+                                condFmt.HighValue.Type = eExcelConditionalFormattingValueObjectType.Max;
+                            }
+                            else
+                            {
+                                condFmt.HighValue.Type = (eExcelConditionalFormattingValueObjectType)condFmtValue.SubType;
+                                condFmt.HighValue.Formula = condFmtValue.FormulaText;
+                                condFmt.HighValue.Value = condFmtValue.Value;
+                            }
+                            condFmt.HighValue.Color = condFmtValue.Color;                             
+                        }
+                        else if (condFmtValue.Type == ConditionalFormatValue.Types.Min)
+                        {
+                            if (condFmtValue.SubType == ConditionalFormatValue.Types.NoValue)
+                            {
+                                condFmt.LowValue.Type = eExcelConditionalFormattingValueObjectType.Min;
+                            }
+                            else
+                            {
+                                condFmt.LowValue.Type = (eExcelConditionalFormattingValueObjectType)condFmtValue.SubType;
+                                condFmt.LowValue.Formula = condFmtValue.FormulaText;
+                                condFmt.LowValue.Value = condFmtValue.Value;
+                            }                            
+                            condFmt.LowValue.Color = condFmtValue.Color;
+                        }
+                        else
+                        {
+                            condFmt.MiddleValue.Type = (eExcelConditionalFormattingValueObjectType)condFmtValue.SubType;
+                            condFmt.MiddleValue.Formula = condFmtValue.FormulaText;
+                            condFmt.MiddleValue.Value = condFmtValue.Value;
+                            condFmt.MiddleValue.Color = condFmtValue.Color;                          
+                        }
+                    }
+
+                    
+                    return;
+                }
+            }
+
+            foreach (var condFmtValue in condFormatValues)
+            {
+                switch (condFmtValue.RuleType)
+                {
+                    case ConditionalFormatValue.RuleTypes.AboveAverage:
+                        {
+                            var condFmt = workSheet.ConditionalFormatting.AddAboveAverage(formatRange);
+
+                            condFmt.Style.Fill.BackgroundColor.Color = condFmtValue.Color;
+                            condFmt.StopIfTrue = condFmtValue.StopIfTrue;
+                            condFmt.Priority = condFmtValue.Priority;
+                        }
+                        break;
+                    case ConditionalFormatValue.RuleTypes.AboveOrEqualAverage:
+                        {
+                            var condFmt = workSheet.ConditionalFormatting.AddAboveOrEqualAverage(formatRange);
+
+                            condFmt.Style.Fill.BackgroundColor.Color = condFmtValue.Color;
+                            condFmt.StopIfTrue = condFmtValue.StopIfTrue;
+                            condFmt.Priority = condFmtValue.Priority;                            
+                        }
+                        break;
+                    case ConditionalFormatValue.RuleTypes.BelowAverage:
+                        {
+                            var condFmt = workSheet.ConditionalFormatting.AddBelowAverage(formatRange);
+
+                            condFmt.Style.Fill.BackgroundColor.Color = condFmtValue.Color;
+                            condFmt.StopIfTrue = condFmtValue.StopIfTrue;
+                            condFmt.Priority = condFmtValue.Priority;                            
+                        }
+                        break;
+                    case ConditionalFormatValue.RuleTypes.BelowOrEqualAverage:
+                        {
+                            var condFmt = workSheet.ConditionalFormatting.AddBelowOrEqualAverage(formatRange);
+
+                            condFmt.Style.Fill.BackgroundColor.Color = condFmtValue.Color;
+                            condFmt.StopIfTrue = condFmtValue.StopIfTrue;
+                            condFmt.Priority = condFmtValue.Priority;
+                        }
+                        break;
+                    case ConditionalFormatValue.RuleTypes.AboveStdDev:
+                        {
+                            var condFmt = workSheet.ConditionalFormatting.AddAboveStdDev(formatRange);
+
+                            condFmt.Style.Fill.BackgroundColor.Color = condFmtValue.Color;
+                            condFmt.StopIfTrue = condFmtValue.StopIfTrue;
+                            condFmt.Priority = condFmtValue.Priority;
+                            condFmt.StdDev = (ushort)condFmtValue.Value;
+                        }
+                        break;
+                    case ConditionalFormatValue.RuleTypes.BelowStdDev:
+                        {
+                            var condFmt = workSheet.ConditionalFormatting.AddBelowStdDev(formatRange);
+
+                            condFmt.Style.Fill.BackgroundColor.Color = condFmtValue.Color;
+                            condFmt.StopIfTrue = condFmtValue.StopIfTrue;
+                            condFmt.Priority = condFmtValue.Priority;
+                            condFmt.StdDev = (ushort)condFmtValue.Value;
+                        }
+                        break;
+                    case ConditionalFormatValue.RuleTypes.Bottom:
+                        {
+                            var condFmt = workSheet.ConditionalFormatting.AddBottom(formatRange);
+
+                            condFmt.Style.Fill.BackgroundColor.Color = condFmtValue.Color;
+                            condFmt.StopIfTrue = condFmtValue.StopIfTrue;
+                            condFmt.Priority = condFmtValue.Priority;
+                            condFmt.Rank = (ushort)condFmtValue.Value;
+                        }
+                        break;
+                    case ConditionalFormatValue.RuleTypes.BottomPercent:
+                        {
+                            var condFmt = workSheet.ConditionalFormatting.AddBottomPercent(formatRange);
+
+                            condFmt.Style.Fill.BackgroundColor.Color = condFmtValue.Color;
+                            condFmt.StopIfTrue = condFmtValue.StopIfTrue;
+                            condFmt.Priority = condFmtValue.Priority;
+                            condFmt.Rank = (ushort)condFmtValue.Value;
+                        }
+                        break;
+                    case ConditionalFormatValue.RuleTypes.Top:
+                        {
+                            var condFmt = workSheet.ConditionalFormatting.AddTop(formatRange);
+
+                            condFmt.Style.Fill.BackgroundColor.Color = condFmtValue.Color;
+                            condFmt.StopIfTrue = condFmtValue.StopIfTrue;
+                            condFmt.Priority = condFmtValue.Priority;
+                            condFmt.Rank = (ushort)condFmtValue.Value;
+                        }
+                        break;
+                    case ConditionalFormatValue.RuleTypes.TopPercent:
+                        {
+                            var condFmt = workSheet.ConditionalFormatting.AddTopPercent(formatRange);
+
+                            condFmt.Style.Fill.BackgroundColor.Color = condFmtValue.Color;
+                            condFmt.StopIfTrue = condFmtValue.StopIfTrue;
+                            condFmt.Priority = condFmtValue.Priority;                           
+                        }
+                        break;
+                    case ConditionalFormatValue.RuleTypes.Last7Days:
+                        {
+                            var condFmt = workSheet.ConditionalFormatting.AddLast7Days(formatRange);
+
+                            condFmt.Style.Fill.BackgroundColor.Color = condFmtValue.Color;
+                            condFmt.StopIfTrue = condFmtValue.StopIfTrue;
+                            condFmt.Priority = condFmtValue.Priority;                            
+                        }
+                        break;
+                    case ConditionalFormatValue.RuleTypes.LastMonth:
+                        {
+                            var condFmt = workSheet.ConditionalFormatting.AddLastMonth(formatRange);
+
+                            condFmt.Style.Fill.BackgroundColor.Color = condFmtValue.Color;
+                            condFmt.StopIfTrue = condFmtValue.StopIfTrue;
+                            condFmt.Priority = condFmtValue.Priority;                            
+                        }
+                        break;
+                    case ConditionalFormatValue.RuleTypes.LastWeek:
+                        {
+                            var condFmt = workSheet.ConditionalFormatting.AddLast7Days(formatRange);
+
+                            condFmt.Style.Fill.BackgroundColor.Color = condFmtValue.Color;
+                            condFmt.StopIfTrue = condFmtValue.StopIfTrue;
+                            condFmt.Priority = condFmtValue.Priority;                            
+                        }
+                        break;
+                    case ConditionalFormatValue.RuleTypes.NextMonth:
+                        {
+                            var condFmt = workSheet.ConditionalFormatting.AddNextMonth(formatRange);
+
+                            condFmt.Style.Fill.BackgroundColor.Color = condFmtValue.Color;
+                            condFmt.StopIfTrue = condFmtValue.StopIfTrue;
+                            condFmt.Priority = condFmtValue.Priority;
+                        }
+                        break;
+                    case ConditionalFormatValue.RuleTypes.NextWeek:
+                        {
+                            var condFmt = workSheet.ConditionalFormatting.AddNextWeek(formatRange);
+
+                            condFmt.Style.Fill.BackgroundColor.Color = condFmtValue.Color;
+                            condFmt.StopIfTrue = condFmtValue.StopIfTrue;
+                            condFmt.Priority = condFmtValue.Priority;                            
+                        }
+                        break;
+                    case ConditionalFormatValue.RuleTypes.ThisMonth:
+                        {
+                            var condFmt = workSheet.ConditionalFormatting.AddThisMonth(formatRange);
+
+                            condFmt.Style.Fill.BackgroundColor.Color = condFmtValue.Color;
+                            condFmt.StopIfTrue = condFmtValue.StopIfTrue;
+                            condFmt.Priority = condFmtValue.Priority;                            
+                        }
+                        break;
+                    case ConditionalFormatValue.RuleTypes.ThisWeek:
+                        {
+                            var condFmt = workSheet.ConditionalFormatting.AddThisWeek(formatRange);
+
+                            condFmt.Style.Fill.BackgroundColor.Color = condFmtValue.Color;
+                            condFmt.StopIfTrue = condFmtValue.StopIfTrue;
+                            condFmt.Priority = condFmtValue.Priority;                            
+                        }
+                        break;
+                    case ConditionalFormatValue.RuleTypes.Today:
+                        {
+                            var condFmt = workSheet.ConditionalFormatting.AddToday(formatRange);
+
+                            condFmt.Style.Fill.BackgroundColor.Color = condFmtValue.Color;
+                            condFmt.StopIfTrue = condFmtValue.StopIfTrue;
+                            condFmt.Priority = condFmtValue.Priority;                            
+                        }
+                        break;
+                    case ConditionalFormatValue.RuleTypes.Tomorrow:
+                        {
+                            var condFmt = workSheet.ConditionalFormatting.AddTomorrow(formatRange);
+
+                            condFmt.Style.Fill.BackgroundColor.Color = condFmtValue.Color;
+                            condFmt.StopIfTrue = condFmtValue.StopIfTrue;
+                            condFmt.Priority = condFmtValue.Priority;                            
+                        }
+                        break;
+                    case ConditionalFormatValue.RuleTypes.Yesterday:
+                        {
+                            var condFmt = workSheet.ConditionalFormatting.AddYesterday(formatRange);
+
+                            condFmt.Style.Fill.BackgroundColor.Color = condFmtValue.Color;
+                            condFmt.StopIfTrue = condFmtValue.StopIfTrue;
+                            condFmt.Priority = condFmtValue.Priority;
+                        }
+                        break;
+                    case ConditionalFormatValue.RuleTypes.BeginsWith:
+                        {
+                            var condFmt = workSheet.ConditionalFormatting.AddBeginsWith(formatRange);
+
+                            condFmt.Style.Fill.BackgroundColor.Color = condFmtValue.Color;
+                            condFmt.StopIfTrue = condFmtValue.StopIfTrue;
+                            condFmt.Priority = condFmtValue.Priority;
+                            condFmt.Text = condFmtValue.FormulaText;
+                        }
+                        break;
+                    case ConditionalFormatValue.RuleTypes.Between:
+                        {
+                            var condFmt = workSheet.ConditionalFormatting.AddBetween(formatRange);
+
+                            condFmt.Style.Fill.BackgroundColor.Color = condFmtValue.Color;
+                            condFmt.StopIfTrue = condFmtValue.StopIfTrue;
+                            condFmt.Priority = condFmtValue.Priority;
+                            condFmt.Formula = condFmtValue.FormulaText;
+                            condFmt.Formula2 = condFmtValue.FormulaTextBetween;                            
+                        }
+                        break;
+                    case ConditionalFormatValue.RuleTypes.ContainsBlanks:
+                        {
+                            var condFmt = workSheet.ConditionalFormatting.AddContainsBlanks(formatRange);
+
+                            condFmt.Style.Fill.BackgroundColor.Color = condFmtValue.Color;
+                            condFmt.StopIfTrue = condFmtValue.StopIfTrue;
+                            condFmt.Priority = condFmtValue.Priority;                            
+                        }
+                        break;
+                    case ConditionalFormatValue.RuleTypes.ContainsErrors:
+                        {
+                            var condFmt = workSheet.ConditionalFormatting.AddContainsErrors(formatRange);
+
+                            condFmt.Style.Fill.BackgroundColor.Color = condFmtValue.Color;
+                            condFmt.StopIfTrue = condFmtValue.StopIfTrue;
+                            condFmt.Priority = condFmtValue.Priority;                            
+                        }
+                        break;
+                    case ConditionalFormatValue.RuleTypes.ContainsText:
+                        {
+                            var condFmt = workSheet.ConditionalFormatting.AddContainsText(formatRange);
+
+                            condFmt.Style.Fill.BackgroundColor.Color = condFmtValue.Color;
+                            condFmt.StopIfTrue = condFmtValue.StopIfTrue;
+                            condFmt.Priority = condFmtValue.Priority;
+                            condFmt.Text = condFmtValue.FormulaText;
+                        }
+                        break;
+                    case ConditionalFormatValue.RuleTypes.DuplicateValues:
+                        {
+                            var condFmt = workSheet.ConditionalFormatting.AddDuplicateValues(formatRange);
+
+                            condFmt.Style.Fill.BackgroundColor.Color = condFmtValue.Color;
+                            condFmt.StopIfTrue = condFmtValue.StopIfTrue;
+                            condFmt.Priority = condFmtValue.Priority;                            
+                        }
+                        break;
+                    case ConditionalFormatValue.RuleTypes.EndsWith:
+                        {
+                            var condFmt = workSheet.ConditionalFormatting.AddEndsWith(formatRange);
+
+                            condFmt.Style.Fill.BackgroundColor.Color = condFmtValue.Color;
+                            condFmt.StopIfTrue = condFmtValue.StopIfTrue;
+                            condFmt.Priority = condFmtValue.Priority;
+                            condFmt.Text = condFmtValue.FormulaText;
+                        }
+                        break;
+                    case ConditionalFormatValue.RuleTypes.Equal:
+                        {
+                            var condFmt = workSheet.ConditionalFormatting.AddEqual(formatRange);
+
+                            condFmt.Style.Fill.BackgroundColor.Color = condFmtValue.Color;
+                            condFmt.StopIfTrue = condFmtValue.StopIfTrue;
+                            condFmt.Priority = condFmtValue.Priority;
+                            condFmt.Formula = condFmtValue.FormulaText;
+                        }
+                        break;
+                    case ConditionalFormatValue.RuleTypes.Expression:
+                        {
+                            var condFmt = workSheet.ConditionalFormatting.AddExpression(formatRange);
+
+                            condFmt.Style.Fill.BackgroundColor.Color = condFmtValue.Color;
+                            condFmt.StopIfTrue = condFmtValue.StopIfTrue;
+                            condFmt.Priority = condFmtValue.Priority;
+                            condFmt.Formula = condFmtValue.FormulaText;
+                        }
+                        break;
+                    case ConditionalFormatValue.RuleTypes.GreaterThan:
+                        {
+                            var condFmt = workSheet.ConditionalFormatting.AddGreaterThan(formatRange);
+
+                            condFmt.Style.Fill.BackgroundColor.Color = condFmtValue.Color;
+                            condFmt.StopIfTrue = condFmtValue.StopIfTrue;
+                            condFmt.Priority = condFmtValue.Priority;
+                            condFmt.Formula = condFmtValue.FormulaText;
+                        }
+                        break;
+                    case ConditionalFormatValue.RuleTypes.GreaterThanOrEqual:
+                        {
+                            var condFmt = workSheet.ConditionalFormatting.AddGreaterThanOrEqual(formatRange);
+
+                            condFmt.Style.Fill.BackgroundColor.Color = condFmtValue.Color;
+                            condFmt.StopIfTrue = condFmtValue.StopIfTrue;
+                            condFmt.Priority = condFmtValue.Priority;
+                            condFmt.Formula = condFmtValue.FormulaText;                            
+                        }
+                        break;
+                    case ConditionalFormatValue.RuleTypes.LessThan:
+                        {
+                            var condFmt = workSheet.ConditionalFormatting.AddLessThan(formatRange);
+
+                            condFmt.Style.Fill.BackgroundColor.Color = condFmtValue.Color;
+                            condFmt.StopIfTrue = condFmtValue.StopIfTrue;
+                            condFmt.Priority = condFmtValue.Priority;
+                            condFmt.Formula = condFmtValue.FormulaText;
+                        }
+                        break;
+                    case ConditionalFormatValue.RuleTypes.LessThanOrEqual:
+                        {
+                            var condFmt = workSheet.ConditionalFormatting.AddLessThanOrEqual(formatRange);
+
+                            condFmt.Style.Fill.BackgroundColor.Color = condFmtValue.Color;
+                            condFmt.StopIfTrue = condFmtValue.StopIfTrue;
+                            condFmt.Priority = condFmtValue.Priority;
+                            condFmt.Formula = condFmtValue.FormulaText;                            
+                        }
+                        break;
+                    case ConditionalFormatValue.RuleTypes.NotBetween:
+                        {
+                            var condFmt = workSheet.ConditionalFormatting.AddNotBetween(formatRange);
+
+                            condFmt.Style.Fill.BackgroundColor.Color = condFmtValue.Color;
+                            condFmt.StopIfTrue = condFmtValue.StopIfTrue;
+                            condFmt.Priority = condFmtValue.Priority;
+                            condFmt.Formula = condFmtValue.FormulaText;
+                            condFmt.Formula2 = condFmtValue.FormulaTextBetween;
+                        }
+                        break;
+                    case ConditionalFormatValue.RuleTypes.NotContains:
+                        {
+                            var condFmt = workSheet.ConditionalFormatting.AddNotContainsText(formatRange);
+
+                            condFmt.Style.Fill.BackgroundColor.Color = condFmtValue.Color;
+                            condFmt.StopIfTrue = condFmtValue.StopIfTrue;
+                            condFmt.Priority = condFmtValue.Priority;
+                            condFmt.Text = condFmtValue.FormulaTextBetween;
+                        }
+                        break;
+                    case ConditionalFormatValue.RuleTypes.NotContainsBlanks:
+                        {
+                            var condFmt = workSheet.ConditionalFormatting.AddNotContainsBlanks(formatRange);
+
+                            condFmt.Style.Fill.BackgroundColor.Color = condFmtValue.Color;
+                            condFmt.StopIfTrue = condFmtValue.StopIfTrue;
+                            condFmt.Priority = condFmtValue.Priority;                            
+                        }
+                        break;
+                    case ConditionalFormatValue.RuleTypes.NotContainsErrors:
+                        {
+                            var condFmt = workSheet.ConditionalFormatting.AddNotContainsErrors(formatRange);
+
+                            condFmt.Style.Fill.BackgroundColor.Color = condFmtValue.Color;
+                            condFmt.StopIfTrue = condFmtValue.StopIfTrue;
+                            condFmt.Priority = condFmtValue.Priority;                            
+                        }
+                        break;
+                    case ConditionalFormatValue.RuleTypes.NotContainsText:
+                        {
+                            var condFmt = workSheet.ConditionalFormatting.AddNotContainsText(formatRange);
+
+                            condFmt.Style.Fill.BackgroundColor.Color = condFmtValue.Color;
+                            condFmt.StopIfTrue = condFmtValue.StopIfTrue;
+                            condFmt.Priority = condFmtValue.Priority;
+                            condFmt.Text = condFmtValue.FormulaText;
+                        }
+                        break;
+                    case ConditionalFormatValue.RuleTypes.NotEqual:
+                        {
+                            var condFmt = workSheet.ConditionalFormatting.AddNotEqual(formatRange);
+
+                            condFmt.Style.Fill.BackgroundColor.Color = condFmtValue.Color;
+                            condFmt.StopIfTrue = condFmtValue.StopIfTrue;
+                            condFmt.Priority = condFmtValue.Priority;
+                            condFmt.Formula = condFmtValue.FormulaText;                           
+                        }
+                        break;
+                    case ConditionalFormatValue.RuleTypes.UniqueValues:
+                        {
+                            var condFmt = workSheet.ConditionalFormatting.AddUniqueValues(formatRange);
+
+                            condFmt.Style.Fill.BackgroundColor.Color = condFmtValue.Color;
+                            condFmt.StopIfTrue = condFmtValue.StopIfTrue;
+                            condFmt.Priority = condFmtValue.Priority;                           
+                        }
+                        break;
+                    case ConditionalFormatValue.RuleTypes.ThreeColorScale:
+                        throw new ArgumentException("ThreeColorScale was detected but is not valid");                        
+                    case ConditionalFormatValue.RuleTypes.TwoColorScale:
+                        throw new ArgumentException("TwoColorScale was detected but is not valid");
+                    case ConditionalFormatValue.RuleTypes.ThreeIconSet:
+                        throw new NotImplementedException("ThreeIconSet");
+                        //break;
+                    case ConditionalFormatValue.RuleTypes.FourIconSet:
+                        throw new NotImplementedException("FourIconSet");
+                    case ConditionalFormatValue.RuleTypes.FiveIconSet:
+                        throw new NotImplementedException("FiveIconSet");
+                    case ConditionalFormatValue.RuleTypes.DataBar:
+                        {
+                            CreateDataBarAutomatic(workSheet, formatRange, condFmtValue);
+                        }
+                        break;
+                    default:
+                        break;
+                }
+
+            }
+            
+
+        }
+
         static public void AutoFitColumn(this ExcelWorksheet workSheet, params ExcelRange[] autoFitRanges)
         {
             AutoFitColumn(workSheet, null, autoFitRanges);

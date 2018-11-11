@@ -67,10 +67,25 @@ namespace DSEDiagtnosticToExcel
                                                              {
                                                                  workSheet.Cells["1:3"].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.LightGray;
                                                                  workSheet.Cells["1:3"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-                                                                //workSheet.Cells["1:1"].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
+                                                                 //workSheet.Cells["1:1"].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
 
-                                                                this.DataTable.GetColumn(DSEDiagnosticToDataTable.ColumnNames.DataCenter)
-                                                                                 .SetCaption("Name");
+                                                                 this.DataTable.GetColumn(DSEDiagnosticToDataTable.ColumnNames.DataCenter)
+                                                                                  .SetCaption("Name")
+                                                                                  .SetConditionalFormat(
+                                                                                     new ConditionalFormatValue()
+                                                                                     {
+                                                                                         Color = System.Drawing.Color.Red,
+                                                                                         FormulaText = "AND(ISNUMBER(${Status Unknown}{0}), ${Status Unknown}{0} > 0)",
+                                                                                         Type = ConditionalFormatValue.Types.Formula,
+                                                                                         RuleType = ConditionalFormatValue.RuleTypes.Expression
+                                                                                     },
+                                                                                     new ConditionalFormatValue()
+                                                                                     {
+                                                                                         Color = System.Drawing.Color.Yellow,
+                                                                                         FormulaText = "AND(ISNUMBER(${Status Down}{0}), ${Status Down}{0} > 0)",
+                                                                                         Type = ConditionalFormatValue.Types.Formula,
+                                                                                         RuleType = ConditionalFormatValue.RuleTypes.Expression
+                                                                                     });
 
                                                                  this.DataTable.SetGroupHeader("Total", -1, false,
                                                                     this.DataTable.GetColumn("Total Nodes")
@@ -107,11 +122,27 @@ namespace DSEDiagtnosticToExcel
                                                                      this.DataTable.GetColumn("Status Down")
                                                                                      .SetCaption("Down")
                                                                                      .SetNumericFormat("#,###,###,##0")
-                                                                                     .TotalColumn(),
+                                                                                     .TotalColumn()
+                                                                                     .SetConditionalFormat(
+                                                                                         new ConditionalFormatValue()
+                                                                                         {
+                                                                                             Color = System.Drawing.Color.Yellow,
+                                                                                             FormulaText = "AND(ISNUMBER(${2}{0}), ${2}{0} > 0)",
+                                                                                             Type = ConditionalFormatValue.Types.Formula,
+                                                                                             RuleType = ConditionalFormatValue.RuleTypes.Expression
+                                                                                         }),
                                                                      this.DataTable.GetColumn("Status Unknown")
                                                                                      .SetCaption("Unknown")
                                                                                      .SetNumericFormat("#,###,###,##0")
                                                                                      .TotalColumn()
+                                                                                     .SetConditionalFormat(
+                                                                                         new ConditionalFormatValue()
+                                                                                         {
+                                                                                             Color = System.Drawing.Color.Red,
+                                                                                             FormulaText = "AND(ISNUMBER(${2}{0}), ${2}{0} > 0)",
+                                                                                             Type = ConditionalFormatValue.Types.Formula,
+                                                                                             RuleType = ConditionalFormatValue.RuleTypes.Expression
+                                                                                         })
                                                                      );
 
                                                                  this.DataTable.SetGroupHeader("DSE", -2, true,
@@ -123,17 +154,84 @@ namespace DSEDiagtnosticToExcel
                                                                 this.DataTable.SetGroupHeader("Storage Utilization", -2, true,
                                                                     this.DataTable.GetColumn("DU Max")
                                                                                     .SetCaption("Max")
-                                                                                    .SetNumericFormat("##0.00%"),
+                                                                                    .SetNumericFormat("##0.00%")
+                                                                                    .SetConditionalFormat(
+                                                                                         new ConditionalFormatValue()
+                                                                                         {
+                                                                                             Color = System.Drawing.Color.Green,
+                                                                                             Value = 0.01,
+                                                                                             Type = ConditionalFormatValue.Types.Min,
+                                                                                             RuleType = ConditionalFormatValue.RuleTypes.ThreeColorScale
+                                                                                         },
+                                                                                         new ConditionalFormatValue()
+                                                                                         {
+                                                                                             Color = System.Drawing.Color.Yellow,
+                                                                                             Value = 0.45,
+                                                                                             Type = ConditionalFormatValue.Types.Num,
+                                                                                             RuleType = ConditionalFormatValue.RuleTypes.ThreeColorScale
+                                                                                         },
+                                                                                         new ConditionalFormatValue()
+                                                                                         {
+                                                                                             Color = System.Drawing.Color.Red,
+                                                                                             Value = 1,
+                                                                                             Type = ConditionalFormatValue.Types.Max,
+                                                                                             RuleType = ConditionalFormatValue.RuleTypes.ThreeColorScale
+                                                                                         }
+                                                                                        ),
                                                                     this.DataTable.GetColumn("DU Max-Node")
                                                                                     .SetCaption("Max-Node"),
                                                                     this.DataTable.GetColumn("DU Min")
                                                                                     .SetCaption("Min")
-                                                                                    .SetNumericFormat("##0.00%"),
+                                                                                    .SetNumericFormat("##0.00%")
+                                                                                    .SetConditionalFormat(
+                                                                                         new ConditionalFormatValue()
+                                                                                         {
+                                                                                             Color = System.Drawing.Color.Green,
+                                                                                             Value = 0.01,
+                                                                                             Type = ConditionalFormatValue.Types.Min,
+                                                                                             RuleType = ConditionalFormatValue.RuleTypes.ThreeColorScale
+                                                                                         },
+                                                                                         new ConditionalFormatValue()
+                                                                                         {
+                                                                                             Color = System.Drawing.Color.Yellow,
+                                                                                             Value = 0.45,
+                                                                                             Type = ConditionalFormatValue.Types.Num,
+                                                                                             RuleType = ConditionalFormatValue.RuleTypes.ThreeColorScale
+                                                                                         },
+                                                                                         new ConditionalFormatValue()
+                                                                                         {
+                                                                                             Color = System.Drawing.Color.Red,
+                                                                                             Value = 1,
+                                                                                             Type = ConditionalFormatValue.Types.Max,
+                                                                                             RuleType = ConditionalFormatValue.RuleTypes.ThreeColorScale
+                                                                                         }),
                                                                     this.DataTable.GetColumn("DU Min-Node")
                                                                                     .SetCaption("Min-Node"),
                                                                     this.DataTable.GetColumn("DU Avg")
                                                                                     .SetCaption("Avg")
                                                                                     .SetNumericFormat("##0.00%")
+                                                                                    .SetConditionalFormat(
+                                                                                         new ConditionalFormatValue()
+                                                                                         {
+                                                                                             Color = System.Drawing.Color.Green,
+                                                                                             Value = 0.01,
+                                                                                             Type = ConditionalFormatValue.Types.Min,
+                                                                                             RuleType = ConditionalFormatValue.RuleTypes.ThreeColorScale
+                                                                                         },
+                                                                                         new ConditionalFormatValue()
+                                                                                         {
+                                                                                             Color = System.Drawing.Color.Yellow,
+                                                                                             Value = 0.45,
+                                                                                             Type = ConditionalFormatValue.Types.Num,
+                                                                                             RuleType = ConditionalFormatValue.RuleTypes.ThreeColorScale
+                                                                                         },
+                                                                                         new ConditionalFormatValue()
+                                                                                         {
+                                                                                             Color = System.Drawing.Color.Red,
+                                                                                             Value = 1,
+                                                                                             Type = ConditionalFormatValue.Types.Max,
+                                                                                             RuleType = ConditionalFormatValue.RuleTypes.ThreeColorScale
+                                                                                         })
                                                                     );
 
                                                                 this.DataTable.SetGroupHeader("Insufficient Space", -1, true,
@@ -141,65 +239,258 @@ namespace DSEDiagtnosticToExcel
                                                                                    .SetCaption("Warnings")
                                                                                    .SetNumericFormat("#,###,###")
                                                                                    .TotalColumn()
+                                                                                   .SetConditionalFormat(
+                                                                                         new ConditionalFormatValue()
+                                                                                         {
+                                                                                             Color = System.Drawing.Color.Yellow,
+                                                                                             Value = 1,
+                                                                                             Type = ConditionalFormatValue.Types.Min,
+                                                                                             RuleType = ConditionalFormatValue.RuleTypes.TwoColorScale
+                                                                                         },
+                                                                                         new ConditionalFormatValue()
+                                                                                         {
+                                                                                             Color = System.Drawing.Color.Red,
+                                                                                             Value = 10,
+                                                                                             Type = ConditionalFormatValue.Types.Max,
+                                                                                             RuleType = ConditionalFormatValue.RuleTypes.TwoColorScale
+                                                                                         })
                                                                                    );
 
                                                                //Storage
                                                                this.DataTable.SetGroupHeader("Storage (MB)", -2, true,
                                                                     this.DataTable.GetColumn("Storage Max")
                                                                                     .SetCaption("Max")
-                                                                                    .SetNumericFormat("#,###,###,##0.0000"),
+                                                                                    .SetNumericFormat("#,###,###,##0.0000")
+                                                                                     .SetConditionalFormat(
+                                                                                         new ConditionalFormatValue()
+                                                                                         {
+                                                                                             Color = System.Drawing.Color.Green,
+                                                                                             Value = 0,
+                                                                                             Type = ConditionalFormatValue.Types.Min,
+                                                                                             RuleType = ConditionalFormatValue.RuleTypes.ThreeColorScale
+                                                                                         },
+                                                                                         new ConditionalFormatValue()
+                                                                                         {
+                                                                                             Color = System.Drawing.Color.Yellow,
+                                                                                             Value = 1000000,
+                                                                                             Type = ConditionalFormatValue.Types.Num,
+                                                                                             RuleType = ConditionalFormatValue.RuleTypes.ThreeColorScale
+                                                                                         },
+                                                                                         new ConditionalFormatValue()
+                                                                                         {
+                                                                                             Color = System.Drawing.Color.Red,
+                                                                                             Value = 1500000,
+                                                                                             Type = ConditionalFormatValue.Types.Max,
+                                                                                             RuleType = ConditionalFormatValue.RuleTypes.ThreeColorScale
+                                                                                         }),
                                                                     this.DataTable.GetColumn("Storage Max-Node")
                                                                                     .SetCaption("Max-Node"),
                                                                     this.DataTable.GetColumn("Storage Min")
                                                                                     .SetCaption("Min")
-                                                                                    .SetNumericFormat("#,###,###,##0.0000"), 
+                                                                                    .SetNumericFormat("#,###,###,##0.0000")
+                                                                                    .SetConditionalFormat(
+                                                                                         new ConditionalFormatValue()
+                                                                                         {
+                                                                                             Color = System.Drawing.Color.Green,
+                                                                                             Value = 0,
+                                                                                             Type = ConditionalFormatValue.Types.Min,
+                                                                                             RuleType = ConditionalFormatValue.RuleTypes.ThreeColorScale
+                                                                                         },
+                                                                                         new ConditionalFormatValue()
+                                                                                         {
+                                                                                             Color = System.Drawing.Color.Yellow,
+                                                                                             Value = 1000000,
+                                                                                             Type = ConditionalFormatValue.Types.Num,
+                                                                                             RuleType = ConditionalFormatValue.RuleTypes.ThreeColorScale
+                                                                                         },
+                                                                                         new ConditionalFormatValue()
+                                                                                         {
+                                                                                             Color = System.Drawing.Color.Red,
+                                                                                             Value = 1500000,
+                                                                                             Type = ConditionalFormatValue.Types.Max,
+                                                                                             RuleType = ConditionalFormatValue.RuleTypes.ThreeColorScale
+                                                                                         }), 
                                                                     this.DataTable.GetColumn("Storage Min-Node")
                                                                                     .SetCaption("Min-Node"),
                                                                     this.DataTable.GetColumn("Storage Avg")
                                                                                     .SetCaption("Avg")
-                                                                                    .SetNumericFormat("#,###,###,##0.0000"),
+                                                                                    .SetNumericFormat("#,###,###,##0.0000")
+                                                                                    .SetConditionalFormat(
+                                                                                         new ConditionalFormatValue()
+                                                                                         {
+                                                                                             Color = System.Drawing.Color.Green,
+                                                                                             Value = 0,
+                                                                                             Type = ConditionalFormatValue.Types.Min,
+                                                                                             RuleType = ConditionalFormatValue.RuleTypes.ThreeColorScale
+                                                                                         },
+                                                                                         new ConditionalFormatValue()
+                                                                                         {
+                                                                                             Color = System.Drawing.Color.Yellow,
+                                                                                             Value = 1000000,
+                                                                                             Type = ConditionalFormatValue.Types.Num,
+                                                                                             RuleType = ConditionalFormatValue.RuleTypes.ThreeColorScale
+                                                                                         },
+                                                                                         new ConditionalFormatValue()
+                                                                                         {
+                                                                                             Color = System.Drawing.Color.Red,
+                                                                                             Value = 1500000,
+                                                                                             Type = ConditionalFormatValue.Types.Max,
+                                                                                             RuleType = ConditionalFormatValue.RuleTypes.ThreeColorScale
+                                                                                         }),
                                                                     this.DataTable.GetColumn("Storage Total")
                                                                                     .SetCaption("Total")
                                                                                     .SetNumericFormat("#,###,###,##0.0000")
-                                                                                    .TotalColumn(),//u
+                                                                                    .TotalColumn()
+                                                                                    .SetConditionalFormat(
+                                                                                         new ConditionalFormatValue()
+                                                                                         {
+                                                                                             Color = System.Drawing.Color.LightGreen,
+                                                                                             RuleType = ConditionalFormatValue.RuleTypes.DataBar,
+                                                                                             IncludeTotalRow = true,
+                                                                                             Type = ConditionalFormatValue.Types.Automatic
+                                                                                         }),
                                                                     this.DataTable.GetColumn("Storage Total (User)")
                                                                                     .SetCaption("Total (User)")
                                                                                     .SetNumericFormat("#,###,###,##0.0000")
-                                                                                    .TotalColumn(),//v
+                                                                                    .TotalColumn()
+                                                                                    .SetConditionalFormat(
+                                                                                         new ConditionalFormatValue()
+                                                                                         {
+                                                                                             Color = System.Drawing.Color.LightBlue,
+                                                                                             RuleType = ConditionalFormatValue.RuleTypes.DataBar,
+                                                                                             IncludeTotalRow = true,
+                                                                                             Type = ConditionalFormatValue.Types.Automatic
+                                                                                         }),
                                                                     this.DataTable.GetColumn("Storage Percent")
                                                                                     .SetCaption("Percent-Cluster")
                                                                                     .SetNumericFormat("##0.00%")
+                                                                                    .SetConditionalFormat(
+                                                                                         new ConditionalFormatValue()
+                                                                                         {
+                                                                                             Color = System.Drawing.Color.GreenYellow,
+                                                                                             RuleType = ConditionalFormatValue.RuleTypes.DataBar,
+                                                                                             Type = ConditionalFormatValue.Types.Automatic
+                                                                                         })
                                                                                 );
 
                                                                 //SSTables
                                                                 this.DataTable.SetGroupHeader("SSSTables", -2, true,
                                                                    this.DataTable.GetColumn("SSTables Max")
                                                                                     .SetCaption("Max")
-                                                                                    .SetNumericFormat("#,###,###,##0"),
+                                                                                    .SetNumericFormat("#,###,###,##0")
+                                                                                    .SetConditionalFormat(
+                                                                                         new ConditionalFormatValue()
+                                                                                         {
+                                                                                             Color = System.Drawing.Color.Green,
+                                                                                             Value = 0,
+                                                                                             Type = ConditionalFormatValue.Types.Min,
+                                                                                             RuleType = ConditionalFormatValue.RuleTypes.ThreeColorScale
+                                                                                         },
+                                                                                         new ConditionalFormatValue()
+                                                                                         {
+                                                                                             Color = System.Drawing.Color.Yellow,
+                                                                                             Value = 125,
+                                                                                             Type = ConditionalFormatValue.Types.Num,
+                                                                                             RuleType = ConditionalFormatValue.RuleTypes.ThreeColorScale
+                                                                                         },
+                                                                                         new ConditionalFormatValue()
+                                                                                         {
+                                                                                             Color = System.Drawing.Color.Red,
+                                                                                             Value = 350,
+                                                                                             Type = ConditionalFormatValue.Types.Max,
+                                                                                             RuleType = ConditionalFormatValue.RuleTypes.ThreeColorScale
+                                                                                         }),
                                                                    this.DataTable.GetColumn("SSTables Max-Node")
                                                                                     .SetCaption("Max-Node"),
                                                                    this.DataTable.GetColumn("SSTables Min")
                                                                                     .SetCaption("Min")
-                                                                                    .SetNumericFormat("#,###,###,##0"),
+                                                                                    .SetNumericFormat("#,###,###,##0")
+                                                                                    .SetConditionalFormat(
+                                                                                         new ConditionalFormatValue()
+                                                                                         {
+                                                                                             Color = System.Drawing.Color.Green,
+                                                                                             Value = 0,
+                                                                                             Type = ConditionalFormatValue.Types.Min,
+                                                                                             RuleType = ConditionalFormatValue.RuleTypes.ThreeColorScale
+                                                                                         },
+                                                                                         new ConditionalFormatValue()
+                                                                                         {
+                                                                                             Color = System.Drawing.Color.Yellow,
+                                                                                             Value = 125,
+                                                                                             Type = ConditionalFormatValue.Types.Num,
+                                                                                             RuleType = ConditionalFormatValue.RuleTypes.ThreeColorScale
+                                                                                         },
+                                                                                         new ConditionalFormatValue()
+                                                                                         {
+                                                                                             Color = System.Drawing.Color.Red,
+                                                                                             Value = 350,
+                                                                                             Type = ConditionalFormatValue.Types.Max,
+                                                                                             RuleType = ConditionalFormatValue.RuleTypes.ThreeColorScale
+                                                                                         }),
                                                                    this.DataTable.GetColumn("SSTables Min-Node")
                                                                                     .SetCaption("Min-Node"),
                                                                    this.DataTable.GetColumn("SSTables Avg")
                                                                                     .SetCaption("Avg")
-                                                                                    .SetNumericFormat("#,###,###,##0.00"),
+                                                                                    .SetNumericFormat("#,###,###,##0.00")
+                                                                                    .SetConditionalFormat(
+                                                                                         new ConditionalFormatValue()
+                                                                                         {
+                                                                                             Color = System.Drawing.Color.Green,
+                                                                                             Value = 0,
+                                                                                             Type = ConditionalFormatValue.Types.Min,
+                                                                                             RuleType = ConditionalFormatValue.RuleTypes.ThreeColorScale
+                                                                                         },
+                                                                                         new ConditionalFormatValue()
+                                                                                         {
+                                                                                             Color = System.Drawing.Color.Yellow,
+                                                                                             Value = 125,
+                                                                                             Type = ConditionalFormatValue.Types.Num,
+                                                                                             RuleType = ConditionalFormatValue.RuleTypes.ThreeColorScale
+                                                                                         },
+                                                                                         new ConditionalFormatValue()
+                                                                                         {
+                                                                                             Color = System.Drawing.Color.Red,
+                                                                                             Value = 350,
+                                                                                             Type = ConditionalFormatValue.Types.Max,
+                                                                                             RuleType = ConditionalFormatValue.RuleTypes.ThreeColorScale
+                                                                                         }),
                                                                    this.DataTable.GetColumn("SSTables StdDev")
                                                                                     .SetCaption("StdDev")
                                                                                     .SetNumericFormat("#,###,###,##0.00"),
                                                                    this.DataTable.GetColumn("SSTables Total")
                                                                                     .SetCaption("Total")
                                                                                     .SetNumericFormat("#,###,###,##0")
-                                                                                    .TotalColumn(),//Ac
+                                                                                    .TotalColumn()
+                                                                                    .SetConditionalFormat(
+                                                                                         new ConditionalFormatValue()
+                                                                                         {
+                                                                                             Color = System.Drawing.Color.LightGreen,
+                                                                                             RuleType = ConditionalFormatValue.RuleTypes.DataBar,
+                                                                                             IncludeTotalRow = true,
+                                                                                             Type = ConditionalFormatValue.Types.Automatic
+                                                                                         }),
                                                                    this.DataTable.GetColumn("SSTables Total (User)")
                                                                                     .SetCaption("Total (User)")
                                                                                     .SetNumericFormat("#,###,###,##0")
-                                                                                    .TotalColumn(),//Ad
+                                                                                    .TotalColumn()
+                                                                                    .SetConditionalFormat(
+                                                                                         new ConditionalFormatValue()
+                                                                                         {
+                                                                                             Color = System.Drawing.Color.LightBlue,
+                                                                                             RuleType = ConditionalFormatValue.RuleTypes.DataBar,
+                                                                                             IncludeTotalRow = true,
+                                                                                             Type = ConditionalFormatValue.Types.Automatic
+                                                                                         }),
                                                                    this.DataTable.GetColumn("SSTables Percent")
                                                                                     .SetCaption("Percent-Cluster")
                                                                                     .SetNumericFormat("##0.00%")
+                                                                                    .SetConditionalFormat(
+                                                                                         new ConditionalFormatValue()
+                                                                                         {
+                                                                                             Color = System.Drawing.Color.GreenYellow,
+                                                                                             RuleType = ConditionalFormatValue.RuleTypes.DataBar,
+                                                                                             Type = ConditionalFormatValue.Types.Automatic
+                                                                                         })
                                                                                     );
                                                                 //Distribution
                                                                 this.DataTable.SetGroupHeader("Distribution", -2, true,
@@ -259,14 +550,37 @@ namespace DSEDiagtnosticToExcel
                                                                        this.DataTable.GetColumn("Reads Total")
                                                                                         .SetCaption("Total")
                                                                                         .SetNumericFormat("#,###,###,##0")
-                                                                                        .TotalColumn(),
+                                                                                        .TotalColumn()
+                                                                                        .SetConditionalFormat(
+                                                                                         new ConditionalFormatValue()
+                                                                                         {
+                                                                                             Color = System.Drawing.Color.LightGreen,
+                                                                                             RuleType = ConditionalFormatValue.RuleTypes.DataBar,
+                                                                                             IncludeTotalRow = true,
+                                                                                             Type = ConditionalFormatValue.Types.Automatic
+                                                                                         }),
                                                                        this.DataTable.GetColumn("Reads Total (User)")
                                                                                         .SetCaption("Total (User)")
                                                                                         .SetNumericFormat("#,###,###,##0")
-                                                                                        .TotalColumn(),
+                                                                                        .TotalColumn()
+                                                                                        .SetConditionalFormat(
+                                                                                         new ConditionalFormatValue()
+                                                                                         {
+                                                                                             Color = System.Drawing.Color.LightBlue,
+                                                                                             RuleType = ConditionalFormatValue.RuleTypes.DataBar,
+                                                                                             IncludeTotalRow = true,
+                                                                                             Type = ConditionalFormatValue.Types.Automatic
+                                                                                         }),
                                                                        this.DataTable.GetColumn("Reads Percent")
                                                                                         .SetCaption("Percent-Cluster")
                                                                                         .SetNumericFormat("##0.00%")
+                                                                                         .SetConditionalFormat(
+                                                                                         new ConditionalFormatValue()
+                                                                                         {
+                                                                                             Color = System.Drawing.Color.GreenYellow,
+                                                                                             RuleType = ConditionalFormatValue.RuleTypes.DataBar,
+                                                                                             Type = ConditionalFormatValue.Types.Automatic
+                                                                                         })                                                                                    
                                                                                         ),
                                                                     this.DataTable.SetGroupHeader("Write", -1, true,
                                                                        this.DataTable.GetColumn("Writes Max")
@@ -288,14 +602,37 @@ namespace DSEDiagtnosticToExcel
                                                                        this.DataTable.GetColumn("Writes Total")
                                                                                         .SetCaption("Total")
                                                                                         .SetNumericFormat("#,###,###,##0")
-                                                                                        .TotalColumn(),
+                                                                                        .TotalColumn()
+                                                                                        .SetConditionalFormat(
+                                                                                         new ConditionalFormatValue()
+                                                                                         {
+                                                                                             Color = System.Drawing.Color.LightGreen,
+                                                                                             RuleType = ConditionalFormatValue.RuleTypes.DataBar,
+                                                                                             IncludeTotalRow = true,
+                                                                                             Type = ConditionalFormatValue.Types.Automatic
+                                                                                         }),
                                                                        this.DataTable.GetColumn("Writes Total (User)")
                                                                                         .SetCaption("Total (User)")
                                                                                         .SetNumericFormat("#,###,###,##0")
-                                                                                        .TotalColumn(),
+                                                                                        .TotalColumn()
+                                                                                        .SetConditionalFormat(
+                                                                                         new ConditionalFormatValue()
+                                                                                         {
+                                                                                             Color = System.Drawing.Color.LightBlue,
+                                                                                             RuleType = ConditionalFormatValue.RuleTypes.DataBar,
+                                                                                             IncludeTotalRow = true,
+                                                                                             Type = ConditionalFormatValue.Types.Automatic
+                                                                                         }),
                                                                        this.DataTable.GetColumn("Writes Percent")
                                                                                         .SetCaption("Percent-Cluster")
                                                                                         .SetNumericFormat("##0.00%")
+                                                                                        .SetConditionalFormat(
+                                                                                         new ConditionalFormatValue()
+                                                                                         {
+                                                                                             Color = System.Drawing.Color.GreenYellow,
+                                                                                             RuleType = ConditionalFormatValue.RuleTypes.DataBar,
+                                                                                             Type = ConditionalFormatValue.Types.Automatic
+                                                                                         })
                                                                  ));
 
                                                                 this.DataTable.SetGroupHeader(" ", -1, true,

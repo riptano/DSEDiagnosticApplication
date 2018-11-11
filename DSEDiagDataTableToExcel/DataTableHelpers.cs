@@ -5,6 +5,7 @@ using System.Text;
 using System.Data;
 using System.Threading.Tasks;
 using Common;
+using System.Text.RegularExpressions;
 
 namespace DataTableToExcel
 {
@@ -94,7 +95,35 @@ namespace DataTableToExcel
 
             return colLetter;
         }
-                      
+
+        private static readonly System.Text.RegularExpressions.Regex FormulaDataColumnMatch = new Regex(Properties.Settings.Default.TranslateFormula,
+                                                                                                                                            RegexOptions.IgnoreCase 
+                                                                                                                                            | RegexOptions.Compiled);
+
+        public static string TranslateFormula(DataTable dataTable, string formulaString, bool useR1C1Syntax = false)
+        {
+            if (string.IsNullOrEmpty(formulaString)) return formulaString;
+
+            var regExMatches = FormulaDataColumnMatch.Matches(formulaString);
+
+            foreach (Match element in regExMatches)
+            {
+                var grpDCNameInd = element.Groups["DCNameInd"];
+                var grpDCName = element.Groups["DCName"];
+
+                if (grpDCName.Success && !string.IsNullOrEmpty(grpDCName.Value))
+                {
+                    var dataColumn = dataTable.Columns[grpDCName.Value.Trim()];
+                    formulaString = formulaString.Replace(grpDCNameInd.Value,
+                                                            useR1C1Syntax
+                                                            ? (dataColumn.Ordinal+1).ToString()
+                                                            : ExcelTranslateColumnFromColPostoLeter(dataColumn.Ordinal));
+                }
+            }
+
+            return formulaString;
+        }
+
         public static DataColumn GetColumn(this DataTable dataTable, string columnName)
         {
             return dataTable.Columns[columnName];
@@ -134,6 +163,7 @@ namespace DataTableToExcel
 
         /// <summary>
         /// Sets a formula using a R1C1 content. Placeholders can be uses where &apos;{0}&apos; is the first row in the worksheet, &apos;{1}&apos; is the last row in the worksheet, and &apos;{2}&apos; is this data column&apos;s position in the worksheet.
+        /// Note to define a data column name paceholder, surrond the data column name with &quot;{}&quot; e.g., {MyDataColumn}
         /// <param name="dataColumn"></param>
         /// <param name="r1c1Formula"></param>
         /// <returns></returns>
@@ -147,10 +177,10 @@ namespace DataTableToExcel
                 if (string.IsNullOrEmpty(r1c1Formula))
                     dataColumn.ExtendedProperties.Remove("R1C1Formula");
                 else
-                    dataColumn.ExtendedProperties["R1C1Formula"] = r1c1Formula;
+                    dataColumn.ExtendedProperties["R1C1Formula"] = string.Format(TranslateFormula(dataColumn.Table, r1c1Formula, true), "{0}", "{1}", dataColumn.Ordinal + 1);
             }
             else
-                dataColumn.ExtendedProperties.Add("R1C1Formula", string.Format(r1c1Formula, "{0}", "{1}", dataColumn.Ordinal + 1));
+                dataColumn.ExtendedProperties.Add("R1C1Formula", string.Format(TranslateFormula(dataColumn.Table, r1c1Formula, true), "{0}", "{1}", dataColumn.Ordinal + 1));
 
             return dataColumn;
         }
@@ -236,11 +266,12 @@ namespace DataTableToExcel
 
         /// <summary>
         /// Sets a formula using an A1 content. Placeholders can be uses where &apos;{0}&apos; is the first row in the worksheet, &apos;{1}&apos; is the last row in the worksheet, and &apos;{2}&apos; is this data column&apos;s position in the worksheet.
+        /// Note to define a data column name paceholder, surrond the data column name with &quot;{}&quot; e.g., {MyDataColumn}
         /// <param name="dataColumn"></param>
         /// <param name="formula"></param>
         /// <returns></returns>
         /// <example>
-        /// dtDCInfo.Columns.Add(&quot;Distribution Storage From&quot;, typeof(decimal)).SetFormulaR1C1(&quot;sum(R{0}C{2}:R{1}C{2})&quot;);
+        /// dtDCInfo.Columns.Add(&quot;Distribution Storage From&quot;, typeof(decimal)).SetFormulaR1C1(&quot;sum(A{0}:A{1})&quot;);        
         /// </example>
         public static DataColumn SetFormula(this DataColumn dataColumn, string formula)
         {
@@ -249,10 +280,14 @@ namespace DataTableToExcel
                 if (string.IsNullOrEmpty(formula))
                     dataColumn.ExtendedProperties.Remove("Formula");
                 else
-                    dataColumn.ExtendedProperties["Formula"] = formula;
+                    dataColumn.ExtendedProperties["Formula"] = string.Format(TranslateFormula(dataColumn.Table, formula),
+                                                                                "{0}", "{1}",
+                                                                                ExcelTranslateColumnFromColPostoLeter(dataColumn.Ordinal));
             }
             else
-                dataColumn.ExtendedProperties.Add("Formula", string.Format(formula, "{0}", "{1}", ExcelTranslateColumnFromColPostoLeter(dataColumn.Ordinal)));
+                dataColumn.ExtendedProperties.Add("Formula", string.Format(TranslateFormula(dataColumn.Table, formula),
+                                                                                "{0}", "{1}",
+                                                                                ExcelTranslateColumnFromColPostoLeter(dataColumn.Ordinal)));
 
             return dataColumn;
         }
@@ -271,7 +306,69 @@ namespace DataTableToExcel
 
             return dataColumn;
         }
-        
+
+        public static DataColumn AvgerageColumn(this DataColumn dataColumn, bool haveAvgTotalLine = true, bool remove = false)
+        {
+            if (dataColumn.ExtendedProperties.ContainsKey("AverageColumn"))
+            {
+                if (remove)
+                    dataColumn.ExtendedProperties.Remove("AverageColumn");
+                else
+                    dataColumn.ExtendedProperties["AverageColumn"] = haveAvgTotalLine;
+            }
+            else
+                dataColumn.ExtendedProperties.Add("AverageColumn", haveAvgTotalLine);
+
+            return dataColumn;
+        }
+
+        /// <summary>
+        /// If formula is used the column letter and row number format be used. Also the following applies:
+        /// Sets a formula using an A1 content. Placeholders can be uses where &apos;{0}&apos; is the first row in the worksheet, &apos;{1}&apos; is the last row in the worksheet, and &apos;{2}&apos; is this data column&apos;s position in the worksheet.
+        /// </summary>
+        /// <param name="dataColumn"></param>
+        /// <param name="conditionalFormatValues"></param>
+        /// <returns></returns>
+        public static DataColumn SetConditionalFormat(this DataColumn dataColumn, params ConditionalFormatValue[] conditionalFormatValues)
+        {
+            bool alreadyExists;
+
+            if (alreadyExists = dataColumn.ExtendedProperties.ContainsKey("ConditionalFormat"))
+            {
+                if (conditionalFormatValues == null || conditionalFormatValues.IsEmpty())
+                {
+                    dataColumn.ExtendedProperties.Remove("ConditionalFormat");
+                    return dataColumn;
+                }
+            }
+
+            foreach (var conditionalFormatValue in conditionalFormatValues)
+            {
+                if(conditionalFormatValue.Type == ConditionalFormatValue.Types.Formula
+                    && !string.IsNullOrEmpty(conditionalFormatValue.FormulaText))
+                {
+                    conditionalFormatValue.FormulaText = string.Format(TranslateFormula(dataColumn.Table, conditionalFormatValue.FormulaText),
+                                                                        "{0}", "{1}",
+                                                                        ExcelTranslateColumnFromColPostoLeter(dataColumn.Ordinal));
+                }
+
+                if (conditionalFormatValue.Type == ConditionalFormatValue.Types.Formula
+                    && !string.IsNullOrEmpty(conditionalFormatValue.FormulaTextBetween))
+                {
+                    conditionalFormatValue.FormulaTextBetween = string.Format(TranslateFormula(dataColumn.Table, conditionalFormatValue.FormulaTextBetween),
+                                                                                "{0}", "{1}",
+                                                                                ExcelTranslateColumnFromColPostoLeter(dataColumn.Ordinal));
+                }
+            }
+
+            if (alreadyExists)
+                dataColumn.ExtendedProperties["ConditionalFormat"] = conditionalFormatValues;            
+            else
+                dataColumn.ExtendedProperties.Add("ConditionalFormat", conditionalFormatValues);
+
+            return dataColumn;
+        }
+
         static public void UpdateWorksheet(this OfficeOpenXml.ExcelWorksheet workSheet, DataTable dataTable, int wsHeaderRow)
         {
             var lastRow = workSheet.Dimension.End.Row;
@@ -285,17 +382,33 @@ namespace DataTableToExcel
 
                 if (dataColumn.ExtendedProperties.Count == 0) continue;
                 var currentLastRow = lastRow;
+                bool hasTotalCol = false;
 
                 if (dataColumn.ExtendedProperties.ContainsKey("TotalColumn"))
                 {
                     bool addTotLine = (bool)dataColumn.ExtendedProperties["TotalColumn"];
 
-                    workSheet.Cells[lastRow + 1, dataColumn.Ordinal + 1]
-                                .FormulaR1C1 = string.Format("=sum(R{0}C{1}:R{2}C{1})", wsHeaderRow + 1, dataColumn.Ordinal + 1, lastRow);
+                    workSheet.Cells[currentLastRow + 1, dataColumn.Ordinal + 1]
+                                .FormulaR1C1 = string.Format("=sum(R{0}C{1}:R{2}C{1})", wsHeaderRow + 1, dataColumn.Ordinal + 1, currentLastRow);
 
                     if (addTotLine)
                     {
-                        workSheet.Cells[lastRow + 1, dataColumn.Ordinal + 1].Style.Border.Top.Style = OfficeOpenXml.Style.ExcelBorderStyle.Medium;
+                        workSheet.Cells[currentLastRow + 1, dataColumn.Ordinal + 1].Style.Border.Top.Style = OfficeOpenXml.Style.ExcelBorderStyle.Double;
+                    }
+                    hasTotalCol = true;
+                    ++currentLastRow;
+                }
+
+                if (dataColumn.ExtendedProperties.ContainsKey("AverageColumn"))
+                {
+                    bool addTotLine = (bool)dataColumn.ExtendedProperties["AverageColumn"];
+
+                    workSheet.Cells[currentLastRow + 1, dataColumn.Ordinal + 1]
+                                .FormulaR1C1 = string.Format("=AVERAGE(R{0}C{1}:R{2}C{1})", wsHeaderRow + 1, dataColumn.Ordinal + 1, currentLastRow);
+
+                    if (addTotLine)
+                    {
+                        workSheet.Cells[currentLastRow + 1, dataColumn.Ordinal + 1].Style.Border.Top.Style = OfficeOpenXml.Style.ExcelBorderStyle.Medium;
                     }
                     ++currentLastRow;
                 }
@@ -319,6 +432,34 @@ namespace DataTableToExcel
 
                             workSheet.Cells[lastRow + 1, dataColumn.Ordinal + 1]
                                        .Formula = string.Format(formula, wsHeaderRow + 1, lastRow);
+                        }
+                        else if (key == "ConditionalFormat")
+                        {
+                            var conditionalFormats = (ConditionalFormatValue[])dataColumn.ExtendedProperties["ConditionalFormat"];
+                            var cndLastRow = lastRow;
+
+                            foreach (var conditionalFormatValue in conditionalFormats)
+                            {
+                                if (conditionalFormatValue.Type == ConditionalFormatValue.Types.Formula
+                                    && !string.IsNullOrEmpty(conditionalFormatValue.FormulaText))
+                                {
+                                    conditionalFormatValue.FormulaText = string.Format(conditionalFormatValue.FormulaText,
+                                                                                        wsHeaderRow + 1, lastRow);
+                                }
+
+                                if (conditionalFormatValue.Type == ConditionalFormatValue.Types.Formula
+                                    && !string.IsNullOrEmpty(conditionalFormatValue.FormulaTextBetween))
+                                {
+                                    conditionalFormatValue.FormulaTextBetween = string.Format(conditionalFormatValue.FormulaTextBetween,
+                                                                                        wsHeaderRow + 1, lastRow);
+                                }
+
+                                if (hasTotalCol && conditionalFormatValue.IncludeTotalRow)
+                                    cndLastRow = currentLastRow;
+                            }
+
+                            workSheet.CreateConditionalFormat(workSheet.Cells[wsHeaderRow + 1, dataColumn.Ordinal + 1, cndLastRow, dataColumn.Ordinal + 1],
+                                                                conditionalFormats);
                         }
                         else if (key == "ColumnWidth")
                         {                            
