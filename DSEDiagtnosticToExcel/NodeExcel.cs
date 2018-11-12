@@ -75,13 +75,7 @@ namespace DSEDiagtnosticToExcel
 
                                                                  //this.DataTable.GetColumn("Rack");
                                                                  this.DataTable.GetColumn("Status")
-                                                                     .SetConditionalFormat(new ConditionalFormatValue()
-                                                                     {
-                                                                         Color = System.Drawing.Color.Red,
-                                                                         FormulaText = @"OR(${2}{0} = ""Down"", ${2}{0} = ""Unknown"")",
-                                                                         Type = ConditionalFormatValue.Types.Formula,
-                                                                         RuleType = ConditionalFormatValue.RuleTypes.Expression
-                                                                     });
+                                                                     .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonNodeStatus);
                                                              //this.DataTable.GetColumn("Instance Type");
                                                              //this.DataTable.GetColumn("Cluster Name");
 
@@ -101,28 +95,7 @@ namespace DSEDiagtnosticToExcel
                                                                             .SetNumericFormat("#,###,###,##0.00");
                                                              this.DataTable.GetColumn("Storage Utilization")
                                                                             .SetNumericFormat("##0.00%")
-                                                                            .SetConditionalFormat(
-                                                                                new ConditionalFormatValue()
-                                                                                {
-                                                                                    Color = System.Drawing.Color.Green,
-                                                                                    Type = ConditionalFormatValue.Types.Min,
-                                                                                    RuleType = ConditionalFormatValue.RuleTypes.ThreeColorScale,
-                                                                                    SubType = ConditionalFormatValue.Types.NoValue
-                                                                                },
-                                                                                new ConditionalFormatValue()
-                                                                                {
-                                                                                    Color = System.Drawing.Color.Yellow,
-                                                                                    Value = 40,
-                                                                                    Type = ConditionalFormatValue.Types.Num,
-                                                                                    RuleType = ConditionalFormatValue.RuleTypes.ThreeColorScale
-                                                                                },
-                                                                                new ConditionalFormatValue()
-                                                                                {
-                                                                                    Color = System.Drawing.Color.Red,
-                                                                                    Value = 100,
-                                                                                    Type = ConditionalFormatValue.Types.Max,
-                                                                                    RuleType = ConditionalFormatValue.RuleTypes.ThreeColorScale
-                                                                                });
+                                                                            .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonStorageUtilization);
                                                                  //this.DataTable.GetColumn("Health Rating")
                                                                  //             .SetNumericFormat("0.00");
 
@@ -138,28 +111,7 @@ namespace DSEDiagtnosticToExcel
                                                                 this.DataTable.GetColumn("Uptime")
                                                                                 .AvgerageColumn()
                                                                                 .SetNumericFormat(Properties.Settings.Default.ExcelTimeSpanFormat)
-                                                                                .SetConditionalFormat(
-                                                                                    new ConditionalFormatValue()
-                                                                                    {
-                                                                                        Color = System.Drawing.Color.Red,
-                                                                                        FormulaText = @"AND(ISNUMBER(${2}{0}),OR(AND(${2}{0}>=0,${2}{0}<2),${2}{0}>15))",
-                                                                                        Type = ConditionalFormatValue.Types.Formula,
-                                                                                        RuleType = ConditionalFormatValue.RuleTypes.Expression
-                                                                                    },
-                                                                                    new ConditionalFormatValue()
-                                                                                    {
-                                                                                        Color = System.Drawing.Color.Yellow,
-                                                                                        FormulaText = @"AND(ISNUMBER(${2}{0}),OR(AND(${2}{0}>=2,${2}{0}<4),AND(${2}{0}>10,${2}{0}<=15)))",
-                                                                                        Type = ConditionalFormatValue.Types.Formula,
-                                                                                        RuleType = ConditionalFormatValue.RuleTypes.Expression
-                                                                                    },
-                                                                                    new ConditionalFormatValue()
-                                                                                    {
-                                                                                        Color = System.Drawing.Color.Green,
-                                                                                        FormulaText = @"AND(ISNUMBER(${2}{0}),${2}{0}>=4,${2}{0}<=10)",
-                                                                                        Type = ConditionalFormatValue.Types.Formula,
-                                                                                        RuleType = ConditionalFormatValue.RuleTypes.Expression
-                                                                                    })
+                                                                                .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonAnalysisDuration)
                                                                  );
 
                                                                  this.DataTable.SetGroupHeader("System Log", -2, true,
@@ -173,54 +125,12 @@ namespace DSEDiagtnosticToExcel
                                                                                     .SetCaption("Duration")
                                                                                     .AvgerageColumn()
                                                                                     .SetNumericFormat(Properties.Settings.Default.ExcelTimeSpanFormat)
-                                                                                    .SetConditionalFormat(
-                                                                                        new ConditionalFormatValue()
-                                                                                        {
-                                                                                            Color = System.Drawing.Color.Red,
-                                                                                            FormulaText = @"AND(ISNUMBER(${2}{0}),OR(AND(${2}{0}>=0,${2}{0}<2),${2}{0}>15))",
-                                                                                            Type = ConditionalFormatValue.Types.Formula,
-                                                                                            RuleType = ConditionalFormatValue.RuleTypes.Expression
-                                                                                        },
-                                                                                        new ConditionalFormatValue()
-                                                                                        {
-                                                                                            Color = System.Drawing.Color.Yellow,
-                                                                                            FormulaText = @"AND(ISNUMBER(${2}{0}),OR(AND(${2}{0}>=2,${2}{0}<4),AND(${2}{0}>10,${2}{0}<=15)))",
-                                                                                            Type = ConditionalFormatValue.Types.Formula,
-                                                                                            RuleType = ConditionalFormatValue.RuleTypes.Expression
-                                                                                        },
-                                                                                        new ConditionalFormatValue()
-                                                                                        {
-                                                                                            Color = System.Drawing.Color.Green,
-                                                                                            FormulaText = @"AND(ISNUMBER(${2}{0}),${2}{0}>=4,${2}{0}<=10)",
-                                                                                            Type = ConditionalFormatValue.Types.Formula,
-                                                                                            RuleType = ConditionalFormatValue.RuleTypes.Expression
-                                                                                        }),
+                                                                                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonAnalysisDuration),
                                                                     this.DataTable.GetColumn("Log Timespan Difference")
                                                                                     .SetCaption("Gaps")
                                                                                     .SetNumericFormat(Properties.Settings.Default.ExcelTimeSpanFormat)
                                                                                     .TotalColumn()
-                                                                                    .SetConditionalFormat(
-                                                                                        new ConditionalFormatValue()
-                                                                                        {
-                                                                                            Color = System.Drawing.Color.Green,
-                                                                                            FormulaText = @"AND(ISNUMBER(${2}{0}),((DAY(${2}{0})-1)*24)+HOUR(${2}{0})+(MINUTE(${2}{0})/60)<=1)",
-                                                                                            Type = ConditionalFormatValue.Types.Formula,
-                                                                                            RuleType = ConditionalFormatValue.RuleTypes.Expression
-                                                                                        },
-                                                                                        new ConditionalFormatValue()
-                                                                                        {
-                                                                                            Color = System.Drawing.Color.Yellow,
-                                                                                            FormulaText = @"AND(ISNUMBER(${2}{0}),((DAY(${2}{0})-1)*24)+HOUR(${2}{0})+(MINUTE(${2}{0})/60)<=6)",
-                                                                                            Type = ConditionalFormatValue.Types.Formula,
-                                                                                            RuleType = ConditionalFormatValue.RuleTypes.Expression
-                                                                                        },
-                                                                                        new ConditionalFormatValue()
-                                                                                        {
-                                                                                            Color = System.Drawing.Color.Red,
-                                                                                            FormulaText = @"AND(ISNUMBER(${2}{0}),((DAY(${2}{0})-1)*24)+HOUR(${2}{0})+(MINUTE(${2}{0})/60)<=1)",
-                                                                                            Type = ConditionalFormatValue.Types.Formula,
-                                                                                            RuleType = ConditionalFormatValue.RuleTypes.Expression
-                                                                                        }),
+                                                                                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonAnalysisLogGap),
                                                                     this.DataTable.GetColumn("Log Nbr Files")
                                                                                     .SetCaption("Nbr Files")
                                                                                     .SetNumericFormat("#,###,###,##0")
@@ -238,54 +148,12 @@ namespace DSEDiagtnosticToExcel
                                                                                     .SetCaption("Duration")
                                                                                     .AvgerageColumn()
                                                                                     .SetNumericFormat(Properties.Settings.Default.ExcelTimeSpanFormat)
-                                                                                    .SetConditionalFormat(
-                                                                                        new ConditionalFormatValue()
-                                                                                        {
-                                                                                            Color = System.Drawing.Color.Red,
-                                                                                            FormulaText = @"AND(ISNUMBER(${2}{0}),OR(AND(${2}{0}>=0,${2}{0}<2),${2}{0}>15))",
-                                                                                            Type = ConditionalFormatValue.Types.Formula,
-                                                                                            RuleType = ConditionalFormatValue.RuleTypes.Expression
-                                                                                        },
-                                                                                        new ConditionalFormatValue()
-                                                                                        {
-                                                                                            Color = System.Drawing.Color.Yellow,
-                                                                                            FormulaText = @"AND(ISNUMBER(${2}{0}),OR(AND(${2}{0}>=2,${2}{0}<4),AND(${2}{0}>10,${2}{0}<=15)))",
-                                                                                            Type = ConditionalFormatValue.Types.Formula,
-                                                                                            RuleType = ConditionalFormatValue.RuleTypes.Expression
-                                                                                        },
-                                                                                        new ConditionalFormatValue()
-                                                                                        {
-                                                                                            Color = System.Drawing.Color.Green,
-                                                                                            FormulaText = @"AND(ISNUMBER(${2}{0}),${2}{0}>=4,${2}{0}<=10)",
-                                                                                            Type = ConditionalFormatValue.Types.Formula,
-                                                                                            RuleType = ConditionalFormatValue.RuleTypes.Expression
-                                                                                        }),
+                                                                                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonAnalysisDuration),
                                                                     this.DataTable.GetColumn("Debug Log Timespan Difference")
                                                                                     .SetCaption("Gap")
                                                                                     .SetNumericFormat(Properties.Settings.Default.ExcelTimeSpanFormat)
                                                                                     .TotalColumn()
-                                                                                    .SetConditionalFormat(
-                                                                                        new ConditionalFormatValue()
-                                                                                        {
-                                                                                            Color = System.Drawing.Color.Green,
-                                                                                            FormulaText = @"AND(ISNUMBER(${2}{0}),((DAY(${2}{0})-1)*24)+HOUR(${2}{0})+(MINUTE(${2}{0})/60)<=1)",
-                                                                                            Type = ConditionalFormatValue.Types.Formula,
-                                                                                            RuleType = ConditionalFormatValue.RuleTypes.Expression
-                                                                                        },
-                                                                                        new ConditionalFormatValue()
-                                                                                        {
-                                                                                            Color = System.Drawing.Color.Yellow,
-                                                                                            FormulaText = @"AND(ISNUMBER(${2}{0}),((DAY(${2}{0})-1)*24)+HOUR(${2}{0})+(MINUTE(${2}{0})/60)<=6)",
-                                                                                            Type = ConditionalFormatValue.Types.Formula,
-                                                                                            RuleType = ConditionalFormatValue.RuleTypes.Expression
-                                                                                        },
-                                                                                        new ConditionalFormatValue()
-                                                                                        {
-                                                                                            Color = System.Drawing.Color.Red,
-                                                                                            FormulaText = @"AND(ISNUMBER(${2}{0}),((DAY(${2}{0})-1)*24)+HOUR(${2}{0})+(MINUTE(${2}{0})/60)<=1)",
-                                                                                            Type = ConditionalFormatValue.Types.Formula,
-                                                                                            RuleType = ConditionalFormatValue.RuleTypes.Expression
-                                                                                        }),
+                                                                                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonAnalysisLogGap),
                                                                     this.DataTable.GetColumn("Debug Log Nbr Files")
                                                                                     .SetCaption("Nbr Files")
                                                                                     .SetNumericFormat("#,###,###,##0")

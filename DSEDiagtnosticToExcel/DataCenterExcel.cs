@@ -71,21 +71,7 @@ namespace DSEDiagtnosticToExcel
 
                                                                  this.DataTable.GetColumn(DSEDiagnosticToDataTable.ColumnNames.DataCenter)
                                                                                   .SetCaption("Name")
-                                                                                  .SetConditionalFormat(
-                                                                                     new ConditionalFormatValue()
-                                                                                     {
-                                                                                         Color = System.Drawing.Color.Red,
-                                                                                         FormulaText = "AND(ISNUMBER(${Status Unknown}{0}), ${Status Unknown}{0} > 0)",
-                                                                                         Type = ConditionalFormatValue.Types.Formula,
-                                                                                         RuleType = ConditionalFormatValue.RuleTypes.Expression
-                                                                                     },
-                                                                                     new ConditionalFormatValue()
-                                                                                     {
-                                                                                         Color = System.Drawing.Color.Yellow,
-                                                                                         FormulaText = "AND(ISNUMBER(${Status Down}{0}), ${Status Down}{0} > 0)",
-                                                                                         Type = ConditionalFormatValue.Types.Formula,
-                                                                                         RuleType = ConditionalFormatValue.RuleTypes.Expression
-                                                                                     });
+                                                                                  .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDCNodeStatus);
 
                                                                  this.DataTable.SetGroupHeader("Total", -1, false,
                                                                     this.DataTable.GetColumn("Total Nodes")
@@ -123,26 +109,12 @@ namespace DSEDiagtnosticToExcel
                                                                                      .SetCaption("Down")
                                                                                      .SetNumericFormat("#,###,###,##0")
                                                                                      .TotalColumn()
-                                                                                     .SetConditionalFormat(
-                                                                                         new ConditionalFormatValue()
-                                                                                         {
-                                                                                             Color = System.Drawing.Color.Yellow,
-                                                                                             FormulaText = "AND(ISNUMBER(${2}{0}), ${2}{0} > 0)",
-                                                                                             Type = ConditionalFormatValue.Types.Formula,
-                                                                                             RuleType = ConditionalFormatValue.RuleTypes.Expression
-                                                                                         }),
+                                                                                     .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonNodeNbrStatusDown),
                                                                      this.DataTable.GetColumn("Status Unknown")
                                                                                      .SetCaption("Unknown")
                                                                                      .SetNumericFormat("#,###,###,##0")
                                                                                      .TotalColumn()
-                                                                                     .SetConditionalFormat(
-                                                                                         new ConditionalFormatValue()
-                                                                                         {
-                                                                                             Color = System.Drawing.Color.Red,
-                                                                                             FormulaText = "AND(ISNUMBER(${2}{0}), ${2}{0} > 0)",
-                                                                                             Type = ConditionalFormatValue.Types.Formula,
-                                                                                             RuleType = ConditionalFormatValue.RuleTypes.Expression
-                                                                                         })
+                                                                                     .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonNodeNbrStatusUnkown)
                                                                      );
 
                                                                  this.DataTable.SetGroupHeader("DSE", -2, true,
@@ -155,83 +127,19 @@ namespace DSEDiagtnosticToExcel
                                                                     this.DataTable.GetColumn("DU Max")
                                                                                     .SetCaption("Max")
                                                                                     .SetNumericFormat("##0.00%")
-                                                                                    .SetConditionalFormat(
-                                                                                         new ConditionalFormatValue()
-                                                                                         {
-                                                                                             Color = System.Drawing.Color.Green,
-                                                                                             Value = 0.01,
-                                                                                             Type = ConditionalFormatValue.Types.Min,
-                                                                                             RuleType = ConditionalFormatValue.RuleTypes.ThreeColorScale
-                                                                                         },
-                                                                                         new ConditionalFormatValue()
-                                                                                         {
-                                                                                             Color = System.Drawing.Color.Yellow,
-                                                                                             Value = 0.45,
-                                                                                             Type = ConditionalFormatValue.Types.Num,
-                                                                                             RuleType = ConditionalFormatValue.RuleTypes.ThreeColorScale
-                                                                                         },
-                                                                                         new ConditionalFormatValue()
-                                                                                         {
-                                                                                             Color = System.Drawing.Color.Red,
-                                                                                             Value = 1,
-                                                                                             Type = ConditionalFormatValue.Types.Max,
-                                                                                             RuleType = ConditionalFormatValue.RuleTypes.ThreeColorScale
-                                                                                         }
-                                                                                        ),
+                                                                                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonStorageUtilization),
                                                                     this.DataTable.GetColumn("DU Max-Node")
                                                                                     .SetCaption("Max-Node"),
                                                                     this.DataTable.GetColumn("DU Min")
                                                                                     .SetCaption("Min")
                                                                                     .SetNumericFormat("##0.00%")
-                                                                                    .SetConditionalFormat(
-                                                                                         new ConditionalFormatValue()
-                                                                                         {
-                                                                                             Color = System.Drawing.Color.Green,
-                                                                                             Value = 0.01,
-                                                                                             Type = ConditionalFormatValue.Types.Min,
-                                                                                             RuleType = ConditionalFormatValue.RuleTypes.ThreeColorScale
-                                                                                         },
-                                                                                         new ConditionalFormatValue()
-                                                                                         {
-                                                                                             Color = System.Drawing.Color.Yellow,
-                                                                                             Value = 0.45,
-                                                                                             Type = ConditionalFormatValue.Types.Num,
-                                                                                             RuleType = ConditionalFormatValue.RuleTypes.ThreeColorScale
-                                                                                         },
-                                                                                         new ConditionalFormatValue()
-                                                                                         {
-                                                                                             Color = System.Drawing.Color.Red,
-                                                                                             Value = 1,
-                                                                                             Type = ConditionalFormatValue.Types.Max,
-                                                                                             RuleType = ConditionalFormatValue.RuleTypes.ThreeColorScale
-                                                                                         }),
+                                                                                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonStorageUtilization),
                                                                     this.DataTable.GetColumn("DU Min-Node")
                                                                                     .SetCaption("Min-Node"),
                                                                     this.DataTable.GetColumn("DU Avg")
                                                                                     .SetCaption("Avg")
                                                                                     .SetNumericFormat("##0.00%")
-                                                                                    .SetConditionalFormat(
-                                                                                         new ConditionalFormatValue()
-                                                                                         {
-                                                                                             Color = System.Drawing.Color.Green,
-                                                                                             Value = 0.01,
-                                                                                             Type = ConditionalFormatValue.Types.Min,
-                                                                                             RuleType = ConditionalFormatValue.RuleTypes.ThreeColorScale
-                                                                                         },
-                                                                                         new ConditionalFormatValue()
-                                                                                         {
-                                                                                             Color = System.Drawing.Color.Yellow,
-                                                                                             Value = 0.45,
-                                                                                             Type = ConditionalFormatValue.Types.Num,
-                                                                                             RuleType = ConditionalFormatValue.RuleTypes.ThreeColorScale
-                                                                                         },
-                                                                                         new ConditionalFormatValue()
-                                                                                         {
-                                                                                             Color = System.Drawing.Color.Red,
-                                                                                             Value = 1,
-                                                                                             Type = ConditionalFormatValue.Types.Max,
-                                                                                             RuleType = ConditionalFormatValue.RuleTypes.ThreeColorScale
-                                                                                         })
+                                                                                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonStorageUtilization)
                                                                     );
 
                                                                 this.DataTable.SetGroupHeader("Insufficient Space", -1, true,
@@ -239,21 +147,7 @@ namespace DSEDiagtnosticToExcel
                                                                                    .SetCaption("Warnings")
                                                                                    .SetNumericFormat("#,###,###")
                                                                                    .TotalColumn()
-                                                                                   .SetConditionalFormat(
-                                                                                         new ConditionalFormatValue()
-                                                                                         {
-                                                                                             Color = System.Drawing.Color.Yellow,
-                                                                                             Value = 1,
-                                                                                             Type = ConditionalFormatValue.Types.Min,
-                                                                                             RuleType = ConditionalFormatValue.RuleTypes.TwoColorScale
-                                                                                         },
-                                                                                         new ConditionalFormatValue()
-                                                                                         {
-                                                                                             Color = System.Drawing.Color.Red,
-                                                                                             Value = 10,
-                                                                                             Type = ConditionalFormatValue.Types.Max,
-                                                                                             RuleType = ConditionalFormatValue.RuleTypes.TwoColorScale
-                                                                                         })
+                                                                                   .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonInsufficientSpace)
                                                                                    );
 
                                                                //Storage
@@ -261,116 +155,33 @@ namespace DSEDiagtnosticToExcel
                                                                     this.DataTable.GetColumn("Storage Max")
                                                                                     .SetCaption("Max")
                                                                                     .SetNumericFormat("#,###,###,##0.0000")
-                                                                                     .SetConditionalFormat(
-                                                                                         new ConditionalFormatValue()
-                                                                                         {
-                                                                                             Color = System.Drawing.Color.Green,
-                                                                                             Value = 0,
-                                                                                             Type = ConditionalFormatValue.Types.Min,
-                                                                                             RuleType = ConditionalFormatValue.RuleTypes.ThreeColorScale
-                                                                                         },
-                                                                                         new ConditionalFormatValue()
-                                                                                         {
-                                                                                             Color = System.Drawing.Color.Yellow,
-                                                                                             Value = 1000000,
-                                                                                             Type = ConditionalFormatValue.Types.Num,
-                                                                                             RuleType = ConditionalFormatValue.RuleTypes.ThreeColorScale
-                                                                                         },
-                                                                                         new ConditionalFormatValue()
-                                                                                         {
-                                                                                             Color = System.Drawing.Color.Red,
-                                                                                             Value = 1500000,
-                                                                                             Type = ConditionalFormatValue.Types.Max,
-                                                                                             RuleType = ConditionalFormatValue.RuleTypes.ThreeColorScale
-                                                                                         }),
+                                                                                     .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonStorage),
                                                                     this.DataTable.GetColumn("Storage Max-Node")
                                                                                     .SetCaption("Max-Node"),
                                                                     this.DataTable.GetColumn("Storage Min")
                                                                                     .SetCaption("Min")
                                                                                     .SetNumericFormat("#,###,###,##0.0000")
-                                                                                    .SetConditionalFormat(
-                                                                                         new ConditionalFormatValue()
-                                                                                         {
-                                                                                             Color = System.Drawing.Color.Green,
-                                                                                             Value = 0,
-                                                                                             Type = ConditionalFormatValue.Types.Min,
-                                                                                             RuleType = ConditionalFormatValue.RuleTypes.ThreeColorScale
-                                                                                         },
-                                                                                         new ConditionalFormatValue()
-                                                                                         {
-                                                                                             Color = System.Drawing.Color.Yellow,
-                                                                                             Value = 1000000,
-                                                                                             Type = ConditionalFormatValue.Types.Num,
-                                                                                             RuleType = ConditionalFormatValue.RuleTypes.ThreeColorScale
-                                                                                         },
-                                                                                         new ConditionalFormatValue()
-                                                                                         {
-                                                                                             Color = System.Drawing.Color.Red,
-                                                                                             Value = 1500000,
-                                                                                             Type = ConditionalFormatValue.Types.Max,
-                                                                                             RuleType = ConditionalFormatValue.RuleTypes.ThreeColorScale
-                                                                                         }), 
+                                                                                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonStorage), 
                                                                     this.DataTable.GetColumn("Storage Min-Node")
                                                                                     .SetCaption("Min-Node"),
                                                                     this.DataTable.GetColumn("Storage Avg")
                                                                                     .SetCaption("Avg")
                                                                                     .SetNumericFormat("#,###,###,##0.0000")
-                                                                                    .SetConditionalFormat(
-                                                                                         new ConditionalFormatValue()
-                                                                                         {
-                                                                                             Color = System.Drawing.Color.Green,
-                                                                                             Value = 0,
-                                                                                             Type = ConditionalFormatValue.Types.Min,
-                                                                                             RuleType = ConditionalFormatValue.RuleTypes.ThreeColorScale
-                                                                                         },
-                                                                                         new ConditionalFormatValue()
-                                                                                         {
-                                                                                             Color = System.Drawing.Color.Yellow,
-                                                                                             Value = 1000000,
-                                                                                             Type = ConditionalFormatValue.Types.Num,
-                                                                                             RuleType = ConditionalFormatValue.RuleTypes.ThreeColorScale
-                                                                                         },
-                                                                                         new ConditionalFormatValue()
-                                                                                         {
-                                                                                             Color = System.Drawing.Color.Red,
-                                                                                             Value = 1500000,
-                                                                                             Type = ConditionalFormatValue.Types.Max,
-                                                                                             RuleType = ConditionalFormatValue.RuleTypes.ThreeColorScale
-                                                                                         }),
+                                                                                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonStorage),
                                                                     this.DataTable.GetColumn("Storage Total")
                                                                                     .SetCaption("Total")
                                                                                     .SetNumericFormat("#,###,###,##0.0000")
                                                                                     .TotalColumn()
-                                                                                    .SetConditionalFormat(
-                                                                                         new ConditionalFormatValue()
-                                                                                         {
-                                                                                             Color = System.Drawing.Color.LightGreen,
-                                                                                             RuleType = ConditionalFormatValue.RuleTypes.DataBar,
-                                                                                             IncludeTotalRow = true,
-                                                                                             Type = ConditionalFormatValue.Types.Automatic
-                                                                                         }),
+                                                                                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDataBarLightGreen),
                                                                     this.DataTable.GetColumn("Storage Total (User)")
                                                                                     .SetCaption("Total (User)")
                                                                                     .SetNumericFormat("#,###,###,##0.0000")
                                                                                     .TotalColumn()
-                                                                                    .SetConditionalFormat(
-                                                                                         new ConditionalFormatValue()
-                                                                                         {
-                                                                                             Color = System.Drawing.Color.LightBlue,
-                                                                                             RuleType = ConditionalFormatValue.RuleTypes.DataBar,
-                                                                                             IncludeTotalRow = true,
-                                                                                             Type = ConditionalFormatValue.Types.Automatic
-                                                                                         }),
+                                                                                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDataBarLightBlue),
                                                                     this.DataTable.GetColumn("Storage Percent")
                                                                                     .SetCaption("Percent-Cluster")
                                                                                     .SetNumericFormat("##0.00%")
-                                                                                    .SetConditionalFormat(
-                                                                                         new ConditionalFormatValue()
-                                                                                         {
-                                                                                             Color = System.Drawing.Color.GreenYellow,
-                                                                                             RuleType = ConditionalFormatValue.RuleTypes.DataBar,
-                                                                                             Type = ConditionalFormatValue.Types.Automatic
-                                                                                         })
+                                                                                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDataBarGreenYellow)
                                                                                 );
 
                                                                 //SSTables
@@ -378,82 +189,19 @@ namespace DSEDiagtnosticToExcel
                                                                    this.DataTable.GetColumn("SSTables Max")
                                                                                     .SetCaption("Max")
                                                                                     .SetNumericFormat("#,###,###,##0")
-                                                                                    .SetConditionalFormat(
-                                                                                         new ConditionalFormatValue()
-                                                                                         {
-                                                                                             Color = System.Drawing.Color.Green,
-                                                                                             Value = 0,
-                                                                                             Type = ConditionalFormatValue.Types.Min,
-                                                                                             RuleType = ConditionalFormatValue.RuleTypes.ThreeColorScale
-                                                                                         },
-                                                                                         new ConditionalFormatValue()
-                                                                                         {
-                                                                                             Color = System.Drawing.Color.Yellow,
-                                                                                             Value = 125,
-                                                                                             Type = ConditionalFormatValue.Types.Num,
-                                                                                             RuleType = ConditionalFormatValue.RuleTypes.ThreeColorScale
-                                                                                         },
-                                                                                         new ConditionalFormatValue()
-                                                                                         {
-                                                                                             Color = System.Drawing.Color.Red,
-                                                                                             Value = 350,
-                                                                                             Type = ConditionalFormatValue.Types.Max,
-                                                                                             RuleType = ConditionalFormatValue.RuleTypes.ThreeColorScale
-                                                                                         }),
+                                                                                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonSSTables),
                                                                    this.DataTable.GetColumn("SSTables Max-Node")
                                                                                     .SetCaption("Max-Node"),
                                                                    this.DataTable.GetColumn("SSTables Min")
                                                                                     .SetCaption("Min")
                                                                                     .SetNumericFormat("#,###,###,##0")
-                                                                                    .SetConditionalFormat(
-                                                                                         new ConditionalFormatValue()
-                                                                                         {
-                                                                                             Color = System.Drawing.Color.Green,
-                                                                                             Value = 0,
-                                                                                             Type = ConditionalFormatValue.Types.Min,
-                                                                                             RuleType = ConditionalFormatValue.RuleTypes.ThreeColorScale
-                                                                                         },
-                                                                                         new ConditionalFormatValue()
-                                                                                         {
-                                                                                             Color = System.Drawing.Color.Yellow,
-                                                                                             Value = 125,
-                                                                                             Type = ConditionalFormatValue.Types.Num,
-                                                                                             RuleType = ConditionalFormatValue.RuleTypes.ThreeColorScale
-                                                                                         },
-                                                                                         new ConditionalFormatValue()
-                                                                                         {
-                                                                                             Color = System.Drawing.Color.Red,
-                                                                                             Value = 350,
-                                                                                             Type = ConditionalFormatValue.Types.Max,
-                                                                                             RuleType = ConditionalFormatValue.RuleTypes.ThreeColorScale
-                                                                                         }),
+                                                                                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonSSTables),
                                                                    this.DataTable.GetColumn("SSTables Min-Node")
                                                                                     .SetCaption("Min-Node"),
                                                                    this.DataTable.GetColumn("SSTables Avg")
                                                                                     .SetCaption("Avg")
                                                                                     .SetNumericFormat("#,###,###,##0.00")
-                                                                                    .SetConditionalFormat(
-                                                                                         new ConditionalFormatValue()
-                                                                                         {
-                                                                                             Color = System.Drawing.Color.Green,
-                                                                                             Value = 0,
-                                                                                             Type = ConditionalFormatValue.Types.Min,
-                                                                                             RuleType = ConditionalFormatValue.RuleTypes.ThreeColorScale
-                                                                                         },
-                                                                                         new ConditionalFormatValue()
-                                                                                         {
-                                                                                             Color = System.Drawing.Color.Yellow,
-                                                                                             Value = 125,
-                                                                                             Type = ConditionalFormatValue.Types.Num,
-                                                                                             RuleType = ConditionalFormatValue.RuleTypes.ThreeColorScale
-                                                                                         },
-                                                                                         new ConditionalFormatValue()
-                                                                                         {
-                                                                                             Color = System.Drawing.Color.Red,
-                                                                                             Value = 350,
-                                                                                             Type = ConditionalFormatValue.Types.Max,
-                                                                                             RuleType = ConditionalFormatValue.RuleTypes.ThreeColorScale
-                                                                                         }),
+                                                                                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonSSTables),
                                                                    this.DataTable.GetColumn("SSTables StdDev")
                                                                                     .SetCaption("StdDev")
                                                                                     .SetNumericFormat("#,###,###,##0.00"),
@@ -461,36 +209,16 @@ namespace DSEDiagtnosticToExcel
                                                                                     .SetCaption("Total")
                                                                                     .SetNumericFormat("#,###,###,##0")
                                                                                     .TotalColumn()
-                                                                                    .SetConditionalFormat(
-                                                                                         new ConditionalFormatValue()
-                                                                                         {
-                                                                                             Color = System.Drawing.Color.LightGreen,
-                                                                                             RuleType = ConditionalFormatValue.RuleTypes.DataBar,
-                                                                                             IncludeTotalRow = true,
-                                                                                             Type = ConditionalFormatValue.Types.Automatic
-                                                                                         }),
+                                                                                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDataBarLightGreen),
                                                                    this.DataTable.GetColumn("SSTables Total (User)")
                                                                                     .SetCaption("Total (User)")
                                                                                     .SetNumericFormat("#,###,###,##0")
                                                                                     .TotalColumn()
-                                                                                    .SetConditionalFormat(
-                                                                                         new ConditionalFormatValue()
-                                                                                         {
-                                                                                             Color = System.Drawing.Color.LightBlue,
-                                                                                             RuleType = ConditionalFormatValue.RuleTypes.DataBar,
-                                                                                             IncludeTotalRow = true,
-                                                                                             Type = ConditionalFormatValue.Types.Automatic
-                                                                                         }),
+                                                                                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDataBarLightBlue),
                                                                    this.DataTable.GetColumn("SSTables Percent")
                                                                                     .SetCaption("Percent-Cluster")
                                                                                     .SetNumericFormat("##0.00%")
-                                                                                    .SetConditionalFormat(
-                                                                                         new ConditionalFormatValue()
-                                                                                         {
-                                                                                             Color = System.Drawing.Color.GreenYellow,
-                                                                                             RuleType = ConditionalFormatValue.RuleTypes.DataBar,
-                                                                                             Type = ConditionalFormatValue.Types.Automatic
-                                                                                         })
+                                                                                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDataBarGreenYellow)
                                                                                     );
                                                                 //Distribution
                                                                 this.DataTable.SetGroupHeader("Distribution", -2, true,
@@ -551,36 +279,16 @@ namespace DSEDiagtnosticToExcel
                                                                                         .SetCaption("Total")
                                                                                         .SetNumericFormat("#,###,###,##0")
                                                                                         .TotalColumn()
-                                                                                        .SetConditionalFormat(
-                                                                                         new ConditionalFormatValue()
-                                                                                         {
-                                                                                             Color = System.Drawing.Color.LightGreen,
-                                                                                             RuleType = ConditionalFormatValue.RuleTypes.DataBar,
-                                                                                             IncludeTotalRow = true,
-                                                                                             Type = ConditionalFormatValue.Types.Automatic
-                                                                                         }),
+                                                                                        .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDataBarLightGreen),
                                                                        this.DataTable.GetColumn("Reads Total (User)")
                                                                                         .SetCaption("Total (User)")
                                                                                         .SetNumericFormat("#,###,###,##0")
                                                                                         .TotalColumn()
-                                                                                        .SetConditionalFormat(
-                                                                                         new ConditionalFormatValue()
-                                                                                         {
-                                                                                             Color = System.Drawing.Color.LightBlue,
-                                                                                             RuleType = ConditionalFormatValue.RuleTypes.DataBar,
-                                                                                             IncludeTotalRow = true,
-                                                                                             Type = ConditionalFormatValue.Types.Automatic
-                                                                                         }),
+                                                                                        .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDataBarLightBlue),
                                                                        this.DataTable.GetColumn("Reads Percent")
                                                                                         .SetCaption("Percent-Cluster")
                                                                                         .SetNumericFormat("##0.00%")
-                                                                                         .SetConditionalFormat(
-                                                                                         new ConditionalFormatValue()
-                                                                                         {
-                                                                                             Color = System.Drawing.Color.GreenYellow,
-                                                                                             RuleType = ConditionalFormatValue.RuleTypes.DataBar,
-                                                                                             Type = ConditionalFormatValue.Types.Automatic
-                                                                                         })                                                                                    
+                                                                                         .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDataBarGreenYellow)                                                                                    
                                                                                         ),
                                                                     this.DataTable.SetGroupHeader("Write", -1, true,
                                                                        this.DataTable.GetColumn("Writes Max")
@@ -603,36 +311,16 @@ namespace DSEDiagtnosticToExcel
                                                                                         .SetCaption("Total")
                                                                                         .SetNumericFormat("#,###,###,##0")
                                                                                         .TotalColumn()
-                                                                                        .SetConditionalFormat(
-                                                                                         new ConditionalFormatValue()
-                                                                                         {
-                                                                                             Color = System.Drawing.Color.LightGreen,
-                                                                                             RuleType = ConditionalFormatValue.RuleTypes.DataBar,
-                                                                                             IncludeTotalRow = true,
-                                                                                             Type = ConditionalFormatValue.Types.Automatic
-                                                                                         }),
+                                                                                        .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDataBarLightGreen),
                                                                        this.DataTable.GetColumn("Writes Total (User)")
                                                                                         .SetCaption("Total (User)")
                                                                                         .SetNumericFormat("#,###,###,##0")
                                                                                         .TotalColumn()
-                                                                                        .SetConditionalFormat(
-                                                                                         new ConditionalFormatValue()
-                                                                                         {
-                                                                                             Color = System.Drawing.Color.LightBlue,
-                                                                                             RuleType = ConditionalFormatValue.RuleTypes.DataBar,
-                                                                                             IncludeTotalRow = true,
-                                                                                             Type = ConditionalFormatValue.Types.Automatic
-                                                                                         }),
+                                                                                        .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDataBarLightBlue),
                                                                        this.DataTable.GetColumn("Writes Percent")
                                                                                         .SetCaption("Percent-Cluster")
                                                                                         .SetNumericFormat("##0.00%")
-                                                                                        .SetConditionalFormat(
-                                                                                         new ConditionalFormatValue()
-                                                                                         {
-                                                                                             Color = System.Drawing.Color.GreenYellow,
-                                                                                             RuleType = ConditionalFormatValue.RuleTypes.DataBar,
-                                                                                             Type = ConditionalFormatValue.Types.Automatic
-                                                                                         })
+                                                                                        .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDataBarGreenYellow)
                                                                  ));
 
                                                                 this.DataTable.SetGroupHeader(" ", -1, true,

@@ -647,18 +647,11 @@ namespace DataTableToExcel
 
         public bool IncludeTotalRow { get; set; }
 
+        public bool Enabled { get; set; } = true;
+
         public override string ToString()
         {
-            var ser = new DataContractJsonSerializer(typeof(ConditionalFormatValue));
-            var output = string.Empty;
-
-            using (var ms = new System.IO.MemoryStream())
-            {
-                ser.WriteObject(ms, this);
-                output = Encoding.Unicode.GetString(ms.ToArray());
-            }
-
-            return output;
+            return Newtonsoft.Json.JsonConvert.SerializeObject(this);
         }
     }
 
@@ -814,6 +807,8 @@ namespace DataTableToExcel
         {
             if (condFormatValues.Length == 1)
             {
+                if (!condFormatValues[0].Enabled) return;
+
                 if (condFormatValues[0].RuleType == ConditionalFormatValue.RuleTypes.DataBar)
                 {
                     if(condFormatValues[0].Type == ConditionalFormatValue.Types.Automatic)
@@ -832,200 +827,216 @@ namespace DataTableToExcel
             }
             else if (condFormatValues.Length == 2)
             {
-                if (condFormatValues[0].RuleType == ConditionalFormatValue.RuleTypes.DataBar
+                if (condFormatValues[0].Enabled && condFormatValues[1].Enabled)
+                {
+                    if (condFormatValues[0].RuleType == ConditionalFormatValue.RuleTypes.DataBar
                         && condFormatValues[1].RuleType == ConditionalFormatValue.RuleTypes.DataBar
                         && condFormatValues[0].Color == condFormatValues[1].Color)
-                {
-                    var condFmt = workSheet.ConditionalFormatting.AddDatabar(formatRange, condFormatValues[0].Color);
-
-                    condFmt.ShowValue = condFormatValues[0].ShowValue || condFormatValues[1].ShowValue;
-                    condFmt.StopIfTrue = condFormatValues[0].StopIfTrue || condFormatValues[1].StopIfTrue;
-                    condFmt.Priority = Math.Min(condFormatValues[0].Priority, condFormatValues[1].Priority);
-
-                    if (condFormatValues[0].Type == ConditionalFormatValue.Types.Max)
                     {
-                        if(condFormatValues[0].SubType == ConditionalFormatValue.Types.NoValue)
-                        {
-                            condFmt.HighValue.Type = eExcelConditionalFormattingValueObjectType.Max;
-                        }
-                        else
-                        {
-                            condFmt.HighValue.Type = (eExcelConditionalFormattingValueObjectType)condFormatValues[0].SubType;
-                            condFmt.HighValue.Formula = condFormatValues[0].FormulaText;
-                            condFmt.HighValue.Value = condFormatValues[0].Value;
-                        }                        
-                        condFmt.HighValue.GreaterThanOrEqualTo = condFormatValues[0].SubRuleType == ConditionalFormatValue.RuleTypes.GreaterThanOrEqual;
+                        var condFmt = workSheet.ConditionalFormatting.AddDatabar(formatRange, condFormatValues[0].Color);
 
-                        if (condFormatValues[1].SubType == ConditionalFormatValue.Types.NoValue)
-                        {
-                            condFmt.LowValue.Type = eExcelConditionalFormattingValueObjectType.Min;
-                        }
-                        else
-                        {
-                            condFmt.LowValue.Type = (eExcelConditionalFormattingValueObjectType)condFormatValues[1].SubType;
-                            condFmt.LowValue.Formula = condFormatValues[1].FormulaText;
-                            condFmt.LowValue.Value = condFormatValues[1].Value;
-                        }
-                        
-                        condFmt.LowValue.GreaterThanOrEqualTo = condFormatValues[1].SubRuleType == ConditionalFormatValue.RuleTypes.GreaterThanOrEqual;
-                    }
-                    else if (condFormatValues[1].Type == ConditionalFormatValue.Types.Max)
-                    {
-                        if (condFormatValues[1].SubType == ConditionalFormatValue.Types.NoValue)
-                        {
-                            condFmt.HighValue.Type = eExcelConditionalFormattingValueObjectType.Max;
-                        }
-                        else
-                        {
-                            condFmt.HighValue.Type = (eExcelConditionalFormattingValueObjectType)condFormatValues[1].SubType;
-                            condFmt.HighValue.Formula = condFormatValues[1].FormulaText;
-                            condFmt.HighValue.Value = condFormatValues[1].Value;
-                        }                       
-                        condFmt.HighValue.GreaterThanOrEqualTo = condFormatValues[1].SubRuleType == ConditionalFormatValue.RuleTypes.GreaterThanOrEqual;
+                        condFmt.ShowValue = condFormatValues[0].ShowValue || condFormatValues[1].ShowValue;
+                        condFmt.StopIfTrue = condFormatValues[0].StopIfTrue || condFormatValues[1].StopIfTrue;
+                        condFmt.Priority = Math.Min(condFormatValues[0].Priority, condFormatValues[1].Priority);
 
-                        if (condFormatValues[0].SubType == ConditionalFormatValue.Types.NoValue)
+                        if (condFormatValues[0].Type == ConditionalFormatValue.Types.Max)
                         {
-                            condFmt.LowValue.Type = eExcelConditionalFormattingValueObjectType.Min;
-                        }
-                        else
-                        {
-                            condFmt.LowValue.Type = (eExcelConditionalFormattingValueObjectType)condFormatValues[0].SubType;
-                            condFmt.LowValue.Formula = condFormatValues[0].FormulaText;
-                            condFmt.LowValue.Value = condFormatValues[0].Value;
-                        }
-                        
-                        condFmt.LowValue.GreaterThanOrEqualTo = condFormatValues[0].SubRuleType == ConditionalFormatValue.RuleTypes.GreaterThanOrEqual;
-                    }
-                    else
-                    {
-                        throw new ArgumentException("Invalid DataBar Parameters");
-                    }
-                    return;
-                }
-                else if (condFormatValues[0].RuleType == ConditionalFormatValue.RuleTypes.TwoColorScale
-                            && condFormatValues[1].RuleType == ConditionalFormatValue.RuleTypes.TwoColorScale)
-                {
-                    var condFmt = workSheet.ConditionalFormatting.AddTwoColorScale(formatRange);
-
-                    condFmt.StopIfTrue = condFormatValues[0].StopIfTrue || condFormatValues[1].StopIfTrue;
-                    condFmt.Priority = Math.Min(condFormatValues[0].Priority, condFormatValues[1].Priority);
-
-                    if (condFormatValues[0].Type == ConditionalFormatValue.Types.Max)
-                    {
-                        if (condFormatValues[0].SubType == ConditionalFormatValue.Types.NoValue)
-                        {
-                            condFmt.HighValue.Type = eExcelConditionalFormattingValueObjectType.Max;
-                        }
-                        else
-                        {
-                            condFmt.HighValue.Type = (eExcelConditionalFormattingValueObjectType)condFormatValues[0].SubType;
-                            condFmt.HighValue.Formula = condFormatValues[0].FormulaText;
-                            condFmt.HighValue.Value = condFormatValues[0].Value;
-                        }                        
-                        condFmt.HighValue.Color = condFormatValues[0].Color;
-
-                        if (condFormatValues[1].SubType == ConditionalFormatValue.Types.NoValue)
-                        {
-                            condFmt.LowValue.Type = eExcelConditionalFormattingValueObjectType.Min;
-                        }
-                        else
-                        {
-                            condFmt.LowValue.Type = (eExcelConditionalFormattingValueObjectType)condFormatValues[1].SubType;
-                            condFmt.LowValue.Formula = condFormatValues[1].FormulaText;
-                            condFmt.LowValue.Value = condFormatValues[1].Value;
-                        }
-                        condFmt.LowValue.Color = condFormatValues[1].Color;
-                    }
-                    else if (condFormatValues[1].Type == ConditionalFormatValue.Types.Max)
-                    {
-                        if (condFormatValues[1].SubType == ConditionalFormatValue.Types.NoValue)
-                        {
-                            condFmt.HighValue.Type = eExcelConditionalFormattingValueObjectType.Max;
-                        }
-                        else
-                        {
-                            condFmt.HighValue.Type = (eExcelConditionalFormattingValueObjectType)condFormatValues[1].SubType;
-                            condFmt.HighValue.Formula = condFormatValues[1].FormulaText;
-                            condFmt.HighValue.Value = condFormatValues[1].Value;
-                        }
-                        condFmt.HighValue.Color = condFormatValues[1].Color;
-
-                        if (condFormatValues[0].SubType == ConditionalFormatValue.Types.NoValue)
-                        {
-                            condFmt.LowValue.Type = eExcelConditionalFormattingValueObjectType.Min;
-                        }
-                        else
-                        {
-                            condFmt.LowValue.Type = (eExcelConditionalFormattingValueObjectType)condFormatValues[0].SubType;
-                            condFmt.LowValue.Formula = condFormatValues[0].FormulaText;
-                            condFmt.LowValue.Value = condFormatValues[0].Value;
-                        }
-                        condFmt.LowValue.Color = condFormatValues[0].Color;
-                    }
-                    else
-                    {
-                        throw new ArgumentException("Invalid TwoColorScale Parameters");
-                    }
-                    return;
-                }
-            }
-            else if (condFormatValues.Length == 3)
-            {
-                if (condFormatValues[0].RuleType == ConditionalFormatValue.RuleTypes.ThreeColorScale
-                            && condFormatValues[1].RuleType == ConditionalFormatValue.RuleTypes.ThreeColorScale
-                            && condFormatValues[2].RuleType == ConditionalFormatValue.RuleTypes.ThreeColorScale)
-                {
-                    var condFmt = workSheet.ConditionalFormatting.AddThreeColorScale(formatRange);
-
-                    condFmt.StopIfTrue = condFormatValues[0].StopIfTrue || condFormatValues[1].StopIfTrue || condFormatValues[2].StopIfTrue;
-                    condFmt.Priority = Math.Min(condFormatValues[0].Priority, Math.Min(condFormatValues[1].Priority, condFormatValues[2].Priority));
-
-                    foreach (var condFmtValue in condFormatValues)
-                    {
-                        if (condFmtValue.Type == ConditionalFormatValue.Types.Max)
-                        {
-                            if (condFmtValue.SubType == ConditionalFormatValue.Types.NoValue)
+                            if (condFormatValues[0].SubType == ConditionalFormatValue.Types.NoValue)
                             {
                                 condFmt.HighValue.Type = eExcelConditionalFormattingValueObjectType.Max;
                             }
                             else
                             {
-                                condFmt.HighValue.Type = (eExcelConditionalFormattingValueObjectType)condFmtValue.SubType;
-                                condFmt.HighValue.Formula = condFmtValue.FormulaText;
-                                condFmt.HighValue.Value = condFmtValue.Value;
+                                condFmt.HighValue.Type = (eExcelConditionalFormattingValueObjectType)condFormatValues[0].SubType;
+                                condFmt.HighValue.Formula = condFormatValues[0].FormulaText;
+                                condFmt.HighValue.Value = condFormatValues[0].Value;
                             }
-                            condFmt.HighValue.Color = condFmtValue.Color;                             
-                        }
-                        else if (condFmtValue.Type == ConditionalFormatValue.Types.Min)
-                        {
-                            if (condFmtValue.SubType == ConditionalFormatValue.Types.NoValue)
+                            condFmt.HighValue.GreaterThanOrEqualTo = condFormatValues[0].SubRuleType == ConditionalFormatValue.RuleTypes.GreaterThanOrEqual;
+
+                            if (condFormatValues[1].SubType == ConditionalFormatValue.Types.NoValue)
                             {
                                 condFmt.LowValue.Type = eExcelConditionalFormattingValueObjectType.Min;
                             }
                             else
                             {
-                                condFmt.LowValue.Type = (eExcelConditionalFormattingValueObjectType)condFmtValue.SubType;
-                                condFmt.LowValue.Formula = condFmtValue.FormulaText;
-                                condFmt.LowValue.Value = condFmtValue.Value;
-                            }                            
-                            condFmt.LowValue.Color = condFmtValue.Color;
+                                condFmt.LowValue.Type = (eExcelConditionalFormattingValueObjectType)condFormatValues[1].SubType;
+                                condFmt.LowValue.Formula = condFormatValues[1].FormulaText;
+                                condFmt.LowValue.Value = condFormatValues[1].Value;
+                            }
+
+                            condFmt.LowValue.GreaterThanOrEqualTo = condFormatValues[1].SubRuleType == ConditionalFormatValue.RuleTypes.GreaterThanOrEqual;
+                        }
+                        else if (condFormatValues[1].Type == ConditionalFormatValue.Types.Max)
+                        {
+                            if (condFormatValues[1].SubType == ConditionalFormatValue.Types.NoValue)
+                            {
+                                condFmt.HighValue.Type = eExcelConditionalFormattingValueObjectType.Max;
+                            }
+                            else
+                            {
+                                condFmt.HighValue.Type = (eExcelConditionalFormattingValueObjectType)condFormatValues[1].SubType;
+                                condFmt.HighValue.Formula = condFormatValues[1].FormulaText;
+                                condFmt.HighValue.Value = condFormatValues[1].Value;
+                            }
+                            condFmt.HighValue.GreaterThanOrEqualTo = condFormatValues[1].SubRuleType == ConditionalFormatValue.RuleTypes.GreaterThanOrEqual;
+
+                            if (condFormatValues[0].SubType == ConditionalFormatValue.Types.NoValue)
+                            {
+                                condFmt.LowValue.Type = eExcelConditionalFormattingValueObjectType.Min;
+                            }
+                            else
+                            {
+                                condFmt.LowValue.Type = (eExcelConditionalFormattingValueObjectType)condFormatValues[0].SubType;
+                                condFmt.LowValue.Formula = condFormatValues[0].FormulaText;
+                                condFmt.LowValue.Value = condFormatValues[0].Value;
+                            }
+
+                            condFmt.LowValue.GreaterThanOrEqualTo = condFormatValues[0].SubRuleType == ConditionalFormatValue.RuleTypes.GreaterThanOrEqual;
                         }
                         else
                         {
-                            condFmt.MiddleValue.Type = (eExcelConditionalFormattingValueObjectType)condFmtValue.SubType;
-                            condFmt.MiddleValue.Formula = condFmtValue.FormulaText;
-                            condFmt.MiddleValue.Value = condFmtValue.Value;
-                            condFmt.MiddleValue.Color = condFmtValue.Color;                          
+                            throw new ArgumentException("Invalid DataBar Parameters");
                         }
+                        return;
                     }
+                    else if (condFormatValues[0].RuleType == ConditionalFormatValue.RuleTypes.TwoColorScale
+                                && condFormatValues[1].RuleType == ConditionalFormatValue.RuleTypes.TwoColorScale)
+                    {
+                        var condFmt = workSheet.ConditionalFormatting.AddTwoColorScale(formatRange);
 
-                    
+                        condFmt.StopIfTrue = condFormatValues[0].StopIfTrue || condFormatValues[1].StopIfTrue;
+                        condFmt.Priority = Math.Min(condFormatValues[0].Priority, condFormatValues[1].Priority);
+
+                        if (condFormatValues[0].Type == ConditionalFormatValue.Types.Max)
+                        {
+                            if (condFormatValues[0].SubType == ConditionalFormatValue.Types.NoValue)
+                            {
+                                condFmt.HighValue.Type = eExcelConditionalFormattingValueObjectType.Max;
+                            }
+                            else
+                            {
+                                condFmt.HighValue.Type = (eExcelConditionalFormattingValueObjectType)condFormatValues[0].SubType;
+                                condFmt.HighValue.Formula = condFormatValues[0].FormulaText;
+                                condFmt.HighValue.Value = condFormatValues[0].Value;
+                            }
+                            condFmt.HighValue.Color = condFormatValues[0].Color;
+
+                            if (condFormatValues[1].SubType == ConditionalFormatValue.Types.NoValue)
+                            {
+                                condFmt.LowValue.Type = eExcelConditionalFormattingValueObjectType.Min;
+                            }
+                            else
+                            {
+                                condFmt.LowValue.Type = (eExcelConditionalFormattingValueObjectType)condFormatValues[1].SubType;
+                                condFmt.LowValue.Formula = condFormatValues[1].FormulaText;
+                                condFmt.LowValue.Value = condFormatValues[1].Value;
+                            }
+                            condFmt.LowValue.Color = condFormatValues[1].Color;
+                        }
+                        else if (condFormatValues[1].Type == ConditionalFormatValue.Types.Max)
+                        {
+                            if (condFormatValues[1].SubType == ConditionalFormatValue.Types.NoValue)
+                            {
+                                condFmt.HighValue.Type = eExcelConditionalFormattingValueObjectType.Max;
+                            }
+                            else
+                            {
+                                condFmt.HighValue.Type = (eExcelConditionalFormattingValueObjectType)condFormatValues[1].SubType;
+                                condFmt.HighValue.Formula = condFormatValues[1].FormulaText;
+                                condFmt.HighValue.Value = condFormatValues[1].Value;
+                            }
+                            condFmt.HighValue.Color = condFormatValues[1].Color;
+
+                            if (condFormatValues[0].SubType == ConditionalFormatValue.Types.NoValue)
+                            {
+                                condFmt.LowValue.Type = eExcelConditionalFormattingValueObjectType.Min;
+                            }
+                            else
+                            {
+                                condFmt.LowValue.Type = (eExcelConditionalFormattingValueObjectType)condFormatValues[0].SubType;
+                                condFmt.LowValue.Formula = condFormatValues[0].FormulaText;
+                                condFmt.LowValue.Value = condFormatValues[0].Value;
+                            }
+                            condFmt.LowValue.Color = condFormatValues[0].Color;
+                        }
+                        else
+                        {
+                            throw new ArgumentException("Invalid TwoColorScale Parameters");
+                        }
+                        return;
+                    }
+                }
+                else
+                {
+                    return;
+                }
+            }
+            else if (condFormatValues.Length == 3)
+            {
+                if (condFormatValues[0].Enabled && condFormatValues[1].Enabled && condFormatValues[2].Enabled)
+                {
+                    if (condFormatValues[0].RuleType == ConditionalFormatValue.RuleTypes.ThreeColorScale
+                            && condFormatValues[1].RuleType == ConditionalFormatValue.RuleTypes.ThreeColorScale
+                            && condFormatValues[2].RuleType == ConditionalFormatValue.RuleTypes.ThreeColorScale)
+                    {
+                        var condFmt = workSheet.ConditionalFormatting.AddThreeColorScale(formatRange);
+
+                        condFmt.StopIfTrue = condFormatValues[0].StopIfTrue || condFormatValues[1].StopIfTrue || condFormatValues[2].StopIfTrue;
+                        condFmt.Priority = Math.Min(condFormatValues[0].Priority, Math.Min(condFormatValues[1].Priority, condFormatValues[2].Priority));
+
+                        foreach (var condFmtValue in condFormatValues)
+                        {
+                            if (condFmtValue.Type == ConditionalFormatValue.Types.Max)
+                            {
+                                if (condFmtValue.SubType == ConditionalFormatValue.Types.NoValue)
+                                {
+                                    condFmt.HighValue.Type = eExcelConditionalFormattingValueObjectType.Max;
+                                }
+                                else
+                                {
+                                    condFmt.HighValue.Type = (eExcelConditionalFormattingValueObjectType)condFmtValue.SubType;
+                                    condFmt.HighValue.Formula = condFmtValue.FormulaText;
+                                    condFmt.HighValue.Value = condFmtValue.Value;
+                                }
+                                condFmt.HighValue.Color = condFmtValue.Color;
+                            }
+                            else if (condFmtValue.Type == ConditionalFormatValue.Types.Min)
+                            {
+                                if (condFmtValue.SubType == ConditionalFormatValue.Types.NoValue)
+                                {
+                                    condFmt.LowValue.Type = eExcelConditionalFormattingValueObjectType.Min;
+                                }
+                                else
+                                {
+                                    condFmt.LowValue.Type = (eExcelConditionalFormattingValueObjectType)condFmtValue.SubType;
+                                    condFmt.LowValue.Formula = condFmtValue.FormulaText;
+                                    condFmt.LowValue.Value = condFmtValue.Value;
+                                }
+                                condFmt.LowValue.Color = condFmtValue.Color;
+                            }
+                            else
+                            {
+                                condFmt.MiddleValue.Type = (eExcelConditionalFormattingValueObjectType)condFmtValue.SubType;
+                                condFmt.MiddleValue.Formula = condFmtValue.FormulaText;
+                                condFmt.MiddleValue.Value = condFmtValue.Value;
+                                condFmt.MiddleValue.Color = condFmtValue.Color;
+                            }
+                        }
+
+
+                        return;
+                    }
+                }
+                else
+                {
                     return;
                 }
             }
 
             foreach (var condFmtValue in condFormatValues)
             {
+                if(!condFmtValue.Enabled) continue;
+
                 switch (condFmtValue.RuleType)
                 {
                     case ConditionalFormatValue.RuleTypes.AboveAverage:

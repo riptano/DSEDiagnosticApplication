@@ -331,6 +331,8 @@ namespace DataTableToExcel
         /// <returns></returns>
         public static DataColumn SetConditionalFormat(this DataColumn dataColumn, params ConditionalFormatValue[] conditionalFormatValues)
         {
+            if (conditionalFormatValues == null || conditionalFormatValues.Length == 0) return dataColumn;
+
             bool alreadyExists;
 
             if (alreadyExists = dataColumn.ExtendedProperties.ContainsKey("ConditionalFormat"))
@@ -343,21 +345,45 @@ namespace DataTableToExcel
             }
 
             foreach (var conditionalFormatValue in conditionalFormatValues)
-            {
+            {                
                 if(conditionalFormatValue.Type == ConditionalFormatValue.Types.Formula
                     && !string.IsNullOrEmpty(conditionalFormatValue.FormulaText))
                 {
-                    conditionalFormatValue.FormulaText = string.Format(TranslateFormula(dataColumn.Table, conditionalFormatValue.FormulaText),
-                                                                        "{0}", "{1}",
-                                                                        ExcelTranslateColumnFromColPostoLeter(dataColumn.Ordinal));
+                    string strFormula = null;
+
+                    try
+                    {
+                        strFormula = TranslateFormula(dataColumn.Table, conditionalFormatValue.FormulaText);
+                        conditionalFormatValue.FormulaText = string.Format(strFormula,
+                                                                            "{0}", "{1}",
+                                                                            ExcelTranslateColumnFromColPostoLeter(dataColumn.Ordinal));
+                    }
+                    catch (System.Exception ex)
+                    {
+                        throw new ArgumentException(string.Format("Conditional Format Formula Error. Formula: \"{0}\" CondFmt: \"{1}\"",
+                                                                    strFormula,
+                                                                    conditionalFormatValue), ex);                       
+                    }                    
                 }
 
                 if (conditionalFormatValue.Type == ConditionalFormatValue.Types.Formula
                     && !string.IsNullOrEmpty(conditionalFormatValue.FormulaTextBetween))
                 {
-                    conditionalFormatValue.FormulaTextBetween = string.Format(TranslateFormula(dataColumn.Table, conditionalFormatValue.FormulaTextBetween),
-                                                                                "{0}", "{1}",
-                                                                                ExcelTranslateColumnFromColPostoLeter(dataColumn.Ordinal));
+                    string strFormula = null;
+
+                    try
+                    {
+                        strFormula = TranslateFormula(dataColumn.Table, conditionalFormatValue.FormulaTextBetween);
+                        conditionalFormatValue.FormulaTextBetween = string.Format(strFormula,
+                                                                                    "{0}", "{1}",
+                                                                                    ExcelTranslateColumnFromColPostoLeter(dataColumn.Ordinal));
+                    }
+                    catch (System.Exception ex)
+                    {
+                        throw new ArgumentException(string.Format("Conditional Format Between Formula Error. Formula: \"{0}\" CondFmt: \"{1}\"",
+                                                                    strFormula,
+                                                                    conditionalFormatValue), ex);
+                    }                    
                 }
             }
 
@@ -367,6 +393,15 @@ namespace DataTableToExcel
                 dataColumn.ExtendedProperties.Add("ConditionalFormat", conditionalFormatValues);
 
             return dataColumn;
+        }
+
+        public static DataColumn SetConditionalFormat(this DataColumn dataColumn, string jsonConditionalFormatValues)
+        {
+            if (string.IsNullOrEmpty(jsonConditionalFormatValues)) return dataColumn;
+                
+            var condFmtValues = Newtonsoft.Json.JsonConvert.DeserializeObject<ConditionalFormatValue[]>(jsonConditionalFormatValues);
+
+            return SetConditionalFormat(dataColumn, condFmtValues);
         }
 
         static public void UpdateWorksheet(this OfficeOpenXml.ExcelWorksheet workSheet, DataTable dataTable, int wsHeaderRow)
