@@ -48,7 +48,8 @@
     --LogIgnoreParsingErrors [Default Value "False"] If defined, all parsing errors related to logs will be ignored. Warning: If defined unexpected results may occur including abnormal termination of the application, exceptions, and/or invalid/missing log event generation.
     --Debug [Default Value "False"] Debug Mode
     --DisableParallelProcessing [Default Value "False"] Disable Parallel Processing
-    -?, --ShowDefaults, Show Arguments plus Default Values
+    -?, --ShowDefaults, Show Arguments plus Default Values (will not execution the application)
+    --ShowVersion, Shows the Application's Version Information (will not execution the application)
 
 # Examples:
 
