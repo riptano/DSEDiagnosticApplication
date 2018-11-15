@@ -404,6 +404,21 @@ namespace DataTableToExcel
             return SetConditionalFormat(dataColumn, condFmtValues);
         }
 
+        public static DataColumn SetComment(this DataColumn dataColumn, string comment)
+        {            
+            if (dataColumn.ExtendedProperties.ContainsKey("Comment"))
+            {
+                if (string.IsNullOrEmpty(comment))
+                    dataColumn.ExtendedProperties.Remove("Comment");
+                else
+                    dataColumn.ExtendedProperties["Comment"] = comment;
+            }
+            else if(!string.IsNullOrEmpty(comment))
+                dataColumn.ExtendedProperties.Add("Comment", comment);
+
+            return dataColumn;
+        }
+
         static public void UpdateWorksheet(this OfficeOpenXml.ExcelWorksheet workSheet, DataTable dataTable, int wsHeaderRow)
         {
             var lastRow = workSheet.Dimension.End.Row;
@@ -502,6 +517,12 @@ namespace DataTableToExcel
 
                             if(colWidth >= 0)
                                 workSheet.Column(dataColumn.Ordinal + 1).Width = colWidth;
+                        }
+                        else if (key == "Comment")
+                        {
+                            var hdrComment = (string)dataColumn.ExtendedProperties["Comment"];
+
+                            workSheet.Cells[wsHeaderRow, dataColumn.Ordinal + 1].AddComment(hdrComment, "RHA");
                         }
                         else if (key.StartsWith("HeaderText"))
                         {

@@ -25,7 +25,7 @@ namespace DSEDiagtnosticToExcel.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute(".xlsx")]
+        [global::System.Configuration.DefaultSettingValueAttribute(".xlsm")]
         public string ExcelFileExtension {
             get {
                 return ((string)(this["ExcelFileExtension"]));
@@ -779,6 +779,241 @@ namespace DSEDiagtnosticToExcel.Properties {
         public string CondFmtJsonAnalysisLogGap {
             get {
                 return ((string)(this["CondFmtJsonAnalysisLogGap"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute(@"[
+  {
+    ""Type"": 0,
+    ""SubType"": 3,
+    ""RuleType"": 28,
+    ""SubRuleType"": 27,
+    ""Value"": 0.0,
+    ""FormulaText"": ""AND(ISNUMBER(${Active}{0}),${Active}{0} = 0)"",
+    ""FormulaTextBetween"": null,
+    ""Color"": ""Yellow"",
+    ""ShowValue"": true,
+    ""StopIfTrue"": false,
+    ""Priority"": 1,
+    ""IncludeTotalRow"": false,
+    ""Enabled"": true
+  }
+]")]
+        public string CondFmtJsonKeySpaceNameActivite {
+            get {
+                return ((string)(this["CondFmtJsonKeySpaceNameActivite"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute(@"[
+  {
+    ""Type"": 0,
+    ""SubType"": 3,
+    ""RuleType"": 28,
+    ""SubRuleType"": 27,
+    ""Value"": 0.0,
+    ""FormulaText"": ""AND(ISNUMBER(${2}{0}),${2}{0}>0)"",
+    ""FormulaTextBetween"": null,
+    ""Color"": ""Yellow"",
+    ""ShowValue"": true,
+    ""StopIfTrue"": false,
+    ""Priority"": 1,
+    ""IncludeTotalRow"": false,
+    ""Enabled"": true
+  }
+]")]
+        public string CondFmtJsonDDLWarnUse {
+            get {
+                return ((string)(this["CondFmtJsonDDLWarnUse"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute(@"[
+  {
+    ""Type"": 2,
+    ""SubType"": 3,
+    ""RuleType"": 40,
+    ""SubRuleType"": 27,
+    ""Value"": 50.0,
+    ""FormulaText"": null,
+    ""FormulaTextBetween"": null,
+    ""Color"": ""Green"",
+    ""ShowValue"": true,
+    ""StopIfTrue"": false,
+    ""Priority"": 1,
+    ""IncludeTotalRow"": true,
+    ""Enabled"": true
+  },
+  {
+    ""Type"": 3,
+    ""SubType"": 3,
+    ""RuleType"": 40,
+    ""SubRuleType"": 27,
+    ""Value"": 200.0,
+    ""FormulaText"": null,
+    ""FormulaTextBetween"": null,
+    ""Color"": ""Yellow"",
+    ""ShowValue"": true,
+    ""StopIfTrue"": false,
+    ""Priority"": 1,
+    ""IncludeTotalRow"": true,
+    ""Enabled"": true
+  },
+  {
+    ""Type"": 1,
+    ""SubType"": 3,
+    ""RuleType"": 40,
+    ""SubRuleType"": 27,
+    ""Value"": 500.0,
+    ""FormulaText"": null,
+    ""FormulaTextBetween"": null,
+    ""Color"": ""OrangeRed"",
+    ""ShowValue"": true,
+    ""StopIfTrue"": false,
+    ""Priority"": 1,
+    ""IncludeTotalRow"": true,
+    ""Enabled"": true
+  }
+]")]
+        public string CondFmtJsonTotTbls {
+            get {
+                return ((string)(this["CondFmtJsonTotTbls"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute(@"[
+  {
+    ""Type"": 0,
+    ""SubType"": 3,
+    ""RuleType"": 28,
+    ""SubRuleType"": 27,
+    ""Value"": 0.0,
+    ""FormulaText"": ""AND(ISNUMBER(${2}{0}),ISNUMBER(${Total}{0}),${2}{0} < ${Total}{0})"",
+    ""FormulaTextBetween"": null,
+    ""Color"": ""Yellow"",
+    ""ShowValue"": true,
+    ""StopIfTrue"": false,
+    ""Priority"": 1,
+    ""IncludeTotalRow"": false,
+    ""Enabled"": true
+  }
+]")]
+        public string CondFmtJsonActiveTbls {
+            get {
+                return ((string)(this["CondFmtJsonActiveTbls"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute(@"[
+  {
+    ""Type"": 2,
+    ""SubType"": 3,
+    ""RuleType"": 40,
+    ""SubRuleType"": 27,
+    ""Value"": 0.0,
+    ""FormulaText"": null,
+    ""FormulaTextBetween"": null,
+    ""Color"": ""Green"",
+    ""ShowValue"": true,
+    ""StopIfTrue"": false,
+    ""Priority"": 1,
+    ""IncludeTotalRow"": true,
+    ""Enabled"": true
+  },
+  {
+    ""Type"": 3,
+    ""SubType"": 3,
+    ""RuleType"": 40,
+    ""SubRuleType"": 27,
+    ""Value"": 750.0,
+    ""FormulaText"": null,
+    ""FormulaTextBetween"": null,
+    ""Color"": ""Yellow"",
+    ""ShowValue"": true,
+    ""StopIfTrue"": false,
+    ""Priority"": 1,
+    ""IncludeTotalRow"": true,
+    ""Enabled"": true
+  },
+  {
+    ""Type"": 1,
+    ""SubType"": 3,
+    ""RuleType"": 40,
+    ""SubRuleType"": 27,
+    ""Value"": 1000.0,
+    ""FormulaText"": null,
+    ""FormulaTextBetween"": null,
+    ""Color"": ""OrangeRed"",
+    ""ShowValue"": true,
+    ""StopIfTrue"": false,
+    ""Priority"": 1,
+    ""IncludeTotalRow"": true,
+    ""Enabled"": true
+  }
+]")]
+        public string CondFmtJsonTotCols {
+            get {
+                return ((string)(this["CondFmtJsonTotCols"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute(@"[
+  {
+    ""Type"": 0,
+    ""SubType"": 3,
+    ""RuleType"": 27,
+    ""SubRuleType"": 27,
+    ""Value"": 0.0,
+    ""FormulaText"": ""FALSE"",
+    ""FormulaTextBetween"": null,
+    ""Color"": ""LightPink"",
+    ""ShowValue"": true,
+    ""StopIfTrue"": false,
+    ""Priority"": 1,
+    ""IncludeTotalRow"": false,
+    ""Enabled"": true
+  }
+]")]
+        public string CondFmtJsonFalseRed {
+            get {
+                return ((string)(this["CondFmtJsonFalseRed"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute(@"[
+  {
+    ""Type"": 0,
+    ""SubType"": 3,
+    ""RuleType"": 27,
+    ""SubRuleType"": 27,
+    ""Value"": 0.0,
+    ""FormulaText"": ""TRUE"",
+    ""FormulaTextBetween"": null,
+    ""Color"": ""LightYellow"",
+    ""ShowValue"": true,
+    ""StopIfTrue"": false,
+    ""Priority"": 1,
+    ""IncludeTotalRow"": false,
+    ""Enabled"": true
+  }
+]")]
+        public string CondFmtJsonTrueYellow {
+            get {
+                return ((string)(this["CondFmtJsonTrueYellow"]));
             }
         }
     }

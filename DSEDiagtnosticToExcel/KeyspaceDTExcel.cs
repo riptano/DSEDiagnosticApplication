@@ -77,14 +77,7 @@ namespace DSEDiagtnosticToExcel
                                                                  //workBook.Cells["1:1"].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
 
                                                                  this.DataTable.GetColumn("Name")
-                                                                    .SetConditionalFormat(new ConditionalFormatValue()
-                                                                         {
-                                                                             Color = System.Drawing.Color.Yellow,
-                                                                             FormulaText = @"AND(ISNUMBER(${Active}{0}),${Active}{0} = 0)",
-                                                                             Type = ConditionalFormatValue.Types.Formula,
-                                                                             RuleType = ConditionalFormatValue.RuleTypes.Expression,
-
-                                                                         });
+                                                                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonKeySpaceNameActivite);
                                                                  this.DataTable.SetGroupHeader("Replication", -1, true,
                                                                      this.DataTable.GetColumn(DSEDiagnosticToDataTable.ColumnNames.DataCenter),
                                                                      this.DataTable.GetColumn("Replication Strategy"),
@@ -96,114 +89,30 @@ namespace DSEDiagtnosticToExcel
                                                                      this.DataTable.GetColumn("Secondary Indexes").SetNumericFormat("#,###").TotalColumn(),
                                                                      this.DataTable.GetColumn("solr Indexes").SetNumericFormat("#,###").TotalColumn(),
                                                                      this.DataTable.GetColumn("SAS Indexes").SetNumericFormat("#,###").TotalColumn()
-                                                                         .SetConditionalFormat(new ConditionalFormatValue()
-                                                                             {
-                                                                                 Color = System.Drawing.Color.Yellow,
-                                                                                 FormulaText = @"AND(ISNUMBER(${2}{0}),${2}{0}>0)",
-                                                                                 Type = ConditionalFormatValue.Types.Formula,
-                                                                                 RuleType = ConditionalFormatValue.RuleTypes.Expression,
-
-                                                                             }),
+                                                                         .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDDLWarnUse),
                                                                      this.DataTable.GetColumn("Custom Indexes").SetNumericFormat("#,###").TotalColumn()
-                                                                         .SetConditionalFormat(new ConditionalFormatValue()
-                                                                         {
-                                                                             Color = System.Drawing.Color.Yellow,
-                                                                             FormulaText = @"AND(ISNUMBER(${2}{0}),${2}{0}>0)",
-                                                                             Type = ConditionalFormatValue.Types.Formula,
-                                                                             RuleType = ConditionalFormatValue.RuleTypes.Expression,
-
-                                                                         }),
+                                                                         .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDDLWarnUse),
                                                                      this.DataTable.GetColumn("Functions").SetNumericFormat("#,###").TotalColumn()
-                                                                         .SetConditionalFormat(new ConditionalFormatValue()
-                                                                         {
-                                                                             Color = System.Drawing.Color.Yellow,
-                                                                             FormulaText = @"AND(ISNUMBER(${2}{0}),${2}{0}>0)",
-                                                                             Type = ConditionalFormatValue.Types.Formula,
-                                                                             RuleType = ConditionalFormatValue.RuleTypes.Expression,
-
-                                                                         }),
+                                                                         .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDDLWarnUse),
                                                                      this.DataTable.GetColumn("Triggers").SetNumericFormat("#,###").TotalColumn()
-                                                                         .SetConditionalFormat(new ConditionalFormatValue()
-                                                                         {
-                                                                             Color = System.Drawing.Color.Yellow,
-                                                                             FormulaText = @"AND(ISNUMBER(${2}{0}),${2}{0}>0)",
-                                                                             Type = ConditionalFormatValue.Types.Formula,
-                                                                             RuleType = ConditionalFormatValue.RuleTypes.Expression,
-
-                                                                         }),
+                                                                         .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDDLWarnUse),
                                                                      this.DataTable.GetColumn("Total").SetNumericFormat("#,##0").TotalColumn()
-                                                                        .SetConditionalFormat(
-                                                                                new ConditionalFormatValue()
-                                                                                {
-                                                                                    Color = System.Drawing.Color.Green,
-                                                                                    Type = ConditionalFormatValue.Types.Min,
-                                                                                    RuleType = ConditionalFormatValue.RuleTypes.ThreeColorScale,
-                                                                                    Value = 50
-                                                                                },
-                                                                                new ConditionalFormatValue()
-                                                                                {
-                                                                                    Color = System.Drawing.Color.Yellow,
-                                                                                    Value = 200,
-                                                                                    Type = ConditionalFormatValue.Types.Num,
-                                                                                    RuleType = ConditionalFormatValue.RuleTypes.ThreeColorScale
-                                                                                },
-                                                                                new ConditionalFormatValue()
-                                                                                {
-                                                                                    Color = System.Drawing.Color.OrangeRed,
-                                                                                    Value = 500,
-                                                                                    Type = ConditionalFormatValue.Types.Max,
-                                                                                    RuleType = ConditionalFormatValue.RuleTypes.ThreeColorScale
-                                                                                }),
+                                                                        .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonTotTbls),
                                                                      this.DataTable.GetColumn("Active").SetNumericFormat("#,##0").TotalColumn()
-                                                                         .SetConditionalFormat(new ConditionalFormatValue()
-                                                                         {
-                                                                             Color = System.Drawing.Color.Yellow,
-                                                                             FormulaText = @"AND(ISNUMBER(${2}{0}),ISNUMBER(${Total}{0}),${2}{0} < ${Total}{0})",
-                                                                             Type = ConditionalFormatValue.Types.Formula,
-                                                                             RuleType = ConditionalFormatValue.RuleTypes.Expression,
-
-                                                                         })
+                                                                         .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonActiveTbls)
                                                                      );
                                                                  this.DataTable.SetGroupHeader("Compaction Strategy", -1, true,
                                                                      this.DataTable.GetColumn("STCS").SetNumericFormat("#,###").TotalColumn(),
                                                                      this.DataTable.GetColumn("LCS").SetNumericFormat("#,###").TotalColumn(),
                                                                      this.DataTable.GetColumn("DTCS").SetNumericFormat("#,###").TotalColumn()
-                                                                         .SetConditionalFormat(new ConditionalFormatValue()
-                                                                         {
-                                                                             Color = System.Drawing.Color.Yellow,
-                                                                             FormulaText = @"AND(ISNUMBER(${2}{0}),${2}{0} > 0)",
-                                                                             Type = ConditionalFormatValue.Types.Formula,
-                                                                             RuleType = ConditionalFormatValue.RuleTypes.Expression,
-
-                                                                         }),
+                                                                         .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDDLWarnUse),
                                                                      this.DataTable.GetColumn("TCS").SetNumericFormat("#,###").TotalColumn(),
                                                                      this.DataTable.GetColumn("TWCS").SetNumericFormat("#,###").TotalColumn(),
                                                                      this.DataTable.GetColumn("Other Strategies").SetNumericFormat("#,###").TotalColumn()
                                                                   );
                                                                  this.DataTable.SetGroupHeader("Columns", -1, true,
                                                                     this.DataTable.GetColumn("Column Total").SetCaption("Total").SetNumericFormat("#,##0").TotalColumn()
-                                                                        .SetConditionalFormat(
-                                                                                new ConditionalFormatValue()
-                                                                                {
-                                                                                    Color = System.Drawing.Color.Green,
-                                                                                    Type = ConditionalFormatValue.Types.Min,
-                                                                                    RuleType = ConditionalFormatValue.RuleTypes.ThreeColorScale,
-                                                                                    Value = 0
-                                                                                },
-                                                                                new ConditionalFormatValue()
-                                                                                {
-                                                                                    Color = System.Drawing.Color.Yellow,
-                                                                                    Value = 750,
-                                                                                    Type = ConditionalFormatValue.Types.Num,
-                                                                                    RuleType = ConditionalFormatValue.RuleTypes.ThreeColorScale
-                                                                                },
-                                                                                new ConditionalFormatValue()
-                                                                                {
-                                                                                    Color = System.Drawing.Color.OrangeRed,
-                                                                                    Value = 1000,
-                                                                                    Type = ConditionalFormatValue.Types.Max,
-                                                                                    RuleType = ConditionalFormatValue.RuleTypes.ThreeColorScale
-                                                                                }),
+                                                                        .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonTotTbls),
                                                                     this.DataTable.GetColumn("Column Collections").SetCaption("Collections").SetNumericFormat("#,###").TotalColumn(),
                                                                     this.DataTable.GetColumn("Column Blobs").SetCaption("Blobs").SetNumericFormat("#,###").TotalColumn(),
                                                                     this.DataTable.GetColumn("Column Static").SetCaption("Statics").SetNumericFormat("#,###").TotalColumn(),

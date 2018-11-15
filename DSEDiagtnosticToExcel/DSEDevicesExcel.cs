@@ -70,20 +70,35 @@ namespace DSEDiagtnosticToExcel
                                                                  //workBook.Cells["1:1"].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
                                                                  workSheet.View.FreezePanes(3, 1);
 
-                                                                 workSheet.Cells["C1:J1"].Style.WrapText = true;
-                                                                 workSheet.Cells["C1:J1"].Merge = true;
-                                                                 workSheet.Cells["C1:J1"].Value = "Devices";
-                                                                 workSheet.Cells["C1:C2"].Style.Border.Left.Style = OfficeOpenXml.Style.ExcelBorderStyle.Medium;
-                                                                 workSheet.Cells["J1:J2"].Style.Border.Right.Style = OfficeOpenXml.Style.ExcelBorderStyle.Medium;
+                                                                 //this.DataTable.GetColumn(DSEDiagnosticToDataTable.ColumnNames.NodeIPAddress);
+                                                                 //this.DataTable.GetColumn(DSEDiagnosticToDataTable.ColumnNames.DataCenter);
+                                                                 
+                                                                 this.DataTable.SetGroupHeader("Devices", -2, true,
+                                                                        this.DataTable.GetColumn("Data"),
+                                                                        this.DataTable.GetColumn("Data Utilization")
+                                                                            .SetNumericFormat("0%")
+                                                                            .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonStorageUtilization),
+                                                                        this.DataTable.GetColumn("Commit Log"),
+                                                                        this.DataTable.GetColumn("Commit Utilization")
+                                                                            .SetNumericFormat("0%")
+                                                                            .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonStorageUtilization),
+                                                                        this.DataTable.GetColumn("Saved Cache"),
+                                                                        this.DataTable.GetColumn("Cache Utilization")
+                                                                            .SetNumericFormat("0%")
+                                                                            .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonStorageUtilization),
+                                                                        this.DataTable.GetColumn("Other"),
+                                                                        this.DataTable.GetColumn("Other Utilization")
+                                                                            .SetNumericFormat("0%")
+                                                                    );
+                                                                                                                                 
+                                                                 workSheet.UpdateWorksheet(this.DataTable, 2);
 
-                                                                 workSheet.Cells["D:D"].Style.Numberformat.Format = "0%";
-                                                                 workSheet.Cells["F:F"].Style.Numberformat.Format = "0%";
-                                                                 workSheet.Cells["H:H"].Style.Numberformat.Format = "0%";
-                                                                 workSheet.Cells["J:J"].Style.Numberformat.Format = "0%";
+                                                                 workSheet.ExcelRange(2,
+                                                                                       this.DataTable.GetColumn(DSEDiagnosticToDataTable.ColumnNames.NodeIPAddress),
+                                                                                       this.DataTable.GetColumn("Other Utilization"))
+                                                                             .First().AutoFilter = true;
 
-                                                                 workSheet.Cells["A2:J2"].AutoFilter = true;
-
-                                                                 workSheet.AutoFitColumn();
+                                                                 workSheet.AutoFitColumn();                                                                 
                                                              },
                                                              -1,
                                                             -1,

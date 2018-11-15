@@ -101,18 +101,18 @@ namespace DSEDiagtnosticToExcel
 
                                                                  //this.DataTable.GetColumn("Time Zone Offset");
 
-                                                                 this.DataTable.SetGroupHeader("Aggregated", -2, true,
-                                                                this.DataTable.GetColumn("Start NodeTool Range")
-                                                                                .SetCaption("Start")
-                                                                                .SetNumericFormat(Properties.Settings.Default.ExcelDateTimeFormat),
-                                                                this.DataTable.GetColumn("End NodeTool Range")
-                                                                                .SetCaption("End")
-                                                                                .SetNumericFormat(Properties.Settings.Default.ExcelDateTimeFormat),
-                                                                this.DataTable.GetColumn("Uptime")
-                                                                                .AvgerageColumn()
-                                                                                .SetNumericFormat(Properties.Settings.Default.ExcelTimeSpanFormat)
-                                                                                .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonAnalysisDuration)
-                                                                 );
+                                                                this.DataTable.SetGroupHeader("Aggregated", -2, true,
+                                                                    this.DataTable.GetColumn("Start NodeTool Range")
+                                                                                    .SetCaption("Start")
+                                                                                    .SetNumericFormat(Properties.Settings.Default.ExcelDateTimeFormat),
+                                                                    this.DataTable.GetColumn("End NodeTool Range")
+                                                                                    .SetCaption("End")
+                                                                                    .SetNumericFormat(Properties.Settings.Default.ExcelDateTimeFormat),
+                                                                    this.DataTable.GetColumn("Uptime")
+                                                                                    .AvgerageColumn()
+                                                                                    .SetNumericFormat(Properties.Settings.Default.ExcelTimeSpanFormat)
+                                                                                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonAnalysisDuration)
+                                                                     );
 
                                                                  this.DataTable.SetGroupHeader("System Log", -2, true,
                                                                     this.DataTable.GetColumn("Log Min Timestamp")

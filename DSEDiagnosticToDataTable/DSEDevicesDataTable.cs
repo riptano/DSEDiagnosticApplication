@@ -21,17 +21,17 @@ namespace DSEDiagnosticToDataTable
 
             if (this.SessionId.HasValue) dtDSEDeviceInfo.Columns.Add(ColumnNames.SessionId, typeof(Guid));
 
-            dtDSEDeviceInfo.Columns.Add(ColumnNames.NodeIPAddress, typeof(string)); //a
+            dtDSEDeviceInfo.Columns.Add(ColumnNames.NodeIPAddress, typeof(string));
             dtDSEDeviceInfo.Columns.Add(ColumnNames.DataCenter, typeof(string));
             
-            dtDSEDeviceInfo.Columns.Add("Data", typeof(string)).AllowDBNull = true;//c
-            dtDSEDeviceInfo.Columns.Add("Data Utilization", typeof(decimal)).AllowDBNull = true;//d
-            dtDSEDeviceInfo.Columns.Add("Commit Log", typeof(string)).AllowDBNull = true;//
-            dtDSEDeviceInfo.Columns.Add("Commit Utilization", typeof(decimal)).AllowDBNull = true;//f
-            dtDSEDeviceInfo.Columns.Add("Saved Cache", typeof(string)).AllowDBNull = true;//
-            dtDSEDeviceInfo.Columns.Add("Cache Utilization", typeof(decimal)).AllowDBNull = true;//h
-            dtDSEDeviceInfo.Columns.Add("Other", typeof(string)).AllowDBNull = true;//
-            dtDSEDeviceInfo.Columns.Add("Other Utilization", typeof(decimal)).AllowDBNull = true;//j
+            dtDSEDeviceInfo.Columns.Add("Data", typeof(string)).AllowDBNull = true;
+            dtDSEDeviceInfo.Columns.Add("Data Utilization", typeof(decimal)).AllowDBNull = true;
+            dtDSEDeviceInfo.Columns.Add("Commit Log", typeof(string)).AllowDBNull = true;
+            dtDSEDeviceInfo.Columns.Add("Commit Utilization", typeof(decimal)).AllowDBNull = true;
+            dtDSEDeviceInfo.Columns.Add("Saved Cache", typeof(string)).AllowDBNull = true;
+            dtDSEDeviceInfo.Columns.Add("Cache Utilization", typeof(decimal)).AllowDBNull = true;
+            dtDSEDeviceInfo.Columns.Add("Other", typeof(string)).AllowDBNull = true;
+            dtDSEDeviceInfo.Columns.Add("Other Utilization", typeof(decimal)).AllowDBNull = true;
             
             dtDSEDeviceInfo.DefaultView.ApplyDefaultSort = false;
             dtDSEDeviceInfo.DefaultView.AllowDelete = false;

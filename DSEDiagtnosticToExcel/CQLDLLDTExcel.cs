@@ -68,42 +68,76 @@ namespace DSEDiagtnosticToExcel
                                                                 workSheet.Cells["1:2"].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.LightGray;
                                                                 workSheet.Cells["1:2"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
                                                                 //workBook.Cells["1:1"].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
-
-                                                                workSheet.Cells["I1:K1"].Style.WrapText = true;
-                                                                workSheet.Cells["I1:K1"].Merge = true;
-                                                                workSheet.Cells["I1:K1"].Value = "Read-Repair";
-                                                                workSheet.Cells["I1:I2"].Style.Border.Left.Style = OfficeOpenXml.Style.ExcelBorderStyle.Medium;
-                                                                workSheet.Cells["K1:K2"].Style.Border.Right.Style = OfficeOpenXml.Style.ExcelBorderStyle.Medium;
-
-                                                                workSheet.Cells["N1:U1"].Style.WrapText = true;
-                                                                workSheet.Cells["N1:U1"].Merge = true;
-                                                                workSheet.Cells["N1:U1"].Value = "Column Counts";
-                                                                workSheet.Cells["N1:N2"].Style.Border.Left.Style = OfficeOpenXml.Style.ExcelBorderStyle.Medium;
-                                                                workSheet.Cells["U1:U2"].Style.Border.Right.Style = OfficeOpenXml.Style.ExcelBorderStyle.Medium;
-
                                                                 workSheet.View.FreezePanes(3, 5);
-                                                                workSheet.Cells["I:I"].Style.Numberformat.Format = "0%";
-                                                                workSheet.Cells["J:J"].Style.Numberformat.Format = "0%";
-                                                                workSheet.Cells["L:L"].Style.Numberformat.Format = Properties.Settings.Default.ExcelTimeSpanFormat;
-                                                                workSheet.Cells["M:M"].Style.Numberformat.Format = Properties.Settings.Default.ExcelTimeSpanFormat;
 
-                                                                workSheet.Cells["N:N"].Style.Numberformat.Format = "#,###";
-                                                                workSheet.Cells["O:O"].Style.Numberformat.Format = "#,###";
-                                                                workSheet.Cells["P:P"].Style.Numberformat.Format = "#,###";
-                                                                workSheet.Cells["Q:Q"].Style.Numberformat.Format = "#,###";
-                                                                workSheet.Cells["R:R"].Style.Numberformat.Format = "#,###";
-                                                                workSheet.Cells["S:S"].Style.Numberformat.Format = "#,###";
-                                                                workSheet.Cells["T:T"].Style.Numberformat.Format = "#,###";
-                                                                workSheet.Cells["U:U"].Style.Numberformat.Format = "#,###";
+                                                                this.DataTable.GetColumn("Active")
+                                                                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonFalseRed);
+                                                                //this.DataTable.GetColumn(DSEDiagnosticToDataTable.ColumnNames.KeySpace);
+                                                                //this.DataTable.GetColumn("Name");
+                                                                //this.DataTable.GetColumn("Type");
+                                                                //this.DataTable.GetColumn("Partition Key");
+                                                                //this.DataTable.GetColumn("Cluster Key");
+                                                                //this.DataTable.GetColumn("Compaction Strategy");
+                                                                //this.DataTable.GetColumn("Compression");
 
-                                                                workSheet.Cells["A2:X2"].AutoFilter = true;
+                                                                this.DataTable.SetGroupHeader("Read-Repair", -2, true,
+                                                                    this.DataTable.GetColumn("Chance")
+                                                                        .SetNumericFormat("0%")
+                                                                        .SetComment("read_repair_chance -- Specifies the basis for invoking read repairs on reads in clusters. The value must be between 0 and 1. Default Values are: 0.0 (Cassandra 2.1, Cassandra 2.0.9 and later) 0.1 (Cassandra 2.0.8 and earlier)"),
+                                                                    this.DataTable.GetColumn("DC Chance")
+                                                                        .SetNumericFormat("0%")
+                                                                        .SetComment("dclocal_read_repair_chance -- Specifies the probability of read repairs being invoked over all replicas in the current data center. Defaults are: 0.1 (Cassandra 2.1, Cassandra 2.0.9 and later) 0.0 (Cassandra 2.0.8 and earlier)"),
+                                                                    this.DataTable.GetColumn("Policy")
+                                                                    .SetComment("speculative_retry -- To override normal read timeout when read_repair_chance is not 1.0, sending another request to read, choose one of these values and use the property to create or alter the table: \"ALWAYS\" -- Retry reads of all replicas, \"Xpercentile\" -- Retry reads based on the effect on throughput and latency, \"Yms\" -- Retry reads after specified milliseconds, \"NONE\" -- Do not retry reads. Using the speculative retry property, you can configure rapid read protection in Cassandra 2.0.2 and later.Use this property to retry a request after some milliseconds have passed or after a percentile of the typical read latency has been reached, which is tracked per table.")
+                                                                );
+                                                                this.DataTable.GetColumn("GC Grace Period")
+                                                                    .SetNumericFormat(Properties.Settings.Default.ExcelTimeSpanFormat)
+                                                                    .SetComment("gc_grace_seconds -- Specifies the time to wait before garbage collecting tombstones (deletion markers). The default value allows a great deal of time for consistency to be achieved prior to deletion. In many deployments this interval can be reduced, and in a single-node cluster it can be safely set to zero. Default value is 864000 [10 days]");
+                                                                this.DataTable.GetColumn("TTL")
+                                                                    .SetNumericFormat(Properties.Settings.Default.ExcelTimeSpanFormat);
 
-                                                                workSheet.Cells["I2"].AddComment("speculative_retry -- To override normal read timeout when read_repair_chance is not 1.0, sending another request to read, choose one of these values and use the property to create or alter the table: \"ALWAYS\" -- Retry reads of all replicas, \"Xpercentile\" -- Retry reads based on the effect on throughput and latency, \"Yms\" -- Retry reads after specified milliseconds, \"NONE\" -- Do not retry reads. Using the speculative retry property, you can configure rapid read protection in Cassandra 2.0.2 and later.Use this property to retry a request after some milliseconds have passed or after a percentile of the typical read latency has been reached, which is tracked per table.", "Richard Andersen");
-                                                                workSheet.Cells["J2"].AddComment("dclocal_read_repair_chance -- Specifies the probability of read repairs being invoked over all replicas in the current data center. Defaults are: 0.1 (Cassandra 2.1, Cassandra 2.0.9 and later) 0.0 (Cassandra 2.0.8 and earlier)", "Richard Andersen");
-                                                                workSheet.Cells["K2"].AddComment("read_repair_chance -- Specifies the basis for invoking read repairs on reads in clusters. The value must be between 0 and 1. Default Values are: 0.0 (Cassandra 2.1, Cassandra 2.0.9 and later) 0.1 (Cassandra 2.0.8 and earlier)", "Richard Andersen");
-                                                                workSheet.Cells["L2"].AddComment("gc_grace_seconds -- Specifies the time to wait before garbage collecting tombstones (deletion markers). The default value allows a great deal of time for consistency to be achieved prior to deletion. In many deployments this interval can be reduced, and in a single-node cluster it can be safely set to zero. Default value is 864000 [10 days]", "Richard Andersen");
-                                                                
-                                                                workSheet.AutoFitColumn(workSheet.Cells["A:X"]);
+                                                                this.DataTable.SetGroupHeader("Column Counts", -2, true,
+                                                                    this.DataTable.GetColumn("Collections")
+                                                                        .SetNumericFormat("#,###")
+                                                                        .TotalColumn(),
+                                                                    this.DataTable.GetColumn("Counters")
+                                                                         .SetNumericFormat("#,###")
+                                                                         .TotalColumn(),
+                                                                    this.DataTable.GetColumn("Blobs")
+                                                                         .SetNumericFormat("#,###")
+                                                                         .TotalColumn(),
+                                                                    this.DataTable.GetColumn("Static")
+                                                                         .SetNumericFormat("#,###")
+                                                                         .TotalColumn(),
+                                                                    this.DataTable.GetColumn("Frozen")
+                                                                         .SetNumericFormat("#,###")
+                                                                         .TotalColumn(),
+                                                                    this.DataTable.GetColumn("Tuple")
+                                                                         .SetNumericFormat("#,###")
+                                                                         .TotalColumn(),
+                                                                    this.DataTable.GetColumn("UDT")
+                                                                         .SetNumericFormat("#,###")
+                                                                         .TotalColumn(),
+                                                                    this.DataTable.GetColumn("Total")
+                                                                         .SetNumericFormat("#,###")
+                                                                         .TotalColumn()
+                                                                );
+
+                                                                this.DataTable.GetColumn("HasOrderBy")
+                                                                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonTrueYellow);
+                                                                //this.DataTable.GetColumn("Associated Table");
+                                                                //this.DataTable.GetColumn("Index");
+                                                                //this.DataTable.GetColumn("DDL");
+
+                                                                workSheet.UpdateWorksheet(this.DataTable, 2);
+
+                                                                workSheet.ExcelRange(2,
+                                                                                      this.DataTable.GetColumn("Active"),
+                                                                                      this.DataTable.GetColumn("Index"))
+                                                                            .First().AutoFilter = true;
+
+                                                                workSheet.AutoFitColumn(workSheet.ExcelRange(this.DataTable.GetColumn("Active"),
+                                                                                                                this.DataTable.GetColumn("Index")));
                                                             },
                                                             -1,
                                                            -1,

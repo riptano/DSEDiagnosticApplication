@@ -3,7 +3,7 @@
   <Profiles />
   <Settings>
     <Setting Name="ExcelFileExtension" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">.xlsx</Value>
+      <Value Profile="(Default)">.xlsm</Value>
     </Setting>
     <Setting Name="WorkSheetDefaultAttrs" Type="System.String" Scope="Application">
       <Value Profile="(Default)">{
@@ -1040,6 +1040,199 @@
 "Priority": 1,
 "IncludeTotalRow": false
 }
+]</Value>
+    </Setting>
+    <Setting Name="CondFmtJsonKeySpaceNameActivite" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">[
+  {
+    "Type": 0,
+    "SubType": 3,
+    "RuleType": 28,
+    "SubRuleType": 27,
+    "Value": 0.0,
+    "FormulaText": "AND(ISNUMBER(${Active}{0}),${Active}{0} = 0)",
+    "FormulaTextBetween": null,
+    "Color": "Yellow",
+    "ShowValue": true,
+    "StopIfTrue": false,
+    "Priority": 1,
+    "IncludeTotalRow": false,
+    "Enabled": true
+  }
+]</Value>
+    </Setting>
+    <Setting Name="CondFmtJsonDDLWarnUse" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">[
+  {
+    "Type": 0,
+    "SubType": 3,
+    "RuleType": 28,
+    "SubRuleType": 27,
+    "Value": 0.0,
+    "FormulaText": "AND(ISNUMBER(${2}{0}),${2}{0}&gt;0)",
+    "FormulaTextBetween": null,
+    "Color": "Yellow",
+    "ShowValue": true,
+    "StopIfTrue": false,
+    "Priority": 1,
+    "IncludeTotalRow": false,
+    "Enabled": true
+  }
+]</Value>
+    </Setting>
+    <Setting Name="CondFmtJsonTotTbls" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">[
+  {
+    "Type": 2,
+    "SubType": 3,
+    "RuleType": 40,
+    "SubRuleType": 27,
+    "Value": 50.0,
+    "FormulaText": null,
+    "FormulaTextBetween": null,
+    "Color": "Green",
+    "ShowValue": true,
+    "StopIfTrue": false,
+    "Priority": 1,
+    "IncludeTotalRow": true,
+    "Enabled": true
+  },
+  {
+    "Type": 3,
+    "SubType": 3,
+    "RuleType": 40,
+    "SubRuleType": 27,
+    "Value": 200.0,
+    "FormulaText": null,
+    "FormulaTextBetween": null,
+    "Color": "Yellow",
+    "ShowValue": true,
+    "StopIfTrue": false,
+    "Priority": 1,
+    "IncludeTotalRow": true,
+    "Enabled": true
+  },
+  {
+    "Type": 1,
+    "SubType": 3,
+    "RuleType": 40,
+    "SubRuleType": 27,
+    "Value": 500.0,
+    "FormulaText": null,
+    "FormulaTextBetween": null,
+    "Color": "OrangeRed",
+    "ShowValue": true,
+    "StopIfTrue": false,
+    "Priority": 1,
+    "IncludeTotalRow": true,
+    "Enabled": true
+  }
+]</Value>
+    </Setting>
+    <Setting Name="CondFmtJsonActiveTbls" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">[
+  {
+    "Type": 0,
+    "SubType": 3,
+    "RuleType": 28,
+    "SubRuleType": 27,
+    "Value": 0.0,
+    "FormulaText": "AND(ISNUMBER(${2}{0}),ISNUMBER(${Total}{0}),${2}{0} &lt; ${Total}{0})",
+    "FormulaTextBetween": null,
+    "Color": "Yellow",
+    "ShowValue": true,
+    "StopIfTrue": false,
+    "Priority": 1,
+    "IncludeTotalRow": false,
+    "Enabled": true
+  }
+]</Value>
+    </Setting>
+    <Setting Name="CondFmtJsonTotCols" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">[
+  {
+    "Type": 2,
+    "SubType": 3,
+    "RuleType": 40,
+    "SubRuleType": 27,
+    "Value": 0.0,
+    "FormulaText": null,
+    "FormulaTextBetween": null,
+    "Color": "Green",
+    "ShowValue": true,
+    "StopIfTrue": false,
+    "Priority": 1,
+    "IncludeTotalRow": true,
+    "Enabled": true
+  },
+  {
+    "Type": 3,
+    "SubType": 3,
+    "RuleType": 40,
+    "SubRuleType": 27,
+    "Value": 750.0,
+    "FormulaText": null,
+    "FormulaTextBetween": null,
+    "Color": "Yellow",
+    "ShowValue": true,
+    "StopIfTrue": false,
+    "Priority": 1,
+    "IncludeTotalRow": true,
+    "Enabled": true
+  },
+  {
+    "Type": 1,
+    "SubType": 3,
+    "RuleType": 40,
+    "SubRuleType": 27,
+    "Value": 1000.0,
+    "FormulaText": null,
+    "FormulaTextBetween": null,
+    "Color": "OrangeRed",
+    "ShowValue": true,
+    "StopIfTrue": false,
+    "Priority": 1,
+    "IncludeTotalRow": true,
+    "Enabled": true
+  }
+]</Value>
+    </Setting>
+    <Setting Name="CondFmtJsonFalseRed" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">[
+  {
+    "Type": 0,
+    "SubType": 3,
+    "RuleType": 27,
+    "SubRuleType": 27,
+    "Value": 0.0,
+    "FormulaText": "FALSE",
+    "FormulaTextBetween": null,
+    "Color": "LightPink",
+    "ShowValue": true,
+    "StopIfTrue": false,
+    "Priority": 1,
+    "IncludeTotalRow": false,
+    "Enabled": true
+  }
+]</Value>
+    </Setting>
+    <Setting Name="CondFmtJsonTrueYellow" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">[
+  {
+    "Type": 0,
+    "SubType": 3,
+    "RuleType": 27,
+    "SubRuleType": 27,
+    "Value": 0.0,
+    "FormulaText": "TRUE",
+    "FormulaTextBetween": null,
+    "Color": "LightYellow",
+    "ShowValue": true,
+    "StopIfTrue": false,
+    "Priority": 1,
+    "IncludeTotalRow": false,
+    "Enabled": true
+  }
 ]</Value>
     </Setting>
   </Settings>

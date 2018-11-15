@@ -267,7 +267,8 @@ namespace DataTableToExcel
             Percentile = 5,
 
             Automatic = 15,
-            NoValue = 16
+            NoValue = 16,
+            Text = Formula
         }
 
         public enum RuleTypes
