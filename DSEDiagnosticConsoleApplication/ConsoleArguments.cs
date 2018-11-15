@@ -328,6 +328,12 @@ namespace DSEDiagnosticConsoleApplication
                 Optional = true,
                 Description = "Show Arguments plus Default Values"
             });
+
+            this._cmdLineParser.Arguments.Add(new SwitchArgument("ShowVersion", false)
+            {
+                Optional = true,
+                Description = "Shows the Application's Version Information"
+            });
         }
 
         public bool ParseSetArguments(string[] args)
@@ -819,7 +825,27 @@ namespace DSEDiagnosticConsoleApplication
                                 }
                             }                            
                         }
-                        return false;                    
+                        return false;
+                    case "ShowVersion":
+                        {
+                            var appLogFile = Logger.Instance.GetSetEnvVarLoggerFile(false);
+                            
+                            if (string.IsNullOrEmpty(appLogFile))
+                                appLogFile = "N/A";
+                            else
+                                appLogFile = System.IO.Directory.GetParent(appLogFile).FullName;
+                            
+                            Console.WriteLine();
+                            Console.WriteLine("             Application: {0}", Common.Functions.Instance.ApplicationName);
+                            Console.WriteLine("                 Version: {0}", Common.Functions.Instance.ApplicationVersion);
+                            Console.WriteLine("               Timestamp: {0:yyyy-MM-dd HH\\:mm\\:ss}", System.IO.File.GetLastWriteTime(Common.Functions.Instance.ExeAssembly.Location));
+                            Console.WriteLine("     Excel Template File: {0}", ParserSettings.ExcelFileTemplatePath?.PathResolved ?? "N/A");
+                            Console.WriteLine("Excel Template Timestamp: {0:yyyy-MM-dd HH\\:mm\\:ss}", ParserSettings.ExcelFileTemplatePath?.GetLastWriteTime());
+                            Console.WriteLine("        Application Path: {0}", Common.Functions.Instance.ApplicationRunTimeDir);                            
+                            Console.WriteLine("    Application Log Path: {0}", appLogFile);
+                            Console.WriteLine();
+                        }
+                        return false;
                     default:
 
                         throw new ArgumentException(string.Format("Do not know how to map {0} ({1}) to a setting!",
