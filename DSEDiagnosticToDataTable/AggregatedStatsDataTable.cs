@@ -97,10 +97,8 @@ namespace DSEDiagnosticToDataTable
 
                     var keyspaceName = warn ? stat.Keyspace.Name + " (warn)" : stat.Keyspace?.Name;
                     
-                    {
-                        object errorValue;
-
-                        if (stat.Data.TryGetValue(DSEDiagnosticLibrary.AggregatedStats.DCNotInKS, out errorValue))
+                    {                        
+                        if (stat.Data.TryGetValue(DSEDiagnosticLibrary.AggregatedStats.DCNotInKS, out object errorValue))
                         {
                             keyspaceName += string.Format(" {{!{0}}}", errorValue);
                             dataRow = this.Table.NewRow();
@@ -141,10 +139,8 @@ namespace DSEDiagnosticToDataTable
 
                         if (item.Key.StartsWith(DSEDiagnosticLibrary.AggregatedStats.Error))
                         {
-                            if (item.Value is string)
-                            {
-                                var strError = (string)item.Value;
-
+                            if (item.Value is string strError)
+                            {                                
                                 dataRow = this.Table.NewRow();
 
                                 if (this.SessionId.HasValue) dataRow.SetField(ColumnNames.SessionId, this.SessionId.Value);
@@ -169,7 +165,7 @@ namespace DSEDiagnosticToDataTable
                             }
                             else
                             {
-                                foreach (var strError in (IList<string>)item.Value)
+                                foreach (var strErrorItem in (IList<string>)item.Value)
                                 {
                                     this.CancellationToken.ThrowIfCancellationRequested();
 
@@ -189,7 +185,7 @@ namespace DSEDiagnosticToDataTable
                                     }
 
                                     dataRow.SetField("Attribute", item.Key);
-                                    dataRow.SetField("Value", strError);
+                                    dataRow.SetField("Value", strErrorItem);
 
                                     this.Table.Rows.Add(dataRow);
 
@@ -250,9 +246,8 @@ namespace DSEDiagnosticToDataTable
             
             dataRow.SetField("Attribute", propName);
 
-            if (propValue is DSEDiagnosticLibrary.UnitOfMeasure)
-            {
-                DSEDiagnosticLibrary.UnitOfMeasure uom = (DSEDiagnosticLibrary.UnitOfMeasure)propValue;
+            if (propValue is DSEDiagnosticLibrary.UnitOfMeasure uom)
+            {                
                 if (uom.Value % 1 == 0)
                 {
                     dataRow.SetFieldToLong("Raw Value", uom);                    
@@ -309,10 +304,8 @@ namespace DSEDiagnosticToDataTable
                 dataRow.SetField("CQL Type", "SolrIndex");
             else 
                 dataRow.SetField("CQL Type", stat.TableViewIndex.GetType().Name);
-            if (stat.TableViewIndex is DSEDiagnosticLibrary.ICQLIndex)
-            {
-                var cqlIndex = (DSEDiagnosticLibrary.ICQLIndex)stat.TableViewIndex;
-                
+            if (stat.TableViewIndex is DSEDiagnosticLibrary.ICQLIndex cqlIndex)
+            {                
                 dataRow.SetField("Properties", cqlIndex.Table.Compaction);
                 dataRow.SetField(ColumnNames.Table, warn ? cqlIndex.Table.Name + '.' + cqlIndex.Name + " (warn)" : cqlIndex.Table.Name + '.' + cqlIndex.Name);                
             }
