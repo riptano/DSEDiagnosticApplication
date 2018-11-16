@@ -255,7 +255,7 @@ namespace DSEDiagnosticAnalytics
 
         public IFilePath LogFilePath { get { return this.EventParser?.File; } }
 
-        public static CTS.Dictionary<Tuple<INode,EventClasses>, AggregatedStats> AggregatedStats = new CTS.Dictionary<Tuple<INode, EventClasses>, AggregatedStats>();
+        public static CTS.Dictionary<Tuple<INode,EventClasses,int,int>, AggregatedStats> AggregatedStats = new CTS.Dictionary<Tuple<INode, EventClasses,int,int>, AggregatedStats>();
 
         public static CTS.Dictionary<INode, Tuple<GCStat,GCStat>> GCStats = new CTS.Dictionary<INode, Tuple<GCStat, GCStat>>();
 
@@ -301,7 +301,10 @@ namespace DSEDiagnosticAnalytics
                 else
                     evtClass |= EventClasses.Partition;
 
-                var aggStat = AggregatedStats.GetOrAdd(new Tuple<INode, EventClasses>(sender.Node, evtClass), sndNode =>
+                var aggStat = AggregatedStats.GetOrAdd(new Tuple<INode, EventClasses,int,int>(sender.Node,
+                                                                                                evtClass,
+                                                                                                eventArgs.LogEvent.Keyspace.GetHashCode(),
+                                                                                                eventArgs.LogEvent.TableViewIndex.GetHashCode()), sndNode =>
                                                          {
                                                              var stat = new AggregatedStats(sender.File,
                                                                                                  sndNode.Item1,
@@ -336,14 +339,17 @@ namespace DSEDiagnosticAnalytics
                     }
                 }
             }
-
+            
             if ((eventArgs.LogEvent.Class & EventClasses.Tombstone) == EventClasses.Tombstone
                     && eventArgs.LogEvent.TableViewIndex != null
-                    && eventArgs.LogEvent.LogProperties.ContainsKey("tombstone_cells"))
+                    && eventArgs.LogEvent.LogProperties.ContainsKey("tombstone"))
             {
                 var evtClass = EventClasses.Tombstone | EventClasses.Node | EventClasses.KeyspaceTableViewIndexStats;
 
-                var nodeStat = AggregatedStats.GetOrAdd(new Tuple<INode, EventClasses>(sender.Node, evtClass), sndNode =>
+                var nodeStat = AggregatedStats.GetOrAdd(new Tuple<INode, EventClasses,int,int>(sender.Node,
+                                                                                                evtClass,
+                                                                                                eventArgs.LogEvent.Keyspace.GetHashCode(),
+                                                                                                eventArgs.LogEvent.TableViewIndex.GetHashCode()), sndNode =>
                 {
                     var stat = new AggregatedStats(sender.File,
                                                         sndNode.Item1,
@@ -355,7 +361,7 @@ namespace DSEDiagnosticAnalytics
                     return stat;
                 });
 
-                var tombstones = (long)((dynamic)eventArgs.LogEvent.LogProperties["tombstone_cells"]);
+                var tombstones = (long)((dynamic)eventArgs.LogEvent.LogProperties["tombstone"]);
                 
                 if (nodeStat.Data.TryGetValue(Properties.Settings.Default.TombstonesReadAttrib, out object dataValue))
                 {
@@ -366,7 +372,7 @@ namespace DSEDiagnosticAnalytics
                     nodeStat.AssociateItem(Properties.Settings.Default.TombstonesReadAttrib, new List<long>() { tombstones });
                 }
                 
-                if (eventArgs.LogEvent.LogProperties.TryGetValue("live_cells", out dynamic reads))
+                if (eventArgs.LogEvent.LogProperties.TryGetValue("live", out dynamic reads))
                 {
                     var readsValue = (decimal)reads;
                     decimal percent = 0;
@@ -404,7 +410,10 @@ namespace DSEDiagnosticAnalytics
                     evtClass |= EventClasses.KeyspaceTableViewIndexStats;
                 }
 
-                var aggStat = AggregatedStats.GetOrAdd(new Tuple<INode, EventClasses>(sender.Node, evtClass), sndNode =>
+                var aggStat = AggregatedStats.GetOrAdd(new Tuple<INode, EventClasses,int,int>(sender.Node,
+                                                                                                evtClass,
+                                                                                                eventArgs.LogEvent.Keyspace?.GetHashCode() ?? 0,
+                                                                                                eventArgs.LogEvent.TableViewIndex?.GetHashCode() ?? 0), sndNode =>
                 {
                     var stat = new AggregatedStats(sender.File,
                                                         sndNode.Item1,
