@@ -22,7 +22,7 @@ namespace DSEDiagnosticToDataTable
         }
 
         public string[] IgnoreKeySpaces { get; }
-        public TimeSpan AggregationPeriod { get; } = Properties.Settings.Default.LogAggregationPeriod;
+        public TimeSpan AggregationPeriod { get; } = DSEDiagnosticAnalytics.LibrarySettings.LogAggregationPeriod;
 
         public struct Columns
         {
@@ -254,11 +254,13 @@ namespace DSEDiagnosticToDataTable
                 this.CancellationToken.ThrowIfCancellationRequested();
 
                 var nodeGrpEvents = new CTS.List<IEnumerable<LogEvtGroup>>(this.Cluster.Nodes.Count());
-                var parallelOptions = new System.Threading.Tasks.ParallelOptions();
+                var parallelOptions = new System.Threading.Tasks.ParallelOptions()
+                {
+                    CancellationToken = this.CancellationToken,
+                    TaskScheduler = new DSEDiagnosticFileParser.Tasks.Schedulers.WorkStealingTaskScheduler(this.Cluster.Nodes.Count())
+                };
 
-                parallelOptions.CancellationToken = this.CancellationToken;
-                parallelOptions.TaskScheduler = new DSEDiagnosticFileParser.Tasks.Schedulers.WorkStealingTaskScheduler(this.Cluster.Nodes.Count());
-               
+                
                 System.Threading.Tasks.Parallel.ForEach(this.Cluster.Nodes, parallelOptions, node =>
                 {
                     Logger.Instance.InfoFormat("Log Aggregation Processing for {0} Started", node.Id.NodeName());

@@ -22,6 +22,8 @@ namespace DSEDiagnosticLibrary
         IDictionary<string, object> Data { get; }
 
         IAggregatedStats AssociateItem(string key, object value);
+        IAggregatedStats UpdateAssociateItem(string key, object value);
+
         IAggregatedStats AssociateItem(int reference);
     }
 
@@ -342,7 +344,9 @@ namespace DSEDiagnosticLibrary
         #endregion
 
         [JsonProperty(PropertyName = "Data")]
+#pragma warning disable IDE1006 // Naming Styles
         private Dictionary<string, object> datamemberData
+#pragma warning restore IDE1006 // Naming Styles
         {
             get { return this._data.UnSafe; }
             set { this._data = new CTS.Dictionary<string, object>(value); }
@@ -362,8 +366,16 @@ namespace DSEDiagnosticLibrary
             return this;
         }
 
+        public IAggregatedStats UpdateAssociateItem(string key, object value)
+        {
+            this._data.AddOrUpdate(key, value, (K, V) => value);
+            return this;
+        }
+
         [JsonProperty(PropertyName = "ReconciliationRefs")]
+#pragma warning disable IDE1006 // Naming Styles
         private List<int> datamemberReconciliationRefs
+#pragma warning restore IDE1006 // Naming Styles
         {
             get { return this._reconciliationRefs.UnSafe; }
             set { this._reconciliationRefs = new CTS.List<int>(value); }

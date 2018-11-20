@@ -190,6 +190,11 @@ namespace DSEDiagnosticAnalytics
                 throw new NotImplementedException();
             }
 
+            public IAggregatedStats UpdateAssociateItem(string key, object value)
+            {
+                throw new NotImplementedException();
+            }
+
             [JsonIgnore]
             public IEnumerable<int> ReconciliationRefs { get; } = EmptyReconciliationRefs;
 
@@ -259,6 +264,8 @@ namespace DSEDiagnosticAnalytics
 
         public static CTS.Dictionary<INode, Tuple<GCStat,GCStat>> GCStats = new CTS.Dictionary<INode, Tuple<GCStat, GCStat>>();
 
+        public static CTS.List<Tuple<INode, EventClasses, int, int, string>> AggregatedStatsReduced = new CTS.List<Tuple<INode, EventClasses, int, int, string>>();
+
         public static void CleanUp()
         {
             if (LibrarySettings.GCBackToBackToleranceMS > 0
@@ -267,19 +274,106 @@ namespace DSEDiagnosticAnalytics
                 System.Threading.Tasks.Parallel.ForEach(GCStats, gcStat =>
                 //foreach (var gcStat in GCStats)
                 {
-                try
-                {
-                    gcStat.Value.Item1.TestAddEvent(null);
-                    gcStat.Value.Item2.TestAddEvent(null);
+                    try
+                    {
+                        gcStat.Value.Item1.TestAddEvent(null);
+                        gcStat.Value.Item2.TestAddEvent(null);
+                    }
+                    catch
+                    { }
                 }
-                catch
-                { }
-                }   );
+                );
             }
+
+            System.Threading.Tasks.Parallel.ForEach(AggregatedStatsReduced.DuplicatesRemoved(g => g), redecedStats =>
+            //foreach (var redecedStats in AggregatedStatsReduced.DuplicatesRemoved(g => g))
+            {
+                if (AggregatedStats.TryGetValue(new Tuple<INode, EventClasses, int, int>(redecedStats.Item1,
+                                                                                        redecedStats.Item2,
+                                                                                        redecedStats.Item3,
+                                                                                        redecedStats.Item4), out DSEDiagnosticLibrary.AggregatedStats aggStat))
+                {
+                    if (aggStat.Data.TryGetValue(redecedStats.Item5, out object dataValue))
+                    {
+                        var nbrItems = ((System.Collections.IList)dataValue).Count;
+
+                        if (nbrItems >= LogAggNodeStatMbrLimitTake * 4)
+                            AggregateStatMembers(aggStat.Path as IFilePath,
+                                                    aggStat.Node,
+                                                    aggStat.Class,
+                                                    (IDDL)aggStat.TableViewIndex ?? aggStat.Keyspace,
+                                                    redecedStats.Item5,
+                                                    int.MaxValue,
+                                                    (int)(nbrItems * Properties.Settings.Default.LogAggregationNodeStatMbrLimitTakeNItemsPercent),
+                                                    (dynamic)dataValue,
+                                                    redecedStats.Item3,
+                                                    redecedStats.Item4,
+                                                    aggStat);
+                    }
+                }
+            }
+            );
 
             GCStats.Clear();
             AggregatedStats.Clear();
+            AggregatedStatsReduced.Clear();
         }
+
+        private static bool AggregateStatMembers<T>(IFilePath filePath,
+                                                        INode node,
+                                                        EventClasses evtClass,
+                                                        IDDL ddlStmt,
+                                                        string attribName,
+                                                        int maxAggregatedLimit,
+                                                        int takeNItems,
+                                                        IList<T> dataList,
+                                                        int keyspaceHC,
+                                                        int tableHC,
+                                                        DSEDiagnosticLibrary.AggregatedStats useStat = null)
+            where T : struct
+        {
+            var nbrItems = dataList.Count;
+
+            if (nbrItems < takeNItems || nbrItems < maxAggregatedLimit) return false;
+
+            var stat = useStat ?? new AggregatedStats(filePath,
+                                                        node,
+                                                        SourceTypes.CassandraLog,
+                                                        EventTypes.AggregateDataTool,
+                                                        evtClass,
+                                                        ddlStmt);
+            var statList = new List<T>();
+            var orderedList = dataList.OrderBy(i => i);
+
+            if (takeNItems > 0
+                    && takeNItems * 4 < nbrItems)
+            {                
+                statList.AddRange(orderedList.Take(takeNItems).DuplicatesRemoved(g => g));
+                statList.AddRange(orderedList.Skip((nbrItems / 2)
+                                                    - (takeNItems / 2))
+                                                .Take(takeNItems)
+                                                .DuplicatesRemoved(g => g));
+                statList.AddRange(orderedList.TakeLast(takeNItems).DuplicatesRemoved(g => g));
+            }
+            else
+            {                
+                statList.Add(orderedList.First());
+                statList.Add(orderedList.Last());
+                statList.Add(orderedList.ElementAt(nbrItems / 2));
+            }
+
+            stat.UpdateAssociateItem(attribName, statList);
+            stat.UpdateAssociateItem(attribName + " Occurrences", nbrItems);
+
+            AggregatedStatsReduced.TryAdd(new Tuple<INode, EventClasses, int, int, string>(node,
+                                                                                            evtClass,
+                                                                                            keyspaceHC,
+                                                                                            tableHC,
+                                                                                            attribName));
+            return true;
+        }
+
+        static readonly int LogAggNodeStatMbrLimitTake = (int)(Properties.Settings.Default.LogAggregationNodeStatMbrLimit * Properties.Settings.Default.LogAggregationNodeStatMbrLimitTakeNItemsPercent);
 
         public void LogEventCallBack(DSEDiagnosticFileParser.file_cassandra_log4net sender, DSEDiagnosticFileParser.file_cassandra_log4net.LogEventArgs eventArgs)
         {
@@ -287,6 +381,9 @@ namespace DSEDiagnosticAnalytics
 
             this.CancellationToken.ThrowIfCancellationRequested();
 
+            int keyspaceHC = eventArgs.LogEvent.Keyspace?.GetHashCode() ?? 0;
+            int tableHC = eventArgs.LogEvent.TableViewIndex?.GetHashCode() ?? 0;
+            
             if ((eventArgs.LogEvent.Class & EventClasses.Partition) == EventClasses.Partition
                     && eventArgs.LogEvent.TableViewIndex != null
                     && eventArgs.LogEvent.LogProperties.ContainsKey("size"))
@@ -303,8 +400,8 @@ namespace DSEDiagnosticAnalytics
 
                 var aggStat = AggregatedStats.GetOrAdd(new Tuple<INode, EventClasses,int,int>(sender.Node,
                                                                                                 evtClass,
-                                                                                                eventArgs.LogEvent.Keyspace.GetHashCode(),
-                                                                                                eventArgs.LogEvent.TableViewIndex.GetHashCode()), sndNode =>
+                                                                                                keyspaceHC,
+                                                                                                tableHC), sndNode =>
                                                          {
                                                              var stat = new AggregatedStats(sender.File,
                                                                                                  sndNode.Item1,
@@ -318,7 +415,22 @@ namespace DSEDiagnosticAnalytics
                 
                 if (aggStat.Data.TryGetValue(attribName, out object dataValue))
                 {
-                    ((List<UnitOfMeasure>)dataValue).Add(partitionSize);
+                    var dataList = (List<UnitOfMeasure>)dataValue;
+
+                    if (AggregateStatMembers(sender.File,
+                                                sender.Node,
+                                                evtClass,
+                                                eventArgs.LogEvent.TableViewIndex,
+                                                attribName,
+                                                Properties.Settings.Default.LogAggregationNodeStatMbrLimit,
+                                                LogAggNodeStatMbrLimitTake,
+                                                dataList,
+                                                keyspaceHC,
+                                                tableHC))
+                    {
+                        dataList.Clear();
+                    }                
+                    dataList.Add(partitionSize);
                 }
                 else
                 {
@@ -348,8 +460,8 @@ namespace DSEDiagnosticAnalytics
 
                 var nodeStat = AggregatedStats.GetOrAdd(new Tuple<INode, EventClasses,int,int>(sender.Node,
                                                                                                 evtClass,
-                                                                                                eventArgs.LogEvent.Keyspace.GetHashCode(),
-                                                                                                eventArgs.LogEvent.TableViewIndex.GetHashCode()), sndNode =>
+                                                                                                keyspaceHC,
+                                                                                                tableHC), sndNode =>
                 {
                     var stat = new AggregatedStats(sender.File,
                                                         sndNode.Item1,
@@ -365,24 +477,51 @@ namespace DSEDiagnosticAnalytics
                 
                 if (nodeStat.Data.TryGetValue(Properties.Settings.Default.TombstonesReadAttrib, out object dataValue))
                 {
-                    ((List<long>)dataValue).Add(tombstones);
+                    nodeStat.UpdateAssociateItem(Properties.Settings.Default.TombstonesReadAttrib, (long) dataValue + tombstones);
                 }
                 else
                 {
-                    nodeStat.AssociateItem(Properties.Settings.Default.TombstonesReadAttrib, new List<long>() { tombstones });
+                    nodeStat.AssociateItem(Properties.Settings.Default.TombstonesReadAttrib, tombstones);
                 }
                 
                 if (eventArgs.LogEvent.LogProperties.TryGetValue("live", out dynamic reads))
                 {
-                    var readsValue = (decimal)reads;
+                    var readsValue = (long)reads;
+
+                    //TombstoneLiveCellAttrib
+                    if (nodeStat.Data.TryGetValue(Properties.Settings.Default.TombstoneLiveCellAttrib, out dataValue))
+                    {
+                        nodeStat.UpdateAssociateItem(Properties.Settings.Default.TombstoneLiveCellAttrib, (long)dataValue + readsValue);
+                    }
+                    else
+                    {
+                        nodeStat.AssociateItem(Properties.Settings.Default.TombstoneLiveCellAttrib, readsValue);
+                    }
+
                     decimal percent = 0;
 
                     if (tombstones > 0 || reads > 0)
-                        percent = (decimal)tombstones / (((decimal)tombstones) + reads);
+                        percent = (decimal)tombstones / (((decimal)tombstones) + (decimal)reads);
 
                     if (nodeStat.Data.TryGetValue(Properties.Settings.Default.TombstoneLiveCellRatioAttrib, out dataValue))
                     {
-                        ((List<decimal>)dataValue).Add(percent);
+                        var dataList = (List<decimal>)dataValue;
+
+                        if (AggregateStatMembers(sender.File,
+                                                    sender.Node,
+                                                    evtClass,
+                                                    eventArgs.LogEvent.TableViewIndex,
+                                                    Properties.Settings.Default.TombstoneLiveCellRatioAttrib,
+                                                    Properties.Settings.Default.LogAggregationNodeStatMbrLimit,
+                                                    LogAggNodeStatMbrLimitTake,
+                                                    dataList,
+                                                    keyspaceHC,
+                                                    tableHC))
+                        {
+                            dataList.Clear();
+                        }                        
+
+                        dataList.Add(percent);
                     }
                     else
                     {
@@ -412,8 +551,8 @@ namespace DSEDiagnosticAnalytics
 
                 var aggStat = AggregatedStats.GetOrAdd(new Tuple<INode, EventClasses,int,int>(sender.Node,
                                                                                                 evtClass,
-                                                                                                eventArgs.LogEvent.Keyspace?.GetHashCode() ?? 0,
-                                                                                                eventArgs.LogEvent.TableViewIndex?.GetHashCode() ?? 0), sndNode =>
+                                                                                                keyspaceHC,
+                                                                                                tableHC), sndNode =>
                 {
                     var stat = new AggregatedStats(sender.File,
                                                         sndNode.Item1,
@@ -428,7 +567,23 @@ namespace DSEDiagnosticAnalytics
                 
                 if (aggStat.Data.TryGetValue(Properties.Settings.Default.CompactionInsufficientSpace, out object dataValue))
                 {
-                    ((List<UnitOfMeasure>)dataValue).Add(spaceRequired);
+                    var dataList = (List<UnitOfMeasure>)dataValue;
+
+                    if (AggregateStatMembers(sender.File,
+                                                    sender.Node,
+                                                    evtClass,
+                                                    (IDDL) eventArgs.LogEvent.TableViewIndex ?? eventArgs.LogEvent.Keyspace,
+                                                    Properties.Settings.Default.CompactionInsufficientSpace,
+                                                    Properties.Settings.Default.LogAggregationNodeStatMbrLimit,
+                                                    LogAggNodeStatMbrLimitTake,
+                                                    dataList,
+                                                    keyspaceHC,
+                                                    tableHC))
+                    {
+                        dataList.Clear();
+                    }                    
+
+                    dataList.Add(spaceRequired);
                 }
                 else
                 {

@@ -183,6 +183,11 @@ namespace DSEDiagnosticAnalytics
                 throw new NotImplementedException();
             }
 
+            public IAggregatedStats UpdateAssociateItem(string key, object value)
+            {
+                throw new NotImplementedException();
+            }
+
             [JsonIgnore]
             public IEnumerable<int> ReconciliationRefs { get; } = EmptyReconciliationRefs;
 

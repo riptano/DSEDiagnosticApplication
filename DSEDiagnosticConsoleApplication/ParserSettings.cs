@@ -121,10 +121,8 @@ namespace DSEDiagnosticConsoleApplication
             var newPath = PathUtils.BuildDirectoryPath(dirPath);
 
             if(defaultPath != null && newPath.IsRelativePath && defaultPath.IsAbsolutePath)
-            {
-                IAbsolutePath absPath;
-
-                if(newPath.MakePathFrom((IAbsolutePath) defaultPath, out absPath))
+            {                
+                if(newPath.MakePathFrom((IAbsolutePath) defaultPath, out IAbsolutePath absPath))
                 {
                     newPath = (IDirectoryPath) absPath;
                 }
@@ -136,6 +134,7 @@ namespace DSEDiagnosticConsoleApplication
         {
             if (string.IsNullOrEmpty(filePath)) return null;
 
+#pragma warning disable IDE0019 // Use pattern matching
             var newFile = PathUtils.BuildPath(filePath,
                                                 defaultDirPath?.Path,
                                                 defaultFile?.FileExtension,
@@ -143,6 +142,7 @@ namespace DSEDiagnosticConsoleApplication
                                                 true,
                                                 true,
                                                 false) as IFilePath;
+#pragma warning restore IDE0019 // Use pattern matching
 
             if(newFile == null)
             {
@@ -239,7 +239,11 @@ namespace DSEDiagnosticConsoleApplication
         public static List<KeyValuePair<string, IFilePath>> AdditionalFilesForParsingClass = new List<KeyValuePair<string, IFilePath>>();
         public static List<string> WarnWhenKSTblIsDetected = Properties.Settings.Default.WarnWhenKSTblIsDetected.ToList(false);
         public static IFilePath ExcelFileTemplatePath = MakeFilePath(Properties.Settings.Default.ExcelFileTemplatePath, ExcelFilePath?.ParentDirectoryPath);
-        public static TimeSpan LogAggregationPeriod = Properties.Settings.Default.LogAggregationPeriod;
+        public static TimeSpan LogAggregationPeriod
+        {
+            get { return DSEDiagnosticAnalytics.LibrarySettings.LogAggregationPeriod; }
+            set { DSEDiagnosticAnalytics.LibrarySettings.LogAggregationPeriod = value; }
+        }
 
         public static DateTimeOffsetRange LogRestrictedTimeRange
         {

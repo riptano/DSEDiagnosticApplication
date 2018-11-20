@@ -124,5 +124,41 @@ namespace DSEDiagnosticAnalytics.Properties {
                 return ((double)(this["GCTimeFrameDetectionThreholdMin"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("00:30:00")]
+        public global::System.TimeSpan LogAggregationPeriod {
+            get {
+                return ((global::System.TimeSpan)(this["LogAggregationPeriod"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Tombstones Live Cells Read")]
+        public string TombstoneLiveCellAttrib {
+            get {
+                return ((string)(this["TombstoneLiveCellAttrib"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("5000")]
+        public int LogAggregationNodeStatMbrLimit {
+            get {
+                return ((int)(this["LogAggregationNodeStatMbrLimit"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0.02")]
+        public decimal LogAggregationNodeStatMbrLimitTakeNItemsPercent {
+            get {
+                return ((decimal)(this["LogAggregationNodeStatMbrLimitTakeNItemsPercent"]));
+            }
+        }
     }
 }

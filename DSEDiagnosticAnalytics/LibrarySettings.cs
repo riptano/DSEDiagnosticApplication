@@ -16,5 +16,7 @@ namespace DSEDiagnosticAnalytics
         public static double GCTimeFrameDetectionThreholdMin = Properties.Settings.Default.GCTimeFrameDetectionThreholdMin;
 
         public static double GCBackToBackToleranceMS = Properties.Settings.Default.GCBackToBackToleranceMS;
+
+        public static TimeSpan LogAggregationPeriod = Properties.Settings.Default.LogAggregationPeriod;
     }
 }

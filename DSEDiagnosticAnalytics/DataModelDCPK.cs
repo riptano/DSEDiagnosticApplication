@@ -60,7 +60,7 @@ namespace DSEDiagnosticAnalytics
             public SourceTypes Source { get; } = SourceTypes.CQL;
             public IPath Path { get; } = null;
 
-            private Cluster _cluster;
+            private readonly Cluster _cluster;
             public Cluster Cluster { get { return this._cluster ?? this.DataCenter?.Cluster; } }
             public IDataCenter DataCenter { get; }
             public INode Node { get; } = null;
@@ -98,10 +98,8 @@ namespace DSEDiagnosticAnalytics
             public bool Equals(IEvent item)
             {
                 if (ReferenceEquals(this, item)) return true;
-
-                var itemEvent = item as CommonPartitionKey;
                 
-                if(itemEvent != null
+                if(item is CommonPartitionKey itemEvent                    
                         && this.DataCenter == item.DataCenter)
                 {                    
                     return this.Compare(itemEvent.PartitionKey);
@@ -119,7 +117,9 @@ namespace DSEDiagnosticAnalytics
 
             #region IAggregatedStats
             [JsonProperty(PropertyName = "Data")]
+#pragma warning disable IDE1006 // Naming Styles
             private Dictionary<string, object> datamemberData
+#pragma warning restore IDE1006 // Naming Styles
             {
                 get { return this._data.UnSafe; }
                 set { this._data = new CTS.Dictionary<string, object>(value); }
@@ -136,8 +136,16 @@ namespace DSEDiagnosticAnalytics
                 return this;
             }
 
+            public IAggregatedStats UpdateAssociateItem(string key, object value)
+            {
+                this._data.AddOrUpdate(key, value, (k,v) => value);
+                return this;
+            }
+
             [JsonProperty(PropertyName = "ReconciliationRefs")]
+#pragma warning disable IDE1006 // Naming Styles
             private List<int> datamemberReconciliationRefs
+#pragma warning restore IDE1006 // Naming Styles
             {
                 get { return this._reconciliationRefs.UnSafe; }
                 set { this._reconciliationRefs = new CTS.List<int>(value); }
@@ -163,10 +171,8 @@ namespace DSEDiagnosticAnalytics
             public IEnumerable<ICQLColumn> PartitionKey
             {
                 get
-                {
-                    object propValue;
-
-                    if(this._data.TryGetValue(PKPropKey, out propValue))
+                {                   
+                    if(this._data.TryGetValue(PKPropKey, out object propValue))
                     {
                         return (IEnumerable<ICQLColumn>)propValue;
                     }
@@ -180,10 +186,8 @@ namespace DSEDiagnosticAnalytics
             public IEnumerable<ICQLTable> Tables
             {
                 get
-                {
-                    object propValue;
-
-                    if (this._data.TryGetValue(TablesPropKey, out propValue))
+                {                   
+                    if (this._data.TryGetValue(TablesPropKey, out object propValue))
                     {
                         return (IEnumerable<ICQLTable>)propValue;
                     }
@@ -195,10 +199,8 @@ namespace DSEDiagnosticAnalytics
             public void AssociateItem(ICQLTable assocTable)
             {                
                 lock(this._data.UnSafe)
-                {
-                    object propValue;
-
-                    if (this._data.UnSafe.TryGetValue(TablesPropKey, out propValue))
+                {                   
+                    if (this._data.UnSafe.TryGetValue(TablesPropKey, out object propValue))
                     {
                         ((IList<ICQLTable>)propValue).Add(assocTable);
                     }
