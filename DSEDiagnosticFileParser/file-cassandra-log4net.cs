@@ -32,15 +32,15 @@ namespace DSEDiagnosticFileParser
         }
 
         private CurrentSessionLineTick _priorSessionLineTick;
-        private List<LogCassandraEvent> _sessionEvents = new List<LogCassandraEvent>();
-        private Dictionary<string,LogCassandraEvent> _openSessions = new Dictionary<string, LogCassandraEvent>();
-        private List<LogCassandraEvent> _unsedOpenSessionEvents = new List<LogCassandraEvent>();
-        private Dictionary<string, Stack<LogCassandraEvent>> _lookupSessionLabels = new Dictionary<string, Stack<LogCassandraEvent>>();
+        private readonly List<LogCassandraEvent> _sessionEvents = new List<LogCassandraEvent>();
+        private readonly Dictionary<string,LogCassandraEvent> _openSessions = new Dictionary<string, LogCassandraEvent>();
+        private readonly List<LogCassandraEvent> _unsedOpenSessionEvents = new List<LogCassandraEvent>();
+        private readonly Dictionary<string, Stack<LogCassandraEvent>> _lookupSessionLabels = new Dictionary<string, Stack<LogCassandraEvent>>();
         private List<LogCassandraEvent> _orphanedSessionEvents = new List<LogCassandraEvent>();
-        CLogLineTypeParser[] _parser = null;
-        List<LogCassandraEvent> _logEvents = new List<LogCassandraEvent>();
-        List<Tuple<LogCassandraEvent, LateDDLResolution>> _lateResolutionEvents = new List<Tuple<LogCassandraEvent, LateDDLResolution>>();
-        private CLogLineTypeParser[] DebugFlushCompMatchingRegEx = null;
+        readonly CLogLineTypeParser[] _parser = null;
+        readonly List<LogCassandraEvent> _logEvents = new List<LogCassandraEvent>();
+        readonly List<Tuple<LogCassandraEvent, LateDDLResolution>> _lateResolutionEvents = new List<Tuple<LogCassandraEvent, LateDDLResolution>>();
+        readonly  private CLogLineTypeParser[] DebugFlushCompMatchingRegEx = null;
         private int _nbrNotHandledEvents = 0;
 
         public file_cassandra_log4net(CatagoryTypes catagory,
@@ -216,7 +216,7 @@ namespace DSEDiagnosticFileParser
         public IDataCenter DataCenter { get; private set; }
         public bool IsDebugFile { get; }
         [JsonProperty(PropertyName="Keyspaces")]
-        private IEnumerable<IKeyspace> _dcKeyspaces;
+        readonly private IEnumerable<IKeyspace> _dcKeyspaces;
 
         [Flags]
         public enum DefaultLogLevelHandlers
@@ -688,10 +688,8 @@ namespace DSEDiagnosticFileParser
                             this._logEvents.Add(logEvent);
 
                             if((logEvent.Class & EventClasses.GC) == EventClasses.GC && this.Node.Machine.Java.GCType == null)
-                            {
-                                object gcType;
-
-                                if (logEvent.LogProperties.TryGetValue("GC", out gcType))
+                            {                                
+                                if (logEvent.LogProperties.TryGetValue("GC", out object gcType))
                                     this.Node.Machine.Java.GCType = gcType as string;
                             }
                             else if((logEvent.Class & EventClasses.NodeDetection) == EventClasses.NodeDetection && logEvent.SubClass != null)
@@ -838,32 +836,20 @@ namespace DSEDiagnosticFileParser
             var exceptionPaths = new List<string>();
 
             topLevelException = this.DetermineExceptionInfo(logMessage, logProperties, exceptionPaths, false);
-
-            UnitOfMeasure duration;
-            DateTime? eventDurationTime;
-            string logId;
-            List<string> sstableFilePaths;
-            IKeyspace primaryKS;
-            IDDLStmt primaryDDL;
-            List<IDDLStmt> ddlInstances;
-            IEnumerable<INode> assocatedNodes;
-            IEnumerable<TokenRangeInfo> tokenRanges;
-            LateDDLResolution? lateDDLresolution;
-            string subClass;
-
+            
             this.DetermineProperties(logMessage,
                                         logProperties,
-                                        out lateDDLresolution,
-                                        out logId,
-                                        out subClass,
-                                        out primaryKS,
-                                        out primaryDDL,
-                                        out duration,
-                                        out eventDurationTime,
-                                        out sstableFilePaths,
-                                        out ddlInstances,
-                                        out assocatedNodes,
-                                        out tokenRanges);
+                                        out LateDDLResolution? lateDDLresolution,
+                                        out string logId,
+                                        out string subClass,
+                                        out IKeyspace primaryKS,
+                                        out IDDLStmt primaryDDL,
+                                        out UnitOfMeasure duration,
+                                        out DateTime? eventDurationTime,
+                                        out List<string> sstableFilePaths,
+                                        out List<IDDLStmt> ddlInstances,
+                                        out IEnumerable<INode> assocatedNodes,
+                                        out IEnumerable<TokenRangeInfo> tokenRanges);
 
             var logEvent = new LogCassandraEvent(this.File,
                                                     this.Node,
@@ -931,32 +917,20 @@ namespace DSEDiagnosticFileParser
             var exceptionPaths = new List<string>();
             
             topLevelException = this.DetermineExceptionInfo(logMessage, logProperties, exceptionPaths);
-
-            UnitOfMeasure duration;
-            DateTime? eventDurationTime;
-            string logId;
-            List<string> sstableFilePaths;
-            IKeyspace primaryKS;
-            IDDLStmt primaryDDL;
-            List<IDDLStmt> ddlInstances;
-            IEnumerable<INode> assocatedNodes;
-            IEnumerable<TokenRangeInfo> tokenRanges;
-            LateDDLResolution? lateDDLresolution;
-            string subClass;
             
             this.DetermineProperties(logMessage,
                                         logProperties,
-                                        out lateDDLresolution,
-                                        out logId,
-                                        out subClass,
-                                        out primaryKS,
-                                        out primaryDDL,
-                                        out duration,
-                                        out eventDurationTime,
-                                        out sstableFilePaths,
-                                        out ddlInstances,
-                                        out assocatedNodes,
-                                        out tokenRanges);
+                                        out LateDDLResolution? lateDDLresolution,
+                                        out string logId,
+                                        out string subClass,
+                                        out IKeyspace primaryKS,
+                                        out IDDLStmt primaryDDL,
+                                        out UnitOfMeasure duration,
+                                        out DateTime? eventDurationTime,
+                                        out List<string> sstableFilePaths,
+                                        out List<IDDLStmt> ddlInstances,
+                                        out IEnumerable<INode> assocatedNodes,
+                                        out IEnumerable<TokenRangeInfo> tokenRanges);
 
             if(lastLogEvent != null && lastLogEvent.Class == EventClasses.NotHandled)
             {
@@ -1069,10 +1043,8 @@ namespace DSEDiagnosticFileParser
                                 .ForEach(ep => exceptDescription = exceptDescription.Replace(ep.Port.ToString(), "XXXX"));
                         }
                         else
-                        {
-                            var endPoint = assocNodes as System.Net.IPEndPoint;
-
-                            if (endPoint != null)
+                        {                            
+                            if (assocNodes is System.Net.IPEndPoint endPoint)
                             {
                                 exceptDescription = exceptDescription.Replace(endPoint.Port.ToString(), "XXXX");                                
                             }
@@ -1228,32 +1200,20 @@ namespace DSEDiagnosticFileParser
             var sessionParentAction = matchItem.Item5.SessionParentAction;
             bool orphanedSession = false;
             string analyticsGroup = matchItem.Item5.AnalyticsGroup;
-
-            UnitOfMeasure duration;
-            DateTime? eventDurationTime;
-            string logId;
-            List<string> sstableFilePaths;            
-            IKeyspace primaryKS;
-            IDDLStmt primaryDDL;            
-            List<IDDLStmt> ddlInstances;
-            IEnumerable<INode> assocatedNodes;
-            IEnumerable<TokenRangeInfo> tokenRanges;
-            LateDDLResolution? lateDDLresolution;
-            string subClass;
             
             this.DetermineProperties(logMessage,
                                         logProperties,
-                                        out lateDDLresolution,
-                                        out logId,
-                                        out subClass,
-                                        out primaryKS,
-                                        out primaryDDL,
-                                        out duration,
-                                        out eventDurationTime,
-                                        out sstableFilePaths,
-                                        out ddlInstances,
-                                        out assocatedNodes,
-                                        out tokenRanges);
+                                        out LateDDLResolution? lateDDLresolution,
+                                        out string logId,
+                                        out string subClass,
+                                        out IKeyspace primaryKS,
+                                        out IDDLStmt primaryDDL,
+                                        out UnitOfMeasure duration,
+                                        out DateTime? eventDurationTime,
+                                        out List<string> sstableFilePaths,
+                                        out List<IDDLStmt> ddlInstances,
+                                        out IEnumerable<INode> assocatedNodes,
+                                        out IEnumerable<TokenRangeInfo> tokenRanges);
             
             subClass = subClass
                         ?? matchItem.Item5.DetermineSubClass(this.Cluster,
@@ -1264,18 +1224,16 @@ namespace DSEDiagnosticFileParser
 
             #region log property processing
             if(matchItem.Item5.DeltaRunningTotalProperty != null)
-            {
-                object propValue;
-                object runningTot;
+            {                
                 var runningTotKeyPrefix = matchItem.Item5.DetermineDeltaRunningTotalKey(this.Cluster, this.Node, primaryKS, logProperties, logMessage);
                 
                 foreach (var deltaProp in matchItem.Item5.DeltaRunningTotalProperty)
                 {
                     var runningTotKey = runningTotKeyPrefix == null ? deltaProp : runningTotKeyPrefix + '-' + deltaProp;
 
-                    if (logProperties.TryGetValue(deltaProp, out propValue) && propValue != null && propValue.IsNumber())
+                    if (logProperties.TryGetValue(deltaProp, out object propValue) && propValue != null && propValue.IsNumber())
                     {
-                        if(this.Node.Analytics.RunningTotalProperties.TryGetValue(runningTotKey, out runningTot))
+                        if(this.Node.Analytics.RunningTotalProperties.TryGetValue(runningTotKey, out object runningTot))
                         {
                             logProperties[deltaProp] = (dynamic)propValue >= (dynamic)runningTot ? (dynamic)propValue - (dynamic)runningTot : propValue;
                             this.Node.Analytics.RunningTotalProperties[runningTotKey] = propValue;
@@ -1522,12 +1480,11 @@ namespace DSEDiagnosticFileParser
                         }
                     }
 
-                    {
-                        object keyValue;
+                    {                        
                         if (primaryKS == null
                                 && sessionEvent.Keyspace != null
                                 && logProperties != null
-                                && logProperties.TryGetValue("KEYSPACE", out keyValue)
+                                && logProperties.TryGetValue("KEYSPACE", out object keyValue)
                                 && sessionEvent.Keyspace.Name == (keyValue is string ? (string) keyValue : (keyValue as IKeyspace)?.Name))
                         {
                             primaryKS = sessionEvent.Keyspace;
@@ -2263,14 +2220,13 @@ namespace DSEDiagnosticFileParser
                                                                                 EventClasses.Node | EventClasses.DataModel);
                                     }
 
-                                    {
-                                        object existingValue;
+                                    {                                        
                                         var errValue = string.Format("DDL has {0} for {1}",
                                                                                     ddlInstancesCnt > ddlNamesCnt
                                                                                         ? "multiple resolved C* object (DDL) instances"
                                                                                         : "unresolved C* object names",
                                                                                     string.Join(", ", diffNames));
-                                        if (errorNodeAggStat.Data.TryGetValue(AggregatedStats.ErrorCItemNotFnd, out existingValue))
+                                        if (errorNodeAggStat.Data.TryGetValue(AggregatedStats.ErrorCItemNotFnd, out object existingValue))
                                         {
                                             ((List<string>)existingValue).Add(errValue);
                                         }
@@ -2337,10 +2293,8 @@ namespace DSEDiagnosticFileParser
                                                                     EventTypes.AggregateDataTool,
                                                                     EventClasses.Node);
                         }
-                        {
-                            object existingValue;
-                            
-                            if (errorNodeAggStat.Data.TryGetValue(AggregatedStats.ErrorNodeNotFnd, out existingValue))
+                        {                            
+                            if (errorNodeAggStat.Data.TryGetValue(AggregatedStats.ErrorNodeNotFnd, out object existingValue))
                             {
                                 nodesNotFound.ForEach(n =>
                                                         ((List<string>)existingValue).Add(string.Format("Associated Node \"{0}\" could not be found", n)));                                
@@ -2453,10 +2407,8 @@ namespace DSEDiagnosticFileParser
                                                                     EventClasses.Node | EventClasses.DataModel);
                         }
 
-                        {
-                            object existingValue;
-                            
-                            if (!errorNodeAggStat.Data.TryGetValue(AggregatedStats.ErrorCItemNotFnd, out existingValue))                            
+                        {                            
+                            if (!errorNodeAggStat.Data.TryGetValue(AggregatedStats.ErrorCItemNotFnd, out object existingValue))                            
                             {
                                 errorNodeAggStat.AssociateItem(AggregatedStats.ErrorCItemNotFnd, existingValue = new List<string>());
                             }
@@ -2500,11 +2452,10 @@ namespace DSEDiagnosticFileParser
                                                                     EventClasses.Node | EventClasses.DataModel);
                         }
 
-                        {
-                            object existingValue;
+                        {                            
                             var errValue = string.Format("Primary Keyspace \"{0}\" could not be found",
                                                           keyspaceName);
-                            if (errorNodeAggStat.Data.TryGetValue(AggregatedStats.ErrorKSNotFnd, out existingValue))
+                            if (errorNodeAggStat.Data.TryGetValue(AggregatedStats.ErrorKSNotFnd, out object existingValue))
                             {
                                 ((List<string>)existingValue).Add(errValue);
                             }
@@ -2750,9 +2701,8 @@ namespace DSEDiagnosticFileParser
                     if ((groupName == "KEYSPACES" || groupName == "DDLITEMNAMES" || groupName == "SSTABLEPATHS" || groupName == "NODES"))
                     {
                         #region List of items
-                        object itemValue;
-
-                        if(logProperties.TryGetValue(groupName, out itemValue) && itemValue is string)
+                        
+                        if(logProperties.TryGetValue(groupName, out object itemValue) && itemValue is string)
                         {
                             var listItem = ((string)itemValue).Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
 
@@ -2775,9 +2725,8 @@ namespace DSEDiagnosticFileParser
             {
                 normalizedGroupName = groupName.Substring(0, groupNamePos);
                 var lookupVar = groupName.Substring(groupNamePos + 2);
-                object lookupValue;
-
-                if (logProperties.TryGetValue(lookupVar, out lookupValue)
+                
+                if (logProperties.TryGetValue(lookupVar, out object lookupValue)
                         && lookupValue is UnitOfMeasure)
                 {
                     uomType = ((UnitOfMeasure)lookupValue).UnitType.ToString();

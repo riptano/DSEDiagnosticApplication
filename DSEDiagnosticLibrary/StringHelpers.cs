@@ -79,10 +79,8 @@ namespace DSEDiagnosticLibrary
         }
 
         static public System.Net.IPAddress DetermineIPAddress(string possibleIPAddress)
-        {
-            System.Net.IPAddress ipAddress = null;
-            System.Net.IPAddress.TryParse(possibleIPAddress, out ipAddress);
-            return ipAddress;
+        {           
+            return System.Net.IPAddress.TryParse(possibleIPAddress, out System.Net.IPAddress ipAddress) ? ipAddress : null;
         }
 
         private static Regex hostPortMatch = new Regex(@"^(?<ip>(?:\[[\da-fA-F:]+\])|(?:\d{1,3}\.){3}\d{1,3})(?::(?<port>\d+))$", System.Text.RegularExpressions.RegexOptions.Compiled);
@@ -128,9 +126,7 @@ namespace DSEDiagnosticLibrary
                                                             bool tryParseIPAddress = true,
                                                             string convertToUOMBasedOnContext = null,
                                                             bool checkforDate = false)
-        {
-            object item;
-
+        {            
             if (string.IsNullOrEmpty(strValue))
             {
                 return strValue;
@@ -149,10 +145,8 @@ namespace DSEDiagnosticLibrary
             }
 
             if(BooleanRegEx.IsMatch(strValue))
-            {
-                bool boolValue;
-
-                if(Boolean.TryParse(strValue, out boolValue))
+            {                
+                if(Boolean.TryParse(strValue, out bool boolValue))
                 {
                     return boolValue;
                 }
@@ -171,18 +165,13 @@ namespace DSEDiagnosticLibrary
             }
 
             if (convertToUOMBasedOnContext == null && checkforDate)
-            {
-                TimeSpan ts;
-
-                if (strValue.IndexOf(':') > 0 && TimeSpan.TryParse(strValue, out ts))
+            {                
+                if (strValue.IndexOf(':') > 0 && TimeSpan.TryParse(strValue, out TimeSpan ts))
                 {
                     return ts;
                 }
 
-
-                DateTime dt;
-
-                if (DateTime.TryParse(strValue, out dt))
+                if (DateTime.TryParse(strValue, out DateTime dt))
                 {
                     return dt;
                 }
@@ -198,20 +187,20 @@ namespace DSEDiagnosticLibrary
             if (tryParseIPAddress)
             {
                 var strIPAddress = strValue;
+                var hostSeperatorPos = strIPAddress.IndexOf('/');
 
-                if (strIPAddress[0] == '/')
+                if (hostSeperatorPos >= 0)
                 {
-                    strIPAddress = strIPAddress.Substring(1);
+                    strIPAddress = strIPAddress.Substring(hostSeperatorPos + 1);
                 }
-
+                
                 var endPoint = StringHelpers.ParseHostPort(strIPAddress);
 
                 if(endPoint == null)
                 {
                     if (NodeIdentifier.IPAddressRegEx.IsMatch(strIPAddress))
-                    {
-                        System.Net.IPAddress ipAddress;
-                        if (System.Net.IPAddress.TryParse(strIPAddress, out ipAddress))
+                    {                        
+                        if (System.Net.IPAddress.TryParse(strIPAddress, out System.Net.IPAddress ipAddress))
                         {
                             return ipAddress;
                         }
@@ -271,7 +260,7 @@ namespace DSEDiagnosticLibrary
                 return strValue;
             }
 
-            if (StringFunctions.ParseIntoNumeric(strValue, out item))
+            if (StringFunctions.ParseIntoNumeric(strValue, out object item))
             {
                 if (!string.IsNullOrEmpty(convertToUOMBasedOnContext))
                 {

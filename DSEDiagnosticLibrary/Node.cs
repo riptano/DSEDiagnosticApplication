@@ -74,9 +74,8 @@ namespace DSEDiagnosticLibrary
 		{
             strIPAddress = strIPAddress?.Trim();
 			if (!string.IsNullOrEmpty(strIPAddress))
-			{
-				IPAddress ipAddress;
-				if(IPAddress.TryParse(strIPAddress, out ipAddress))
+			{				
+				if(IPAddress.TryParse(strIPAddress, out IPAddress ipAddress))
 				{
 					return this.AddIPAddress(ipAddress);
 				}
@@ -439,10 +438,8 @@ namespace DSEDiagnosticLibrary
             if (this._hostnames.Any(n => HostNameEqual(n, other))) return true;
 
             if (this._addresses.HasAtLeastOneElement())
-            {
-                IPAddress address;
-
-                if (IPAddress.TryParse(other, out address))
+            {                
+                if (IPAddress.TryParse(other, out IPAddress address))
                 {
                     return this.Equals(address);
                 }
@@ -687,7 +684,7 @@ namespace DSEDiagnosticLibrary
             this.NTP = new NTPInfo();
             this.Devices = new DeviceInfo();
         }
-        private INode _assocatedNode;
+        private readonly INode _assocatedNode;
 
         public CPUInfo CPU;
         public string OS;
@@ -955,7 +952,7 @@ namespace DSEDiagnosticLibrary
         public string ChunkCacheInformation;
 
         [JsonProperty(PropertyName="TokenRanges")]
-        private List<TokenRangeInfo> _tokenRanges = new List<TokenRangeInfo>();
+        private readonly List<TokenRangeInfo> _tokenRanges = new List<TokenRangeInfo>();
         [JsonIgnore]
         public IEnumerable<TokenRangeInfo> TokenRanges { get { return this._tokenRanges; } }
         
@@ -1046,7 +1043,7 @@ namespace DSEDiagnosticLibrary
         [JsonIgnore]
         public IList<ILogEvent> OrphanedEvents { get { return this._orphanedEvents; } }
 
-        private CTS.List<DateTimeOffsetRange> _restarts = new CTS.List<DateTimeOffsetRange>();
+        private readonly CTS.List<DateTimeOffsetRange> _restarts = new CTS.List<DateTimeOffsetRange>();
         [JsonIgnore]
         public IList<DateTimeOffsetRange> Restarts { get { return this._restarts; } }
 
@@ -1259,8 +1256,8 @@ namespace DSEDiagnosticLibrary
             set { this._events = new CTS.List<LogCassandraEvent>(value); }
         }*/
 
-        private CMM.List<LogCassandraEvent,ILogEvent> _eventsCMM;
-        private CTS.List<IMMLogValue> _eventsCTS;
+        private readonly CMM.List<LogCassandraEvent,ILogEvent> _eventsCMM;
+        private readonly  CTS.List<IMMLogValue> _eventsCTS;
 
         [JsonIgnore]
         public IEnumerable<IMMLogValue> LogEvents { get { return this._eventsCMM?.ToEnumerable() ?? (IEnumerable<IMMLogValue>) this._eventsCTS; } }
@@ -1397,12 +1394,12 @@ namespace DSEDiagnosticLibrary
 
         public object ToDump()
         {
-            return new { Id = this.Id,
-                            DataCenter = this.DataCenter,
+            return new { this.Id,
+                            this.DataCenter,
                             DSEInfo = this.DSE,
                             MachineInfo = this.Machine,
-                            LogEvents = this.LogEvents,
-                            Configurations = this.Configurations };
+                            this.LogEvents,
+                            this.Configurations };
         }
 		#endregion
 
