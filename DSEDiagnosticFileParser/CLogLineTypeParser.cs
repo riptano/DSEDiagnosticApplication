@@ -1113,7 +1113,9 @@ namespace DSEDiagnosticFileParser
 
             if (this.MaxNumberOfEventsPerNode >= 0)
             {
+#pragma warning disable IDE0031 // Use null propagation
                 NodeRunningCount nodeCnt = this._nodesRunningCnt == null ? null : this._nodesRunningCnt.FirstOrDefault(i => i.Node.Equals(node.Id));
+#pragma warning restore IDE0031 // Use null propagation
 
                 return nodeCnt == null ? false : System.Threading.Interlocked.Increment(ref nodeCnt.Count) >= this.MaxNumberOfEventsPerNode;
             }
@@ -1251,7 +1253,9 @@ namespace DSEDiagnosticFileParser
         private string _toStringCache = null;
         public override string ToString()
         {
+#pragma warning disable IDE0029 // Use coalesce expression
             return this._toStringCache == null ? this._toStringCache = Newtonsoft.Json.JsonConvert.SerializeObject(this) : this._toStringCache;
+#pragma warning restore IDE0029 // Use coalesce expression
         }
 
         private string _toShortStringCache = null;
@@ -1615,9 +1619,7 @@ namespace DSEDiagnosticFileParser
                                                                                 logLineMessage }) as string;
             }
             else
-            {
-                string sessionKey;
-
+            {               
                 if (!GenerateSessionKey(logLineParser,
                                         cacheIdx,
                                         cluster,
@@ -1625,7 +1627,7 @@ namespace DSEDiagnosticFileParser
                                         keyspace,
                                         logLineProperties,
                                         logLineMessage,
-                                        out sessionKey))
+                                        out string sessionKey))
                 {
                     if (sessionKey == null && throwWhenKeyNotFnd)
                     {
@@ -1645,7 +1647,9 @@ namespace DSEDiagnosticFileParser
                                                             bool returnFullName,
                                                             bool onlyTableName)
         {
+#pragma warning disable IDE0018 // Inline variable declaration
             object objSessionKey = null;
+#pragma warning restore IDE0018 // Inline variable declaration
             string name = null;
 
             if(!logLineProperties.TryGetValue("SSTABLEPATH", out objSessionKey))

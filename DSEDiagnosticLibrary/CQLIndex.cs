@@ -20,6 +20,7 @@ namespace DSEDiagnosticLibrary
         string UsingClass { get; }
         string UsingClassNormalized { get; }
         Dictionary<string,object> WithOptions { get; }
+        UnitOfMeasure StorageUtilized { get; }
     }
 
     [JsonObject(MemberSerialization.OptOut)]
@@ -55,6 +56,7 @@ namespace DSEDiagnosticLibrary
             this.UsingClassNormalized = string.IsNullOrEmpty(this.UsingClass) ? null : StringHelpers.RemoveNamespace(this.UsingClass);
             this.WithOptions = withOptions;
             this.Items = this.Columns.Count();
+            this.StorageUtilized = new UnitOfMeasure(UnitOfMeasure.Types.NaN | UnitOfMeasure.Types.Storage);
 
             if (this.IsCustom && this.UsingClass == null) throw new NullReferenceException(string.Format("CQLIndex \"{0}\" must have a usingClass string for custom index's for CQL \"{1}\"", name, ddl));
 
@@ -171,6 +173,8 @@ namespace DSEDiagnosticLibrary
 
         public string UsingClassNormalized { get; }
         public Dictionary<string, object> WithOptions { get; }
+
+        public UnitOfMeasure StorageUtilized { get; private set; }
         #endregion
 
         #region IEquatable
@@ -218,5 +222,15 @@ namespace DSEDiagnosticLibrary
             return string.Format("CQLIndex{{{0}}}", this.DDL);
         }
         #endregion
+
+        public UnitOfMeasure AddToStorage(UnitOfMeasure size)
+        {
+            return this.StorageUtilized = this.StorageUtilized.Add(size);
+        }
+
+        public UnitOfMeasure AddToStorage(decimal size)
+        {
+            return this.StorageUtilized = this.StorageUtilized.Add(size);
+        }
     }
 }

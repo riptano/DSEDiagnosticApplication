@@ -125,19 +125,21 @@ namespace DSEDiagtnosticToExcel
 
                                                                 this.DataTable.GetColumn("HasOrderBy")
                                                                     .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonTrueYellow);
-                                                                //this.DataTable.GetColumn("Associated Table");
-                                                                //this.DataTable.GetColumn("Index");
-                                                                //this.DataTable.GetColumn("DDL");
+
+                                                                this.DataTable.GetColumn("Storage (MB)")
+                                                                    .SetNumericFormat("###,###,###,###.0000")
+                                                                    .TotalColumn()
+                                                                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDataBarLightBlue);
 
                                                                 workSheet.UpdateWorksheet(this.DataTable, 2);
 
                                                                 workSheet.ExcelRange(2,
                                                                                       this.DataTable.GetColumn("Active"),
-                                                                                      this.DataTable.GetColumn("Index"))
+                                                                                      this.DataTable.GetColumn("Storage (MB)"))
                                                                             .First().AutoFilter = true;
 
                                                                 workSheet.AutoFitColumn(workSheet.ExcelRange(this.DataTable.GetColumn("Active"),
-                                                                                                                this.DataTable.GetColumn("Index")));
+                                                                                                                this.DataTable.GetColumn("Storage (MB)")));
                                                             },
                                                             -1,
                                                            -1,

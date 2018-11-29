@@ -166,6 +166,8 @@ namespace DSEDiagnosticLibrary
         bool IsPreLoaded { get; }
 
         bool? HasActiveMember { get; }
+
+        UnitOfMeasure StorageUtilized { get;  }
     }
 
     [JsonObject(MemberSerialization.OptOut)]
@@ -201,6 +203,7 @@ namespace DSEDiagnosticLibrary
             this.IsDSEKeyspace = LibrarySettings.DSEKeyspaces.Contains(this.Name);
             this.IsSystemKeyspace = LibrarySettings.SystemKeyspaces.Contains(this.Name);
             this.IsPerformanceKeyspace = LibrarySettings.PerformanceKeyspaces.Contains(this.Name);
+            this.StorageUtilized = new UnitOfMeasure(UnitOfMeasure.Types.NaN | UnitOfMeasure.Types.Storage);
 
             if (this.Replications == null || this.Replications.IsEmpty())
             {
@@ -375,13 +378,13 @@ namespace DSEDiagnosticLibrary
                     }
                 }
 
-                this.Stats.Columns += (uint)((ICQLTable)ddl).Columns.Sum(c => c is ICQLUserDefinedType ? ((ICQLUserDefinedType)c).Columns.Count() : 1);
-                this.Stats.ColumnStat.Blobs += (uint)((ICQLTable)ddl).Columns.Count(c => c.CQLType.HasBlob);
-                this.Stats.ColumnStat.Collections += (uint)((ICQLTable)ddl).Columns.Count(c => c.CQLType.HasCollection);
-                this.Stats.ColumnStat.Frozen += (uint)((ICQLTable)ddl).Columns.Count(c => c.CQLType.HasFrozen);
-                this.Stats.ColumnStat.Static += (uint)((ICQLTable)ddl).Columns.Count(c => c.IsStatic);
-                this.Stats.ColumnStat.Tuple += (uint)((ICQLTable)ddl).Columns.Count(c => c.CQLType.HasTuple);
-                this.Stats.ColumnStat.UDT += (uint)((ICQLTable)ddl).Columns.Count(c => c is ICQLUserDefinedType || c.CQLType.HasUDT);
+                this.Stats.Columns += ((ICQLTable)ddl).Stats.NbrColumns;
+                this.Stats.ColumnStat.Blobs += ((ICQLTable)ddl).Stats.Blobs;
+                this.Stats.ColumnStat.Collections += ((ICQLTable)ddl).Stats.Collections;
+                this.Stats.ColumnStat.Frozen += ((ICQLTable)ddl).Stats.Frozens;
+                this.Stats.ColumnStat.Static += ((ICQLTable)ddl).Stats.Statics;
+                this.Stats.ColumnStat.Tuple += ((ICQLTable)ddl).Stats.Tuples;
+                this.Stats.ColumnStat.UDT += ((ICQLTable)ddl).Stats.UDTs;
                 this.Stats.MaxGCGrace = this.Stats.MaxGCGrace.Max((TimeSpan)(((ICQLTable)ddl).GetPropertyValue("gc_grace_seconds") ?? TimeSpan.MinValue));
                 this.Stats.MaxTTL = this.Stats.MaxTTL.Max((TimeSpan)(((ICQLTable)ddl).GetPropertyValue("default_time_to_live") ?? TimeSpan.MinValue));
                 this.Stats.MaxReadRepairChance = Math.Max(this.Stats.MaxReadRepairChance, (decimal)(((ICQLTable)ddl).GetPropertyValue("read_repair_chance") ?? decimal.MinValue));
@@ -592,6 +595,8 @@ namespace DSEDiagnosticLibrary
 
         public bool IsPreLoaded { get; }
 
+        public UnitOfMeasure StorageUtilized { get; private set; }
+
         #endregion
 
         #region IEquatable
@@ -661,6 +666,15 @@ namespace DSEDiagnosticLibrary
             return string.Format("Keyspace{{{0}}}", this.DDL);
         }
         #endregion
+
+        public UnitOfMeasure AddToStorage(UnitOfMeasure size)
+        {
+            return this.StorageUtilized = this.StorageUtilized.Add(size);
+        }
+        public UnitOfMeasure AddToStorage(decimal size)
+        {
+            return this.StorageUtilized = this.StorageUtilized.Add(size);
+        }
 
         public static IEnumerable<IKeyspace> TryGet(Cluster cluster, string ksName)
         {

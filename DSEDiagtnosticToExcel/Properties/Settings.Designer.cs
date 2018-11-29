@@ -12,7 +12,7 @@ namespace DSEDiagtnosticToExcel.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "15.8.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "15.9.0.0")]
     internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
         
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
@@ -1014,6 +1014,58 @@ namespace DSEDiagtnosticToExcel.Properties {
         public string CondFmtJsonTrueYellow {
             get {
                 return ((string)(this["CondFmtJsonTrueYellow"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute(@"[
+  {
+    ""Type"": 2,
+    ""SubType"": 3,
+    ""RuleType"": 40,
+    ""SubRuleType"": 27,
+    ""Value"": 0,
+    ""FormulaText"": null,
+    ""FormulaTextBetween"": null,
+    ""Color"": ""Green"",
+    ""ShowValue"": true,
+    ""StopIfTrue"": false,
+    ""Priority"": 1,
+    ""IncludeTotalRow"": false
+  },
+  {
+    ""Type"": 3,
+    ""SubType"": 3,
+    ""RuleType"": 40,
+    ""SubRuleType"": 27,
+    ""Value"": 0.02,
+    ""FormulaText"": null,
+    ""FormulaTextBetween"": null,
+    ""Color"": ""Yellow"",
+    ""ShowValue"": true,
+    ""StopIfTrue"": false,
+    ""Priority"": 1,
+    ""IncludeTotalRow"": false
+  },
+  {
+    ""Type"": 1,
+    ""SubType"": 3,
+    ""RuleType"": 40,
+    ""SubRuleType"": 27,
+    ""Value"": 0.04,
+    ""FormulaText"": null,
+    ""FormulaTextBetween"": null,
+    ""Color"": ""Red"",
+    ""ShowValue"": true,
+    ""StopIfTrue"": false,
+    ""Priority"": 1,
+    ""IncludeTotalRow"": false
+  }
+]")]
+        public string CondFmtJsonDistStdDev {
+            get {
+                return ((string)(this["CondFmtJsonDistStdDev"]));
             }
         }
     }

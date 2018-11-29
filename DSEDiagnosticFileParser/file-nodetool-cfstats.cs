@@ -449,6 +449,41 @@ namespace DSEDiagnosticFileParser
                     }
                 }
 
+                if(attribute == Properties.Settings.Default.CFStatTotalStorage)
+                {
+                    if(statItem.TableViewIndex != null)
+                    {
+                        if(propValue is UnitOfMeasure uom)
+                        {
+                            if(statItem.TableViewIndex is CQLTable cqlTbl)
+                            {
+                                cqlTbl.AddToStorage(uom);
+                            }
+                            else if(statItem.TableViewIndex is CQLIndex cqlIdx)
+                            {
+                                cqlIdx.AddToStorage(uom);
+                            }
+
+                            ((KeySpace)statItem.TableViewIndex.Keyspace).AddToStorage(uom);
+                        }
+                        else
+                        {
+                            var decValue = (decimal)((dynamic)propValue);
+
+                            if (statItem.TableViewIndex is CQLTable cqlTbl)
+                            {
+                                cqlTbl.AddToStorage(decValue);
+                            }
+                            else if (statItem.TableViewIndex is CQLIndex cqlIdx)
+                            {
+                                cqlIdx.AddToStorage(decValue);
+                            }
+
+                            ((KeySpace)statItem.TableViewIndex.Keyspace).AddToStorage(decValue);
+                        }
+                    }
+                }
+
                 statItem.AssociateItem(attribute, propValue);
             }
 

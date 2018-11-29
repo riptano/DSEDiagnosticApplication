@@ -51,6 +51,7 @@ namespace DSEDiagnosticToDataTable
             dtDDL.Columns.Add("HasOrderBy", typeof(bool)).AllowDBNull = true;//v
             dtDDL.Columns.Add("Associated Table", typeof(string)).AllowDBNull = true;//w
             dtDDL.Columns.Add("Index", typeof(bool)).AllowDBNull = true; //x
+            dtDDL.Columns.Add("Storage (MB)", typeof(decimal)).AllowDBNull = true;
             dtDDL.Columns.Add("DDL", typeof(string));//z
 
             dtDDL.PrimaryKey = new System.Data.DataColumn[] { dtDDL.Columns[ColumnNames.KeySpace], dtDDL.Columns["Name"] };
@@ -130,6 +131,7 @@ namespace DSEDiagnosticToDataTable
                             {
                                 dataRow["Compaction Strategy"] = ((DSEDiagnosticLibrary.ICQLIndex)ddlItem).UsingClassNormalized;
                             }
+                            dataRow.SetFieldToDecimal("Storage (MB)", ((DSEDiagnosticLibrary.ICQLIndex)ddlItem).StorageUtilized, DSEDiagnosticLibrary.UnitOfMeasure.Types.MiB);
                         }
                         else if (ddlItem is DSEDiagnosticLibrary.ICQLUserDefinedType)
                         {
@@ -163,6 +165,7 @@ namespace DSEDiagnosticToDataTable
                             dataRow["Policy"] = ((DSEDiagnosticLibrary.ICQLTable)ddlItem).GetPropertyValue("speculative_retry");
                             dataRow["GC Grace Period"] = ((DSEDiagnosticLibrary.ICQLTable)ddlItem).GetPropertyValue("gc_grace_seconds");
                             dataRow["TTL"] = ((DSEDiagnosticLibrary.ICQLTable)ddlItem).GetPropertyValue("default_time_to_live");
+                            dataRow.SetFieldToDecimal("Storage (MB)", ((DSEDiagnosticLibrary.ICQLTable)ddlItem).StorageUtilized, DSEDiagnosticLibrary.UnitOfMeasure.Types.MiB);
 
                             if (ddlItem is DSEDiagnosticLibrary.ICQLMaterializedView)
                             {

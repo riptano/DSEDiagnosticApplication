@@ -965,6 +965,7 @@ namespace DSEDiagnosticFileParser
         {
             bool hasSubTypesd = colType.Last() == '>';
             IEnumerable<CQLColumnType> subTypes = null;
+            string prefixKSName = null;
 
             if (hasSubTypesd)
             {                
@@ -986,8 +987,14 @@ namespace DSEDiagnosticFileParser
 
                     if(newKS != null)
                     {
-                        keyspace = newKS;
                         colType = ksUDTPair.Item2;
+
+                        if (!newKS.Equals(keyspace))                        
+                        {
+                            keyspace = newKS;
+                            prefixKSName = keyspace.Name;                            
+                        }
+                        
                     }
                 }
             }
@@ -1002,6 +1009,9 @@ namespace DSEDiagnosticFileParser
                 ProcessUDTColumn(udtInstance, udtTypes);
                 subTypes = udtTypes;
                 isUDT = true;
+
+                if (!string.IsNullOrEmpty(prefixKSName))
+                    colType = prefixKSName + '.' + colType;
             }
 
             return new CQLColumnType(isUDT ? colType : colType.ToLower(), subTypes, colType, null, isUDT);

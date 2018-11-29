@@ -64,7 +64,12 @@ namespace DSEDiagnosticLibrary
         /// <summary>
         ///  Statistical data that is typically derived by a DSE/C* tool like nodetool or dsetool
         /// </summary>
-        AggregateDataTool = AggregateData | 0x4000
+        AggregateDataTool = AggregateData | 0x4000,
+
+        /// <summary>
+        /// Defines an Exception Instance
+        /// </summary>
+        ExceptionInstance = SingleInstance | 0x10000
     }
 
     [Flags]
@@ -118,6 +123,7 @@ namespace DSEDiagnosticLibrary
         FileSystem      = 0x100000000000,
         Message         = 0x200000000000,
         Unavailable     = 0x400000000000,
+        Network         = 0x800000000000,
         GCStats = GC | Stats,
         MemtableFlush = Memtable | Flush,
         SolrHardCommit = Solr | Commit,

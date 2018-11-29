@@ -172,7 +172,17 @@ namespace DSEDiagnosticLibrary
 
         public static ICQLUserDefinedType TryGet(IKeyspace ksInstance, string name)
         {
-            return ksInstance.TryGetUDT(name);
+            return ksInstance?.TryGetUDT(name);
+        }
+
+        public static ICQLUserDefinedType TryGet(string name, IKeyspace defaultKeyspace)
+        {
+            var splitName = StringHelpers.SplitTableName(name);
+
+            if (string.IsNullOrEmpty(splitName.Item1))
+                return TryGet(defaultKeyspace, name);
+
+            return TryGet(KeySpace.TryGet(defaultKeyspace.DataCenter, splitName.Item1).First(), splitName.Item2);
         }
     }
 }

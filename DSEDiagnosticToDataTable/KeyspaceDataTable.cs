@@ -66,6 +66,8 @@ namespace DSEDiagnosticToDataTable
 
             dtKeySpace.Columns.Add("OrderBy", typeof(int)).AllowDBNull = true;
 
+            dtKeySpace.Columns.Add("Storage (MB)", typeof(decimal)).AllowDBNull = true;
+
             dtKeySpace.Columns.Add("DDL", typeof(string));
 
             dtKeySpace.PrimaryKey = new System.Data.DataColumn[] { dtKeySpace.Columns["Name"], dtKeySpace.Columns[ColumnNames.DataCenter] };
@@ -220,6 +222,8 @@ namespace DSEDiagnosticToDataTable
                 dataRow["TTL (Max)"] = keySpace.Stats.MaxTTL;
 
             dataRow["OrderBy"] = keySpace.Stats.NbrOrderBys;
+
+            dataRow.SetFieldToDecimal("Storage (MB)", keySpace.StorageUtilized, DSEDiagnosticLibrary.UnitOfMeasure.Types.MiB);
         }
 
     }

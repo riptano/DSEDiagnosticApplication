@@ -232,6 +232,7 @@ namespace DSEDiagtnosticToExcel
                                                                        this.DataTable.GetColumn("Distribution Storage StdDev")
                                                                                         .SetCaption("StdDev")
                                                                                         .SetNumericFormat("###,##0.00")
+                                                                                        .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDistStdDev)
                                                                                         ),
                                                                     this.DataTable.SetGroupHeader("Keys", -1, true,
                                                                        this.DataTable.GetColumn("Distribution Keys From")
@@ -243,6 +244,7 @@ namespace DSEDiagtnosticToExcel
                                                                        this.DataTable.GetColumn("Distribution Keys StdDev")
                                                                                         .SetCaption("StdDev")
                                                                                         .SetNumericFormat("###,##0.00")
+                                                                                        .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDistStdDev)
                                                                                         ),
                                                                     this.DataTable.SetGroupHeader("SSTables", -1, true,
                                                                        this.DataTable.GetColumn("Distribution SSTables From")
@@ -254,6 +256,7 @@ namespace DSEDiagtnosticToExcel
                                                                        this.DataTable.GetColumn("Distribution SSTables StdDev")
                                                                                         .SetCaption("StdDev")
                                                                                         .SetNumericFormat("###,##0.00")
+                                                                                        .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDistStdDev)
                                                                 ));
 
                                                                 //Counts

@@ -265,7 +265,7 @@ namespace DSEDiagnosticLibrary
 
             if (this.NaN)
             {
-                return new UnitOfMeasure(addItem.ConvertTo(this.UnitType), this.UnitType & ~Types.NaN);
+                return addItem;
             }
 
             return new UnitOfMeasure(this.Value + addItem.ConvertTo(this.UnitType), this.UnitType);
@@ -287,7 +287,7 @@ namespace DSEDiagnosticLibrary
 
             if (this.NaN)
             {
-                return new UnitOfMeasure(subtractItem.ConvertTo(this.UnitType) * -1m, this.UnitType & ~Types.NaN);
+                return new UnitOfMeasure(subtractItem.Value * -1m, subtractItem.UnitType);
             }
 
             return new UnitOfMeasure(this.Value - subtractItem.ConvertTo(this.UnitType), this.UnitType);

@@ -196,17 +196,80 @@ namespace DSEDiagnosticFileParser.Tests
             Assert.IsInstanceOfType(tstKS.DDLs.ElementAt(1), typeof(DSEDiagnosticLibrary.CQLTable));
             var cqlTbl = tstKS.DDLs.ElementAt(1) as DSEDiagnosticLibrary.CQLTable;
 
-            Assert.AreEqual(29, cqlTbl.Columns.Count());
+            Assert.AreEqual(32, cqlTbl.Columns.Count());
             Assert.AreEqual("colBigIntPK", cqlTbl.Columns.ElementAt(0).Name);
             Assert.IsTrue(cqlTbl.Columns.ElementAt(0).IsPrimaryKey);
             Assert.IsFalse(cqlTbl.Columns.ElementAt(1).IsPrimaryKey);
 
             Assert.AreEqual("colUDTTimestampTextList", cqlTbl.Columns.ElementAt(27).Name);
+            Assert.AreEqual("colListUDTTimestampTextList1", cqlTbl.Columns.ElementAt(30).Name);
+
+            Assert.AreEqual("UDTTimestampTextList", cqlTbl.Columns.ElementAt(27).CQLType.Name);
+            Assert.IsFalse(cqlTbl.Columns.ElementAt(27).CQLType.IsBlob);
+            Assert.IsFalse(cqlTbl.Columns.ElementAt(27).CQLType.IsCollection);
+            Assert.IsFalse(cqlTbl.Columns.ElementAt(27).CQLType.IsCounter);
+            Assert.IsFalse(cqlTbl.Columns.ElementAt(27).CQLType.IsFrozen);
+            Assert.IsFalse(cqlTbl.Columns.ElementAt(27).CQLType.IsTuple);
+            Assert.IsTrue(cqlTbl.Columns.ElementAt(27).CQLType.IsUDT);
+            Assert.IsFalse(cqlTbl.Columns.ElementAt(27).CQLType.HasBlob);
+            Assert.IsTrue(cqlTbl.Columns.ElementAt(27).CQLType.HasCollection);
+            Assert.IsFalse(cqlTbl.Columns.ElementAt(27).CQLType.HasCounter);
+            Assert.IsTrue(cqlTbl.Columns.ElementAt(27).CQLType.HasFrozen);
+            Assert.IsFalse(cqlTbl.Columns.ElementAt(27).CQLType.HasTuple);
+            Assert.IsTrue(cqlTbl.Columns.ElementAt(27).CQLType.HasUDT);
+            Assert.AreEqual(3, cqlTbl.Columns.ElementAt(27).CQLType.CQLSubType.Count());
+
+            Assert.AreEqual("list", cqlTbl.Columns.ElementAt(30).CQLType.Name);
+            Assert.IsFalse(cqlTbl.Columns.ElementAt(30).CQLType.IsBlob);
+            Assert.IsTrue(cqlTbl.Columns.ElementAt(30).CQLType.IsCollection);
+            Assert.IsFalse(cqlTbl.Columns.ElementAt(30).CQLType.IsCounter);
+            Assert.IsFalse(cqlTbl.Columns.ElementAt(30).CQLType.IsFrozen);
+            Assert.IsFalse(cqlTbl.Columns.ElementAt(30).CQLType.IsTuple);
+            Assert.IsFalse(cqlTbl.Columns.ElementAt(30).CQLType.IsUDT);
+            Assert.IsFalse(cqlTbl.Columns.ElementAt(30).CQLType.HasBlob);
+            Assert.IsTrue(cqlTbl.Columns.ElementAt(30).CQLType.HasCollection);
+            Assert.IsFalse(cqlTbl.Columns.ElementAt(30).CQLType.HasCounter);
+            Assert.IsTrue(cqlTbl.Columns.ElementAt(30).CQLType.HasFrozen);
+            Assert.IsFalse(cqlTbl.Columns.ElementAt(30).CQLType.HasTuple);
+            Assert.IsTrue(cqlTbl.Columns.ElementAt(30).CQLType.HasUDT);
+            Assert.AreEqual(1, cqlTbl.Columns.ElementAt(30).CQLType.CQLSubType.Count());
+
             Assert.AreEqual(13, cqlTbl.Properties.Count);
             Assert.IsInstanceOfType(cqlTbl.Properties["compaction"], typeof(Dictionary<string,object>));            
             Assert.AreEqual("org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy", ((Dictionary<string, object>)cqlTbl.Properties["compaction"])["class"]);
             Assert.AreEqual(0.1m, ((decimal)cqlTbl.Properties["dclocal_read_repair_chance"]));
 
+            Assert.AreEqual((uint)1, cqlTbl.Stats.Blobs);
+            Assert.AreEqual((uint)10, cqlTbl.Stats.Collections);
+            Assert.AreEqual((uint)1, cqlTbl.Stats.Counters);
+            Assert.AreEqual((uint)7, cqlTbl.Stats.Frozens);
+            Assert.AreEqual((uint)38, cqlTbl.Stats.NbrColumns);
+            Assert.AreEqual((uint)0, cqlTbl.Stats.NbrCustomIndexes);
+            Assert.AreEqual((uint)0, cqlTbl.Stats.NbrMaterializedViews);
+            Assert.AreEqual((uint)0, cqlTbl.Stats.NbrSasIIIndexes);
+            Assert.AreEqual((uint)0, cqlTbl.Stats.NbrSecondaryIndexes);
+            Assert.AreEqual((uint)0, cqlTbl.Stats.NbrSolrIndexes);
+            Assert.AreEqual((uint)0, cqlTbl.Stats.NbrTriggers);
+            Assert.AreEqual((uint)0, cqlTbl.Stats.Statics);
+            Assert.AreEqual((uint)1, cqlTbl.Stats.Tuples);
+            Assert.AreEqual((uint)3, cqlTbl.Stats.UDTs);
+
+            Assert.AreEqual((uint)1, cqlTbl.Keyspace.Stats.ColumnStat.Blobs);
+            Assert.AreEqual((uint)10, cqlTbl.Keyspace.Stats.ColumnStat.Collections);
+            Assert.AreEqual((uint)7, cqlTbl.Keyspace.Stats.ColumnStat.Frozen);
+            Assert.AreEqual((uint)1, cqlTbl.Keyspace.Stats.ColumnStat.Tuple);
+            Assert.AreEqual((uint)3, cqlTbl.Keyspace.Stats.ColumnStat.UDT);
+            Assert.AreEqual((uint)38, cqlTbl.Keyspace.Stats.Columns);
+            Assert.AreEqual((uint)0, cqlTbl.Keyspace.Stats.CustomIndexes);
+            Assert.AreEqual((uint)0, cqlTbl.Keyspace.Stats.DTCS);
+            Assert.AreEqual((uint)0, cqlTbl.Keyspace.Stats.Functions);
+            Assert.AreEqual((uint)0, cqlTbl.Keyspace.Stats.LCS);
+            Assert.AreEqual((uint)0, cqlTbl.Keyspace.Stats.MaterialViews);
+            Assert.AreEqual((uint)1, cqlTbl.Keyspace.Stats.STCS);
+            Assert.AreEqual((uint)1, cqlTbl.Keyspace.Stats.Tables);
+            Assert.AreEqual((uint)0, cqlTbl.Keyspace.Stats.TCS);
+            Assert.AreEqual((uint)0, cqlTbl.Keyspace.Stats.TWCS);
+            Assert.AreEqual((uint)1, cqlTbl.Keyspace.Stats.UserDefinedTypes);
         }
     }
 }

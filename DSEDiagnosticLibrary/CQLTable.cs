@@ -36,10 +36,21 @@ namespace DSEDiagnosticLibrary
             this.IsUDT = this.HasUDT = isUDT;
 
             this.IsCollection = this.HasCollection = LibrarySettings.CQLCollectionTypes.Any(c => this.Name.ToLower() == c);
-            this.IsFrozen = this.HasFrozen = FrozenRegEx.IsMatch(this.DDL);
-            this.IsTuple = this.HasTuple = TupleRegEx.IsMatch(this.DDL);
-            this.IsCounter = this.HasCounter = CounterRegEx.IsMatch(this.DDL);
-            this.IsBlob = this.HasBlob = BlobRegEx.IsMatch(this.DDL);
+
+            if (this.IsCollection)
+            {
+                this.HasFrozen = FrozenRegEx.IsMatch(this.DDL);
+                this.HasTuple = TupleRegEx.IsMatch(this.DDL);
+                this.HasCounter = CounterRegEx.IsMatch(this.DDL);
+                this.HasBlob = BlobRegEx.IsMatch(this.DDL);
+            }
+            else
+            {
+                this.IsFrozen = this.HasFrozen = FrozenRegEx.IsMatch(this.DDL);
+                this.IsTuple = this.HasTuple = TupleRegEx.IsMatch(this.DDL);
+                this.IsCounter = this.HasCounter = CounterRegEx.IsMatch(this.DDL);
+                this.IsBlob = this.HasBlob = BlobRegEx.IsMatch(this.DDL);
+            }
 
             if (this.CQLSubType.HasAtLeastOneElement())
             {
@@ -166,11 +177,17 @@ namespace DSEDiagnosticLibrary
         {
             this.BaseType = baseType;
 
+            if (this.BaseType != null && this.BaseType.IsFrozen && !this.IsFrozen)
+                this.IsFrozen = true;
+
             if (setBaseSubTypes)
             {
                 foreach (var subType in this.CQLSubType)
                 {
-                    if (subType.BaseType == null) subType.SetBaseType(this, true);
+                    if (subType.BaseType == null)
+                    {
+                        subType.SetBaseType(this, true);                        
+                    }
                 }
             }
 
@@ -468,6 +485,7 @@ namespace DSEDiagnosticLibrary
         string Compression { get; }
         bool WithCompactStorage { get; }        
         CQLTableStats Stats { get; }
+        UnitOfMeasure StorageUtilized { get; }
 
         IEnumerable<ICQLColumn> TryGetColumns(IEnumerable<string> columns);
         ICQLColumn TryGetColumn(string columnName);
@@ -520,6 +538,7 @@ namespace DSEDiagnosticLibrary
             this.Properties = properties ?? new Dictionary<string, object>(0);
             this.Items = this.Columns.Count();
             this.IsFlagged = LibrarySettings.TablesUsageFlag.Contains(this.FullName);
+            this.StorageUtilized = new UnitOfMeasure(UnitOfMeasure.Types.NaN | UnitOfMeasure.Types.Storage);
 
             if(!this.IsFlagged)
             {
@@ -752,6 +771,9 @@ namespace DSEDiagnosticLibrary
         }
 
         public bool IsFlagged { get; protected set; }
+
+        public UnitOfMeasure StorageUtilized { get; private set; }
+
         #endregion
 
         #region IParsed
@@ -874,6 +896,16 @@ namespace DSEDiagnosticLibrary
             return string.Format("CQLTable{{{0}}}", this.DDL);
         }
         #endregion
+
+        public UnitOfMeasure AddToStorage(UnitOfMeasure size)
+        {
+            return this.StorageUtilized = this.StorageUtilized.Add(size);
+        }
+        public UnitOfMeasure AddToStorage(decimal size)
+        {
+            return this.StorageUtilized = this.StorageUtilized.Add(size);
+        }
+
         public static ICQLTable TryGet(IKeyspace ksInstance, string name)
         {
             return ksInstance.TryGetTable(name);
@@ -887,41 +919,83 @@ namespace DSEDiagnosticLibrary
 
             foreach (var column in columns)
             {
-                if (column.UDT == null)
+                
+                if (column.IsStatic)
                 {
-                    if (column.CQLType.HasCollection)
-                    {
-                        ++this.Stats.Collections;
-                    }
-                    if (column.CQLType.HasFrozen)
-                    {
-                        ++this.Stats.Frozens;
-                    }
-                    if (column.CQLType.HasTuple)
-                    {
-                        ++this.Stats.Tuples;
-                    }
-                    if (column.CQLType.HasCounter)
-                    {
-                        ++this.Stats.Counters;
-                    }
-                    if (column.CQLType.HasBlob)
-                    {
-                        ++this.Stats.Blobs;
-                    }
-                    if (column.CQLType.HasUDT)
-                    {
-                        ++this.Stats.UDTs;
-                    }
-                    if (column.IsStatic)
-                    {
-                        ++this.Stats.Statics;
-                    }
+                    ++this.Stats.Statics;
                 }
-                else
+
+                if (column.CQLType.IsFrozen)
                 {
-                    this.UpdateColumnStats(column.UDT.Columns);
+                    ++this.Stats.Frozens;
                 }
+                else if (column.CQLType.IsCollection)
+                {
+                    ++this.Stats.Collections;
+                    this.UpdateColumnStats(column.CQLType.CQLSubType);
+                }               
+                else if (column.CQLType.IsTuple)
+                {
+                    ++this.Stats.Tuples;
+                    this.UpdateColumnStats(column.CQLType.CQLSubType);
+                }
+                else if (column.CQLType.IsCounter)
+                {
+                    ++this.Stats.Counters;
+                }
+                else if (column.CQLType.IsBlob)
+                {
+                    ++this.Stats.Blobs;
+                }
+                else if (column.CQLType.IsUDT)
+                {
+                    ++this.Stats.UDTs;
+                    if(column.UDT == null)
+                    {
+                        var udtInstance = CQLUserDefinedType.TryGet(column.CQLType.Name, this.Keyspace);
+
+                        if (udtInstance == null)
+                            this.UpdateColumnStats(column.CQLType.CQLSubType);
+                        else
+                            this.UpdateColumnStats(udtInstance.Columns);
+                    }                        
+                    else
+                        this.UpdateColumnStats(column.UDT.Columns);
+                }           
+            }
+        }
+
+        private void UpdateColumnStats(IEnumerable<CQLColumnType> columnTypes)
+        {           
+            foreach (var columnType in columnTypes)
+            {
+                if (columnType.IsFrozen)
+                {
+                    ++this.Stats.Frozens;
+                }
+                else if (columnType.IsCollection)
+                {
+                    ++this.Stats.Collections;
+                    this.UpdateColumnStats(columnType.CQLSubType);
+                }                
+                else if (columnType.IsTuple)
+                {
+                    ++this.Stats.Tuples;
+                    this.UpdateColumnStats(columnType.CQLSubType);
+                }
+                else if (columnType.IsCounter)
+                {
+                    ++this.Stats.Counters;
+                }
+                else if (columnType.IsBlob)
+                {
+                    ++this.Stats.Blobs;
+                }
+                else if (columnType.IsUDT)
+                {
+                    ++this.Stats.UDTs;
+                    this.UpdateColumnStats(columnType.CQLSubType);
+                }                
             }
         }
 
