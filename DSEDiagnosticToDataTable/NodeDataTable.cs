@@ -272,6 +272,7 @@ namespace DSEDiagnosticToDataTable
                         dataRow.SetField("Counter Cache Information", node.DSE.CounterCacheInformation);
                         dataRow.SetField("Chunk Cache Information", node.DSE.ChunkCacheInformation);
                         if (node.DSE.IsSeedNode.HasValue) dataRow.SetField("Seed Node", node.DSE.IsSeedNode.Value);
+                        if(!string.IsNullOrEmpty(node.DSE.PhysicalServerId)) dataRow.SetField("Multi-Instance Server Id", node.DSE.PhysicalServerId);
 
                         this.Table.Rows.Add(dataRow);
                         ++nbrItems;

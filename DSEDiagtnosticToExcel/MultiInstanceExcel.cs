@@ -48,7 +48,7 @@ namespace DSEDiagtnosticToExcel
                                                                         {
                                                                             var workSheet = excelPackage.Workbook.Worksheets[WorkSheetName];
 
-                                                                            workSheet.AltFileFillRow(3,
+                                                                            workSheet.AltFileFillRow(2,
                                                                                                        this.DataTable.GetColumn("Multi-Instance Server Id"));
                                                                             
                                                                             this.CallActionEvent("Loaded");
