@@ -90,11 +90,18 @@ namespace DSEDiagtnosticToExcel
                                                                     this.DataTable.GetColumn("Policy")
                                                                     .SetComment("speculative_retry -- To override normal read timeout when read_repair_chance is not 1.0, sending another request to read, choose one of these values and use the property to create or alter the table: \"ALWAYS\" -- Retry reads of all replicas, \"Xpercentile\" -- Retry reads based on the effect on throughput and latency, \"Yms\" -- Retry reads after specified milliseconds, \"NONE\" -- Do not retry reads. Using the speculative retry property, you can configure rapid read protection in Cassandra 2.0.2 and later.Use this property to retry a request after some milliseconds have passed or after a percentile of the typical read latency has been reached, which is tracked per table.")
                                                                 );
-                                                                this.DataTable.GetColumn("GC Grace Period")
-                                                                    .SetNumericFormat(Properties.Settings.Default.ExcelTimeSpanFormat)
-                                                                    .SetComment("gc_grace_seconds -- Specifies the time to wait before garbage collecting tombstones (deletion markers). The default value allows a great deal of time for consistency to be achieved prior to deletion. In many deployments this interval can be reduced, and in a single-node cluster it can be safely set to zero. Default value is 864000 [10 days]");
-                                                                this.DataTable.GetColumn("TTL")
-                                                                    .SetNumericFormat(Properties.Settings.Default.ExcelTimeSpanFormat);
+
+                                                                this.DataTable.SetGroupHeader("Tombstone", -2, true,
+                                                                    this.DataTable.GetColumn("GC Grace Period")
+                                                                        .SetNumericFormat(Properties.Settings.Default.ExcelTimeSpanFormat)
+                                                                        .SetComment("gc_grace_seconds -- Specifies the time to wait before garbage collecting tombstones (deletion markers). The default value allows a great deal of time for consistency to be achieved prior to deletion. In many deployments this interval can be reduced, and in a single-node cluster it can be safely set to zero. Default value is 864000 [10 days]"),
+                                                                    this.DataTable.GetColumn("TTL")
+                                                                        .SetNumericFormat(Properties.Settings.Default.ExcelTimeSpanFormat)
+                                                                );
+
+                                                                this.DataTable.GetColumn("Memtable Flush Period")
+                                                                    .SetNumericFormat("#,###,###,###")
+                                                                    .SetComment("milliseconds");
 
                                                                 this.DataTable.SetGroupHeader("Column Counts", -2, true,
                                                                     this.DataTable.GetColumn("Collections")

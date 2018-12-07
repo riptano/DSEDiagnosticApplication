@@ -40,6 +40,7 @@ namespace DSEDiagnosticToDataTable
             dtDDL.Columns.Add("Policy", typeof(string)).AllowDBNull = true;//k
             dtDDL.Columns.Add("GC Grace Period", typeof(TimeSpan)).AllowDBNull = true;//l
             dtDDL.Columns.Add("TTL", typeof(TimeSpan)).AllowDBNull = true; //m
+            dtDDL.Columns.Add("Memtable Flush Period", typeof(long)).AllowDBNull = true;
             dtDDL.Columns.Add("Collections", typeof(int)).AllowDBNull = true;//n
             dtDDL.Columns.Add("Counters", typeof(int)).AllowDBNull = true;//o
             dtDDL.Columns.Add("Blobs", typeof(int)).AllowDBNull = true;//p
@@ -165,6 +166,7 @@ namespace DSEDiagnosticToDataTable
                             dataRow["Policy"] = ((DSEDiagnosticLibrary.ICQLTable)ddlItem).GetPropertyValue("speculative_retry");
                             dataRow["GC Grace Period"] = ((DSEDiagnosticLibrary.ICQLTable)ddlItem).GetPropertyValue("gc_grace_seconds");
                             dataRow["TTL"] = ((DSEDiagnosticLibrary.ICQLTable)ddlItem).GetPropertyValue("default_time_to_live");
+                            dataRow["Memtable Flush Period"] = ((DSEDiagnosticLibrary.ICQLTable)ddlItem).GetPropertyValueInMSLong("memtable_flush_period_in_ms");
                             dataRow.SetFieldToDecimal("Storage (MB)", ((DSEDiagnosticLibrary.ICQLTable)ddlItem).StorageUtilized, DSEDiagnosticLibrary.UnitOfMeasure.Types.MiB);
 
                             if (ddlItem is DSEDiagnosticLibrary.ICQLMaterializedView)
