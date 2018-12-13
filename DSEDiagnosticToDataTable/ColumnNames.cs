@@ -39,5 +39,6 @@ namespace DSEDiagnosticToDataTable
         public const string LogAggregation = "LogAggregation";
         public const string CommonPartitionKey = "CommonPartitionKey";
         public const string DSEDevices = "DSEDevices";
+        public const string TaggedItems = "TaggedItems";
     }
 }

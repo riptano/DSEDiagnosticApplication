@@ -73,6 +73,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <Compile Include="TaggedItemsDataTable.cs" />
     <Compile Include="TPStatsDataTable.cs" />
     <Compile Include="CFStatsDataTable.cs" />
     <Compile Include="ColumnNames.cs" />

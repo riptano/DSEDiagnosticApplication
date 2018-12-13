@@ -71,26 +71,26 @@ namespace DataTableToExcel
             return dtSplits;
         }
         
-        static readonly char[] Leters = new char[] { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z' };
+        static readonly char[] Letters = new char[] { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z' };
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="colIndex">zero position </param>
+        /// <param name="colOrdinal">zero position </param>
         /// <returns></returns>
-        public static string ExcelTranslateColumnFromColPostoLeter(int colIndex)
+        public static string ExcelTranslateColumnFromColOrdinaltoLetter(int colOrdinal)
         {
-            var level = colIndex / 26;
+            var level = colOrdinal / 26;
             string colLetter;
 
             if (level == 0)
             {
-                colLetter = Leters[colIndex].ToString();
+                colLetter = Letters[colOrdinal].ToString();
             }
             else
             {
-                colLetter = Leters[level - 1].ToString();
-                colLetter += Leters[colIndex - (level * 26)].ToString();
+                colLetter = Letters[level - 1].ToString();
+                colLetter += Letters[colOrdinal - (level * 26)].ToString();
             }
 
             return colLetter;
@@ -117,7 +117,7 @@ namespace DataTableToExcel
                     formulaString = formulaString.Replace(grpDCNameInd.Value,
                                                             useR1C1Syntax
                                                             ? (dataColumn.Ordinal+1).ToString()
-                                                            : ExcelTranslateColumnFromColPostoLeter(dataColumn.Ordinal));
+                                                            : ExcelTranslateColumnFromColOrdinaltoLetter(dataColumn.Ordinal));
                 }
             }
 
@@ -131,7 +131,7 @@ namespace DataTableToExcel
 
         public static string GetExcelColumnLetter(this DataColumn dataColumn)
         {
-            return ExcelTranslateColumnFromColPostoLeter(dataColumn.Ordinal);
+            return ExcelTranslateColumnFromColOrdinaltoLetter(dataColumn.Ordinal);
         }
 
         public static DataColumn SetCaption(this DataColumn dataColumn, string caption)
@@ -282,12 +282,12 @@ namespace DataTableToExcel
                 else
                     dataColumn.ExtendedProperties["Formula"] = string.Format(TranslateFormula(dataColumn.Table, formula),
                                                                                 "{0}", "{1}",
-                                                                                ExcelTranslateColumnFromColPostoLeter(dataColumn.Ordinal));
+                                                                                ExcelTranslateColumnFromColOrdinaltoLetter(dataColumn.Ordinal));
             }
             else
                 dataColumn.ExtendedProperties.Add("Formula", string.Format(TranslateFormula(dataColumn.Table, formula),
                                                                                 "{0}", "{1}",
-                                                                                ExcelTranslateColumnFromColPostoLeter(dataColumn.Ordinal)));
+                                                                                ExcelTranslateColumnFromColOrdinaltoLetter(dataColumn.Ordinal)));
 
             return dataColumn;
         }
@@ -356,7 +356,7 @@ namespace DataTableToExcel
                         strFormula = TranslateFormula(dataColumn.Table, conditionalFormatValue.FormulaText);
                         conditionalFormatValue.FormulaText = string.Format(strFormula,
                                                                             "{0}", "{1}",
-                                                                            ExcelTranslateColumnFromColPostoLeter(dataColumn.Ordinal));
+                                                                            ExcelTranslateColumnFromColOrdinaltoLetter(dataColumn.Ordinal));
                     }
                     catch (System.Exception ex)
                     {
@@ -376,7 +376,7 @@ namespace DataTableToExcel
                         strFormula = TranslateFormula(dataColumn.Table, conditionalFormatValue.FormulaTextBetween);
                         conditionalFormatValue.FormulaTextBetween = string.Format(strFormula,
                                                                                     "{0}", "{1}",
-                                                                                    ExcelTranslateColumnFromColPostoLeter(dataColumn.Ordinal));
+                                                                                    ExcelTranslateColumnFromColOrdinaltoLetter(dataColumn.Ordinal));
                     }
                     catch (System.Exception ex)
                     {

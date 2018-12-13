@@ -82,11 +82,11 @@ namespace DSEDiagnosticToDataTable
                     if (stat.Keyspace != null && this.WarnWhenKSTblIsDetected.Any(n => n == stat.Keyspace.Name || (stat.TableViewIndex != null && stat.TableViewIndex.FullName == n)))
                     {
                         warn = stat.Data.Any(s => ((stat.TableViewIndex == null
-                                                                && (s.Key == Properties.Settings.Default.CFStatsReadCountName
-                                                                        || s.Key == Properties.Settings.Default.CFStatsWriteCountName))
+                                                                && (s.Key == DSEDiagnosticAnalytics.Properties.Settings.Default.CFStatsReadCountName
+                                                                        || s.Key == DSEDiagnosticAnalytics.Properties.Settings.Default.CFStatsWriteCountName))
                                                         || (stat.TableViewIndex != null
-                                                                && (s.Key == Properties.Settings.Default.CFStatsLocalReadCountName
-                                                                        || s.Key == Properties.Settings.Default.CFStatsLocalWriteCountName)))
+                                                                && (s.Key == DSEDiagnosticAnalytics.Properties.Settings.Default.CFStatsLocalReadCountName
+                                                                        || s.Key == DSEDiagnosticAnalytics.Properties.Settings.Default.CFStatsLocalWriteCountName)))
                                                     && (dynamic)s.Value > 0);
                     }
 

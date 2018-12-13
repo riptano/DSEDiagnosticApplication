@@ -470,6 +470,29 @@ namespace DSEDiagnosticLibrary
             return string.IsNullOrEmpty(str) ? str : string.Intern(str);
         }
 
+        static public string AbbrName(this string longName, int maxLength = 5)
+        {
+            if (string.IsNullOrEmpty(longName) || longName.Length <= maxLength) return longName;
+                        
+            var words = longName.Split('-', '_', ' ', '.');
+
+            if(words.Length <= 1)
+            {
+                var abbrName = string.Join(string.Empty, longName.Where(c => char.IsUpper(c)));
+
+                if(abbrName == string.Empty)
+                {
+                    return string.Join(string.Empty, longName.Substring(0, maxLength).Select(c => char.ToUpper(c)));
+                }
+
+                return abbrName;
+            }
+
+            return string.Join(string.Empty, words.Select(w => char.ToUpper(w.First())));
+        }
+
+        #region MMElements
+    
         private enum MMElementType
         {
             JSON = 0,
@@ -956,5 +979,7 @@ namespace DSEDiagnosticLibrary
 
             readElement.SkipBasedOnSize(writtenSize - sizeof(int));
         }
+
+        #endregion
     }
 }

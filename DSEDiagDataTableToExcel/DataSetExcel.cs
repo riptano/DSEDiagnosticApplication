@@ -2229,7 +2229,48 @@ namespace DataTableToExcel
                 excelEndRow = dataTable.Rows.Count;
             }
 
-            return excelWorksheet.Cells[excelStartRow, dtCol.Ordinal, excelEndRow, dtCol.Ordinal];
+            return excelWorksheet.Cells[excelStartRow, dtCol.Ordinal + 1, excelEndRow, dtCol.Ordinal + 1];
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="excelWorksheet"></param>
+        /// <param name="dataTable"></param>
+        /// <param name="dtColumnName1"></param>
+        /// <param name="dtColumnName2"></param>
+        /// <param name="excelRow">
+        /// if -1 (default), returns only an Excel Range from dtColumnName1 to dtColumnName2 
+        /// otherwise if depends on the value of excelEndRow
+        /// </param>
+        /// <param name="excelEndRow">
+        /// Only if excelRow &gt; 0
+        /// if excelEndRow equals -1 (default); returns Excel Range from dtColumnName1 excelRow to dtColumnName2 excelRow
+        /// if excelEndRow equals 0; returns Excel Range from dtColumnName1 excelRow to dtColumnName2 &lt;last row in datatable&gt;
+        /// if excelEndRow excelRow &gt; 0; returns Excel Range from dtColumnName1 excelRow to dtColumnName2 excelEndRow
+        /// </param>
+        /// <returns></returns>
+        static public ExcelRange TranslaateToColumnRange(this ExcelWorksheet excelWorksheet, DataTable dataTable, string dtColumnName1, string dtColumnName2, int excelRow = -1, int excelEndRow = -1)
+        {
+            var dtCol1 = dataTable.Columns[dtColumnName1];
+            var dtCol2 = dataTable.Columns[dtColumnName2];
+
+            if (excelRow > 0)
+            {
+                if (excelEndRow == 0)
+                {
+                    excelEndRow = dataTable.Rows.Count;  
+                }
+
+                if(excelEndRow <= 0)
+                    return excelWorksheet.Cells[excelRow, dtCol1.Ordinal + 1, excelRow, dtCol2.Ordinal + 1];
+
+                return excelWorksheet.Cells[excelRow, dtCol1.Ordinal + 1, excelEndRow, dtCol2.Ordinal + 1];
+            }
+
+            return excelWorksheet.Cells[string.Format("{0}:{1}",
+                                                        DataTableHelpers.ExcelTranslateColumnFromColOrdinaltoLetter(dtCol1.Ordinal),
+                                                        DataTableHelpers.ExcelTranslateColumnFromColOrdinaltoLetter(dtCol2.Ordinal))];
         }
 
     }

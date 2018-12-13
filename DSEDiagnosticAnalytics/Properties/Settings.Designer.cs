@@ -12,8 +12,8 @@ namespace DSEDiagnosticAnalytics.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "15.8.0.0")]
-    internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "15.9.0.0")]
+    public sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
         
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
         
@@ -158,6 +158,203 @@ namespace DSEDiagnosticAnalytics.Properties {
         public decimal LogAggregationNodeStatMbrLimitTakeNItemsPercent {
             get {
                 return ((decimal)(this["LogAggregationNodeStatMbrLimitTakeNItemsPercent"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Read Count")]
+        public string CFStatsReadCountName {
+            get {
+                return ((string)(this["CFStatsReadCountName"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Write Count")]
+        public string CFStatsWriteCountName {
+            get {
+                return ((string)(this["CFStatsWriteCountName"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Local read count")]
+        public string CFStatsLocalReadCountName {
+            get {
+                return ((string)(this["CFStatsLocalReadCountName"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Local write count")]
+        public string CFStatsLocalWriteCountName {
+            get {
+                return ((string)(this["CFStatsLocalWriteCountName"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Space used (total)")]
+        public string CFStatsSpaceUsed {
+            get {
+                return ((string)(this["CFStatsSpaceUsed"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("SSTable count")]
+        public string CFStatsSSTableCount {
+            get {
+                return ((string)(this["CFStatsSSTableCount"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Number of keys (estimate)")]
+        public string CFStatsNbrKeys {
+            get {
+                return ((string)(this["CFStatsNbrKeys"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Number of partitions (estimate)")]
+        public string CFStatsNbrKeys1 {
+            get {
+                return ((string)(this["CFStatsNbrKeys1"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Local read latency")]
+        public string CFStatsLocalReadLatency {
+            get {
+                return ((string)(this["CFStatsLocalReadLatency"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Local write latency")]
+        public string CFStatsLocalWriteLatency {
+            get {
+                return ((string)(this["CFStatsLocalWriteLatency"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Average tombstones per slice (last five minutes)")]
+        public string CFStataAvgTombstones5Mins {
+            get {
+                return ((string)(this["CFStataAvgTombstones5Mins"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Maximum tombstones per slice (last five minutes)")]
+        public string CFStatsMaxTombstones5Mins {
+            get {
+                return ((string)(this["CFStatsMaxTombstones5Mins"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Compacted partition minimum bytes")]
+        public string CFStatsCompactedPartitionMin {
+            get {
+                return ((string)(this["CFStatsCompactedPartitionMin"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Compacted partition maximum bytes")]
+        public string CFStatsCompactedPartitionMax {
+            get {
+                return ((string)(this["CFStatsCompactedPartitionMax"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Compacted partition mean bytes")]
+        public string CFStatsCompactedPartitionAvg {
+            get {
+                return ((string)(this["CFStatsCompactedPartitionAvg"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Average live cells per slice (last five minutes)")]
+        public string CFStatsAvgLiveCellsRead5Mins {
+            get {
+                return ((string)(this["CFStatsAvgLiveCellsRead5Mins"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Maximum live cells per slice (last five minutes)")]
+        public string CFStatsMaxLiveCellsRead5Mins {
+            get {
+                return ((string)(this["CFStatsMaxLiveCellsRead5Mins"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("[\r\n{\"AttrName\":\"Local read latency\",\r\n \"MinTrigger\":0.65,\r\n \"AttrValue\":{\"Type\":0" +
+            ",\r\n  \t\t\"Threshold\":1.5,\r\n  \t\t\"Weight\":1.0,\r\n  \t\t\"WeightFactor\":1.0,\r\n  \t\t\"Penalt" +
+            "yFactor\":0.60\r\n \t},\r\n \"MaxValue\":{\"Type\":1,\r\n \t\t\"Threshold\":1.5,\r\n \t\t\"Weight\":1." +
+            "0,\r\n \t\t\"WeightFactor\":0.25,\r\n \t\t\"PenaltyFactor\":0.0\r\n \t},\r\n \"MinValue\":{\"Type\":2" +
+            ",\r\n \t\t\"Threshold\":0.75,\r\n \t\t\"Weight\":1.0,\r\n \t\t\"WeightFactor\":0.25,\r\n \t\t\"PenaltyF" +
+            "actor\":0.0\r\n \t},\r\n \"AvgValue\":{\"Type\":3,\r\n \t\t\"Threshold\":1.0,\r\n \t\t\"Weight\":1.0,\r" +
+            "\n \t\t\"WeightFactor\":0.50,\r\n \t\t\"PenaltyFactor\":0.10\r\n \t},\r\n \"StdDevValue\":null\r\n}," +
+            "\r\n{\"AttrName\":\"Local write latency\",\r\n \"MinTrigger\":0.65,\r\n \"AttrValue\":{\"Type\":" +
+            "0,\r\n   \t\t\"Threshold\":1.0,\r\n   \t\t\"Weight\":1.0,\r\n   \t\t\"WeightFactor\":1.0,\r\n   \t\t\"P" +
+            "enaltyFactor\":0.60\r\n \t},\r\n \"MaxValue\":{\"Type\":1,\r\n \t\t\"Threshold\":1.0,\r\n \t\t\"Weigh" +
+            "t\":1.0,\r\n \t\t\"WeightFactor\":0.25,\r\n \t\t\"PenaltyFactor\":0.0\r\n \t},\r\n \"MinValue\":{\"Ty" +
+            "pe\":2,\r\n \t\t\"Threshold\":0.30,\r\n \t\t\"Weight\":1.0,\r\n \t\t\"WeightFactor\":0.25,\r\n \t\t\"Pen" +
+            "altyFactor\":0.0\r\n \t},\r\n \"AvgValue\":{\"Type\":3,\r\n \t\t\"Threshold\":0.60,\r\n \t\t\"Weight\"" +
+            ":1.0,\r\n \t\t\"WeightFactor\":0.50,\r\n \t\t\"PenaltyFactor\":0.10\r\n \t},\r\n \"StdDevValue\":nu" +
+            "ll\r\n},\r\n{\"AttrName\":\"SSTable count\",\r\n \"MinTrigger\":0.60,\r\n \"AttrValue\":{\"Type\":" +
+            "0,\r\n   \t\t\"Threshold\":30.0,\r\n   \t\t\"Weight\":1.0,\r\n   \t\t\"WeightFactor\":1.0,\r\n   \t\t\"" +
+            "PenaltyFactor\":0.60\r\n \t},\r\n \"MaxValue\":{\"Type\":1,\r\n \t\t\"Threshold\":30.0,\r\n \t\t\"Wei" +
+            "ght\":1.0,\r\n \t\t\"WeightFactor\":0.30,\r\n \t\t\"PenaltyFactor\":0.0\r\n \t},\r\n \"MinValue\":{\"" +
+            "Type\":2,\r\n \t\t\"Threshold\":30.0,\r\n \t\t\"Weight\":1.0,\r\n \t\t\"WeightFactor\":0.40,\r\n \t\t\"P" +
+            "enaltyFactor\":0.10\r\n \t},\r\n \"AvgValue\":{\"Type\":3,\r\n \t\t\"Threshold\":30.0,\r\n \t\t\"Weig" +
+            "ht\":1.0,\r\n \t\t\"WeightFactor\":0.30,\r\n \t\t\"PenaltyFactor\":0.20\r\n \t},\r\n \"StdDevValue\"" +
+            ":null\r\n},\r\n{\"AttrName\":\"Partition large\",\r\n \"MinTrigger\":0.60,\r\n \"AttrValue\":{\"T" +
+            "ype\":0,\r\n   \t\t\"Threshold\":100.0,\r\n   \t\t\"Weight\":1.0,\r\n   \t\t\"WeightFactor\":1.0,\r\n" +
+            "   \t\t\"PenaltyFactor\":0.60\r\n \t},\r\n \"MaxValue\":{\"Type\":1,\r\n \t\t\"Threshold\":100.0,\r\n" +
+            " \t\t\"Weight\":1.0,\r\n \t\t\"WeightFactor\":0.30,\r\n \t\t\"PenaltyFactor\":0.0\r\n \t},\r\n \"MinVa" +
+            "lue\":{\"Type\":2,\r\n \t\t\"Threshold\":100.0,\r\n \t\t\"Weight\":1.0,\r\n \t\t\"WeightFactor\":0.40" +
+            ",\r\n \t\t\"PenaltyFactor\":0.10\r\n \t},\r\n \"AvgValue\":{\"Type\":3,\r\n \t\t\"Threshold\":100.0,\r" +
+            "\n \t\t\"Weight\":1.0,\r\n \t\t\"WeightFactor\":0.30,\r\n \t\t\"PenaltyFactor\":0.20\r\n \t},\r\n \"Std" +
+            "DevValue\":null\r\n},\r\n{\"AttrName\":\"Tombstone/Live Percent\",\r\n \"MinTrigger\":0.60,\r\n" +
+            " \"AttrValue\":{\"Type\":0,\r\n   \t\t\"Threshold\":0.60,\r\n   \t\t\"Weight\":1.0,\r\n   \t\t\"Weigh" +
+            "tFactor\":1.0,\r\n   \t\t\"PenaltyFactor\":0.60\r\n \t},\r\n \"MaxValue\":{\"Type\":1,\r\n \t\t\"Thre" +
+            "shold\":0.60,\r\n \t\t\"Weight\":1.0,\r\n \t\t\"WeightFactor\":0.30,\r\n \t\t\"PenaltyFactor\":0.0\r" +
+            "\n \t},\r\n \"MinValue\":{\"Type\":2,\r\n \t\t\"Threshold\":0.60,\r\n \t\t\"Weight\":1.0,\r\n \t\t\"Weigh" +
+            "tFactor\":0.40,\r\n \t\t\"PenaltyFactor\":0.10\r\n \t},\r\n \"AvgValue\":{\"Type\":3,\r\n \t\t\"Thres" +
+            "hold\":0.60,\r\n \t\t\"Weight\":1.0,\r\n \t\t\"WeightFactor\":0.30,\r\n \t\t\"PenaltyFactor\":0.20\r" +
+            "\n \t},\r\n \"StdDevValue\":null\r\n}\r\n]")]
+        public string AttributeThresholds {
+            get {
+                return ((string)(this["AttributeThresholds"]));
             }
         }
     }

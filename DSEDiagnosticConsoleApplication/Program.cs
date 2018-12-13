@@ -502,7 +502,7 @@ namespace DSEDiagnosticConsoleApplication
             ConsoleDisplay.Console.SetReWriteToWriterPosition();           
             ConsoleDisplay.Console.WriteLine("Logged to file \"{0}\"", logFilePath);
             ConsoleDisplay.Console.WriteLine();
-            if (!ParserSettings.BatchMode)
+            if (!ParserSettings.BatchMode && System.Diagnostics.Debugger.IsAttached)
                 Common.ConsoleHelper.Prompt("Press Return to Exit", ConsoleColor.Gray, ConsoleColor.DarkRed);
 
             #endregion

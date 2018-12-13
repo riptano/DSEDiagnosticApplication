@@ -71,12 +71,12 @@ namespace DSEDiagnosticToDataTable
                                         .Select(s => new
                                         {
                                             DC = s.DataCenter,
-                                            Node = s.Node,
+                                            s.Node,
                                             Table = s.TableViewIndex,
-                                            LocalReads = s.Data.GetPropertyValue(Properties.Settings.Default.CFStatsLocalReadCountName) ?? 0L,
-                                            LocalWrites = s.Data.GetPropertyValue(Properties.Settings.Default.CFStatsLocalWriteCountName) ?? 0L,
-                                            PartitionKeys = s.Data.GetPropertyValue(Properties.Settings.Default.CFStatsNbrKeys) 
-                                                                ?? s.Data.GetPropertyValue(Properties.Settings.Default.CFStatsNbrKeys1)
+                                            LocalReads = s.Data.GetPropertyValue(DSEDiagnosticAnalytics.Properties.Settings.Default.CFStatsLocalReadCountName) ?? 0L,
+                                            LocalWrites = s.Data.GetPropertyValue(DSEDiagnosticAnalytics.Properties.Settings.Default.CFStatsLocalWriteCountName) ?? 0L,
+                                            PartitionKeys = s.Data.GetPropertyValue(DSEDiagnosticAnalytics.Properties.Settings.Default.CFStatsNbrKeys) 
+                                                                ?? s.Data.GetPropertyValue(DSEDiagnosticAnalytics.Properties.Settings.Default.CFStatsNbrKeys1)
                                                                 ?? 0L
                                         });
 
