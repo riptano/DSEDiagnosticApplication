@@ -107,71 +107,71 @@ namespace DSEDiagnosticToDataTable
 
                         if (this.SessionId.HasValue) dataRow.SetField(ColumnNames.SessionId, this.SessionId.Value);
 
-                        dataRow["Keyspace Name"] = keySpace.Name;
-                        dataRow["Name"] = ddlItem.Name;
-                        dataRow["Type"] = ddlItem.GetType().Name;
+                        dataRow.SetField("Keyspace Name", keySpace.Name);
+                        dataRow.SetField("Name", ddlItem.Name);
+                        dataRow.SetField("Type", ddlItem.GetType().Name);
                         dataRow.SetFieldStringLimit("DDL", ddlItem.DDL);
-                        dataRow["Total"] = ddlItem.Items;
+                        dataRow.SetField("Total", ddlItem.Items);
 
                         if (ddlItem is IDDLStmt && ((IDDLStmt)ddlItem).IsActive.HasValue)
                         {
-                            dataRow["Active"] = ((IDDLStmt)ddlItem).IsActive.Value;
+                            dataRow.SetField("Active", ((IDDLStmt)ddlItem).IsActive.Value);
                         }
 
                         if (ddlItem is DSEDiagnosticLibrary.ICQLTrigger)
                         {
-                            dataRow["Associated Table"] = ((DSEDiagnosticLibrary.ICQLTrigger)ddlItem).Table.FullName;
+                            dataRow.SetField("Associated Table", ((DSEDiagnosticLibrary.ICQLTrigger)ddlItem).Table.FullName);
                         }
                         else if (ddlItem is DSEDiagnosticLibrary.ICQLIndex)
                         {
-                            dataRow["Associated Table"] = ((DSEDiagnosticLibrary.ICQLIndex)ddlItem).Table.FullName;
-                            dataRow["Index"] = true;
+                            dataRow.SetField("Associated Table", ((DSEDiagnosticLibrary.ICQLIndex)ddlItem).Table.FullName);
+                            dataRow.SetField("Index", true);
                             dataRow.SetFieldStringLimit("Partition Key", string.Join(", ", ((DSEDiagnosticLibrary.ICQLIndex)ddlItem).Columns
                                                                                     .Select(cf => cf.PrettyPrint())));
                             if (!string.IsNullOrEmpty(((DSEDiagnosticLibrary.ICQLIndex)ddlItem).UsingClass))
                             {
-                                dataRow["Compaction Strategy"] = ((DSEDiagnosticLibrary.ICQLIndex)ddlItem).UsingClassNormalized;
+                                dataRow.SetField("Compaction Strategy", ((DSEDiagnosticLibrary.ICQLIndex)ddlItem).UsingClassNormalized);
                             }
                             dataRow.SetFieldToDecimal("Storage (MB)", ((DSEDiagnosticLibrary.ICQLIndex)ddlItem).StorageUtilized, DSEDiagnosticLibrary.UnitOfMeasure.Types.MiB);
                         }
                         else if (ddlItem is DSEDiagnosticLibrary.ICQLUserDefinedType)
                         {
-                            dataRow["Name"] = ddlItem.Name + " (Type)";
-                            dataRow["Collections"] = ((DSEDiagnosticLibrary.ICQLUserDefinedType)ddlItem).Columns.Count(c => c.CQLType.HasCollection);
-                            dataRow["Counters"] = ((DSEDiagnosticLibrary.ICQLUserDefinedType)ddlItem).Columns.Count(c => c.CQLType.IsCounter);
-                            dataRow["Blobs"] = ((DSEDiagnosticLibrary.ICQLUserDefinedType)ddlItem).Columns.Count(c => c.CQLType.HasBlob);
-                            dataRow["Static"] = ((DSEDiagnosticLibrary.ICQLUserDefinedType)ddlItem).Columns.Count(c => c.IsStatic);
-                            dataRow["Frozen"] = ((DSEDiagnosticLibrary.ICQLUserDefinedType)ddlItem).Columns.Count(c => c.CQLType.HasFrozen);
-                            dataRow["Tuple"] = ((DSEDiagnosticLibrary.ICQLUserDefinedType)ddlItem).Columns.Count(c => c.CQLType.HasTuple);
-                            dataRow["UDT"] = ((DSEDiagnosticLibrary.ICQLUserDefinedType)ddlItem).Columns.Count(c => c.CQLType.HasUDT);
+                            dataRow.SetField("Name", ddlItem.Name + " (Type)");
+                            dataRow.SetField("Collections", ((DSEDiagnosticLibrary.ICQLUserDefinedType)ddlItem).Columns.Count(c => c.CQLType.HasCollection));
+                            dataRow.SetField("Counters", ((DSEDiagnosticLibrary.ICQLUserDefinedType)ddlItem).Columns.Count(c => c.CQLType.IsCounter));
+                            dataRow.SetField("Blobs", ((DSEDiagnosticLibrary.ICQLUserDefinedType)ddlItem).Columns.Count(c => c.CQLType.HasBlob));
+                            dataRow.SetField("Static", ((DSEDiagnosticLibrary.ICQLUserDefinedType)ddlItem).Columns.Count(c => c.IsStatic));
+                            dataRow.SetField("Frozen", ((DSEDiagnosticLibrary.ICQLUserDefinedType)ddlItem).Columns.Count(c => c.CQLType.HasFrozen));
+                            dataRow.SetField("Tuple", ((DSEDiagnosticLibrary.ICQLUserDefinedType)ddlItem).Columns.Count(c => c.CQLType.HasTuple));
+                            dataRow.SetField("UDT", ((DSEDiagnosticLibrary.ICQLUserDefinedType)ddlItem).Columns.Count(c => c.CQLType.HasUDT));
                         }
                         else if (ddlItem is DSEDiagnosticLibrary.ICQLTable)
                         {
-                            dataRow["Total"] = (int)((DSEDiagnosticLibrary.ICQLTable)ddlItem).Stats.NbrColumns;
-                            dataRow["Collections"] = (int)((DSEDiagnosticLibrary.ICQLTable)ddlItem).Stats.Collections;
-                            dataRow["Counters"] = (int)((DSEDiagnosticLibrary.ICQLTable)ddlItem).Stats.Counters;
-                            dataRow["Blobs"] = (int)((DSEDiagnosticLibrary.ICQLTable)ddlItem).Stats.Blobs;
-                            dataRow["Static"] = (int)((DSEDiagnosticLibrary.ICQLTable)ddlItem).Stats.Statics;
-                            dataRow["Frozen"] = (int)((DSEDiagnosticLibrary.ICQLTable)ddlItem).Stats.Frozens;
-                            dataRow["Tuple"] = (int)((DSEDiagnosticLibrary.ICQLTable)ddlItem).Stats.Tuples;
-                            dataRow["UDT"] = (int)((DSEDiagnosticLibrary.ICQLTable)ddlItem).Stats.UDTs;
-                            dataRow["HasOrderBy"] = ((DSEDiagnosticLibrary.ICQLTable)ddlItem).OrderByCols.HasAtLeastOneElement();
+                            dataRow.SetField("Total", (int)((DSEDiagnosticLibrary.ICQLTable)ddlItem).Stats.NbrColumns);
+                            dataRow.SetField("Collections", (int)((DSEDiagnosticLibrary.ICQLTable)ddlItem).Stats.Collections);
+                            dataRow.SetField("Counters", (int)((DSEDiagnosticLibrary.ICQLTable)ddlItem).Stats.Counters);
+                            dataRow.SetField("Blobs", (int)((DSEDiagnosticLibrary.ICQLTable)ddlItem).Stats.Blobs);
+                            dataRow.SetField("Static", (int)((DSEDiagnosticLibrary.ICQLTable)ddlItem).Stats.Statics);
+                            dataRow.SetField("Frozen", (int)((DSEDiagnosticLibrary.ICQLTable)ddlItem).Stats.Frozens);
+                            dataRow.SetField("Tuple", (int)((DSEDiagnosticLibrary.ICQLTable)ddlItem).Stats.Tuples);
+                            dataRow.SetField("UDT", (int)((DSEDiagnosticLibrary.ICQLTable)ddlItem).Stats.UDTs);
+                            dataRow.SetField("HasOrderBy", ((DSEDiagnosticLibrary.ICQLTable)ddlItem).OrderByCols.HasAtLeastOneElement());
 
                             dataRow.SetFieldStringLimit("Partition Key", string.Join(",", ((DSEDiagnosticLibrary.ICQLTable)ddlItem).PrimaryKeys.Select(k => k.Name + ' ' + k.CQLType.Name)));
                             dataRow.SetFieldStringLimit("Cluster Key", string.Join(",", ((DSEDiagnosticLibrary.ICQLTable)ddlItem).ClusteringKeys.Select(k => k.Name + ' ' + k.CQLType.Name)));
-                            dataRow["Compaction Strategy"] = ((DSEDiagnosticLibrary.ICQLTable)ddlItem).Compaction;
-                            dataRow["Compression"] = ((DSEDiagnosticLibrary.ICQLTable)ddlItem).Compression;
-                            dataRow["Chance"] = ((DSEDiagnosticLibrary.ICQLTable)ddlItem).GetPropertyValue("read_repair_chance");
-                            dataRow["DC Chance"] = ((DSEDiagnosticLibrary.ICQLTable)ddlItem).GetPropertyValue("dclocal_read_repair_chance");
-                            dataRow["Policy"] = ((DSEDiagnosticLibrary.ICQLTable)ddlItem).GetPropertyValue("speculative_retry");
-                            dataRow["GC Grace Period"] = ((DSEDiagnosticLibrary.ICQLTable)ddlItem).GetPropertyValue("gc_grace_seconds");
-                            dataRow["TTL"] = ((DSEDiagnosticLibrary.ICQLTable)ddlItem).GetPropertyValue("default_time_to_live");
-                            dataRow["Memtable Flush Period"] = ((DSEDiagnosticLibrary.ICQLTable)ddlItem).GetPropertyValueInMSLong("memtable_flush_period_in_ms");
+                            dataRow.SetField("Compaction Strategy", ((DSEDiagnosticLibrary.ICQLTable)ddlItem).Compaction);
+                            dataRow.SetField("Compression", ((DSEDiagnosticLibrary.ICQLTable)ddlItem).Compression);
+                            dataRow.SetField("Chance", ((DSEDiagnosticLibrary.ICQLTable)ddlItem).GetPropertyValue("read_repair_chance"));
+                            dataRow.SetField("DC Chance", ((DSEDiagnosticLibrary.ICQLTable)ddlItem).GetPropertyValue("dclocal_read_repair_chance"));
+                            dataRow.SetField("Policy", ((DSEDiagnosticLibrary.ICQLTable)ddlItem).GetPropertyValue("speculative_retry"));
+                            dataRow.SetField("GC Grace Period", ((DSEDiagnosticLibrary.ICQLTable)ddlItem).GetPropertyValue("gc_grace_seconds"));
+                            dataRow.SetField("TTL", ((DSEDiagnosticLibrary.ICQLTable)ddlItem).GetPropertyValue("default_time_to_live"));
+                            dataRow.SetField("Memtable Flush Period", ((DSEDiagnosticLibrary.ICQLTable)ddlItem).GetPropertyValueInMSLong("memtable_flush_period_in_ms"));
                             dataRow.SetFieldToDecimal("Storage (MB)", ((DSEDiagnosticLibrary.ICQLTable)ddlItem).StorageUtilized, DSEDiagnosticLibrary.UnitOfMeasure.Types.MiB);
 
                             if (ddlItem is DSEDiagnosticLibrary.ICQLMaterializedView)
                             {
-                                dataRow["Associated Table"] = ((DSEDiagnosticLibrary.ICQLMaterializedView)ddlItem).Table.FullName;
+                                dataRow.SetField("Associated Table", ((DSEDiagnosticLibrary.ICQLMaterializedView)ddlItem).Table.FullName);
                             }
                         }
 

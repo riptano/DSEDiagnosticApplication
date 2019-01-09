@@ -12,7 +12,7 @@ namespace DSEDiagnosticFileParser.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "15.8.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "15.9.0.0")]
     internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
         
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
@@ -1021,24 +1021,6 @@ public static class {0}
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Local write count")]
-        public string CFStatsDetectWriteActivityAttr {
-            get {
-                return ((string)(this["CFStatsDetectWriteActivityAttr"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Local read count")]
-        public string CFStatsDetectReadActivityAttr {
-            get {
-                return ((string)(this["CFStatsDetectReadActivityAttr"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("<?xml version=\"1.0\" encoding=\"utf-16\"?>\r\n<ArrayOfString xmlns:xsi=\"http://www.w3." +
             "org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\r\n  <s" +
             "tring>.extracted</string>\r\n  <string>.ignore</string>\r\n</ArrayOfString>")]
@@ -1072,15 +1054,6 @@ public static class {0}
         public string DefaultLogLevelHandling {
             get {
                 return ((string)(this["DefaultLogLevelHandling"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("solr index storage size")]
-        public string SolrIndexStorageSizeStatAttribute {
-            get {
-                return ((string)(this["SolrIndexStorageSizeStatAttribute"]));
             }
         }
         
@@ -1174,123 +1147,6 @@ public static class {0}
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Maximum tombstones per slice (last five minutes)")]
-        public string CFStatTombstonePropName {
-            get {
-                return ((string)(this["CFStatTombstonePropName"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Maximum live cells per slice (last five minutes)")]
-        public string CFStatLiveCellPropName {
-            get {
-                return ((string)(this["CFStatLiveCellPropName"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("solr index percent storage size ")]
-        public string SolrIndexStorageSizePercentStatAttribute {
-            get {
-                return ((string)(this["SolrIndexStorageSizePercentStatAttribute"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Space used (total)")]
-        public string CFStatTotalStorage {
-            get {
-                return ((string)(this["CFStatTotalStorage"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Local read count")]
-        public string CFStatsLocalReadCount {
-            get {
-                return ((string)(this["CFStatsLocalReadCount"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Local write count")]
-        public string CFStatsLocalWriteCout {
-            get {
-                return ((string)(this["CFStatsLocalWriteCout"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("SSTables in each level")]
-        public string CFStatsLCSLevels {
-            get {
-                return ((string)(this["CFStatsLCSLevels"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Tombstone/Live Percent")]
-        public string TombstoneLiveCellRatioAttrib {
-            get {
-                return ((string)(this["TombstoneLiveCellRatioAttrib"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Local Read Percentage")]
-        public string ReadPercentAttrib {
-            get {
-                return ((string)(this["ReadPercentAttrib"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Local Write Percentage")]
-        public string WritePercentAttrib {
-            get {
-                return ((string)(this["WritePercentAttrib"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("LCS Level BuildUp Ratio")]
-        public string LCSBackRatioAttrib {
-            get {
-                return ((string)(this["LCSBackRatioAttrib"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("SSTables in each split level")]
-        public string LCSSplitLevelsAttrib {
-            get {
-                return ((string)(this["LCSSplitLevelsAttrib"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("LCS Nbr Split Levels")]
-        public string LCSNbrSplitLevelsAttrib {
-            get {
-                return ((string)(this["LCSNbrSplitLevelsAttrib"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("-(?<year>\\d{1,4})-(?<month>\\d{1,2})-(?<day>\\d{1,2})-(?<hour>\\d{1,2})-(?<min>\\d{1," +
             "2})-(?<second>\\d{1,2})-(?<timezone>\\w+)")]
         public string CaptureTimeFrameRegEx {
@@ -1333,6 +1189,24 @@ public static class {0}
         public bool LogIgnoreParsingErrors {
             get {
                 return ((bool)(this["LogIgnoreParsingErrors"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Local write count")]
+        public string CFStatsDetectWriteActivityAttr {
+            get {
+                return ((string)(this["CFStatsDetectWriteActivityAttr"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Local read count")]
+        public string CFStatsDetectReadActivityAttr {
+            get {
+                return ((string)(this["CFStatsDetectReadActivityAttr"]));
             }
         }
     }

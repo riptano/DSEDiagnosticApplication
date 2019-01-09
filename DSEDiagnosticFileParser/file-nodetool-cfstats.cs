@@ -449,7 +449,7 @@ namespace DSEDiagnosticFileParser
                     }
                 }
 
-                if(attribute == Properties.Settings.Default.CFStatTotalStorage)
+                if(attribute == Properties.StatPropertyNames.Default.TotalStorage)
                 {
                     if(statItem.TableViewIndex != null)
                     {
@@ -491,37 +491,37 @@ namespace DSEDiagnosticFileParser
                 var statitems = from item in this._statsList
                                  where item.TableViewIndex != null && item.TableViewIndex is ICQLTable
                                  let tblAttribs = (from a in item.Data
-                                                   where a.Key == Properties.Settings.Default.CFStatTombstonePropName
-                                                           || a.Key == Properties.Settings.Default.CFStatLiveCellPropName
-                                                           || a.Key == Properties.Settings.Default.CFStatsLocalReadCount
-                                                           || a.Key == Properties.Settings.Default.CFStatsLocalWriteCout
-                                                           || a.Key == Properties.Settings.Default.CFStatsLCSLevels
-                                                           || a.Key == Properties.Settings.Default.CFStatTotalStorage
+                                                   where a.Key == Properties.StatPropertyNames.Default.MaxTombstonesSlice
+                                                           || a.Key == Properties.StatPropertyNames.Default.MaxLiveCellsReadSlice
+                                                           || a.Key == Properties.StatPropertyNames.Default.LocalReadCount
+                                                           || a.Key == Properties.StatPropertyNames.Default.LocalWriteCount
+                                                           || a.Key == Properties.StatPropertyNames.Default.LCSLevels
+                                                           || a.Key == Properties.StatPropertyNames.Default.TotalStorage
                                                    group a by a.Key into g
                                                    select new { Key = g.Key, Values = g.Select(i => i.Value).Where(i => i != null).ToArray() }).ToArray()
-                                 let tombstones = tblAttribs.Where(i => i.Key == Properties.Settings.Default.CFStatTombstonePropName)
+                                 let tombstones = tblAttribs.Where(i => i.Key == Properties.StatPropertyNames.Default.MaxTombstonesSlice)
                                                      .SelectMany(i => i.Values)
                                                      .DefaultIfEmpty().Sum(i => (decimal)((dynamic)i))
-                                 let liveCells = tblAttribs.Where(i => i.Key == Properties.Settings.Default.CFStatLiveCellPropName)
+                                 let liveCells = tblAttribs.Where(i => i.Key == Properties.StatPropertyNames.Default.MaxLiveCellsReadSlice)
                                                      .SelectMany(i => i.Values)
                                                      .DefaultIfEmpty().Sum(i => (decimal)((dynamic)i))
-                                 let readCells = tblAttribs.Where(i => i.Key == Properties.Settings.Default.CFStatsLocalReadCount)
+                                 let readCells = tblAttribs.Where(i => i.Key == Properties.StatPropertyNames.Default.LocalReadCount)
                                                      .SelectMany(i => i.Values)
                                                      .DefaultIfEmpty().Sum(i => (decimal)((dynamic)i))
-                                 let writtenCells = tblAttribs.Where(i => i.Key == Properties.Settings.Default.CFStatsLocalWriteCout)
+                                 let writtenCells = tblAttribs.Where(i => i.Key == Properties.StatPropertyNames.Default.LocalWriteCount)
                                                      .SelectMany(i => i.Values)
                                                      .DefaultIfEmpty().Sum(i => (decimal)((dynamic)i))
-                                 let LCSLevel = tblAttribs.Where(i => i.Key == Properties.Settings.Default.CFStatsLCSLevels)
+                                 let LCSLevel = tblAttribs.Where(i => i.Key == Properties.StatPropertyNames.Default.LCSLevels)
                                                      .Select(i => PercentLCSBackup(i.Values.Cast<string>()))
                                                      .FirstOrDefault()
-                                 let LCSSplitLevels = tblAttribs.Where(i => i.Key == Properties.Settings.Default.CFStatsLCSLevels)
+                                 let LCSSplitLevels = tblAttribs.Where(i => i.Key == Properties.StatPropertyNames.Default.LCSLevels)
                                                          .SelectMany(i => i.Values)
                                                          .Where(i => ((string)i).Contains('/'))
-                                 let totalReadsWrites = tblAttribs.Where(i => i.Key == Properties.Settings.Default.CFStatsLocalReadCount
-                                                                                 || i.Key == Properties.Settings.Default.CFStatsLocalWriteCout)
+                                 let totalReadsWrites = tblAttribs.Where(i => i.Key == Properties.StatPropertyNames.Default.LocalReadCount
+                                                                                 || i.Key == Properties.StatPropertyNames.Default.LocalWriteCount)
                                                          .SelectMany(i => i.Values)
                                                      .DefaultIfEmpty().Sum(i => (decimal)((dynamic)i))
-                                 let totalStorageMB = tblAttribs.Where(i => i.Key == Properties.Settings.Default.CFStatTotalStorage)
+                                 let totalStorageMB = tblAttribs.Where(i => i.Key == Properties.StatPropertyNames.Default.TotalStorage)
                                                          .SelectMany(i => i.Values)
                                                      .DefaultIfEmpty().Sum(i => i is UnitOfMeasure
                                                                                 ? ((UnitOfMeasure) i).ConvertSizeUOM(UnitOfMeasure.Types.MiB)
@@ -543,17 +543,18 @@ namespace DSEDiagnosticFileParser
 
                 foreach (var stat in statItemArray)
                 {
-                    stat.Stat.AssociateItem(Properties.Settings.Default.TombstoneLiveCellRatioAttrib, stat.TombstoneLivePercent);
-                    stat.Stat.AssociateItem(Properties.Settings.Default.ReadPercentAttrib, stat.ReadPercent);
-                    stat.Stat.AssociateItem(Properties.Settings.Default.WritePercentAttrib, stat.WritePercent);
-                    stat.Stat.AssociateItem(Properties.Settings.Default.LCSSplitLevelsAttrib, stat.LCSSplitLevels);
-                    stat.Stat.AssociateItem(Properties.Settings.Default.LCSBackRatioAttrib, stat.LCSLevel);
-                    stat.Stat.AssociateItem(Properties.Settings.Default.LCSNbrSplitLevelsAttrib, stat.LCSNbrSplits);
+                    stat.Stat.AssociateItem(Properties.StatPropertyNames.Default.TombstoneLiveCellRatio, stat.TombstoneLivePercent);
+                    stat.Stat.AssociateItem(Properties.StatPropertyNames.Default.LocalReadPercent, stat.ReadPercent);
+                    stat.Stat.AssociateItem(Properties.StatPropertyNames.Default.LocalWritePercent, stat.WritePercent);
+                    stat.Stat.AssociateItem(Properties.StatPropertyNames.Default.LCSSplitLevels, stat.LCSSplitLevels);
+                    stat.Stat.AssociateItem(Properties.StatPropertyNames.Default.LCSBackRatio, stat.LCSLevel);
+                    stat.Stat.AssociateItem(Properties.StatPropertyNames.Default.LCSNbrSplitLevels, stat.LCSNbrSplits);
                 }
 
                 this.Node.DSE.StorageUsed = UnitOfMeasure.Create(statItemArray.Sum(s => s.StorageMB), UnitOfMeasure.Types.MiB | UnitOfMeasure.Types.Storage);                
             }
 
+            
             this.Processed = true;
             return (uint) this._statsList.Count;
         }

@@ -9,9 +9,10 @@ namespace DSEDiagnosticAnalytics
     public sealed class AttributeThresholdValue
     {
         [Newtonsoft.Json.JsonConstructor]
-        public AttributeThresholdValue(Types type, decimal threshold, decimal weightFactor, decimal penaltyFactor = 0, decimal weight = 1)
+        public AttributeThresholdValue(Types type, CalcTypes calctype, decimal threshold, decimal weightFactor, decimal penaltyFactor = 0, decimal weight = 1)
         {
             this.Type = type;
+            this.CalcType = calctype;
             this.Threshold = threshold;
             this.WeightFactor = weightFactor;
             this.Weight = weight;
@@ -27,7 +28,38 @@ namespace DSEDiagnosticAnalytics
             StdDev = 4
         }
 
-        public Types Type { get; }
+        [Flags]
+        public enum CalcTypes
+        {
+            /// <summary>
+            /// Threshold calculated as a percentage and compared and weighted as a percentage
+            /// </summary>
+            ThresholdPercentage = 0x0001,
+            /// <summary>
+            /// Threshold is treated as a raw value (not calculated as a percentage) but weight is still calculated as a percentage
+            /// </summary>
+            RawThreshold = 0x0002,
+            /// <summary>
+            /// Over threshold
+            /// </summary>
+            Overage = 0x0100,
+            /// <summary>
+            /// Under threshold
+            /// </summary>
+            Underage = 0x0200,
+
+            /// <summary>
+            /// Penalty and weight calculated when threshold is exceeded 
+            /// </summary>
+            Normal = ThresholdPercentage | Overage,
+            /// <summary>
+            /// Penalty and weight calculated when threshold is not exceeded 
+            /// </summary>
+            UnderThreshold = ThresholdPercentage | Underage
+        }
+
+        public Types Type { get; } = Types.Normal;
+        public CalcTypes CalcType { get; } = CalcTypes.Normal;
 
         /// <summary>
         /// The value used to determine if the check value exceeds. 
@@ -53,9 +85,11 @@ namespace DSEDiagnosticAnalytics
         /// <param name="checkValue"></param>
         /// <returns></returns>
         /// <example>
+        /// CalcType = Normal
         /// Threshold: 1.5
         /// Weight: 1 (default)
         /// WeightFactor: 0.25
+        /// 
         /// PenaltyFactor: 0 (default)
         /// 
         /// checkValue: 1.0 => ((1.0/1.5)*0.25*1) => 0.166
@@ -77,16 +111,52 @@ namespace DSEDiagnosticAnalytics
         /// </example>
         public decimal DetermineWeightFactor(decimal checkValue)
         {
+            if ((this.CalcType & CalcTypes.RawThreshold) == CalcTypes.RawThreshold) return this.DetermineWeightFactorRaw(checkValue);
+
             var pctThreshold = checkValue / this.Threshold;
 
-            if(pctThreshold < 1m)
+            if ((this.CalcType & CalcTypes.Overage) == CalcTypes.Overage)
             {
-                return this.WeightFactor * pctThreshold * this.Weight;
+                if (pctThreshold < 1m)
+                {
+                    return this.WeightFactor * pctThreshold * this.Weight;
+                }                
+            }
+            else
+            {
+                if (pctThreshold > 1m)
+                {
+                    return this.WeightFactor * pctThreshold * this.Weight;
+                }
             }
 
             return this.PenaltyFactor == 0
-                    ? this.WeightFactor * this.Weight
-                    : ((pctThreshold * this.PenaltyFactor) + this.WeightFactor) * this.Weight;
+                        ? this.WeightFactor * this.Weight
+                        : ((pctThreshold * this.PenaltyFactor) + this.WeightFactor) * this.Weight;
+        }
+
+        public decimal DetermineWeightFactorRaw(decimal checkValue)
+        {
+            var pctThreshold = checkValue / this.Threshold;
+
+            if ((this.CalcType & CalcTypes.Overage) == CalcTypes.Overage)
+            {
+                if (checkValue > this.Threshold)
+                {
+                    return this.WeightFactor * pctThreshold * this.Weight;
+                }
+            }
+            else
+            {
+                if (checkValue < this.Threshold)
+                {
+                    return this.WeightFactor * pctThreshold * this.Weight;
+                }
+            }
+
+            return this.PenaltyFactor == 0
+                        ? this.WeightFactor * this.Weight
+                        : ((pctThreshold * this.PenaltyFactor) + this.WeightFactor) * this.Weight;
         }
     }
 

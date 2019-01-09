@@ -200,49 +200,49 @@ namespace DSEDiagnosticToDataTable
                                                             attrib.Node,
                                                             attrib.Keyspace } into grpData
                                      let grpDataValues = grpData.SelectMany(d => ((DSEDiagnosticLibrary.AggregatedStats)d).DataUnSafe
-                                                                                        .Where(a => (a.Key == DSEDiagnosticAnalytics.Properties.Settings.Default.CFStatsSpaceUsed
-                                                                                                            || a.Key == DSEDiagnosticAnalytics.Properties.Settings.Default.CFStatsSSTableCount
-                                                                                                            || a.Key == DSEDiagnosticAnalytics.Properties.Settings.Default.CFStatsLocalReadCountName 
-                                                                                                            || a.Key == DSEDiagnosticAnalytics.Properties.Settings.Default.CFStatsLocalWriteCountName 
-                                                                                                            || a.Key == DSEDiagnosticAnalytics.Properties.Settings.Default.CFStatsNbrKeys
-                                                                                                            || a.Key == DSEDiagnosticAnalytics.Properties.Settings.Default.CFStatsNbrKeys1)
+                                                                                        .Where(a => (a.Key == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.TotalStorage
+                                                                                                            || a.Key == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.SSTableCount
+                                                                                                            || a.Key == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.LocalReadCount 
+                                                                                                            || a.Key == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.LocalWriteCount
+                                                                                                            || a.Key == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.NbrKeys
+                                                                                                            || a.Key == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.NbrKeys1)
                                                                                                         && a.Value != null))
                                       let grpLWTValues = grpData.Where(i => i.TableViewIndex.FullName == Properties.Settings.Default.SystemLWTTableName)
                                                                .SelectMany(d => ((DSEDiagnosticLibrary.AggregatedStats)d).DataUnSafe
-                                                                                        .Where(a => (a.Key == DSEDiagnosticAnalytics.Properties.Settings.Default.CFStatsLocalWriteCountName)
+                                                                                        .Where(a => (a.Key == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.LocalWriteCount)
                                                                                                         && a.Value != null))
                                       let grpBatchesValues = grpData.Where(i => i.TableViewIndex.FullName == Properties.Settings.Default.SystemBatchLogTableName
                                                                                     || i.TableViewIndex.FullName == Properties.Settings.Default.SystemBatchTableName)
                                                                         .SelectMany(d => ((DSEDiagnosticLibrary.AggregatedStats)d).DataUnSafe
-                                                                                                    .Where(a => (a.Key == DSEDiagnosticAnalytics.Properties.Settings.Default.CFStatsLocalWriteCountName)
+                                                                                                    .Where(a => (a.Key == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.LocalWriteCount)
                                                                                                                     && a.Value != null))
                                        let grpNbrCompSpaceWarnings = grpData.SelectMany(d => ((DSEDiagnosticLibrary.AggregatedStats)d).DataUnSafe
-                                                                        .Where(a => (a.Key == DSEDiagnosticAnalytics.Properties.Settings.Default.CompactionInsufficientSpace)
+                                                                        .Where(a => (a.Key == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.CompactionInsufficientSpace)
                                                                                         && a.Value != null))
                                       select new {
                                                     DC = grpData.Key.DataCenter,
                                                     grpData.Key.Node,
                                                     grpData.Key.Keyspace,
-                                                    StorageTotal = grpDataValues.Where(a => a.Key == DSEDiagnosticAnalytics.Properties.Settings.Default.CFStatsSpaceUsed)
+                                                    StorageTotal = grpDataValues.Where(a => a.Key == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.TotalStorage)
                                                                             .Select(a => (DSEDiagnosticLibrary.UnitOfMeasure) a.Value)                                                                                                
                                                                             .Where(a => !a.NaN)
                                                                             .Select(a => a.ConvertSizeUOM(DSEDiagnosticLibrary.UnitOfMeasure.Types.MiB))
                                                                             .DefaultIfEmpty()
                                                                             .Sum(),
-                                                    SSTablesTotal = grpDataValues.Where(a => a.Key == DSEDiagnosticAnalytics.Properties.Settings.Default.CFStatsSSTableCount)
+                                                    SSTablesTotal = grpDataValues.Where(a => a.Key == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.SSTableCount)
                                                                             .Select(a => (long)(dynamic)a.Value)
                                                                             .DefaultIfEmpty()
                                                                             .Sum(),
-                                                    ReadTotal = grpDataValues.Where(a => a.Key == DSEDiagnosticAnalytics.Properties.Settings.Default.CFStatsLocalReadCountName)
+                                                    ReadTotal = grpDataValues.Where(a => a.Key == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.LocalReadCount)
                                                                             .Select(a => (decimal)(dynamic)a.Value)
                                                                             .DefaultIfEmpty()
                                                                             .Sum(),
-                                                    WriteTotal = grpDataValues.Where(a => a.Key == DSEDiagnosticAnalytics.Properties.Settings.Default.CFStatsLocalWriteCountName)
+                                                    WriteTotal = grpDataValues.Where(a => a.Key == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.LocalWriteCount)
                                                                             .Select(a => (decimal)(dynamic)a.Value)
                                                                             .DefaultIfEmpty()
                                                                             .Sum(),
-                                                    KeyTotal = grpDataValues.Where(a => a.Key == DSEDiagnosticAnalytics.Properties.Settings.Default.CFStatsNbrKeys
-                                                                                            || a.Key == DSEDiagnosticAnalytics.Properties.Settings.Default.CFStatsNbrKeys1)
+                                                    KeyTotal = grpDataValues.Where(a => a.Key == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.NbrKeys
+                                                                                            || a.Key == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.NbrKeys1)
                                                                             .Select(a => (decimal)(dynamic)a.Value)
                                                                             .DefaultIfEmpty()
                                                                             .Sum(),

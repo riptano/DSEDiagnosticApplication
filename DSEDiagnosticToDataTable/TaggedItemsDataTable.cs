@@ -188,22 +188,22 @@ namespace DSEDiagnosticToDataTable
                                                             .Where(s => s.TableViewIndex != null && s.Data.Count > 0)
                                                            .SelectMany(s =>
                                                                             s.Data
-                                                                                .Where(a => (a.Key == DSEDiagnosticAnalytics.Properties.Settings.Default.CFStatsLocalReadCountName
-                                                                                                                            || a.Key == DSEDiagnosticAnalytics.Properties.Settings.Default.CFStatsLocalWriteCountName
-                                                                                                                            || a.Key == DSEDiagnosticAnalytics.Properties.Settings.Default.CFStatsNbrKeys
-                                                                                                                            || a.Key == DSEDiagnosticAnalytics.Properties.Settings.Default.CFStatsNbrKeys1
-                                                                                                                            || a.Key == DSEDiagnosticAnalytics.Properties.Settings.Default.CFStatsSSTableCount
-                                                                                                                            || a.Key == DSEDiagnosticAnalytics.Properties.Settings.Default.CFStatsSpaceUsed
-                                                                                                                            || a.Key == DSEDiagnosticAnalytics.Properties.Settings.Default.CFStatsLocalReadLatency
-                                                                                                                            || a.Key == DSEDiagnosticAnalytics.Properties.Settings.Default.CFStatsLocalWriteLatency
-                                                                                                                            || a.Key == DSEDiagnosticAnalytics.Properties.Settings.Default.CFStatsMaxTombstones5Mins
-                                                                                                                            || a.Key == DSEDiagnosticAnalytics.Properties.Settings.Default.TombstonesReadAttrib
-                                                                                                                            || a.Key == DSEDiagnosticAnalytics.Properties.Settings.Default.TombstoneLiveCellAttrib
-                                                                                                                            || a.Key == DSEDiagnosticAnalytics.Properties.Settings.Default.CFStatsMaxLiveCellsRead5Mins
-                                                                                                                            || a.Key == DSEDiagnosticAnalytics.Properties.Settings.Default.TombstoneLiveCellRatioAttrib
-                                                                                                                            || a.Key == DSEDiagnosticAnalytics.Properties.Settings.Default.CFStatsCompactedPartitionMax
-                                                                                                                            || a.Key == DSEDiagnosticAnalytics.Properties.Settings.Default.PartitionLargeAttrib
-                                                                                                                            || a.Key == DSEDiagnosticAnalytics.Properties.Settings.Default.RowLargeAttrrib)
+                                                                                .Where(a => (a.Key == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.LocalReadCount
+                                                                                                                            || a.Key == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.LocalWriteCount
+                                                                                                                            || a.Key == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.NbrKeys
+                                                                                                                            || a.Key == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.NbrKeys1
+                                                                                                                            || a.Key == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.SSTableCount
+                                                                                                                            || a.Key == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.TotalStorage
+                                                                                                                            || a.Key == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.LocalReadLatency
+                                                                                                                            || a.Key == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.LocalWriteLatency
+                                                                                                                            || a.Key == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.MaxTombstonesSlice
+                                                                                                                            || a.Key == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.TombstonesRead
+                                                                                                                            || a.Key == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.TombstoneLiveCell
+                                                                                                                            || a.Key == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.MaxLiveCellsReadSlice
+                                                                                                                            || a.Key == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.TombstoneLiveCellRatio
+                                                                                                                            || a.Key == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.CompactedPartitionMax
+                                                                                                                            || a.Key == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.PartitionLarge
+                                                                                                                            || a.Key == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.RowLarge)
                                                                                                                         && a.Value != null)                                                                                        
                                                                                 .Select(kv => new
                                                                                     {
@@ -221,39 +221,39 @@ namespace DSEDiagnosticToDataTable
                 this.CancellationToken.ThrowIfCancellationRequested();
 
                 var totStorage = allStatCollection
-                                    .Where(i => i.Property == DSEDiagnosticAnalytics.Properties.Settings.Default.CFStatsSpaceUsed)
+                                    .Where(i => i.Property == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.TotalStorage)
                                     .DefaultIfEmpty()
                                     .Sum(a => a.Values
                                                 .Sum());
                 var totKeys = allStatCollection
-                                .Where(i => i.Property == DSEDiagnosticAnalytics.Properties.Settings.Default.CFStatsNbrKeys
-                                                || i.Property == DSEDiagnosticAnalytics.Properties.Settings.Default.CFStatsNbrKeys1)
+                                .Where(i => i.Property == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.NbrKeys
+                                                || i.Property == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.NbrKeys1)
                                 .DefaultIfEmpty()
                                 .Sum(a => a.Values
                                                 .Sum());
                 var totReadCnt = allStatCollection
-                                    .Where(i => i.Property == DSEDiagnosticAnalytics.Properties.Settings.Default.CFStatsLocalReadCountName)
+                                    .Where(i => i.Property == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.LocalReadCount)
                                     .DefaultIfEmpty()
                                     .Sum(a => a.Values
                                                 .Sum());
                 var totWriteCnt = allStatCollection
-                                    .Where(i => i.Property == DSEDiagnosticAnalytics.Properties.Settings.Default.CFStatsLocalWriteCountName)
+                                    .Where(i => i.Property == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.LocalWriteCount)
                                     .DefaultIfEmpty()
                                     .Sum(a => a.Values
                                                 .Sum());
                 var totSSTables = allStatCollection
-                                    .Where(i => i.Property == DSEDiagnosticAnalytics.Properties.Settings.Default.CFStatsSSTableCount)
+                                    .Where(i => i.Property == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.SSTableCount)
                                     .DefaultIfEmpty()
                                     .Sum(a => a.Values
                                                 .Sum());
 
                 Logger.Instance.InfoFormat("Loading {0} Possible Tagged Stats", allStatCollection.Length);
 
-                var attrReadLatencyThreshold = DSEDiagnosticAnalytics.AttributeThreshold.FindAttrThreshold(DSEDiagnosticAnalytics.Properties.Settings.Default.CFStatsLocalReadLatency);
-                var attrWriteLatencyThreshold = DSEDiagnosticAnalytics.AttributeThreshold.FindAttrThreshold(DSEDiagnosticAnalytics.Properties.Settings.Default.CFStatsLocalWriteLatency);
-                var attrSSTableThreshold = DSEDiagnosticAnalytics.AttributeThreshold.FindAttrThreshold(DSEDiagnosticAnalytics.Properties.Settings.Default.CFStatsSSTableCount);
-                var attrPartitionSizeThreshold = DSEDiagnosticAnalytics.AttributeThreshold.FindAttrThreshold(DSEDiagnosticAnalytics.Properties.Settings.Default.PartitionLargeAttrib);
-                var attrTombstoneRatioThreshold = DSEDiagnosticAnalytics.AttributeThreshold.FindAttrThreshold(DSEDiagnosticAnalytics.Properties.Settings.Default.TombstoneLiveCellRatioAttrib);
+                var attrReadLatencyThreshold = DSEDiagnosticAnalytics.AttributeThreshold.FindAttrThreshold(DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.LocalReadLatency);
+                var attrWriteLatencyThreshold = DSEDiagnosticAnalytics.AttributeThreshold.FindAttrThreshold(DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.LocalWriteLatency);
+                var attrSSTableThreshold = DSEDiagnosticAnalytics.AttributeThreshold.FindAttrThreshold(DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.SSTableCount);
+                var attrPartitionSizeThreshold = DSEDiagnosticAnalytics.AttributeThreshold.FindAttrThreshold(DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.PartitionLarge);
+                var attrTombstoneRatioThreshold = DSEDiagnosticAnalytics.AttributeThreshold.FindAttrThreshold(DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.TombstoneLiveCellRatio);
 
                 //In-line Function
                 Tuple<bool,decimal,decimal,decimal,decimal,decimal> MaxMinAvg(IEnumerable<decimal> values, DSEDiagnosticAnalytics.AttributeThreshold attrThreshold)
@@ -287,21 +287,21 @@ namespace DSEDiagnosticToDataTable
                                                     .GroupBy(i => new { i.Keyspace, i.TableViewIndex, i.DataCenter, i.Node})
                                                     .Select(g =>
                                                     {
-                                                        var readLatencyInfo = MaxMinAvg(g.Where(a => a.Property == DSEDiagnosticAnalytics.Properties.Settings.Default.CFStatsLocalReadLatency)
+                                                        var readLatencyInfo = MaxMinAvg(g.Where(a => a.Property == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.LocalReadLatency)
                                                                                         .SelectMany(a => a.Values),
                                                                                      attrReadLatencyThreshold);
-                                                        var writeLatencyInfo = MaxMinAvg(g.Where(a => a.Property == DSEDiagnosticAnalytics.Properties.Settings.Default.CFStatsLocalWriteLatency)
+                                                        var writeLatencyInfo = MaxMinAvg(g.Where(a => a.Property == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.LocalWriteLatency)
                                                                                             .SelectMany(a => a.Values),
                                                                                         attrWriteLatencyThreshold);
-                                                        var sstableCountInfo = MaxMinAvg(g.Where(a => a.Property == DSEDiagnosticAnalytics.Properties.Settings.Default.CFStatsSSTableCount)
+                                                        var sstableCountInfo = MaxMinAvg(g.Where(a => a.Property == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.SSTableCount)
                                                                                             .SelectMany(a => a.Values),
                                                                                         attrSSTableThreshold);
-                                                        var partitionSizeInfo = MaxMinAvg(g.Where(a => a.Property == DSEDiagnosticAnalytics.Properties.Settings.Default.CFStatsCompactedPartitionMax
-                                                                                                        || a.Property == DSEDiagnosticAnalytics.Properties.Settings.Default.PartitionLargeAttrib
-                                                                                                        || a.Property == DSEDiagnosticAnalytics.Properties.Settings.Default.RowLargeAttrrib)
+                                                        var partitionSizeInfo = MaxMinAvg(g.Where(a => a.Property == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.CompactedPartitionMax
+                                                                                                        || a.Property == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.PartitionLarge
+                                                                                                        || a.Property == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.RowLarge)
                                                                                             .SelectMany(a => a.Values),
                                                                                           attrPartitionSizeThreshold);
-                                                        var tombstoneRatioInfo = MaxMinAvg(g.Where(a => a.Property == DSEDiagnosticAnalytics.Properties.Settings.Default.TombstoneLiveCellRatioAttrib)
+                                                        var tombstoneRatioInfo = MaxMinAvg(g.Where(a => a.Property == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.TombstoneLiveCellRatio)
                                                                                             .SelectMany(a => a.Values),
                                                                                            attrTombstoneRatioThreshold);
                                                         var weightedFactors = (new decimal[] { readLatencyInfo.Item2, writeLatencyInfo.Item2, sstableCountInfo.Item2, partitionSizeInfo.Item2, tombstoneRatioInfo.Item2 })
@@ -401,8 +401,8 @@ namespace DSEDiagnosticToDataTable
 
                         {
                             var totTBRead = dcnodetblAttrib.Attribs
-                                                .Where(a => a.Property == DSEDiagnosticAnalytics.Properties.Settings.Default.TombstonesReadAttrib
-                                                                || a.Property == DSEDiagnosticAnalytics.Properties.Settings.Default.CFStatsMaxTombstones5Mins)
+                                                .Where(a => a.Property == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.TombstonesRead
+                                                                || a.Property == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.MaxTombstonesSlice)
                                                 .SelectMany(a => a.Values)
                                                 .DefaultIfEmpty()
                                                 .Sum();
@@ -412,8 +412,8 @@ namespace DSEDiagnosticToDataTable
 
                         {
                             var totLiveRead = dcnodetblAttrib.Attribs
-                                                .Where(a => a.Property == DSEDiagnosticAnalytics.Properties.Settings.Default.TombstoneLiveCellAttrib
-                                                                || a.Property == DSEDiagnosticAnalytics.Properties.Settings.Default.CFStatsMaxLiveCellsRead5Mins)
+                                                .Where(a => a.Property == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.TombstoneLiveCell
+                                                                || a.Property == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.MaxLiveCellsReadSlice)
                                                 .SelectMany(a => a.Values)
                                                 .DefaultIfEmpty()
                                                 .Sum();
@@ -442,7 +442,7 @@ namespace DSEDiagnosticToDataTable
                         if(totStorage > 0)
                         {
                             var localTot = dcnodetblAttrib.Attribs
-                                            .Where(a => a.Property == DSEDiagnosticAnalytics.Properties.Settings.Default.CFStatsSpaceUsed)
+                                            .Where(a => a.Property == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.TotalStorage)
                                             .SelectMany(a => a.Values)
                                             .DefaultIfEmpty()
                                             .Sum();
@@ -454,8 +454,8 @@ namespace DSEDiagnosticToDataTable
                         if (totKeys > 0)
                         {
                             var localTot = dcnodetblAttrib.Attribs
-                                            .Where(a => a.Property == DSEDiagnosticAnalytics.Properties.Settings.Default.CFStatsNbrKeys
-                                                            || a.Property == DSEDiagnosticAnalytics.Properties.Settings.Default.CFStatsNbrKeys1)
+                                            .Where(a => a.Property == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.NbrKeys
+                                                            || a.Property == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.NbrKeys1)
                                             .SelectMany(a => a.Values)
                                             .DefaultIfEmpty()
                                             .Sum();
@@ -467,7 +467,7 @@ namespace DSEDiagnosticToDataTable
                         if (totReadCnt > 0)
                         {
                             var localTot = dcnodetblAttrib.Attribs
-                                           .Where(a => a.Property == DSEDiagnosticAnalytics.Properties.Settings.Default.CFStatsLocalReadCountName)
+                                           .Where(a => a.Property == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.LocalReadCount)
                                            .SelectMany(a => a.Values)
                                            .DefaultIfEmpty()
                                            .Sum();
@@ -479,7 +479,7 @@ namespace DSEDiagnosticToDataTable
                         if (totWriteCnt > 0)
                         {
                             var localTot = dcnodetblAttrib.Attribs
-                                          .Where(a => a.Property == DSEDiagnosticAnalytics.Properties.Settings.Default.CFStatsLocalWriteCountName)
+                                          .Where(a => a.Property == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.LocalWriteCount)
                                           .SelectMany(a => a.Values)
                                           .DefaultIfEmpty()
                                           .Sum();
@@ -491,7 +491,7 @@ namespace DSEDiagnosticToDataTable
                         if (totSSTables > 0)
                         {
                             var localTot = dcnodetblAttrib.Attribs
-                                         .Where(a => a.Property == DSEDiagnosticAnalytics.Properties.Settings.Default.CFStatsSSTableCount)
+                                         .Where(a => a.Property == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.SSTableCount)
                                          .SelectMany(a => a.Values)
                                          .DefaultIfEmpty()
                                          .Sum();

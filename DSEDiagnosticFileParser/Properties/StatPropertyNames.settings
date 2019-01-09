@@ -1,0 +1,114 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="DSEDiagnosticAnalytics.Properties" GeneratedClassName="StatPropertyNames">
+  <Profiles />
+  <Settings>
+    <Setting Name="SSTableOverallPercent" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">SSTable Overall Percent</Value>
+    </Setting>
+    <Setting Name="TombstoneOverallPercent" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Tombstone Overall Percent</Value>
+    </Setting>
+    <Setting Name="ReadOverallPercent" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Read Overall Percent</Value>
+    </Setting>
+    <Setting Name="WriteOverallPercent" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Write Overall Percent</Value>
+    </Setting>
+    <Setting Name="KeysOverallPercent" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Keys Overall Percent</Value>
+    </Setting>
+    <Setting Name="SolrIndexStorageSizePercent" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">solr index percent storage size </Value>
+    </Setting>
+    <Setting Name="TotalStorage" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Space used (total)</Value>
+    </Setting>
+    <Setting Name="LocalReadCount" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Local read count</Value>
+    </Setting>
+    <Setting Name="LocalWriteCount" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Local write count</Value>
+    </Setting>
+    <Setting Name="LCSLevels" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">SSTables in each level</Value>
+    </Setting>
+    <Setting Name="TombstoneLiveCellRatio" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Tombstone/Live Percent</Value>
+    </Setting>
+    <Setting Name="LocalReadPercent" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Local Read Percentage</Value>
+    </Setting>
+    <Setting Name="LocalWritePercent" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Local Write Percentage</Value>
+    </Setting>
+    <Setting Name="LCSBackRatio" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">LCS Level BuildUp Ratio</Value>
+    </Setting>
+    <Setting Name="LCSSplitLevels" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">SSTables in each split level</Value>
+    </Setting>
+    <Setting Name="LCSNbrSplitLevels" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">LCS Nbr Split Levels</Value>
+    </Setting>
+    <Setting Name="SolrIndexStorageSize" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">solr index storage size</Value>
+    </Setting>
+    <Setting Name="PartitionLarge" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Partition large</Value>
+    </Setting>
+    <Setting Name="TombstonesRead" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Tombstones Read</Value>
+    </Setting>
+    <Setting Name="CompactionInsufficientSpace" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Compaction Insufficient Space</Value>
+    </Setting>
+    <Setting Name="RowLarge" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Row large</Value>
+    </Setting>
+    <Setting Name="TombstoneLiveCell" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Tombstones Live Cells Read</Value>
+    </Setting>
+    <Setting Name="NbrKeys" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Number of keys (estimate)</Value>
+    </Setting>
+    <Setting Name="NbrKeys1" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Number of partitions (estimate)</Value>
+    </Setting>
+    <Setting Name="LocalReadLatency" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Local read latency</Value>
+    </Setting>
+    <Setting Name="LocalWriteLatency" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Local write latency</Value>
+    </Setting>
+    <Setting Name="AvgTombstonesSlice" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Average tombstones per slice (last five minutes)</Value>
+    </Setting>
+    <Setting Name="MaxTombstonesSlice" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Maximum tombstones per slice (last five minutes)</Value>
+    </Setting>
+    <Setting Name="CompactedPartitionMin" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Compacted partition minimum bytes</Value>
+    </Setting>
+    <Setting Name="CompactedPartitionMax" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Compacted partition maximum bytes</Value>
+    </Setting>
+    <Setting Name="CompactedPartitionAvg" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Compacted partition mean bytes</Value>
+    </Setting>
+    <Setting Name="AvgLiveCellsReadSlice" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Average live cells per slice (last five minutes)</Value>
+    </Setting>
+    <Setting Name="MaxLiveCellsReadSlice" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Maximum live cells per slice (last five minutes)</Value>
+    </Setting>
+    <Setting Name="SSTableCount" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">SSTable count</Value>
+    </Setting>
+    <Setting Name="ReadCount" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Read Count</Value>
+    </Setting>
+    <Setting Name="WriteCount" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Write Count</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>

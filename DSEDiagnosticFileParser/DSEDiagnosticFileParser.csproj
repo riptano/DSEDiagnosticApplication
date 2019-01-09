@@ -126,6 +126,12 @@
     <Compile Include="json-repair_service.cs" />
     <Compile Include="json-solr_index_size.cs" />
     <Compile Include="LibrarySettings.cs" />
+    <Compile Include="Properties\StatPropertyNames.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>StatPropertyNames.settings</DependentUpon>
+    </Compile>
+    <Compile Include="Settings.cs" />
     <Compile Include="TaskSchedulers .cs" />
     <Compile Include="MiscHelpers.cs" />
     <Compile Include="ProcessJsonFile.cs" />
@@ -181,6 +187,10 @@
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="Properties\StatPropertyNames.settings">
+      <Generator>PublicSettingsSingleFileGenerator</Generator>
+      <LastGenOutput>StatPropertyNames.Designer.cs</LastGenOutput>
     </None>
   </ItemGroup>
   <ItemGroup>

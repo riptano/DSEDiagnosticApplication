@@ -77,6 +77,11 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <Compile Include="Properties\StatPropertyNames.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>StatPropertyNames.settings</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DSEDiagnosticFileParser\DSEDiagnosticFileParser.csproj">
@@ -93,18 +98,30 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <CopyLinkedFiles Include="..\DSEDiagnosticFileParser\Properties\StatPropertyNames.settings">
+      <Link>Properties\Shared\StatPropertyNames.settings</Link>
+      <NewName>Properties\StatPropertyNames.settings</NewName>
+    </CopyLinkedFiles>
     <None Include="app.config" />
     <None Include="Json\AggregateGroups.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
-      <Generator>PublicSettingsSingleFileGenerator</Generator>
+      <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="Properties\StatPropertyNames.settings">
+      <Generator>PublicSettingsSingleFileGenerator</Generator>
+      <LastGenOutput>StatPropertyNames.Designer.cs</LastGenOutput>
     </None>
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>
+    </PreBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
@@ -112,4 +129,7 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <Target Name="BeforeBuild">
+    <Copy SourceFiles="%(CopyLinkedFiles.Identity)" DestinationFiles="%(CopyLinkedFiles.NewName)" SkipUnchangedFiles="true" OverwriteReadOnlyFiles="true" Condition="'%(CopyLinkedFiles.NewName)' != ''" UseHardlinksIfPossible="true" />
+  </Target>
 </Project>

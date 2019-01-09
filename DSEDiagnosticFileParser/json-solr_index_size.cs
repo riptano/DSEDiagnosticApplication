@@ -67,7 +67,7 @@ namespace DSEDiagnosticFileParser
                         var uomIndexStorage = UnitOfMeasure.Create(jItem.Value.Value<decimal>(),
                                                                         UnitOfMeasure.Types.Byte | UnitOfMeasure.Types.Storage);
 
-                        statItem.AssociateItem(Properties.Settings.Default.SolrIndexStorageSizeStatAttribute,
+                        statItem.AssociateItem(Properties.StatPropertyNames.Default.SolrIndexStorageSize,
                                                 uomIndexStorage);
 
                         if(!uomIndexStorage.NaN)
@@ -75,7 +75,7 @@ namespace DSEDiagnosticFileParser
                             var assocTblStorage = currentDDL.Node.AggregatedStats.FirstOrDefault(s => s.TableViewIndex == currentDDL);
                             object totalStorageObj;
 
-                            if(assocTblStorage.Data.TryGetValue(Properties.Settings.Default.CFStatTotalStorage, out totalStorageObj))
+                            if(assocTblStorage.Data.TryGetValue(Properties.StatPropertyNames.Default.TotalStorage, out totalStorageObj))
                             {
                                 var uomTblStorage = (UnitOfMeasure)totalStorageObj;
                                 decimal ratio = 1m;
@@ -85,7 +85,7 @@ namespace DSEDiagnosticFileParser
                                     ratio = uomIndexStorage.ConvertSizeUOM(DSEDiagnosticLibrary.LibrarySettings.DefaultStorageSizeUnit) / uomTblStorage.ConvertSizeUOM(DSEDiagnosticLibrary.LibrarySettings.DefaultStorageSizeUnit);
                                 }
 
-                                statItem.AssociateItem(Properties.Settings.Default.SolrIndexStorageSizePercentStatAttribute,
+                                statItem.AssociateItem(Properties.StatPropertyNames.Default.SolrIndexStorageSizePercent,
                                                         UnitOfMeasure.Create(ratio, UnitOfMeasure.Types.Percent | UnitOfMeasure.Types.Storage));
                             }
                         }

@@ -390,7 +390,7 @@ namespace DSEDiagnosticAnalytics
             {
                 var partitionSize = (UnitOfMeasure)eventArgs.LogEvent.LogProperties["size"];
                 var largeRow = eventArgs.LogEvent.SubClass.EndsWith("row", StringComparison.InvariantCultureIgnoreCase);
-                var attribName = largeRow ? Properties.Settings.Default.RowLargeAttrrib : Properties.Settings.Default.PartitionLargeAttrib;
+                var attribName = largeRow ? Properties.StatPropertyNames.Default.RowLarge : Properties.StatPropertyNames.Default.PartitionLarge;
                 var evtClass = EventClasses.Node | EventClasses.KeyspaceTableViewIndexStats;
 
                 if (largeRow)
@@ -475,13 +475,13 @@ namespace DSEDiagnosticAnalytics
 
                 var tombstones = (long)((dynamic)eventArgs.LogEvent.LogProperties["tombstone"]);
                 
-                if (nodeStat.Data.TryGetValue(Properties.Settings.Default.TombstonesReadAttrib, out object dataValue))
+                if (nodeStat.Data.TryGetValue(Properties.StatPropertyNames.Default.TombstonesRead, out object dataValue))
                 {
-                    nodeStat.UpdateAssociateItem(Properties.Settings.Default.TombstonesReadAttrib, (long) dataValue + tombstones);
+                    nodeStat.UpdateAssociateItem(Properties.StatPropertyNames.Default.TombstonesRead, (long) dataValue + tombstones);
                 }
                 else
                 {
-                    nodeStat.AssociateItem(Properties.Settings.Default.TombstonesReadAttrib, tombstones);
+                    nodeStat.AssociateItem(Properties.StatPropertyNames.Default.TombstonesRead, tombstones);
                 }
                 
                 if (eventArgs.LogEvent.LogProperties.TryGetValue("live", out dynamic reads))
@@ -489,13 +489,13 @@ namespace DSEDiagnosticAnalytics
                     var readsValue = (long)reads;
 
                     //TombstoneLiveCellAttrib
-                    if (nodeStat.Data.TryGetValue(Properties.Settings.Default.TombstoneLiveCellAttrib, out dataValue))
+                    if (nodeStat.Data.TryGetValue(Properties.StatPropertyNames.Default.TombstoneLiveCell, out dataValue))
                     {
-                        nodeStat.UpdateAssociateItem(Properties.Settings.Default.TombstoneLiveCellAttrib, (long)dataValue + readsValue);
+                        nodeStat.UpdateAssociateItem(Properties.StatPropertyNames.Default.TombstoneLiveCell, (long)dataValue + readsValue);
                     }
                     else
                     {
-                        nodeStat.AssociateItem(Properties.Settings.Default.TombstoneLiveCellAttrib, readsValue);
+                        nodeStat.AssociateItem(Properties.StatPropertyNames.Default.TombstoneLiveCell, readsValue);
                     }
 
                     decimal percent = 0;
@@ -503,7 +503,7 @@ namespace DSEDiagnosticAnalytics
                     if (tombstones > 0 || reads > 0)
                         percent = (decimal)tombstones / (((decimal)tombstones) + (decimal)reads);
 
-                    if (nodeStat.Data.TryGetValue(Properties.Settings.Default.TombstoneLiveCellRatioAttrib, out dataValue))
+                    if (nodeStat.Data.TryGetValue(Properties.StatPropertyNames.Default.TombstoneLiveCellRatio, out dataValue))
                     {
                         var dataList = (List<decimal>)dataValue;
 
@@ -511,7 +511,7 @@ namespace DSEDiagnosticAnalytics
                                                     sender.Node,
                                                     evtClass,
                                                     eventArgs.LogEvent.TableViewIndex,
-                                                    Properties.Settings.Default.TombstoneLiveCellRatioAttrib,
+                                                    Properties.StatPropertyNames.Default.TombstoneLiveCellRatio,
                                                     Properties.Settings.Default.LogAggregationNodeStatMbrLimit,
                                                     LogAggNodeStatMbrLimitTake,
                                                     dataList,
@@ -525,7 +525,7 @@ namespace DSEDiagnosticAnalytics
                     }
                     else
                     {
-                        nodeStat.AssociateItem(Properties.Settings.Default.TombstoneLiveCellRatioAttrib, new List<decimal>() { percent });
+                        nodeStat.AssociateItem(Properties.StatPropertyNames.Default.TombstoneLiveCellRatio, new List<decimal>() { percent });
                     }
                 }
             }
@@ -565,7 +565,7 @@ namespace DSEDiagnosticAnalytics
                     return stat;
                 });
                 
-                if (aggStat.Data.TryGetValue(Properties.Settings.Default.CompactionInsufficientSpace, out object dataValue))
+                if (aggStat.Data.TryGetValue(Properties.StatPropertyNames.Default.CompactionInsufficientSpace, out object dataValue))
                 {
                     var dataList = (List<UnitOfMeasure>)dataValue;
 
@@ -573,7 +573,7 @@ namespace DSEDiagnosticAnalytics
                                                     sender.Node,
                                                     evtClass,
                                                     (IDDL) eventArgs.LogEvent.TableViewIndex ?? eventArgs.LogEvent.Keyspace,
-                                                    Properties.Settings.Default.CompactionInsufficientSpace,
+                                                    Properties.StatPropertyNames.Default.CompactionInsufficientSpace,
                                                     Properties.Settings.Default.LogAggregationNodeStatMbrLimit,
                                                     LogAggNodeStatMbrLimitTake,
                                                     dataList,
@@ -589,11 +589,11 @@ namespace DSEDiagnosticAnalytics
                 {
                     try
                     {
-                        aggStat.AssociateItem(Properties.Settings.Default.CompactionInsufficientSpace, new List<UnitOfMeasure>() { spaceRequired });
+                        aggStat.AssociateItem(Properties.StatPropertyNames.Default.CompactionInsufficientSpace, new List<UnitOfMeasure>() { spaceRequired });
                     }
                     catch (System.ArgumentException)
                     {
-                        if (aggStat.Data.TryGetValue(Properties.Settings.Default.CompactionInsufficientSpace, out dataValue))
+                        if (aggStat.Data.TryGetValue(Properties.StatPropertyNames.Default.CompactionInsufficientSpace, out dataValue))
                         {
                             ((List<UnitOfMeasure>)dataValue).Add(spaceRequired);
                         }

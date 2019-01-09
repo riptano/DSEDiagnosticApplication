@@ -20,3 +20,4 @@ namespace DSEDiagnosticAnalytics
         public static TimeSpan LogAggregationPeriod = Properties.Settings.Default.LogAggregationPeriod;
     }
 }
+

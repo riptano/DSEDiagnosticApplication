@@ -1692,12 +1692,6 @@ CREATE TABLE "OpsCenter".rollups300 (
    AND max_index_interval = 2048
    AND crc_check_chance = 1.0;</Value>
     </Setting>
-    <Setting Name="CFStatsDetectWriteActivityAttr" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">Local write count</Value>
-    </Setting>
-    <Setting Name="CFStatsDetectReadActivityAttr" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">Local read count</Value>
-    </Setting>
     <Setting Name="IgnoreFileWExtensions" Type="System.Collections.Specialized.StringCollection" Scope="Application">
       <Value Profile="(Default)">&lt;?xml version="1.0" encoding="utf-16"?&gt;
 &lt;ArrayOfString xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"&gt;
@@ -1713,9 +1707,6 @@ CREATE TABLE "OpsCenter".rollups300 (
     </Setting>
     <Setting Name="DefaultLogLevelHandling" Type="System.String" Scope="Application">
       <Value Profile="(Default)">Warning, Error, Fatal, Exception</Value>
-    </Setting>
-    <Setting Name="SolrIndexStorageSizeStatAttribute" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">solr index storage size</Value>
     </Setting>
     <Setting Name="RegExLexiconValues" Type="System.String" Scope="Application">
       <Value Profile="(Default)">[
@@ -1766,45 +1757,6 @@ CREATE TABLE "OpsCenter".rollups300 (
     <Setting Name="MasterLog4NetParser" Type="System.String" Scope="Application">
       <Value Profile="(Default)">.\Log4NetParser.json,.\Json\Log4NetParser.json,[cpld]\Json\Log4NetParser.json,[cpld]\Log4NetParser.json,[ApplicationRunTimeDirectory]\Json\Log4NetParser.json,[ApplicationRunTimeDirectory]\Log4NetParser.json,.\Log4NetParser.json,.\Json\Log4NetParser.json</Value>
     </Setting>
-    <Setting Name="CFStatTombstonePropName" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">Maximum tombstones per slice (last five minutes)</Value>
-    </Setting>
-    <Setting Name="CFStatLiveCellPropName" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">Maximum live cells per slice (last five minutes)</Value>
-    </Setting>
-    <Setting Name="SolrIndexStorageSizePercentStatAttribute" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">solr index percent storage size </Value>
-    </Setting>
-    <Setting Name="CFStatTotalStorage" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">Space used (total)</Value>
-    </Setting>
-    <Setting Name="CFStatsLocalReadCount" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">Local read count</Value>
-    </Setting>
-    <Setting Name="CFStatsLocalWriteCout" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">Local write count</Value>
-    </Setting>
-    <Setting Name="CFStatsLCSLevels" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">SSTables in each level</Value>
-    </Setting>
-    <Setting Name="TombstoneLiveCellRatioAttrib" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">Tombstone/Live Percent</Value>
-    </Setting>
-    <Setting Name="ReadPercentAttrib" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">Local Read Percentage</Value>
-    </Setting>
-    <Setting Name="WritePercentAttrib" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">Local Write Percentage</Value>
-    </Setting>
-    <Setting Name="LCSBackRatioAttrib" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">LCS Level BuildUp Ratio</Value>
-    </Setting>
-    <Setting Name="LCSSplitLevelsAttrib" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">SSTables in each split level</Value>
-    </Setting>
-    <Setting Name="LCSNbrSplitLevelsAttrib" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">LCS Nbr Split Levels</Value>
-    </Setting>
     <Setting Name="CaptureTimeFrameRegEx" Type="System.String" Scope="Application">
       <Value Profile="(Default)">-(?&lt;year&gt;\d{1,4})-(?&lt;month&gt;\d{1,2})-(?&lt;day&gt;\d{1,2})-(?&lt;hour&gt;\d{1,2})-(?&lt;min&gt;\d{1,2})-(?&lt;second&gt;\d{1,2})-(?&lt;timezone&gt;\w+)</Value>
     </Setting>
@@ -1819,6 +1771,12 @@ CREATE TABLE "OpsCenter".rollups300 (
     </Setting>
     <Setting Name="LogIgnoreParsingErrors" Type="System.Boolean" Scope="Application">
       <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="CFStatsDetectWriteActivityAttr" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Local write count</Value>
+    </Setting>
+    <Setting Name="CFStatsDetectReadActivityAttr" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Local read count</Value>
     </Setting>
   </Settings>
 </SettingsFile>
