@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Data;
+using DSEDiagnosticLibrary;
 using DSEDiagnosticLogger;
 using Common;
 
@@ -204,8 +205,7 @@ namespace DSEDiagnosticToDataTable
                                                                                                             || a.Key == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.SSTableCount
                                                                                                             || a.Key == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.LocalReadCount 
                                                                                                             || a.Key == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.LocalWriteCount
-                                                                                                            || a.Key == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.NbrKeys
-                                                                                                            || a.Key == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.NbrKeys1)
+                                                                                                            || DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.NbrPartitionKeys.ComparePropName(a.Key))
                                                                                                         && a.Value != null))
                                       let grpLWTValues = grpData.Where(i => i.TableViewIndex.FullName == Properties.Settings.Default.SystemLWTTableName)
                                                                .SelectMany(d => ((DSEDiagnosticLibrary.AggregatedStats)d).DataUnSafe
@@ -241,8 +241,7 @@ namespace DSEDiagnosticToDataTable
                                                                             .Select(a => (decimal)(dynamic)a.Value)
                                                                             .DefaultIfEmpty()
                                                                             .Sum(),
-                                                    KeyTotal = grpDataValues.Where(a => a.Key == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.NbrKeys
-                                                                                            || a.Key == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.NbrKeys1)
+                                                    KeyTotal = grpDataValues.Where(a => DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.NbrPartitionKeys.ComparePropName(a.Key))
                                                                             .Select(a => (decimal)(dynamic)a.Value)
                                                                             .DefaultIfEmpty()
                                                                             .Sum(),

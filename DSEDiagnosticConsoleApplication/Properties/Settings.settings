@@ -50,7 +50,7 @@
 &lt;/ArrayOfString&gt;</Value>
     </Setting>
     <Setting Name="ExcelFileTemplatePath" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">.\dseHealthAssessment3Template.xlsm</Value>
+      <Value Profile="(Default)">.\dseHealthAssessment4Template.xlsm</Value>
     </Setting>
     <Setting Name="ExcelFileNameGeneratedStringFormat" Type="System.String" Scope="Application">
       <Value Profile="(Default)">{0}\{1}-{2:yyyyMMddHHmmss}-{3}{4}{5}</Value>

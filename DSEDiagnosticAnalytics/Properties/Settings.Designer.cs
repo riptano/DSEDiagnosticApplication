@@ -106,52 +106,7 @@ namespace DSEDiagnosticAnalytics.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("[\r\n{\"AttrName\":\"Local read latency\",\r\n \"MinTrigger\":0.65,\r\n \"AttrValue\":{\"Type\":T" +
-            "ypes.Normal,\r\n \t\t\"CalcType\":CalcTypes.Normal,\r\n  \t\t\"Threshold\":1.5,\r\n  \t\t\"Weight" +
-            "\":1.0,\r\n  \t\t\"WeightFactor\":1.0,\r\n  \t\t\"PenaltyFactor\":0.60\r\n \t},\r\n \"MaxValue\":{\"T" +
-            "ype\":Types.Max,\r\n \t\t\"CalcType\":CalcTypes.Normal,\t\r\n \t\t\"Threshold\":1.5,\r\n \t\t\"Weig" +
-            "ht\":1.0,\r\n \t\t\"WeightFactor\":0.25,\r\n \t\t\"PenaltyFactor\":0.0\r\n \t},\r\n \"MinValue\":{\"T" +
-            "ype\":Types.Min,\r\n \t\t\"CalcType\":CalcTypes.Normal,\r\n \t\t\"Threshold\":0.75,\r\n \t\t\"Weig" +
-            "ht\":1.0,\r\n \t\t\"WeightFactor\":0.25,\r\n \t\t\"PenaltyFactor\":0.0\r\n \t},\r\n \"AvgValue\":{\"T" +
-            "ype\":Types.Avg,\r\n \t\t\"CalcType\":CalcTypes.Normal,\r\n \t\t\"Threshold\":1.0,\r\n \t\t\"Weigh" +
-            "t\":1.0,\r\n \t\t\"WeightFactor\":0.50,\r\n \t\t\"PenaltyFactor\":0.10\r\n \t},\r\n \"StdDevValue\":" +
-            "null\r\n},\r\n{\"AttrName\":\"Local write latency\",\r\n \"MinTrigger\":0.65,\r\n \"AttrValue\":" +
-            "{\"Type\":0,\r\n \t\t\"CalcType\":CalcTypes.Normal,\r\n   \t\t\"Threshold\":1.0,\r\n   \t\t\"Weight" +
-            "\":1.0,\r\n   \t\t\"WeightFactor\":1.0,\r\n   \t\t\"PenaltyFactor\":0.60\r\n \t},\r\n \"MaxValue\":{" +
-            "\"Type\":Types.Max,\r\n \t\t\"CalcType\":CalcTypes.Normal,\r\n \t\t\"Threshold\":1.0,\r\n \t\t\"Wei" +
-            "ght\":1.0,\r\n \t\t\"WeightFactor\":0.25,\r\n \t\t\"PenaltyFactor\":0.0\r\n \t},\r\n \"MinValue\":{\"" +
-            "Type\":Types.Min,\r\n \t\t\"CalcType\":CalcTypes.Normal,\r\n \t\t\"Threshold\":0.30,\r\n \t\t\"Wei" +
-            "ght\":1.0,\r\n \t\t\"WeightFactor\":0.25,\r\n \t\t\"PenaltyFactor\":0.0\r\n \t},\r\n \"AvgValue\":{\"" +
-            "Type\":Types.Avg,\r\n \t\t\"CalcType\":CalcTypes.Normal,\r\n \t\t\"Threshold\":0.60,\r\n \t\t\"Wei" +
-            "ght\":1.0,\r\n \t\t\"WeightFactor\":0.50,\r\n \t\t\"PenaltyFactor\":0.10\r\n \t},\r\n \"StdDevValue" +
-            "\":null\r\n},\r\n{\"AttrName\":\"SSTable count\",\r\n \"MinTrigger\":0.60,\r\n \"AttrValue\":{\"Ty" +
-            "pe\":0,\r\n \t\t\"CalcType\":CalcTypes.Normal,\r\n   \t\t\"Threshold\":30.0,\r\n   \t\t\"Weight\":1" +
-            ".0,\r\n   \t\t\"WeightFactor\":1.0,\r\n   \t\t\"PenaltyFactor\":0.60\r\n \t},\r\n \"MaxValue\":{\"Ty" +
-            "pe\":Types.Max,\r\n \t\t\"CalcType\":CalcTypes.Normal,\r\n \t\t\"Threshold\":30.0,\r\n \t\t\"Weigh" +
-            "t\":1.0,\r\n \t\t\"WeightFactor\":0.30,\r\n \t\t\"PenaltyFactor\":0.0\r\n \t},\r\n \"MinValue\":{\"Ty" +
-            "pe\":Types.Min,\r\n \t\t\"CalcType\":CalcTypes.Normal,\r\n \t\t\"Threshold\":30.0,\r\n \t\t\"Weigh" +
-            "t\":1.0,\r\n \t\t\"WeightFactor\":0.40,\r\n \t\t\"PenaltyFactor\":0.10\r\n \t},\r\n \"AvgValue\":{\"T" +
-            "ype\":Types.Avg,\r\n \t\t\"CalcType\":CalcTypes.Normal,\r\n \t\t\"Threshold\":30.0,\r\n \t\t\"Weig" +
-            "ht\":1.0,\r\n \t\t\"WeightFactor\":0.30,\r\n \t\t\"PenaltyFactor\":0.20\r\n \t},\r\n \"StdDevValue\"" +
-            ":null\r\n},\r\n{\"AttrName\":\"Partition large\",\r\n \"MinTrigger\":0.60,\r\n \"AttrValue\":{\"T" +
-            "ype\":0,\r\n \t\t\"CalcType\":CalcTypes.Normal,\r\n   \t\t\"Threshold\":100.0,\r\n   \t\t\"Weight\"" +
-            ":1.0,\r\n   \t\t\"WeightFactor\":1.0,\r\n   \t\t\"PenaltyFactor\":0.60\r\n \t},\r\n \"MaxValue\":{\"" +
-            "Type\":Types.Max,\r\n \t\t\"CalcType\":CalcTypes.Normal,\r\n \t\t\"Threshold\":100.0,\r\n \t\t\"We" +
-            "ight\":1.0,\r\n \t\t\"WeightFactor\":0.30,\r\n \t\t\"PenaltyFactor\":0.0\r\n \t},\r\n \"MinValue\":{" +
-            "\"Type\":Types.Min,\r\n \t\t\"CalcType\":CalcTypes.Normal,\r\n \t\t\"Threshold\":100.0,\r\n \t\t\"W" +
-            "eight\":1.0,\r\n \t\t\"WeightFactor\":0.40,\r\n \t\t\"PenaltyFactor\":0.10\r\n \t},\r\n \"AvgValue\"" +
-            ":{\"Type\":Types.Avg,\r\n \t\t\"CalcType\":CalcTypes.Normal,\r\n \t\t\"Threshold\":100.0,\r\n \t\t" +
-            "\"Weight\":1.0,\r\n \t\t\"WeightFactor\":0.30,\r\n \t\t\"PenaltyFactor\":0.20\r\n \t},\r\n \"StdDevV" +
-            "alue\":null\r\n},\r\n{\"AttrName\":\"Tombstone/Live Percent\",\r\n \"MinTrigger\":0.60,\r\n \"At" +
-            "trValue\":{\"Type\":0,\r\n \t\t\"CalcType\":CalcTypes.Normal,\r\n   \t\t\"Threshold\":0.60,\r\n  " +
-            " \t\t\"Weight\":1.0,\r\n   \t\t\"WeightFactor\":1.0,\r\n   \t\t\"PenaltyFactor\":0.60\r\n \t},\r\n \"M" +
-            "axValue\":{\"Type\":Types.Max,\r\n \t\t\"CalcType\":CalcTypes.Normal,\r\n \t\t\"Threshold\":0.6" +
-            "0,\r\n \t\t\"Weight\":1.0,\r\n \t\t\"WeightFactor\":0.30,\r\n \t\t\"PenaltyFactor\":0.0\r\n \t},\r\n \"M" +
-            "inValue\":{\"Type\":Types.Min,\r\n \t\t\"CalcType\":CalcTypes.Normal,\r\n \t\t\"Threshold\":0.6" +
-            "0,\r\n \t\t\"Weight\":1.0,\r\n \t\t\"WeightFactor\":0.40,\r\n \t\t\"PenaltyFactor\":0.10\r\n \t},\r\n \"" +
-            "AvgValue\":{\"Type\":Types.Avg,\r\n \t\t\"CalcType\":CalcTypes.Normal,\r\n \t\t\"Threshold\":0." +
-            "60,\r\n \t\t\"Weight\":1.0,\r\n \t\t\"WeightFactor\":0.30,\r\n \t\t\"PenaltyFactor\":0.20\r\n \t},\r\n " +
-            "\"StdDevValue\":null\r\n}\r\n]")]
+        [global::System.Configuration.DefaultSettingValueAttribute(@".\AggregateGroups.json,.\Json\AttributeThresholds.json,[cpld]\Json\AttributeThresholds.json,[cpld]\AttributeThresholds.json,[ApplicationRunTimeDirectory]\Json\AttributeThresholds.json,[ApplicationRunTimeDirectory]\AttributeThresholds.json,.\Json\AttributeThresholds.json,.\AttributeThresholds.json")]
         public string AttributeThresholds {
             get {
                 return ((string)(this["AttributeThresholds"]));

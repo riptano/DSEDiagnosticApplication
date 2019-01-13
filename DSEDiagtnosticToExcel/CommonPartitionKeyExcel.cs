@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Common;
 using OfficeOpenXml;
 using DataTableToExcel;
+using DT = DSEDiagnosticToDataTable;
 
 namespace DSEDiagtnosticToExcel
 {
@@ -70,15 +71,55 @@ namespace DSEDiagtnosticToExcel
                                                                  //workBook.Cells["1:1"].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
                                                                  workSheet.View.FreezePanes(2, 1);
 
+                                                                 this.DataTable.GetColumn(DT.CommonPartitionKeyDataTable.Columns.PartitionKey)
+                                                                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartVar);
 
-                                                                 workSheet.Cells["F:F"].Style.Numberformat.Format = "#,###,###,##0";                                                                 
-                                                                 workSheet.Cells["G:G"].Style.Numberformat.Format = "#,###,###,##0";
-                                                                 workSheet.Cells["H:H"].Style.Numberformat.Format = "#,###,###,##0";
-                                                                 workSheet.Cells["I:I"].Style.Numberformat.Format = "#,###,###,##0";
+                                                                 this.DataTable.GetColumn(DT.CommonPartitionKeyDataTable.Columns.ReadCount)
+                                                                   .SetNumericFormat("#,###,###,##0")
+                                                                   .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDataBarLightGreen);
+                                                                 this.DataTable.GetColumn(DT.CommonPartitionKeyDataTable.Columns.ReadStdDev)
+                                                                   .SetNumericFormat("#,###,###,##0.00")
+                                                                   .SetCaption("Read Dev");
+                                                                 this.DataTable.GetColumn(DT.CommonPartitionKeyDataTable.Columns.ReadFactor)
+                                                                   .SetNumericFormat("#,###,###,##0.00")
+                                                                   .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor);
+                                                                 this.DataTable.GetColumn(DT.CommonPartitionKeyDataTable.Columns.WriteCount)
+                                                                   .SetNumericFormat("#,###,###,##0")
+                                                                   .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDataBarLightGreen);
+                                                                 this.DataTable.GetColumn(DT.CommonPartitionKeyDataTable.Columns.WriteStdDev)
+                                                                   .SetNumericFormat("#,###,###,##0.00")
+                                                                   .SetCaption("Writes Dev");
+                                                                 this.DataTable.GetColumn(DT.CommonPartitionKeyDataTable.Columns.WriteFactor)
+                                                                   .SetNumericFormat("#,###,###,##0.00")
+                                                                   .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor);
+                                                                 this.DataTable.GetColumn(DT.CommonPartitionKeyDataTable.Columns.PartitionKeysCount)
+                                                                   .SetNumericFormat("#,###,###,##0")
+                                                                   .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDataBarLightGreen);
+                                                                 this.DataTable.GetColumn(DT.CommonPartitionKeyDataTable.Columns.PartitionKeysStdDev)
+                                                                   .SetNumericFormat("#,###,###,##0.00")
+                                                                   .SetCaption("Partition Keys Dev");
+                                                                 this.DataTable.GetColumn(DT.CommonPartitionKeyDataTable.Columns.PartitionKeysFactor)
+                                                                   .SetNumericFormat("#,###,###,##0.00")
+                                                                   .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor);
 
-                                                                 workSheet.Cells["A1:I1"].AutoFilter = true;
+                                                                 this.DataTable.GetColumn(DT.CommonPartitionKeyDataTable.Columns.Storage)
+                                                                   .SetNumericFormat("#,###,###,##0.00##")
+                                                                   .SetCaption("Storage (MB)")
+                                                                   .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDataBarLightBlue);
+                                                                 this.DataTable.GetColumn(DT.CommonPartitionKeyDataTable.Columns.Tables)
+                                                                   .SetNumericFormat("#,###,###,##0");
+                                                                 this.DataTable.GetColumn(DT.CommonPartitionKeyDataTable.Columns.Factor)
+                                                                   .SetNumericFormat("#,###,###,##0.00")
+                                                                   .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor);
 
-                                                                 workSheet.AutoFitColumn();
+                                                                 workSheet.UpdateWorksheet(this.DataTable, 1);
+
+                                                                 workSheet.AutoFitColumn(this.DataTable);
+
+                                                                 workSheet.TranslaateToColumnRange(this.DataTable,
+                                                                                                    DT.CommonPartitionKeyDataTable.Columns.PartitionKey,
+                                                                                                    DT.CommonPartitionKeyDataTable.Columns.Factor,
+                                                                                                    1, 1).AutoFilter = true;                                                               
                                                              },
                                                              -1,
                                                             -1,

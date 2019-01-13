@@ -3,22 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace DSEDiagnosticAnalytics
 {
+       
     public sealed class AttributeThresholdValue
     {
-        [Newtonsoft.Json.JsonConstructor]
-        public AttributeThresholdValue(Types type, CalcTypes calctype, decimal threshold, decimal weightFactor, decimal penaltyFactor = 0, decimal weight = 1)
-        {
-            this.Type = type;
-            this.CalcType = calctype;
-            this.Threshold = threshold;
-            this.WeightFactor = weightFactor;
-            this.Weight = weight;
-            this.PenaltyFactor = penaltyFactor;
-        }
-
         public enum Types
         {
             Normal = 0,
@@ -58,7 +50,21 @@ namespace DSEDiagnosticAnalytics
             UnderThreshold = ThresholdPercentage | Underage
         }
 
+
+        [Newtonsoft.Json.JsonConstructor]
+        public AttributeThresholdValue(Types type, CalcTypes calctype, decimal threshold, decimal weightFactor, decimal penaltyFactor = 0, decimal weight = 1)
+        {
+            this.Type = type;
+            this.CalcType = calctype;
+            this.Threshold = threshold;
+            this.WeightFactor = weightFactor;
+            this.Weight = weight;
+            this.PenaltyFactor = penaltyFactor;
+        }
+
+        [JsonConverter(typeof(StringEnumConverter))]
         public Types Type { get; } = Types.Normal;
+        [JsonConverter(typeof(StringEnumConverter))]
         public CalcTypes CalcType { get; } = CalcTypes.Normal;
 
         /// <summary>
@@ -203,13 +209,24 @@ namespace DSEDiagnosticAnalytics
             this.AvgValue = avgValue;
         }
 
+        public AttributeThreshold(string attrName, AttributeThresholdValue attrValue,
+                                                    AttributeThresholdValue maxValue,
+                                                    AttributeThresholdValue minValue,
+                                                    AttributeThresholdValue avgValue,
+                                                    decimal minTrigger)
+            : this(attrName, maxValue, minValue, avgValue, minTrigger)
+        {
+            this.AttrValue = attrValue;
+        }
+
         [Newtonsoft.Json.JsonConstructor]
-        public AttributeThreshold(string attrName, AttributeThresholdValue maxValue,
+        public AttributeThreshold(string attrName, AttributeThresholdValue attrValue, 
+                                                    AttributeThresholdValue maxValue,
                                                     AttributeThresholdValue minValue,
                                                     AttributeThresholdValue avgValue,
                                                     AttributeThresholdValue stddevValue,
                                                     decimal minTrigger)
-            : this(attrName, maxValue, minValue, avgValue, minTrigger)
+            : this(attrName, attrValue, maxValue, minValue, avgValue, minTrigger)
         {
             this.StdDevValue = stddevValue;
         }

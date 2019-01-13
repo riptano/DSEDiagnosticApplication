@@ -1,5 +1,5 @@
 ﻿<?xml version='1.0' encoding='utf-8'?>
-<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="DSEDiagnosticAnalytics.Properties" GeneratedClassName="StatPropertyNames">
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="DSEDiagnosticFileParser.Properties" GeneratedClassName="StatPropertyNames">
   <Profiles />
   <Settings>
     <Setting Name="SSTableOverallPercent" Type="System.String" Scope="Application">
@@ -68,12 +68,6 @@
     <Setting Name="TombstoneLiveCell" Type="System.String" Scope="Application">
       <Value Profile="(Default)">Tombstones Live Cells Read</Value>
     </Setting>
-    <Setting Name="NbrKeys" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">Number of keys (estimate)</Value>
-    </Setting>
-    <Setting Name="NbrKeys1" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">Number of partitions (estimate)</Value>
-    </Setting>
     <Setting Name="LocalReadLatency" Type="System.String" Scope="Application">
       <Value Profile="(Default)">Local read latency</Value>
     </Setting>
@@ -109,6 +103,27 @@
     </Setting>
     <Setting Name="WriteCount" Type="System.String" Scope="Application">
       <Value Profile="(Default)">Write Count</Value>
+    </Setting>
+    <Setting Name="LocalWriteCout" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Local write count</Value>
+    </Setting>
+    <Setting Name="NbrPartitionKeys" Type="System.Collections.Specialized.StringCollection" Scope="Application">
+      <Value Profile="(Default)">&lt;?xml version="1.0" encoding="utf-16"?&gt;
+&lt;ArrayOfString xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"&gt;
+  &lt;string&gt;Number of keys (estimate)&lt;/string&gt;
+  &lt;string&gt;Number of partitions (estimate)&lt;/string&gt;
+&lt;/ArrayOfString&gt;</Value>
+    </Setting>
+    <Setting Name="PartitionRowLarge" Type="System.Collections.Specialized.StringCollection" Scope="Application">
+      <Value Profile="(Default)">&lt;?xml version="1.0" encoding="utf-16"?&gt;
+&lt;ArrayOfString xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"&gt;
+  &lt;string&gt;Partition large&lt;/string&gt;
+  &lt;string&gt;Compacted partition maximum bytes&lt;/string&gt;
+  &lt;string&gt;Row large&lt;/string&gt;
+&lt;/ArrayOfString&gt;</Value>
+    </Setting>
+    <Setting Name="CommonPartitionKeys" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Common Partition Keys</Value>
     </Setting>
   </Settings>
 </SettingsFile>

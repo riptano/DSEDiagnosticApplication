@@ -10,6 +10,8 @@ using Common;
 using OfficeOpenXml.ConditionalFormatting;
 using System.Runtime.Serialization.Json;
 using System.Xml;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace DataTableToExcel
 {
@@ -629,16 +631,20 @@ namespace DataTableToExcel
             DataBar = 45
         }
 
+        [JsonConverter(typeof(StringEnumConverter))]
         public Types Type { get; set; } = Types.Num;
+        [JsonConverter(typeof(StringEnumConverter))]
         public Types SubType { get; set; } = Types.Num;
 
+        [JsonConverter(typeof(StringEnumConverter))]
         public RuleTypes RuleType { get; set; } = RuleTypes.Equal;
+        [JsonConverter(typeof(StringEnumConverter))]
         public RuleTypes SubRuleType { get; set; } = RuleTypes.Equal;
 
         public double Value { get; set; }
         public string FormulaText { get; set; }
         public string FormulaTextBetween { get; set; }
-
+        
         public System.Drawing.Color Color { get; set; } = System.Drawing.Color.Empty;
 
         public bool ShowValue { get; set; } = true;

@@ -223,24 +223,6 @@ namespace DSEDiagnosticFileParser.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Number of keys (estimate)")]
-        public string NbrKeys {
-            get {
-                return ((string)(this["NbrKeys"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Number of partitions (estimate)")]
-        public string NbrKeys1 {
-            get {
-                return ((string)(this["NbrKeys1"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("Local read latency")]
         public string LocalReadLatency {
             get {
@@ -344,6 +326,51 @@ namespace DSEDiagnosticFileParser.Properties {
         public string WriteCount {
             get {
                 return ((string)(this["WriteCount"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Local write count")]
+        public string LocalWriteCout {
+            get {
+                return ((string)(this["LocalWriteCout"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute(@"<?xml version=""1.0"" encoding=""utf-16""?>
+<ArrayOfString xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"">
+  <string>Number of keys (estimate)</string>
+  <string>Number of partitions (estimate)</string>
+</ArrayOfString>")]
+        public global::System.Collections.Specialized.StringCollection NbrPartitionKeys {
+            get {
+                return ((global::System.Collections.Specialized.StringCollection)(this["NbrPartitionKeys"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute(@"<?xml version=""1.0"" encoding=""utf-16""?>
+<ArrayOfString xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"">
+  <string>Partition large</string>
+  <string>Compacted partition maximum bytes</string>
+  <string>Row large</string>
+</ArrayOfString>")]
+        public global::System.Collections.Specialized.StringCollection PartitionRowLarge {
+            get {
+                return ((global::System.Collections.Specialized.StringCollection)(this["PartitionRowLarge"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Common Partition Keys")]
+        public string CommonPartitionKeys {
+            get {
+                return ((string)(this["CommonPartitionKeys"]));
             }
         }
     }

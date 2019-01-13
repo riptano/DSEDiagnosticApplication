@@ -1068,5 +1068,112 @@ namespace DSEDiagtnosticToExcel.Properties {
                 return ((string)(this["CondFmtJsonDistStdDev"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute(@"[
+  {
+    ""Type"": ""Min"",
+    ""SubType"": ""Num"",
+    ""RuleType"": ""ThreeColorScale"",
+    ""SubRuleType"": ""Equal"",
+    ""Value"": 0.5,
+    ""FormulaText"": null,
+    ""FormulaTextBetween"": null,
+    ""Color"": ""Green"",
+    ""ShowValue"": true,
+    ""StopIfTrue"": false,
+    ""Priority"": 1,
+    ""IncludeTotalRow"": false
+  },
+  {
+    ""Type"": ""Num"",
+    ""SubType"": ""Num"",
+    ""RuleType"": ""ThreeColorScale"",
+    ""SubRuleType"": ""Equal"",
+    ""Value"": 1.25,
+    ""FormulaText"": null,
+    ""FormulaTextBetween"": null,
+    ""Color"": ""Orange"",
+    ""ShowValue"": true,
+    ""StopIfTrue"": false,
+    ""Priority"": 1,
+    ""IncludeTotalRow"": false
+  },
+  {
+    ""Type"": ""Max"",
+    ""SubType"": ""Num"",
+    ""RuleType"": ""ThreeColorScale"",
+    ""SubRuleType"": ""Equal"",
+    ""Value"": 3.0,
+    ""FormulaText"": null,
+    ""FormulaTextBetween"": null,
+    ""Color"": ""Red"",
+    ""ShowValue"": true,
+    ""StopIfTrue"": false,
+    ""Priority"": 1,
+    ""IncludeTotalRow"": false
+  }
+]")]
+        public string CondFmtJsonCommonKeyPartFactor {
+            get {
+                return ((string)(this["CondFmtJsonCommonKeyPartFactor"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute(@"[
+  {
+    ""Type"": ""Formula"",
+    ""SubType"": ""Num"",
+    ""RuleType"": ""Expression"",
+    ""SubRuleType"": ""Equal"",
+    ""Value"": 0.0,
+    ""FormulaText"": ""AND(ISNUMBER(${Factor}{0}),${Factor}{0}>.6)"",
+    ""FormulaTextBetween"": null,
+    ""Color"": ""Yellow"",
+    ""ShowValue"": true,
+    ""StopIfTrue"": true,
+    ""Priority"": 3,
+    ""IncludeTotalRow"": false,
+    ""Enabled"": true
+  },
+  {
+      ""Type"": ""Formula"",
+      ""SubType"": ""Num"",
+      ""RuleType"": ""Expression"",
+      ""SubRuleType"": ""Equal"",
+      ""Value"": 0.0,
+      ""FormulaText"": ""AND(ISNUMBER(${Factor}{0}),${Factor}{0}>1)"",
+      ""FormulaTextBetween"": null,
+      ""Color"": ""Orange"",
+      ""ShowValue"": true,
+      ""StopIfTrue"": true,
+      ""Priority"": 2,
+      ""IncludeTotalRow"": false,
+      ""Enabled"": true
+  },
+  {
+        ""Type"": ""Formula"",
+        ""SubType"": ""Num"",
+        ""RuleType"": ""Expression"",
+        ""SubRuleType"": ""Equal"",
+        ""Value"": 0.0,
+        ""FormulaText"": ""AND(ISNUMBER(${Factor}{0}),${Factor}{0}>1.5)"",
+        ""FormulaTextBetween"": null,
+        ""Color"": ""Red"",
+        ""ShowValue"": true,
+        ""StopIfTrue"": true,
+        ""Priority"": 1,
+        ""IncludeTotalRow"": false,
+        ""Enabled"": true
+  }
+]")]
+        public string CondFmtJsonCommonKeyPartVar {
+            get {
+                return ((string)(this["CondFmtJsonCommonKeyPartVar"]));
+            }
+        }
     }
 }

@@ -8,6 +8,7 @@ using Common;
 using OfficeOpenXml;
 using DataTableToExcel;
 using OfficeOpenXml.Table;
+using DT = DSEDiagnosticToDataTable;
 
 namespace DSEDiagtnosticToExcel
 {
@@ -66,104 +67,115 @@ namespace DSEDiagtnosticToExcel
                                                                  //this.DataTable.GetColumn(DSEDiagnosticToDataTable.ColumnNames.Table);
                                                                  //this.DataTable.GetColumn(DSEDiagnosticToDataTable.ColumnNames.DataCenter);
                                                                  //this.DataTable.GetColumn(DSEDiagnosticToDataTable.ColumnNames.NodeIPAddress);
-                                                                 //this.DataTable.GetColumn("CQL Type");
+                                                                 //this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.CQLType);
 
-                                                                 this.DataTable.GetColumn("Read Max")
+                                                                 this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.ReadMax)
                                                                     .SetNumericFormat("#,###,###,##0.000");
-                                                                 this.DataTable.GetColumn("Read Min")
+                                                                 this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.ReadMin)
                                                                     .SetNumericFormat("#,###,###,##0.000");
-                                                                 this.DataTable.GetColumn("Read Avg")
+                                                                 this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.ReadAvg)
                                                                     .SetNumericFormat("#,###,###,##0.000");
-                                                                 this.DataTable.GetColumn("Read StdDev")
+                                                                 this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.ReadStdDev)
                                                                     .SetNumericFormat("#,###,###,##0.000");
-                                                                 this.DataTable.GetColumn("Read Factor")
-                                                                    .SetNumericFormat("#,###,###,##0.00");
+                                                                 this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.ReadFactor)
+                                                                    .SetNumericFormat("#,###,###,##0.00")
+                                                                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor);
 
-                                                                 this.DataTable.GetColumn("Read Percent")
+                                                                 this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.ReadPercent)
                                                                      .SetNumericFormat("##0.00%");
-                                                                 this.DataTable.GetColumn("Keys Percent")
+                                                                 this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.KeysPercent)
                                                                      .SetNumericFormat("##0.00%");
                                                                  
-                                                                 this.DataTable.GetColumn("Write Max")
+                                                                 this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.WriteMax)
                                                                     .SetNumericFormat("#,###,###,##0.000");
-                                                                 this.DataTable.GetColumn("Write Min")
+                                                                 this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.WriteMin)
                                                                     .SetNumericFormat("#,###,###,##0.000");
-                                                                 this.DataTable.GetColumn("Write Avg")
+                                                                 this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.WriteAvg)
                                                                     .SetNumericFormat("#,###,###,##0.000");
-                                                                 this.DataTable.GetColumn("Write StdDev")
+                                                                 this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.WriteStdDev)
                                                                     .SetNumericFormat("#,###,###,##0.000");
-                                                                 this.DataTable.GetColumn("Write Factor")
-                                                                    .SetNumericFormat("#,###,###,##0.00");
+                                                                 this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.WriteFactor)
+                                                                    .SetNumericFormat("#,###,###,##0.00")
+                                                                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor);
 
-                                                                 this.DataTable.GetColumn("Write Percent")
+                                                                 this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.WritePercent)
                                                                      .SetNumericFormat("##0.00%");
 
-                                                                 this.DataTable.GetColumn("SSTables Max")
+                                                                 this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.SSTablesMax)
                                                                     .SetNumericFormat("#,###,###,##0");
-                                                                 this.DataTable.GetColumn("SSTables Min")
+                                                                 this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.SSTablesMin)
                                                                     .SetNumericFormat("#,###,###,##0");
-                                                                 this.DataTable.GetColumn("SSTables Avg")
+                                                                 this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.SSTablesAvg)
                                                                     .SetNumericFormat("#,###,###,##0.00");
-                                                                 this.DataTable.GetColumn("SSTables StdDev")
+                                                                 this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.SSTablesStdDev)
                                                                     .SetNumericFormat("#,###,###,##0.00");
-                                                                 this.DataTable.GetColumn("SSTables Factor")
-                                                                    .SetNumericFormat("#,###,###,##0.00");
+                                                                 this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.SSTablesFactor)
+                                                                    .SetNumericFormat("#,###,###,##0.00")
+                                                                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor);
 
-                                                                 this.DataTable.GetColumn("SSTable Percent")
+                                                                 this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.SSTablePercent)
                                                                      .SetNumericFormat("##0.00%");
-                                                                 this.DataTable.GetColumn("Storage Percent")
+                                                                 this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.StoragePercent)
                                                                      .SetNumericFormat("##0.00%");
 
-                                                                 this.DataTable.GetColumn("Tombstone Ratio Max")
+                                                                 this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.TombstoneRatioMax)
                                                                     .SetNumericFormat("#,###,###,##0.00");
-                                                                 this.DataTable.GetColumn("Tombstone Ratio Min")
+                                                                 this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.TombstoneRatioMin)
                                                                     .SetNumericFormat("#,###,###,##0.00");
-                                                                 this.DataTable.GetColumn("Tombstone Ratio Avg")
+                                                                 this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.TombstoneRatioAvg)
                                                                     .SetNumericFormat("#,###,###,##0.00");
-                                                                 this.DataTable.GetColumn("Tombstone Ratio StdDev")
+                                                                 this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.TombstoneRatioStdDev)
                                                                     .SetNumericFormat("#,###,###,##0.00");
-                                                                 this.DataTable.GetColumn("Tombstone Ratio Factor")
+                                                                 this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.TombstoneRatioFactor)
+                                                                    .SetNumericFormat("#,###,###,##0.00")
+                                                                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor);
+                                                                 this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.TombstonesRead)
                                                                     .SetNumericFormat("#,###,###,##0.00");
-                                                                 this.DataTable.GetColumn("Tombstones Read")
-                                                                    .SetNumericFormat("#,###,###,##0.00");
-                                                                 this.DataTable.GetColumn("Live Read")
-                                                                    .SetNumericFormat("#,###,###,##0.00");
-
-                                                                 this.DataTable.GetColumn("Partition Size Max")
-                                                                    .SetNumericFormat("#,###,###,##0.0000");
-                                                                 this.DataTable.GetColumn("Partition Size Min")
-                                                                    .SetNumericFormat("#,###,###,##0.0000");
-                                                                 this.DataTable.GetColumn("Partition Size Avg")
-                                                                    .SetNumericFormat("#,###,###,##0.0000");
-                                                                 this.DataTable.GetColumn("Partition Size StdDev")
-                                                                    .SetNumericFormat("#,###,###,##0.0000");
-                                                                 this.DataTable.GetColumn("Partition Size Factor")
+                                                                 this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.LiveRead)
                                                                     .SetNumericFormat("#,###,###,##0.00");
 
-                                                                 this.DataTable.GetColumn("Flush Size Max")
+                                                                 this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.PartitionSizeMax)
                                                                     .SetNumericFormat("#,###,###,##0.0000");
-                                                                 this.DataTable.GetColumn("Flush Size Min")
+                                                                 this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.PartitionSizeMin)
                                                                     .SetNumericFormat("#,###,###,##0.0000");
-                                                                 this.DataTable.GetColumn("Flush Size Avg")
+                                                                 this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.PartitionSizeAvg)
                                                                     .SetNumericFormat("#,###,###,##0.0000");
-                                                                 this.DataTable.GetColumn("Flush Size StdDev")
+                                                                 this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.PartitionSizeStdDev)
                                                                     .SetNumericFormat("#,###,###,##0.0000");
-                                                                 this.DataTable.GetColumn("Flush Size Factor")
-                                                                    .SetNumericFormat("#,###,###,##0.00");
-                                                                 this.DataTable.GetColumn("Flush Pending")
+                                                                 this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.PartitionSizeFactor)
+                                                                    .SetNumericFormat("#,###,###,##0.00")
+                                                                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor);
+
+                                                                 this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.FlushSizeMax)
+                                                                    .SetNumericFormat("#,###,###,##0.0000");
+                                                                 this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.FlushSizeMin)
+                                                                    .SetNumericFormat("#,###,###,##0.0000");
+                                                                 this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.FlushSizeAvg)
+                                                                    .SetNumericFormat("#,###,###,##0.0000");
+                                                                 this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.FlushSizeStdDev)
+                                                                    .SetNumericFormat("#,###,###,##0.0000");
+                                                                 this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.FlushSizeFactor)
+                                                                    .SetNumericFormat("#,###,###,##0.00")
+                                                                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor);
+                                                                 this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.FlushPending)
                                                                     .SetNumericFormat("#,###,###,##0");
                                                                  
-                                                                this.DataTable.GetColumn("Secondary Indexes")
+                                                                this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.SecondaryIndexes)
                                                                      .SetNumericFormat("#,###,###,##0");
-                                                                this.DataTable.GetColumn("Materialized Views")
+                                                                this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.MaterializedViews)
                                                                      .SetNumericFormat("#,###,###,##0");
-                                                                 //this.DataTable.GetColumn("Common Key");
+                                                                 //this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.CommonKey);
+                                                                 this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.CommonKeyFactor)
+                                                                 .SetNumericFormat("#,###,###,##0.00")
+                                                                 .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor);
 
-                                                                 //this.DataTable.GetColumn("Base Table");
-                                                                 this.DataTable.GetColumn("Base Table Weighted Factor Max")
-                                                                    .SetNumericFormat("#,###,###,##0.00");
-                                                                 this.DataTable.GetColumn("Base Table Weighted Factor Avg")
-                                                                    .SetNumericFormat("#,###,###,##0.00");
+                                                                 //this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.BaseTable);
+                                                                 this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.BaseTableWeightedFactorAvg)
+                                                                    .SetNumericFormat("#,###,###,##0.00")
+                                                                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor);
+                                                                 this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.BaseTableWeightedFactorMax)
+                                                                    .SetNumericFormat("#,###,###,##0.00")
+                                                                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor);
 
                                                                  //this.DataTable.GetColumn(DSEDiagnosticToDataTable.ColumnNames.ReconciliationRef);
 

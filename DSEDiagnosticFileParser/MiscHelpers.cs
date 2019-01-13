@@ -131,10 +131,9 @@ namespace DSEDiagnosticFileParser
                             cancellationToken?.ThrowIfCancellationRequested();
 
                             if (compressedFile.Exist())
-                            {
-                                IDirectoryPath tempExtractedFolder;
+                            {                                
                                 var subNbrFiles = UnZipFileToFolder(compressedFile,
-                                                                        out tempExtractedFolder,
+                                                                        out IDirectoryPath tempExtractedFolder,
                                                                         true,
                                                                         !runNestedFileExtractionInParallel,
                                                                         true,
@@ -280,7 +279,7 @@ namespace DSEDiagnosticFileParser
             else if(extractType == "bzip2")
             {
                 #region bzip2
-                IFilePath newFile;
+                
                 var fileName = filePath.FileNameWithoutExtension;
 
                 if(fileName.EndsWith("tar", StringComparison.OrdinalIgnoreCase))
@@ -288,7 +287,7 @@ namespace DSEDiagnosticFileParser
                     fileName = System.IO.Path.GetFileNameWithoutExtension(fileName);
                 }
 
-                if (newExtractedFolder.MakeFile(fileName, out newFile))
+                if (newExtractedFolder.MakeFile(fileName, out IFilePath newFile))
                 {
                     var newFileExists = newFile.Exist();
 
@@ -322,7 +321,7 @@ namespace DSEDiagnosticFileParser
             else if (extractType == "msgz")
             {
                 #region .net framework gz version
-                IFilePath newFile;
+                
                 var fileName = filePath.FileNameWithoutExtension;
 
                 if (fileName.EndsWith("tar", StringComparison.OrdinalIgnoreCase))
@@ -330,7 +329,7 @@ namespace DSEDiagnosticFileParser
                     fileName = System.IO.Path.GetFileNameWithoutExtension(fileName);
                 }
 
-                if (newExtractedFolder.MakeFile(fileName, out newFile))
+                if (newExtractedFolder.MakeFile(fileName, out IFilePath newFile))
                 {
                     var newFileExists = newFile.Exist();
 
@@ -393,10 +392,8 @@ namespace DSEDiagnosticFileParser
 
         public static V TryGetValue<K, V>(this Dictionary<K, V> collection, K key)
             where V : class
-        {
-            V getValue;
-
-            if (collection != null && collection.TryGetValue(key, out getValue))
+        {           
+            if (collection != null && collection.TryGetValue(key, out V getValue))
             {
                 return getValue;
             }
@@ -406,10 +403,8 @@ namespace DSEDiagnosticFileParser
 
         public static T TryGetValue<K, T>(this Dictionary<K, Stack<T>> collection, K key)
             where T : class
-        {
-            Stack<T> getValue;
-
-            if (collection != null && collection.TryGetValue(key, out getValue))
+        {            
+            if (collection != null && collection.TryGetValue(key, out Stack<T> getValue))
             {
                 return getValue.Count == 0 ? default(T) : getValue.Peek();
             }
@@ -429,10 +424,8 @@ namespace DSEDiagnosticFileParser
         }
 
         public static V SwapValue<K, V>(this Dictionary<K, V> collection, K key, V value, Action<K,V> oldValueAction)
-        {
-            V getValue;
-
-            if (oldValueAction != null && collection.TryGetValue(key, out getValue))
+        {           
+            if (oldValueAction != null && collection.TryGetValue(key, out V getValue))
             {
                 oldValueAction(key, getValue);
             }
@@ -441,20 +434,16 @@ namespace DSEDiagnosticFileParser
         }
 
         public static V SwapValue<K, V>(this Dictionary<K, V> collection, K key, V value)
-        {
-            V getValue = default(V);
-
-            collection.TryGetValue(key, out getValue);
+        {           
+            collection.TryGetValue(key, out V getValue);
             collection[key] = value;
 
             return getValue;
         }
 
         public static V TryAddUpdate<K, V>(this Dictionary<K, V> collection, K key, Func<K, V> addFunc, Func<K, V, V> updateFunc)
-        {
-            V getValue;
-
-            if (collection.TryGetValue(key, out getValue))
+        {           
+            if (collection.TryGetValue(key, out V getValue))
             {
                 return collection[key] = updateFunc(key, getValue);
             }
@@ -524,10 +513,8 @@ namespace DSEDiagnosticFileParser
             {
                 throw new ArgumentNullException("souceCode");
             }
-
-            Assembly compiledAssembly;
-
-            if(CompiledSources.TryGetValue(sourceCode.GetHashCode(), out compiledAssembly))
+           
+            if(CompiledSources.TryGetValue(sourceCode.GetHashCode(), out Assembly compiledAssembly))
             {
                 return compiledAssembly;
             }
@@ -684,22 +671,22 @@ namespace DSEDiagnosticFileParser
 
             return setHostName != null && setHostName.Item1;
         }
-
+        
         #region JSON
 
         public static Dictionary<string, JObject> TryGetValues(this JObject jsonObj)
         {
-            return jsonObj == null ? null : jsonObj.ToObject<Dictionary<string, JObject>>();
+            return jsonObj?.ToObject<Dictionary<string, JObject>>();
         }
 
         public static IEnumerable<T> TryGetValues<T>(this JToken jtoken, string key)
         {
-            return jtoken == null ? null : jtoken.SelectToken(key).ToObject<IEnumerable<T>>();
+            return jtoken?.SelectToken(key).ToObject<IEnumerable<T>>();
         }
 
         public static JToken TryGetValue(this JObject jsonObj, string key)
         {
-            return jsonObj == null ? null : jsonObj.GetValue(key);
+            return jsonObj?.GetValue(key);
         }
 
         public static T TryGetValue<T>(this JObject jsonObj, string key)

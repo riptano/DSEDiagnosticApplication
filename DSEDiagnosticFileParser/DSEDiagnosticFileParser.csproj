@@ -131,7 +131,6 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>StatPropertyNames.settings</DependentUpon>
     </Compile>
-    <Compile Include="Settings.cs" />
     <Compile Include="TaskSchedulers .cs" />
     <Compile Include="MiscHelpers.cs" />
     <Compile Include="ProcessJsonFile.cs" />

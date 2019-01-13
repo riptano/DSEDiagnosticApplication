@@ -52,6 +52,33 @@ namespace DSEDiagnosticLibrary
             return null;
         }
 
+        public static object GetPropertyValue(this IDictionary<string, object> props, System.Collections.Specialized.StringCollection stringCollection)
+        {
+            object value = null;
+
+            foreach (string propName in stringCollection)
+            {
+                value = DSEDiagnosticLibrary.MiscHelpers.GetPropertyValue(props, propName);
+
+                if (value != null) break;
+            }
+
+            return value;
+        }
+
+        public static bool ComparePropName(this System.Collections.Specialized.StringCollection stringCollection, string propName)
+        {
+            if (stringCollection == null) return propName == null;
+            if (stringCollection.Count == 0) return string.IsNullOrEmpty(propName);
+
+            return stringCollection.Contains(propName);
+        }
+        
+        public static string GetFirstValue(this System.Collections.Specialized.StringCollection stringCollection)
+        {
+            return stringCollection == null ? null : (stringCollection.Count == 0 ? string.Empty : stringCollection[0]);
+        }
+
         public static object GetPropertyValueInMSLong(this IProperties table, string key)
         {
             return GetPropertyValueInMSLong(table.Properties, key);

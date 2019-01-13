@@ -64,7 +64,6 @@ namespace DSEDiagnosticConsoleApplication
                     ParserSettings.OldExcelWorksheets ? new DSEDiagnosticToDataTable.CFStatsDataTable(cluster, cancellationSource, ParserSettings.IgnoreKeySpaces.ToArray(), ParserSettings.WarnWhenKSTblIsDetected.ToArray(), sessionGuid) : null,
                     ParserSettings.OldExcelWorksheets ? new DSEDiagnosticToDataTable.TPStatsDataTable(cluster, cancellationSource, sessionGuid) : null,
                     ParserSettings.OldExcelWorksheets ? null : new DSEDiagnosticToDataTable.AggregatedStatsDataTable(cluster, cancellationSource, ParserSettings.IgnoreKeySpaces.ToArray(), ParserSettings.WarnWhenKSTblIsDetected.ToArray(), sessionGuid),
-                    ParserSettings.OldExcelWorksheets ? null : new DSEDiagnosticToDataTable.TaggedItemsDataTable(cluster, cancellationSource, ParserSettings.IgnoreKeySpaces.ToArray(), sessionGuid),
                     new DSEDiagnosticToDataTable.MultiInstanceDataTable(cluster, cancellationSource, sessionGuid),
                     new DSEDiagnosticToDataTable.NodeConfigChanges(cluster, cancellationSource, sessionGuid),
                     new DSEDiagnosticToDataTable.LogAggregationDataTable(cluster, cancellationSource, ParserSettings.IgnoreKeySpaces.ToArray(), ParserSettings.LogAggregationPeriod, sessionGuid),
@@ -131,6 +130,25 @@ namespace DSEDiagnosticConsoleApplication
                                                         TaskContinuationOptions.OnlyOnRanToCompletion,
                                                         TaskScheduler.Default));
                 datatableTasks.Last().Then(result => ConsoleParsingDataTable.TaskEnd(result.TableName));
+
+                if (!ParserSettings.OldExcelWorksheets)
+                {
+                    datatableTasks.Add(datatableTasks.Last().ContinueWith((task, ignore) =>
+                    {
+                        var clusterInstance = DSEDiagnosticLibrary.Cluster.GetCurrentOrMaster();
+                        var dtLoadInstance = new DSEDiagnosticToDataTable.TaggedItemsDataTable(clusterInstance, task.Result, cancellationSource, ParserSettings.IgnoreKeySpaces.ToArray(), sessionGuid);
+
+                        ConsoleParsingDataTable.Increment(dtLoadInstance.Table.TableName);
+                        return dtLoadInstance.LoadTable();
+                    },
+                                                       null,
+                                                       cancellationSource.Token,
+                                                       TaskContinuationOptions.OnlyOnRanToCompletion,
+                                                       TaskScheduler.Default));
+                    datatableTasks.Last().Then(result => ConsoleParsingDataTable.TaskEnd(result.TableName));                    
+                }
+                    
+
 
                 loadAllDataTableTask = Task.Factory.ContinueWhenAll(datatableTasks.ToArray(),
                                                                     dtTasks =>

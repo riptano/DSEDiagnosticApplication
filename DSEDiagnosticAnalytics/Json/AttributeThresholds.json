@@ -1,0 +1,224 @@
+[
+  {
+    "AttrName": "Local read latency",
+    "MinTrigger": 0.65,
+    "AttrValue": {
+      "Type": "Normal",
+      "CalcType": "Normal",
+      "Threshold": 1.5,
+      "Weight": 1.0,
+      "WeightFactor": 1.0,
+      "PenaltyFactor": 0.60
+    },
+    "MaxValue": {
+      "Type": "Max",
+      "CalcType": "Normal",
+      "Threshold": 1.5,
+      "Weight": 1.0,
+      "WeightFactor": 0.25,
+      "PenaltyFactor": 0.0
+    },
+    "MinValue": {
+      "Type": "Min",
+      "CalcType": "Normal",
+      "Threshold": 0.75,
+      "Weight": 1.0,
+      "WeightFactor": 0.25,
+      "PenaltyFactor": 0.0
+    },
+    "AvgValue": {
+      "Type": "Avg",
+      "CalcType": "Normal",
+      "Threshold": 1.0,
+      "Weight": 1.0,
+      "WeightFactor": 0.50,
+      "PenaltyFactor": 0.10
+    },
+    "StdDevValue": null
+  },
+  {
+    "AttrName": "Local write latency",
+    "MinTrigger": 0.65,
+    "AttrValue": {
+      "Type": "Normal",
+      "CalcType": "Normal",
+      "Threshold": 1.0,
+      "Weight": 1.0,
+      "WeightFactor": 1.0,
+      "PenaltyFactor": 0.60
+    },
+    "MaxValue": {
+      "Type": "Max",
+      "CalcType": "Normal",
+      "Threshold": 1.0,
+      "Weight": 1.0,
+      "WeightFactor": 0.25,
+      "PenaltyFactor": 0.0
+    },
+    "MinValue": {
+      "Type": "Min",
+      "CalcType": "Normal",
+      "Threshold": 0.30,
+      "Weight": 1.0,
+      "WeightFactor": 0.25,
+      "PenaltyFactor": 0.0
+    },
+    "AvgValue": {
+      "Type": "Avg",
+      "CalcType": "Normal",
+      "Threshold": 0.60,
+      "Weight": 1.0,
+      "WeightFactor": 0.50,
+      "PenaltyFactor": 0.10
+    },
+    "StdDevValue": null
+  },
+  {
+    "AttrName": "SSTable count",
+    "MinTrigger": 0.60,
+    "AttrValue": {
+      "Type": 0,
+      "CalcType": "Normal",
+      "Threshold": 30.0,
+      "Weight": 1.0,
+      "WeightFactor": 1.0,
+      "PenaltyFactor": 0.60
+    },
+    "MaxValue": {
+      "Type": "Max",
+      "CalcType": "Normal",
+      "Threshold": 30.0,
+      "Weight": 1.0,
+      "WeightFactor": 0.30,
+      "PenaltyFactor": 0.0
+    },
+    "MinValue": {
+      "Type": "Min",
+      "CalcType": "Normal",
+      "Threshold": 30.0,
+      "Weight": 1.0,
+      "WeightFactor": 0.40,
+      "PenaltyFactor": 0.10
+    },
+    "AvgValue": {
+      "Type": "Avg",
+      "CalcType": "Normal",
+      "Threshold": 30.0,
+      "Weight": 1.0,
+      "WeightFactor": 0.30,
+      "PenaltyFactor": 0.20
+    },
+    "StdDevValue": null
+  },
+  {
+    "AttrName": "Partition large",
+    "MinTrigger": 0.60,
+    "AttrValue": {
+      "Type": 0,
+      "CalcType": "Normal",
+      "Threshold": 100.0,
+      "Weight": 1.0,
+      "WeightFactor": 1.0,
+      "PenaltyFactor": 0.60
+    },
+    "MaxValue": {
+      "Type": "Max",
+      "CalcType": "Normal",
+      "Threshold": 100.0,
+      "Weight": 1.0,
+      "WeightFactor": 0.30,
+      "PenaltyFactor": 0.0
+    },
+    "MinValue": {
+      "Type": "Min",
+      "CalcType": "Normal",
+      "Threshold": 100.0,
+      "Weight": 1.0,
+      "WeightFactor": 0.40,
+      "PenaltyFactor": 0.10
+    },
+    "AvgValue": {
+      "Type": "Avg",
+      "CalcType": "Normal",
+      "Threshold": 100.0,
+      "Weight": 1.0,
+      "WeightFactor": 0.30,
+      "PenaltyFactor": 0.20
+    },
+    "StdDevValue": null
+  },
+  {
+    "AttrName": "Tombstone/Live Percent",
+    "MinTrigger": 0.60,
+    "AttrValue": {
+      "Type": 0,
+      "CalcType": "Normal",
+      "Threshold": 0.60,
+      "Weight": 1.0,
+      "WeightFactor": 1.0,
+      "PenaltyFactor": 0.60
+    },
+    "MaxValue": {
+      "Type": "Max",
+      "CalcType": "Normal",
+      "Threshold": 0.60,
+      "Weight": 1.0,
+      "WeightFactor": 0.30,
+      "PenaltyFactor": 0.0
+    },
+    "MinValue": {
+      "Type": "Min",
+      "CalcType": "Normal",
+      "Threshold": 0.60,
+      "Weight": 1.0,
+      "WeightFactor": 0.40,
+      "PenaltyFactor": 0.10
+    },
+    "AvgValue": {
+      "Type": "Avg",
+      "CalcType": "Normal",
+      "Threshold": 0.60,
+      "Weight": 1.0,
+      "WeightFactor": 0.30,
+      "PenaltyFactor": 0.20
+    },
+    "StdDevValue": null
+  },
+  {
+    "AttrName": "Common Partition Keys",
+    "MinTrigger": 0.70,
+    "AttrValue": {
+      "Type": 0,
+      "CalcType": "Normal",
+      "Threshold": 70000,
+      "Weight": 1.0,
+      "WeightFactor": 1.0,
+      "PenaltyFactor": 0.75
+    },
+    "MaxValue": {
+      "Type": "Max",
+      "CalcType": "Normal",
+      "Threshold": 150000,
+      "Weight": 1.0,
+      "WeightFactor": 0.50,
+      "PenaltyFactor": 0.75
+    },
+    "MinValue": {
+      "Type": "Min",
+      "CalcType": "Normal",
+      "Threshold": 25000,
+      "Weight": 1.0,
+      "WeightFactor": 0.25,
+      "PenaltyFactor": 0.25
+    },
+    "AvgValue": {
+      "Type": "Avg",
+      "CalcType": "Normal",
+      "Threshold": 70000,
+      "Weight": 1.0,
+      "WeightFactor": 0.30,
+      "PenaltyFactor": 0.30
+    },
+    "StdDevValue": null
+  }
+]
