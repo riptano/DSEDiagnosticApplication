@@ -48,6 +48,8 @@ namespace DSEDiagnosticToDataTable
             dtPartitionInfo.Columns.Add(ColumnNames.DataCenter, typeof(string)).AllowDBNull = true;
             dtPartitionInfo.Columns.Add(ColumnNames.KeySpace, typeof(string)).AllowDBNull = true;
             dtPartitionInfo.Columns.Add(ColumnNames.Table, typeof(string)).AllowDBNull = true;
+            dtPartitionInfo.Columns.Add(Columns.Tables, typeof(int)).AllowDBNull = true;
+            dtPartitionInfo.Columns.Add(Columns.Factor, typeof(decimal));
             dtPartitionInfo.Columns.Add(Columns.ReadCount, typeof(long));
             dtPartitionInfo.Columns.Add(Columns.ReadStdDev, typeof(decimal)).AllowDBNull = true;
             dtPartitionInfo.Columns.Add(Columns.ReadFactor, typeof(decimal)).AllowDBNull = true;
@@ -58,9 +60,7 @@ namespace DSEDiagnosticToDataTable
             dtPartitionInfo.Columns.Add(Columns.PartitionKeysStdDev, typeof(decimal)).AllowDBNull = true;
             dtPartitionInfo.Columns.Add(Columns.PartitionKeysFactor, typeof(decimal)).AllowDBNull = true;
             dtPartitionInfo.Columns.Add(Columns.Storage, typeof(decimal));
-            dtPartitionInfo.Columns.Add(Columns.Tables, typeof(int)).AllowDBNull = true;
-            dtPartitionInfo.Columns.Add(Columns.Factor, typeof(decimal)).AllowDBNull = true;
-
+           
             dtPartitionInfo.DefaultView.ApplyDefaultSort = false;
             dtPartitionInfo.DefaultView.AllowDelete = false;
             dtPartitionInfo.DefaultView.AllowEdit = false;

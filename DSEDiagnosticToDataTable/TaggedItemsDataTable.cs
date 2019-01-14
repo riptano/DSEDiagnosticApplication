@@ -26,7 +26,8 @@ namespace DSEDiagnosticToDataTable
 
         public struct Columns 
         {
-            public const string CQLType = "CQL Type";
+            public const string CQLType = "CQL Type";            
+            public const string CompactionStrategy = "Compaction Strategy";
 
             public const string ReadMax = "Read Max";
             public const string ReadMin = "Read Min";
@@ -95,9 +96,10 @@ namespace DSEDiagnosticToDataTable
             
            
             dtStats.Columns.Add(ColumnNames.KeySpace, typeof(string));
+            dtStats.Columns.Add(Columns.CompactionStrategy, typeof(string)).AllowDBNull = true;
             dtStats.Columns.Add(ColumnNames.Table, typeof(string));
             dtStats.Columns.Add(ColumnNames.DataCenter, typeof(string));
-            dtStats.Columns.Add(ColumnNames.NodeIPAddress, typeof(string));
+            dtStats.Columns.Add(ColumnNames.NodeIPAddress, typeof(string)).AllowDBNull = true;
             dtStats.Columns.Add(Columns.CQLType, typeof(string));
 
             dtStats.Columns.Add(Columns.WeightedFactorMax, typeof(decimal));
@@ -165,8 +167,9 @@ namespace DSEDiagnosticToDataTable
             dtStats.DefaultView.AllowDelete = false;
             dtStats.DefaultView.AllowEdit = false;
             dtStats.DefaultView.AllowNew = false;
-            dtStats.DefaultView.Sort = string.Format("[{0}] ASC, [{1}] ASC, [{2}] ASC, [{3}] ASC",
+            dtStats.DefaultView.Sort = string.Format("[{0}] ASC, [{1}] ASC, [{2}] ASC, [{3}] ASC, [{4}] ASC",
                                                         ColumnNames.KeySpace,
+                                                        Columns.CompactionStrategy,
                                                         ColumnNames.Table,
                                                         ColumnNames.DataCenter,
                                                         ColumnNames.NodeIPAddress
@@ -344,281 +347,568 @@ namespace DSEDiagnosticToDataTable
 
                 this.CancellationToken.ThrowIfCancellationRequested();
 
-                var allNodeTableStatCollection = allStatCollection
-                                                    .Where(i => !i.Keyspace.IsSystemKeyspace && !i.Keyspace.IsDSEKeyspace && !i.Keyspace.IsPerformanceKeyspace)
-                                                    .GroupBy(i => new { i.Keyspace, i.TableViewIndex, i.DataCenter, i.Node})
-                                                    .Select(g =>
-                                                    {
-                                                        var readLatencyInfo = MaxMinAvg(g.Where(a => a.Property == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.LocalReadLatency)
-                                                                                        .SelectMany(a => a.Values),
-                                                                                     attrReadLatencyThreshold);
-                                                        var writeLatencyInfo = MaxMinAvg(g.Where(a => a.Property == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.LocalWriteLatency)
-                                                                                            .SelectMany(a => a.Values),
-                                                                                        attrWriteLatencyThreshold);
-                                                        var sstableCountInfo = MaxMinAvg(g.Where(a => a.Property == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.SSTableCount)
-                                                                                            .SelectMany(a => a.Values),
-                                                                                        attrSSTableThreshold);
-                                                        var partitionSizeInfo = MaxMinAvg(g.Where(a => DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.PartitionRowLarge.ComparePropName(a.Property))
-                                                                                            .SelectMany(a => a.Values),
-                                                                                          attrPartitionSizeThreshold);
-                                                        var tombstoneRatioInfo = MaxMinAvg(g.Where(a => a.Property == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.TombstoneLiveCellRatio)
-                                                                                            .SelectMany(a => a.Values),
-                                                                                           attrTombstoneRatioThreshold);
-                                                        var weightedFactors = (new decimal[] { readLatencyInfo.Item2, writeLatencyInfo.Item2, sstableCountInfo.Item2, partitionSizeInfo.Item2, tombstoneRatioInfo.Item2 })
-                                                                                .Where(f => f > 0);
-
-                                                        return new
-                                                        {                                                           
-                                                            g.Key.Keyspace,
-                                                            g.Key.TableViewIndex,
-                                                            g.Key.DataCenter,
-                                                            g.Key.Node,
-                                                            Attribs = g.Select(a => new { a.Property, a.Values }).ToArray(),
-                                                            ReadLatencyInfo = readLatencyInfo,
-                                                            WriteLatencyInfo = writeLatencyInfo,
-                                                            SSTableCountInfo = sstableCountInfo,
-                                                            PartitionSizeInfo = partitionSizeInfo,
-                                                            TombstoneRatioInfo = tombstoneRatioInfo,
-                                                            Flagged = readLatencyInfo.Item1 || writeLatencyInfo.Item1 || sstableCountInfo.Item1 || partitionSizeInfo.Item1 || tombstoneRatioInfo.Item1,
-                                                            MaxWeightedFactor = weightedFactors.DefaultIfEmpty().Max(),
-                                                            AvgWeightedFactor = weightedFactors.DefaultIfEmpty().Average()
-                                                        };
-                                                    }
-                                                   ).ToArray();
-                var selectedTables = allNodeTableStatCollection
-                                        .Where(i => i.Flagged)
-                                        .Select(i => new
-                                        {
-                                            i.Keyspace,
-                                            i.TableViewIndex,                                            
-                                        }).Distinct().ToArray();
-                var commonKeys = (from dataRow in this.CommonKeyTable.AsEnumerable()
-                                  where !dataRow.IsNull(ColumnNames.Table)
-                                  let ksName = dataRow.Field<string>(ColumnNames.KeySpace)
-                                  let tblName = dataRow.Field<string>(ColumnNames.Table)
-                                  let tblInstance = selectedTables.FirstOrDefault(i => i.Keyspace.Equals(ksName) && i.TableViewIndex.Equals(tblName))?.TableViewIndex
-                                  where tblInstance != null
-                                  let pk = dataRow.Field<string>(CommonPartitionKeyDataTable.Columns.PartitionKey)
-                                  let dcName = dataRow.Field<string>(ColumnNames.DataCenter)
-                                  let factor = dataRow.Field<decimal>(CommonPartitionKeyDataTable.Columns.Factor)                                  
-                                  select new
-                                  {
-                                      PartitionKey = pk,
-                                      DCName = dcName,                                      
-                                      TblInstance = tblInstance,
-                                      Factor = factor
-                                  }).ToArray();
-
-                foreach (var dcnodetblAttrib in allNodeTableStatCollection)
+                //Detail
                 {
-                    this.CancellationToken.ThrowIfCancellationRequested();
-                                       
-                    if(selectedTables.Any(t => t.Keyspace.Equals(dcnodetblAttrib.Keyspace) && t.TableViewIndex.Equals(dcnodetblAttrib.TableViewIndex)))
+                    var allNodeTableStatCollection = allStatCollection
+                                                        .Where(i => !i.Keyspace.IsSystemKeyspace && !i.Keyspace.IsDSEKeyspace && !i.Keyspace.IsPerformanceKeyspace)
+                                                        .GroupBy(i => new { i.Keyspace, i.TableViewIndex, i.DataCenter, i.Node })
+                                                        .Select(g =>
+                                                        {
+                                                            var readLatencyInfo = MaxMinAvg(g.Where(a => a.Property == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.LocalReadLatency)
+                                                                                            .SelectMany(a => a.Values),
+                                                                                         attrReadLatencyThreshold);
+                                                            var writeLatencyInfo = MaxMinAvg(g.Where(a => a.Property == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.LocalWriteLatency)
+                                                                                                .SelectMany(a => a.Values),
+                                                                                            attrWriteLatencyThreshold);
+                                                            var sstableCountInfo = MaxMinAvg(g.Where(a => a.Property == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.SSTableCount)
+                                                                                                .SelectMany(a => a.Values),
+                                                                                            attrSSTableThreshold);
+                                                            var partitionSizeInfo = MaxMinAvg(g.Where(a => DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.PartitionRowLarge.ComparePropName(a.Property))
+                                                                                                .SelectMany(a => a.Values),
+                                                                                              attrPartitionSizeThreshold);
+                                                            var tombstoneRatioInfo = MaxMinAvg(g.Where(a => a.Property == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.TombstoneLiveCellRatio)
+                                                                                                .SelectMany(a => a.Values),
+                                                                                               attrTombstoneRatioThreshold);
+                                                            var weightedFactors = (new decimal[] { readLatencyInfo.Item2, writeLatencyInfo.Item2, sstableCountInfo.Item2, partitionSizeInfo.Item2, tombstoneRatioInfo.Item2 })
+                                                                                    .Where(f => f > 0);
+
+                                                            return new
+                                                            {
+                                                                g.Key.Keyspace,
+                                                                g.Key.TableViewIndex,
+                                                                g.Key.DataCenter,
+                                                                g.Key.Node,
+                                                                Attribs = g.Select(a => new { a.Property, a.Values }).ToArray(),
+                                                                ReadLatencyInfo = readLatencyInfo,
+                                                                WriteLatencyInfo = writeLatencyInfo,
+                                                                SSTableCountInfo = sstableCountInfo,
+                                                                PartitionSizeInfo = partitionSizeInfo,
+                                                                TombstoneRatioInfo = tombstoneRatioInfo,
+                                                                Flagged = readLatencyInfo.Item1 || writeLatencyInfo.Item1 || sstableCountInfo.Item1 || partitionSizeInfo.Item1 || tombstoneRatioInfo.Item1,
+                                                                MaxWeightedFactor = weightedFactors.DefaultIfEmpty().Max(),
+                                                                AvgWeightedFactor = weightedFactors.DefaultIfEmpty().Average()
+                                                            };
+                                                        }
+                                                       ).ToArray();
+                    var selectedTables = allNodeTableStatCollection
+                                            .Where(i => i.Flagged)
+                                            .Select(i => new
+                                            {
+                                                i.Keyspace,
+                                                i.TableViewIndex,
+                                            }).Distinct().ToArray();
+                    var commonKeys = (from dataRow in this.CommonKeyTable.AsEnumerable()
+                                      where !dataRow.IsNull(ColumnNames.Table)
+                                      let ksName = dataRow.Field<string>(ColumnNames.KeySpace)
+                                      let tblName = dataRow.Field<string>(ColumnNames.Table)
+                                      let tblInstance = selectedTables.FirstOrDefault(i => i.Keyspace.Equals(ksName) && i.TableViewIndex.Equals(tblName))?.TableViewIndex
+                                      where tblInstance != null
+                                      let pk = dataRow.Field<string>(CommonPartitionKeyDataTable.Columns.PartitionKey)
+                                      let dcName = dataRow.Field<string>(ColumnNames.DataCenter)
+                                      let factor = dataRow.Field<decimal>(CommonPartitionKeyDataTable.Columns.Factor)
+                                      select new
+                                      {
+                                          PartitionKey = pk,
+                                          DCName = dcName,
+                                          TblInstance = tblInstance,
+                                          Factor = factor
+                                      }).ToArray();
+
+                    foreach (var dcnodetblAttrib in allNodeTableStatCollection)
                     {
-                        var dataRow = this.Table.NewRow();
+                        this.CancellationToken.ThrowIfCancellationRequested();
 
-                        dataRow.SetField(ColumnNames.DataCenter, dcnodetblAttrib.DataCenter.Name);
-                        dataRow.SetField(ColumnNames.NodeIPAddress, dcnodetblAttrib.Node.Id.NodeName());
-                        dataRow.SetField(ColumnNames.KeySpace, dcnodetblAttrib.Keyspace.Name);
-                        dataRow.SetField(ColumnNames.Table, dcnodetblAttrib.TableViewIndex.ReferenceName);
-                        dataRow.SetField(Columns.CQLType, dcnodetblAttrib.TableViewIndex.GetType().Name);
-
-                        if(dcnodetblAttrib.ReadLatencyInfo.Item3 >= 0)
-                            dataRow.SetField(Columns.ReadMax, dcnodetblAttrib.ReadLatencyInfo.Item3);
-                        if (dcnodetblAttrib.ReadLatencyInfo.Item4 >= 0)
-                            dataRow.SetField(Columns.ReadMin, dcnodetblAttrib.ReadLatencyInfo.Item4);
-                        if (dcnodetblAttrib.ReadLatencyInfo.Item5 >= 0)
-                            dataRow.SetField(Columns.ReadAvg, dcnodetblAttrib.ReadLatencyInfo.Item5);
-                        if (dcnodetblAttrib.ReadLatencyInfo.Item6 >= 0)
-                            dataRow.SetField(Columns.ReadStdDev, dcnodetblAttrib.ReadLatencyInfo.Item6);
-                        if (dcnodetblAttrib.ReadLatencyInfo.Item2 >= 0)
-                            dataRow.SetField(Columns.ReadFactor, dcnodetblAttrib.ReadLatencyInfo.Item2);
-
-                        if (dcnodetblAttrib.WriteLatencyInfo.Item3 >= 0)
-                            dataRow.SetField(Columns.WriteMax, dcnodetblAttrib.WriteLatencyInfo.Item3);
-                        if (dcnodetblAttrib.WriteLatencyInfo.Item4 >= 0)
-                            dataRow.SetField(Columns.WriteMin, dcnodetblAttrib.WriteLatencyInfo.Item4);
-                        if (dcnodetblAttrib.WriteLatencyInfo.Item5 >= 0)
-                            dataRow.SetField(Columns.WriteAvg, dcnodetblAttrib.WriteLatencyInfo.Item5);
-                        if (dcnodetblAttrib.WriteLatencyInfo.Item6 >= 0)
-                            dataRow.SetField(Columns.WriteStdDev, dcnodetblAttrib.WriteLatencyInfo.Item6);
-                        if (dcnodetblAttrib.WriteLatencyInfo.Item2 >= 0)
-                            dataRow.SetField(Columns.WriteFactor, dcnodetblAttrib.WriteLatencyInfo.Item2);
-
-                        if (dcnodetblAttrib.SSTableCountInfo.Item3 >= 0)
-                            dataRow.SetField(Columns.SSTablesMax, (long) dcnodetblAttrib.SSTableCountInfo.Item3);
-                        if (dcnodetblAttrib.SSTableCountInfo.Item4 >= 0)
-                            dataRow.SetField(Columns.SSTablesMin, (long)dcnodetblAttrib.SSTableCountInfo.Item4);
-                        if (dcnodetblAttrib.SSTableCountInfo.Item5 >= 0)
-                            dataRow.SetField(Columns.SSTablesAvg, dcnodetblAttrib.SSTableCountInfo.Item5);
-                        if (dcnodetblAttrib.SSTableCountInfo.Item6 >= 0)
-                            dataRow.SetField(Columns.SSTablesStdDev, dcnodetblAttrib.SSTableCountInfo.Item6);
-                        if (dcnodetblAttrib.SSTableCountInfo.Item2 >= 0)
-                            dataRow.SetField(Columns.SSTablesFactor, dcnodetblAttrib.SSTableCountInfo.Item2);
-
-                        if (dcnodetblAttrib.TombstoneRatioInfo.Item3 >= 0)
-                            dataRow.SetField(Columns.TombstoneRatioMax, dcnodetblAttrib.TombstoneRatioInfo.Item3);
-                        if (dcnodetblAttrib.TombstoneRatioInfo.Item4 >= 0)
-                            dataRow.SetField(Columns.TombstoneRatioMin, dcnodetblAttrib.TombstoneRatioInfo.Item4);
-                        if (dcnodetblAttrib.TombstoneRatioInfo.Item5 >= 0)
-                            dataRow.SetField(Columns.TombstoneRatioAvg, dcnodetblAttrib.TombstoneRatioInfo.Item5);
-                        if (dcnodetblAttrib.TombstoneRatioInfo.Item6 >= 0)
-                            dataRow.SetField(Columns.TombstoneRatioStdDev, dcnodetblAttrib.TombstoneRatioInfo.Item6);
-                        if (dcnodetblAttrib.TombstoneRatioInfo.Item2 >= 0)
-                            dataRow.SetField(Columns.TombstoneRatioFactor, dcnodetblAttrib.TombstoneRatioInfo.Item2);
-
-
+                        if (selectedTables.Any(t => t.Keyspace.Equals(dcnodetblAttrib.Keyspace) && t.TableViewIndex.Equals(dcnodetblAttrib.TableViewIndex)))
                         {
-                            var totTBRead = dcnodetblAttrib.Attribs
-                                                .Where(a => a.Property == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.TombstonesRead
-                                                                || a.Property == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.MaxTombstonesSlice)
-                                                .SelectMany(a => a.Values)
-                                                .DefaultIfEmpty()
-                                                .Sum();
-                            if(totTBRead > 0)
-                                dataRow.SetField(Columns.TombstonesRead, totTBRead);
-                        }
+                            var dataRow = this.Table.NewRow();
 
-                        {
-                            var totLiveRead = dcnodetblAttrib.Attribs
-                                                .Where(a => a.Property == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.TombstoneLiveCell
-                                                                || a.Property == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.MaxLiveCellsReadSlice)
-                                                .SelectMany(a => a.Values)
-                                                .DefaultIfEmpty()
-                                                .Sum();
+                            dataRow.SetField(ColumnNames.DataCenter, dcnodetblAttrib.DataCenter.Name);
+                            dataRow.SetField(ColumnNames.NodeIPAddress, dcnodetblAttrib.Node.Id.NodeName());
+                            dataRow.SetField(ColumnNames.KeySpace, dcnodetblAttrib.Keyspace.Name);
 
-                            if (totLiveRead > 0)
-                                dataRow.SetField(Columns.LiveRead, totLiveRead);
-                        }
+                            if (dcnodetblAttrib.TableViewIndex is ICQLTable tableInstance)
+                                dataRow.SetField(Columns.CompactionStrategy, tableInstance.Compaction);
 
-                        if (dcnodetblAttrib.PartitionSizeInfo.Item3 >= 0)
-                            dataRow.SetField(Columns.PartitionSizeMax, dcnodetblAttrib.PartitionSizeInfo.Item3);
-                        if (dcnodetblAttrib.PartitionSizeInfo.Item4 >= 0)
-                            dataRow.SetField(Columns.PartitionSizeMin, dcnodetblAttrib.PartitionSizeInfo.Item4);
-                        if (dcnodetblAttrib.PartitionSizeInfo.Item5 >= 0)
-                            dataRow.SetField(Columns.PartitionSizeAvg, dcnodetblAttrib.PartitionSizeInfo.Item5);
-                        if (dcnodetblAttrib.PartitionSizeInfo.Item6 >= 0)
-                            dataRow.SetField(Columns.PartitionSizeStdDev, dcnodetblAttrib.PartitionSizeInfo.Item6);
-                        if (dcnodetblAttrib.PartitionSizeInfo.Item2 >= 0)
-                            dataRow.SetField(Columns.PartitionSizeFactor, dcnodetblAttrib.PartitionSizeInfo.Item2);
+                            dataRow.SetField(ColumnNames.Table, dcnodetblAttrib.TableViewIndex.ReferenceName);
+                            dataRow.SetField(Columns.CQLType, dcnodetblAttrib.TableViewIndex.GetType().Name);
 
-                        /*dataRow.SetField(Columns.FlushSizeMax, ;
-                        dataRow.SetField(Columns.FlushSizeMin, ;
-                        dataRow.SetField(Columns.FlushSizeAvg, ;
-                        dataRow.SetField(Columns.FlushSizeFactor, ;
-                        dataRow.SetField(Columns.FlushPending, ; */
+                            dataRow.SetField(Columns.WeightedFactorMax, dcnodetblAttrib.MaxWeightedFactor);
+                            dataRow.SetField(Columns.WeightedFactorAvg, dcnodetblAttrib.AvgWeightedFactor);
 
-                        if(totStorage > 0)
-                        {
-                            var localTot = dcnodetblAttrib.Attribs
-                                            .Where(a => a.Property == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.TotalStorage)
-                                            .SelectMany(a => a.Values)
-                                            .DefaultIfEmpty()
-                                            .Sum();
-                            dataRow.SetField(Columns.StoragePercent, localTot / totStorage);                            
-                        }
-                        else
-                            dataRow.SetField(Columns.StoragePercent, 0m);
+                            if (dcnodetblAttrib.ReadLatencyInfo.Item3 >= 0)
+                                dataRow.SetField(Columns.ReadMax, dcnodetblAttrib.ReadLatencyInfo.Item3);
+                            if (dcnodetblAttrib.ReadLatencyInfo.Item4 >= 0)
+                                dataRow.SetField(Columns.ReadMin, dcnodetblAttrib.ReadLatencyInfo.Item4);
+                            if (dcnodetblAttrib.ReadLatencyInfo.Item5 >= 0)
+                                dataRow.SetField(Columns.ReadAvg, dcnodetblAttrib.ReadLatencyInfo.Item5);
+                            if (dcnodetblAttrib.ReadLatencyInfo.Item6 >= 0)
+                                dataRow.SetField(Columns.ReadStdDev, dcnodetblAttrib.ReadLatencyInfo.Item6);
+                            if (dcnodetblAttrib.ReadLatencyInfo.Item2 >= 0)
+                                dataRow.SetField(Columns.ReadFactor, dcnodetblAttrib.ReadLatencyInfo.Item2);
 
-                        if (totKeys > 0)
-                        {
-                            var localTot = dcnodetblAttrib.Attribs
-                                            .Where(a => DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.NbrPartitionKeys.ComparePropName(a.Property))
-                                            .SelectMany(a => a.Values)
-                                            .DefaultIfEmpty()
-                                            .Sum();
-                            dataRow.SetField(Columns.KeysPercent, localTot / totKeys);
-                        }
-                        else
-                            dataRow.SetField(Columns.KeysPercent, 0m);
+                            if (dcnodetblAttrib.WriteLatencyInfo.Item3 >= 0)
+                                dataRow.SetField(Columns.WriteMax, dcnodetblAttrib.WriteLatencyInfo.Item3);
+                            if (dcnodetblAttrib.WriteLatencyInfo.Item4 >= 0)
+                                dataRow.SetField(Columns.WriteMin, dcnodetblAttrib.WriteLatencyInfo.Item4);
+                            if (dcnodetblAttrib.WriteLatencyInfo.Item5 >= 0)
+                                dataRow.SetField(Columns.WriteAvg, dcnodetblAttrib.WriteLatencyInfo.Item5);
+                            if (dcnodetblAttrib.WriteLatencyInfo.Item6 >= 0)
+                                dataRow.SetField(Columns.WriteStdDev, dcnodetblAttrib.WriteLatencyInfo.Item6);
+                            if (dcnodetblAttrib.WriteLatencyInfo.Item2 >= 0)
+                                dataRow.SetField(Columns.WriteFactor, dcnodetblAttrib.WriteLatencyInfo.Item2);
 
-                        if (totReadCnt > 0)
-                        {
-                            var localTot = dcnodetblAttrib.Attribs
-                                           .Where(a => a.Property == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.LocalReadCount)
-                                           .SelectMany(a => a.Values)
-                                           .DefaultIfEmpty()
-                                           .Sum();
-                            dataRow.SetField(Columns.ReadPercent, localTot / totReadCnt);
-                        }
-                        else
-                            dataRow.SetField(Columns.KeysPercent, 0m);
+                            if (dcnodetblAttrib.SSTableCountInfo.Item3 >= 0)
+                                dataRow.SetField(Columns.SSTablesMax, (long)dcnodetblAttrib.SSTableCountInfo.Item3);
+                            if (dcnodetblAttrib.SSTableCountInfo.Item4 >= 0)
+                                dataRow.SetField(Columns.SSTablesMin, (long)dcnodetblAttrib.SSTableCountInfo.Item4);
+                            if (dcnodetblAttrib.SSTableCountInfo.Item5 >= 0)
+                                dataRow.SetField(Columns.SSTablesAvg, dcnodetblAttrib.SSTableCountInfo.Item5);
+                            if (dcnodetblAttrib.SSTableCountInfo.Item6 >= 0)
+                                dataRow.SetField(Columns.SSTablesStdDev, dcnodetblAttrib.SSTableCountInfo.Item6);
+                            if (dcnodetblAttrib.SSTableCountInfo.Item2 >= 0)
+                                dataRow.SetField(Columns.SSTablesFactor, dcnodetblAttrib.SSTableCountInfo.Item2);
 
-                        if (totWriteCnt > 0)
-                        {
-                            var localTot = dcnodetblAttrib.Attribs
-                                          .Where(a => a.Property == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.LocalWriteCount)
-                                          .SelectMany(a => a.Values)
-                                          .DefaultIfEmpty()
-                                          .Sum();
-                            dataRow.SetField(Columns.WritePercent, localTot / totWriteCnt);
-                        }
-                        else
-                            dataRow.SetField(Columns.WritePercent,0m);
+                            if (dcnodetblAttrib.TombstoneRatioInfo.Item3 >= 0)
+                                dataRow.SetField(Columns.TombstoneRatioMax, dcnodetblAttrib.TombstoneRatioInfo.Item3);
+                            if (dcnodetblAttrib.TombstoneRatioInfo.Item4 >= 0)
+                                dataRow.SetField(Columns.TombstoneRatioMin, dcnodetblAttrib.TombstoneRatioInfo.Item4);
+                            if (dcnodetblAttrib.TombstoneRatioInfo.Item5 >= 0)
+                                dataRow.SetField(Columns.TombstoneRatioAvg, dcnodetblAttrib.TombstoneRatioInfo.Item5);
+                            if (dcnodetblAttrib.TombstoneRatioInfo.Item6 >= 0)
+                                dataRow.SetField(Columns.TombstoneRatioStdDev, dcnodetblAttrib.TombstoneRatioInfo.Item6);
+                            if (dcnodetblAttrib.TombstoneRatioInfo.Item2 >= 0)
+                                dataRow.SetField(Columns.TombstoneRatioFactor, dcnodetblAttrib.TombstoneRatioInfo.Item2);
 
-                        if (totSSTables > 0)
-                        {
-                            var localTot = dcnodetblAttrib.Attribs
-                                         .Where(a => a.Property == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.SSTableCount)
-                                         .SelectMany(a => a.Values)
-                                         .DefaultIfEmpty()
-                                         .Sum();
-                            dataRow.SetField(Columns.SSTablePercent, localTot / totSSTables);
-                        }
-                        else
-                            dataRow.SetField(Columns.SSTablePercent,0m);
 
-                        if (dcnodetblAttrib.TableViewIndex is ICQLTable cqlTable)
-                        {
-                            var nbrCQLItems = dcnodetblAttrib.Keyspace.GetIndexes()
-                                                .Where(i => i.Table == cqlTable)                                                
-                                                .Count();
-                            if (nbrCQLItems > 0)
-                                dataRow.SetField(Columns.SecondaryIndexes, nbrCQLItems);
-
-                            nbrCQLItems = dcnodetblAttrib.Keyspace.GetViews()
-                                                .Where(i => i.Table == cqlTable)                                                
-                                                .Count();
-
-                            if (nbrCQLItems > 0)
-                                dataRow.SetField(Columns.MaterializedViews, nbrCQLItems);
-                        }
-                        else if (dcnodetblAttrib.TableViewIndex is ICQLIndex cqlIdx)
-                        {
-                            var baseTbl = allNodeTableStatCollection.FirstOrDefault(i => i.TableViewIndex == cqlIdx.Table && i.Node == dcnodetblAttrib.Node);
-
-                            dataRow.SetField(Columns.BaseTable, cqlIdx.Table.Name);
-                            dataRow.SetField(Columns.BaseTableWeightedFactorMax, baseTbl?.MaxWeightedFactor ?? 0m);
-                            dataRow.SetField(Columns.BaseTableWeightedFactorAvg, baseTbl?.AvgWeightedFactor ?? 0m);
-                        }
-                        else if (dcnodetblAttrib.TableViewIndex is ICQLMaterializedView cqlMV)
-                        {
-                            var baseTbl = allNodeTableStatCollection.FirstOrDefault(i => i.TableViewIndex == cqlMV.Table && i.Node == dcnodetblAttrib.Node);
-
-                            dataRow.SetField(Columns.BaseTable, cqlMV.Table.Name);
-                            dataRow.SetField(Columns.BaseTableWeightedFactorMax, baseTbl?.MaxWeightedFactor ?? 0m);
-                            dataRow.SetField(Columns.BaseTableWeightedFactorAvg, baseTbl?.AvgWeightedFactor ?? 0m);
-                        }
-
-                        {
-                            var commonKey = commonKeys.FirstOrDefault(i => i.TblInstance == dcnodetblAttrib.TableViewIndex
-                                                                            && i.DCName == dcnodetblAttrib.DataCenter.Name);
-
-                            if (commonKey != null)
                             {
-                                dataRow.SetField(Columns.CommonKey, commonKey.PartitionKey);
-                                dataRow.SetField(Columns.CommonKeyFactor, commonKey.Factor);
+                                var totTBRead = dcnodetblAttrib.Attribs
+                                                    .Where(a => a.Property == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.TombstonesRead
+                                                                    || a.Property == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.MaxTombstonesSlice)
+                                                    .SelectMany(a => a.Values)
+                                                    .DefaultIfEmpty()
+                                                    .Sum();
+                                if (totTBRead > 0)
+                                    dataRow.SetField(Columns.TombstonesRead, totTBRead);
                             }
-                        }
 
-                        dataRow.SetField(Columns.WeightedFactorMax, dcnodetblAttrib.MaxWeightedFactor);
-                        dataRow.SetField(Columns.WeightedFactorAvg, dcnodetblAttrib.AvgWeightedFactor);
-                        
-                        this.Table.Rows.Add(dataRow);
-                        ++nbrItems;
-                    }                                   
+                            {
+                                var totLiveRead = dcnodetblAttrib.Attribs
+                                                    .Where(a => a.Property == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.TombstoneLiveCell
+                                                                    || a.Property == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.MaxLiveCellsReadSlice)
+                                                    .SelectMany(a => a.Values)
+                                                    .DefaultIfEmpty()
+                                                    .Sum();
+
+                                if (totLiveRead > 0)
+                                    dataRow.SetField(Columns.LiveRead, totLiveRead);
+                            }
+
+                            if (dcnodetblAttrib.PartitionSizeInfo.Item3 >= 0)
+                                dataRow.SetField(Columns.PartitionSizeMax, dcnodetblAttrib.PartitionSizeInfo.Item3);
+                            if (dcnodetblAttrib.PartitionSizeInfo.Item4 >= 0)
+                                dataRow.SetField(Columns.PartitionSizeMin, dcnodetblAttrib.PartitionSizeInfo.Item4);
+                            if (dcnodetblAttrib.PartitionSizeInfo.Item5 >= 0)
+                                dataRow.SetField(Columns.PartitionSizeAvg, dcnodetblAttrib.PartitionSizeInfo.Item5);
+                            if (dcnodetblAttrib.PartitionSizeInfo.Item6 >= 0)
+                                dataRow.SetField(Columns.PartitionSizeStdDev, dcnodetblAttrib.PartitionSizeInfo.Item6);
+                            if (dcnodetblAttrib.PartitionSizeInfo.Item2 >= 0)
+                                dataRow.SetField(Columns.PartitionSizeFactor, dcnodetblAttrib.PartitionSizeInfo.Item2);
+
+                            /*dataRow.SetField(Columns.FlushSizeMax, ;
+                            dataRow.SetField(Columns.FlushSizeMin, ;
+                            dataRow.SetField(Columns.FlushSizeAvg, ;
+                            dataRow.SetField(Columns.FlushSizeFactor, ;
+                            dataRow.SetField(Columns.FlushPending, ; */
+
+                            if (totStorage > 0)
+                            {
+                                var localTot = dcnodetblAttrib.Attribs
+                                                .Where(a => a.Property == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.TotalStorage)
+                                                .SelectMany(a => a.Values)
+                                                .DefaultIfEmpty()
+                                                .Sum();
+                                dataRow.SetField(Columns.StoragePercent, localTot / totStorage);
+                            }
+                            else
+                                dataRow.SetField(Columns.StoragePercent, 0m);
+
+                            if (totKeys > 0)
+                            {
+                                var localTot = dcnodetblAttrib.Attribs
+                                                .Where(a => DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.NbrPartitionKeys.ComparePropName(a.Property))
+                                                .SelectMany(a => a.Values)
+                                                .DefaultIfEmpty()
+                                                .Sum();
+                                dataRow.SetField(Columns.KeysPercent, localTot / totKeys);
+                            }
+                            else
+                                dataRow.SetField(Columns.KeysPercent, 0m);
+
+                            if (totReadCnt > 0)
+                            {
+                                var localTot = dcnodetblAttrib.Attribs
+                                               .Where(a => a.Property == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.LocalReadCount)
+                                               .SelectMany(a => a.Values)
+                                               .DefaultIfEmpty()
+                                               .Sum();
+                                dataRow.SetField(Columns.ReadPercent, localTot / totReadCnt);
+                            }
+                            else
+                                dataRow.SetField(Columns.KeysPercent, 0m);
+
+                            if (totWriteCnt > 0)
+                            {
+                                var localTot = dcnodetblAttrib.Attribs
+                                              .Where(a => a.Property == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.LocalWriteCount)
+                                              .SelectMany(a => a.Values)
+                                              .DefaultIfEmpty()
+                                              .Sum();
+                                dataRow.SetField(Columns.WritePercent, localTot / totWriteCnt);
+                            }
+                            else
+                                dataRow.SetField(Columns.WritePercent, 0m);
+
+                            if (totSSTables > 0)
+                            {
+                                var localTot = dcnodetblAttrib.Attribs
+                                             .Where(a => a.Property == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.SSTableCount)
+                                             .SelectMany(a => a.Values)
+                                             .DefaultIfEmpty()
+                                             .Sum();
+                                dataRow.SetField(Columns.SSTablePercent, localTot / totSSTables);
+                            }
+                            else
+                                dataRow.SetField(Columns.SSTablePercent, 0m);
+
+                            if (dcnodetblAttrib.TableViewIndex is ICQLTable cqlTable)
+                            {
+                                var nbrCQLItems = dcnodetblAttrib.Keyspace.GetIndexes()
+                                                    .Where(i => i.Table == cqlTable)
+                                                    .Count();
+                                if (nbrCQLItems > 0)
+                                    dataRow.SetField(Columns.SecondaryIndexes, nbrCQLItems);
+
+                                nbrCQLItems = dcnodetblAttrib.Keyspace.GetViews()
+                                                    .Where(i => i.Table == cqlTable)
+                                                    .Count();
+
+                                if (nbrCQLItems > 0)
+                                    dataRow.SetField(Columns.MaterializedViews, nbrCQLItems);
+                            }
+                            else if (dcnodetblAttrib.TableViewIndex is ICQLIndex cqlIdx)
+                            {
+                                var baseTbl = allNodeTableStatCollection.FirstOrDefault(i => i.TableViewIndex == cqlIdx.Table && i.Node == dcnodetblAttrib.Node);
+
+                                dataRow.SetField(Columns.BaseTable, cqlIdx.Table.Name);
+                                dataRow.SetField(Columns.BaseTableWeightedFactorMax, baseTbl?.MaxWeightedFactor ?? 0m);
+                                dataRow.SetField(Columns.BaseTableWeightedFactorAvg, baseTbl?.AvgWeightedFactor ?? 0m);
+                            }
+                            else if (dcnodetblAttrib.TableViewIndex is ICQLMaterializedView cqlMV)
+                            {
+                                var baseTbl = allNodeTableStatCollection.FirstOrDefault(i => i.TableViewIndex == cqlMV.Table && i.Node == dcnodetblAttrib.Node);
+
+                                dataRow.SetField(Columns.BaseTable, cqlMV.Table.Name);
+                                dataRow.SetField(Columns.BaseTableWeightedFactorMax, baseTbl?.MaxWeightedFactor ?? 0m);
+                                dataRow.SetField(Columns.BaseTableWeightedFactorAvg, baseTbl?.AvgWeightedFactor ?? 0m);
+                            }
+
+                            {
+                                var commonKey = commonKeys.FirstOrDefault(i => i.TblInstance == dcnodetblAttrib.TableViewIndex
+                                                                                && i.DCName == dcnodetblAttrib.DataCenter.Name);
+
+                                if (commonKey != null)
+                                {
+                                    dataRow.SetField(Columns.CommonKey, commonKey.PartitionKey);
+                                    dataRow.SetField(Columns.CommonKeyFactor, commonKey.Factor);
+                                }
+                            }
+
+                            this.Table.Rows.Add(dataRow);
+                            ++nbrItems;
+                        }
+                    }
                 }
-                
+
+                //DataCenter
+                {
+                    var allNodeTableStatCollection = allStatCollection
+                                                        .Where(i => !i.Keyspace.IsSystemKeyspace && !i.Keyspace.IsDSEKeyspace && !i.Keyspace.IsPerformanceKeyspace)
+                                                        .GroupBy(i => new { i.Keyspace, i.TableViewIndex, i.DataCenter })
+                                                        .Select(g =>
+                                                        {
+                                                            var readLatencyInfo = MaxMinAvg(g.Where(a => a.Property == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.LocalReadLatency)
+                                                                                            .SelectMany(a => a.Values),
+                                                                                         attrReadLatencyThreshold);
+                                                            var writeLatencyInfo = MaxMinAvg(g.Where(a => a.Property == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.LocalWriteLatency)
+                                                                                                .SelectMany(a => a.Values),
+                                                                                            attrWriteLatencyThreshold);
+                                                            var sstableCountInfo = MaxMinAvg(g.Where(a => a.Property == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.SSTableCount)
+                                                                                                .SelectMany(a => a.Values),
+                                                                                            attrSSTableThreshold);
+                                                            var partitionSizeInfo = MaxMinAvg(g.Where(a => DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.PartitionRowLarge.ComparePropName(a.Property))
+                                                                                                .SelectMany(a => a.Values),
+                                                                                              attrPartitionSizeThreshold);
+                                                            var tombstoneRatioInfo = MaxMinAvg(g.Where(a => a.Property == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.TombstoneLiveCellRatio)
+                                                                                                .SelectMany(a => a.Values),
+                                                                                               attrTombstoneRatioThreshold);
+                                                            var weightedFactors = (new decimal[] { readLatencyInfo.Item2, writeLatencyInfo.Item2, sstableCountInfo.Item2, partitionSizeInfo.Item2, tombstoneRatioInfo.Item2 })
+                                                                                    .Where(f => f > 0);
+
+                                                            return new
+                                                            {
+                                                                g.Key.Keyspace,
+                                                                g.Key.TableViewIndex,
+                                                                g.Key.DataCenter,                                                                
+                                                                Attribs = g.Select(a => new { a.Property, a.Values }).ToArray(),
+                                                                ReadLatencyInfo = readLatencyInfo,
+                                                                WriteLatencyInfo = writeLatencyInfo,
+                                                                SSTableCountInfo = sstableCountInfo,
+                                                                PartitionSizeInfo = partitionSizeInfo,
+                                                                TombstoneRatioInfo = tombstoneRatioInfo,
+                                                                Flagged = readLatencyInfo.Item1 || writeLatencyInfo.Item1 || sstableCountInfo.Item1 || partitionSizeInfo.Item1 || tombstoneRatioInfo.Item1,
+                                                                MaxWeightedFactor = weightedFactors.DefaultIfEmpty().Max(),
+                                                                AvgWeightedFactor = weightedFactors.DefaultIfEmpty().Average()
+                                                            };
+                                                        }
+                                                       ).ToArray();
+                    var selectedTables = allNodeTableStatCollection
+                                            .Where(i => i.Flagged)
+                                            .Select(i => new
+                                            {
+                                                i.Keyspace,
+                                                i.TableViewIndex,
+                                            }).Distinct().ToArray();
+                    var commonKeys = (from dataRow in this.CommonKeyTable.AsEnumerable()
+                                      where !dataRow.IsNull(ColumnNames.Table)
+                                      let ksName = dataRow.Field<string>(ColumnNames.KeySpace)
+                                      let tblName = dataRow.Field<string>(ColumnNames.Table)
+                                      let tblInstance = selectedTables.FirstOrDefault(i => i.Keyspace.Equals(ksName) && i.TableViewIndex.Equals(tblName))?.TableViewIndex
+                                      where tblInstance != null
+                                      let pk = dataRow.Field<string>(CommonPartitionKeyDataTable.Columns.PartitionKey)
+                                      let dcName = dataRow.Field<string>(ColumnNames.DataCenter)
+                                      let factor = dataRow.Field<decimal>(CommonPartitionKeyDataTable.Columns.Factor)
+                                      select new
+                                      {
+                                          PartitionKey = pk,
+                                          DCName = dcName,
+                                          TblInstance = tblInstance,
+                                          Factor = factor
+                                      }).ToArray();
+
+                    foreach (var dcnodetblAttrib in allNodeTableStatCollection)
+                    {
+                        this.CancellationToken.ThrowIfCancellationRequested();
+
+                        if (selectedTables.Any(t => t.Keyspace.Equals(dcnodetblAttrib.Keyspace) && t.TableViewIndex.Equals(dcnodetblAttrib.TableViewIndex)))
+                        {
+                            var dataRow = this.Table.NewRow();
+
+                            dataRow.SetField(ColumnNames.DataCenter, dcnodetblAttrib.DataCenter.Name);                            
+                            dataRow.SetField(ColumnNames.KeySpace, dcnodetblAttrib.Keyspace.Name);
+
+                            if (dcnodetblAttrib.TableViewIndex is ICQLTable tableInstance)
+                                dataRow.SetField(Columns.CompactionStrategy, tableInstance.Compaction);
+
+                            dataRow.SetField(ColumnNames.Table, dcnodetblAttrib.TableViewIndex.ReferenceName);
+                            dataRow.SetField(Columns.CQLType, dcnodetblAttrib.TableViewIndex.GetType().Name);
+
+                            dataRow.SetField(Columns.WeightedFactorMax, dcnodetblAttrib.MaxWeightedFactor);
+                            dataRow.SetField(Columns.WeightedFactorAvg, dcnodetblAttrib.AvgWeightedFactor);
+
+                            if (dcnodetblAttrib.ReadLatencyInfo.Item3 >= 0)
+                                dataRow.SetField(Columns.ReadMax, dcnodetblAttrib.ReadLatencyInfo.Item3);
+                            if (dcnodetblAttrib.ReadLatencyInfo.Item4 >= 0)
+                                dataRow.SetField(Columns.ReadMin, dcnodetblAttrib.ReadLatencyInfo.Item4);
+                            if (dcnodetblAttrib.ReadLatencyInfo.Item5 >= 0)
+                                dataRow.SetField(Columns.ReadAvg, dcnodetblAttrib.ReadLatencyInfo.Item5);
+                            if (dcnodetblAttrib.ReadLatencyInfo.Item6 >= 0)
+                                dataRow.SetField(Columns.ReadStdDev, dcnodetblAttrib.ReadLatencyInfo.Item6);
+                            if (dcnodetblAttrib.ReadLatencyInfo.Item2 >= 0)
+                                dataRow.SetField(Columns.ReadFactor, dcnodetblAttrib.ReadLatencyInfo.Item2);
+
+                            if (dcnodetblAttrib.WriteLatencyInfo.Item3 >= 0)
+                                dataRow.SetField(Columns.WriteMax, dcnodetblAttrib.WriteLatencyInfo.Item3);
+                            if (dcnodetblAttrib.WriteLatencyInfo.Item4 >= 0)
+                                dataRow.SetField(Columns.WriteMin, dcnodetblAttrib.WriteLatencyInfo.Item4);
+                            if (dcnodetblAttrib.WriteLatencyInfo.Item5 >= 0)
+                                dataRow.SetField(Columns.WriteAvg, dcnodetblAttrib.WriteLatencyInfo.Item5);
+                            if (dcnodetblAttrib.WriteLatencyInfo.Item6 >= 0)
+                                dataRow.SetField(Columns.WriteStdDev, dcnodetblAttrib.WriteLatencyInfo.Item6);
+                            if (dcnodetblAttrib.WriteLatencyInfo.Item2 >= 0)
+                                dataRow.SetField(Columns.WriteFactor, dcnodetblAttrib.WriteLatencyInfo.Item2);
+
+                            if (dcnodetblAttrib.SSTableCountInfo.Item3 >= 0)
+                                dataRow.SetField(Columns.SSTablesMax, (long)dcnodetblAttrib.SSTableCountInfo.Item3);
+                            if (dcnodetblAttrib.SSTableCountInfo.Item4 >= 0)
+                                dataRow.SetField(Columns.SSTablesMin, (long)dcnodetblAttrib.SSTableCountInfo.Item4);
+                            if (dcnodetblAttrib.SSTableCountInfo.Item5 >= 0)
+                                dataRow.SetField(Columns.SSTablesAvg, dcnodetblAttrib.SSTableCountInfo.Item5);
+                            if (dcnodetblAttrib.SSTableCountInfo.Item6 >= 0)
+                                dataRow.SetField(Columns.SSTablesStdDev, dcnodetblAttrib.SSTableCountInfo.Item6);
+                            if (dcnodetblAttrib.SSTableCountInfo.Item2 >= 0)
+                                dataRow.SetField(Columns.SSTablesFactor, dcnodetblAttrib.SSTableCountInfo.Item2);
+
+                            if (dcnodetblAttrib.TombstoneRatioInfo.Item3 >= 0)
+                                dataRow.SetField(Columns.TombstoneRatioMax, dcnodetblAttrib.TombstoneRatioInfo.Item3);
+                            if (dcnodetblAttrib.TombstoneRatioInfo.Item4 >= 0)
+                                dataRow.SetField(Columns.TombstoneRatioMin, dcnodetblAttrib.TombstoneRatioInfo.Item4);
+                            if (dcnodetblAttrib.TombstoneRatioInfo.Item5 >= 0)
+                                dataRow.SetField(Columns.TombstoneRatioAvg, dcnodetblAttrib.TombstoneRatioInfo.Item5);
+                            if (dcnodetblAttrib.TombstoneRatioInfo.Item6 >= 0)
+                                dataRow.SetField(Columns.TombstoneRatioStdDev, dcnodetblAttrib.TombstoneRatioInfo.Item6);
+                            if (dcnodetblAttrib.TombstoneRatioInfo.Item2 >= 0)
+                                dataRow.SetField(Columns.TombstoneRatioFactor, dcnodetblAttrib.TombstoneRatioInfo.Item2);
+
+
+                            {
+                                var totTBRead = dcnodetblAttrib.Attribs
+                                                    .Where(a => a.Property == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.TombstonesRead
+                                                                    || a.Property == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.MaxTombstonesSlice)
+                                                    .SelectMany(a => a.Values)
+                                                    .DefaultIfEmpty()
+                                                    .Sum();
+                                if (totTBRead > 0)
+                                    dataRow.SetField(Columns.TombstonesRead, totTBRead);
+                            }
+
+                            {
+                                var totLiveRead = dcnodetblAttrib.Attribs
+                                                    .Where(a => a.Property == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.TombstoneLiveCell
+                                                                    || a.Property == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.MaxLiveCellsReadSlice)
+                                                    .SelectMany(a => a.Values)
+                                                    .DefaultIfEmpty()
+                                                    .Sum();
+
+                                if (totLiveRead > 0)
+                                    dataRow.SetField(Columns.LiveRead, totLiveRead);
+                            }
+
+                            if (dcnodetblAttrib.PartitionSizeInfo.Item3 >= 0)
+                                dataRow.SetField(Columns.PartitionSizeMax, dcnodetblAttrib.PartitionSizeInfo.Item3);
+                            if (dcnodetblAttrib.PartitionSizeInfo.Item4 >= 0)
+                                dataRow.SetField(Columns.PartitionSizeMin, dcnodetblAttrib.PartitionSizeInfo.Item4);
+                            if (dcnodetblAttrib.PartitionSizeInfo.Item5 >= 0)
+                                dataRow.SetField(Columns.PartitionSizeAvg, dcnodetblAttrib.PartitionSizeInfo.Item5);
+                            if (dcnodetblAttrib.PartitionSizeInfo.Item6 >= 0)
+                                dataRow.SetField(Columns.PartitionSizeStdDev, dcnodetblAttrib.PartitionSizeInfo.Item6);
+                            if (dcnodetblAttrib.PartitionSizeInfo.Item2 >= 0)
+                                dataRow.SetField(Columns.PartitionSizeFactor, dcnodetblAttrib.PartitionSizeInfo.Item2);
+
+                            /*dataRow.SetField(Columns.FlushSizeMax, ;
+                            dataRow.SetField(Columns.FlushSizeMin, ;
+                            dataRow.SetField(Columns.FlushSizeAvg, ;
+                            dataRow.SetField(Columns.FlushSizeFactor, ;
+                            dataRow.SetField(Columns.FlushPending, ; */
+
+                            if (totStorage > 0)
+                            {
+                                var localTot = dcnodetblAttrib.Attribs
+                                                .Where(a => a.Property == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.TotalStorage)
+                                                .SelectMany(a => a.Values)
+                                                .DefaultIfEmpty()
+                                                .Sum();
+                                dataRow.SetField(Columns.StoragePercent, localTot / totStorage);
+                            }
+                            else
+                                dataRow.SetField(Columns.StoragePercent, 0m);
+
+                            if (totKeys > 0)
+                            {
+                                var localTot = dcnodetblAttrib.Attribs
+                                                .Where(a => DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.NbrPartitionKeys.ComparePropName(a.Property))
+                                                .SelectMany(a => a.Values)
+                                                .DefaultIfEmpty()
+                                                .Sum();
+                                dataRow.SetField(Columns.KeysPercent, localTot / totKeys);
+                            }
+                            else
+                                dataRow.SetField(Columns.KeysPercent, 0m);
+
+                            if (totReadCnt > 0)
+                            {
+                                var localTot = dcnodetblAttrib.Attribs
+                                               .Where(a => a.Property == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.LocalReadCount)
+                                               .SelectMany(a => a.Values)
+                                               .DefaultIfEmpty()
+                                               .Sum();
+                                dataRow.SetField(Columns.ReadPercent, localTot / totReadCnt);
+                            }
+                            else
+                                dataRow.SetField(Columns.KeysPercent, 0m);
+
+                            if (totWriteCnt > 0)
+                            {
+                                var localTot = dcnodetblAttrib.Attribs
+                                              .Where(a => a.Property == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.LocalWriteCount)
+                                              .SelectMany(a => a.Values)
+                                              .DefaultIfEmpty()
+                                              .Sum();
+                                dataRow.SetField(Columns.WritePercent, localTot / totWriteCnt);
+                            }
+                            else
+                                dataRow.SetField(Columns.WritePercent, 0m);
+
+                            if (totSSTables > 0)
+                            {
+                                var localTot = dcnodetblAttrib.Attribs
+                                             .Where(a => a.Property == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.SSTableCount)
+                                             .SelectMany(a => a.Values)
+                                             .DefaultIfEmpty()
+                                             .Sum();
+                                dataRow.SetField(Columns.SSTablePercent, localTot / totSSTables);
+                            }
+                            else
+                                dataRow.SetField(Columns.SSTablePercent, 0m);
+
+                            if (dcnodetblAttrib.TableViewIndex is ICQLTable cqlTable)
+                            {
+                                var nbrCQLItems = dcnodetblAttrib.Keyspace.GetIndexes()
+                                                    .Where(i => i.Table == cqlTable)
+                                                    .Count();
+                                if (nbrCQLItems > 0)
+                                    dataRow.SetField(Columns.SecondaryIndexes, nbrCQLItems);
+
+                                nbrCQLItems = dcnodetblAttrib.Keyspace.GetViews()
+                                                    .Where(i => i.Table == cqlTable)
+                                                    .Count();
+
+                                if (nbrCQLItems > 0)
+                                    dataRow.SetField(Columns.MaterializedViews, nbrCQLItems);
+                            }
+                            else if (dcnodetblAttrib.TableViewIndex is ICQLIndex cqlIdx)
+                            {
+                                var baseTbl = allNodeTableStatCollection.FirstOrDefault(i => i.TableViewIndex == cqlIdx.Table);
+
+                                dataRow.SetField(Columns.BaseTable, cqlIdx.Table.Name);
+                                dataRow.SetField(Columns.BaseTableWeightedFactorMax, baseTbl?.MaxWeightedFactor ?? 0m);
+                                dataRow.SetField(Columns.BaseTableWeightedFactorAvg, baseTbl?.AvgWeightedFactor ?? 0m);
+                            }
+                            else if (dcnodetblAttrib.TableViewIndex is ICQLMaterializedView cqlMV)
+                            {
+                                var baseTbl = allNodeTableStatCollection.FirstOrDefault(i => i.TableViewIndex == cqlMV.Table);
+
+                                dataRow.SetField(Columns.BaseTable, cqlMV.Table.Name);
+                                dataRow.SetField(Columns.BaseTableWeightedFactorMax, baseTbl?.MaxWeightedFactor ?? 0m);
+                                dataRow.SetField(Columns.BaseTableWeightedFactorAvg, baseTbl?.AvgWeightedFactor ?? 0m);
+                            }
+
+                            {
+                                var commonKey = commonKeys.FirstOrDefault(i => i.TblInstance == dcnodetblAttrib.TableViewIndex
+                                                                                && i.DCName == dcnodetblAttrib.DataCenter.Name);
+
+                                if (commonKey != null)
+                                {
+                                    dataRow.SetField(Columns.CommonKey, commonKey.PartitionKey);
+                                    dataRow.SetField(Columns.CommonKeyFactor, commonKey.Factor);
+                                }
+                            }
+
+                            this.Table.Rows.Add(dataRow);
+                            ++nbrItems;
+                        }
+                    }
+                }
+
                 Logger.Instance.InfoFormat("Loaded {0:###,###,##0} Tagged Stats", nbrItems);
             }
             catch (OperationCanceledException)
