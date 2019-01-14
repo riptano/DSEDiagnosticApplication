@@ -41,10 +41,18 @@ namespace DSEDiagtnosticToExcel
                                                                     case WorkBookProcessingStage.PrepareFileName:
                                                                     case WorkBookProcessingStage.PreProcessDataTable:
                                                                         break;
-                                                                    case WorkBookProcessingStage.PreLoad:
+                                                                    case WorkBookProcessingStage.PreLoad:                                                                        
                                                                         this.CallActionEvent("Begin Loading");
                                                                         break;
                                                                     case WorkBookProcessingStage.PreSave:
+                                                                        {
+                                                                            var workSheet = excelPackage.Workbook.Worksheets[WorkSheetName];
+
+                                                                            workSheet.AltFileFillRow(2,
+                                                                                                       this.DataTable.GetColumn(DSEDiagnosticToDataTable.ColumnNames.KeySpace),
+                                                                                                       this.DataTable.GetColumn(DSEDiagnosticToDataTable.ColumnNames.Table));
+
+                                                                        }
                                                                         this.CallActionEvent("Loaded");
                                                                         break;
                                                                     case WorkBookProcessingStage.Saved:
@@ -58,9 +66,9 @@ namespace DSEDiagtnosticToExcel
                                                             },
                                                              workSheet =>
                                                              {
-                                                                 workSheet.Cells["1:1"].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.LightGray;
+                                                                 //workSheet.Cells["1:1"].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.LightGray;
                                                                  workSheet.Cells["1:1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-                                                                 //workBook.Cells["1:1"].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
+                                                                 //workSheet.Cells["1:1"].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
                                                                  workSheet.View.FreezePanes(2, 1);
 
                                                                  //this.DataTable.GetColumn(DSEDiagnosticToDataTable.ColumnNames.KeySpace);
@@ -69,12 +77,22 @@ namespace DSEDiagtnosticToExcel
                                                                  //this.DataTable.GetColumn(DSEDiagnosticToDataTable.ColumnNames.NodeIPAddress);
                                                                  //this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.CQLType);
 
+                                                                 this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.WeightedFactorMax)
+                                                                    .SetNumericFormat("#,###,###,##0.00")
+                                                                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor);
+                                                                 this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.WeightedFactorAvg)
+                                                                    .SetNumericFormat("#,###,###,##0.00")
+                                                                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor);
+
                                                                  this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.ReadMax)
-                                                                    .SetNumericFormat("#,###,###,##0.000");
+                                                                    .SetNumericFormat("#,###,###,##0.000")
+                                                                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonReadLatencyMax);
                                                                  this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.ReadMin)
-                                                                    .SetNumericFormat("#,###,###,##0.000");
+                                                                    .SetNumericFormat("#,###,###,##0.000")
+                                                                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonReadLatencyMin);
                                                                  this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.ReadAvg)
-                                                                    .SetNumericFormat("#,###,###,##0.000");
+                                                                    .SetNumericFormat("#,###,###,##0.000")
+                                                                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonWriteLatencyAvg);
                                                                  this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.ReadStdDev)
                                                                     .SetNumericFormat("#,###,###,##0.000");
                                                                  this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.ReadFactor)
@@ -87,11 +105,14 @@ namespace DSEDiagtnosticToExcel
                                                                      .SetNumericFormat("##0.00%");
                                                                  
                                                                  this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.WriteMax)
-                                                                    .SetNumericFormat("#,###,###,##0.000");
+                                                                    .SetNumericFormat("#,###,###,##0.000")
+                                                                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonWriteLatencyMax);
                                                                  this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.WriteMin)
-                                                                    .SetNumericFormat("#,###,###,##0.000");
+                                                                    .SetNumericFormat("#,###,###,##0.000")
+                                                                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonWriteLatencyMin);
                                                                  this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.WriteAvg)
-                                                                    .SetNumericFormat("#,###,###,##0.000");
+                                                                    .SetNumericFormat("#,###,###,##0.000")
+                                                                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonWriteLatencyAvg);
                                                                  this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.WriteStdDev)
                                                                     .SetNumericFormat("#,###,###,##0.000");
                                                                  this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.WriteFactor)
@@ -102,11 +123,14 @@ namespace DSEDiagtnosticToExcel
                                                                      .SetNumericFormat("##0.00%");
 
                                                                  this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.SSTablesMax)
-                                                                    .SetNumericFormat("#,###,###,##0");
+                                                                    .SetNumericFormat("#,###,###,##0")
+                                                                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonSSTablesTable);
                                                                  this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.SSTablesMin)
-                                                                    .SetNumericFormat("#,###,###,##0");
+                                                                    .SetNumericFormat("#,###,###,##0")
+                                                                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonSSTablesTable);
                                                                  this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.SSTablesAvg)
-                                                                    .SetNumericFormat("#,###,###,##0.00");
+                                                                    .SetNumericFormat("#,###,###,##0.00")
+                                                                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonSSTablesTable);
                                                                  this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.SSTablesStdDev)
                                                                     .SetNumericFormat("#,###,###,##0.00");
                                                                  this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.SSTablesFactor)
@@ -119,11 +143,14 @@ namespace DSEDiagtnosticToExcel
                                                                      .SetNumericFormat("##0.00%");
 
                                                                  this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.TombstoneRatioMax)
-                                                                    .SetNumericFormat("#,###,###,##0.00");
+                                                                    .SetNumericFormat("#,###,###,##0.00")
+                                                                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonTombstoneLiveRatio);
                                                                  this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.TombstoneRatioMin)
-                                                                    .SetNumericFormat("#,###,###,##0.00");
+                                                                    .SetNumericFormat("#,###,###,##0.00")
+                                                                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonTombstoneLiveRatio);
                                                                  this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.TombstoneRatioAvg)
-                                                                    .SetNumericFormat("#,###,###,##0.00");
+                                                                    .SetNumericFormat("#,###,###,##0.00")
+                                                                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonTombstoneLiveRatio);
                                                                  this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.TombstoneRatioStdDev)
                                                                     .SetNumericFormat("#,###,###,##0.00");
                                                                  this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.TombstoneRatioFactor)
@@ -135,11 +162,14 @@ namespace DSEDiagtnosticToExcel
                                                                     .SetNumericFormat("#,###,###,##0.00");
 
                                                                  this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.PartitionSizeMax)
-                                                                    .SetNumericFormat("#,###,###,##0.0000");
+                                                                    .SetNumericFormat("#,###,###,##0.0000")
+                                                                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonPartitionSize);
                                                                  this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.PartitionSizeMin)
-                                                                    .SetNumericFormat("#,###,###,##0.0000");
+                                                                    .SetNumericFormat("#,###,###,##0.0000")
+                                                                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonPartitionSize);
                                                                  this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.PartitionSizeAvg)
-                                                                    .SetNumericFormat("#,###,###,##0.0000");
+                                                                    .SetNumericFormat("#,###,###,##0.0000")
+                                                                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonPartitionSize);
                                                                  this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.PartitionSizeStdDev)
                                                                     .SetNumericFormat("#,###,###,##0.0000");
                                                                  this.DataTable.GetColumn(DT.TaggedItemsDataTable.Columns.PartitionSizeFactor)
@@ -183,7 +213,7 @@ namespace DSEDiagtnosticToExcel
 
                                                                  workSheet.AutoFitColumn(this.DataTable);
 
-                                                                 var table = workSheet.Tables.FirstOrDefault(t => t.Name == "TaggedItmesTable");
+                                                                 var table = workSheet.Tables.FirstOrDefault(t => t.Name == "TaggedItemsTable");
                                                                  var rowCnt = this.DataTable.Rows.Count;
 
                                                                  if (rowCnt == 0)
@@ -203,11 +233,11 @@ namespace DSEDiagtnosticToExcel
                                                                                                                                 1,
                                                                                                                                 rowCnt + 2))
                                                                      {
-                                                                         table = workSheet.Tables.Add(tblRange, workSheet.Name == this.WorkSheetName ? "TaggedItmesTable" : workSheet.Name + "Table");
+                                                                         table = workSheet.Tables.Add(tblRange, workSheet.Name == this.WorkSheetName ? "TaggedItemsTable" : workSheet.Name + "Table");
 
                                                                          table.ShowFilter = true;
                                                                          table.ShowHeader = true;
-                                                                         table.TableStyle = OfficeOpenXml.Table.TableStyles.Light21;
+                                                                         //table.TableStyle = OfficeOpenXml.Table.TableStyles.Light21;
                                                                      }
                                                                  }
                                                                  else

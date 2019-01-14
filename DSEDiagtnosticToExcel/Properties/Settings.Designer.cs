@@ -1175,5 +1175,473 @@ namespace DSEDiagtnosticToExcel.Properties {
                 return ((string)(this["CondFmtJsonCommonKeyPartVar"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute(@"[
+  {
+    ""Type"": ""Min"",
+    ""SubType"": ""Num"",
+    ""RuleType"": ""ThreeColorScale"",
+    ""SubRuleType"": ""Equal"",
+    ""Value"": 0.0,
+    ""FormulaText"": null,
+    ""FormulaTextBetween"": null,
+    ""Color"": ""Green"",
+    ""ShowValue"": true,
+    ""StopIfTrue"": false,
+    ""Priority"": 1,
+    ""IncludeTotalRow"": false
+  },
+  {
+    ""Type"": ""Num"",
+    ""SubType"": ""Num"",
+    ""RuleType"": ""ThreeColorScale"",
+    ""SubRuleType"": ""Equal"",
+    ""Value"": 1.2,
+    ""FormulaText"": null,
+    ""FormulaTextBetween"": null,
+    ""Color"": ""Yellow"",
+    ""ShowValue"": true,
+    ""StopIfTrue"": false,
+    ""Priority"": 1,
+    ""IncludeTotalRow"": false
+  },
+  {
+    ""Type"": ""Max"",
+    ""SubType"": ""Num"",
+    ""RuleType"": ""ThreeColorScale"",
+    ""SubRuleType"": ""Equal"",
+    ""Value"": 1.5,
+    ""FormulaText"": null,
+    ""FormulaTextBetween"": null,
+    ""Color"": ""Red"",
+    ""ShowValue"": true,
+    ""StopIfTrue"": false,
+    ""Priority"": 1,
+    ""IncludeTotalRow"": false
+  }
+]")]
+        public string CondFmtJsonReadLatencyMax {
+            get {
+                return ((string)(this["CondFmtJsonReadLatencyMax"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute(@"[
+  {
+    ""Type"": ""Min"",
+    ""SubType"": ""Num"",
+    ""RuleType"": ""ThreeColorScale"",
+    ""SubRuleType"": ""Equal"",
+    ""Value"": 0.0,
+    ""FormulaText"": null,
+    ""FormulaTextBetween"": null,
+    ""Color"": ""Green"",
+    ""ShowValue"": true,
+    ""StopIfTrue"": false,
+    ""Priority"": 1,
+    ""IncludeTotalRow"": false
+  },
+  {
+    ""Type"": ""Num"",
+    ""SubType"": ""Num"",
+    ""RuleType"": ""ThreeColorScale"",
+    ""SubRuleType"": ""Equal"",
+    ""Value"": 0.4,
+    ""FormulaText"": null,
+    ""FormulaTextBetween"": null,
+    ""Color"": ""Yellow"",
+    ""ShowValue"": true,
+    ""StopIfTrue"": false,
+    ""Priority"": 1,
+    ""IncludeTotalRow"": false
+  },
+  {
+    ""Type"": ""Max"",
+    ""SubType"": ""Num"",
+    ""RuleType"": ""ThreeColorScale"",
+    ""SubRuleType"": ""Equal"",
+    ""Value"": 0.75,
+    ""FormulaText"": null,
+    ""FormulaTextBetween"": null,
+    ""Color"": ""Red"",
+    ""ShowValue"": true,
+    ""StopIfTrue"": false,
+    ""Priority"": 1,
+    ""IncludeTotalRow"": false
+  }
+]")]
+        public string CondFmtJsonReadLatencyMin {
+            get {
+                return ((string)(this["CondFmtJsonReadLatencyMin"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute(@"[
+  {
+    ""Type"": ""Min"",
+    ""SubType"": ""Num"",
+    ""RuleType"": ""ThreeColorScale"",
+    ""SubRuleType"": ""Equal"",
+    ""Value"": 0.0,
+    ""FormulaText"": null,
+    ""FormulaTextBetween"": null,
+    ""Color"": ""Green"",
+    ""ShowValue"": true,
+    ""StopIfTrue"": false,
+    ""Priority"": 1,
+    ""IncludeTotalRow"": false
+  },
+  {
+    ""Type"": ""Num"",
+    ""SubType"": ""Num"",
+    ""RuleType"": ""ThreeColorScale"",
+    ""SubRuleType"": ""Equal"",
+    ""Value"": 0.6,
+    ""FormulaText"": null,
+    ""FormulaTextBetween"": null,
+    ""Color"": ""Yellow"",
+    ""ShowValue"": true,
+    ""StopIfTrue"": false,
+    ""Priority"": 1,
+    ""IncludeTotalRow"": false
+  },
+  {
+    ""Type"": ""Max"",
+    ""SubType"": ""Num"",
+    ""RuleType"": ""ThreeColorScale"",
+    ""SubRuleType"": ""Equal"",
+    ""Value"": 1.0,
+    ""FormulaText"": null,
+    ""FormulaTextBetween"": null,
+    ""Color"": ""Red"",
+    ""ShowValue"": true,
+    ""StopIfTrue"": false,
+    ""Priority"": 1,
+    ""IncludeTotalRow"": false
+  }
+]")]
+        public string CondFmtJsonReadLatencyAvg {
+            get {
+                return ((string)(this["CondFmtJsonReadLatencyAvg"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute(@"[
+  {
+    ""Type"": ""Min"",
+    ""SubType"": ""Num"",
+    ""RuleType"": ""ThreeColorScale"",
+    ""SubRuleType"": ""Equal"",
+    ""Value"": 0.0,
+    ""FormulaText"": null,
+    ""FormulaTextBetween"": null,
+    ""Color"": ""Green"",
+    ""ShowValue"": true,
+    ""StopIfTrue"": false,
+    ""Priority"": 1,
+    ""IncludeTotalRow"": false
+  },
+  {
+    ""Type"": ""Num"",
+    ""SubType"": ""Num"",
+    ""RuleType"": ""ThreeColorScale"",
+    ""SubRuleType"": ""Equal"",
+    ""Value"": 60.0,
+    ""FormulaText"": null,
+    ""FormulaTextBetween"": null,
+    ""Color"": ""Yellow"",
+    ""ShowValue"": true,
+    ""StopIfTrue"": false,
+    ""Priority"": 1,
+    ""IncludeTotalRow"": false
+  },
+  {
+    ""Type"": ""Max"",
+    ""SubType"": ""Num"",
+    ""RuleType"": ""ThreeColorScale"",
+    ""SubRuleType"": ""Equal"",
+    ""Value"": 100.0,
+    ""FormulaText"": null,
+    ""FormulaTextBetween"": null,
+    ""Color"": ""Red"",
+    ""ShowValue"": true,
+    ""StopIfTrue"": false,
+    ""Priority"": 1,
+    ""IncludeTotalRow"": false
+  }
+]")]
+        public string CondFmtJsonPartitionSize {
+            get {
+                return ((string)(this["CondFmtJsonPartitionSize"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute(@"[
+  {
+    ""Type"": ""Min"",
+    ""SubType"": ""Num"",
+    ""RuleType"": ""ThreeColorScale"",
+    ""SubRuleType"": ""Equal"",
+    ""Value"": 0.0,
+    ""FormulaText"": null,
+    ""FormulaTextBetween"": null,
+    ""Color"": ""Green"",
+    ""ShowValue"": true,
+    ""StopIfTrue"": false,
+    ""Priority"": 1,
+    ""IncludeTotalRow"": false
+  },
+  {
+    ""Type"": ""Num"",
+    ""SubType"": ""Num"",
+    ""RuleType"": ""ThreeColorScale"",
+    ""SubRuleType"": ""Equal"",
+    ""Value"": 12.0,
+    ""FormulaText"": null,
+    ""FormulaTextBetween"": null,
+    ""Color"": ""Yellow"",
+    ""ShowValue"": true,
+    ""StopIfTrue"": false,
+    ""Priority"": 1,
+    ""IncludeTotalRow"": false
+  },
+  {
+    ""Type"": ""Max"",
+    ""SubType"": ""Num"",
+    ""RuleType"": ""ThreeColorScale"",
+    ""SubRuleType"": ""Equal"",
+    ""Value"": 30.0,
+    ""FormulaText"": null,
+    ""FormulaTextBetween"": null,
+    ""Color"": ""Red"",
+    ""ShowValue"": true,
+    ""StopIfTrue"": false,
+    ""Priority"": 1,
+    ""IncludeTotalRow"": false
+  }
+]")]
+        public string CondFmtJsonSSTablesTable {
+            get {
+                return ((string)(this["CondFmtJsonSSTablesTable"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute(@"[
+  {
+    ""Type"": ""Min"",
+    ""SubType"": ""Num"",
+    ""RuleType"": ""ThreeColorScale"",
+    ""SubRuleType"": ""Equal"",
+    ""Value"": 0.0,
+    ""FormulaText"": null,
+    ""FormulaTextBetween"": null,
+    ""Color"": ""Green"",
+    ""ShowValue"": true,
+    ""StopIfTrue"": false,
+    ""Priority"": 1,
+    ""IncludeTotalRow"": false
+  },
+  {
+    ""Type"": ""Num"",
+    ""SubType"": ""Num"",
+    ""RuleType"": ""ThreeColorScale"",
+    ""SubRuleType"": ""Equal"",
+    ""Value"": 0.4,
+    ""FormulaText"": null,
+    ""FormulaTextBetween"": null,
+    ""Color"": ""Yellow"",
+    ""ShowValue"": true,
+    ""StopIfTrue"": false,
+    ""Priority"": 1,
+    ""IncludeTotalRow"": false
+  },
+  {
+    ""Type"": ""Max"",
+    ""SubType"": ""Num"",
+    ""RuleType"": ""ThreeColorScale"",
+    ""SubRuleType"": ""Equal"",
+    ""Value"": 0.6,
+    ""FormulaText"": null,
+    ""FormulaTextBetween"": null,
+    ""Color"": ""Red"",
+    ""ShowValue"": true,
+    ""StopIfTrue"": false,
+    ""Priority"": 1,
+    ""IncludeTotalRow"": false
+  }
+]")]
+        public string CondFmtJsonTombstoneLiveRatio {
+            get {
+                return ((string)(this["CondFmtJsonTombstoneLiveRatio"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute(@"[
+  {
+    ""Type"": ""Min"",
+    ""SubType"": ""Num"",
+    ""RuleType"": ""ThreeColorScale"",
+    ""SubRuleType"": ""Equal"",
+    ""Value"": 0.0,
+    ""FormulaText"": null,
+    ""FormulaTextBetween"": null,
+    ""Color"": ""Green"",
+    ""ShowValue"": true,
+    ""StopIfTrue"": false,
+    ""Priority"": 1,
+    ""IncludeTotalRow"": false
+  },
+  {
+    ""Type"": ""Num"",
+    ""SubType"": ""Num"",
+    ""RuleType"": ""ThreeColorScale"",
+    ""SubRuleType"": ""Equal"",
+    ""Value"": 0.75,
+    ""FormulaText"": null,
+    ""FormulaTextBetween"": null,
+    ""Color"": ""Yellow"",
+    ""ShowValue"": true,
+    ""StopIfTrue"": false,
+    ""Priority"": 1,
+    ""IncludeTotalRow"": false
+  },
+  {
+    ""Type"": ""Max"",
+    ""SubType"": ""Num"",
+    ""RuleType"": ""ThreeColorScale"",
+    ""SubRuleType"": ""Equal"",
+    ""Value"": 1.0,
+    ""FormulaText"": null,
+    ""FormulaTextBetween"": null,
+    ""Color"": ""Red"",
+    ""ShowValue"": true,
+    ""StopIfTrue"": false,
+    ""Priority"": 1,
+    ""IncludeTotalRow"": false
+  }
+]")]
+        public string CondFmtJsonWriteLatencyMax {
+            get {
+                return ((string)(this["CondFmtJsonWriteLatencyMax"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute(@"[
+  {
+    ""Type"": ""Min"",
+    ""SubType"": ""Num"",
+    ""RuleType"": ""ThreeColorScale"",
+    ""SubRuleType"": ""Equal"",
+    ""Value"": 0.0,
+    ""FormulaText"": null,
+    ""FormulaTextBetween"": null,
+    ""Color"": ""Green"",
+    ""ShowValue"": true,
+    ""StopIfTrue"": false,
+    ""Priority"": 1,
+    ""IncludeTotalRow"": false
+  },
+  {
+    ""Type"": ""Num"",
+    ""SubType"": ""Num"",
+    ""RuleType"": ""ThreeColorScale"",
+    ""SubRuleType"": ""Equal"",
+    ""Value"": 0.15,
+    ""FormulaText"": null,
+    ""FormulaTextBetween"": null,
+    ""Color"": ""Yellow"",
+    ""ShowValue"": true,
+    ""StopIfTrue"": false,
+    ""Priority"": 1,
+    ""IncludeTotalRow"": false
+  },
+  {
+    ""Type"": ""Max"",
+    ""SubType"": ""Num"",
+    ""RuleType"": ""ThreeColorScale"",
+    ""SubRuleType"": ""Equal"",
+    ""Value"": 0.3,
+    ""FormulaText"": null,
+    ""FormulaTextBetween"": null,
+    ""Color"": ""Red"",
+    ""ShowValue"": true,
+    ""StopIfTrue"": false,
+    ""Priority"": 1,
+    ""IncludeTotalRow"": false
+  }
+]")]
+        public string CondFmtJsonWriteLatencyMin {
+            get {
+                return ((string)(this["CondFmtJsonWriteLatencyMin"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute(@"[
+  {
+    ""Type"": ""Min"",
+    ""SubType"": ""Num"",
+    ""RuleType"": ""ThreeColorScale"",
+    ""SubRuleType"": ""Equal"",
+    ""Value"": 0.0,
+    ""FormulaText"": null,
+    ""FormulaTextBetween"": null,
+    ""Color"": ""Green"",
+    ""ShowValue"": true,
+    ""StopIfTrue"": false,
+    ""Priority"": 1,
+    ""IncludeTotalRow"": false
+  },
+  {
+    ""Type"": ""Num"",
+    ""SubType"": ""Num"",
+    ""RuleType"": ""ThreeColorScale"",
+    ""SubRuleType"": ""Equal"",
+    ""Value"": 0.25,
+    ""FormulaText"": null,
+    ""FormulaTextBetween"": null,
+    ""Color"": ""Yellow"",
+    ""ShowValue"": true,
+    ""StopIfTrue"": false,
+    ""Priority"": 1,
+    ""IncludeTotalRow"": false
+  },
+  {
+    ""Type"": ""Max"",
+    ""SubType"": ""Num"",
+    ""RuleType"": ""ThreeColorScale"",
+    ""SubRuleType"": ""Equal"",
+    ""Value"": 0.5,
+    ""FormulaText"": null,
+    ""FormulaTextBetween"": null,
+    ""Color"": ""Red"",
+    ""ShowValue"": true,
+    ""StopIfTrue"": false,
+    ""Priority"": 1,
+    ""IncludeTotalRow"": false
+  }
+]")]
+        public string CondFmtJsonWriteLatencyAvg {
+            get {
+                return ((string)(this["CondFmtJsonWriteLatencyAvg"]));
+            }
+        }
     }
 }

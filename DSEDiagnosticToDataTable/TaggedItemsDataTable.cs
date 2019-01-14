@@ -94,11 +94,14 @@ namespace DSEDiagnosticToDataTable
             if (this.SessionId.HasValue) dtStats.Columns.Add(ColumnNames.SessionId, typeof(Guid));
             
            
-            dtStats.Columns.Add(ColumnNames.KeySpace, typeof(string)).AllowDBNull = true;
-            dtStats.Columns.Add(ColumnNames.Table, typeof(string)).AllowDBNull = true;
+            dtStats.Columns.Add(ColumnNames.KeySpace, typeof(string));
+            dtStats.Columns.Add(ColumnNames.Table, typeof(string));
             dtStats.Columns.Add(ColumnNames.DataCenter, typeof(string));
             dtStats.Columns.Add(ColumnNames.NodeIPAddress, typeof(string));
-            dtStats.Columns.Add(Columns.CQLType, typeof(string)).AllowDBNull = true;
+            dtStats.Columns.Add(Columns.CQLType, typeof(string));
+
+            dtStats.Columns.Add(Columns.WeightedFactorMax, typeof(decimal));
+            dtStats.Columns.Add(Columns.WeightedFactorAvg, typeof(decimal));
 
             dtStats.Columns.Add(Columns.ReadMax, typeof(decimal)).AllowDBNull = true;
             dtStats.Columns.Add(Columns.ReadMin, typeof(decimal)).AllowDBNull = true;
@@ -146,10 +149,7 @@ namespace DSEDiagnosticToDataTable
             dtStats.Columns.Add(Columns.FlushSizeStdDev, typeof(decimal)).AllowDBNull = true;
             dtStats.Columns.Add(Columns.FlushSizeFactor, typeof(decimal)).AllowDBNull = true;
             dtStats.Columns.Add(Columns.FlushPending, typeof(long)).AllowDBNull = true;
-            
-            dtStats.Columns.Add(Columns.WeightedFactorMax, typeof(decimal));
-            dtStats.Columns.Add(Columns.WeightedFactorAvg, typeof(decimal));
-
+                        
             dtStats.Columns.Add(Columns.SecondaryIndexes, typeof(int)).AllowDBNull = true;
             dtStats.Columns.Add(Columns.MaterializedViews, typeof(int)).AllowDBNull = true;
             dtStats.Columns.Add(Columns.CommonKey, typeof(string)).AllowDBNull = true;
