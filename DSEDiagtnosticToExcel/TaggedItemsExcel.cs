@@ -548,13 +548,13 @@ namespace DSEDiagtnosticToExcel
             );
 
             dtOverview.SetGroupHeader("SSTables", -1, true,
-                dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.SSTablesMax, typeof(decimal))
-                    .SetNumericFormat("#,###,###,##0.000")
+                dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.SSTablesMax, typeof(long))
+                    .SetNumericFormat("#,###,###,##0")
                     .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonReadLatencyMax)
                     .SetDBNull()
                     .SetCaption("Max"),
-                dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.SSTablesMin, typeof(decimal))
-                    .SetNumericFormat("#,###,###,##0.000")
+                dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.SSTablesMin, typeof(long))
+                    .SetNumericFormat("#,###,###,##0")
                     .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonReadLatencyMin)
                     .SetDBNull()
                     .SetCaption("Min"),
@@ -678,8 +678,8 @@ namespace DSEDiagtnosticToExcel
                                   Table = grp.Key.tableName,
                                   DCFactor = dcfactors,
                                   SSTablePercent = grp.Sum(r => r.Field<decimal>(DT.TaggedItemsDataTable.Columns.SSTablePercent)),
-                                  SSTableMax = grp.Max(r => r.Field<decimal>(DT.TaggedItemsDataTable.Columns.SSTablesMax)),
-                                  SSTableMin = grp.Min(r => r.Field<decimal>(DT.TaggedItemsDataTable.Columns.SSTablesMin)),
+                                  SSTableMax = grp.Max(r => r.Field<long>(DT.TaggedItemsDataTable.Columns.SSTablesMax)),
+                                  SSTableMin = grp.Min(r => r.Field<long>(DT.TaggedItemsDataTable.Columns.SSTablesMin)),
                                   SSTableAvg = grp.Average(r => r.Field<decimal>(DT.TaggedItemsDataTable.Columns.SSTablePercent)),
                                   ReadFactor = WeightAvg(grp, DT.TaggedItemsDataTable.Columns.ReadFactor),
                                   ReadPercent = Sum(grp, DT.TaggedItemsDataTable.Columns.ReadPercent),
@@ -1135,19 +1135,7 @@ namespace DSEDiagtnosticToExcel
 
                 return factorValue;
             }
-
-            long? SumL(IEnumerable<DataRow> dataRows, string columnName)
-            {
-                var factorValue = dataRows.Where(r => !r.IsNull(columnName))
-                                            .Select(r => r.Field<long>(columnName))
-                                            .DefaultIfEmpty()
-                                            .Sum();
-
-                if (factorValue == 0) return null;
-
-                return factorValue;
-            }
-
+            
             var taggedItems = from dataRow in sourceTable.AsEnumerable()
                               where !dataRow.IsNull(DT.TaggedItemsDataTable.Columns.PartitionSizeFactor)
                               let keySpace = dataRow.Field<string>(DT.ColumnNames.KeySpace)
