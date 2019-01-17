@@ -62,7 +62,18 @@ namespace DSEDiagnosticConsoleApplication
 
             loadExcel.OnAction += (DSEDiagtnosticToExcel.IExcel sender, string action) =>
             {
-                if (action == "Begin Loading")
+                if (action == "PreLoading")
+                {
+                    if (sender.LoadTo == DSEDiagtnosticToExcel.LoadToTypes.WorkBook)
+                    {
+                        ConsoleExcelWorkbook.Increment(sender.ExcelTargetWorkbook);
+                    }
+                    else
+                    {
+                        ConsoleExcelWorkSheet.Increment(sender.WorkSheetName);
+                    }
+                }
+                else if (action == "Begin Loading")
                 {
                     if (sender.LoadTo == DSEDiagtnosticToExcel.LoadToTypes.WorkBook)
                     {

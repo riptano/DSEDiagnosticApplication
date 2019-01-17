@@ -70,6 +70,9 @@ namespace DSEDiagtnosticToExcel
             bool hasException = false;
 
             #region Update DataTable with ResultInfo
+
+            this.CallActionEvent("PreLoading");
+
             this.DataTable.Columns.Add("Mapper Class", typeof(string));//b
             this.DataTable.Columns.Add("Mapper Id", typeof(int));//c
             this.DataTable.Columns.Add("Catagory", typeof(string));

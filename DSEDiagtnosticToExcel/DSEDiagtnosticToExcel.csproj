@@ -101,6 +101,10 @@
       <Project>{50db5780-7118-44e2-8d1f-e7288304eac5}</Project>
       <Name>DSEDiagnosticFileParser</Name>
     </ProjectReference>
+    <ProjectReference Include="..\DSEDiagnosticLibrary\DSEDiagnosticLibrary.csproj">
+      <Project>{aa88d5c0-9218-445c-885c-4b64fbfb9257}</Project>
+      <Name>DSEDiagnosticLibrary</Name>
+    </ProjectReference>
     <ProjectReference Include="..\DSEDiagnosticToDataTable\DSEDiagnosticToDataTable.csproj">
       <Project>{f4e842e1-39b7-4ea9-8820-d81d11d1522c}</Project>
       <Name>DSEDiagnosticToDataTable</Name>

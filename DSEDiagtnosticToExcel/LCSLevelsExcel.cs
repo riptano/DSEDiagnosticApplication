@@ -30,7 +30,7 @@ namespace DSEDiagtnosticToExcel
         { }
 
         public DataTable CreateInitializationTable()
-        {
+        {            
             var dtStats = new DataTable(ExcelDataTableName, DSEDiagnosticToDataTable.TableNames.Namespace);
 
             if (this.DataTable.Columns.Contains(DSEDiagnosticToDataTable.ColumnNames.SessionId)) dtStats.Columns.Add(DSEDiagnosticToDataTable.ColumnNames.SessionId, typeof(Guid));
@@ -79,6 +79,8 @@ namespace DSEDiagtnosticToExcel
 
         public override Tuple<IFilePath, string, int> Load()
         {
+            this.CallActionEvent("PreLoading");
+
             var dtLCSLevels = this.CreateInitializationTable();
 
             var lcsLevelsRows = from row in this.DataTable.AsEnumerable()

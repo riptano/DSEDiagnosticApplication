@@ -1790,5 +1790,20 @@
   }
 ]</Value>
     </Setting>
+    <Setting Name="TriggerReadFactor" Type="System.Decimal" Scope="Application">
+      <Value Profile="(Default)">0.9</Value>
+    </Setting>
+    <Setting Name="TriggerWriteFactor" Type="System.Decimal" Scope="Application">
+      <Value Profile="(Default)">0.9</Value>
+    </Setting>
+    <Setting Name="TriggerSSTablesFactor" Type="System.Decimal" Scope="Application">
+      <Value Profile="(Default)">0.9</Value>
+    </Setting>
+    <Setting Name="TriggerTombstoneRatioFactor" Type="System.Decimal" Scope="Application">
+      <Value Profile="(Default)">0.9</Value>
+    </Setting>
+    <Setting Name="TriggerPartitionSizeFactor" Type="System.Decimal" Scope="Application">
+      <Value Profile="(Default)">0.9</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

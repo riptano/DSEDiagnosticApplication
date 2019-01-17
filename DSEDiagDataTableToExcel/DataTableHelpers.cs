@@ -292,6 +292,12 @@ namespace DataTableToExcel
             return dataColumn;
         }
 
+        public static DataColumn SetDBNull(this DataColumn dataColumn, bool allowDBNull = true)
+        {
+            dataColumn.AllowDBNull = allowDBNull;
+            return dataColumn;
+        }
+
         public static DataColumn TotalColumn(this DataColumn dataColumn, bool haveSumTotalLine = true, bool remove = false)
         {
             if (dataColumn.ExtendedProperties.ContainsKey("TotalColumn"))

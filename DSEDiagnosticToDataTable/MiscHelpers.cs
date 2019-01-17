@@ -188,5 +188,58 @@ namespace DSEDiagnosticToDataTable
             dataRow.SetField(columnName, value);
             return dataRow;
         }
+
+        public static IEnumerable<DataColumn> AddColumnsToTable(this DataTable dataTable, IEnumerable<string> columnNames, Type dataType)
+        {
+            var columns = new List<DataColumn>(columnNames.Count());
+            DataColumn dataColumn;
+
+            foreach (var name in columnNames)
+            {
+                dataColumn = new DataColumn(name, dataType);
+                dataTable.Columns.Add(dataColumn);
+                columns.Add(dataColumn);
+            }
+
+            return columns;
+        }
+
+        public static IEnumerable<DataColumn> AddColumnsToTable(this DataTable dataTable, IEnumerable<DataColumn> columns)
+        {
+            var copiedColumns = new List<DataColumn>(columns.Count());
+            DataColumn dataColumn;
+
+            foreach (var oldColumn in columns)
+            {
+                dataColumn = new DataColumn(oldColumn.ColumnName, oldColumn.DataType, oldColumn.Expression, oldColumn.ColumnMapping)
+                {
+                    DateTimeMode = oldColumn.DateTimeMode,
+                    AllowDBNull = oldColumn.AllowDBNull,
+                    AutoIncrement = oldColumn.AutoIncrement,
+                    AutoIncrementSeed = oldColumn.AutoIncrementSeed,
+                    AutoIncrementStep = oldColumn.AutoIncrementStep,
+                    Caption = oldColumn.Caption,
+                    DefaultValue = oldColumn.DefaultValue,
+                    MaxLength = oldColumn.MaxLength,
+                    Namespace = oldColumn.Namespace,
+                    Prefix = oldColumn.Prefix,
+                    ReadOnly = oldColumn.ReadOnly,
+                    Unique = oldColumn.Unique                  
+                };
+
+                if(oldColumn.ExtendedProperties != null)
+                {
+                    foreach (var key in oldColumn.ExtendedProperties.Keys)                    
+                    {
+                        dataColumn.ExtendedProperties.Add(key, oldColumn.ExtendedProperties[key]);
+                    }
+                }
+                
+                dataTable.Columns.Add(dataColumn);
+                copiedColumns.Add(dataColumn);
+            }
+
+            return copiedColumns;
+        }
     }
 }

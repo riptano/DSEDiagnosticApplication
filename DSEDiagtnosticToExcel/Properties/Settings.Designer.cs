@@ -1643,5 +1643,50 @@ namespace DSEDiagtnosticToExcel.Properties {
                 return ((string)(this["CondFmtJsonWriteLatencyAvg"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0.9")]
+        public decimal TriggerReadFactor {
+            get {
+                return ((decimal)(this["TriggerReadFactor"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0.9")]
+        public decimal TriggerWriteFactor {
+            get {
+                return ((decimal)(this["TriggerWriteFactor"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0.9")]
+        public decimal TriggerSSTablesFactor {
+            get {
+                return ((decimal)(this["TriggerSSTablesFactor"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0.9")]
+        public decimal TriggerTombstoneRatioFactor {
+            get {
+                return ((decimal)(this["TriggerTombstoneRatioFactor"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0.9")]
+        public decimal TriggerPartitionSizeFactor {
+            get {
+                return ((decimal)(this["TriggerPartitionSizeFactor"]));
+            }
+        }
     }
 }
