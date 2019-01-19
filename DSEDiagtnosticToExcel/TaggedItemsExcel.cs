@@ -213,8 +213,10 @@ namespace DSEDiagtnosticToExcel
                                   DCFactor = dcfactors,
                                   ReadPercent = grp.Sum(r => r.Field<decimal>(DT.TaggedItemsDataTable.Columns.ReadPercent)),
                                   ReadMax = grp.Max(r => r.Field<decimal>(DT.TaggedItemsDataTable.Columns.ReadMax)),
-                                  ReadMin = grp.Min(r => r.Field<decimal>(DT.TaggedItemsDataTable.Columns.ReadMin)),
-                                  ReadAvg = grp.Average(r => r.Field<decimal>(DT.TaggedItemsDataTable.Columns.ReadPercent)),
+                                  ReadMin = grp.Where(r => !r.IsNull(DT.TaggedItemsDataTable.Columns.ReadMin))
+                                                .ActionIfNotEmpty(i => i.Min(r => r.Field<decimal>(DT.TaggedItemsDataTable.Columns.ReadMin)), default(decimal?)),
+                                  ReadAvg = grp.Where(r => !r.IsNull(DT.TaggedItemsDataTable.Columns.ReadPercent))
+                                                .ActionIfNotEmpty(i => i.Min(r => r.Field<decimal>(DT.TaggedItemsDataTable.Columns.ReadPercent)), default(decimal?)),
                                   WriteFactor = WeightAvg(grp, DT.TaggedItemsDataTable.Columns.WriteFactor),
                                   WritePercent = Sum(grp, DT.TaggedItemsDataTable.Columns.WritePercent),
                                   KeyPercent = Sum(grp, DT.TaggedItemsDataTable.Columns.KeysPercent),
@@ -317,17 +319,17 @@ namespace DSEDiagtnosticToExcel
             dtOverview.SetGroupHeader("Write", -1, true,
                 dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.WriteMax, typeof(decimal))
                     .SetNumericFormat("#,###,###,##0.000")
-                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonReadLatencyMax)
+                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonWriteLatencyMax)
                     .SetDBNull()
                     .SetCaption("Max"),
                 dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.WriteMin, typeof(decimal))
                     .SetNumericFormat("#,###,###,##0.000")
-                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonReadLatencyMin)
+                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonWriteLatencyAvg)
                     .SetDBNull()
                     .SetCaption("Min"),
                 dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.WriteAvg, typeof(decimal))
                     .SetNumericFormat("#,###,###,##0.000")
-                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonReadLatencyAvg)
+                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonWriteLatencyAvg)
                     .SetDBNull()
                     .SetCaption("Avg"),
                  dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.WritePercent, typeof(decimal))
@@ -445,9 +447,11 @@ namespace DSEDiagtnosticToExcel
                                   Table = grp.Key.tableName,
                                   DCFactor = dcfactors,
                                   WritePercent = grp.Sum(r => r.Field<decimal>(DT.TaggedItemsDataTable.Columns.WritePercent)),
-                                  WriteMax = grp.Max(r => r.Field<decimal>(DT.TaggedItemsDataTable.Columns.WriteMax)),
-                                  WriteMin = grp.Min(r => r.Field<decimal>(DT.TaggedItemsDataTable.Columns.WriteMin)),
-                                  WriteAvg = grp.Average(r => r.Field<decimal>(DT.TaggedItemsDataTable.Columns.WritePercent)),
+                                  WriteMax = grp.Max(r => r.Field<decimal>(DT.TaggedItemsDataTable.Columns.WriteMax)),                                  
+                                  WriteMin = grp.Where(r => !r.IsNull(DT.TaggedItemsDataTable.Columns.WriteMin))
+                                                .ActionIfNotEmpty(i => i.Min(r => r.Field<decimal>(DT.TaggedItemsDataTable.Columns.WriteMin)), default(decimal?)),
+                                  WriteAvg = grp.Where(r => !r.IsNull(DT.TaggedItemsDataTable.Columns.WritePercent))
+                                                .ActionIfNotEmpty(i => i.Min(r => r.Field<decimal>(DT.TaggedItemsDataTable.Columns.WritePercent)), default(decimal?)),
                                   ReadFactor = WeightAvg(grp, DT.TaggedItemsDataTable.Columns.ReadFactor),
                                   ReadPercent = Sum(grp, DT.TaggedItemsDataTable.Columns.ReadPercent),
                                   KeyPercent = Sum(grp, DT.TaggedItemsDataTable.Columns.KeysPercent),
@@ -550,17 +554,17 @@ namespace DSEDiagtnosticToExcel
             dtOverview.SetGroupHeader("SSTables", -1, true,
                 dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.SSTablesMax, typeof(long))
                     .SetNumericFormat("#,###,###,##0")
-                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonReadLatencyMax)
+                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonSSTables)
                     .SetDBNull()
                     .SetCaption("Max"),
                 dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.SSTablesMin, typeof(long))
                     .SetNumericFormat("#,###,###,##0")
-                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonReadLatencyMin)
+                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonSSTables)
                     .SetDBNull()
                     .SetCaption("Min"),
                 dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.SSTablesAvg, typeof(decimal))
                     .SetNumericFormat("#,###,###,##0.000")
-                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonReadLatencyAvg)
+                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonSSTables)
                     .SetDBNull()
                     .SetCaption("Avg"),
                  dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.SSTablePercent, typeof(decimal))
@@ -678,9 +682,11 @@ namespace DSEDiagtnosticToExcel
                                   Table = grp.Key.tableName,
                                   DCFactor = dcfactors,
                                   SSTablePercent = grp.Sum(r => r.Field<decimal>(DT.TaggedItemsDataTable.Columns.SSTablePercent)),
-                                  SSTableMax = grp.Max(r => r.Field<long>(DT.TaggedItemsDataTable.Columns.SSTablesMax)),
-                                  SSTableMin = grp.Min(r => r.Field<long>(DT.TaggedItemsDataTable.Columns.SSTablesMin)),
-                                  SSTableAvg = grp.Average(r => r.Field<decimal>(DT.TaggedItemsDataTable.Columns.SSTablePercent)),
+                                  SSTableMax = grp.Max(r => r.Field<long>(DT.TaggedItemsDataTable.Columns.SSTablesMax)),                                 
+                                  SSTableMin = grp.Where(r => !r.IsNull(DT.TaggedItemsDataTable.Columns.SSTablesMin))
+                                                .ActionIfNotEmpty(i => i.Min(r => r.Field<long>(DT.TaggedItemsDataTable.Columns.SSTablesMin)), default(long?)),
+                                  SSTableAvg = grp.Where(r => !r.IsNull(DT.TaggedItemsDataTable.Columns.SSTablePercent))
+                                                .ActionIfNotEmpty(i => i.Min(r => r.Field<decimal>(DT.TaggedItemsDataTable.Columns.SSTablePercent)), default(decimal?)),
                                   ReadFactor = WeightAvg(grp, DT.TaggedItemsDataTable.Columns.ReadFactor),
                                   ReadPercent = Sum(grp, DT.TaggedItemsDataTable.Columns.ReadPercent),
                                   KeyPercent = Sum(grp, DT.TaggedItemsDataTable.Columns.KeysPercent),
@@ -782,18 +788,18 @@ namespace DSEDiagtnosticToExcel
 
             dtOverview.SetGroupHeader("Tombstone/Live Ratio", -1, true,
                 dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.TombstoneRatioMax, typeof(decimal))
-                    .SetNumericFormat("#,###,###,##0.000")
-                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonReadLatencyMax)
+                    .SetNumericFormat("##0.00%")
+                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonTombstoneLiveRatio)
                     .SetDBNull()
                     .SetCaption("Max"),
                 dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.TombstoneRatioMin, typeof(decimal))
-                    .SetNumericFormat("#,###,###,##0.000")
-                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonReadLatencyMin)
+                    .SetNumericFormat("##0.00%")
+                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonTombstoneLiveRatio)
                     .SetDBNull()
                     .SetCaption("Min"),
                 dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.TombstoneRatioAvg, typeof(decimal))
-                    .SetNumericFormat("#,###,###,##0.000")
-                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonReadLatencyAvg)
+                    .SetNumericFormat("##0.00%")
+                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonTombstoneLiveRatio)
                     .SetDBNull()
                     .SetCaption("Avg"),
                 dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.TombstonesRead, typeof(long))
@@ -926,9 +932,11 @@ namespace DSEDiagtnosticToExcel
                                   CQLType = grp.Key.cqlType,
                                   Table = grp.Key.tableName,
                                   DCFactor = dcfactors,
-                                  TRMax = grp.Max(r => r.Field<decimal>(DT.TaggedItemsDataTable.Columns.TombstoneRatioMax)),
-                                  TRMin = grp.Min(r => r.Field<decimal>(DT.TaggedItemsDataTable.Columns.TombstoneRatioMin)),
-                                  TRAvg = grp.Average(r => r.Field<decimal>(DT.TaggedItemsDataTable.Columns.TombstoneRatioAvg)),
+                                  TRMax = grp.Max(r => r.Field<decimal>(DT.TaggedItemsDataTable.Columns.TombstoneRatioMax)),                                 
+                                  TRMin = grp.Where(r => !r.IsNull(DT.TaggedItemsDataTable.Columns.TombstoneRatioMin))
+                                                .ActionIfNotEmpty(i => i.Min(r => r.Field<decimal>(DT.TaggedItemsDataTable.Columns.TombstoneRatioMin)), default(decimal?)),
+                                  TRAvg = grp.Where(r => !r.IsNull(DT.TaggedItemsDataTable.Columns.TombstoneRatioAvg))
+                                                .ActionIfNotEmpty(i => i.Min(r => r.Field<decimal>(DT.TaggedItemsDataTable.Columns.TombstoneRatioAvg)), default(decimal?)),
                                   Tombstones = SumL(grp, DT.TaggedItemsDataTable.Columns.TombstonesRead),
                                   LiveRead = SumL(grp, DT.TaggedItemsDataTable.Columns.LiveRead),
                                   ReadFactor = WeightAvg(grp, DT.TaggedItemsDataTable.Columns.ReadFactor),
@@ -1033,18 +1041,18 @@ namespace DSEDiagtnosticToExcel
 
             dtOverview.SetGroupHeader("Large Partition/Wide Rows", -1, true,
                 dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.PartitionSizeMax, typeof(decimal))
-                    .SetNumericFormat("#,###,###,##0.000")
-                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonReadLatencyMax)
+                    .SetNumericFormat("#,###,###,##0.0000")
+                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonPartitionSize)
                     .SetDBNull()
                     .SetCaption("Max"),
                 dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.PartitionSizeMin, typeof(decimal))
-                    .SetNumericFormat("#,###,###,##0.000")
-                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonReadLatencyMin)
+                    .SetNumericFormat("#,###,###,##0.0000")
+                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonPartitionSize)
                     .SetDBNull()
                     .SetCaption("Min"),
                 dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.PartitionSizeAvg, typeof(decimal))
-                    .SetNumericFormat("#,###,###,##0.000")
-                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonReadLatencyAvg)
+                    .SetNumericFormat("#,###,###,##0.0000")
+                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonPartitionSize)
                     .SetDBNull()
                     .SetCaption("Avg")                
                     );
@@ -1157,9 +1165,11 @@ namespace DSEDiagtnosticToExcel
                                   CQLType = grp.Key.cqlType,
                                   Table = grp.Key.tableName,
                                   DCFactor = dcfactors,
-                                  PSMax = grp.Max(r => r.Field<decimal>(DT.TaggedItemsDataTable.Columns.PartitionSizeMax)),
-                                  PSMin = grp.Min(r => r.Field<decimal>(DT.TaggedItemsDataTable.Columns.PartitionSizeMin)),
-                                  PSAvg = grp.Average(r => r.Field<decimal>(DT.TaggedItemsDataTable.Columns.PartitionSizeAvg)),                                  
+                                  PSMax = grp.Max(r => r.Field<decimal>(DT.TaggedItemsDataTable.Columns.PartitionSizeMax)),                                  
+                                  PSMin = grp.Where(r => !r.IsNull(DT.TaggedItemsDataTable.Columns.PartitionSizeMin))
+                                                .ActionIfNotEmpty(i => i.Min(r => r.Field<decimal>(DT.TaggedItemsDataTable.Columns.PartitionSizeMin)), default(decimal?)),
+                                  PSAvg = grp.Where(r => !r.IsNull(DT.TaggedItemsDataTable.Columns.PartitionSizeAvg))
+                                                .ActionIfNotEmpty(i => i.Min(r => r.Field<decimal>(DT.TaggedItemsDataTable.Columns.PartitionSizeAvg)), default(decimal?)),
                                   ReadFactor = WeightAvg(grp, DT.TaggedItemsDataTable.Columns.ReadFactor),
                                   ReadPercent = Sum(grp, DT.TaggedItemsDataTable.Columns.ReadPercent),
                                   KeyPercent = Sum(grp, DT.TaggedItemsDataTable.Columns.KeysPercent),

@@ -74,6 +74,10 @@
       "LinkedTagId": 21.0
     },
     {
+      "Description": "tombstone (ignore)",
+      "LinkedTagId": 21.5
+    },
+    {
       "Description": "commit log syncs",
       "LinkedTagId": 22.0
     },

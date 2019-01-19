@@ -2029,7 +2029,8 @@
         "RegExStrings": [
           "^SSTableWriter.java$",
           "^CompactionController.java$",
-          "^BigTableWriter.java$"
+          "^BigTableWriter.java$",
+          "^TrieIndexSSTableWriter.java$"
         ]
       },
       "FileLineMatch": null,
@@ -2056,7 +2057,8 @@
         "WARN  [ ] 2016-06-07 06:57:44,146  CompactionController.java:240 - Compacting large row billing/account_payables:20160726:FMCC (348583137 bytes)",
         "WARN  [ ] 2016-06-07 06:57:44,146  BigTableWriter.java:240 - Writing large partition oats/order_cycles:nasusnop01:2017-01-31 (139296027 bytes)",
         "WARN  [CompactionExecutor:943648] 2018-04-23 09:44:03,812  BigTableWriter.java:211 - Writing large partition axon/audit.parked_at_idx: (111.836MiB) to sstable /dse/dse_data/axon/audit-4584ec70347411e89c4fe548a3a93499/.parked_at_idx/mc-6140-big-Data.db)",
-        "WARN  [PerDiskMemtableFlushWriter_0:33] 2018-04-25 08:07:54,161  BigTableWriter.java:211 - Writing large partition ghostlocker/cassandracache:DmsPlaybackCache (317.980MiB) to sstable /opt/cassandra/data01/ghostlocker/cassandracache-cd9b046155cb11e7b3e4f1176ea923d9/mc-14643-big-Data.db"
+        "WARN  [PerDiskMemtableFlushWriter_0:33] 2018-04-25 08:07:54,161  BigTableWriter.java:211 - Writing large partition ghostlocker/cassandracache:DmsPlaybackCache (317.980MiB) to sstable /opt/cassandra/data01/ghostlocker/cassandracache-cd9b046155cb11e7b3e4f1176ea923d9/mc-14643-big-Data.db",
+        "WARN  [CompactionExecutor:1085] 2019-01-15 05:25:20,022  TrieIndexSSTableWriter.java:210 - Writing large partition pdcks1023/snapshots:network (144.562MiB) to sstable /data/pdcks1023/snapshots-d6e4cb717e1d11e8bed867b2a5e708fe/aa-667-bti-Data.db"
       ]
     },
     {
@@ -2102,6 +2104,42 @@
         "ERROR [SharedPool-Worker-3] 2016-10-24 10:59:29,758  SliceQueryFilter.java:288 - Scanned over 100000 tombstones in dse_perf.node_slow_log for key: 10.1.46.110:2016-10-19 20\\:00-0400; query aborted (see tombstone_failure_threshold).",
         "WARN  [SharedPool-Worker-9] 2018-04-04 11:25:35,569  ReadCommand.java:508 - Read 111 live rows and 1932 tombstone cells for query SELECT * FROM ghostlocker.userplaybacksession WHERE token(userid) > -1790144883989260466 AND token(userid) <= -1665322144856710922 LIMIT 1000 (see tombstone_warn_threshold)",
         "ERROR [SharedPool-Worker-3] 2018-05-22 09:45:28,353  StorageProxy.java:1804 - Scanned over 100001 tombstones during query 'SELECT * FROM data_integration_hub.notification_trigger_history WHERE contact_method_type_value = sspears@igroupweb.com LIMIT 300' (last scanned row partion key was ((6180009188, 001, ALIP), f2220626-8b2e-4e5a-9150-2e96bb3cdc07, 51, 2018-05-17 04:24-0500, 44787350-59b4-11e8-a111-1f4247064f64)); query aborted"
+      ]
+    },
+    {
+      "Description": "tombstone (ignore)",
+      "TagId": 21.5,
+      "MatchVersion": null,
+      "LevelMatch": {
+        "RegExStrings": [
+          "WARN"
+        ]
+      },
+      "FileNameMatch": {
+        "RegExStrings": [
+          "^NoSpamLogger.java$"
+        ]
+      },
+      "FileLineMatch": null,
+      "MessageMatch": {
+        "RegExStrings": [
+          "^Scanned\\sover\\s(?:[0-9,]+)\\stombstones"
+        ]
+      },
+      "ParseMessage": {
+        "RegExStrings": [
+          "^Scanned\\sover\\s(?<tombstone_cells>[0-9,]+)\\stombstone(?:s|d)?\\sduring\\s(?<item>query)\\s+'*$<!CQLSELECT>'*\\s+\\("
+        ]
+      },
+      "IgnoreEvent": true,
+      "ParseThreadId": null,
+      "EventType": "SingleInstance",
+      "EventClass": "Tombstone,TableViewIndex,Query,Detection",
+      "SubClass": "item",
+      "AnalyticsGroup": "TombstoneStats",
+      "Product": "Cassandra",
+      "Examples": [
+        "WARN  [CoreThread-58] 2019-01-14 13:05:17,589  NoSpamLogger.java:97 - Scanned over 100001 tombstones during query 'SELECT * FROM ks.table WHERE created >= 2019-01-14 08:40-0700 AND created <= 2019-01-14 08:53-0700 AND token(id) > -8928794067120290761 AND token(id) <= -8477769136471599289' (last scanned row partion key was ((b81ac3f1-936a-4cbc-9523-a1b2f679630d), e5b28458-2d4f-3aa6-bce2-2d16638cdc6a)); query aborted"
       ]
     },
     {
@@ -2162,7 +2200,7 @@
       },
       "ParseMessage": {
         "RegExStrings": [
-          "^Aggregation\\s+query\\s+used\\s+without\\s+partition\\s+key$"
+          "^Aggregation\\s+query\\s+used\\s+without\\s+partition\\s+key(?:\\s+\\(\\s*ks:\\s*(?$<KEYSPACE>),\\s*tbl:\\s*(?$<TABLEVIEWNAME>)\\s*\\))?"
         ]
       },
       "ParseThreadId": null,
@@ -2171,7 +2209,8 @@
       "SubClass": "'Aggregation query used without partition key'",
       "Product": "Cassandra",
       "Examples": [
-        "WARN  [SharedPool-Worker-1] 2018-03-28 03:37:46,099  SelectStatement.java:369 - Aggregation query used without partition key"
+        "WARN  [SharedPool-Worker-1] 2018-03-28 03:37:46,099  SelectStatement.java:369 - Aggregation query used without partition key",
+        "WARN  [CoreThread-37] 2019-01-13 22:23:11,575  SelectStatement.java:524 - Aggregation query used without partition key (ks: flights, tbl: airports)"
       ]
     },
     {
