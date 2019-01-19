@@ -116,6 +116,7 @@ namespace DSEDiagtnosticToExcel
                     );
 
             dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.KeysPercent, typeof(decimal))
+                .SetNumericFormat("##0.00%")
                 .SetDBNull();
 
             dtOverview.SetGroupHeader("SSTable", -1, true,
@@ -140,7 +141,8 @@ namespace DSEDiagtnosticToExcel
                 .SetDBNull();
 
             dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.PartitionSizeFactor, typeof(decimal))
-                .SetNumericFormat("##0.00%")
+                .SetNumericFormat("#,###,###,##0.00")
+                .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor)
                 .SetDBNull();
 
             dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.SecondaryIndexes, typeof(int))
@@ -351,6 +353,7 @@ namespace DSEDiagtnosticToExcel
                     );
 
             dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.KeysPercent, typeof(decimal))
+                .SetNumericFormat("##0.00%")
                 .SetDBNull();
 
             dtOverview.SetGroupHeader("SSTable", -1, true,
@@ -375,7 +378,8 @@ namespace DSEDiagtnosticToExcel
                 .SetDBNull();
 
             dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.PartitionSizeFactor, typeof(decimal))
-                .SetNumericFormat("##0.00%")
+                 .SetNumericFormat("#,###,###,##0.00")
+                .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor)
                 .SetDBNull();
 
             dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.SecondaryIndexes, typeof(int))
@@ -586,6 +590,7 @@ namespace DSEDiagtnosticToExcel
                     );
 
             dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.KeysPercent, typeof(decimal))
+                .SetNumericFormat("##0.00%")
                 .SetDBNull();
 
             dtOverview.SetGroupHeader("Write", -1, true,
@@ -610,7 +615,8 @@ namespace DSEDiagtnosticToExcel
                 .SetDBNull();
 
             dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.PartitionSizeFactor, typeof(decimal))
-                .SetNumericFormat("##0.00%")
+                 .SetNumericFormat("#,###,###,##0.00")
+                .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor)
                 .SetDBNull();
 
             dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.SecondaryIndexes, typeof(int))
@@ -825,6 +831,7 @@ namespace DSEDiagtnosticToExcel
                     );
 
             dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.KeysPercent, typeof(decimal))
+                .SetNumericFormat("##0.00%")
                 .SetDBNull();
 
             dtOverview.SetGroupHeader("Write", -1, true,
@@ -849,7 +856,8 @@ namespace DSEDiagtnosticToExcel
                 .SetDBNull();
 
             dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.PartitionSizeFactor, typeof(decimal))
-                .SetNumericFormat("##0.00%")
+               .SetNumericFormat("#,###,###,##0.00")
+                .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor)
                 .SetDBNull();
 
             dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.SecondaryIndexes, typeof(int))
@@ -1070,6 +1078,7 @@ namespace DSEDiagtnosticToExcel
                     );
 
             dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.KeysPercent, typeof(decimal))
+                .SetNumericFormat("##0.00%")
                 .SetDBNull();
 
             dtOverview.SetGroupHeader("Write", -1, true,
@@ -1094,7 +1103,8 @@ namespace DSEDiagtnosticToExcel
                 .SetDBNull();
 
             dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.SSTablesFactor, typeof(decimal))
-                .SetNumericFormat("##0.00%")
+                .SetNumericFormat("#,###,###,##0.00")
+                .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor)
                 .SetDBNull();
 
             dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.SecondaryIndexes, typeof(int))
