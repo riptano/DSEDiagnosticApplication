@@ -2255,7 +2255,8 @@
       "MatchVersion": null,
       "LevelMatch": {
         "RegExStrings": [
-          "WARN"
+          "WARN",
+          "ERROR"
         ]
       },
       "FileNameMatch": {

@@ -545,20 +545,20 @@ namespace DSEDiagnosticToDataTable
 
                             if (analyticsGrp.CompactionStats.NewSize.HasValue)
                             {
-                                dataRow.SetField(Columns.SizeMax, analyticsGrp.CompactionStats.NewSize.Max);
-                                dataRow.SetField(Columns.SizeMin, analyticsGrp.CompactionStats.NewSize.Min);
-                                dataRow.SetField(Columns.SizeMean, analyticsGrp.CompactionStats.NewSize.Mean);
-                                dataRow.SetField(Columns.SizeStdDevp, analyticsGrp.CompactionStats.NewSize.StdDev);
-                                dataRow.SetField(Columns.SizeTotal, analyticsGrp.CompactionStats.NewSize.Sum);
+                                dataRow.SetField(Columns.StorageMax, analyticsGrp.CompactionStats.NewSize.Max);
+                                dataRow.SetField(Columns.StorageMin, analyticsGrp.CompactionStats.NewSize.Min);
+                                dataRow.SetField(Columns.StorageMean, analyticsGrp.CompactionStats.NewSize.Mean);
+                                dataRow.SetField(Columns.StorageStdDevp, analyticsGrp.CompactionStats.NewSize.StdDev);
+                                dataRow.SetField(Columns.StorageTotal, analyticsGrp.CompactionStats.NewSize.Sum);
                             }
 
                             if (analyticsGrp.CompactionStats.OldSize.HasValue)
                             {
-                                dataRow.SetField(Columns.StorageMax, analyticsGrp.CompactionStats.OldSize.Max);
-                                dataRow.SetField(Columns.StorageMin, analyticsGrp.CompactionStats.OldSize.Min);
-                                dataRow.SetField(Columns.StorageMean, analyticsGrp.CompactionStats.OldSize.Mean);
-                                dataRow.SetField(Columns.StorageStdDevp, analyticsGrp.CompactionStats.OldSize.StdDev);
-                                dataRow.SetField(Columns.StorageTotal, analyticsGrp.CompactionStats.OldSize.Sum);
+                                dataRow.SetField(Columns.SizeMax, analyticsGrp.CompactionStats.OldSize.Max);
+                                dataRow.SetField(Columns.SizeMin, analyticsGrp.CompactionStats.OldSize.Min);
+                                dataRow.SetField(Columns.SizeMean, analyticsGrp.CompactionStats.OldSize.Mean);
+                                dataRow.SetField(Columns.SizeStdDevp, analyticsGrp.CompactionStats.OldSize.StdDev);
+                                dataRow.SetField(Columns.SizeTotal, analyticsGrp.CompactionStats.OldSize.Sum);
                             }
 
                             if (analyticsGrp.CompactionStats.ReadRate.HasValue)
