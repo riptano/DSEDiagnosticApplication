@@ -373,5 +373,50 @@ namespace DSEDiagnosticAnalytics.Properties {
                 return ((string)(this["CommonPartitionKeys"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("size")]
+        public string LogLargePartition {
+            get {
+                return ((string)(this["LogLargePartition"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("tombstonecells")]
+        public string LogTombstones {
+            get {
+                return ((string)(this["LogTombstones"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("livecells")]
+        public string LogLiveCells {
+            get {
+                return ((string)(this["LogLiveCells"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("spacerequired")]
+        public string LogInsufficientSpace {
+            get {
+                return ((string)(this["LogInsufficientSpace"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Insufficient Space")]
+        public string LogInsufficientSpaceSubClass {
+            get {
+                return ((string)(this["LogInsufficientSpaceSubClass"]));
+            }
+        }
     }
 }

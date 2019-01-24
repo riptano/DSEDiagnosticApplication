@@ -73,10 +73,11 @@ namespace DSEDiagnosticLibrary
             /// </summary>
             NaN = 0x4000000,
             Operations = 0x8000000,
+            Cells = 0x10000000,
             SizeUnits = Bit | Byte | KiB | MiB | GiB | TiB | PiB,
             TimeUnits = NS | MS | SEC | MIN | HR | Day | us,
             WholeNumber = Bit | Byte | NS | us,
-            Attrs = NaN | Storage | Memory | Rate | Load | Percent | Time | Frequency | Utilization | Operations
+            Attrs = NaN | Storage | Memory | Rate | Load | Percent | Time | Frequency | Utilization | Operations | Cells
         }
 
         readonly static Regex RegExValueUOF = new Regex(@"^(\-?[0-9,]*(?:\.[0-9]+)?)\s*([a-z%,_/\ .\-]*)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
@@ -925,7 +926,12 @@ namespace DSEDiagnosticLibrary
             return NaNValue;
         }
 
-        public static UnitOfMeasure Create(string uofString, Types uofType = Types.Unknown, bool emptyNullIsNan = true, bool convertOverflowOnSize = false, bool throwException = false)
+        public static UnitOfMeasure Create(string uofString, 
+                                            Types uofType = Types.Unknown,
+                                            bool emptyNullIsNan = true,
+                                            bool convertOverflowOnSize = false,
+                                            bool throwException = false,
+                                            string onlyAttrTypes = null)
         {
             if (IsNaN(uofString, emptyNullIsNan))
             {
@@ -938,6 +944,16 @@ namespace DSEDiagnosticLibrary
 
                 if (uofValues.Success)
                 {
+                    if(!string.IsNullOrEmpty(onlyAttrTypes))
+                    {
+                        var attrUOM = ConvertToType(onlyAttrTypes);
+
+                        if (attrUOM != Types.Unknown)
+                        {
+                            uofType |= attrUOM & Types.Attrs;
+                        }
+                    }
+
                     return Create(ConvertToDecimal(uofValues.Groups[1].Value),
                                     ConvertToType(uofValues.Groups[2].Value, uofType),
                                     null,
@@ -1243,12 +1259,14 @@ namespace DSEDiagnosticLibrary
                     return Types.Memory;
                 case "storage":
                     return Types.Storage;
+                case "cell":
+                case "cells":
+                    return Types.Cells | uofType;
             }
-            
-            Types parsedType;
+                        
             if (uof[0] == '-' || char.IsDigit(uof[0]))
             { }
-            else if (Enum.TryParse<Types>(uof, true, out parsedType))
+            else if (Enum.TryParse<Types>(uof, true, out Types parsedType))
             {
                 return parsedType | uofType;
             }

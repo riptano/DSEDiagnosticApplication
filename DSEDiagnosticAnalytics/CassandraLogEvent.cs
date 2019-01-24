@@ -386,9 +386,9 @@ namespace DSEDiagnosticAnalytics
             
             if ((eventArgs.LogEvent.Class & EventClasses.Partition) == EventClasses.Partition
                     && eventArgs.LogEvent.TableViewIndex != null
-                    && eventArgs.LogEvent.LogProperties.ContainsKey("size"))
+                    && eventArgs.LogEvent.LogProperties.ContainsKey(Properties.StatPropertyNames.Default.LogLargePartition))
             {
-                var partitionSize = (UnitOfMeasure)eventArgs.LogEvent.LogProperties["size"];
+                var partitionSize = (UnitOfMeasure)eventArgs.LogEvent.LogProperties[Properties.StatPropertyNames.Default.LogLargePartition];
                 var largeRow = eventArgs.LogEvent.SubClass.EndsWith("row", StringComparison.InvariantCultureIgnoreCase);
                 var attribName = largeRow ? Properties.StatPropertyNames.Default.RowLarge : Properties.StatPropertyNames.Default.PartitionLarge;
                 var evtClass = EventClasses.Node | EventClasses.KeyspaceTableViewIndexStats;
@@ -454,7 +454,7 @@ namespace DSEDiagnosticAnalytics
             
             if ((eventArgs.LogEvent.Class & EventClasses.Tombstone) == EventClasses.Tombstone
                     && eventArgs.LogEvent.TableViewIndex != null
-                    && eventArgs.LogEvent.LogProperties.ContainsKey("tombstone"))
+                    && eventArgs.LogEvent.LogProperties.ContainsKey(Properties.StatPropertyNames.Default.LogTombstones))
             {
                 var evtClass = EventClasses.Tombstone | EventClasses.Node | EventClasses.KeyspaceTableViewIndexStats;
 
@@ -473,7 +473,7 @@ namespace DSEDiagnosticAnalytics
                     return stat;
                 });
 
-                var tombstones = (long)((dynamic)eventArgs.LogEvent.LogProperties["tombstone"]);
+                var tombstones = (long)((dynamic)eventArgs.LogEvent.LogProperties[Properties.StatPropertyNames.Default.LogTombstones]);
                 
                 if (nodeStat.Data.TryGetValue(Properties.StatPropertyNames.Default.TombstonesRead, out object dataValue))
                 {
@@ -484,7 +484,7 @@ namespace DSEDiagnosticAnalytics
                     nodeStat.AssociateItem(Properties.StatPropertyNames.Default.TombstonesRead, tombstones);
                 }
                 
-                if (eventArgs.LogEvent.LogProperties.TryGetValue("live", out dynamic reads))
+                if (eventArgs.LogEvent.LogProperties.TryGetValue(Properties.StatPropertyNames.Default.LogLiveCells, out dynamic reads))
                 {
                     var readsValue = (long)reads;
 
@@ -531,10 +531,10 @@ namespace DSEDiagnosticAnalytics
             }
 
             if ((eventArgs.LogEvent.Class & EventClasses.Compaction) == EventClasses.Compaction
-                    && eventArgs.LogEvent.SubClass == "Insufficient Space"
-                    && eventArgs.LogEvent.LogProperties.ContainsKey("spacerequired"))
+                    && eventArgs.LogEvent.SubClass == Properties.StatPropertyNames.Default.LogInsufficientSpaceSubClass
+                    && eventArgs.LogEvent.LogProperties.ContainsKey(Properties.StatPropertyNames.Default.LogInsufficientSpace))
             {
-                var spaceRequired = (UnitOfMeasure)eventArgs.LogEvent.LogProperties["spacerequired"];
+                var spaceRequired = (UnitOfMeasure)eventArgs.LogEvent.LogProperties[Properties.StatPropertyNames.Default.LogInsufficientSpace];
                 var evtClass = EventClasses.Compaction | EventClasses.Node;
 
                 if (eventArgs.LogEvent.TableViewIndex == null)
@@ -839,8 +839,8 @@ namespace DSEDiagnosticAnalytics
 
         public static LogEventGrouping TombstoneStats(ref LogEventGroup logEventGroup, string analyticsGroup, IEnumerable<ILogEvent> assocatedLogEvents)
         {
-            var tombstoneItems = assocatedLogEvents.Select(i => i.LogProperties.IsPositiveZero("tombstone")).Where(i => i >= 0L);
-            var liveItems = assocatedLogEvents.Select(i => i.LogProperties.IsPositiveZero("live")).Where(i => i >= 0L);
+            var tombstoneItems = assocatedLogEvents.Select(i => i.LogProperties.IsPositiveZero(Properties.StatPropertyNames.Default.LogTombstones)).Where(i => i >= 0L);
+            var liveItems = assocatedLogEvents.Select(i => i.LogProperties.IsPositiveZero(Properties.StatPropertyNames.Default.LogLiveCells)).Where(i => i >= 0L);
 
             return new LogEventGrouping(ref logEventGroup,
                                         assocatedLogEvents,
@@ -960,11 +960,11 @@ namespace DSEDiagnosticAnalytics
 
         public static LogEventGrouping CompactionStats(ref LogEventGroup logEventGroup, string analyticsGroup, IEnumerable<ILogEvent> assocatedLogEvents)
         {
-            var size = assocatedLogEvents.Select(i => i.LogProperties.GetPropUOMValue("size")).Where(i => i >= 0);
-            var newSize = assocatedLogEvents.Select(i => i.LogProperties.GetPropUOMValue("newsize")).Where(i => i >= 0);
-            var readRate = assocatedLogEvents.Select(i => i.LogProperties.GetPropUOMValue("readrate")).Where(i => i > 0);
-            var iorate = assocatedLogEvents.Select(i => i.LogProperties.GetPropUOMValue("iorate")).Where(i => i >= 0);
-            var rowrate = assocatedLogEvents.Select(i => i.LogProperties.GetPropLongValue("rowsrate")).Where(i => i >= 0);
+            var size = assocatedLogEvents.Select(i => i.LogProperties.GetPropUOMValue("size", UnitOfMeasure.Types.MiB)).Where(i => i >= 0);
+            var newSize = assocatedLogEvents.Select(i => i.LogProperties.GetPropUOMValue("newsize", UnitOfMeasure.Types.MiB)).Where(i => i >= 0);
+            var readRate = assocatedLogEvents.Select(i => i.LogProperties.GetPropUOMValue("readrate", UnitOfMeasure.Types.MiB | UnitOfMeasure.Types.SEC)).Where(i => i > 0);
+            var iorate = assocatedLogEvents.Select(i => i.LogProperties.GetPropUOMValue("iorate", UnitOfMeasure.Types.MiB | UnitOfMeasure.Types.SEC)).Where(i => i >= 0);
+            var rowrate = assocatedLogEvents.Select(i => (long) i.LogProperties.GetPropUOMValue("rowsrate")).Where(i => i >= 0);
             var mergedCnt = assocatedLogEvents.Select(i => i.LogProperties.GetPropLongValue("mergedpartitions")).Where(i => i >= 0);
             var newMergeCnt = assocatedLogEvents.Select(i => i.LogProperties.GetPropLongValue("mergecounts")).Where(i => i >= 0);
 
@@ -989,8 +989,8 @@ namespace DSEDiagnosticAnalytics
 
         public static LogEventGrouping MaximumMemoryUsageReachedStats(ref LogEventGroup logEventGroup, string analyticsGroup, IEnumerable<ILogEvent> assocatedLogEvents)
         {
-            var maxSize = assocatedLogEvents.Select(i => i.LogProperties.GetPropUOMValue("max")).Where(i => i >= 0);
-            var chuckSize = assocatedLogEvents.Select(i => i.LogProperties.GetPropUOMValue("chuck")).Where(i => i >= 0);
+            var maxSize = assocatedLogEvents.Select(i => i.LogProperties.GetPropUOMValue("max", UnitOfMeasure.Types.MiB)).Where(i => i >= 0);
+            var chuckSize = assocatedLogEvents.Select(i => i.LogProperties.GetPropUOMValue("chuck", UnitOfMeasure.Types.MiB)).Where(i => i >= 0);
 
             return new LogEventGrouping(ref logEventGroup,
                                         assocatedLogEvents,
@@ -1000,7 +1000,7 @@ namespace DSEDiagnosticAnalytics
 
         public static LogEventGrouping FreeDeviceStorageStats(ref LogEventGroup logEventGroup, string analyticsGroup, IEnumerable<ILogEvent> assocatedLogEvents)
         {
-            var storage = assocatedLogEvents.Select(i => i.LogProperties.GetPropUOMValue("free")).Where(i => i >= 0);
+            var storage = assocatedLogEvents.Select(i => i.LogProperties.GetPropUOMValue("free", UnitOfMeasure.Types.MiB)).Where(i => i >= 0);
             
             return new LogEventGrouping(ref logEventGroup,
                                         assocatedLogEvents,
@@ -1010,7 +1010,7 @@ namespace DSEDiagnosticAnalytics
 
         public static LogEventGrouping CompactionInsufficientSpaceStats(ref LogEventGroup logEventGroup, string analyticsGroup, IEnumerable<ILogEvent> assocatedLogEvents)
         {
-            var storage = assocatedLogEvents.Select(i => i.LogProperties.GetPropUOMValue("Insufficient Space")).Where(i => i >= 0);
+            var storage = assocatedLogEvents.Select(i => i.LogProperties.GetPropUOMValue(Properties.StatPropertyNames.Default.LogInsufficientSpace, UnitOfMeasure.Types.MiB)).Where(i => i >= 0);
 
             return new LogEventGrouping(ref logEventGroup,
                                         assocatedLogEvents,
@@ -1022,8 +1022,8 @@ namespace DSEDiagnosticAnalytics
         {
             var drpInternal = assocatedLogEvents.Select(i => i.LogProperties.GetPropLongValue("drpinteral")).Where(i => i > 0);
             var drpCrossNode = assocatedLogEvents.Select(i => i.LogProperties.GetPropLongValue("drpcrossnode")).Where(i => i > 0);
-            var drpLatInternal = assocatedLogEvents.Select(i => i.LogProperties.GetPropUOMValue("drpmeanlatencyinteral")).Where(i => i > 0);
-            var drpLatCrossNode = assocatedLogEvents.Select(i => i.LogProperties.GetPropUOMValue("drpmeanlatencycrossnode")).Where(i => i > 0);
+            var drpLatInternal = assocatedLogEvents.Select(i => i.LogProperties.GetPropUOMValue("drpmeanlatencyinteral", UnitOfMeasure.Types.MS)).Where(i => i > 0);
+            var drpLatCrossNode = assocatedLogEvents.Select(i => i.LogProperties.GetPropUOMValue("drpmeanlatencycrossnode", UnitOfMeasure.Types.MS)).Where(i => i > 0);
 
             return new LogEventGrouping(ref logEventGroup,
                                         assocatedLogEvents,

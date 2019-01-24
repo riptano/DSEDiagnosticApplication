@@ -476,8 +476,8 @@
       },
       "ParseMessage": {
         "RegExStrings": [
-          "^Compacted\\s(?<sstables>\\d+)\\ssstables\\s+to\\s*\\[(?$<SSTABLEPATHS>)\\]\\.\\s+(?<size>[0-9.,]+\\s+[a-z]+)\\s+to\\s+(?<newsize_size>[0-9.,]+(\\s*[a-z]+)?)\\s\\([0-9a-z\\ %~,.]+\\)+\\sin\\s+(?$<DURATION>\\s*[a-z/]+)\\s*\\=\\s*(?<iorate_rate>[0-9.,]+\\s*[a-z/]+)\\.\\s+(?<totalpartions>[0-9,]+)\\s+total\\s+partitions\\s+merged\\s+to\\s+(?<mergedpartitions>[0-9,]+)\\.\\s+Partition\\s+merge\\s+counts\\s+were\\s+\\{(?<mergecounts>[0-9:\\ ,]*)\\s*\\}$",
-          "^Compacted\\s+\\((?<ID>[a-f0-9\\-]+)\\)\\s+(?<sstables>\\d+)\\ssstables\\s+to\\s*\\[(?$<SSTABLEPATHS>)\\](?:\\s+to\\s+level\\s*=\\s*(?<level>\\d+))?\\.\\s+(?<size>[0-9.,]+\\s*[a-z]+)\\s+to\\s+(?<newsize_size>[0-9.,]+(\\s*[a-z]+)?)\\s\\([0-9a-z\\ %~,.]+\\)+\\sin\\s+$<!DURATIONwUOM>(?:\\s*=\\s*(?<iorate_rate>[0-9,.]+\\s*[a-z/]+))?\\.\\s*(?:Read\\sThroughput\\s+\\=\\s+(?<readrate_rate>[0-9.,]+\\s*[a-z/]+),\\s+Write\\sThroughput\\s+\\=\\s+(?<iorate_rate>[0-9.,]+\\s*[a-z/]+),\\s+Row\\sThroughput\\s+\\=\\s+~?(?<rowsrate>[0-9,]+)\\s*[a-z/]+\\.\\s+)?(?<totalpartions>[0-9,]+)\\s+total\\s+partitions\\s+merged\\s+to\\s+(?<mergedpartitions>[0-9,]+)\\.\\s+Partition\\s+merge\\s+counts\\s+were\\s+\\{(?<mergecounts>[0-9:\\ ,]*)\\s*\\}$"
+          "^Compacted\\s(?<sstables>\\d+)\\ssstables\\s+to\\s*\\[(?$<SSTABLEPATHS>)\\]\\.\\s+(?<size_bytes>[0-9.,]+\\s+[a-z]+)\\s+to\\s+(?<newsize__size>[0-9.,]+(\\s*[a-z]+)?)\\s\\([0-9a-z\\ %~,.]+\\)+\\sin\\s+(?$<DURATION>\\s*[a-z/]+)\\s*\\=\\s*(?<iorate_rate>[0-9.,]+\\s*[a-z/]+)\\.\\s+(?<totalpartions>[0-9,]+)\\s+total\\s+partitions\\s+merged\\s+to\\s+(?<mergedpartitions>[0-9,]+)\\.\\s+Partition\\s+merge\\s+counts\\s+were\\s+\\{(?<mergecounts>[0-9:\\ ,]*)\\s*\\}$",
+          "^Compacted\\s+\\((?<ID>[a-f0-9\\-]+)\\)\\s+(?<sstables>\\d+)\\ssstables\\s+to\\s*\\[(?$<SSTABLEPATHS>)\\](?:\\s+to\\s+level\\s*=\\s*(?<level>\\d+))?\\.\\s+(?<size_bytes>[0-9.,]+\\s*[a-z]+)\\s+to\\s+(?<newsize__size>[0-9.,]+(\\s*[a-z]+)?)\\s\\([0-9a-z\\ %~,.]+\\)+\\sin\\s+$<!DURATIONwUOM>(?:\\s*=\\s*(?<iorate_rate>[0-9,.]+\\s*[a-z/]+))?\\.\\s*(?:Read\\sThroughput\\s+\\=\\s+(?<readrate_rate>[0-9.,]+\\s*[a-z/]+),\\s+Write\\sThroughput\\s+\\=\\s+(?<iorate_rate>[0-9.,]+\\s*[a-z/]+),\\s+Row\\sThroughput\\s+\\=\\s+~?(?<rowsrate_operation>[0-9,]+)\\s*[a-z/]+\\.\\s+)?(?<totalpartions>[0-9,]+)\\s+total\\s+partitions\\s+merged\\s+to\\s+(?<mergedpartitions>[0-9,]+)\\.\\s+Partition\\s+merge\\s+counts\\s+were\\s+\\{(?<mergecounts>[0-9:\\ ,]*)\\s*\\}$"
         ]
       },
       "ParseThreadId": null,
@@ -2041,7 +2041,7 @@
       },
       "ParseMessage": {
         "RegExStrings": [
-          "^(?:Compacting|Writing)\\s+(?<item>large\\s+(?:partition|row))\\s+(?$<DDLITEMNAME>)\\s*\\:\\s*(?<partitionkey>.+)?\\s+\\((?<size>[0-9,.]+\\s*\\w+)"
+          "^(?:Compacting|Writing)\\s+(?<item>large\\s+(?:partition|row))\\s+(?$<DDLITEMNAME>)\\s*\\:\\s*(?<partitionkey>.+)?\\s+\\((?<size_bytes>[0-9,.]+\\s*\\w+)"
         ]
       },
       "ParseThreadId": null,
@@ -2086,10 +2086,10 @@
       },
       "ParseMessage": {
         "RegExStrings": [
-          "^(?<item>Read)\\s(?<live_cells>[0-9,]+)\\slive\\sand\\s(?<tombstone_cells>[0-9,]+)\\stombstone(?:s|d)?\\scells\\sin\\s(?<TABLEVIEWNAME>[a-z0-9'\\\\-_$%+=!?<>^*&@/.]+)\\s(?:for\\skey\\:\\s*(?<partitionkey>.+))?\\s*\\(see tombstone_warn_threshold\\)\\.\\s*(?<columns>[0-9,]+)\\scolumns\\s(?:were|was)\\srequested,\\sslices=(?<slices>\\[[^\\[\\]]+\\])",
-          "^(?<item>Scanned)\\sover\\s(?<tombstone_cells>[0-9,]+)\\stombstone(?:s|d)?\\sin\\s(?$<TABLEVIEWNAME>)\\s(?:for\\skey\\:\\s*(?<partitionkey>.+))\\;(?<SUBCLASS>\\squery\\saborted)",
-          "^Read\\s(?<live_cells>[0-9,]+)\\slive\\srows\\sand\\s(?<tombstone_cells>[0-9,]+)\\stombstone(?:s|d)?\\scells\\sfor\\s(?<item>query)\\s+'*$<!CQLSELECT>'*\\s+\\(",
-          "^Scanned\\sover\\s(?<tombstone_cells>[0-9,]+)\\stombstone(?:s|d)?\\sduring\\s(?<item>query)\\s+'*$<!CQLSELECT>'*\\s+\\("
+          "^(?<item>Read)\\s(?<livecells>[0-9,]+)\\slive\\sand\\s(?<tombstonecells>[0-9,]+)\\stombstone(?:s|d)?\\scells\\sin\\s(?<TABLEVIEWNAME>[a-z0-9'\\\\-_$%+=!?<>^*&@/.]+)\\s(?:for\\skey\\:\\s*(?<partitionkey>.+))?\\s*\\(see tombstone_warn_threshold\\)\\.\\s*(?<columns>[0-9,]+)\\scolumns\\s(?:were|was)\\srequested,\\sslices=(?<slices>\\[[^\\[\\]]+\\])",
+          "^(?<item>Scanned)\\sover\\s(?<tombstonecells>[0-9,]+)\\stombstone(?:s|d)?\\sin\\s(?$<TABLEVIEWNAME>)\\s(?:for\\skey\\:\\s*(?<partitionkey>.+))\\;(?<SUBCLASS>\\squery\\saborted)",
+          "^Read\\s(?<livecells>[0-9,]+)\\slive\\srows\\sand\\s(?<tombstonecells>[0-9,]+)\\stombstone(?:s|d)?\\scells\\sfor\\s(?<item>query)\\s+'*$<!CQLSELECT>'*\\s+\\(",
+          "^Scanned\\sover\\s(?<tombstonecells>[0-9,]+)\\stombstone(?:s|d)?\\sduring\\s(?<item>query)\\s+'*$<!CQLSELECT>'*\\s+\\("
         ]
       },
       "ParseThreadId": null,
@@ -2128,7 +2128,7 @@
       },
       "ParseMessage": {
         "RegExStrings": [
-          "^Scanned\\sover\\s(?<tombstone_cells>[0-9,]+)\\stombstone(?:s|d)?\\sduring\\s(?<item>query)\\s+'*$<!CQLSELECT>'*\\s+\\("
+          "^Scanned\\sover\\s(?<tombstonecells>[0-9,]+)\\stombstone(?:s|d)?\\sduring\\s(?<item>query)\\s+'*$<!CQLSELECT>'*\\s+\\("
         ]
       },
       "IgnoreEvent": true,
@@ -2164,7 +2164,7 @@
       },
       "ParseMessage": {
         "RegExStrings": [
-          "^Out\\sof\\s(?<nbrlogs>[0-9,]+)\\s[a-z ]+\\spast\\s(?<pastduration>[0-9,.]+\\s*[a-z]+)\\swith\\saverage\\sduration\\sof\\s(:?(?:infinity\\s*[a-z]*)|(?<DURATION>[0-9,.]+\\s*\\w+))\\,\\s(?<logsexceed>[0-9,]+)\\s+[a-z ]+\\scommit\\sinterval[a-z ]+\\s(?<commitinterval>[0-9,.]+\\s*[a-z]+)$"
+          "^Out\\sof\\s(?<nbrlogs>[0-9,]+)\\s[a-z ]+\\spast\\s(?<pastduration_sec>[0-9,.]+\\s*[a-z]+)\\swith\\saverage\\sduration\\sof\\s(:?(?:infinity\\s*[a-z]*)|(?<DURATION>[0-9,.]+\\s*\\w+))\\,\\s(?<logsexceed>[0-9,]+)\\s+[a-z ]+\\scommit\\sinterval[a-z ]+\\s(?<commitinterval>[0-9,.]+\\s*[a-z]+)$"
         ]
       },
       "ParseThreadId": null,
@@ -2928,14 +2928,14 @@
       },
       "ParseMessage": {
         "RegExStrings": [
-          "Executing\\sa\\s(?<batchtype>[a-z ]+)\\s+on\\s+table\\s+\\[(?$<DDLITEMNAMES>)\\],\\s+configured\\s+with\\s+a\\s+gc_grace_seconds\\s+of\\s+(?<gc_grace_seconds>[0-9.,]+)\\.\\s"
+          "Executing\\sa\\s(?<batchtype>[a-z ]+)\\s+on\\s+table\\s+\\[(?$<DDLITEMNAMES>)\\],\\s+configured\\s+with\\s+a\\s+gc_grace_seconds\\s+of\\s+(?<gcgrace_seconds>[0-9.,]+)\\.\\s"
         ]
       },
       "ParseThreadId": null,
       "EventType": "SingleInstance",
       "EventClass": "Detection,Node,Batches",
       "AnalyticsGroup": null,
-      "SubClass": "batchtype + ' gc_grace_seconds is low for replay ' + gc_grace_seconds",
+      "SubClass": "batchtype + ' gc_grace_seconds is low for replay ' + gcgrace",
       "Product": "Cassandra",
       "IgnoreEvent": false,
       "Examples": [
@@ -3115,7 +3115,7 @@
       },
       "ParseMessage": {
         "RegExStrings": [
-          "(?<action>\\w+) messages were dropped in last (?<thresholdinteral>[0-9,.]+\\s*\\w+): (?<drpinteral>[0-9,]+) internal and (?<drpcrossnode>[0-9,]+) cross node\\.?\\s*(?:Mean internal dropped latency: (?<drpmeanlatencyinteral>[0-9,.]+\\s*\\w+) and Mean cross-node dropped latency: (?<drpmeanlatencycrossnode>[0-9,.]+\\s*\\w+))*"
+          "(?<action>\\w+) messages were dropped in last (?<thresholdinterval_ms>[0-9,.]+\\s*\\w+): (?<drpinteral>[0-9,]+) internal and (?<drpcrossnode>[0-9,]+) cross node\\.?\\s*(?:Mean internal dropped latency: (?<drpmeanlatencyinteral_ms>[0-9,.]+\\s*\\w+) and Mean cross-node dropped latency: (?<drpmeanlatencycrossnode_ms>[0-9,.]+\\s*\\w+))*"
         ]
       },
       "ParseThreadId": null,

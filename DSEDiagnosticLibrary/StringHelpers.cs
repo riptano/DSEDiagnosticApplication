@@ -247,7 +247,7 @@ namespace DSEDiagnosticLibrary
 
             if(UOMRegEx.IsMatch(strValue))
             {
-                var uom = UnitOfMeasure.Create(strValue);
+                var uom = UnitOfMeasure.Create(strValue, onlyAttrTypes: convertToUOMBasedOnContext);
 
                 if (!uom.NaN && uom.UnitType != UnitOfMeasure.Types.Unknown)
                 {
@@ -264,7 +264,34 @@ namespace DSEDiagnosticLibrary
             {
                 if (!string.IsNullOrEmpty(convertToUOMBasedOnContext))
                 {
+                    if (convertToUOMBasedOnContext == "size") convertToUOMBasedOnContext = "bytes";
+                    if (convertToUOMBasedOnContext == "duration") convertToUOMBasedOnContext = "ms";
+
                     var uomType = UnitOfMeasure.ConvertToType(convertToUOMBasedOnContext);
+
+                    if((uomType & UnitOfMeasure.Types.Attrs) == uomType)
+                    {
+                        switch (uomType)
+                        {                            
+                            case UnitOfMeasure.Types.Storage:
+                                uomType |= UnitOfMeasure.Types.Byte;
+                                break;
+                            case UnitOfMeasure.Types.Memory:
+                                uomType |= UnitOfMeasure.Types.Byte;
+                                break;
+                            case UnitOfMeasure.Types.Rate:
+                                uomType |= UnitOfMeasure.Types.MiB | UnitOfMeasure.Types.SEC;
+                                break;                           
+                            case UnitOfMeasure.Types.Time:
+                                uomType |= UnitOfMeasure.Types.MS;
+                                break;
+                            case UnitOfMeasure.Types.Operations:
+                                uomType |= UnitOfMeasure.Types.SEC;
+                                break;
+                            default:
+                                break;
+                        }
+                    }
 
                     if (uomType != UnitOfMeasure.Types.Unknown)
                     {

@@ -523,8 +523,8 @@ namespace DSEDiagnosticFileParser
                                 return (uint)0;
                             }
 
-                            var logExtendedRangeAfter = fndOverlapppingLogs.FirstOrDefault(l => l.LogFileDateRange.IsWithIn(logFileInfo.LogFileDateRange.Min));
-                            var logExtendedRangeBefore = fndOverlapppingLogs.FirstOrDefault(l => l.LogFileDateRange.IsWithIn(logFileInfo.LogFileDateRange.Max));
+                            var logExtendedRangeAfter = fndOverlapppingLogs.FirstOrDefault(l => l.LogFileDateRange.Includes(logFileInfo.LogFileDateRange.Min));
+                            var logExtendedRangeBefore = fndOverlapppingLogs.FirstOrDefault(l => l.LogFileDateRange.IsBetween(logFileInfo.LogFileDateRange.Max));
 
                             if (logExtendedRangeAfter != null && logExtendedRangeBefore != null)
                             {

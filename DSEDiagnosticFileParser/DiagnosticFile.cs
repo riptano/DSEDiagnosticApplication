@@ -750,7 +750,7 @@ namespace DSEDiagnosticFileParser
                                                                     Version targetDSEVersion = null,
                                                                     IEnumerable<KeyValuePair<string, IFilePath>> additionalFilesForClass = null,
                                                                     IEnumerable<NodeIdentifier> onlyNodes = null)
-		{
+        {
             CancellationToken? cancellationToken = fileMappings.CancellationSource?.Token;
 
             if (cancellationToken.HasValue) cancellationToken.Value.ThrowIfCancellationRequested();
@@ -768,7 +768,7 @@ namespace DSEDiagnosticFileParser
                                             ? null
                                             : new Regex(fileMappings.IgnoreFilesMatchingRegEx,
                                                             RegexOptions.IgnoreCase | RegexOptions.Compiled);
-			var mergesFiles = fileMappings?.FilePathMerge(diagnosticDirectory);
+            var mergesFiles = fileMappings?.FilePathMerge(diagnosticDirectory);
 
             if (additionalFilesForClass != null && additionalFilesForClass.HasAtLeastOneElement())
             {
@@ -814,10 +814,10 @@ namespace DSEDiagnosticFileParser
                                                             && f.Exist())
                                             .Cast<IFilePath>()
                                             .Where(f => LibrarySettings.IgnoreFileWExtensions.All(i => f.FileExtension.ToLower() != i));
-			var diagnosticInstances = new List<DiagnosticFile>();
-			var instanceType = fileMappings.GetFileParsingType();
+            var diagnosticInstances = new List<DiagnosticFile>();
+            var instanceType = fileMappings.GetFileParsingType();
 
-            if(fileMappings.ProcessingTaskOption.HasFlag(FileMapper.ProcessingTaskOptions.SortFilesByOldest))
+            if (fileMappings.ProcessingTaskOption.HasFlag(FileMapper.ProcessingTaskOptions.SortFilesByOldest))
             {
                 targetFiles = targetFiles.OrderBy(f => f.GetLastWriteTimeUtc());
             }
@@ -859,12 +859,12 @@ namespace DSEDiagnosticFileParser
             }
 
             if (cancellationToken.HasValue) cancellationToken.Value.ThrowIfCancellationRequested();
-            
-            if(!string.IsNullOrEmpty(fileMappings.DefaultCluster))
+
+            if (!string.IsNullOrEmpty(fileMappings.DefaultCluster))
             {
                 clusterName = fileMappings.DefaultCluster;
             }
-            if(!string.IsNullOrEmpty(fileMappings.DefaultDataCenter))
+            if (!string.IsNullOrEmpty(fileMappings.DefaultDataCenter))
             {
                 dataCenterName = fileMappings.DefaultDataCenter;
             }
@@ -872,14 +872,25 @@ namespace DSEDiagnosticFileParser
             if (cancellationToken.HasValue) cancellationToken.Value.ThrowIfCancellationRequested();
 
             INode[] processTheseNodes = null;
-            var nodefileAssocates = targetFiles.Select(f => new
-            {
-                File = f,
-                NodeId = fileMappings.ProcessingTaskOption.HasFlag(FileMapper.ProcessingTaskOptions.ScanForNode)
-                            || fileMappings.ProcessingTaskOption.HasFlag(FileMapper.ProcessingTaskOptions.AllNodesInCluster)
-                            || fileMappings.ProcessingTaskOption.HasFlag(FileMapper.ProcessingTaskOptions.AllNodesInDataCenter)
-                                ? DetermineNodeIdentifier(f, fileMappings.NodeIdPos)
-                                : null
+            var nodefileAssocates = targetFiles.Select(f =>
+                {
+                    var nodeId = fileMappings.ProcessingTaskOption.HasFlag(FileMapper.ProcessingTaskOptions.ScanForNode)
+                                        || fileMappings.ProcessingTaskOption.HasFlag(FileMapper.ProcessingTaskOptions.AllNodesInCluster)
+                                        || fileMappings.ProcessingTaskOption.HasFlag(FileMapper.ProcessingTaskOptions.AllNodesInDataCenter)
+                                    ? DetermineNodeIdentifier(f, fileMappings.NodeIdPos)
+                                    : null;
+
+                    //If a host name, try to find the node's address...
+                    if(nodeId != null && nodeId.Addresses.IsEmpty())
+                    {
+                        nodeId = Cluster.GetCurrentOrMaster().Nodes.FirstOrDefault(n => n.Id.Equals(nodeId))?.Id ?? nodeId;
+                    }
+
+                    return new
+                    {
+                        File = f,
+                        NodeId = nodeId
+                    };
             });
 
             if (fileMappings.ProcessingTaskOption.HasFlag(FileMapper.ProcessingTaskOptions.ScanForNode) 
@@ -1090,7 +1101,7 @@ namespace DSEDiagnosticFileParser
             {
                 if (processTheseNodes == null)
                 {
-                    var nodefileAssocatesByGroup = nodefileAssocates.GroupBy(fna => fna.NodeId, fna => fna.File);
+                    var nodefileAssocatesByGroup = nodefileAssocates.GroupBy(fna => fna.NodeId, fna => fna.File, NodeIdentifier.ComparerInstance);
 
                     if (DisableParallelProcessing)
                     {

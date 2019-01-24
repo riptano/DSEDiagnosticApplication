@@ -17,8 +17,8 @@ using IMMLogValue = Common.Patterns.Collections.MemoryMapped.IMMValue<DSEDiagnos
 namespace DSEDiagnosticLibrary
 {
     [JsonObject(MemberSerialization.OptOut)]
-	public sealed class NodeIdentifier : IEquatable<NodeIdentifier>, IEquatable<IPAddress>, IEquatable<string>
-	{
+	public sealed class NodeIdentifier : IEquatable<NodeIdentifier>, IEquatable<IPAddress>, IEquatable<string>, IComparable<NodeIdentifier>
+    {
 		private NodeIdentifier()
 		{
 			this._addresses = new System.Collections.Concurrent.ConcurrentBag<IPAddress>();
@@ -447,7 +447,7 @@ namespace DSEDiagnosticLibrary
 
             return false;
 		}
-
+      
         /// <summary>
         /// Returns false if either or all argument(s) is/are null or string.empty
         /// </summary>
@@ -581,21 +581,44 @@ namespace DSEDiagnosticLibrary
 		{
             if (this._hashCode != 0) return this._hashCode;
 
-			if(string.IsNullOrEmpty(this.HostName))
-			{
-                if (this._addresses.Count == 0) return 0;
-
-                return this._hashCode = this._addresses.Select(a => a.GetHashCode()).Min();
-			}
-
-			return this.HostName.GetHashCode();
+            if (this._addresses.HasAtLeastOneElement())
+                return this._hashCode = this._addresses.First().GetHashCode();
+            
+			return string.IsNullOrEmpty(this.HostName) ? 0 : this.HostName.GetHashCode();
 		}
-
+        
         public object ToDump()
         {
             return new { Host = this.HostName, IPAddresses = string.Join(",", this.Addresses.Select(i => i.ToString())) };
         }
 
+        public static readonly Comparer ComparerInstance = new Comparer();
+
+        public sealed class Comparer : IEqualityComparer<NodeIdentifier>
+        {
+            public bool Equals(NodeIdentifier x, NodeIdentifier y)
+            {
+                if (x == null && y == null) return true;
+                if (x == null) return false;
+                if (y == null) return false;
+
+                return x.Equals(y);
+            }
+
+            public int GetHashCode(NodeIdentifier obj)
+            {               
+                return obj == null ? 0 : obj.GetHashCode();
+            }
+        }
+
+        public int CompareTo(NodeIdentifier other)
+        {
+            if (other == null) return 1;
+            
+            if (this.Equals(other)) return 0;
+
+            return this.NodeName().CompareTo(other.NodeName());
+        }
     }
 
     [JsonObject(MemberSerialization.OptOut)]

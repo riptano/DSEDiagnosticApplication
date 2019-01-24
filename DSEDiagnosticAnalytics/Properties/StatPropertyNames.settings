@@ -1,5 +1,5 @@
 ﻿<?xml version='1.0' encoding='utf-8'?>
-<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="DSEDiagnosticFileParser.Properties" GeneratedClassName="StatPropertyNames">
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="DSEDiagnosticAnalytics.Properties" GeneratedClassName="StatPropertyNames">
   <Profiles />
   <Settings>
     <Setting Name="SSTableOverallPercent" Type="System.String" Scope="Application">
@@ -124,6 +124,21 @@
     </Setting>
     <Setting Name="CommonPartitionKeys" Type="System.String" Scope="Application">
       <Value Profile="(Default)">Common Partition Keys</Value>
+    </Setting>
+    <Setting Name="LogLargePartition" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">size</Value>
+    </Setting>
+    <Setting Name="LogTombstones" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">tombstonecells</Value>
+    </Setting>
+    <Setting Name="LogLiveCells" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">livecells</Value>
+    </Setting>
+    <Setting Name="LogInsufficientSpace" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">spacerequired</Value>
+    </Setting>
+    <Setting Name="LogInsufficientSpaceSubClass" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Insufficient Space</Value>
     </Setting>
   </Settings>
 </SettingsFile>
