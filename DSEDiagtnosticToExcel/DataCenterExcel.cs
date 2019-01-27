@@ -123,7 +123,7 @@ namespace DSEDiagtnosticToExcel
                                                                                      );
 
                                                                 //Device Utilization 
-                                                                this.DataTable.SetGroupHeader("Storage Utilization", -2, true,
+                                                                this.DataTable.SetGroupHeader("DSE Storage Utilization", -2, true,
                                                                     this.DataTable.GetColumn("DU Max")
                                                                                     .SetCaption("Max")
                                                                                     .SetNumericFormat("##0.00%")

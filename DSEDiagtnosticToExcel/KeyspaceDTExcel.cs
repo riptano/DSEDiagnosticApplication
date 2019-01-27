@@ -162,6 +162,13 @@ namespace DSEDiagtnosticToExcel
                                                                     this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.WritePercent)
                                                                         .SetNumericFormat("##0%")
                                                                         .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDataBarLightBlue),
+                                                                    this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.PartitionKeys)
+                                                                        .SetNumericFormat("###,###,###,##0")
+                                                                        .TotalColumn()
+                                                                        .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDataBarLightBlue),
+                                                                    this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.PartitionKeyPercent)
+                                                                        .SetNumericFormat("##0%")
+                                                                        .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDataBarLightBlue),
                                                                     this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.SSTables)
                                                                         .SetNumericFormat("###,###,###,##0")
                                                                         .TotalColumn()
