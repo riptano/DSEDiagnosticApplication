@@ -974,6 +974,11 @@ namespace DSEDiagnosticLibrary
         public string CounterCacheInformation;
         public string ChunkCacheInformation;
 
+        public long ReadCount;
+        public long WriteCount;
+        public long KeyCount;
+        public long SSTableCount;
+
         [JsonProperty(PropertyName="TokenRanges")]
         private readonly List<TokenRangeInfo> _tokenRanges = new List<TokenRangeInfo>();
         [JsonIgnore]

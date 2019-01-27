@@ -12,7 +12,7 @@ namespace DSEDiagnosticLibrary.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "15.8.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "15.9.0.0")]
     internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
         
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
@@ -358,6 +358,42 @@ namespace DSEDiagnosticLibrary.Properties {
         public string IgnoreIP6AddressRegEx {
             get {
                 return ((string)(this["IgnoreIP6AddressRegEx"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("snapshots")]
+        public string SSTablePathSnapShotDirName {
+            get {
+                return ((string)(this["SSTablePathSnapShotDirName"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("3")]
+        public int SSTablePathSnapShotDirPos {
+            get {
+                return ((int)(this["SSTablePathSnapShotDirPos"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("^(?:([0-9a-f]{32})$|([0-9a-f\\-]{36})$)")]
+        public string SSTablePathSnapShotDirRegEx {
+            get {
+                return ((string)(this["SSTablePathSnapShotDirRegEx"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("2")]
+        public int SSTablePathSnapShotGuidDirPos {
+            get {
+                return ((int)(this["SSTablePathSnapShotGuidDirPos"]));
             }
         }
     }

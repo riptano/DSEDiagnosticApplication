@@ -1817,7 +1817,7 @@ namespace DSEDiagnosticFileParser
 
                     if(updateDDLs.HasAtLeastOneElement())
                     {
-                        var defaultKS = logEvent.Keyspace.Name;
+                        var defaultKS = logEvent.Keyspace?.Name;
 
                         foreach (var ddlItem in updateDDLs)
                         {

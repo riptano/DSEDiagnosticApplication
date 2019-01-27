@@ -167,5 +167,17 @@
     <Setting Name="IgnoreIP6AddressRegEx" Type="System.String" Scope="Application">
       <Value Profile="(Default)">^f[ef]\d+::\d+$</Value>
     </Setting>
+    <Setting Name="SSTablePathSnapShotDirName" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">snapshots</Value>
+    </Setting>
+    <Setting Name="SSTablePathSnapShotDirPos" Type="System.Int32" Scope="Application">
+      <Value Profile="(Default)">3</Value>
+    </Setting>
+    <Setting Name="SSTablePathSnapShotDirRegEx" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">^(?:([0-9a-f]{32})$|([0-9a-f\-]{36})$)</Value>
+    </Setting>
+    <Setting Name="SSTablePathSnapShotGuidDirPos" Type="System.Int32" Scope="Application">
+      <Value Profile="(Default)">2</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

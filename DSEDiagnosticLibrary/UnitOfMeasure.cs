@@ -1322,11 +1322,142 @@ namespace DSEDiagnosticLibrary
             }
             return false;
         }
+
+        /// <summary>
+        /// If item is a UOM (not a NaN) or a numeric value this method will return true and numericValue will be item, otherwise fase.
+        /// </summary>
+        /// <param name="item"></param>
+        /// <param name="numericValue">
+        /// item value is always set to this value.
+        /// </param>
+        /// <returns>
+        /// True is item is a non-NaN UOM or a numeric value otherwise false is returned.
+        /// </returns>
+        public static bool ConvertToValue(dynamic item, out dynamic numericValue)
+        {
+            if (item == null)
+            {
+                numericValue = item;
+                return false;
+            }
+
+            if (item is UnitOfMeasure uom)
+            {
+                if (uom.NaN)
+                {
+                    numericValue = item;
+                    return false;
+                }
+
+                numericValue = uom;
+                return true;
+            }
+
+            if (MiscHelpers.IsNumberType(item))
+            {
+                numericValue = item;
+                return true;
+            }
+
+            numericValue = item;
+            return false;
+        }
+
+        public static bool ConvertToValue(dynamic item, out decimal numericValue)           
+        {
+            if (item == null)
+            {
+                numericValue = decimal.MinValue;
+                return false;
+            }
+
+            if (item is UnitOfMeasure uom)
+            {
+                if (uom.NaN)
+                {
+                    numericValue = decimal.MinValue;
+                    return false;
+                }
+               
+                numericValue = (decimal) uom.Value;
+                return true;
+            }
+
+            if (MiscHelpers.IsNumberType(item))
+            {
+                numericValue = (decimal)item;
+                return true;
+            }
+
+            numericValue = decimal.MinValue;
+            return false;
+        }
+
+        public static bool ConvertToValue(dynamic item, out long numericValue)
+        {
+            if (item == null)
+            {
+                numericValue = long.MinValue;
+                return false;
+            }
+
+            if (item is UnitOfMeasure uom)
+            {
+                if (uom.NaN)
+                {
+                    numericValue = long.MinValue;
+                    return false;
+                }
+
+                numericValue = (long)uom.Value;
+                return true;
+            }
+
+            if (MiscHelpers.IsNumberType(item))
+            {
+                numericValue = (long)item;
+                return true;
+            }
+
+            numericValue = long.MinValue;
+            return false;
+        }
+
+        public static bool ConvertToValue(dynamic item, out int numericValue)
+        {
+            if (item == null)
+            {
+                numericValue = int.MinValue;
+                return false;
+            }
+
+            if (item is UnitOfMeasure uom)
+            {
+                if (uom.NaN)
+                {
+                    numericValue = int.MinValue;
+                    return false;
+                }
+
+                numericValue = (int)uom.Value;
+                return true;
+            }
+
+            if (MiscHelpers.IsNumberType(item))
+            {
+                numericValue = (int)item;
+                return true;
+            }
+
+            numericValue = int.MinValue;
+            return false;
+        }
+
         #endregion
 
         #region IEquatable
         public bool Equals(UnitOfMeasure other)
-        {            
+        {
             if (this.Initialized != other.Initialized) return false;
             if (!this.Initialized) return true;
 
@@ -1337,10 +1468,10 @@ namespace DSEDiagnosticLibrary
         }
 
         public bool Equals(decimal other)
-        {
-            return this.Value == other;
-        }
-        #endregion
+    {
+        return this.Value == other;
+    }
+    #endregion
 
         #region IComparable
 

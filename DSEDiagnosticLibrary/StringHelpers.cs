@@ -107,6 +107,7 @@ namespace DSEDiagnosticLibrary
 
         readonly static Regex BooleanRegEx = new Regex("^(true|false|enable[d]?|disable[d]?|y[es]?|n[o]?)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
         readonly static Regex UOMRegEx = new Regex(@"^\-?(?:[0-9,]+|[0-9,]+\.[0-9]+|\.[0-9]+)\s*[a-zA-Z%,_/\ ]+$", RegexOptions.Compiled);
+        readonly static Regex SSTablePathSnapShotRegEx = new Regex("^(?:([0-9a-f]{32})$|([0-9a-f\\-]{36})$)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         //scores-name-1-08bdd2d2126e11e78866d792efac3044
         // null, scores-name-1, 08bdd2d2126e11e78866d792efac3044, null
@@ -345,6 +346,7 @@ namespace DSEDiagnosticLibrary
             // "/var/lib/cassandra/data/Keyspace1/digitalasset_3_0_2/Keyspace1-digitalasset_3_0_2-jb-1-Data.db"
             // "/var/lib/cassandra/data/Keyspace1/digitalasset_3_0_2/Keyspace1-digitalasset_3_0_2.digitalasset_3_0_2_id-jb-1-Data.db"
             // "/d3/data/system/batches-919a4bc57a333573b03e13fc3f68b465/mc-62-big-Data.db"
+            // "/data/cassandra/data/usprodsec/session_3-ca531e218ed211e6ab872748a53d9d02/snapshots/3e60eaf0-99b8-11e6-8b2d-65bd3abf31a7/usprodsec-session_3-ka-75576-Data.db"
             //
             // C* 2.0 -- /mnt/dse/data1/<keyspace>/<column family>/<keyspace>-<column family>-<version>-<generation>-<component>.db
             // C* 2.0 -- /mnt/dse/data1/<keyspace>/<column family>/<keyspace>-<column family>.<SecondaryIndex>-<version>-<generation>-<component>.db
@@ -360,6 +362,22 @@ namespace DSEDiagnosticLibrary
 
             if (sstableFilePathParts.Length >= 3)
             {
+                if (sstableFilePathParts.Length >= 4
+                        && sstableFilePathParts[sstableFilePathParts.Length - Properties.Settings.Default.SSTablePathSnapShotDirPos] == Properties.Settings.Default.SSTablePathSnapShotDirName
+                        && sstableFilePathParts.Length > Properties.Settings.Default.SSTablePathSnapShotDirPos)
+                {
+                    var sstablePathPartsList = sstableFilePathParts.ToList();
+
+                    sstablePathPartsList.RemoveAt(sstablePathPartsList.Count - Properties.Settings.Default.SSTablePathSnapShotDirPos);
+
+                    if (sstablePathPartsList.Count > Properties.Settings.Default.SSTablePathSnapShotGuidDirPos
+                            && SSTablePathSnapShotRegEx.IsMatch(sstablePathPartsList[sstablePathPartsList.Count - Properties.Settings.Default.SSTablePathSnapShotGuidDirPos]))
+                    {
+                        sstablePathPartsList.RemoveAt(sstablePathPartsList.Count - Properties.Settings.Default.SSTablePathSnapShotGuidDirPos);
+                    }
+                    sstableFilePathParts = sstablePathPartsList.ToArray();
+                }
+
                 var idxOffset = sstableFilePathParts[sstableFilePathParts.Length - 2][0] == '.' ? 1 : 0; //used to offset C* 3.x secondary index format
 
                 var ksName = sstableFilePathParts[sstableFilePathParts.Length - (3 + idxOffset)];

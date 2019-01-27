@@ -177,14 +177,64 @@ namespace DSEDiagnosticFileParser
 
             string line;
             bool skipSection = true;
+            bool notFoound = false;
             IKeyspace currentKeyspace = null;            
             IDDLStmt currentDDL = null;
             AggregatedStats statItem = null;
             AggregatedStats statItemCurrentKeyspace = null;
-            string[] splitValue = null; //first is the key/property and second item is the value            
-            object propValue = null;
-            object numValue = null;
+            string[] splitValue = null; //first is the key/property and second item is the value                       
             string attribute = null;
+            var initialNodeStorage = this.Node.DSE.StorageUsed;
+
+            object DetermineAttribVale(string strValue)
+            {
+                object propValue = null;
+                
+                var attrValue = strValue.Trim();
+                var attrValueUOM = UnitOfMeasure.ConvertToType(attrValue);
+
+                if ((attrValueUOM & UnitOfMeasure.Types.NaN) != 0)
+                {
+                    propValue = new UnitOfMeasure(attrValueUOM);                    
+                }
+                else
+                {                    
+                    var UOM = UOMKeywords.FirstOrDefault(u => attribute.IndexOf(u.Item1, StringComparison.CurrentCultureIgnoreCase) >= 0);
+                    var propValueSplit = attrValue.Split(' ', '%');
+
+                    if (Common.StringFunctions.ParseIntoNumeric(propValueSplit[0], out object numValue, true))
+                    {
+                        if (UOM != null || attrValueUOM != UnitOfMeasure.Types.Unknown || propValueSplit.Length > 1)
+                        {
+                            if (propValueSplit.Length == 2 && propValueSplit[1].Any(c => c == '%')) numValue = ((decimal)(dynamic)numValue) / 100m;
+
+                            propValue = UnitOfMeasure.Create(((dynamic)numValue),
+                                                                (UOM?.Item2 ?? UnitOfMeasure.Types.Unknown) | attrValueUOM,
+                                                                propValueSplit.Length > 1 ? propValueSplit[1].Trim() : null,
+                                                                true);
+                        }
+                        else
+                        {
+                            if ((dynamic)numValue == -1)
+                            {
+                                propValue = null;
+                            }
+                            else
+                            {
+                                propValue = numValue;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        propValue = attrValue;                        
+                    }
+                }
+
+                return propValue;
+            }
+
+            this.Node.DSE.StorageUsed = UnitOfMeasure.NaNValue;
             
             foreach (var element in fileLines)
             {
@@ -206,6 +256,7 @@ namespace DSEDiagnosticFileParser
                     var keyspaceNotInDC = false;
                     var ksName = splitValue[1].Trim();
                     skipSection = false;
+                    notFoound = false;
                                         
                     currentKeyspace = this.Node.DataCenter?.TryGetKeyspace(ksName);
 
@@ -235,6 +286,7 @@ namespace DSEDiagnosticFileParser
                                                                 this.Node.DataCenter?.Name ?? "<NoDC>",
                                                                 string.Join(",", currentKeyspace.DataCenters.Select(dc => dc.Name)));
                                     ++this.NbrWarnings;
+                                    notFoound = true;
                                     this._unknownDDLs.Add(string.Format("{0} (KS Not Fnd in DC {1})", ksName, this.Node.DataCenter.Name));
                                 }
                                 keyspaceNotInDC = true;
@@ -266,6 +318,7 @@ namespace DSEDiagnosticFileParser
                                                     ksName,
                                                     this.Node.DataCenter?.Name ?? "<NoDC>");
                             ++this.NbrWarnings;
+                            notFoound = true;
                             this._unknownDDLs.Add(ksName);
                         }
 
@@ -312,6 +365,7 @@ namespace DSEDiagnosticFileParser
                     var itemName = splitValue[1].Trim();
                                         
                     skipSection = false;
+                    notFoound = false;
 
                     currentDDL = currentKeyspace.TryGetDDL(itemName);
 
@@ -334,6 +388,7 @@ namespace DSEDiagnosticFileParser
                                                         tableName,
                                                         currentKeyspace.DataCenter?.ToString() ?? currentKeyspace.Cluster?.ToString());
                             ++this.NbrWarnings;
+                            notFoound = true;
                             this._unknownDDLs.Add(tableName);
                         }
 
@@ -348,14 +403,13 @@ namespace DSEDiagnosticFileParser
                                                                     EventTypes.AggregateDataTool,
                                                                     EventClasses.Node | EventClasses.KeyspaceTableViewIndexStats);
                             this._statsList.Add(errorStatItem);
+                            notFoound = true;
                             errorStatItem.AssociateItem(AggregatedStats.ErrorCItemNotFnd,
                                                                         new List<string>() { string.Format("{1} \"{0}\" not found", tableName, attribute) });
                         }
                         else
-                        {
-                            object existingValue;
-
-                            if(statItemCurrentKeyspace.Data.TryGetValue(AggregatedStats.ErrorCItemNotFnd, out existingValue))
+                        {                           
+                            if(statItemCurrentKeyspace.Data.TryGetValue(AggregatedStats.ErrorCItemNotFnd, out object existingValue))
                             {
                                 ((List<string>)existingValue).Add(string.Format("{1} \"{0}\" not found", tableName, attribute));
                             }
@@ -380,108 +434,135 @@ namespace DSEDiagnosticFileParser
                 }
                 else if (skipSection)
                 {
+                    if (!notFoound && currentKeyspace != null)
+                    {
+                        if (UnitOfMeasure.ConvertToValue(DetermineAttribVale(splitValue[1]), out dynamic decValue))
+                        {                            
+                            if (attribute == Properties.StatPropertyNames.Default.TotalStorage)
+                            {                                
+                                ((KeySpace)currentKeyspace).AddToStorage(decValue);
+                                this.Node.DSE.StorageUsed = this.Node.DSE.StorageUsed.Add(decValue);
+                            }
+                            else if (attribute == Properties.StatPropertyNames.Default.LocalReadCount)
+                            {
+                                long count = (long)decValue;
+
+                                ((KeySpace)currentKeyspace).AddToReadCount(count);
+                                this.Node.DSE.ReadCount += count;
+                            }
+                            else if (attribute == Properties.StatPropertyNames.Default.LocalWriteCount)
+                            {
+                                long count = (long)decValue;
+                               
+                                ((KeySpace)currentKeyspace).AddToWriteCount((long)count);
+                                this.Node.DSE.WriteCount += count;
+                            }
+                            else if (Properties.StatPropertyNames.Default.NbrPartitionKeys.ComparePropName(attribute))
+                            {
+                                long count = (long)decValue;
+                                
+                                ((KeySpace)currentKeyspace).AddToKeyCount(count);
+                                this.Node.DSE.KeyCount += count;
+                            }
+                            else if (attribute == Properties.StatPropertyNames.Default.SSTableCount)
+                            {
+                                long count = (long)decValue;
+                                
+                                ((KeySpace)currentKeyspace).AddToSSTableCount(count);
+                                this.Node.DSE.SSTableCount += count;
+                            }
+                        }
+
+                    }
                     continue;
                 }
 
                 //determine attribute value
-                {
-                    var attrValue = splitValue[1].Trim();
-                    var attrValueUOM = UnitOfMeasure.ConvertToType(attrValue);
-
-                    if ((attrValueUOM & UnitOfMeasure.Types.NaN) != 0)
-                    {
-                        propValue = new UnitOfMeasure(attrValueUOM);
-                        numValue = null;
-                    }
-                    else
-                    {
-                        var UOM = UOMKeywords.FirstOrDefault(u => attribute.IndexOf(u.Item1, StringComparison.CurrentCultureIgnoreCase) >= 0);
-                        var propValueSplit = attrValue.Split(' ', '%');
-
-                        if (Common.StringFunctions.ParseIntoNumeric(propValueSplit[0], out numValue, true))
-                        {
-                            if (UOM != null || attrValueUOM != UnitOfMeasure.Types.Unknown || propValueSplit.Length > 1)
-                            {
-                                if (propValueSplit.Length == 2 && propValueSplit[1].Any(c => c == '%')) numValue = ((decimal)(dynamic)numValue) / 100m;
-
-                                propValue = UnitOfMeasure.Create(((dynamic)numValue),
-                                                                    (UOM?.Item2 ?? UnitOfMeasure.Types.Unknown) | attrValueUOM,
-                                                                    propValueSplit.Length > 1 ? propValueSplit[1].Trim() : null,
-                                                                    true);
-                            }
-                            else
-                            {
-                                if ((dynamic)numValue == -1)
-                                {
-                                    numValue = propValue = null;
-                                }
-                                else
-                                {
-                                    propValue = numValue;
-                                }
-                            }
-                        }                        
-                        else
-                        {
-                            propValue = attrValue;
-                            numValue = null;
-                        }
-                    }
-                }
+                var propValue = DetermineAttribVale(splitValue[1]);
                 
-
-                if(statItem.TableViewIndex != null)
+                if(statItem.TableViewIndex != null && UnitOfMeasure.ConvertToValue(propValue, out dynamic numValue))
                 {
                     if (attribute == Properties.Settings.Default.CFStatsDetectReadActivityAttr
                             || (attribute == Properties.Settings.Default.CFStatsDetectWriteActivityAttr && !(statItem.TableViewIndex is ICQLIndex)))
                     {
-                        if(statItem.TableViewIndex.IsActive.HasValue)
+
+                        if ((decimal) numValue > 0m)
                         {
-                            if(!statItem.TableViewIndex.IsActive.Value && numValue != null && ((dynamic) numValue) > 0)
-                            {
+                            if(!statItem.TableViewIndex.IsActive.HasValue || !statItem.TableViewIndex.IsActive.Value)
                                 statItem.TableViewIndex.SetAsActive(true);
-                            }
                         }
-                        else
+                        else if(!statItem.TableViewIndex.IsActive.HasValue)
                         {
-                            statItem.TableViewIndex.SetAsActive(numValue == null ? false : ((dynamic)numValue) > 0);
+                            statItem.TableViewIndex.SetAsActive(false);
                         }
                     }
-                }
+                
+                    if (attribute == Properties.StatPropertyNames.Default.TotalStorage)
+                    {                        
+                        if (statItem.TableViewIndex is CQLTable cqlTbl)
+                        {
+                            cqlTbl.AddToStorage(numValue);
+                        }
+                        else if (statItem.TableViewIndex is CQLIndex cqlIdx)
+                        {
+                            cqlIdx.AddToStorage(numValue);
+                        }
 
-                if(attribute == Properties.StatPropertyNames.Default.TotalStorage)
-                {
-                    if(statItem.TableViewIndex != null)
+                        ((KeySpace)statItem.TableViewIndex.Keyspace).AddToStorage(numValue);
+                        this.Node.DSE.StorageUsed = this.Node.DSE.StorageUsed.Add(numValue);                        
+                    }
+                    else if (attribute == Properties.StatPropertyNames.Default.LocalReadCount)
                     {
-                        if(propValue is UnitOfMeasure uom)
+                        long count = (long)numValue;
+
+                        if (statItem.TableViewIndex is CQLTable cqlTbl)
                         {
-                            if(statItem.TableViewIndex is CQLTable cqlTbl)
-                            {
-                                cqlTbl.AddToStorage(uom);
-                            }
-                            else if(statItem.TableViewIndex is CQLIndex cqlIdx)
-                            {
-                                cqlIdx.AddToStorage(uom);
-                            }
-
-                            ((KeySpace)statItem.TableViewIndex.Keyspace).AddToStorage(uom);
+                            cqlTbl.AddToReadCount(count);
                         }
-                        else
+                        else if (statItem.TableViewIndex is CQLIndex cqlIdx)
                         {
-                            var decValue = (decimal)((dynamic)propValue);
-
-                            if (statItem.TableViewIndex is CQLTable cqlTbl)
-                            {
-                                cqlTbl.AddToStorage(decValue);
-                            }
-                            else if (statItem.TableViewIndex is CQLIndex cqlIdx)
-                            {
-                                cqlIdx.AddToStorage(decValue);
-                            }
-
-                            ((KeySpace)statItem.TableViewIndex.Keyspace).AddToStorage(decValue);
+                            cqlIdx.AddToReadCount(count);
                         }
+
+                        ((KeySpace)statItem.TableViewIndex.Keyspace).AddToReadCount(count);
+                        this.Node.DSE.ReadCount += count;
                     }
+                    else if (attribute == Properties.StatPropertyNames.Default.LocalWriteCount)
+                    {
+                        long count = (long)numValue;
+
+                        if (statItem.TableViewIndex is CQLTable cqlTbl)
+                        {
+                            cqlTbl.AddToWriteCount(count);
+                        }
+
+                        ((KeySpace)statItem.TableViewIndex.Keyspace).AddToWriteCount(count);
+                        this.Node.DSE.WriteCount += count;
+                    }
+                   else if (Properties.StatPropertyNames.Default.NbrPartitionKeys.ComparePropName(attribute))
+                    {
+                        long count = (long)numValue;
+
+                        if (statItem.TableViewIndex is CQLTable cqlTbl)
+                        {
+                            cqlTbl.AddToKeyCount(count);
+                        }
+
+                        ((KeySpace)statItem.TableViewIndex.Keyspace).AddToKeyCount(count);
+                        this.Node.DSE.KeyCount += count;
+                    }
+                    else if (attribute == Properties.StatPropertyNames.Default.SSTableCount)
+                    {
+                        long count = (long) numValue;
+
+                        if (statItem.TableViewIndex is CQLTable cqlTbl)
+                        {
+                            cqlTbl.AddToSSTableCount(count);
+                        }
+
+                        ((KeySpace)statItem.TableViewIndex.Keyspace).AddToSSTableCount(count);
+                        this.Node.DSE.SSTableCount += count;
+                    }                    
                 }
 
                 statItem.AssociateItem(attribute, propValue);
@@ -549,12 +630,12 @@ namespace DSEDiagnosticFileParser
                     stat.Stat.AssociateItem(Properties.StatPropertyNames.Default.LCSSplitLevels, stat.LCSSplitLevels);
                     stat.Stat.AssociateItem(Properties.StatPropertyNames.Default.LCSBackRatio, stat.LCSLevel);
                     stat.Stat.AssociateItem(Properties.StatPropertyNames.Default.LCSNbrSplitLevels, stat.LCSNbrSplits);
-                }
-
-                this.Node.DSE.StorageUsed = UnitOfMeasure.Create(statItemArray.Sum(s => s.StorageMB), UnitOfMeasure.Types.MiB | UnitOfMeasure.Types.Storage);                
+                }                               
             }
 
-            
+            if (this.Node.DSE.StorageUsed.NaN)
+                this.Node.DSE.StorageUsed = initialNodeStorage;
+
             this.Processed = true;
             return (uint) this._statsList.Count;
         }

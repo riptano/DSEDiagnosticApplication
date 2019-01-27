@@ -71,7 +71,13 @@ namespace DSEDiagnosticLibrary
         public decimal MaxReadRepairDCChance = decimal.MinValue;
 
         public uint NbrOrderBys;
-	}
+
+        public UnitOfMeasure Storage = UnitOfMeasure.NaNValue;
+        public long ReadCount;
+        public long WriteCount;
+        public long KeyCount;
+        public long SSTableCount;
+    }
 
     [JsonObject(MemberSerialization.OptOut)]
 	public sealed class KeyspaceReplicationInfo : IEquatable<IDataCenter>, IEquatable<string>, IEquatable<KeyspaceReplicationInfo>
@@ -165,9 +171,7 @@ namespace DSEDiagnosticLibrary
         /// </summary>
         bool IsPreLoaded { get; }
 
-        bool? HasActiveMember { get; }
-
-        UnitOfMeasure StorageUtilized { get;  }
+        bool? HasActiveMember { get; }        
     }
 
     [JsonObject(MemberSerialization.OptOut)]
@@ -203,8 +207,7 @@ namespace DSEDiagnosticLibrary
             this.IsDSEKeyspace = LibrarySettings.DSEKeyspaces.Contains(this.Name);
             this.IsSystemKeyspace = LibrarySettings.SystemKeyspaces.Contains(this.Name);
             this.IsPerformanceKeyspace = LibrarySettings.PerformanceKeyspaces.Contains(this.Name);
-            this.StorageUtilized = new UnitOfMeasure(UnitOfMeasure.Types.NaN | UnitOfMeasure.Types.Storage);
-
+            
             if (this.Replications == null || this.Replications.IsEmpty())
             {
                 if (this.EverywhereStrategy || this.LocalStrategy)
@@ -595,8 +598,6 @@ namespace DSEDiagnosticLibrary
 
         public bool IsPreLoaded { get; }
 
-        public UnitOfMeasure StorageUtilized { get; private set; }
-
         #endregion
 
         #region IEquatable
@@ -669,11 +670,27 @@ namespace DSEDiagnosticLibrary
 
         public UnitOfMeasure AddToStorage(UnitOfMeasure size)
         {
-            return this.StorageUtilized = this.StorageUtilized.Add(size);
+            return this.Stats.Storage = this.Stats.Storage.Add(size);
         }
         public UnitOfMeasure AddToStorage(decimal size)
         {
-            return this.StorageUtilized = this.StorageUtilized.Add(size);
+            return this.Stats.Storage = this.Stats.Storage.Add(size);
+        }
+        public long AddToReadCount(long readCount)
+        {
+            return this.Stats.ReadCount += readCount;
+        }
+        public long AddToWriteCount(long writeCount)
+        {
+            return this.Stats.WriteCount += writeCount;
+        }
+        public long AddToKeyCount(long keyCount)
+        {
+            return this.Stats.KeyCount += keyCount;
+        }
+        public long AddToSSTableCount(long ssTableCount)
+        {
+            return this.Stats.SSTableCount += ssTableCount;
         }
 
         public static IEnumerable<IKeyspace> TryGet(Cluster cluster, string ksName)

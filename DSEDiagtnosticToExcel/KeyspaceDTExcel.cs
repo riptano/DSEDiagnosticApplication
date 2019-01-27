@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Common;
 using OfficeOpenXml;
 using DataTableToExcel;
+using DT = DSEDiagnosticToDataTable;
 
 namespace DSEDiagtnosticToExcel
 {
@@ -50,11 +51,11 @@ namespace DSEDiagtnosticToExcel
                                                                              var workSheet = excelPackage.Workbook.Worksheets[WorkSheetName];
 
                                                                              workSheet.AltFileFillRow(3,
-                                                                                                        this.DataTable.GetColumn("Name"),
+                                                                                                        this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.Name),
                                                                                                         null,
-                                                                                                        this.DataTable.GetColumn("Total"),
-                                                                                                        this.DataTable.GetColumn("Tables"),
-                                                                                                        this.DataTable.GetColumn("DDL"));
+                                                                                                        this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.Total),
+                                                                                                        this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.Tables),
+                                                                                                        this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.DDL));
 
                                                                              this.CallActionEvent("Loaded");
                                                                          }
@@ -76,85 +77,112 @@ namespace DSEDiagtnosticToExcel
                                                                  workSheet.Cells["1:1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
                                                                  //workBook.Cells["1:1"].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
 
-                                                                 this.DataTable.GetColumn("Name")
+                                                                 this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.Name)
                                                                     .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonKeySpaceNameActivite);
                                                                  this.DataTable.SetGroupHeader("Replication", -1, true,
                                                                      this.DataTable.GetColumn(DSEDiagnosticToDataTable.ColumnNames.DataCenter),
-                                                                     this.DataTable.GetColumn("Replication Strategy"),
-                                                                     this.DataTable.GetColumn("Replication Factor").SetNumericFormat("#,###")
+                                                                     this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.ReplicationStrategy),
+                                                                     this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.ReplicationFactor).SetNumericFormat("#,###")
                                                                   );
                                                                  this.DataTable.SetGroupHeader(" ", -1, true,
-                                                                     this.DataTable.GetColumn("Tables").SetNumericFormat("#,###").TotalColumn(),
-                                                                     this.DataTable.GetColumn("Views").SetNumericFormat("#,###").TotalColumn(),
-                                                                     this.DataTable.GetColumn("Secondary Indexes").SetNumericFormat("#,###").TotalColumn(),
-                                                                     this.DataTable.GetColumn("solr Indexes").SetNumericFormat("#,###").TotalColumn(),
-                                                                     this.DataTable.GetColumn("SAS Indexes").SetNumericFormat("#,###").TotalColumn()
+                                                                     this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.Tables).SetNumericFormat("#,###").TotalColumn(),
+                                                                     this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.Views).SetNumericFormat("#,###").TotalColumn(),
+                                                                     this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.SecondaryIndexes).SetNumericFormat("#,###").TotalColumn(),
+                                                                     this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.SolrIndexes).SetNumericFormat("#,###").TotalColumn(),
+                                                                     this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.SASIndexes).SetNumericFormat("#,###").TotalColumn()
                                                                          .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDDLWarnUse),
-                                                                     this.DataTable.GetColumn("Custom Indexes").SetNumericFormat("#,###").TotalColumn()
+                                                                     this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.CustomIndexes).SetNumericFormat("#,###").TotalColumn()
                                                                          .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDDLWarnUse),
-                                                                     this.DataTable.GetColumn("Functions").SetNumericFormat("#,###").TotalColumn()
+                                                                     this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.Functions).SetNumericFormat("#,###").TotalColumn()
                                                                          .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDDLWarnUse),
-                                                                     this.DataTable.GetColumn("Triggers").SetNumericFormat("#,###").TotalColumn()
+                                                                     this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.Triggers).SetNumericFormat("#,###").TotalColumn()
                                                                          .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDDLWarnUse),
-                                                                     this.DataTable.GetColumn("Total").SetNumericFormat("#,##0").TotalColumn()
+                                                                     this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.Total).SetNumericFormat("#,##0").TotalColumn()
                                                                         .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonTotTbls),
-                                                                     this.DataTable.GetColumn("Active").SetNumericFormat("#,##0").TotalColumn()
+                                                                     this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.Active).SetNumericFormat("#,##0").TotalColumn()
                                                                          .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonActiveTbls)
                                                                      );
                                                                  this.DataTable.SetGroupHeader("Compaction Strategy", -1, true,
-                                                                     this.DataTable.GetColumn("STCS").SetNumericFormat("#,###").TotalColumn(),
-                                                                     this.DataTable.GetColumn("LCS").SetNumericFormat("#,###").TotalColumn(),
-                                                                     this.DataTable.GetColumn("DTCS").SetNumericFormat("#,###").TotalColumn()
+                                                                     this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.STCS).SetNumericFormat("#,###").TotalColumn(),
+                                                                     this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.LCS).SetNumericFormat("#,###").TotalColumn(),
+                                                                     this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.DTCS).SetNumericFormat("#,###").TotalColumn()
                                                                          .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDDLWarnUse),
-                                                                     this.DataTable.GetColumn("TCS").SetNumericFormat("#,###").TotalColumn(),
-                                                                     this.DataTable.GetColumn("TWCS").SetNumericFormat("#,###").TotalColumn(),
-                                                                     this.DataTable.GetColumn("Other Strategies").SetNumericFormat("#,###").TotalColumn()
+                                                                     this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.TCS).SetNumericFormat("#,###").TotalColumn(),
+                                                                     this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.TWCS).SetNumericFormat("#,###").TotalColumn(),
+                                                                     this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.OtherStrategies).SetNumericFormat("#,###").TotalColumn()
                                                                   );
                                                                  this.DataTable.SetGroupHeader("Columns", -1, true,
-                                                                    this.DataTable.GetColumn("Column Total").SetCaption("Total").SetNumericFormat("#,##0").TotalColumn()
+                                                                    this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.ColumnTotal).SetCaption("Total").SetNumericFormat("#,##0").TotalColumn()
                                                                         .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonTotTbls),
-                                                                    this.DataTable.GetColumn("Column Collections").SetCaption("Collections").SetNumericFormat("#,###").TotalColumn(),
-                                                                    this.DataTable.GetColumn("Column Blobs").SetCaption("Blobs").SetNumericFormat("#,###").TotalColumn(),
-                                                                    this.DataTable.GetColumn("Column Static").SetCaption("Statics").SetNumericFormat("#,###").TotalColumn(),
-                                                                    this.DataTable.GetColumn("Column Frozen").SetCaption("Frozen").SetNumericFormat("#,###").TotalColumn(),
-                                                                    this.DataTable.GetColumn("Column Tuple").SetCaption("Tuples").SetNumericFormat("#,###").TotalColumn(),
-                                                                    this.DataTable.GetColumn("Column UDT").SetCaption("UDTs").SetNumericFormat("#,###").TotalColumn()
+                                                                    this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.ColumnCollections)
+                                                                        .SetCaption("Collections").SetNumericFormat("#,###").TotalColumn(),
+                                                                    this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.ColumnBlobs)
+                                                                        .SetCaption("Blobs").SetNumericFormat("#,###").TotalColumn(),
+                                                                    this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.ColumnStatic)
+                                                                        .SetCaption("Statics").SetNumericFormat("#,###").TotalColumn(),
+                                                                    this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.ColumnFrozen)
+                                                                        .SetCaption("Frozen").SetNumericFormat("#,###").TotalColumn(),
+                                                                    this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.ColumnTuple)
+                                                                        .SetCaption("Tuples").SetNumericFormat("#,###").TotalColumn(),
+                                                                    this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.ColumnUDT)
+                                                                        .SetCaption("UDTs").SetNumericFormat("#,###").TotalColumn()
                                                                  );
 
                                                                  this.DataTable.SetGroupHeader("Read-Repair", -1, true,
-                                                                     this.DataTable.GetColumn("Read-Repair Chance (Max)").SetCaption("Chance (Max)").SetNumericFormat("##0%"),
-                                                                     this.DataTable.GetColumn("Read-Repair DC Chance").SetCaption("DC Chance (Max)").SetNumericFormat("##0%")
-                                                                     //this.DataTable.GetColumn("Read-Repair Policy (Majority)").SetCaption("Total")
+                                                                     this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.ReadRepairChance)
+                                                                        .SetCaption("Chance (Max)").SetNumericFormat("##0%"),
+                                                                     this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.ReadRepairDCChance)
+                                                                        .SetCaption("DC Chance (Max)").SetNumericFormat("##0%")
+                                                                    //this.DataTable.GetColumn("DT.KeyspaceDataTable.Columns.ReadRepairPolicy).SetCaption("Total")
                                                                  );
 
                                                                  this.DataTable.SetGroupHeader(" ", -1, true,
-                                                                    this.DataTable.GetColumn("GC Grace (Max)").SetNumericFormat(Properties.Settings.Default.ExcelTimeSpanFormat),
-                                                                    this.DataTable.GetColumn("TTL (Max)").SetNumericFormat(Properties.Settings.Default.ExcelTimeSpanFormat)
+                                                                    this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.GCGrace)
+                                                                        .SetNumericFormat(Properties.Settings.Default.ExcelTimeSpanFormat),
+                                                                    this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.TTL)
+                                                                        .SetNumericFormat(Properties.Settings.Default.ExcelTimeSpanFormat)
                                                                  );
 
                                                                  this.DataTable.SetGroupHeader(" ", -1, true,
-                                                                    this.DataTable.GetColumn("OrderBy").SetNumericFormat("#,###").SetCaption("OrderBy (tables)")
+                                                                    this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.OrderBy)
+                                                                        .SetNumericFormat("#,###").SetCaption("OrderBy (tables)")
                                                                     );
 
                                                                  this.DataTable.SetGroupHeader(" ", -1, true,
-                                                                   this.DataTable.GetColumn("Storage (MB)")
-                                                                    .SetNumericFormat("###,###,###,###.0000")
-                                                                    .TotalColumn()
-                                                                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDataBarLightBlue)
+                                                                   this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.Storage)
+                                                                        .SetNumericFormat("###,###,###,###.0000")
+                                                                        .TotalColumn()
+                                                                        .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDataBarLightBlue),
+                                                                    this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.StorageUtilized)
+                                                                        .SetNumericFormat("##0%")                                                                        
+                                                                        .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDataBarLightBlue),
+                                                                    this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.ReadPercent)
+                                                                        .SetNumericFormat("##0%")
+                                                                        .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDataBarLightBlue),
+                                                                    this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.WritePercent)
+                                                                        .SetNumericFormat("##0%")
+                                                                        .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDataBarLightBlue),
+                                                                    this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.SSTables)
+                                                                        .SetNumericFormat("###,###,###,##0")
+                                                                        .TotalColumn()
+                                                                        .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDataBarLightBlue),
+                                                                    this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.SSTablePercent)
+                                                                        .SetNumericFormat("##0%")
+                                                                        .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDataBarLightBlue)
                                                                    );
 
-                                                                 //this.DataTable.GetColumn("DDL");
+                                                                 //this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.DDL);
 
                                                                  workSheet.UpdateWorksheet(this.DataTable, 2);
 
                                                                  workSheet.View.FreezePanes(3, 3);
                                                                  workSheet.ExcelRange(2,
-                                                                                      this.DataTable.GetColumn("Name"),
-                                                                                      this.DataTable.GetColumn("Storage (MB)"))
+                                                                                      this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.Name),
+                                                                                      this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.SSTablePercent))
                                                                             .First().AutoFilter = true;
 
-                                                                 workSheet.AutoFitColumn(workSheet.ExcelRange(this.DataTable.GetColumn("Name"),
-                                                                                                                this.DataTable.GetColumn("Storage (MB)")));
+                                                                 workSheet.AutoFitColumn(workSheet.ExcelRange(this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.Name),
+                                                                                                                this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.SSTablePercent)));
                                                              },
                                                             -1,
                                                            -1,

@@ -32,6 +32,22 @@ namespace DSEDiagnosticLibrary
                         || value is decimal);
         }
 
+        public static bool IsNumberType(dynamic value)
+        {
+            return !(value is string)
+                    && (value is sbyte
+                        || value is byte
+                        || value is short
+                        || value is ushort
+                        || value is int
+                        || value is uint
+                        || value is long
+                        || value is ulong
+                        || value is float
+                        || value is double
+                        || value is decimal);
+        }
+
         public static object GetPropertyValue(this IProperties table, string key)
         {
             return GetPropertyValue(table.Properties, key);

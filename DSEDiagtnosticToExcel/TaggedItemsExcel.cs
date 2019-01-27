@@ -1275,22 +1275,23 @@ namespace DSEDiagtnosticToExcel
             {
                 var linqDetailViewTask = Task.Factory.StartNew( () =>
                 {
-                    return this.DataTable.AsEnumerable()
-                                        .Where(dataRow => !dataRow.IsNull(DT.ColumnNames.NodeIPAddress))
-                                        .OrderBy(dataRow => dataRow.Field<string>(DT.ColumnNames.KeySpace))
-                                        .ThenBy(dataRow => dataRow.Field<string>(DT.ColumnNames.Table))
-                                        .ThenBy(dataRow => dataRow.Field<string>(DT.ColumnNames.DataCenter))
-                                        .ThenBy(dataRow => dataRow.Field<string>(DT.ColumnNames.NodeIPAddress))
-                                        .CopyToDataTable();
+                    var rows = this.DataTable.AsEnumerable()
+                                .Where(dataRow => !dataRow.IsNull(DT.ColumnNames.NodeIPAddress))
+                                .OrderBy(dataRow => dataRow.Field<string>(DT.ColumnNames.KeySpace))
+                                .ThenBy(dataRow => dataRow.Field<string>(DT.ColumnNames.Table))
+                                .ThenBy(dataRow => dataRow.Field<string>(DT.ColumnNames.DataCenter))
+                                .ThenBy(dataRow => dataRow.Field<string>(DT.ColumnNames.NodeIPAddress));
+
+                    return rows.IsEmpty() ? this.DataTable.Clone() : rows.CopyToDataTable();
                 });
                 var linqDCViewTask = Task.Factory.StartNew(() =>
                 {
-                    return this.DataTable.AsEnumerable()
-                                            .Where(dataRow => dataRow.IsNull(DT.ColumnNames.NodeIPAddress))
-                                            .OrderBy(dataRow => dataRow.Field<string>(DT.ColumnNames.KeySpace))
-                                            .ThenBy(dataRow => dataRow.Field<string>(DT.ColumnNames.Table))
-                                            .ThenBy(dataRow => dataRow.Field<string>(DT.ColumnNames.DataCenter))
-                                            .CopyToDataTable();
+                    var rows = this.DataTable.AsEnumerable()
+                                .Where(dataRow => dataRow.IsNull(DT.ColumnNames.NodeIPAddress))
+                                .OrderBy(dataRow => dataRow.Field<string>(DT.ColumnNames.KeySpace))
+                                .ThenBy(dataRow => dataRow.Field<string>(DT.ColumnNames.Table))
+                                .ThenBy(dataRow => dataRow.Field<string>(DT.ColumnNames.DataCenter));
+                    return rows.IsEmpty() ? this.DataTable.Clone() : rows.CopyToDataTable();
                 });
 
                 var linqDetailView = linqDetailViewTask.Result;

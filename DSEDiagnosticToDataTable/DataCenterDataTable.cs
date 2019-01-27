@@ -200,10 +200,10 @@ namespace DSEDiagnosticToDataTable
                                      group attrib by new { attrib.DataCenter,
                                                             attrib.Node,
                                                             attrib.Keyspace } into grpData
-                                     let grpDataValues = grpData.SelectMany(d => ((DSEDiagnosticLibrary.AggregatedStats)d).DataUnSafe
+                                      let grpDataValues = grpData.SelectMany(d => ((DSEDiagnosticLibrary.AggregatedStats)d).DataUnSafe
                                                                                         .Where(a => (a.Key == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.TotalStorage
                                                                                                             || a.Key == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.SSTableCount
-                                                                                                            || a.Key == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.LocalReadCount 
+                                                                                                            || a.Key == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.LocalReadCount
                                                                                                             || a.Key == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.LocalWriteCount
                                                                                                             || DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.NbrPartitionKeys.ComparePropName(a.Key))
                                                                                                         && a.Value != null))
@@ -224,41 +224,44 @@ namespace DSEDiagnosticToDataTable
                                                     grpData.Key.Node,
                                                     grpData.Key.Keyspace,
                                                     StorageTotal = grpDataValues.Where(a => a.Key == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.TotalStorage)
-                                                                            .Select(a => (DSEDiagnosticLibrary.UnitOfMeasure) a.Value)                                                                                                
-                                                                            .Where(a => !a.NaN)
-                                                                            .Select(a => a.ConvertSizeUOM(DSEDiagnosticLibrary.UnitOfMeasure.Types.MiB))
-                                                                            .DefaultIfEmpty()
-                                                                            .Sum(),
+                                                                                        .Select(a => (DSEDiagnosticLibrary.UnitOfMeasure)a.Value)
+                                                                                        .Where(a => !a.NaN)
+                                                                                        .Select(a => a.ConvertSizeUOM(DSEDiagnosticLibrary.UnitOfMeasure.Types.MiB))
+                                                                                        .DefaultIfEmpty()
+                                                                                        .Sum(),
                                                     SSTablesTotal = grpDataValues.Where(a => a.Key == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.SSTableCount)
-                                                                            .Select(a => (long)(dynamic)a.Value)
-                                                                            .DefaultIfEmpty()
-                                                                            .Sum(),
+                                                                                        .Select(a => (long)(dynamic)a.Value)
+                                                                                        .DefaultIfEmpty()
+                                                                                        .Sum(),
                                                     ReadTotal = grpDataValues.Where(a => a.Key == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.LocalReadCount)
-                                                                            .Select(a => (decimal)(dynamic)a.Value)
-                                                                            .DefaultIfEmpty()
-                                                                            .Sum(),
+                                                                                        .Select(a => (decimal)(dynamic)a.Value)
+                                                                                        .DefaultIfEmpty()
+                                                                                        .Sum(),
                                                     WriteTotal = grpDataValues.Where(a => a.Key == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.LocalWriteCount)
-                                                                            .Select(a => (decimal)(dynamic)a.Value)
-                                                                            .DefaultIfEmpty()
-                                                                            .Sum(),
+                                                                                        .Select(a => (decimal)(dynamic)a.Value)
+                                                                                        .DefaultIfEmpty()
+                                                                                        .Sum(),
                                                     KeyTotal = grpDataValues.Where(a => DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.NbrPartitionKeys.ComparePropName(a.Key))
-                                                                            .Select(a => (decimal)(dynamic)a.Value)
-                                                                            .DefaultIfEmpty()
-                                                                            .Sum(),
+                                                                                        .Select(a => (decimal)(dynamic)a.Value)
+                                                                                        .DefaultIfEmpty()
+                                                                                        .Sum(),
                                                     LWTTotal = grpLWTValues.Select(a => (long)(dynamic)a.Value)
-                                                                            .DefaultIfEmpty()
-                                                                            .Sum(),
+                                                                                        .DefaultIfEmpty()
+                                                                                        .Sum(),
                                                     BatchesTotal = grpBatchesValues.Select(a => (long)(dynamic)a.Value)
                                                                             .DefaultIfEmpty()
                                                                             .Sum(),
                                                     NbrCompStorageWarnings = grpNbrCompSpaceWarnings.Count()
                                       }).ToArray();
 
-                var clusterTotStorage = statCollection.Sum(i => i.StorageTotal);
-                var clusterTotSSTables = statCollection.Sum(i => i.SSTablesTotal);
-                var clusterTotReads = (ulong) statCollection.Sum(i => i.ReadTotal);
-                var clusterTotWrites = (ulong) statCollection.Sum(i => i.WriteTotal);
-                var clusterTotKeys = (ulong) statCollection.Sum(i => i.KeyTotal);
+                var clusterTotStorage = this.Cluster.Nodes
+                                        .Where(n => !n.DSE.StorageUsed.NaN)
+                                        .DefaultIfEmpty()
+                                        .Sum(n => n.DSE.StorageUsed.ConvertSizeUOM(DSEDiagnosticLibrary.UnitOfMeasure.Types.MiB));
+                var clusterTotSSTables = this.Cluster.Nodes.DefaultIfEmpty().Sum(n => n.DSE.SSTableCount);
+                var clusterTotReads = (ulong)this.Cluster.Nodes.DefaultIfEmpty().Sum(n => n.DSE.ReadCount);
+                var clusterTotWrites = (ulong)this.Cluster.Nodes.DefaultIfEmpty().Sum(n => n.DSE.WriteCount);
+                var clusterTotKeys = (ulong)this.Cluster.Nodes.DefaultIfEmpty().Sum(n => n.DSE.KeyCount);
 
                 foreach (var dataCenter in this.Cluster.DataCenters)
                 {
@@ -355,29 +358,24 @@ namespace DSEDiagnosticToDataTable
                             }
                         }
 
-                        var dcStats = statCollection.Where(i => i.DC.Equals(dataCenter)).ToArray();
-
-                        if (dcStats.HasAtLeastOneElement())
                         {
-                            var dcTotStorage = dcStats.Sum(i => i.StorageTotal);
-                            var dcTotSSTables = dcStats.Sum(i => i.SSTablesTotal);
-                            var dcTotReads = (ulong)dcStats.Sum(i => i.ReadTotal);
-                            var dcTotWrites = (ulong)dcStats.Sum(i => i.WriteTotal);
-                            var dcTotKeys = (ulong)dcStats.Sum(i => i.KeyTotal);
-                            var totalsNodes = dcStats.GroupBy(i => i.Node)
-                                                    .Select(i => new { Node = i.Key,
-                                                                        StorageTotal = i.Select(d => d.StorageTotal).DefaultIfEmpty().Sum(),
-                                                                        SSTablesTotal = i.Select(d => d.SSTablesTotal).DefaultIfEmpty().Sum(),
-                                                                        ReadTotal = i.Select(d => d.ReadTotal).DefaultIfEmpty().Sum(),
-                                                                        WriteTotal = i.Select(d => d.WriteTotal).DefaultIfEmpty().Sum(),
-                                                                        KeyTotal = i.Select(d => d.KeyTotal).DefaultIfEmpty().Sum() }).ToArray();
+                            var totalsNodes = dataCenter.Nodes
+                                                    .Select(n => new
+                                                    {
+                                                        Node = n,
+                                                        StorageTotal = n.DSE.StorageUsed.NaN ? 0 : n.DSE.StorageUsed.ConvertSizeUOM(DSEDiagnosticLibrary.UnitOfMeasure.Types.MiB),
+                                                        SSTablesTotal = n.DSE.SSTableCount,
+                                                        ReadTotal = n.DSE.ReadCount,
+                                                        WriteTotal = n.DSE.WriteCount,
+                                                        KeyTotal = n.DSE.KeyCount
+                                                    }).ToArray();
 
-                            {
-                                var dcInsufficientSpace = dcStats.Sum(i => i.NbrCompStorageWarnings);
-
-                                if (dcInsufficientSpace > 0)
-                                    dataRow.SetField("DU Insufficient Space", dcInsufficientSpace);
-                            }
+                            var dcTotStorage = totalsNodes.Sum(n => n.StorageTotal);
+                            var dcTotSSTables = totalsNodes.Sum(n => n.SSTablesTotal);
+                            var dcTotReads = (ulong)totalsNodes.Sum(n => n.ReadTotal);
+                            var dcTotWrites = (ulong)totalsNodes.Sum(n => n.WriteTotal);
+                            var dcTotKeys = (ulong)totalsNodes.Sum(n => n.KeyTotal);
+                            var dcStats = statCollection.Where(i => i.DC.Equals(dataCenter)).ToArray();
 
                             if (dcTotStorage > 0)
                             {
@@ -392,12 +390,12 @@ namespace DSEDiagnosticToDataTable
                                 dataRow.SetField("Storage Avg", avgValue);
                                 dataRow.SetField("Storage Total", dcTotStorage);
                                 dataRow.SetField("Storage Percent", dcTotStorage / clusterTotStorage);
-                                
+
                                 {
                                     var dcUserTot = dcStats.Where(i => !i.Keyspace.IsSystemKeyspace && !i.Keyspace.IsDSEKeyspace)
                                                         .Select(i => i.StorageTotal).DefaultIfEmpty().Sum();
 
-                                    if(dcUserTot > 0)
+                                    if (dcUserTot > 0)
                                         dataRow.SetField("Storage Total (User)", dcUserTot);
                                 }
                             }
@@ -416,8 +414,8 @@ namespace DSEDiagnosticToDataTable
                                 dataRow.SetField("SSTables Avg", avgValue);
                                 dataRow.SetField("SSTables StdDev", stddevValue);
                                 dataRow.SetField("SSTables Total", dcTotSSTables);
-                                dataRow.SetField("SSTables Percent", (decimal) dcTotSSTables / (decimal) clusterTotSSTables);
-                                
+                                dataRow.SetField("SSTables Percent", (decimal)dcTotSSTables / (decimal)clusterTotSSTables);
+
                                 {
                                     var dcUserTot = dcStats.Where(i => !i.Keyspace.IsSystemKeyspace && !i.Keyspace.IsDSEKeyspace)
                                                         .Select(i => i.SSTablesTotal).DefaultIfEmpty().Sum();
@@ -438,6 +436,7 @@ namespace DSEDiagnosticToDataTable
                                 dataRow.SetField("Distribution Storage To", minNode);
                                 dataRow.SetField("Distribution Storage StdDev", stdDevNode);
                             }
+
                             if (dcTotSSTables > 0)
                             {
                                 var storeageValues = totalsNodes.Select(d => (decimal)d.SSTablesTotal / (decimal)dcTotSSTables);
@@ -447,7 +446,7 @@ namespace DSEDiagnosticToDataTable
 
                                 dataRow.SetField("Distribution SSTables From", maxNode);
                                 dataRow.SetField("Distribution SSTables To", minNode);
-                                dataRow.SetField("Distribution SSTables StdDev", stdDevNode);                                
+                                dataRow.SetField("Distribution SSTables StdDev", stdDevNode);
                             }
                             if (dcTotKeys > 0)
                             {
@@ -475,8 +474,8 @@ namespace DSEDiagnosticToDataTable
                                 dataRow.SetField("Reads Avg", avgValue);
                                 dataRow.SetField("Reads StdDev", avgValue);
                                 dataRow.SetField("Reads Total", dcTotReads);
-                                dataRow.SetField("Reads Percent", (decimal) dcTotReads / (decimal) clusterTotReads);
-                                
+                                dataRow.SetField("Reads Percent", (decimal)dcTotReads / (decimal)clusterTotReads);
+
                                 {
                                     var dcUserTot = dcStats.Where(i => !i.Keyspace.IsSystemKeyspace && !i.Keyspace.IsDSEKeyspace)
                                                         .Select(i => i.ReadTotal).DefaultIfEmpty().Sum();
@@ -500,8 +499,8 @@ namespace DSEDiagnosticToDataTable
                                 dataRow.SetField("Writes Avg", avgValue);
                                 dataRow.SetField("Writes StdDev", stdDevNode);
                                 dataRow.SetField("Writes Total", dcTotWrites);
-                                dataRow.SetField("Writes Percent", (decimal) dcTotWrites / (decimal) clusterTotWrites);
-                               
+                                dataRow.SetField("Writes Percent", (decimal)dcTotWrites / (decimal)clusterTotWrites);
+
                                 {
                                     var dcUserTot = dcStats.Where(i => !i.Keyspace.IsSystemKeyspace && !i.Keyspace.IsDSEKeyspace)
                                                         .Select(i => i.WriteTotal).DefaultIfEmpty().Sum();
@@ -509,7 +508,15 @@ namespace DSEDiagnosticToDataTable
                                     if (dcUserTot > 0)
                                         dataRow.SetField("Writes Total (User)", dcUserTot);
                                 }
+
                             }
+
+                            {
+                                var dcInsufficientSpace = dcStats.Sum(i => i.NbrCompStorageWarnings);
+
+                                if (dcInsufficientSpace > 0)
+                                    dataRow.SetField("DU Insufficient Space", dcInsufficientSpace);
+                            }                                                       
 
                             {
                                 var dcLWTTot = dcStats.Sum(i => i.LWTTotal);

@@ -471,6 +471,12 @@ namespace DSEDiagnosticLibrary
         public uint NbrCustomIndexes;
         public uint NbrMaterializedViews;
         public uint NbrTriggers;
+
+        public UnitOfMeasure Storage = UnitOfMeasure.NaNValue;
+        public long ReadCount;
+        public long WriteCount;
+        public long KeyCount;
+        public long SSTableCount;
     }
 
     public interface ICQLTable : IDDLStmt, IProperties, IEquatable<string>, IEquatable<ICQLTable>
@@ -485,8 +491,7 @@ namespace DSEDiagnosticLibrary
         string Compression { get; }
         bool WithCompactStorage { get; }        
         CQLTableStats Stats { get; }
-        UnitOfMeasure StorageUtilized { get; }
-
+       
         IEnumerable<ICQLColumn> TryGetColumns(IEnumerable<string> columns);
         ICQLColumn TryGetColumn(string columnName);
 
@@ -538,8 +543,7 @@ namespace DSEDiagnosticLibrary
             this.Properties = properties ?? new Dictionary<string, object>(0);
             this.Items = this.Columns.Count();
             this.IsFlagged = LibrarySettings.TablesUsageFlag.Contains(this.FullName);
-            this.StorageUtilized = new UnitOfMeasure(UnitOfMeasure.Types.NaN | UnitOfMeasure.Types.Storage);
-
+            
             if(!this.IsFlagged)
             {
                 this.IsFlagged = LibrarySettings.TablesUsageFlag.Contains(this.Keyspace.Name);
@@ -562,10 +566,8 @@ namespace DSEDiagnosticLibrary
             #region Properties
 
             if (this.Properties.Count > 0)
-            {
-                object pValue;
-
-                if(this.Properties.TryGetValue("compact storage", out pValue))
+            {                
+                if(this.Properties.TryGetValue("compact storage", out object pValue))
                 {
                     this.WithCompactStorage = (bool) pValue;
                 }
@@ -596,9 +598,8 @@ namespace DSEDiagnosticLibrary
                     }
 
                     if (isEnabled)
-                    {
-                        object compressionType;
-                        if(compressionProps.TryGetValue("sstable_compression", out compressionType))
+                    {                       
+                        if(compressionProps.TryGetValue("sstable_compression", out object compressionType))
                         {
                             if(string.IsNullOrEmpty((string) compressionType))
                             {
@@ -708,10 +709,8 @@ namespace DSEDiagnosticLibrary
             {
                 ++this.Stats.NbrMaterializedViews;
             }
-            else if (ddl is ICQLIndex)
-            {
-                var idxInstance = (ICQLIndex)ddl;
-
+            else if (ddl is ICQLIndex idxInstance)
+            {               
                 if (idxInstance.IsCustom)
                 {
                     if (idxInstance.IsSolr)
@@ -770,10 +769,7 @@ namespace DSEDiagnosticLibrary
             return this.Columns.FirstOrDefault(c => c.Name == columnName);
         }
 
-        public bool IsFlagged { get; protected set; }
-
-        public UnitOfMeasure StorageUtilized { get; private set; }
-
+        public bool IsFlagged { get; protected set; }        
         #endregion
 
         #region IParsed
@@ -899,11 +895,27 @@ namespace DSEDiagnosticLibrary
 
         public UnitOfMeasure AddToStorage(UnitOfMeasure size)
         {
-            return this.StorageUtilized = this.StorageUtilized.Add(size);
+            return this.Stats.Storage = this.Stats.Storage.Add(size);
         }
         public UnitOfMeasure AddToStorage(decimal size)
         {
-            return this.StorageUtilized = this.StorageUtilized.Add(size);
+            return this.Stats.Storage = this.Stats.Storage.Add(size);
+        }
+        public long AddToReadCount(long readCount)
+        {
+            return this.Stats.ReadCount += readCount;
+        }
+        public long AddToWriteCount(long writeCount)
+        {
+            return this.Stats.WriteCount += writeCount;
+        }
+        public long AddToKeyCount(long keyCount)
+        {
+            return this.Stats.KeyCount += keyCount;
+        }
+        public long AddToSSTableCount(long sstableCount)
+        {
+            return this.Stats.SSTableCount += sstableCount;
         }
 
         public static ICQLTable TryGet(IKeyspace ksInstance, string name)

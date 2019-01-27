@@ -132,7 +132,7 @@ namespace DSEDiagnosticToDataTable
                             {
                                 dataRow.SetField("Compaction Strategy", ((DSEDiagnosticLibrary.ICQLIndex)ddlItem).UsingClassNormalized);
                             }
-                            dataRow.SetFieldToDecimal("Storage (MB)", ((DSEDiagnosticLibrary.ICQLIndex)ddlItem).StorageUtilized, DSEDiagnosticLibrary.UnitOfMeasure.Types.MiB);
+                            dataRow.SetFieldToDecimal("Storage (MB)", ((DSEDiagnosticLibrary.ICQLIndex)ddlItem).Storage, DSEDiagnosticLibrary.UnitOfMeasure.Types.MiB);
                         }
                         else if (ddlItem is DSEDiagnosticLibrary.ICQLUserDefinedType)
                         {
@@ -167,7 +167,7 @@ namespace DSEDiagnosticToDataTable
                             dataRow.SetField("GC Grace Period", ((DSEDiagnosticLibrary.ICQLTable)ddlItem).GetPropertyValue("gc_grace_seconds"));
                             dataRow.SetField("TTL", ((DSEDiagnosticLibrary.ICQLTable)ddlItem).GetPropertyValue("default_time_to_live"));
                             dataRow.SetField("Memtable Flush Period", ((DSEDiagnosticLibrary.ICQLTable)ddlItem).GetPropertyValueInMSLong("memtable_flush_period_in_ms"));
-                            dataRow.SetFieldToDecimal("Storage (MB)", ((DSEDiagnosticLibrary.ICQLTable)ddlItem).StorageUtilized, DSEDiagnosticLibrary.UnitOfMeasure.Types.MiB);
+                            dataRow.SetFieldToDecimal("Storage (MB)", ((DSEDiagnosticLibrary.ICQLTable)ddlItem).Stats.Storage, DSEDiagnosticLibrary.UnitOfMeasure.Types.MiB);
 
                             if (ddlItem is DSEDiagnosticLibrary.ICQLMaterializedView)
                             {

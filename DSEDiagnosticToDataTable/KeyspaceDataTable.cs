@@ -20,57 +20,108 @@ namespace DSEDiagnosticToDataTable
 
         public string[] IgnoreKeySpaces { get; }
 
+        public struct Columns
+        {
+            public const string Name = "Name";
+            public const string ReplicationStrategy = "Replication Strategy";
+            public const string ReplicationFactor = "Replication Factor";
+            public const string Tables = "Tables";
+            public const string Views = "Views";
+            public const string SecondaryIndexes = "Secondary Indexes";
+            public const string SolrIndexes = "solr Indexes";
+            public const string SASIndexes = "SAS Indexes";
+            public const string CustomIndexes = "Custom Indexes";
+            public const string Functions = "Functions";
+            public const string Triggers = "Triggers";
+            public const string Total = "Total";
+            public const string Active = "Active";
+            public const string STCS = "STCS";
+            public const string LCS = "LCS";
+            public const string DTCS = "DTCS";
+            public const string TCS = "TCS";
+            public const string TWCS = "TWCS";
+            public const string OtherStrategies = "Other Strategies";
+            public const string ColumnTotal = "Column Total";
+            public const string ColumnCollections = "Column Collections";
+            public const string ColumnBlobs = "Column Blobs";
+            public const string ColumnStatic = "Column Static";
+            public const string ColumnFrozen = "Column Frozen";
+            public const string ColumnTuple = "Column Tuple";
+            public const string ColumnUDT = "Column UDT";
+            public const string ReadRepairChance = "Read-Repair Chance (Max)";
+            public const string ReadRepairDCChance = "Read-Repair DC Chance";
+            public const string GCGrace = "GC Grace (Max)";
+            public const string TTL = "TTL (Max)";
+            public const string OrderBy = "OrderBy";
+            public const string Storage = "Storage (MB)";
+            public const string StorageUtilized = "Storage Utilized";
+            public const string ReadPercent = "Read Percent";
+            public const string WritePercent = "Write Percent";
+            public const string PartitionKeys = "Partition Keys";
+            public const string PartitionKeyPercent = "Key Percent";
+            public const string SSTables = "SSTable";
+            public const string SSTablePercent = "SSTable Percent";
+            public const string DDL = "DDL";
+        }
+
         public override DataTable CreateInitializationTable()
         {
             var dtKeySpace = new DataTable(TableNames.Keyspaces, TableNames.Namespace);
 
             if (this.SessionId.HasValue) dtKeySpace.Columns.Add(ColumnNames.SessionId, typeof(Guid));
 
-            dtKeySpace.Columns.Add("Name", typeof(string));
+            dtKeySpace.Columns.Add(Columns.Name, typeof(string));
             dtKeySpace.Columns.Add(ColumnNames.DataCenter, typeof(string));
-            dtKeySpace.Columns.Add("Replication Strategy", typeof(string));            
-            dtKeySpace.Columns.Add("Replication Factor", typeof(int));
+            dtKeySpace.Columns.Add(Columns.ReplicationStrategy, typeof(string));            
+            dtKeySpace.Columns.Add(Columns.ReplicationFactor, typeof(int));
 
-            dtKeySpace.Columns.Add("Tables", typeof(int)).AllowDBNull = true;
-            dtKeySpace.Columns.Add("Views", typeof(int)).AllowDBNull = true;
-            dtKeySpace.Columns.Add("Secondary Indexes", typeof(int)).AllowDBNull = true;
-            dtKeySpace.Columns.Add("solr Indexes", typeof(int)).AllowDBNull = true;
-            dtKeySpace.Columns.Add("SAS Indexes", typeof(int)).AllowDBNull = true;
-            dtKeySpace.Columns.Add("Custom Indexes", typeof(int)).AllowDBNull = true;
-            dtKeySpace.Columns.Add("Functions", typeof(int)).AllowDBNull = true;
-            dtKeySpace.Columns.Add("Triggers", typeof(int)).AllowDBNull = true;
-            dtKeySpace.Columns.Add("Total", typeof(int)).AllowDBNull = true;
-            dtKeySpace.Columns.Add("Active", typeof(int)).AllowDBNull = true;
+            dtKeySpace.Columns.Add(Columns.Tables, typeof(int)).AllowDBNull = true;
+            dtKeySpace.Columns.Add(Columns.Views, typeof(int)).AllowDBNull = true;
+            dtKeySpace.Columns.Add(Columns.SecondaryIndexes, typeof(int)).AllowDBNull = true;
+            dtKeySpace.Columns.Add(Columns.SolrIndexes, typeof(int)).AllowDBNull = true;
+            dtKeySpace.Columns.Add(Columns.SASIndexes, typeof(int)).AllowDBNull = true;
+            dtKeySpace.Columns.Add(Columns.CustomIndexes, typeof(int)).AllowDBNull = true;
+            dtKeySpace.Columns.Add(Columns.Functions, typeof(int)).AllowDBNull = true;
+            dtKeySpace.Columns.Add(Columns.Triggers, typeof(int)).AllowDBNull = true;
+            dtKeySpace.Columns.Add(Columns.Total, typeof(int)).AllowDBNull = true;
+            dtKeySpace.Columns.Add(Columns.Active, typeof(int)).AllowDBNull = true;
 
-            dtKeySpace.Columns.Add("STCS", typeof(int)).AllowDBNull = true;
-            dtKeySpace.Columns.Add("LCS", typeof(int)).AllowDBNull = true;
-            dtKeySpace.Columns.Add("DTCS", typeof(int)).AllowDBNull = true;
-            dtKeySpace.Columns.Add("TCS", typeof(int)).AllowDBNull = true;
-            dtKeySpace.Columns.Add("TWCS", typeof(int)).AllowDBNull = true;
-            dtKeySpace.Columns.Add("Other Strategies", typeof(int)).AllowDBNull = true;
+            dtKeySpace.Columns.Add(Columns.STCS, typeof(int)).AllowDBNull = true;
+            dtKeySpace.Columns.Add(Columns.LCS, typeof(int)).AllowDBNull = true;
+            dtKeySpace.Columns.Add(Columns.DTCS, typeof(int)).AllowDBNull = true;
+            dtKeySpace.Columns.Add(Columns.TCS, typeof(int)).AllowDBNull = true;
+            dtKeySpace.Columns.Add(Columns.TWCS, typeof(int)).AllowDBNull = true;
+            dtKeySpace.Columns.Add(Columns.OtherStrategies, typeof(int)).AllowDBNull = true;
 
-            dtKeySpace.Columns.Add("Column Total", typeof(int)).AllowDBNull = true;
-            dtKeySpace.Columns.Add("Column Collections", typeof(int)).AllowDBNull = true;
-            dtKeySpace.Columns.Add("Column Blobs", typeof(int)).AllowDBNull = true;
-            dtKeySpace.Columns.Add("Column Static", typeof(int)).AllowDBNull = true;
-            dtKeySpace.Columns.Add("Column Frozen", typeof(int)).AllowDBNull = true;
-            dtKeySpace.Columns.Add("Column Tuple", typeof(int)).AllowDBNull = true;
-            dtKeySpace.Columns.Add("Column UDT", typeof(int)).AllowDBNull = true;
+            dtKeySpace.Columns.Add(Columns.ColumnTotal, typeof(int)).AllowDBNull = true;
+            dtKeySpace.Columns.Add(Columns.ColumnCollections, typeof(int)).AllowDBNull = true;
+            dtKeySpace.Columns.Add(Columns.ColumnBlobs, typeof(int)).AllowDBNull = true;
+            dtKeySpace.Columns.Add(Columns.ColumnStatic, typeof(int)).AllowDBNull = true;
+            dtKeySpace.Columns.Add(Columns.ColumnFrozen, typeof(int)).AllowDBNull = true;
+            dtKeySpace.Columns.Add(Columns.ColumnTuple, typeof(int)).AllowDBNull = true;
+            dtKeySpace.Columns.Add(Columns.ColumnUDT, typeof(int)).AllowDBNull = true;
 
-            dtKeySpace.Columns.Add("Read-Repair Chance (Max)", typeof(decimal)).AllowDBNull = true;
-            dtKeySpace.Columns.Add("Read-Repair DC Chance", typeof(decimal)).AllowDBNull = true;
-            //dtKeySpace.Columns.Add("Read-Repair Policy (Majority)", typeof(string)).AllowDBNull = true;
+            dtKeySpace.Columns.Add(Columns.ReadRepairChance, typeof(decimal)).AllowDBNull = true;
+            dtKeySpace.Columns.Add(Columns.ReadRepairDCChance, typeof(decimal)).AllowDBNull = true;
+            //dtKeySpace.Columns.Add(Columns.ReadRepairPolicy", typeof(string)).AllowDBNull = true;
 
-            dtKeySpace.Columns.Add("GC Grace (Max)", typeof(TimeSpan)).AllowDBNull = true;
-            dtKeySpace.Columns.Add("TTL (Max)", typeof(TimeSpan)).AllowDBNull = true;
+            dtKeySpace.Columns.Add(Columns.GCGrace, typeof(TimeSpan)).AllowDBNull = true;
+            dtKeySpace.Columns.Add(Columns.TTL, typeof(TimeSpan)).AllowDBNull = true;
 
-            dtKeySpace.Columns.Add("OrderBy", typeof(int)).AllowDBNull = true;
+            dtKeySpace.Columns.Add(Columns.OrderBy, typeof(int)).AllowDBNull = true;
 
-            dtKeySpace.Columns.Add("Storage (MB)", typeof(decimal)).AllowDBNull = true;
+            dtKeySpace.Columns.Add(Columns.Storage, typeof(decimal)).AllowDBNull = true;
+            dtKeySpace.Columns.Add(Columns.StorageUtilized, typeof(decimal)).AllowDBNull = true;
+            dtKeySpace.Columns.Add(Columns.ReadPercent, typeof(decimal)).AllowDBNull = true;
+            dtKeySpace.Columns.Add(Columns.WritePercent, typeof(decimal)).AllowDBNull = true;
+            dtKeySpace.Columns.Add(Columns.PartitionKeys, typeof(long)).AllowDBNull = true;
+            dtKeySpace.Columns.Add(Columns.PartitionKeyPercent, typeof(decimal)).AllowDBNull = true;
+            dtKeySpace.Columns.Add(Columns.SSTables, typeof(long)).AllowDBNull = true;
+            dtKeySpace.Columns.Add(Columns.SSTablePercent, typeof(decimal)).AllowDBNull = true;
 
             dtKeySpace.Columns.Add("DDL", typeof(string));
 
-            dtKeySpace.PrimaryKey = new System.Data.DataColumn[] { dtKeySpace.Columns["Name"], dtKeySpace.Columns[ColumnNames.DataCenter] };
+            dtKeySpace.PrimaryKey = new System.Data.DataColumn[] { dtKeySpace.Columns[Columns.Name], dtKeySpace.Columns[ColumnNames.DataCenter] };
 
             dtKeySpace.DefaultView.ApplyDefaultSort = false;
             dtKeySpace.DefaultView.AllowDelete = false;
@@ -87,7 +138,7 @@ namespace DSEDiagnosticToDataTable
         /// <returns></returns>
         /// <exception cref="Exception">Should re-thrown any exception except for OperationCanceledException</exception>
         public override DataTable LoadTable()
-        {
+        {            
             this.Table.BeginLoadData();
             try
             {
@@ -95,6 +146,15 @@ namespace DSEDiagnosticToDataTable
                 int nbrItems = 0;
 
                 Logger.Instance.InfoFormat("Loading Keyspace Information for Cluster \"{0}\"", this.Cluster.Name);
+
+                var clusterTotalStorage = this.Cluster.Nodes
+                                                    .Where(n => !n.DSE.StorageUsed.NaN)
+                                                    .DefaultIfEmpty()
+                                                    .Sum(n => n.DSE.StorageUsed.ConvertSizeUOM(DSEDiagnosticLibrary.UnitOfMeasure.Types.MiB));
+                var clusterTotalReads = this.Cluster.Nodes.DefaultIfEmpty().Sum(n => n.DSE.ReadCount);
+                var clusterTotalWrite = this.Cluster.Nodes.DefaultIfEmpty().Sum(n => n.DSE.WriteCount);
+                var clusterTotalSSTables = this.Cluster.Nodes.DefaultIfEmpty().Sum(n => n.DSE.SSTableCount);
+                var clusterTotalKeys = this.Cluster.Nodes.DefaultIfEmpty().Sum(n => n.DSE.KeyCount);
 
                 foreach (var keySpace in this.Cluster.Keyspaces)
                 {
@@ -120,12 +180,17 @@ namespace DSEDiagnosticToDataTable
                         {
                             dataRow = this.Table.NewRow();
                             if (this.SessionId.HasValue) dataRow.SetField(ColumnNames.SessionId, this.SessionId.Value);
-                            dataRow["Name"] = keySpace.Name;
-                            dataRow["Replication Strategy"] = keySpace.ReplicationStrategy;
+                            dataRow[Columns.Name] = keySpace.Name;
+                            dataRow[Columns.ReplicationStrategy] = keySpace.ReplicationStrategy;
                             dataRow[ColumnNames.DataCenter] = keySpace.DataCenter?.Name ?? "<NA>";
-                            dataRow["Replication Factor"] = 0;
+                            dataRow[Columns.ReplicationFactor] = 0;
                             dataRow.SetFieldStringLimit("DDL", keySpace.DDL);
-                            this.SetKeyspaceStats(keySpace, dataRow);
+                            this.SetKeyspaceStats(keySpace, dataRow,
+                                                        clusterTotalStorage,
+                                                        clusterTotalReads,
+                                                        clusterTotalWrite,
+                                                        clusterTotalKeys,
+                                                        clusterTotalSSTables);
                             this.Table.Rows.Add(dataRow);
                             ++nbrItems;
                         }
@@ -133,25 +198,30 @@ namespace DSEDiagnosticToDataTable
                     else
                     {
                         bool firstRepl = true;
-
+                        
                         foreach (var replication in keySpace.Replications)
                         {
                             if (this.Table.Rows.Contains(new object[] { keySpace.Name, replication.DataCenter.Name }))
                             {
                                 continue;
                             }
-
+                            
                             dataRow = this.Table.NewRow();
                             if (this.SessionId.HasValue) dataRow.SetField(ColumnNames.SessionId, this.SessionId.Value);
-                            dataRow["Name"] = keySpace.Name;
-                            dataRow["Replication Strategy"] = keySpace.ReplicationStrategy;
-                            dataRow["Data Center"] = replication.DataCenter.Name;
-                            dataRow["Replication Factor"] = (int)replication.RF;
+                            dataRow[Columns.Name] = keySpace.Name;
+                            dataRow[Columns.ReplicationStrategy] = keySpace.ReplicationStrategy;
+                            dataRow[ColumnNames.DataCenter] = replication.DataCenter.Name;
+                            dataRow[Columns.ReplicationFactor] = (int)replication.RF;
                             
                             if (firstRepl)
-                            {
+                            {                                
                                 firstRepl = false;
-                                this.SetKeyspaceStats(keySpace, dataRow);
+                                this.SetKeyspaceStats(keySpace, dataRow,
+                                                        clusterTotalStorage,
+                                                        clusterTotalReads,
+                                                        clusterTotalWrite,
+                                                        clusterTotalKeys,
+                                                        clusterTotalSSTables);
                             }
 
                             this.Table.Rows.Add(dataRow);
@@ -175,18 +245,23 @@ namespace DSEDiagnosticToDataTable
             return this.Table;
         }
 
-        private void SetKeyspaceStats(DSEDiagnosticLibrary.IKeyspace keySpace, DataRow dataRow)
+        private void SetKeyspaceStats(DSEDiagnosticLibrary.IKeyspace keySpace, DataRow dataRow,
+                                        decimal clusterStorage,
+                                        long clusterReads,
+                                        long clusterWrites,
+                                        long clusterKeys,
+                                        long clusterSSTables)
         {
-            dataRow["Tables"] = (int)keySpace.Stats.Tables;
-            dataRow["Views"] = (int)keySpace.Stats.MaterialViews;
-            dataRow["Column Total"] = (int)keySpace.Stats.Columns;
-            dataRow["Secondary Indexes"] = (int)keySpace.Stats.SecondaryIndexes;
-            dataRow["solr Indexes"] = (int)keySpace.Stats.SolrIndexes;
-            dataRow["SAS Indexes"] = (int)keySpace.Stats.SasIIIndexes;
-            dataRow["Custom Indexes"] = (int)keySpace.Stats.CustomIndexes;
-            dataRow["Triggers"] = (int)keySpace.Stats.Triggers;
-            dataRow["Functions"] = (int)keySpace.Stats.Functions;
-            dataRow["Total"] = (int)(keySpace.Stats.Tables
+            dataRow[Columns.Tables] = (int)keySpace.Stats.Tables;
+            dataRow[Columns.Views] = (int)keySpace.Stats.MaterialViews;
+            dataRow[Columns.ColumnTotal] = (int)keySpace.Stats.Columns;
+            dataRow[Columns.SecondaryIndexes] = (int)keySpace.Stats.SecondaryIndexes;
+            dataRow[Columns.SolrIndexes] = (int)keySpace.Stats.SolrIndexes;
+            dataRow[Columns.SASIndexes] = (int)keySpace.Stats.SasIIIndexes;
+            dataRow[Columns.CustomIndexes] = (int)keySpace.Stats.CustomIndexes;
+            dataRow[Columns.Triggers] = (int)keySpace.Stats.Triggers;
+            dataRow[Columns.Functions] = (int)keySpace.Stats.Functions;
+            dataRow[Columns.Total] = (int)(keySpace.Stats.Tables
                                         + keySpace.Stats.MaterialViews
                                         + keySpace.Stats.SecondaryIndexes
                                         + keySpace.Stats.SolrIndexes
@@ -195,35 +270,53 @@ namespace DSEDiagnosticToDataTable
                                         + keySpace.Stats.Functions
                                         + keySpace.Stats.Triggers);
 
-            dataRow["STCS"] = (int)keySpace.Stats.STCS;
-            dataRow["LCS"] = (int)keySpace.Stats.LCS;
-            dataRow["DTCS"] = (int)keySpace.Stats.DTCS;
-            dataRow["TCS"] = (int)keySpace.Stats.TCS;
-            dataRow["TWCS"] = (int)keySpace.Stats.TWCS;
-            dataRow["Other Strategies"] = (int)keySpace.Stats.OtherStrategies;
+            dataRow[Columns.STCS] = (int)keySpace.Stats.STCS;
+            dataRow[Columns.LCS] = (int)keySpace.Stats.LCS;
+            dataRow[Columns.DTCS] = (int)keySpace.Stats.DTCS;
+            dataRow[Columns.TCS] = (int)keySpace.Stats.TCS;
+            dataRow[Columns.TWCS] = (int)keySpace.Stats.TWCS;
+            dataRow[Columns.OtherStrategies] = (int)keySpace.Stats.OtherStrategies;
 
-            dataRow["Active"] = (int)keySpace.Stats.NbrActive;
-            dataRow.SetFieldStringLimit("DDL", keySpace.DDL);
+            dataRow[Columns.Active] = (int)keySpace.Stats.NbrActive;
+            dataRow.SetFieldStringLimit(Columns.DDL, keySpace.DDL);
 
-            dataRow["Column Collections"] = (int)keySpace.Stats.ColumnStat.Collections;
-            dataRow["Column Blobs"] = (int)keySpace.Stats.ColumnStat.Blobs;
-            dataRow["Column Static"] = (int)keySpace.Stats.ColumnStat.Static;
-            dataRow["Column Frozen"] = (int)keySpace.Stats.ColumnStat.Frozen;
-            dataRow["Column Tuple"] = (int)keySpace.Stats.ColumnStat.Tuple;
-            dataRow["Column UDT"] = (int)keySpace.Stats.ColumnStat.UDT;
+            dataRow[Columns.ColumnCollections] = (int)keySpace.Stats.ColumnStat.Collections;
+            dataRow[Columns.ColumnBlobs] = (int)keySpace.Stats.ColumnStat.Blobs;
+            dataRow[Columns.ColumnStatic] = (int)keySpace.Stats.ColumnStat.Static;
+            dataRow[Columns.ColumnFrozen] = (int)keySpace.Stats.ColumnStat.Frozen;
+            dataRow[Columns.ColumnTuple] = (int)keySpace.Stats.ColumnStat.Tuple;
+            dataRow[Columns.ColumnUDT] = (int)keySpace.Stats.ColumnStat.UDT;
             if(keySpace.Stats.MaxReadRepairChance >= 0)
-                dataRow["Read-Repair Chance (Max)"] = keySpace.Stats.MaxReadRepairChance;
+                dataRow[Columns.ReadRepairChance] = keySpace.Stats.MaxReadRepairChance;
             if(keySpace.Stats.MaxReadRepairDCChance >= 0)
-                dataRow["Read-Repair DC Chance"] = keySpace.Stats.MaxReadRepairDCChance;
-            //dataRow["Read-Repair Policy (Majority)"] = (int)keySpace.Stats.
-            if(keySpace.Stats.MaxGCGrace > TimeSpan.MinValue)
-                dataRow["GC Grace (Max)"] = keySpace.Stats.MaxGCGrace;
+                dataRow[Columns.ReadRepairDCChance] = keySpace.Stats.MaxReadRepairDCChance;
+            //dataRow[Columns.ReadRepairPolicy] = (int)keySpace.Stats.
+            if (keySpace.Stats.MaxGCGrace > TimeSpan.MinValue)
+                dataRow[Columns.GCGrace] = keySpace.Stats.MaxGCGrace;
             if(keySpace.Stats.MaxTTL > TimeSpan.MinValue)
-                dataRow["TTL (Max)"] = keySpace.Stats.MaxTTL;
+                dataRow[Columns.TTL] = keySpace.Stats.MaxTTL;
 
-            dataRow["OrderBy"] = keySpace.Stats.NbrOrderBys;
+            dataRow[Columns.OrderBy] = keySpace.Stats.NbrOrderBys;
 
-            dataRow.SetFieldToDecimal("Storage (MB)", keySpace.StorageUtilized, DSEDiagnosticLibrary.UnitOfMeasure.Types.MiB);
+            if (!keySpace.Stats.Storage.NaN)
+            {
+                var ksStorage = keySpace.Stats.Storage.ConvertSizeUOM(DSEDiagnosticLibrary.UnitOfMeasure.Types.MiB);
+
+                dataRow.SetField(Columns.Storage, ksStorage);
+
+                if (clusterStorage > 0m)
+                    dataRow.SetField(Columns.StorageUtilized, ksStorage/clusterStorage);
+            }
+            if (clusterReads > 0)
+                dataRow.SetField(Columns.ReadPercent, ((decimal) keySpace.Stats.ReadCount) /  (decimal) clusterReads);
+            if (clusterWrites > 0)
+                dataRow.SetField(Columns.WritePercent, ((decimal)keySpace.Stats.WriteCount) / (decimal)clusterWrites);
+            if (clusterKeys > 0)
+                dataRow.SetField(Columns.PartitionKeyPercent, ((decimal)keySpace.Stats.KeyCount) / (decimal)clusterKeys);
+            dataRow.SetField(Columns.PartitionKeys, keySpace.Stats.KeyCount);
+            if (clusterSSTables > 0)
+                dataRow.SetField(Columns.SSTablePercent, ((decimal)keySpace.Stats.SSTableCount) / (decimal)clusterSSTables);
+            dataRow.SetField(Columns.SSTables, keySpace.Stats.SSTableCount);
         }
 
     }

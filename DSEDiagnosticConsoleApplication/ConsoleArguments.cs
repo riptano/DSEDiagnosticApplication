@@ -342,6 +342,41 @@ namespace DSEDiagnosticConsoleApplication
             bool onlyNodesInitial = true;
             bool diagnosticPathPresent = false;
 
+            if(args.Any(i => i.Any(c => c == '"')))
+            {
+                var argList = new List<string>();
+
+                foreach (var arg in args)
+                {
+                    if (arg.Contains("\""))
+                    {
+                        var argItems = arg.Split('"', ' ');
+                        bool nullFnd = false;
+
+                        foreach(var item in argItems)
+                        {
+                            if (string.IsNullOrEmpty(item))
+                            {
+                                if (nullFnd)
+                                {
+                                    argList.Add(string.Empty);
+                                    nullFnd = false;
+                                }
+                                else
+                                    nullFnd = true;
+                                continue;
+                            }
+
+                            nullFnd = false;
+                            argList.Add(item.Trim());
+                        }
+                    }
+                    else
+                        argList.Add(arg);
+                }
+                args = argList.ToArray();
+            }
+
             this._cmdLineParser.ParseCommandLine(args);
 
             if (!this._cmdLineParser.ParsingSucceeded)
