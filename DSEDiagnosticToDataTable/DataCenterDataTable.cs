@@ -21,6 +21,7 @@ namespace DSEDiagnosticToDataTable
         public override DataTable CreateInitializationTable()
         {
             var dtDCInfo = new DataTable(TableNames.DataCenters, TableNames.Namespace);
+            dtDCInfo.CaseSensitive();
 
             if (this.SessionId.HasValue) dtDCInfo.Columns.Add(ColumnNames.SessionId, typeof(Guid));
 

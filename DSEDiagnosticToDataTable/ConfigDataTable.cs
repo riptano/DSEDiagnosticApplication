@@ -20,7 +20,7 @@ namespace DSEDiagnosticToDataTable
         public override DataTable CreateInitializationTable()
         {
             var dtConfig = new DataTable(TableNames.Config, TableNames.Namespace);
-
+           
             if(this.SessionId.HasValue) dtConfig.Columns.Add(ColumnNames.SessionId, typeof(Guid));
 
             dtConfig.Columns.Add(ColumnNames.DataCenter, typeof(string));

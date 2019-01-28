@@ -67,6 +67,7 @@ namespace DSEDiagnosticToDataTable
         public override DataTable CreateInitializationTable()
         {
             var dtKeySpace = new DataTable(TableNames.Keyspaces, TableNames.Namespace);
+            dtKeySpace.CaseSensitive();
 
             if (this.SessionId.HasValue) dtKeySpace.Columns.Add(ColumnNames.SessionId, typeof(Guid));
 

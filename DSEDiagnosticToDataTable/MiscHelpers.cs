@@ -16,6 +16,12 @@ namespace DSEDiagnosticToDataTable
             return dataColumn;
         }
 
+        public static DataTable CaseSensitive(this DataTable dataTable, bool isCaseSensitive = true)
+        {
+            dataTable.CaseSensitive = isCaseSensitive;
+            return dataTable;
+        }
+
         public static DataColumn EnableUnique(this DataColumn dataColumn, bool enabled = true)
         {
             dataColumn.Unique = enabled;
