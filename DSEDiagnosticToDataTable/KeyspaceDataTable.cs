@@ -35,6 +35,7 @@ namespace DSEDiagnosticToDataTable
             public const string Triggers = "Triggers";
             public const string Total = "Total";
             public const string Active = "Active";
+            public const string ActivePercent = "Active Percent";
             public const string STCS = "STCS";
             public const string LCS = "LCS";
             public const string DTCS = "DTCS";
@@ -86,6 +87,7 @@ namespace DSEDiagnosticToDataTable
             dtKeySpace.Columns.Add(Columns.Triggers, typeof(int)).AllowDBNull = true;
             dtKeySpace.Columns.Add(Columns.Total, typeof(int)).AllowDBNull = true;
             dtKeySpace.Columns.Add(Columns.Active, typeof(int)).AllowDBNull = true;
+            dtKeySpace.Columns.Add(Columns.ActivePercent, typeof(decimal)).AllowDBNull = true;
 
             dtKeySpace.Columns.Add(Columns.STCS, typeof(int)).AllowDBNull = true;
             dtKeySpace.Columns.Add(Columns.LCS, typeof(int)).AllowDBNull = true;
@@ -279,6 +281,18 @@ namespace DSEDiagnosticToDataTable
             dataRow[Columns.OtherStrategies] = (int)keySpace.Stats.OtherStrategies;
 
             dataRow[Columns.Active] = (int)keySpace.Stats.NbrActive;
+            {
+                var totActive = (decimal) (keySpace.Stats.Tables
+                                            + keySpace.Stats.MaterialViews
+                                            + keySpace.Stats.SecondaryIndexes                                       
+                                            + keySpace.Stats.SasIIIndexes
+                                            + keySpace.Stats.CustomIndexes);
+                if(totActive > 0m)
+                {
+                    dataRow[Columns.ActivePercent] = ((decimal)keySpace.Stats.NbrActive / totActive);
+                }
+            }
+            
             dataRow.SetFieldStringLimit(Columns.DDL, keySpace.DDL);
 
             dataRow[Columns.ColumnCollections] = (int)keySpace.Stats.ColumnStat.Collections;

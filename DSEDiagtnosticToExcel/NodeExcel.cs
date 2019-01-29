@@ -109,7 +109,7 @@ namespace DSEDiagtnosticToExcel
                                                                                     .SetCaption("End")
                                                                                     .SetNumericFormat(Properties.Settings.Default.ExcelDateTimeFormat),
                                                                     this.DataTable.GetColumn("Uptime")
-                                                                                    .AvgerageColumn()
+                                                                                    .AvgerageColumn(includeCondFmt: false)
                                                                                     .SetNumericFormat(Properties.Settings.Default.ExcelTimeSpanFormat)
                                                                                     .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonAnalysisDuration)
                                                                      );
@@ -123,7 +123,7 @@ namespace DSEDiagtnosticToExcel
                                                                                     .SetNumericFormat(Properties.Settings.Default.ExcelDateTimeFormat),
                                                                     this.DataTable.GetColumn("Log Duration")
                                                                                     .SetCaption("Duration")
-                                                                                    .AvgerageColumn()
+                                                                                    .AvgerageColumn(includeCondFmt: false)
                                                                                     .SetNumericFormat(Properties.Settings.Default.ExcelTimeSpanFormat)
                                                                                     .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonAnalysisDuration),
                                                                     this.DataTable.GetColumn("Log Timespan Difference")
@@ -146,7 +146,7 @@ namespace DSEDiagtnosticToExcel
                                                                                     .SetNumericFormat(Properties.Settings.Default.ExcelDateTimeFormat),
                                                                     this.DataTable.GetColumn("Debug Log Duration")
                                                                                     .SetCaption("Duration")
-                                                                                    .AvgerageColumn()
+                                                                                    .AvgerageColumn(includeCondFmt: false)
                                                                                     .SetNumericFormat(Properties.Settings.Default.ExcelTimeSpanFormat)
                                                                                     .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonAnalysisDuration),
                                                                     this.DataTable.GetColumn("Debug Log Timespan Difference")

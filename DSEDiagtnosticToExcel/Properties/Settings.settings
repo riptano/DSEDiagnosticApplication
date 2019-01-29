@@ -1805,5 +1805,51 @@
     <Setting Name="TriggerPartitionSizeFactor" Type="System.Decimal" Scope="Application">
       <Value Profile="(Default)">0.9</Value>
     </Setting>
+    <Setting Name="CondFmtJsonActiveTblsPercent" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">[
+  {
+    "Type": "Min",
+    "SubType": "Num",
+    "RuleType": "ThreeColorScale",
+    "SubRuleType": "Equal",
+    "Value": 0.25,
+    "FormulaText": null,
+    "FormulaTextBetween": null,
+    "Color": "Red",
+    "ShowValue": true,
+    "StopIfTrue": false,
+    "Priority": 1,
+    "IncludeTotalRow": true
+  },
+  {
+    "Type": "Num",
+    "SubType": "Num",
+    "RuleType": "ThreeColorScale",
+    "SubRuleType": "Equal",
+    "Value": 0.6,
+    "FormulaText": null,
+    "FormulaTextBetween": null,
+    "Color": "Yellow",
+    "ShowValue": true,
+    "StopIfTrue": false,
+    "Priority": 1,
+    "IncludeTotalRow": true
+  },
+  {
+    "Type": "Max",
+    "SubType": "Num",
+    "RuleType": "ThreeColorScale",
+    "SubRuleType": "Equal",
+    "Value": 1,
+    "FormulaText": null,
+    "FormulaTextBetween": null,
+    "Color": "Green",
+    "ShowValue": true,
+    "StopIfTrue": false,
+    "Priority": 1,
+    "IncludeTotalRow": true
+  }
+]</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

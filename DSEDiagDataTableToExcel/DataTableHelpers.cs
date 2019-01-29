@@ -162,13 +162,17 @@ namespace DataTableToExcel
         }
 
         /// <summary>
-        /// Sets a formula using a R1C1 content. Placeholders can be uses where &apos;{0}&apos; is the first row in the worksheet, &apos;{1}&apos; is the last row in the worksheet, and &apos;{2}&apos; is this data column&apos;s position in the worksheet.
+        /// Sets a formula using a R1C1 content. Placeholders can be uses where:
+        ///     &apos;{0}&apos; is the first row in the worksheet
+        ///     &apos;{1}&apos; is the last row in the worksheet
+        ///     &apos;{2}&apos; is this data column&apos;s position in the worksheet.
+        ///     
         /// Note to define a data column name paceholder, surrond the data column name with &quot;{}&quot; e.g., {MyDataColumn}
         /// <param name="dataColumn"></param>
         /// <param name="r1c1Formula"></param>
         /// <returns></returns>
         /// <example>
-        /// dtDCInfo.Columns.Add(&quot;Distribution Storage From&quot;, typeof(decimal)).SetFormulaR1C1(&quot;sum(R{0}C{2}:R{1}C{2})&quot;);
+        /// dtDCInfo.Columns.Add(&quot;Distribution Storage From&quot;, typeof(decimal)).SetFormulaR1C1(&quot;=sum(R{0}C{2}:R{1}C{2})&quot;);
         /// </example>
         public static DataColumn SetFormulaR1C1(this DataColumn dataColumn, string r1c1Formula)
         {
@@ -265,13 +269,17 @@ namespace DataTableToExcel
         }
 
         /// <summary>
-        /// Sets a formula using an A1 content. Placeholders can be uses where &apos;{0}&apos; is the first row in the worksheet, &apos;{1}&apos; is the last row in the worksheet, and &apos;{2}&apos; is this data column&apos;s position in the worksheet.
+        /// Sets a formula using an A1 content. Placeholders can be uses where:
+        ///     &apos;{0}&apos; is the first row in the worksheet
+        ///     &apos;{1}&apos; is the last row in the worksheet,
+        ///     &apos;{2}&apos; is this data column&apos;s position in the worksheet.
+        ///     
         /// Note to define a data column name paceholder, surrond the data column name with &quot;{}&quot; e.g., {MyDataColumn}
         /// <param name="dataColumn"></param>
         /// <param name="formula"></param>
         /// <returns></returns>
         /// <example>
-        /// dtDCInfo.Columns.Add(&quot;Distribution Storage From&quot;, typeof(decimal)).SetFormulaR1C1(&quot;sum(A{0}:A{1})&quot;);        
+        /// dtDCInfo.Columns.Add(&quot;Distribution Storage From&quot;, typeof(decimal)).SetFormula(&quot;=sum(A{0}:A{1})&quot;);        
         /// </example>
         public static DataColumn SetFormula(this DataColumn dataColumn, string formula)
         {
@@ -298,33 +306,70 @@ namespace DataTableToExcel
             return dataColumn;
         }
 
-        public static DataColumn TotalColumn(this DataColumn dataColumn, bool haveSumTotalLine = true, bool remove = false)
+        public static DataColumn TotalColumn(this DataColumn dataColumn, bool haveSumTotalLine = true, bool includeCondFmt = true, bool remove = false)
         {
             if (dataColumn.ExtendedProperties.ContainsKey("TotalColumn"))
             {
                 if (remove)
                     dataColumn.ExtendedProperties.Remove("TotalColumn");
                 else
-                    dataColumn.ExtendedProperties["TotalColumn"] = haveSumTotalLine;
+                    dataColumn.ExtendedProperties["TotalColumn"] = new Tuple<bool,bool>(haveSumTotalLine,includeCondFmt);
             }
-            else
-                dataColumn.ExtendedProperties.Add("TotalColumn", haveSumTotalLine);
+            else if (!remove)
+                dataColumn.ExtendedProperties.Add("TotalColumn", new Tuple<bool,bool>(haveSumTotalLine,includeCondFmt));
 
             return dataColumn;
         }
 
-        public static DataColumn AvgerageColumn(this DataColumn dataColumn, bool haveAvgTotalLine = true, bool remove = false)
+        public static DataColumn AvgerageColumn(this DataColumn dataColumn, bool haveAvgTotalLine = true, bool includeCondFmt = true, bool remove = false)
         {
             if (dataColumn.ExtendedProperties.ContainsKey("AverageColumn"))
             {
                 if (remove)
                     dataColumn.ExtendedProperties.Remove("AverageColumn");
                 else
-                    dataColumn.ExtendedProperties["AverageColumn"] = haveAvgTotalLine;
+                    dataColumn.ExtendedProperties["AverageColumn"] = new Tuple<bool,bool>(haveAvgTotalLine,includeCondFmt);
             }
-            else
-                dataColumn.ExtendedProperties.Add("AverageColumn", haveAvgTotalLine);
+            else if (!remove)
+                dataColumn.ExtendedProperties.Add("AverageColumn", new Tuple<bool,bool>(haveAvgTotalLine,includeCondFmt));
 
+            return dataColumn;
+        }
+
+        /// <summary>
+        /// Sets a formula using an A1 content. Placeholders can be uses where:
+        ///     &apos;{0}&apos; is the first row in the worksheet,
+        ///     &apos;{1}&apos; is the last row in the worksheet,
+        ///     &apos;{2}&apos; is this data column&apos;s position in the worksheet
+        ///     &apos;{3}&apos; is this data column&apos;s total row in the worksheet
+        ///     
+        /// Note to define a data column name paceholder, surrond the data column name with &quot;{}&quot; e.g., {MyDataColumn}
+        /// </summary>
+        /// <param name="dataColumn"></param>
+        /// <param name="formula"></param>
+        /// <param name="haveTotalLine"></param>
+        /// <param name="remove"></param>
+        /// <returns></returns>
+        /// <example>
+        /// dtDCInfo.Columns.Add(&quot;Distribution Storage From&quot;, typeof(decimal)).TotalFormulaColumn(&quot;=sum(A{0}:A{1})&quot;);        
+        /// </example>
+        public static DataColumn TotalFormulaColumn(this DataColumn dataColumn, string formula, bool haveTotalLine = true, bool includeCondFmt = true, bool remove = false)
+        {
+            if (dataColumn.ExtendedProperties.ContainsKey("TotalFormulaColumn"))
+            {
+                if (remove)
+                    dataColumn.ExtendedProperties.Remove("TotalFormulaColumn");
+                else
+                    dataColumn.ExtendedProperties["TotalFormulaColumn"] = new Tuple<string, bool, bool>(string.Format(TranslateFormula(dataColumn.Table, formula),
+                                                                                                                "{0}", "{1}",
+                                                                                                                ExcelTranslateColumnFromColOrdinaltoLetter(dataColumn.Ordinal),
+                                                                                                                "{2}"), haveTotalLine, includeCondFmt);
+            }
+            else if(!remove)
+                dataColumn.ExtendedProperties.Add("TotalFormulaColumn", new Tuple<string, bool, bool>(string.Format(TranslateFormula(dataColumn.Table, formula),
+                                                                                                                "{0}", "{1}",
+                                                                                                                ExcelTranslateColumnFromColOrdinaltoLetter(dataColumn.Ordinal),
+                                                                                                                "{2}"), haveTotalLine, includeCondFmt));
             return dataColumn;
         }
 
@@ -442,30 +487,46 @@ namespace DataTableToExcel
 
                 if (dataColumn.ExtendedProperties.ContainsKey("TotalColumn"))
                 {
-                    bool addTotLine = (bool)dataColumn.ExtendedProperties["TotalColumn"];
+                    var addTotLine = (Tuple<bool,bool>)dataColumn.ExtendedProperties["TotalColumn"];
 
                     workSheet.Cells[currentLastRow + 1, dataColumn.Ordinal + 1]
                                 .FormulaR1C1 = string.Format("=sum(R{0}C{1}:R{2}C{1})", wsHeaderRow + 1, dataColumn.Ordinal + 1, currentLastRow);
 
-                    if (addTotLine)
+                    if (addTotLine.Item1)
                     {
                         workSheet.Cells[currentLastRow + 1, dataColumn.Ordinal + 1].Style.Border.Top.Style = OfficeOpenXml.Style.ExcelBorderStyle.Double;
                     }
-                    hasTotalCol = true;
+                    hasTotalCol = addTotLine.Item2;
                     ++currentLastRow;
                 }
 
                 if (dataColumn.ExtendedProperties.ContainsKey("AverageColumn"))
                 {
-                    bool addTotLine = (bool)dataColumn.ExtendedProperties["AverageColumn"];
+                    var addTotLine = (Tuple<bool,bool>)dataColumn.ExtendedProperties["AverageColumn"];
 
                     workSheet.Cells[currentLastRow + 1, dataColumn.Ordinal + 1]
                                 .FormulaR1C1 = string.Format("=AVERAGE(R{0}C{1}:R{2}C{1})", wsHeaderRow + 1, dataColumn.Ordinal + 1, currentLastRow);
 
-                    if (addTotLine)
+                    if (addTotLine.Item1)
                     {
                         workSheet.Cells[currentLastRow + 1, dataColumn.Ordinal + 1].Style.Border.Top.Style = OfficeOpenXml.Style.ExcelBorderStyle.Medium;
                     }
+                    hasTotalCol = addTotLine.Item2;
+                    ++currentLastRow;
+                }
+
+                if (dataColumn.ExtendedProperties.ContainsKey("TotalFormulaColumn"))
+                {
+                    var formulaTotLine = (Tuple<string,bool,bool>) dataColumn.ExtendedProperties["TotalFormulaColumn"];
+
+                    workSheet.Cells[currentLastRow + 1, dataColumn.Ordinal + 1]
+                                .Formula = string.Format(formulaTotLine.Item1, wsHeaderRow + 1, currentLastRow, currentLastRow + 1);
+
+                    if (formulaTotLine.Item2)
+                    {
+                        workSheet.Cells[currentLastRow + 1, dataColumn.Ordinal + 1].Style.Border.Top.Style = OfficeOpenXml.Style.ExcelBorderStyle.Medium;
+                    }
+                    hasTotalCol = formulaTotLine.Item3;
                     ++currentLastRow;
                 }
 

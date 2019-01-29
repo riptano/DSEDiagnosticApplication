@@ -259,6 +259,11 @@ namespace DSEDiagtnosticToExcel
                                                                                         .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDistStdDev)
                                                                 ));
 
+                                                                 this.DataTable.GetColumn("Active Tbls/Idxs/Vws")
+                                                                    .SetNumericFormat("##0%")
+                                                                    .SetComment("Active User Tables, Indexes, and Views percent")
+                                                                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonActiveTblsPercent);
+
                                                                 //Counts
                                                                 this.DataTable.SetGroupHeader("Cell Counts", -2, true,
                                                                     this.DataTable.SetGroupHeader("Read", -1, true,

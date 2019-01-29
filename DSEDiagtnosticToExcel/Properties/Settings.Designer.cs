@@ -1688,5 +1688,57 @@ namespace DSEDiagtnosticToExcel.Properties {
                 return ((decimal)(this["TriggerPartitionSizeFactor"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute(@"[
+  {
+    ""Type"": ""Min"",
+    ""SubType"": ""Num"",
+    ""RuleType"": ""ThreeColorScale"",
+    ""SubRuleType"": ""Equal"",
+    ""Value"": 0.25,
+    ""FormulaText"": null,
+    ""FormulaTextBetween"": null,
+    ""Color"": ""Red"",
+    ""ShowValue"": true,
+    ""StopIfTrue"": false,
+    ""Priority"": 1,
+    ""IncludeTotalRow"": true
+  },
+  {
+    ""Type"": ""Num"",
+    ""SubType"": ""Num"",
+    ""RuleType"": ""ThreeColorScale"",
+    ""SubRuleType"": ""Equal"",
+    ""Value"": 0.6,
+    ""FormulaText"": null,
+    ""FormulaTextBetween"": null,
+    ""Color"": ""Yellow"",
+    ""ShowValue"": true,
+    ""StopIfTrue"": false,
+    ""Priority"": 1,
+    ""IncludeTotalRow"": true
+  },
+  {
+    ""Type"": ""Max"",
+    ""SubType"": ""Num"",
+    ""RuleType"": ""ThreeColorScale"",
+    ""SubRuleType"": ""Equal"",
+    ""Value"": 1,
+    ""FormulaText"": null,
+    ""FormulaTextBetween"": null,
+    ""Color"": ""Green"",
+    ""ShowValue"": true,
+    ""StopIfTrue"": false,
+    ""Priority"": 1,
+    ""IncludeTotalRow"": true
+  }
+]")]
+        public string CondFmtJsonActiveTblsPercent {
+            get {
+                return ((string)(this["CondFmtJsonActiveTblsPercent"]));
+            }
+        }
     }
 }

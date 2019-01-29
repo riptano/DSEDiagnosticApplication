@@ -100,7 +100,15 @@ namespace DSEDiagtnosticToExcel
                                                                      this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.Total).SetNumericFormat("#,##0").TotalColumn()
                                                                         .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonTotTbls),
                                                                      this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.Active).SetNumericFormat("#,##0").TotalColumn()
-                                                                         .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonActiveTbls)
+                                                                         .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonActiveTbls),
+                                                                     this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.ActivePercent).SetNumericFormat("##0%")
+                                                                        .TotalFormulaColumn(string.Format("={{{0}}}{{3}}/sum({{{1}}}{{3}}:{{{2}}}{{3}},{{{3}}}{{3}}:{{{4}}}{{3}})", 
+                                                                                                            DT.KeyspaceDataTable.Columns.Active,
+                                                                                                            DT.KeyspaceDataTable.Columns.Tables,
+                                                                                                            DT.KeyspaceDataTable.Columns.SecondaryIndexes,
+                                                                                                            DT.KeyspaceDataTable.Columns.SASIndexes,
+                                                                                                            DT.KeyspaceDataTable.Columns.CustomIndexes))
+                                                                         .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonActiveTblsPercent)
                                                                      );
                                                                  this.DataTable.SetGroupHeader("Compaction Strategy", -1, true,
                                                                      this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.STCS).SetNumericFormat("#,###").TotalColumn(),

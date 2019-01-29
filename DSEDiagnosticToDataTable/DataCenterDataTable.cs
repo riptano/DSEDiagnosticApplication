@@ -125,6 +125,9 @@ namespace DSEDiagnosticToDataTable
             dtDCInfo.Columns.Add("Distribution SSTables StdDev", typeof(double))
                             .AllowDBNull();
 
+            dtDCInfo.Columns.Add("Active Tbls/Idxs/Vws", typeof(decimal))
+                           .AllowDBNull();
+
             //Counts
             dtDCInfo.Columns.Add("Reads Max", typeof(ulong))
                             .AllowDBNull();
@@ -528,6 +531,24 @@ namespace DSEDiagnosticToDataTable
 
                                 if (dcBatchTot > 0)
                                     dataRow.SetField("Batch Percent", (decimal)dcBatchTot / (decimal)dcTotWrites);
+                            }
+                        }
+
+                        {
+                            var ksInDCTot = dataCenter.Keyspaces
+                                                .Where(ks => !ks.IsDSEKeyspace && !ks.IsSystemKeyspace)
+                                                .DefaultIfEmpty()
+                                                .Sum(ks => (decimal) (ks.Stats.Tables
+                                                                        + ks.Stats.MaterialViews
+                                                                        + ks.Stats.SecondaryIndexes
+                                                                        + ks.Stats.CustomIndexes
+                                                                        + ks.Stats.SasIIIndexes));
+
+                            if (ksInDCTot > 0m)
+                            {
+                                var ksInDCActive = dataCenter.Keyspaces.Where(ks => !ks.IsDSEKeyspace && !ks.IsSystemKeyspace).DefaultIfEmpty().Sum(ks => (decimal) ks.Stats.NbrActive);
+
+                                dataRow.SetField("Active Tbls/Idxs/Vws", ksInDCActive/ksInDCTot);
                             }
                         }
                     }
