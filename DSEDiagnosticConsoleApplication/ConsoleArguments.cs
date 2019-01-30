@@ -323,7 +323,13 @@ namespace DSEDiagnosticConsoleApplication
                     Description = "Disable Parallel Processing"
                 });
 
-            this._cmdLineParser.Arguments.Add(new SwitchArgument('?', "ShowDefaults", false)
+            this._cmdLineParser.Arguments.Add(new SwitchArgument("ShowDefaults", false)
+            {
+                Optional = true,
+                Description = "Show Arguments plus Default Values"
+            });
+
+            this._cmdLineParser.Arguments.Add(new SwitchArgument('?', "help", false)
             {
                 Optional = true,
                 Description = "Show Arguments plus Default Values"
@@ -341,8 +347,8 @@ namespace DSEDiagnosticConsoleApplication
             bool additionalFilesForParsingClassInitial = true;
             bool onlyNodesInitial = true;
             bool diagnosticPathPresent = false;
-
-            if(args.Any(i => i.Any(c => c == '"')))
+           
+            if (args.Any(i => i.Any(c => c == '"')))
             {
                 var argList = new List<string>();
 
@@ -377,10 +383,22 @@ namespace DSEDiagnosticConsoleApplication
                 args = argList.ToArray();
             }
 
+            if(args.Any(a => a == "-?" || a == "--ShowDefaults" || a == "--Help" || a == "--help"))
+            {
+                this.ShowDefaults();
+                return false;
+            }
+
+            if (args.Any(a => a == "--ShowVersion"))
+            {
+                this.ShowVersion();
+                return false;
+            }
+
             this._cmdLineParser.ParseCommandLine(args);
 
             if (!this._cmdLineParser.ParsingSucceeded)
-            {
+            {                
                 this._cmdLineParser.ShowUsage();
                 return false;
             }
@@ -822,64 +840,11 @@ namespace DSEDiagnosticConsoleApplication
                         DSEDiagtnosticToExcel.LibrarySettings.ExcelSaveWorkSheet = ((ValueArgument<bool>)item).Value;
                         break;
                     case "ShowDefaults":
-                        {
-                            Console.WriteLine();
-                            Console.WriteLine("Arguments including Default Values:");
-                            Console.WriteLine();
-
-                            foreach (var cmdArg in this._cmdLineParser.Arguments)
-                            {
-                                var defaultValue = (cmdArg as IArgumentWithDefaultValue)?.DefaultValue;
-                                var example = cmdArg.Example?.Trim();
-
-                                if (cmdArg.ShortName.HasValue)
-                                {
-                                    Console.WriteLine("\t-{0}, --{1} [Default Value \"{2}\"{4}] {3}",
-                                                        cmdArg.ShortName.Value,
-                                                        cmdArg.LongName,                                                            
-                                                        defaultValue == null || (defaultValue is string && ((string)defaultValue) == string.Empty)
-                                                            ? "<none>"
-                                                            : defaultValue,
-                                                        cmdArg.Description,
-                                                        cmdArg.AllowMultiple ? ", Multiple Allowed" : string.Empty);
-                                }
-                                else
-                                {
-                                    Console.WriteLine("\t--{0} [Default Value \"{1}\"{3}] {2}",
-                                                        cmdArg.LongName,
-                                                        defaultValue == null || (defaultValue is string && ((string)defaultValue) == string.Empty)
-                                                            ? "<none>"
-                                                            : defaultValue,
-                                                        cmdArg.Description,
-                                                        cmdArg.AllowMultiple ? ", Multiple Allowed" : string.Empty);
-                                }
-
-                                if (!string.IsNullOrEmpty(example))
-                                {
-                                    Console.WriteLine("\t\tExmaple: {0}", example);
-                                }
-                            }                            
-                        }
+                    case "help":
+                        ShowDefaults();
                         return false;
                     case "ShowVersion":
-                        {
-                            var appLogFile = Logger.Instance.GetSetEnvVarLoggerFile(false);
-                            
-                            if (string.IsNullOrEmpty(appLogFile))
-                                appLogFile = "N/A";
-                            else
-                                appLogFile = System.IO.Directory.GetParent(appLogFile).FullName;
-                            
-                            Console.WriteLine();
-                            Console.WriteLine("             Application: {0}", Common.Functions.Instance.ApplicationName);
-                            Console.WriteLine("                 Version: {0}", Common.Functions.Instance.ApplicationVersion);
-                            Console.WriteLine("               Timestamp: {0:yyyy-MM-dd HH\\:mm\\:ss}", System.IO.File.GetLastWriteTime(Common.Functions.Instance.ExeAssembly.Location));
-                            Console.WriteLine("     Excel Template File: {0}", ParserSettings.ExcelFileTemplatePath?.PathResolved ?? "N/A");
-                            Console.WriteLine("Excel Template Timestamp: {0:yyyy-MM-dd HH\\:mm\\:ss}", ParserSettings.ExcelFileTemplatePath?.GetLastWriteTime());
-                            Console.WriteLine("        Application Path: {0}", Common.Functions.Instance.ApplicationRunTimeDir);                            
-                            Console.WriteLine("    Application Log Path: {0}", appLogFile);
-                            Console.WriteLine();
-                        }
+                        ShowVersion();
                         return false;
                     default:
 
@@ -898,9 +863,67 @@ namespace DSEDiagnosticConsoleApplication
             return true;
         }
 
-        public void ShowUsage()
-        {            
-            this._cmdLineParser.ShowUsage();
+        public void ShowDefaults()
+        {
+            Console.WriteLine();
+            Console.WriteLine("Arguments including Default Values:");
+            Console.WriteLine();
+
+            foreach (var cmdArg in this._cmdLineParser.Arguments)
+            {
+                var defaultValue = (cmdArg as IArgumentWithDefaultValue)?.DefaultValue;
+                var example = cmdArg.Example?.Trim();
+                var defaultValueFmt = string.Format(" [Default Value \"{0}\"{1}]",
+                                                        defaultValue == null || (defaultValue is string && ((string)defaultValue) == string.Empty)
+                                                            ? "<none>"
+                                                            : defaultValue,
+                                                        cmdArg.AllowMultiple ? ", Multiple Allowed" : string.Empty);
+
+                if (cmdArg.ShortName.HasValue)
+                {
+                    Console.WriteLine("\t-{0}, --{1}{2} {3}",
+                                        cmdArg.ShortName.Value,
+                                        cmdArg.LongName,
+                                        cmdArg is SwitchArgument
+                                            ? string.Empty
+                                            : defaultValueFmt,
+                                        cmdArg.Description);
+                }
+                else
+                {
+                    Console.WriteLine("\t--{0}{1} {2}",
+                                        cmdArg.LongName,
+                                        cmdArg is SwitchArgument
+                                            ? string.Empty
+                                            : defaultValueFmt,
+                                        cmdArg.Description);
+                }
+
+                if (!string.IsNullOrEmpty(example))
+                {
+                    Console.WriteLine("\t\tExmaple: {0}", example);
+                }
+            }
+        }
+
+        public void ShowVersion()
+        {
+            var appLogFile = Logger.Instance.GetSetEnvVarLoggerFile(false);
+
+            if (string.IsNullOrEmpty(appLogFile))
+                appLogFile = "N/A";
+            else
+                appLogFile = System.IO.Directory.GetParent(appLogFile).FullName;
+
+            Console.WriteLine();
+            Console.WriteLine("             Application: {0}", Common.Functions.Instance.ApplicationName);
+            Console.WriteLine("                 Version: {0}", Common.Functions.Instance.ApplicationVersion);
+            Console.WriteLine("               Timestamp: {0:yyyy-MM-dd HH\\:mm\\:ss}", System.IO.File.GetLastWriteTime(Common.Functions.Instance.ExeAssembly.Location));
+            Console.WriteLine("     Excel Template File: {0}", ParserSettings.ExcelFileTemplatePath?.PathResolved ?? "N/A");
+            Console.WriteLine("Excel Template Timestamp: {0:yyyy-MM-dd HH\\:mm\\:ss}", ParserSettings.ExcelFileTemplatePath?.GetLastWriteTime());
+            Console.WriteLine("        Application Path: {0}", Common.Functions.Instance.ApplicationRunTimeDir);
+            Console.WriteLine("    Application Log Path: {0}", appLogFile);
+            Console.WriteLine();
         }
 
         public bool Debug
