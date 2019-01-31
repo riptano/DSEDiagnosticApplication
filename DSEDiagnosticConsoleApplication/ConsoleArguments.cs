@@ -50,7 +50,7 @@ namespace DSEDiagnosticConsoleApplication
 
             this._cmdLineParser.Arguments.Add(new DirectoryArgument('D', "DiagnosticPath")
             {
-                Optional = true, //Required
+                Optional = false, //Required
                 DirectoryMustExist = true,
                 DefaultValue = ParserSettings.DiagnosticPath?.DirectoryInfo(),
                 Description = "The directory location of the diagnostic files. The structure of these folders and files is depending on the value of DiagnosticNoSubFolders. If Relative Path, this path is merged with current default directory path. The defaults are defined in the DiagnosticPath app-config file."
@@ -78,7 +78,7 @@ namespace DSEDiagnosticConsoleApplication
                 AllowMultiple = true,
                 DefaultValue = string.Join(", ", ParserSettings.AdditionalFilesForParsingClass.Where(a => a.Key == "LogFile" || a.Key == "file_cassandra_log4net_ReadTimeRange" || a.Key == "file_cassandra_log4net").Select(s => s.Value)),
                 Description = "A file paths that will be included in log parsing, if enabled. This can include wild card patterns. Multiple arguments allowed.",
-                Example = @"-L c:\additionallogs\system*.log -L c:\additional logs\debug*.log"
+                Example = "-L \"c:\\additionallogs\\system*.log\" -L \"c:\\additional logs\\debug*.log\""
             });
 
             this._cmdLineParser.Arguments.Add(new ValueArgument<string>('C', "AlternativeDDLFilePath")
@@ -87,7 +87,7 @@ namespace DSEDiagnosticConsoleApplication
                 AllowMultiple = true,
                 DefaultValue = string.Join(", ", ParserSettings.AdditionalFilesForParsingClass.Where(a => a.Key == "CQLFile" || a.Key == "cql_ddl").Select(s => s.Value)),
                 Description = "A file paths that will be included in DLL (CQL) parsing, if enabled. This can include wild card patterns. Multiple arguments allowed.",
-                Example = @"-C c:\additionalDDL\describe_schema -C c:\additionalDDL\describe.cql"
+                Example = "-C \"c:\\additionalDDL\\describe_schema\" -C \"c:\\additionalDDL\\describe.cql\""
             });
 
             this._cmdLineParser.Arguments.Add(new ValueArgument<string>('Z', "AlternativeCompressionFilePath")
@@ -96,7 +96,7 @@ namespace DSEDiagnosticConsoleApplication
                 AllowMultiple = true,
                 DefaultValue = string.Join(", ", ParserSettings.AdditionalFilesForParsingClass.Where(a => a.Key == "ZipFile" || a.Key == "file_unzip").Select(s => s.Value)),
                 Description = "A file paths that will be included in the decompress process, if enabled. This can include wild card patterns. Multiple arguments allowed.",
-                Example = @"-Z c:\additionalZip\system.log.1.zip -Z c:\additionalZip\system.2.zip"
+                Example = "-Z \"c:\\additionalZip\\system.log.1.zip\" -Z \"c:\\additionalZip\\system.2.zip\""
             });
 
             this._cmdLineParser.Arguments.Add(new ValueArgument<string>('A', "AlternativeFilePath")
@@ -105,7 +105,7 @@ namespace DSEDiagnosticConsoleApplication
                 AllowMultiple = true,
                 DefaultValue = string.Join(", ", ParserSettings.AdditionalFilesForParsingClass.Where(a => !(a.Key == "LogFile" || a.Key == "file_cassandra_log4net_ReadTimeRange" || a.Key == "file_cassandra_log4net" || a.Key == "CQLFile" || a.Key == "cql_ddl" || a.Key == "ZipFile" || a.Key == "file_unzip")).Select(s => s.Key + ", " + s.Value)),
                 Description = "Key-Value pair where the key is a File Parsing Class (e.g., file_cassandra_log4net_ReadTimeRange, cql_ddl, file_unzip)  or Category Type (e.g., LogFile, CQLFile, ZipFile) and the value is a file path. The file path can contain wild cards. The Key and Value are separated by a comma.",
-                Example = @"ZipFile, c:\additionalfiles\*.tar.gz"
+                Example = "-A \"ZipFile, c:\\additionalfiles\\*.tar.gz\""
             });
 
             this._cmdLineParser.Arguments.Add(new ValueArgument<string>("OnlyNodes")
@@ -114,7 +114,7 @@ namespace DSEDiagnosticConsoleApplication
                 AllowMultiple = true,
                 DefaultValue = string.Join(", ", ParserSettings.OnlyNodes),
                 Description = "Only process these nodes. This can be an IP Address separated by a comma or multiple argument commands",
-                Example = @"10.0.0.1, 10.0.0.2"
+                Example = "--OnlyNodes \"10.0.0.1, 10.0.0.2\""
             });
 
             this._cmdLineParser.Arguments.Add(new ValueArgument<ParserSettings.DiagFolderStructOptions>('O', "DiagFolderStruct")
@@ -128,7 +128,7 @@ namespace DSEDiagnosticConsoleApplication
             {
                 DefaultValue = ParserSettings.NodeToolCaptureTimestamp,
                 Optional = true,
-                Description = "When the OpsCenter Diagnostic TarBall was created or when the \"nodetool\" statical (e.g., cfstats) capture occurred. Null will use the Date embedded in the OpsCenter tar ball directory. Syntax should be that of a date time offset (+|-HH[:MM] and no IANA name accepted). If time zone offset not given, current machine's offset is used."
+                Description = "When the OpsCenter Diagnostic TarBall was created or when the \"nodetool\" statistical (e.g., cfstats) capture occurred. Null will use the Date embedded in the OpsCenter tar ball directory. Syntax should be that of a date time offset (+|-HH[:MM] and no IANA name accepted). If time zone offset not given, current machine's offset is used."
             });
 
             this._cmdLineParser.Arguments.Add(new ValueArgument<int>('X', "LogRangeBasedOnPrevHrs")
@@ -143,7 +143,7 @@ namespace DSEDiagnosticConsoleApplication
                 Optional = true,
                 DefaultValue = ParserSettings.LogRestrictedTimeRange == null ? null : string.Format("{0}, {1}", ParserSettings.LogRestrictedTimeRange.Min, ParserSettings.LogRestrictedTimeRange.Max),
                 Description = "Only import log entries from/to this date/time range. Empty string will parse all entries. Syntax: \"<FromDateTimeOnly> [+|-HH[:MM]]|[IANA TimeZone Name]\", \", <ToDateTimeOnly> [+|-HH[:MM]]|[IANA TimeZone Name]\", or \"<FromDateTime> [+|-HH[:MM]]|[IANA TimeZone Name],<ToDateTime> [+|-HH[:MM]]|[IANA TimeZone Name]\". If [IANA TimeZone Name] or [+|-HH[:MM]] (timezone offset) is not given the local machine's TZ is used. Ignored if LogRangeBasedOnPrevHrs is defined.",
-                Example = "\"2018-02-01 00:00:00 +00:00, 2018-02-21 00:00:00 UDT\" only logs between Feb01 to Feb21 2018 UDT -or- \",2018-02-21 00:00:00 UDT\" All logs up to Feb21 2018 UDT -or- \"2018-02-01 00:00:00 UDT\" only logs from Feb01 2018 UDT to last log entries"
+                Example = "-R \"2018-02-01 00:00:00 +00:00, 2018-02-21 00:00:00 UDT\" only logs between Feb01 to Feb21 2018 UDT -or- -R \",2018-02-21 00:00:00 UDT\" All logs up to Feb21 2018 UDT -or- -R \"2018-02-01 00:00:00 UDT\" only logs from Feb01 2018 UDT to last log entries"
             });
 
             this._cmdLineParser.Arguments.Add(new ValueArgument<string>("IgnoreKeySpaces")
@@ -213,7 +213,7 @@ namespace DSEDiagnosticConsoleApplication
                 Optional = true,
                 DefaultValue = ParserSettings.DefaultClusterTZ,
                 Description = "An IANA TimeZone name used as the default time zone for all data centers/nodes where the time zone could not be determined.",
-                Example = @"America/Chicago"
+                Example = "--DefaultClusterTimeZone \"America/Chicago\""
             });
 
             this._cmdLineParser.Arguments.Add(new ValueArgument<string>("DefaultDCTimeZone")
@@ -221,7 +221,7 @@ namespace DSEDiagnosticConsoleApplication
                 Optional = true,
                 AllowMultiple = true,
                 Description = "Key-Value pair where the key is the Data Center name and the value is the IANA time zone name. The Key and Value are separated by a comma.",
-                Example = @"DC1, America/Chicago"
+                Example = "--DefaultDCTimeZone \"DC1, America/Chicago\""
             });
 
             this._cmdLineParser.Arguments.Add(new ValueArgument<string>("DefaultNodeTimeZone")
@@ -229,7 +229,7 @@ namespace DSEDiagnosticConsoleApplication
                 Optional = true,
                 AllowMultiple = true,
                 Description = "Key-Value pair where the key is the Node's IP Address and the value is the IANA time zone name. The Key and Value are separated by a comma.",
-                Example = @"10.0.0.1, America/Chicago"
+                Example = "--DefaultNodeTimeZone \"10.0.0.1, America/Chicago\""
             });
 
             this._cmdLineParser.Arguments.Add(new ValueArgument<string>("ClusterName")
@@ -284,7 +284,7 @@ namespace DSEDiagnosticConsoleApplication
                 Optional = true,
                 AllowMultiple = true,
                 Description = "A Log Event Tag Id that will cause that associated log event to be ignored during parsing. If an integral value (i.e., 10, no decimal) and a session event, all items in that session are ignored. Multiple arguments can be defined.",
-                Example = @"10 -- all session items associated to this id tag (e.g., 10.0, 10.1, 10.2, etc.); 10.1 -- only the item assocated to the id of 10.1."
+                Example = @"10 -- all session items associated to this id tag (e.g., 10.0, 10.1, 10.2, etc.); 10.1 -- only the item associated to the id of 10.1."
             });
 
             this._cmdLineParser.Arguments.Add(new SwitchArgument("OldExcelWS", false)
@@ -873,6 +873,7 @@ namespace DSEDiagnosticConsoleApplication
             {
                 var defaultValue = (cmdArg as IArgumentWithDefaultValue)?.DefaultValue;
                 var example = cmdArg.Example?.Trim();
+                var required = cmdArg.Optional ? string.Empty : " (Required)";
                 var defaultValueFmt = string.Format(" [Default Value \"{0}\"{1}]",
                                                         defaultValue == null || (defaultValue is string && ((string)defaultValue) == string.Empty)
                                                             ? "<none>"
@@ -881,29 +882,52 @@ namespace DSEDiagnosticConsoleApplication
 
                 if (cmdArg.ShortName.HasValue)
                 {
-                    Console.WriteLine("\t-{0}, --{1}{2} {3}",
+                    Console.WriteLine("\t-{0}, --{1}{2}{3} {4}",
                                         cmdArg.ShortName.Value,
                                         cmdArg.LongName,
                                         cmdArg is SwitchArgument
                                             ? string.Empty
                                             : defaultValueFmt,
+                                        required,
                                         cmdArg.Description);
                 }
                 else
                 {
-                    Console.WriteLine("\t--{0}{1} {2}",
+                    Console.WriteLine("\t--{0}{1}{2} {3}",
                                         cmdArg.LongName,
                                         cmdArg is SwitchArgument
                                             ? string.Empty
                                             : defaultValueFmt,
+                                         required,
                                         cmdArg.Description);
                 }
 
                 if (!string.IsNullOrEmpty(example))
                 {
-                    Console.WriteLine("\t\tExmaple: {0}", example);
+                    Console.WriteLine("\t\tExample: {0}", example);
                 }
             }
+
+            Console.WriteLine();
+            Console.WriteLine("Steps to process an OpsCenter diagnostic tarball:");
+            Console.WriteLine("\t1) Decompress the tarball into a target folder (e.g., \"c:\\MyCustomerName\")");
+            Console.WriteLine("\t\tOnce decompressed the OpsCenter's diagnostic folder should be placed in the targeted folder (e.g., \"c:\\MyCustomerName\\CustClusterName-diagnostics-2019_01_21_16_30_46_UTC\")");
+            Console.WriteLine("\t2) Open the \"Heath Check Console\" command prompt or a DOS command prompt");
+            Console.WriteLine("\t3) Run the Health Check Engine.");
+            Console.WriteLine("\t\tTypical Example: DSEDiagnosticConsoleApplication.exe -D \"c:\\MyCustomerName\\CustClusterName-diagnostics-2019_01_21_16_30_46_UTC\" --Profile AllFilesLogs");
+            Console.WriteLine("\t4) Once the application starts execution, observe the console screen for progress, warnings, errors, and exceptions");
+            Console.WriteLine("\t\tIf there are any warnings or errors, please review the \"parsing error\" and \"not handled\" worksheets in the generated Excel workbook for the details.");
+            Console.WriteLine("\t\tIf an exception occurs, please notify Richard Andersen");
+            Console.WriteLine("\t5) Once completed, the generated Excel workbook is placed under the OptCenter diagnostic folder (e.g., \"c:\\MyCustomerName\\CustClusterName-diagnostics-2019_01_21_16_30_46_UTC\\CustClusterName-2018-09-25-10-11-34-AllNoFlushComp-190123To0116.xlsm\")");
+            Console.WriteLine("\t6) Open the generated workbook (MS-Excel version 16 and higher is required) and click on the \"Refresh\" button located in the \"Refresh\" worksheet to update the pivot-tables and caches in the workbook");
+            Console.WriteLine("\t7) Save the workbook so that the updated pivot-tables have the current data");
+
+            Console.WriteLine();
+            Console.WriteLine("Notes: If the customer provided rolled/archived logs (either system or logged), they can be placed in an folder named \"AdditionalLogs\" under the OptCenter's diagnostic folder (e.g., \"c:\\MyCustomerName\\CustClusterName-diagnostics-2019_01_21_16_30_46_UTC\\AdditionalLogs\")");
+            Console.WriteLine("\tThese additional logs need to be defined in a certain folder structure. Each set of logs need to be placed in a separate folder where that folder's name is the IP address of the node associated with the logs (e.g., \"c:\\MyCustomerName\\CustClusterName-diagnostics-2019_01_21_16_30_46_UTC\\AdditionalLogs\\10.0.0.1\\systemlog.3.228.zip\")");
+            Console.WriteLine("\tIf there are any compressed files (handles any type of compressed file type) under the OptCenter's diagnostic fold, the engine will automatically decompress these files.");
+            Console.WriteLine("\tThe engine can also consume non-OpsCenter diagnostic files, please contact Richard Andersen on details");
+
         }
 
         public void ShowVersion()
