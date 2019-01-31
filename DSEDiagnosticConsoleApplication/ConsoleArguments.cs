@@ -923,7 +923,7 @@ namespace DSEDiagnosticConsoleApplication
             Console.WriteLine("\t7) Save the workbook so that the updated pivot-tables have the current data");
 
             Console.WriteLine();
-            Console.WriteLine("Notes: If the customer provided rolled/archived logs (either system or logged), they can be placed in an folder named \"AdditionalLogs\" under the OptCenter's diagnostic folder (e.g., \"c:\\MyCustomerName\\CustClusterName-diagnostics-2019_01_21_16_30_46_UTC\\AdditionalLogs\")");
+            Console.WriteLine("Notes: If the customer provided rolled/archived logs (either system or debug), they can be placed in an folder named \"AdditionalLogs\" under the OptCenter's diagnostic folder (e.g., \"c:\\MyCustomerName\\CustClusterName-diagnostics-2019_01_21_16_30_46_UTC\\AdditionalLogs\")");
             Console.WriteLine("\tThese additional logs need to be defined in a certain folder structure. Each set of logs need to be placed in a separate folder where that folder's name is the IP address of the node associated with the logs (e.g., \"c:\\MyCustomerName\\CustClusterName-diagnostics-2019_01_21_16_30_46_UTC\\AdditionalLogs\\10.0.0.1\\systemlog.3.228.zip\")");
             Console.WriteLine("\tIf there are any compressed files (handles any type of compressed file type) under the OptCenter's diagnostic fold, the engine will automatically decompress these files.");
             Console.WriteLine("\tThe engine can also consume non-OpsCenter diagnostic files, please contact Richard Andersen on details");
