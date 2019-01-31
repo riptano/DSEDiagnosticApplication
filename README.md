@@ -73,7 +73,7 @@ Steps to process an OpsCenter diagnostic tarball:
 	6) Open the generated workbook (MS Excel version 16 and higher is required) and click on the "Refresh" button located in the "Refresh" worksheet to update the pivot tables and caches in the workbook
 	7) Save the workbook so that the updated pivot tables have the current data
 	
-Notes: If the customer provided rolled/archived logs (either system or logged), they can be placed in an folder named "AdditionalLogs" under the OptCenter's diagnostic folder (e.g., "c:\MyCustomerName\CustClusterName-diagnostics-2019_01_21_16_30_46_UTC\AdditionalLogs")
+Notes: If the customer provided rolled/archived logs (either system or debug), they can be placed in an folder named "AdditionalLogs" under the OptCenter's diagnostic folder (e.g., "c:\MyCustomerName\CustClusterName-diagnostics-2019_01_21_16_30_46_UTC\AdditionalLogs")
 	These additional logs need to be defined in a certain folder structure. Each set of logs need to be placed in a separate folder where that folder's name is the IP address of the node associated with the logs (e.g., "c:\MyCustomerName\CustClusterName-diagnostics-2019_01_21_16_30_46_UTC\AdditionalLogs\10.0.0.1\systemlog.3.228.zip")
 	If there are any compressed files under the OptCenter's diagnostic fold, the engine will automatically decompress these files.
 	The engine can also consume non-OpsCenter diagnostic files, please contact Richard Andersen on details
