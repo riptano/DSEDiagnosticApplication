@@ -353,7 +353,7 @@ namespace DSEDiagnosticConsoleApplication
                 {
                     if (!consoleArgs.ParseSetArguments(args))
                     {
-                        if (!ParserSettings.BatchMode)
+                        if (!ParserSettings.BatchMode && System.Diagnostics.Debugger.IsAttached)
                             Common.ConsoleHelper.Prompt("Press Return to Exit", ConsoleColor.Gray, ConsoleColor.DarkRed);
                         return 1;
                     }
