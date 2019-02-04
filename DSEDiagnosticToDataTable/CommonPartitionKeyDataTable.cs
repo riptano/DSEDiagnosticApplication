@@ -133,10 +133,10 @@ namespace DSEDiagnosticToDataTable
 
                         if (!Properties.Settings.Default.CommonPartitionsAllowZeroReadWriteCnts)
                         {
-                            var totalReads = assocReadWriteTblNodesInfo.DefaultIfEmpty().Sum(i => (dynamic)i.LocalReads);
-                            var totalWrites = assocReadWriteTblNodesInfo.DefaultIfEmpty().Sum(i => (dynamic)i.LocalWrites);
+                            var totalReads = assocReadWriteTblNodesInfo.Select(i => i.LocalReads).DefaultIfEmpty().Sum();
+                            var totalWrites = assocReadWriteTblNodesInfo.Select(i => i.LocalWrites).DefaultIfEmpty().Sum();
 
-                            if (totalReads == 0 && totalWrites == 0) continue;
+                            if (totalReads == 0L && totalWrites == 0L) continue;
                         }
 
                         foreach (var nodeInfo in assocReadWriteTblNodesInfo)

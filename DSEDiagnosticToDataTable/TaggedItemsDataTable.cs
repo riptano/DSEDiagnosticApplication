@@ -288,29 +288,29 @@ namespace DSEDiagnosticToDataTable
 
                 var totStorage = allStatCollection
                                     .Where(i => i.Property == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.TotalStorage)
+                                    .Select(a => a.Values.DefaultIfEmpty().Sum())
                                     .DefaultIfEmpty()
-                                    .Sum(a => a.Values
-                                                .Sum());
+                                    .Sum();
                 var totKeys = allStatCollection
                                 .Where(i => DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.NbrPartitionKeys.ComparePropName(i.Property))
+                                .Select(a => a.Values.DefaultIfEmpty().Sum())
                                 .DefaultIfEmpty()
-                                .Sum(a => a.Values
-                                                .Sum());
+                                .Sum();
                 var totReadCnt = allStatCollection
                                     .Where(i => i.Property == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.LocalReadCount)
+                                    .Select(a => a.Values.DefaultIfEmpty().Sum())
                                     .DefaultIfEmpty()
-                                    .Sum(a => a.Values
-                                                .Sum());
+                                    .Sum();
                 var totWriteCnt = allStatCollection
                                     .Where(i => i.Property == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.LocalWriteCount)
+                                    .Select(a => a.Values.DefaultIfEmpty().Sum())
                                     .DefaultIfEmpty()
-                                    .Sum(a => a.Values
-                                                .Sum());
+                                    .Sum();
                 var totSSTables = allStatCollection
                                     .Where(i => i.Property == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.SSTableCount)
+                                    .Select(a => a.Values.DefaultIfEmpty().Sum())
                                     .DefaultIfEmpty()
-                                    .Sum(a => a.Values
-                                                .Sum());
+                                    .Sum();
 
                 Logger.Instance.InfoFormat("Loading {0} Possible Tagged Stats", allStatCollection.Length);
 

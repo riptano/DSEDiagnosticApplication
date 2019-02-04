@@ -582,16 +582,20 @@ namespace DSEDiagnosticFileParser
                                                    select new { Key = g.Key, Values = g.Select(i => i.Value).Where(i => i != null).ToArray() }).ToArray()
                                  let tombstones = tblAttribs.Where(i => i.Key == Properties.StatPropertyNames.Default.MaxTombstonesSlice)
                                                      .SelectMany(i => i.Values)
-                                                     .DefaultIfEmpty().Sum(i => (decimal)((dynamic)i))
+                                                     .Select(i => (decimal)((dynamic)i))
+                                                     .DefaultIfEmpty().Sum()
                                  let liveCells = tblAttribs.Where(i => i.Key == Properties.StatPropertyNames.Default.MaxLiveCellsReadSlice)
                                                      .SelectMany(i => i.Values)
-                                                     .DefaultIfEmpty().Sum(i => (decimal)((dynamic)i))
+                                                     .Select(i => (decimal)((dynamic)i))
+                                                     .DefaultIfEmpty().Sum()
                                  let readCells = tblAttribs.Where(i => i.Key == Properties.StatPropertyNames.Default.LocalReadCount)
                                                      .SelectMany(i => i.Values)
-                                                     .DefaultIfEmpty().Sum(i => (decimal)((dynamic)i))
+                                                     .Select(i => (decimal)((dynamic)i))
+                                                     .DefaultIfEmpty().Sum()
                                  let writtenCells = tblAttribs.Where(i => i.Key == Properties.StatPropertyNames.Default.LocalWriteCount)
                                                      .SelectMany(i => i.Values)
-                                                     .DefaultIfEmpty().Sum(i => (decimal)((dynamic)i))
+                                                     .Select(i => (decimal)((dynamic)i))
+                                                     .DefaultIfEmpty().Sum()
                                  let LCSLevel = tblAttribs.Where(i => i.Key == Properties.StatPropertyNames.Default.LCSLevels)
                                                      .Select(i => PercentLCSBackup(i.Values.Cast<string>()))
                                                      .FirstOrDefault()
@@ -601,12 +605,14 @@ namespace DSEDiagnosticFileParser
                                  let totalReadsWrites = tblAttribs.Where(i => i.Key == Properties.StatPropertyNames.Default.LocalReadCount
                                                                                  || i.Key == Properties.StatPropertyNames.Default.LocalWriteCount)
                                                          .SelectMany(i => i.Values)
-                                                     .DefaultIfEmpty().Sum(i => (decimal)((dynamic)i))
+                                                         .Select(i => (decimal)((dynamic)i))
+                                                     .DefaultIfEmpty().Sum()
                                  let totalStorageMB = tblAttribs.Where(i => i.Key == Properties.StatPropertyNames.Default.TotalStorage)
                                                          .SelectMany(i => i.Values)
-                                                     .DefaultIfEmpty().Sum(i => i is UnitOfMeasure
-                                                                                ? ((UnitOfMeasure) i).ConvertSizeUOM(UnitOfMeasure.Types.MiB)
+                                                         .Select(i => i is UnitOfMeasure
+                                                                                ? ((UnitOfMeasure)i).ConvertSizeUOM(UnitOfMeasure.Types.MiB)
                                                                                 : (decimal)((dynamic)i))
+                                                     .DefaultIfEmpty().Sum()
                                  select new
                                  {
                                      Stat = item,
@@ -669,9 +675,9 @@ namespace DSEDiagnosticFileParser
             var levels = from l in (lcsLevels.SelectMany(l => l.Trim(new char[] { '[', ']', ' ' }).Split(','))
                                         .Select(l => new LCSLevelSplit(l)))
                          group l by 1 into g
-                         select new LCSLevelSplit() { ActualLevel = g.DefaultIfEmpty().Sum(a => a.ActualLevel),
-                                                        IdealLevel = g.DefaultIfEmpty().Sum(i => i.IdealLevel),
-                                                        SplitLevels = g.DefaultIfEmpty().Sum(i => i.SplitLevels) };
+                         select new LCSLevelSplit() { ActualLevel = g.Select(a => a.ActualLevel).DefaultIfEmpty().Sum(),
+                                                        IdealLevel = g.Select(i => i.IdealLevel).DefaultIfEmpty().Sum(),
+                                                        SplitLevels = g.Select(i => i.SplitLevels).DefaultIfEmpty().Sum() };
 
             return levels.FirstOrDefault();
         }

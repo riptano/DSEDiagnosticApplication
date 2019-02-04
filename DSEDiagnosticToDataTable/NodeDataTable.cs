@@ -150,7 +150,8 @@ namespace DSEDiagnosticToDataTable
                         else
                         {
                             var percentUtilization = node.Machine.Devices.PercentUtilized
-                                                        .DefaultIfEmpty().Max(i => i.Value);
+                                                        .Select(i => i.Value)
+                                                        .DefaultIfEmpty().Max();
 
                             if (node.DSE.StorageUtilization.NaN)
                             {

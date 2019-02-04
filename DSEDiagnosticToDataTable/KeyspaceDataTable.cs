@@ -152,12 +152,13 @@ namespace DSEDiagnosticToDataTable
 
                 var clusterTotalStorage = this.Cluster.Nodes
                                                     .Where(n => !n.DSE.StorageUsed.NaN)
+                                                    .Select(n => n.DSE.StorageUsed.ConvertSizeUOM(DSEDiagnosticLibrary.UnitOfMeasure.Types.MiB))
                                                     .DefaultIfEmpty()
-                                                    .Sum(n => n.DSE.StorageUsed.ConvertSizeUOM(DSEDiagnosticLibrary.UnitOfMeasure.Types.MiB));
-                var clusterTotalReads = this.Cluster.Nodes.DefaultIfEmpty().Sum(n => n.DSE.ReadCount);
-                var clusterTotalWrite = this.Cluster.Nodes.DefaultIfEmpty().Sum(n => n.DSE.WriteCount);
-                var clusterTotalSSTables = this.Cluster.Nodes.DefaultIfEmpty().Sum(n => n.DSE.SSTableCount);
-                var clusterTotalKeys = this.Cluster.Nodes.DefaultIfEmpty().Sum(n => n.DSE.KeyCount);
+                                                    .Sum();
+                var clusterTotalReads = this.Cluster.Nodes.Select(n => n.DSE.ReadCount).DefaultIfEmpty().Sum();
+                var clusterTotalWrite = this.Cluster.Nodes.Select(n => n.DSE.WriteCount).DefaultIfEmpty().Sum();
+                var clusterTotalSSTables = this.Cluster.Nodes.Select(n => n.DSE.SSTableCount).DefaultIfEmpty().Sum();
+                var clusterTotalKeys = this.Cluster.Nodes.Select(n => n.DSE.KeyCount).DefaultIfEmpty().Sum();
 
                 foreach (var keySpace in this.Cluster.Keyspaces)
                 {

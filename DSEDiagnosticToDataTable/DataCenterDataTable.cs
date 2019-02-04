@@ -260,12 +260,13 @@ namespace DSEDiagnosticToDataTable
 
                 var clusterTotStorage = this.Cluster.Nodes
                                         .Where(n => !n.DSE.StorageUsed.NaN)
+                                        .Select(n => n.DSE.StorageUsed.ConvertSizeUOM(DSEDiagnosticLibrary.UnitOfMeasure.Types.MiB))
                                         .DefaultIfEmpty()
-                                        .Sum(n => n.DSE.StorageUsed.ConvertSizeUOM(DSEDiagnosticLibrary.UnitOfMeasure.Types.MiB));
-                var clusterTotSSTables = this.Cluster.Nodes.DefaultIfEmpty().Sum(n => n.DSE.SSTableCount);
-                var clusterTotReads = (ulong)this.Cluster.Nodes.DefaultIfEmpty().Sum(n => n.DSE.ReadCount);
-                var clusterTotWrites = (ulong)this.Cluster.Nodes.DefaultIfEmpty().Sum(n => n.DSE.WriteCount);
-                var clusterTotKeys = (ulong)this.Cluster.Nodes.DefaultIfEmpty().Sum(n => n.DSE.KeyCount);
+                                        .Sum();
+                var clusterTotSSTables = this.Cluster.Nodes.Select(n => n.DSE.SSTableCount).DefaultIfEmpty().Sum();
+                var clusterTotReads = (ulong)this.Cluster.Nodes.Select(n => n.DSE.ReadCount).DefaultIfEmpty().Sum();
+                var clusterTotWrites = (ulong)this.Cluster.Nodes.Select(n => n.DSE.WriteCount).DefaultIfEmpty().Sum();
+                var clusterTotKeys = (ulong)this.Cluster.Nodes.Select(n => n.DSE.KeyCount).DefaultIfEmpty().Sum();
 
                 foreach (var dataCenter in this.Cluster.DataCenters)
                 {
@@ -537,16 +538,19 @@ namespace DSEDiagnosticToDataTable
                         {
                             var ksInDCTot = dataCenter.Keyspaces
                                                 .Where(ks => !ks.IsDSEKeyspace && !ks.IsSystemKeyspace)
-                                                .DefaultIfEmpty()
-                                                .Sum(ks => (decimal) (ks.Stats.Tables
+                                                .Select(ks => (decimal)(ks.Stats.Tables
                                                                         + ks.Stats.MaterialViews
                                                                         + ks.Stats.SecondaryIndexes
                                                                         + ks.Stats.CustomIndexes
-                                                                        + ks.Stats.SasIIIndexes));
+                                                                        + ks.Stats.SasIIIndexes))
+                                                .DefaultIfEmpty()
+                                                .Sum();
 
                             if (ksInDCTot > 0m)
                             {
-                                var ksInDCActive = dataCenter.Keyspaces.Where(ks => !ks.IsDSEKeyspace && !ks.IsSystemKeyspace).DefaultIfEmpty().Sum(ks => (decimal) ks.Stats.NbrActive);
+                                var ksInDCActive = dataCenter.Keyspaces.Where(ks => !ks.IsDSEKeyspace && !ks.IsSystemKeyspace)
+                                                                        .Select(ks => (decimal)ks.Stats.NbrActive)
+                                                                        .DefaultIfEmpty().Sum();
 
                                 dataRow.SetField("Active Tbls/Idxs/Vws", ksInDCActive/ksInDCTot);
                             }
