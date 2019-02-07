@@ -1752,6 +1752,7 @@ CREATE TABLE "OpsCenter".rollups300 (
   &lt;string&gt;HiveMetaStore&lt;/string&gt;
   &lt;string&gt;cfs_archive&lt;/string&gt;
   &lt;string&gt;cfs&lt;/string&gt;
+  &lt;string&gt;dse_system_local&lt;/string&gt;
 &lt;/ArrayOfString&gt;</Value>
     </Setting>
     <Setting Name="MasterLog4NetParser" Type="System.String" Scope="Application">

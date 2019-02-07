@@ -1126,6 +1126,7 @@ public static class {0}
   <string>HiveMetaStore</string>
   <string>cfs_archive</string>
   <string>cfs</string>
+  <string>dse_system_local</string>
 </ArrayOfString>")]
         public global::System.Collections.Specialized.StringCollection IgnoreWarningsErrosInKeySpaces {
             get {
