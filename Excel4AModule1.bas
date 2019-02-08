@@ -1,31 +1,6 @@
 Attribute VB_Name = "Module1"
 Option Explicit
 
-
-Public Type WSFilterData
-    Found As Boolean
-    WSName As String
-    PTName As String
-    FldName As String
-    PvtFldType As String
-    StaticFilterValue As String
-    SetFilterValue As String
-    LblType As String
-    LblValue1 As String
-    LblValue2 As String
-    ValType As String
-    ValValue1 As String
-    ValValue2 As String
-End Type
-
-Public Type WSRowExpandData
-    Found As Boolean
-    WSName As String
-    PTName As String
-    FldName As String
-    ExpandRow As Boolean
-End Type
-
 Public IgnoreWarning As Boolean
 Public InitialRefresh As Boolean
 Public PTLastRefreshDate As Date
@@ -120,7 +95,6 @@ Sub ReFreshPivotTables()
           
     Dim ProgressBar As New ProgressBar
     Dim totalUpdates As Integer
-    Dim updateNum As Integer
     Dim ws As Worksheet
     Dim PT As PivotTable
     Dim pc As PivotCache
@@ -128,7 +102,9 @@ Sub ReFreshPivotTables()
     Dim levelGroup As PivotField
     Dim dcipGroup As PivotField
     Dim pf As PivotField
-    
+    Dim totSegments As Integer
+    Dim curSegment As Integer
+        
     ThisWorkbook.Worksheets("Refresh").Cells(1, 1).value = "Refreshing..."
     ThisWorkbook.Worksheets("Refresh").Cells(1, 1).Interior.ColorIndex = 37
     ThisWorkbook.Worksheets("Refresh").Cells(9, 1).value = "Ctrl+Break to Suspend"
@@ -136,52 +112,52 @@ Sub ReFreshPivotTables()
     
     Application.Wait (Now + TimeValue("0:00:1"))
     
-    totalUpdates = 5
+    totalUpdates = 4
     
     Application.EnableEvents = False
     Application.DisplayAlerts = False
     Application.ScreenUpdating = False
     
-    updateNum = 1
-        
+    
     ThisWorkbook.Worksheets("Refresh").Cells(1, 1).value = "Refresh Failed..."
     ThisWorkbook.Worksheets("Refresh").Cells(1, 1).Interior.ColorIndex = 3
     
-    Call ProgressBar.update(updateNum, totalUpdates, "Refreshing Pivot Tables...", False)
+    Call ProgressBar.update(1, totalUpdates, "Refreshing Pivot Tables...", False)
     ptRefreshStart = Now
     
     Initialized = ThisWorkbook.Worksheets("Refresh").Cells(7, 3).value
     
     ThisWorkbook.RefreshAll
-        
-    updateNum = 2
+            
     'On Error Resume Next
+    totSegments = ThisWorkbook.PivotCaches.Count
+    curSegment = 1
+        
     For Each pc In ThisWorkbook.PivotCaches
             
         If pc.RefreshDate < PTLastRefreshDate Or Not PTRefreshed Then
-            Call ProgressBar.update(updateNum, totalUpdates, "Refreshing Cache " & pc.RefreshName & "...", False)
+            Call ProgressBar.update(curSegment, totSegments, "Refreshing Cache " & pc.RefreshName & "...", True)
                     
             pc.Refresh
         Else
-            Call ProgressBar.update(updateNum, totalUpdates, "Skip Refresh Cache " & pc.RefreshName & "...", False)
+            Call ProgressBar.update(curSegment, totSegments, "Skip Refresh Cache " & pc.RefreshName & "...", True)
         End If
-        
+        curSegment = curSegment + 1
     Next pc
     'On Error GoTo Done
     
-    PTLastRefreshDate = ptRefreshStart
-        
+    Call ProgressBar.update(2, totalUpdates, "Please Wait...", False)
     
-    updateNum = 3
+    PTLastRefreshDate = ptRefreshStart
+            
     If Not Initialized Then
-        Call ProgressBar.update(updateNum, totalUpdates, "Updating Worksheets...", False)
         
         Dim pivotFilterWSName As String: pivotFilterWSName = ThisWorkbook.Worksheets("Refresh").Cells(40, 4).value
         Dim pivotExpandWSName As String: pivotExpandWSName = ThisWorkbook.Worksheets("Refresh").Cells(42, 4).value
     
         
-        Dim totSegments As Integer: totSegments = ThisWorkbook.Worksheets.Count * 2
-        Dim curSegment As Integer: curSegment = 1
+        totSegments = ThisWorkbook.Worksheets.Count * 2
+        curSegment = 1
         
         For Each ws In ThisWorkbook.Worksheets
             Call ProgressBar.update(curSegment, totSegments, "Upd Flits " & ws.Name & "...", True)
@@ -195,28 +171,25 @@ Sub ReFreshPivotTables()
     
         Initialized = True
         ThisWorkbook.Worksheets("Refresh").Cells(7, 3).value = Initialized
-    Else
-        Call ProgressBar.update(updateNum, totalUpdates, "Already Initilized...", False)
     End If
     
     PTRefreshed = True
     ThisWorkbook.Worksheets("Refresh").Cells(1, 7).value = DateTime.Now
-    
-    updateNum = 4
-    Call ProgressBar.update(updateNum, totalUpdates, "Almost Done...", False)
+        
+    Call ProgressBar.update(3, totalUpdates, "Almost Done...", False)
     
 Done:
 
     UpdateRefreshWSState
-    
-    updateNum = 5
-    Call ProgressBar.update(updateNum, totalUpdates, "Done...", False)
+        
+    Call ProgressBar.update(4, totalUpdates, "Done...", False)
     ThisWorkbook.Worksheets("Refresh").Cells(9, 1).value = Empty
     ThisWorkbook.Worksheets("Refresh").Cells(9, 1).Interior.ColorIndex = 0
     
     Application.ScreenUpdating = True
     Application.DisplayAlerts = True
     Application.EnableEvents = True
+    
 End Sub
 
 Function CollectionContains(myCol As Collection, checkVal As Variant) As Boolean
@@ -363,7 +336,7 @@ Sub UpdatePivotCache(ByVal cacheEnabled As Boolean)
     Application.EnableEvents = False
     Application.DisplayAlerts = False
     Application.ScreenUpdating = False
-        
+    
     ThisWorkbook.Worksheets("Refresh").Cells(1, 1).value = "Cache Update Failed..."
     ThisWorkbook.Worksheets("Refresh").Cells(1, 1).Interior.ColorIndex = 3
       
@@ -401,6 +374,7 @@ Done:
     Application.ScreenUpdating = True
     Application.DisplayAlerts = True
     Application.EnableEvents = True
+   
 End Sub
 
 Sub CheckBox2_Click()
@@ -422,81 +396,6 @@ Done:
     ThisWorkbook.Worksheets("Refresh").Cells(6, 3).value = PTCacheEnabled
 
 End Sub
-
-
-
-Function GetFilterInfoFromWSArray(wsFilterArray() As Variant, WSName As String, pivotTblName As String, fieldName As String) As WSFilterData
-
-    Dim foundPivotTbl As Boolean: foundPivotTbl = False
-    Dim i As Integer
-    'On Error Resume Next
-        
-    GetFilterInfoFromWSArray.Found = False
-    
-    For i = LBound(wsFilterArray, 1) To UBound(wsFilterArray, 1)
-        If wsFilterArray(i, 1) = WSName Then
-            If wsFilterArray(i, 2) = pivotTblName Then
-                foundPivotTbl = True
-                If wsFilterArray(i, 3) = fieldName Then
-                    GetFilterInfoFromWSArray.Found = True
-                    GetFilterInfoFromWSArray.WSName = wsFilterArray(i, 1)
-                    GetFilterInfoFromWSArray.PTName = wsFilterArray(i, 2)
-                    GetFilterInfoFromWSArray.FldName = wsFilterArray(i, 3)
-                    GetFilterInfoFromWSArray.PvtFldType = wsFilterArray(i, 5)
-                    GetFilterInfoFromWSArray.StaticFilterValue = wsFilterArray(i, 4)
-                    GetFilterInfoFromWSArray.SetFilterValue = wsFilterArray(i, 6)
-                    GetFilterInfoFromWSArray.LblType = wsFilterArray(i, 7)
-                    GetFilterInfoFromWSArray.LblValue1 = wsFilterArray(i, 8)
-                    GetFilterInfoFromWSArray.LblValue2 = wsFilterArray(i, 9)
-                    GetFilterInfoFromWSArray.ValType = wsFilterArray(i, 10)
-                    GetFilterInfoFromWSArray.ValValue1 = wsFilterArray(i, 11)
-                    GetFilterInfoFromWSArray.ValValue2 = wsFilterArray(i, 12)
-                    Exit For
-                End If
-            Else
-                If foundPivotTbl Then
-                    Exit For
-                End If
-            End If
-        Else
-            If foundPivotTbl Then
-                Exit For
-            End If
-        End If
-    Next i
-End Function
-
-Function GetRowExpandInfoFromWSArray(wsExpandArray() As Variant, WSName As String, pivotTblName As String, fieldName As String) As WSRowExpandData
-
-    Dim foundPivotTbl As Boolean: foundPivotTbl = False
-    Dim i As Integer
-       
-    GetRowExpandInfoFromWSArray.Found = False
-    
-    For i = LBound(wsExpandArray, 1) To UBound(wsExpandArray, 1)
-        If wsExpandArray(i, 1) = WSName Then
-            If wsExpandArray(i, 2) = pivotTblName Then
-                foundPivotTbl = True
-                If wsExpandArray(i, 3) = fieldName Then
-                    GetRowExpandInfoFromWSArray.Found = True
-                    GetRowExpandInfoFromWSArray.WSName = wsExpandArray(i, 1)
-                    GetRowExpandInfoFromWSArray.PTName = wsExpandArray(i, 2)
-                    GetRowExpandInfoFromWSArray.FldName = wsExpandArray(i, 3)
-                    GetRowExpandInfoFromWSArray.ExpandRow = wsExpandArray(i, 4)
-                    Exit For
-                End If
-            Else
-                If foundPivotTbl Then
-                    Exit For
-                End If
-            End If
-        Else
-            If foundPivotTbl Then
-                Exit For
-            End If
-        End If
-    Next i
-End Function
 
 Function PivotFilterValues(targetWS As Worksheet)
        
@@ -571,6 +470,8 @@ Function PivotRowCollapseExpandValues(targetWS As Worksheet)
         
      For Each ws In ThisWorkbook.Worksheets
         For Each PT In ws.PivotTables
+            PT.ManualUpdate = True
+            
             For Each pfInfo In Factory.MergePivotFieldsList(Nothing, Nothing, PT.rowFields)
                 If pfInfo.CanExpand Then
                     targetWS.Cells(row, 1).value = ws.Name
@@ -580,6 +481,8 @@ Function PivotRowCollapseExpandValues(targetWS As Worksheet)
                     row = row + 1
                 End If
             Next pfInfo
+            
+            PT.ManualUpdate = False
         Next PT
     Next ws
 
@@ -592,26 +495,48 @@ Function CheckPivotFilterValues(pivotFilterValuesWS As Worksheet, targetWS As Wo
     Dim PT As PivotTable
     Dim pfInfo As PivotFieldrInfo
     Dim filterData As WSFilterData
+    Dim pivotFilters As Collection
+    Dim pivotFields As pivotFields
     Dim Factory As Factory: Set Factory = New Factory
     Dim fndPFInfos As Collection
+    Dim pvtFldType As PivotTypes
     
     For Each PT In targetWS.PivotTables
         PT.ManualUpdate = True
         
-        For Each pfInfo In Factory.MergePivotFieldsList(PT.pageFields, PT.columnFields, PT.rowFields)
+        Set pivotFilters = Factory.GetPivotFilterInfoForPivotTbl(wsFilterDataArray, targetWS.Name, PT.Name)
         
-            filterData = GetFilterInfoFromWSArray(wsFilterDataArray, targetWS.Name, PT.Name, pfInfo.Name)
-            
-            If filterData.Found = True Then
-                Set fndPFInfos = pfInfo.MatchAndSelectString(IIf(filterData.SetFilterValue = Empty, filterData.StaticFilterValue, filterData.SetFilterValue), Not filterData.SetFilterValue = Empty, True)
-            
-                If fndPFInfos.Count = 0 Then
-                    Debug.Print "NoMatch", "'" + targetWS.Name + "'", "'" + PT.Name + "'", "'" + pfInfo.Name + "'", "Static: '" & filterData.StaticFilterValue & "'", "Set: '" & filterData.SetFilterValue & "'"
+        For Each filterData In pivotFilters
+        
+            If filterData.Active = True Then
+                Select Case filterData.pvtFldType
+                   Case "Page"
+                        Set pivotFields = PT.pageFields
+                        pvtFldType = PageType
+                   Case "Column"
+                        Set pivotFields = PT.columnFields
+                        pvtFldType = ColumnType
+                   Case "Row"
+                        Set pivotFields = PT.rowFields
+                        pvtFldType = RowType
+                   Case Else
+                        Set pivotFields = Nothing
+                        pvtFldType = Unknown
+                End Select
+                
+                Set pfInfo = Factory.FindPivotFieldInfo(pivotFields, filterData.FldName, pvtFldType)
+                    
+                If pfInfo Is Nothing Then
+                    Debug.Print "WSFilterFld NotFound", "'" + targetWS.Name + "'", "'" + PT.Name + "'", "'" + filterData.pvtFldType + "'", "'" + filterData.FldName + "'"
+                Else
+                    Set fndPFInfos = pfInfo.MatchAndSelectString(IIf(filterData.SetFilterValue = Empty, filterData.StaticFilterValue, filterData.SetFilterValue), Not filterData.SetFilterValue = Empty, True)
+                
+                    If fndPFInfos.Count = 0 Then
+                        Debug.Print "NoMatch", "'" + targetWS.Name + "'", "'" + PT.Name + "'", "'" + pfInfo.Name + "'", "Static: '" & filterData.StaticFilterValue & "'", "Set: '" & filterData.SetFilterValue & "'"
+                    End If
                 End If
-            Else
-                Debug.Print "WSFilterFld NotFound", "'" + targetWS.Name + "'", "'" + PT.Name + "'", "'" + pfInfo.Name + "'"
             End If
-        Next pfInfo
+        Next filterData
         
         PT.ManualUpdate = False
     Next PT
@@ -621,31 +546,36 @@ End Function
 Function ExpandPivotFields(pivotExpandFldsWS As Worksheet, targetWS As Worksheet)
 
     Dim wsRowExpandArray() As Variant: wsRowExpandArray = pivotExpandFldsWS.UsedRange.value
-       
+    
     Dim PT As PivotTable
     Dim pfInfo As PivotFieldrInfo
-    Dim expandData As WSRowExpandData
+    Dim rowData As WSRowExpandData
+    Dim pivotRows As Collection
+    Dim pivotFields As pivotFields
     Dim Factory As Factory: Set Factory = New Factory
-       
-    'On Error Resume Next
-     
+    Dim fndPFInfos As Collection
+    
     For Each PT In targetWS.PivotTables
         PT.ManualUpdate = True
         
-        For Each pfInfo In Factory.MergePivotFieldsList(Nothing, Nothing, PT.rowFields)
+        Set pivotRows = Factory.GetRowExpandInforPivotTbl(wsRowExpandArray, targetWS.Name, PT.Name)
         
-            expandData = GetRowExpandInfoFromWSArray(wsRowExpandArray, targetWS.Name, PT.Name, pfInfo.Name)
-            
-            If expandData.Found = True Then
-                Call pfInfo.Expand(expandData.ExpandRow)
-            Else
-                Debug.Print "WSExpandRow NotFound", "'" + targetWS.Name + "'", "'" + PT.Name + "'", "'" + pfInfo.Name + "'"
+        For Each rowData In pivotRows
+        
+            If rowData.Active = True Then
+                Set pfInfo = Factory.FindPivotFieldInfo(PT.rowFields, rowData.FldName, RowType)
+                
+                If pfInfo Is Nothing Then
+                    Debug.Print "WSRowFld NotFound", "'" + targetWS.Name + "'", "'" + PT.Name + "'", "'" + rowData.FldName + "'"
+                Else
+                    Call pfInfo.Expand(rowData.ExpandRow)
+                End If
             End If
-        Next pfInfo
+        Next rowData
         
         PT.ManualUpdate = False
     Next PT
-
+      
 End Function
 
 Function CreatWSIfNotExists(WSName As String) As Worksheet
@@ -669,7 +599,7 @@ Sub ResetPivotTables()
     Dim pf As PivotField
     Dim ws As Worksheet
     Dim PT As PivotTable
-    Dim pi As PivotItem
+    Dim pi As pivotItem
     Dim pc As PivotCache
     Dim generatePivotFilterWS As Boolean: generatePivotFilterWS = ThisWorkbook.Worksheets("Refresh").Cells(39, 4).value
     Dim generatePivotExpandWS As Boolean: generatePivotExpandWS = ThisWorkbook.Worksheets("Refresh").Cells(41, 4).value
@@ -761,33 +691,51 @@ Sub test()
     Dim PT As PivotTable
     Dim pfItem As PivotItemInfo
     Dim Factory As Factory: Set Factory = New Factory
+    Dim ptField As PivotField
+    On Error GoTo 0
+    
+    Debug.Print "===="
+    
+    
+    'Set ptField = ThisWorkbook.Worksheets("Storage Table").PivotTables("PivotTableStorageTable").rowFields("Node IPAddress")  '.columnFields("Attribute") '.CurrentPage
     
     'Call PivotFilterValues(CreatWSIfNotExists("Tst1"))
-    'Call CheckPivotFilterValues(CreatWSIfNotExists("Tst1"), CreatWSIfNotExists("Read Table"))
+    'Call CheckPivotFilterValues(CreatWSIfNotExists("PivotFilterValues"), CreatWSIfNotExists("Parsing Errors"))
     'Call ExpandPivotFields(CreatWSIfNotExists("PivotExpandValues"), CreatWSIfNotExists("Read Table"))
     
-'    For Each PT In ws.PivotTables
-'        For Each pfInfo In factory.MergePivotFieldsList(PT.pageFields, Nothing, Nothing)
-'            'Debug.Print "'" + ws.Name + "'", "'" + PT.Name + "'", "'" + pfInfo.Name + "'"
-'
+    For Each PT In ws.PivotTables
+        PT.ManualUpdate = True
+        
+        For Each pfInfo In Factory.MergePivotFieldsList(Nothing, PT.columnFields, Nothing)
+        'For Each pfInfo In Factory.MergePivotFieldsList(PT.pageFields, Nothing, Nothing)
+            Debug.Print "'" + ws.Name + "'", "'" + PT.Name + "'", "'" + pfInfo.Name + "'"
+
 '            If pfInfo.Name = "CQL Type" Then
 '                Call pfInfo.MatchAndSelectString("(All)", False, True)
 '            Else
-'                Call pfInfo.SetAllItem
+'                Call pfInfo.SelectAll
 '            End If
-'            'Debug.Print "'" + ws.Name + "'", "'" + PT.Name + "'", "'" + pfInfo.Name + "'", pfInfo.Selected.Count, pfInfo.Selected(1).Name, pfInfo.Selected(1).Selected
-'            Debug.Print "'" + ws.Name + "'", "'" + PT.Name + "'", "'" + pfInfo.Name + "'", pfInfo.MultiSelection, pfInfo.Selected.Count
-'            For Each pfItem In pfInfo.Items
-'                Debug.Print "  All-Items", pfItem.Name, pfItem.Selected
-'            Next pfItem
-'            For Each pfItem In pfInfo.Selected
-'                Debug.Print "  Selected", pfItem.Name, pfItem.Selected
-'            Next pfItem
-'             'If pf.Name = "Attribute" Then
-'                '  Call EnablePivotFieldBasedOnPattern(pf, "Space used*,. SSTable count,. Number of keys*,. Number of partitions*,. *storage*", element.PT = 1)
-'            'End If
-'        Next pfInfo
-'    Next PT
+            'Call pfInfo.MatchAndSelectString("Local read latency,. Local read count", False, True)
+                       
+            For Each pfItem In pfInfo.MatchAndSelectString("Local read latency,. Local read count", False, True) 'pfInfo.Selected
+                Debug.Print "New Selected", pfItem.Name, pfItem.Selected
+            Next pfItem
+            'pfInfo.Field.ClearManualFilter
+             'Debug.Print "'" + ws.Name + "'", "'" + PT.Name + "'", "'" + pfInfo.Name + "'", pfInfo.Selected.Count, pfInfo.Selected(1).Name, pfInfo.Selected(1).Selected
+            Debug.Print "'" + ws.Name + "'", "'" + PT.Name + "'", "'" + pfInfo.Name + "'", pfInfo.MultiSelection, pfInfo.Selected.Count
+            For Each pfItem In pfInfo.Items
+                Debug.Print "  All-Items", pfItem.Name, pfItem.Selected
+            Next pfItem
+            For Each pfItem In pfInfo.Selected
+                Debug.Print "  Selected", pfItem.Name, pfItem.Selected
+            Next pfItem
+             'If pf.Name = "Attribute" Then
+                '  Call EnablePivotFieldBasedOnPattern(pf, "Space used*,. SSTable count,. Number of keys*,. Number of partitions*,. *storage*", element.PT = 1)
+            'End If
+        Next pfInfo
+        
+        PT.ManualUpdate = False
+    Next PT
     
 End Sub
 

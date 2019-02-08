@@ -19,31 +19,68 @@ Public Enum PivotTypes
  RowType = 3
 End Enum
 
-Public Field As pivotField
+Public Field As PivotField
 Public Name As String
-Public Items As Collection
-Public PivotType As PivotTypes
+Private fieldItems As Collection
+Public pivotType As PivotTypes
 Public LabelFilter As PivotFilter
 Public ValueFilter As PivotFilter
-Public BlankItem As pivotItemInfo
-Public AllItem As pivotItemInfo
+Private fieldBlankItem As PivotItemInfo
+Private fieldAllItem As PivotItemInfo
 
 Const FilterStrDelimator As String = ",. "
 
+Public Property Get Items() As Collection
+    If fieldItems Is Nothing Then
+        Call Me.PopulateFieldItems
+    End If
+    Set Items = fieldItems
+End Property
 
+
+Public Property Get BlankItem() As PivotItemInfo
+
+    If fieldBlankItem Is Nothing Then
+        Dim pivotItem As pivotItem
+        
+        Set pivotItem = Me.Field.PivotItems("(blank)")
+        Set fieldBlankItem = New PivotItemInfo
+        Call fieldBlankItem.SetPivotItem(pivotItem, Me)
+    End If
+
+    Set BlankItem = fieldBlankItem
+End Property
+Public Property Set BlankItem(item As PivotItemInfo)
+    Set fieldBlankItem = item
+End Property
+
+Public Property Get AllItem() As PivotItemInfo
+
+    If fieldAllItem Is Nothing Then
+        Set fieldAllItem = New PivotItemInfo
+        Call fieldAllItem.SetAsAllPivotItem(Me)
+    End If
+
+    Set AllItem = fieldAllItem
+
+End Property
+Public Property Set AllItem(item As PivotItemInfo)
+    Set fieldAllItem = item
+End Property
 Private Sub Class_Initialize()
     
-    Me.PivotType = Unknown
+    Me.pivotType = Unknown
     Me.Name = Empty
     
     Set Me.LabelFilter = Nothing
     Set Me.ValueFilter = Nothing
-    Set Me.BlankItem = Nothing
-    Set Me.AllItem = Nothing
+    Set fieldItems = Nothing
+    Set fieldBlankItem = Nothing
+    Set fieldAllItem = Nothing
     
 End Sub
 
-Public Sub SetName(pField As pivotField)
+Public Sub SetName(pField As PivotField)
     On Error Resume Next
     
     Dim sSetName As String
@@ -60,34 +97,58 @@ Public Sub SetName(pField As pivotField)
     
 End Sub
 
-Public Function SetPivotField(pField As pivotField, pType As PivotTypes) As PivotFieldrInfo
+Public Function GetItemName(pItem As pivotItem) As String
+    On Error Resume Next
+    
+    GetItemName = Trim(pItem.SourceName)
+    
+    If IsEmpty(GetItemName) = True Then
+        GetItemName = Trim(pItem.Caption)
+    End If
+     
+    On Error GoTo 0
+    
+End Function
+Public Function SetPivotField(pField As PivotField, pType As PivotTypes, Optional populateItems As Boolean = False) As PivotFieldrInfo
 
     Set SetPivotField = Me
     
     Set Me.Field = pField
-    Me.PivotType = pType
+    Me.pivotType = pType
     Call Me.SetName(pField)
         
-    If Not pField.PivotFilters Is Nothing And pField.PivotFilters.Count = 1 Then
-        If pField.PivotFilters(1).Active = True Then
-            If pField.PivotFilters(1).Order = -1 Then
-                Set Me.ValueFilter = pField.PivotFilters(1)
+    If Not pField.pivotFilters Is Nothing And pField.pivotFilters.Count = 1 Then
+        If pField.pivotFilters(1).Active = True Then
+            If pField.pivotFilters(1).Order = -1 Then
+                Set Me.ValueFilter = pField.pivotFilters(1)
             Else
-                Set Me.LabelFilter = pField.PivotFilters(1)
+                Set Me.LabelFilter = pField.pivotFilters(1)
             End If
         End If
     End If
+       
+    If populateItems = True Then
+        Call Me.PopulateFieldItems
+    Else
+        Set fieldItems = Nothing
+    End If
+
+End Function
+
+Public Function PopulateFieldItems() As PivotFieldrInfo
+
+    Set PopulateFieldItems = Me
     
     Dim pItem As pivotItem
-    Dim pItemInfo As pivotItemInfo
+    Dim pItemInfo As PivotItemInfo
+
+    Set fieldItems = New Collection
     
-    Set Me.Items = New Collection
-    
-    For Each pItem In pField.PivotItems
+    For Each pItem In Me.Field.PivotItems
         
-        Set pItemInfo = New pivotItemInfo
+        Set pItemInfo = New PivotItemInfo
         Call pItemInfo.SetPivotItem(pItem, Me)
-        Me.Items.Add pItemInfo
+        fieldItems.Add item:=pItemInfo, Key:=pItemInfo.Name
         
         If pItemInfo.IsAll Then
             Set Me.AllItem = pItemInfo
@@ -100,7 +161,7 @@ Public Function SetPivotField(pField As pivotField, pType As PivotTypes) As Pivo
 End Function
 
 Public Property Get MultiSelection() As Boolean
-    If Me.PivotType = PageType Then
+    If Me.pivotType = PageType Then
         MultiSelection = Me.Field.EnableMultiplePageItems = True
     Else
         MultiSelection = True
@@ -108,7 +169,7 @@ Public Property Get MultiSelection() As Boolean
 End Property
 
 Public Property Get Selected() As Collection
-    Dim pItem As pivotItemInfo
+    Dim pItem As PivotItemInfo
     
     Set Selected = New Collection
     
@@ -116,31 +177,23 @@ Public Property Get Selected() As Collection
         'Dim blankSelected As Boolean: blankSelected = False
         For Each pItem In Me.Items
             If pItem.Selected = True Then
-                Selected.Add pItem
+                Selected.Add item:=pItem, Key:=pItem.Name
                 'If pItem.IsBlank Then blankSelected = True
             End If
         Next pItem
         If Me.Items.Count = Selected.Count Then 'IIf(blankSelected = True, Selected.Count, Selected.Count + 1)
-            If Me.AllItem Is Nothing Then
-                Set Me.AllItem = New pivotItemInfo
-                Call Me.AllItem.SetAllPivotItem(Me)
-            End If
             Set Selected = Nothing
             Set Selected = New Collection
-            Selected.Add Me.AllItem
+            Selected.Add item:=Me.AllItem, Key:=Me.AllItem.Name
         End If
     ElseIf Me.Field.CurrentPage = "(All)" Then
-        If Me.AllItem Is Nothing Then
-            Set Me.AllItem = New pivotItemInfo
-            Call Me.AllItem.SetAllPivotItem(Me)
-        End If
-        Selected.Add Me.AllItem
+        Selected.Add item:=Me.AllItem, Key:=Me.AllItem.Name
     ElseIf Me.Field.CurrentPage = "(blank)" Then
-        Selected.Add Me.BlankItem
+        Selected.Add item:=Me.BlankItem, Key:=Me.BlankItem.Name
     Else
         For Each pItem In Me.Items
-            If pItem.Item.Caption = Me.Field.CurrentPage Then
-                Selected.Add pItem
+            If pItem.item.Caption = Me.Field.CurrentPage Then
+                Selected.Add item:=pItem, Key:=pItem.Name
                 Exit For
             End If
         Next pItem
@@ -150,7 +203,7 @@ End Property
 
 Public Property Get PivotTypeString() As String
     
-    Select Case Me.PivotType
+    Select Case Me.pivotType
         Case PageType
             PivotTypeString = "Page"
         Case ColumnType
@@ -167,13 +220,13 @@ Public Property Let PivotTypeString(strType As String)
     
     Select Case strType
         Case "Page"
-            Me.PivotType = PageType
+            Me.pivotType = PageType
         Case "Column"
-            Me.PivotType = ColumnType
+            Me.pivotType = ColumnType
         Case "Row"
-            Me.PivotType = RowType
+            Me.pivotType = RowType
         Case Else
-            Me.PivotType = Unknown
+            Me.pivotType = Unknown
     End Select
     
 End Property
@@ -183,7 +236,7 @@ Public Property Get IsExpanded() As Boolean
     
     IsExpanded = False
     
-    If Not Me.PivotType = RowType Then Exit Property
+    If Not Me.pivotType = RowType Then Exit Property
     
     If IsNumeric(Me.Field.Position) Then
         If Me.Field.ShowDetail = True Then
@@ -202,7 +255,7 @@ Public Property Get CanExpand() As Boolean
     
     CanExpand = False
     
-    If Not Me.PivotType = RowType Then Exit Property
+    If Not Me.pivotType = RowType Then Exit Property
     
     If IsNumeric(Me.Field.Position) Then
         If Me.Field.ShowDetail = True Then
@@ -223,7 +276,7 @@ Public Function Expand(expandField As Boolean) As PivotFieldrInfo
     
     Set Expand = Me
     
-    If Not Me.PivotType = RowType Then Exit Function
+    If Not Me.pivotType = RowType Then Exit Function
     
     If IsNumeric(Me.Field.Position) Then
         'If Not Me.Field.ShowDetail = expandField Then
@@ -238,7 +291,7 @@ Done:
 End Function
 
 Public Property Get SelectedValues() As Collection
-    Dim pItem As pivotItemInfo
+    Dim pItem As PivotItemInfo
     
     Set SelectedValues = New Collection
     
@@ -250,23 +303,22 @@ Public Property Get SelectedValues() As Collection
                 'If pItem.IsBlank Then blankSelected = True
             End If
         Next pItem
-        If Me.Items.Count = SelectedValues.Count Then 'IIf(blankSelected = True, SelectedValues.Count, SelectedValues.Count + 1)
-            If Me.AllItem Is Nothing Then
-                Set Me.AllItem = New pivotItemInfo
-                Call Me.AllItem.SetAllPivotItem(Me)
-            End If
+        If Me.Items.Count = Selected.Count Then 'IIf(blankSelected = True, Selected.Count, Selected.Count + 1)
             Set SelectedValues = Nothing
             Set SelectedValues = New Collection
-            SelectedValues.Add "(All)"
+            SelectedValues.Add Me.AllItem.Name
         End If
     ElseIf Me.Field.CurrentPage = "(All)" Then
-        If Me.AllItem Is Nothing Then
-            Set Me.AllItem = New pivotItemInfo
-            Call Me.AllItem.SetAllPivotItem(Me)
-        End If
-        SelectedValues.Add "(All)"
+        SelectedValues.Add Me.AllItem.Name
+    ElseIf Me.Field.CurrentPage = "(blank)" Then
+        SelectedValues.Add Me.BlankItem.Name
     Else
-        SelectedValues.Add CStr(Me.Field.CurrentPage)
+        For Each pItem In Me.Items
+            If pItem.item.Caption = Me.Field.CurrentPage Then
+                SelectedValues.Add pItem.Name
+                Exit For
+            End If
+        Next pItem
     End If
     
 End Property
@@ -293,14 +345,12 @@ Public Property Let value(filterStr As String)
     
 End Property
 
-Public Function ClearFilter() As PivotFieldrInfo
-    Set ClearFilter = Me
-    
-    Me.Field.ClearManualFilter
-    
+Public Function DeSelectAll() As PivotFieldrInfo
+    Set DeSelectAll = Me
+        
     If Me.MultiSelection = True Then
-        Dim pfItem As pivotItemInfo
-        Me.BlankItem.Item.Visible = True
+        Dim pfItem As PivotItemInfo
+        Me.BlankItem.item.Visible = True
         For Each pfItem In Me.Items
             If pfItem.IsBlank = False Then
                 pfItem.Selected = False
@@ -312,69 +362,78 @@ Public Function ClearFilter() As PivotFieldrInfo
     
 End Function
 
-Public Function SetOnlyBlankItem() As PivotFieldrInfo
+Public Function SelectBlank() As PivotFieldrInfo
 
-    Set SetOnlyBlankItem = Me
-    
-    Call Me.ClearFilter
+    Set SelectBlank = Me.DeSelectAll
     
 End Function
 
-Public Function SetAllItem() As PivotFieldrInfo
-    Set SetAllItem = Me
-    
-    If Me.AllItem Is Nothing Then
-        Set Me.AllItem = New pivotItemInfo
-        Call Me.AllItem.SetAllPivotItem(Me)
-    End If
-        
+Public Function SelectAll() As PivotFieldrInfo
+    Set SelectAll = Me
+      
     Me.Field.ClearManualFilter
-    
-    If Me.MultiSelection = True Then
-        Dim pfItem As pivotItemInfo
-        For Each pfItem In Me.Items
-            pfItem.Selected = True
-        Next pfItem
-    Else
-        Me.Field.CurrentPage = "(All)"
-    End If
-                   
+        
 End Function
 
 Public Function Matched(matchValues() As String, patternMatch As Boolean) As Collection
     Dim value As String
-    Dim pItem As pivotItemInfo
     Dim valueLBnd As Long: valueLBnd = LBound(matchValues)
     Dim valueUBnd As Long: valueUBnd = UBound(matchValues)
     Dim valueCnt As Long: valueCnt = valueUBnd - valueLBnd + 1
     Dim valueIdx As Long
-        
+    Dim pItemInfo As PivotItemInfo
+    
     Set Matched = New Collection
     
     If valueCnt = 0 Then Exit Function
     If valueCnt = 1 And matchValues(valueLBnd) = "(All)" Then
-        If Me.AllItem Is Nothing Then
-            Set Me.AllItem = New pivotItemInfo
-            Call Me.AllItem.SetAllPivotItem(Me)
-        End If
         Matched.Add Me.AllItem
-    Else
-        For Each pItem In Me.Items
+    ElseIf fieldItems Is Nothing Then
+        Dim pItem As pivotItem
+    
+        If patternMatch = True Then
+            For Each pItem In Me.Field.PivotItems
+                For valueIdx = valueLBnd To valueUBnd
+                    If GetItemName(pItem) Like matchValues(valueIdx) Then
+                        Set pItemInfo = New PivotItemInfo
+                        Call pItemInfo.SetPivotItem(pItem, Me)
+                        Matched.Add pItemInfo
+                        Exit For
+                    End If
+                Next valueIdx
+            Next pItem
+        Else
+            On Error Resume Next
             For valueIdx = valueLBnd To valueUBnd
-                If IIf(patternMatch = True, pItem.Name Like matchValues(valueIdx), matchValues(valueIdx) = pItem.Name) Then
-                    Matched.Add pItem
+                Set pItem = Nothing
+                Set pItem = Me.Field.PivotItems(matchValues(valueIdx))
+                
+                If Not pItem Is Nothing Then
+                    Set pItemInfo = New PivotItemInfo
+                    Call pItemInfo.SetPivotItem(pItem, Me)
+                    Matched.Add pItemInfo
+                    If Matched.Count = valueCnt Then Exit Function
+                End If
+            Next valueIdx
+            On Error GoTo 0
+        End If
+    Else
+        For Each pItemInfo In Me.Items
+            For valueIdx = valueLBnd To valueUBnd
+                If IIf(patternMatch = True, pItemInfo.Name Like matchValues(valueIdx), matchValues(valueIdx) = pItemInfo.Name) Then
+                    Matched.Add pItemInfo
                     If patternMatch = False And Matched.Count = valueCnt Then Exit Function
                     Exit For
                 End If
             Next valueIdx
-        Next pItem
+        Next pItemInfo
     End If
     
 End Function
 
 Public Function MatchAndSelect(matchValues() As String, patternMatch As Boolean, resetFilter As Boolean) As Collection
     Dim value As String
-    Dim pItem As pivotItemInfo
+    Dim pItemInfo As PivotItemInfo
     Dim valueLBnd As Long: valueLBnd = LBound(matchValues)
     Dim valueUBnd As Long: valueUBnd = UBound(matchValues)
     Dim valueCnt As Long: valueCnt = valueUBnd - valueLBnd + 1
@@ -383,15 +442,14 @@ Public Function MatchAndSelect(matchValues() As String, patternMatch As Boolean,
     Set MatchAndSelect = New Collection
     
     If valueCnt = 0 Then Exit Function
-    If resetFilter = True Then Me.Field.ClearManualFilter
     
     If valueCnt = 1 Then
         If matchValues(valueLBnd) = "(All)" Then
-            Call Me.SetAllItem
+            Call Me.SelectAll
             MatchAndSelect.Add Me.AllItem
             Exit Function
         ElseIf matchValues(valueLBnd) = "(blank)" Then
-            Call Me.SetOnlyBlankItem
+            Call Me.SelectBlank
             MatchAndSelect.Add Me.BlankItem
             Exit Function
         End If
@@ -401,46 +459,75 @@ Public Function MatchAndSelect(matchValues() As String, patternMatch As Boolean,
     Dim localMS As Boolean: localMS = Me.MultiSelection
      
     If localMS = True Then
-        If Me.BlankItem.Item.Visible = False Then
-            Me.BlankItem.Item.Visible = True
+        If Me.BlankItem.item.Visible = False Then
+            Me.BlankItem.item.Visible = True
         ElseIf resetFilter = False Then
             blankMatched = True
         End If
-    ElseIf resetFilter = False Then
+    Else
         For valueIdx = valueLBnd To valueUBnd
             If IIf(patternMatch = True, Me.Field.CurrentPage Like matchValues(valueIdx), matchValues(valueIdx) = Me.Field.CurrentPage) Then
-                MatchAndSelect.Add pItem
+                Set MatchAndSelect = Me.Selected
                 Exit Function
             End If
         Next valueIdx
     End If
     
-    Dim Selected As Boolean
+    Dim vSelected As Boolean
     Dim checkValues As Boolean: checkValues = True
    
-    For Each pItem In Me.Items
-        Selected = False
-        If checkValues = True Then
-            For valueIdx = valueLBnd To valueUBnd
-                If IIf(patternMatch = True, pItem.Name Like matchValues(valueIdx), matchValues(valueIdx) = pItem.Name) Then
-                    MatchAndSelect.Add pItem
-                    pItem.Selected = True
-                    If localMS = False Then Exit Function
-                    Selected = True
-                    If pItem.Name = "(blank)" Then blankMatched = True
-                    checkValues = patternMatch = True Or MatchAndSelect.Count < valueCnt
-                    Exit For
-                End If
-            Next valueIdx
-        End If
-        If localMS = True And resetFilter = True And Selected = False And Not pItem.Name = "(blank)" Then
-            pItem.Selected = False
-        End If
-    Next pItem
+    If fieldItems Is Nothing Then
+        Dim pItem As pivotItem
+        Dim pItemName As String
         
+        For Each pItem In Me.Field.PivotItems
+            vSelected = False
+            pItemName = Me.GetItemName(pItem)
+            
+            If checkValues = True Then
+                For valueIdx = valueLBnd To valueUBnd
+                    If IIf(patternMatch = True, pItemName Like matchValues(valueIdx), matchValues(valueIdx) = pItemName) Then
+                        Set pItemInfo = New PivotItemInfo
+                        Call pItemInfo.SetPivotItem(pItem, Me)
+                        MatchAndSelect.Add pItemInfo
+                        pItemInfo.Selected = True
+                        If localMS = False Then Exit Function
+                        vSelected = True
+                        If pItemInfo.Name = "(blank)" Then blankMatched = True
+                        checkValues = patternMatch = True Or MatchAndSelect.Count < valueCnt
+                        Exit For
+                    End If
+                Next valueIdx
+            End If
+            If localMS = True And resetFilter = True And vSelected = False And Not pItemName = "(blank)" Then
+                pItem.Visible = False
+            End If
+        Next pItem
+    Else
+        For Each pItemInfo In Me.Items
+            vSelected = False
+            If checkValues = True Then
+                For valueIdx = valueLBnd To valueUBnd
+                    If IIf(patternMatch = True, pItemInfo.Name Like matchValues(valueIdx), matchValues(valueIdx) = pItemInfo.Name) Then
+                        MatchAndSelect.Add pItemInfo
+                        pItemInfo.Selected = True
+                        If localMS = False Then Exit Function
+                        vSelected = True
+                        If pItemInfo.Name = "(blank)" Then blankMatched = True
+                        checkValues = patternMatch = True Or MatchAndSelect.Count < valueCnt
+                        Exit For
+                    End If
+                Next valueIdx
+            End If
+            If localMS = True And resetFilter = True And vSelected = False And Not pItemInfo.Name = "(blank)" Then
+                pItemInfo.Selected = False
+            End If
+        Next pItemInfo
+    End If
+    
     If MatchAndSelect.Count = 0 Then
-        If resetFilter = True Then Call Me.SetOnlyBlankItem
-    ElseIf localMS = True And blankMatched = False Then Me.BlankItem.Item.Visible = False
+        If resetFilter = True Then Call Me.SelectBlank
+    ElseIf localMS = True And blankMatched = False Then Me.BlankItem.item.Visible = False
     End If
     
 End Function

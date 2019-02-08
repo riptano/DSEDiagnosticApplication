@@ -10,7 +10,7 @@ Attribute VB_Exposed = False
 Option Explicit
 'Unrestricted class
 Public Parent As PivotFieldrInfo
-Public Item As pivotItem
+Public item As pivotItem
 Public Name As String
 Public IsBlank As Boolean
 Public IsAll As Boolean
@@ -20,7 +20,7 @@ Public Property Get Selected() As Boolean
     If Me.IsAll Then
         Selected = True
     Else
-        Selected = Me.Item.Visible = True
+        Selected = Me.item.Visible = True
     End If
     
 End Property
@@ -29,14 +29,14 @@ Public Property Let Selected(value As Boolean)
     
     If Me.IsAll Then
         If value = True Then
-            Call Me.Parent.ClearFilter
+            Call Me.Parent.SelectAll
         Else
-            Call Me.Parent.SetOnlyBlankItem
+            Call Me.Parent.SelectBlank
         End If
-    ElseIf Not Me.Item.Visible = value Then
-        Me.Item.Visible = value
+    ElseIf Not Me.item.Visible = value Then
+        Me.item.Visible = value
         If Me.Parent.MultiSelection = False Then
-            Me.Parent.Field.CurrentPage = IIf(value = True, Me.Item.Caption, "(blank)")
+            Me.Parent.Field.CurrentPage = IIf(value = True, Me.item.Caption, "(blank)")
         End If
     End If
     
@@ -59,23 +59,23 @@ Public Sub SetName(pItem As pivotItem)
     
 End Sub
 
-Public Function SetPivotItem(pItem As pivotItem, parentFilter As PivotFieldrInfo) As pivotItemInfo
+Public Function SetPivotItem(pItem As pivotItem, parentFilter As PivotFieldrInfo) As PivotItemInfo
     
     Set SetPivotItem = Me
     
     Set Me.Parent = parentFilter
-    Set Me.Item = pItem
+    Set Me.item = pItem
     Call Me.SetName(pItem)
     Me.IsBlank = Me.Name = "(blank)"
     Me.IsAll = Me.Name = "(All)"
        
 End Function
-Public Function SetAllPivotItem(parentFilter As PivotFieldrInfo) As pivotItemInfo
+Public Function SetAsAllPivotItem(parentFilter As PivotFieldrInfo) As PivotItemInfo
     
-    Set SetAllPivotItem = Me
+    Set SetAsAllPivotItem = Me
     
     Set Me.Parent = parentFilter
-    Set Me.Item = Nothing
+    Set Me.item = Nothing
     Me.Name = "(All)"
     Me.IsBlank = False
     Me.IsAll = True
