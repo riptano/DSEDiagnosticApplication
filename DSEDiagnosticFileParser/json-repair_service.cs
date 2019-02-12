@@ -27,7 +27,7 @@ namespace DSEDiagnosticFileParser
         public override uint ProcessFile()
         {
             var jsonFile = this.File.ReadAllText();
-            var infoObject = JsonConvert.DeserializeAnonymousType(jsonFile, new { time_to_completion = 0L, status = string.Empty, parallel_tasks = 0, all_tasks = new object[1][] } );
+            var infoObject = JsonConvert.DeserializeAnonymousType(jsonFile, new { time_to_completion = 0L, status = string.Empty, parallel_tasks = 0m, all_tasks = new object[1][] } );
 
             if(infoObject.all_tasks != null)
             {
