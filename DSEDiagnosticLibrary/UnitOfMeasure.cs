@@ -74,9 +74,10 @@ namespace DSEDiagnosticLibrary
             NaN = 0x4000000,
             Operations = 0x8000000,
             Cells = 0x10000000,
+            Tick = 0x20000000,
             SizeUnits = Bit | Byte | KiB | MiB | GiB | TiB | PiB,
-            TimeUnits = NS | MS | SEC | MIN | HR | Day | us,
-            WholeNumber = Bit | Byte | NS | us,
+            TimeUnits = NS | MS | SEC | MIN | HR | Day | us | Tick,
+            WholeNumber = Bit | Byte | NS | us | Tick,
             Attrs = NaN | Storage | Memory | Rate | Load | Percent | Time | Frequency | Utilization | Operations | Cells
         }
 
@@ -628,10 +629,45 @@ namespace DSEDiagnosticLibrary
             newUOM &= Types.TimeUnits;
             switch (uom & Types.TimeUnits)
             {
+                case Types.Tick:
+                    {
+                        switch (newUOM)
+                        {
+                            case Types.Tick:                                
+                                break;
+                            case Types.us:
+                                newValue = (value / (decimal)TimeSpan.TicksPerMillisecond) * 1000m;
+                                break;
+                            case Types.NS:
+                                newValue = (value / (decimal)TimeSpan.TicksPerMillisecond) * 1000000m;
+                                break;
+                            case Types.MS:
+                                newValue = value / (decimal)TimeSpan.TicksPerMillisecond;
+                                break;
+                            case Types.SEC:
+                                newValue = (value / (decimal)TimeSpan.TicksPerMillisecond) / 1000m;
+                                break;
+                            case Types.MIN:
+                                newValue = (value / (decimal)TimeSpan.TicksPerMillisecond) / 60000m;
+                                break;
+                            case Types.HR:
+                                newValue = (value / (decimal)TimeSpan.TicksPerMillisecond) / 3600000m;
+                                break;
+                            case Types.Day:
+                                newValue = (value / (decimal)TimeSpan.TicksPerMillisecond) / 86400000m;
+                                break;
+                            default:
+                                throw new ArgumentException(string.Format("Cannot convert a Time Unit from {0} to {1}", uom, newUOM));
+                        }
+                        break;
+                    }
                 case Types.us:
                     {
                         switch (newUOM)
                         {
+                            case Types.Tick:
+                                newValue = (value / 1000m) * (decimal) TimeSpan.TicksPerMillisecond;
+                                break;
                             case Types.us:
                                 break;
                             case Types.NS:
@@ -661,6 +697,9 @@ namespace DSEDiagnosticLibrary
                     {
                         switch (newUOM)
                         {
+                            case Types.Tick:
+                                newValue = (value / 1000000m) * (decimal)TimeSpan.TicksPerMillisecond;
+                                break;
                             case Types.us:
                                 newValue = value / 1000m;
                                 break;
@@ -690,6 +729,9 @@ namespace DSEDiagnosticLibrary
                     {
                         switch (newUOM)
                         {
+                            case Types.Tick:                                
+                                newValue = value * (decimal)TimeSpan.TicksPerMillisecond;
+                                break;
                             case Types.us:
                                 newValue = value * 1000m;
                                 break;
@@ -719,6 +761,9 @@ namespace DSEDiagnosticLibrary
                     {
                         switch (newUOM)
                         {
+                            case Types.Tick:
+                                newValue = value * 1e+9m * (decimal)TimeSpan.TicksPerMillisecond;
+                                break;
                             case Types.us:
                                 newValue = value * 1e+6m;
                                 break;
@@ -748,6 +793,9 @@ namespace DSEDiagnosticLibrary
                     {
                         switch (newUOM)
                         {
+                            case Types.Tick:
+                                newValue = value * 60000m * (decimal)TimeSpan.TicksPerMillisecond;
+                                break;
                             case Types.us:
                                 newValue = value * 6e+7m;
                                 break;
@@ -777,6 +825,9 @@ namespace DSEDiagnosticLibrary
                     {
                         switch (newUOM)
                         {
+                            case Types.Tick:
+                                newValue = value * 3.6e+6m * (decimal)TimeSpan.TicksPerMillisecond;
+                                break;
                             case Types.us:
                                 newValue = value * 3.6e+9m;
                                 break;
@@ -806,6 +857,9 @@ namespace DSEDiagnosticLibrary
                     {
                         switch (newUOM)
                         {
+                            case Types.Tick:
+                                newValue = value * 8.64e+7m * (decimal)TimeSpan.TicksPerMillisecond;
+                                break;
                             case Types.us:
                                 newValue = value * 8.64e+10m;
                                 break;
@@ -1262,6 +1316,9 @@ namespace DSEDiagnosticLibrary
                 case "cell":
                 case "cells":
                     return Types.Cells | uofType;
+                case "tick":
+                case "ticks":
+                    return Types.Tick | uofType;
             }
                         
             if (uof[0] == '-' || char.IsDigit(uof[0]))

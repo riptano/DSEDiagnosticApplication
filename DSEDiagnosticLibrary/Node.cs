@@ -974,6 +974,15 @@ namespace DSEDiagnosticLibrary
         public string CounterCacheInformation;
         public string ChunkCacheInformation;
 
+        public DateTimeOffsetRange LogSystemDateRange;
+        public TimeSpan? LogSystemDuration;
+        public TimeSpan? LogSystemGap;
+        public int LogSystemFiles;
+        public DateTimeOffsetRange LogDebugDateRange;
+        public TimeSpan? LogDebugDuration;
+        public TimeSpan? LogDebugGap;
+        public int LogDebugFiles;
+
         public long ReadCount;
         public long WriteCount;
         public long KeyCount;

@@ -106,7 +106,7 @@ namespace DSEDiagnosticConsoleApplication
                 datatableTasks.Add(aggStatsTask[0].ContinueWith((task, ignore) =>
                 {
                     var clusterInstance = DSEDiagnosticLibrary.Cluster.GetCurrentOrMaster();
-                    var dtLoadInstance = new DSEDiagnosticToDataTable.NodeDataTable(cluster, task.Result, cancellationSource, sessionGuid);
+                    var dtLoadInstance = new DSEDiagnosticToDataTable.NodeDataTable(cluster, cancellationSource, sessionGuid);
 
                     ConsoleParsingDataTable.Increment(dtLoadInstance.Table.TableName);
                     return dtLoadInstance.LoadTable();

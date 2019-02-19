@@ -304,6 +304,7 @@ namespace DSEDiagnosticAnalytics
                     nbrItems = 0;
 
                     Logger.Instance.InfoFormat("Analyzing Log Information for Node \"{0}\"", node);
+                    var nodeLogStats = new List<LogInfoStat>();
                     var logItems = from item in node.LogFiles
                                    let isDebugFile = item.IsDebugLog
                                    group item by isDebugFile into g
@@ -365,7 +366,7 @@ namespace DSEDiagnosticAnalytics
                                 {
                                     if (contTimeSpan.TotalDays >= LibrarySettings.LogFileInfoAnalysisContinousEventInDays)
                                     {
-                                        logStats.Add(new LogInfoStat(node,
+                                        nodeLogStats.Add(new LogInfoStat(node,
                                                                         null,
                                                                         contTimeRange,
                                                                         null,
@@ -383,7 +384,7 @@ namespace DSEDiagnosticAnalytics
                                 }
                             }
 
-                            logStats.Add(new LogInfoStat(node,
+                            nodeLogStats.Add(new LogInfoStat(node,
                                                             logInfo.LogFileDateRange,
                                                             logInfo.LogDateRange,
                                                             logInfo.LogFile,
@@ -398,7 +399,7 @@ namespace DSEDiagnosticAnalytics
 
                         if (contTimeSpan.TotalDays >= LibrarySettings.LogFileInfoAnalysisContinousEventInDays)
                         {
-                            logStats.Add(new LogInfoStat(node,
+                            nodeLogStats.Add(new LogInfoStat(node,
                                                             null,
                                                             contTimeRange,
                                                             null,
@@ -411,7 +412,121 @@ namespace DSEDiagnosticAnalytics
                         }                        
                     }
 
+                    logStats.AddRange(nodeLogStats);
+
+                    //Determine Log period durations
+                    {
+                        TimeSpan minTzOffset = TimeSpan.Zero;
+                        TimeSpan maxTZOffset = TimeSpan.Zero;                                            
+                        var systemLogFiles = nodeLogStats
+                                                   .Where(l => !l.IsDebugFile);
+                        var debugLogFiles = nodeLogStats
+                                                    .Where(l => l.IsDebugFile);
+
+                        var systemLogEntries = systemLogFiles;
+
+                        if (systemLogEntries.HasAtLeastOneElement())
+                        {
+                            var systemMaxLogTS = systemLogEntries.Max(l => l.LogRange.Max);
+                            var systemMinLogTS = systemLogEntries.Min(l => l.LogRange.Min);
+                            var systemDuration = TimeSpan.FromSeconds(systemLogEntries
+                                                                        .Where(l => l.OverlappingType == DSEDiagnosticAnalytics.LogFileStats.LogInfoStat.OverLappingTypes.Normal)
+                                                                        .Select(l => l.LogRange.TimeSpan().TotalSeconds)
+                                                                        .DefaultIfEmpty().Sum());
+                            var systemGap = TimeSpan.FromSeconds(systemLogEntries
+                                                                    .Where(l => l.OverlappingType == DSEDiagnosticAnalytics.LogFileStats.LogInfoStat.OverLappingTypes.Gap)
+                                                                    .Select(l => l.LogRange.TimeSpan().TotalSeconds)
+                                                                    .DefaultIfEmpty().Sum());
+
+                            node.DSE.LogSystemDateRange = new DateTimeOffsetRange(systemMinLogTS, systemMaxLogTS);
+                            node.DSE.LogSystemDuration = systemDuration;
+                            node.DSE.LogSystemGap = systemGap;
+                        }
+                        node.DSE.LogSystemFiles = systemLogEntries.Count();
+                        
+                        var debugLogEntries = debugLogFiles;
+
+                        if (debugLogEntries.HasAtLeastOneElement())
+                        {
+                            var debugMaxLogTS = debugLogEntries.Max(l => l.LogRange.Max);
+                            var debugMinLogTS = debugLogEntries.Min(l => l.LogRange.Min);
+                            var debugDuration = TimeSpan.FromSeconds(debugLogEntries
+                                                                        .Where(l => l.OverlappingType == DSEDiagnosticAnalytics.LogFileStats.LogInfoStat.OverLappingTypes.Normal)
+                                                                        .Select(l => l.LogRange.TimeSpan().TotalSeconds)
+                                                                        .DefaultIfEmpty().Sum());
+                            var debugGap = TimeSpan.FromSeconds(debugLogEntries
+                                                                    .Where(l => l.OverlappingType == DSEDiagnosticAnalytics.LogFileStats.LogInfoStat.OverLappingTypes.Gap)
+                                                                    .Select(l => l.LogRange.TimeSpan().TotalSeconds)
+                                                                    .DefaultIfEmpty().Sum());
+
+                            node.DSE.LogDebugDateRange = new DateTimeOffsetRange(debugMinLogTS, debugMaxLogTS);
+                            node.DSE.LogDebugDuration = debugDuration;
+                            node.DSE.LogDebugGap = debugGap;                            
+                        }
+                        node.DSE.LogDebugFiles = debugLogEntries.Count();                        
+                    }
+
                     Logger.Instance.InfoFormat("Analyzed Log Information for Node \"{0}\", Total Nbr Items {1:###,###,##0}", node, nbrItems);
+                }
+
+                foreach (DataCenter dc in this.Cluster.DataCenters)
+                {
+                    this.CancellationToken.ThrowIfCancellationRequested();
+                    
+                    Logger.Instance.InfoFormat("Analyzing Log Information for DC \"{0}\"", dc);
+
+                    var nodeUpTimeAvgMS = dc.Nodes.Where(n => !n.DSE.Uptime.NaN)
+                                            .Select(n => n.DSE.Uptime.ConvertTimeUOM(UnitOfMeasure.Types.MS))
+                                            .DefaultIfEmpty()
+                                            .Average();
+                    var logSysAvgMS = dc.Nodes.Where(n => n.DSE.LogSystemDuration.HasValue)
+                                            .Select(n => n.DSE.LogSystemDuration.Value.TotalMilliseconds)
+                                            .DefaultIfEmpty()
+                                            .Average();
+                    var logDebugAvgMS = dc.Nodes.Where(n => n.DSE.LogDebugDuration.HasValue)
+                                            .Select(n => n.DSE.LogDebugDuration.Value.TotalMilliseconds)
+                                            .DefaultIfEmpty()
+                                            .Average();
+                    var logSysGapMS = dc.Nodes.Where(n => n.DSE.LogSystemGap.HasValue)
+                                            .Select(n => n.DSE.LogSystemGap.Value.TotalMilliseconds)
+                                            .DefaultIfEmpty()
+                                            .Sum();
+                    var logDebugGapMS = dc.Nodes.Where(n => n.DSE.LogDebugGap.HasValue)
+                                            .Select(n => n.DSE.LogDebugGap.Value.TotalMilliseconds)
+                                            .DefaultIfEmpty()
+                                            .Sum();
+                    var logSysFiles = dc.Nodes.Select(n => n.DSE.LogSystemFiles)
+                                            .DefaultIfEmpty()
+                                            .Sum();
+                    var logDebugFiles = dc.Nodes.Select(n => n.DSE.LogDebugFiles)
+                                            .DefaultIfEmpty()
+                                            .Sum();
+
+                    if (nodeUpTimeAvgMS > 0m)
+                    {
+                        dc.NodeUpTimeAvg = TimeSpan.FromMilliseconds((double)nodeUpTimeAvgMS);
+                    }
+                    if (logSysAvgMS > 0d)
+                    {
+                        dc.LogSystemDurationAvg = TimeSpan.FromMilliseconds(logSysAvgMS);
+                    }
+                    if (logDebugAvgMS > 0d)
+                    {
+                        dc.LogDebugDurationAvg = TimeSpan.FromMilliseconds(logDebugAvgMS);
+                    }
+                    if (logSysGapMS > 0d)
+                    {
+                        dc.LogSystemGap = TimeSpan.FromMilliseconds(logSysGapMS);
+                    }
+                    if (logDebugGapMS > 0d)
+                    {
+                        dc.LogDebugGap = TimeSpan.FromMilliseconds(logDebugGapMS);
+                    }
+
+                    dc.LogSystemFiles = logSysFiles;
+                    dc.LogDebugFiles = logDebugFiles;
+
+                    Logger.Instance.InfoFormat("Analyzing Log Information for DC \"{0}\" Completed", dc);
                 }
             }
             catch (OperationCanceledException)

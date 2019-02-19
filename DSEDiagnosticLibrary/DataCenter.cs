@@ -59,6 +59,15 @@ namespace DSEDiagnosticLibrary
 
         IEnumerable<IDDL> DDLs { get; }
 
+
+        TimeSpan? NodeUpTimeAvg { get;  }
+        TimeSpan? LogSystemDurationAvg { get; }
+        TimeSpan? LogSystemGap { get; }
+        int LogSystemFiles { get; }
+        TimeSpan? LogDebugDurationAvg { get; }
+        TimeSpan? LogDebugGap { get; }
+        int LogDebugFiles { get; }
+
         object ToDump();
     }
 
@@ -254,6 +263,15 @@ namespace DSEDiagnosticLibrary
                 return tz;
             }
         }
+
+
+        public TimeSpan? NodeUpTimeAvg { get; set; }
+        public TimeSpan? LogSystemDurationAvg { get; set; }
+        public TimeSpan? LogSystemGap { get; set; }
+        public int LogSystemFiles { get; set; }
+        public TimeSpan? LogDebugDurationAvg { get; set; }
+        public TimeSpan? LogDebugGap { get; set; }
+        public int LogDebugFiles { get; set; }
 
         #endregion
 
@@ -572,10 +590,10 @@ namespace DSEDiagnosticLibrary
             }
         }
 
-		#endregion
+        #endregion
 
-		#region IEquatable
-		override public bool Equals(string other)
+        #region IEquatable
+        override public bool Equals(string other)
 		{
             return this.Name == other;
         }
