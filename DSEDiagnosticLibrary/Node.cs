@@ -1120,6 +1120,13 @@ namespace DSEDiagnosticLibrary
 
         IEnumerable<IConfigurationLine> Configurations { get; }
 
+        /// <summary>
+        /// Will return the node&apos;s name and optionally include certain attributes 
+        /// </summary>
+        /// <param name="forceAttrs"></param>
+        /// <returns></returns>
+        string NodeName(bool forceAttrs = false);
+
         object ToDump();
 
         bool UpdateDSENodeToolDateRange();
@@ -1390,6 +1397,123 @@ namespace DSEDiagnosticLibrary
             {
                 return this.DataCenter.GetConfigurations(this);
             }
+        }
+
+        public string NodeName(bool forceAttrs = false)
+        {
+            var nodeName = this.Id.NodeName();
+
+            if(LibrarySettings.EnableAttrSymbols || forceAttrs)
+            {
+                bool hasAttr = false;
+                string strAttr = string.Empty;
+
+                if (this.DSE.Uptime.NaN)
+                {
+                    strAttr += (char)Properties.Settings.Default.PHAttrChar;
+                }
+                else
+                {
+                    if (Math.Abs((this.DSE.Uptime.ConvertToTimeSpan() - this.DataCenter.NodeUpTimeAvg.Value).TotalHours) > Properties.Settings.Default.ThresholdAvgHrs.TotalHours)
+                    {
+                        if (this.DSE.Uptime.ConvertToTimeSpan() < this.DataCenter.NodeUpTimeAvg - this.DataCenter.NodeUpTimeStdRange)
+                        {
+                            strAttr += (char)Properties.Settings.Default.LowAttrChar;
+                            hasAttr = true;
+                        }
+                        else if (this.DSE.Uptime.ConvertToTimeSpan() > this.DataCenter.NodeUpTimeAvg + this.DataCenter.NodeUpTimeStdRange)
+                        {
+                            strAttr += (char)Properties.Settings.Default.HighAttrChar;
+                            hasAttr = true;
+                        }
+                    }
+
+                    if(!hasAttr)
+                    {
+                        strAttr += (char)Properties.Settings.Default.MidAttrChar;
+                    }
+                }
+
+                if (!this.DSE.LogSystemDuration.HasValue)
+                {
+                    strAttr += (char)Properties.Settings.Default.PHAttrChar;
+                }
+                else
+                {
+                    if (Math.Abs((this.DSE.LogSystemDuration.Value - this.DataCenter.LogSystemDurationAvg.Value).TotalHours) > Properties.Settings.Default.ThresholdAvgHrs.TotalHours)
+                    {
+                        if (this.DSE.LogSystemDuration.Value < this.DataCenter.LogSystemDurationAvg - this.DataCenter.LogSystemDurationStdRange)
+                        {
+                            strAttr += (char)Properties.Settings.Default.LowAttrChar;
+                            hasAttr = true;
+                        }
+                        else if (this.DSE.LogSystemDuration.Value > this.DataCenter.LogSystemDurationAvg + this.DataCenter.LogSystemDurationStdRange)
+                        {
+                            strAttr += (char)Properties.Settings.Default.HighAttrChar;
+                            hasAttr = true;
+                        }                       
+                    }
+                    if (!hasAttr)
+                    {
+                        strAttr += (char)Properties.Settings.Default.MidAttrChar;
+                    }
+                }
+
+                if (!this.DSE.LogDebugDuration.HasValue)
+                {
+                    strAttr += (char)Properties.Settings.Default.PHAttrChar;
+                }
+                else
+                {
+                    if (Math.Abs((this.DSE.LogDebugDuration.Value - this.DataCenter.LogDebugDurationAvg.Value).TotalHours) > Properties.Settings.Default.ThresholdAvgHrs.TotalHours)
+                    {
+                        if (this.DSE.LogDebugDuration.Value < this.DataCenter.LogDebugDurationAvg - this.DataCenter.LogDebugDurationStdRange)
+                        {
+                            strAttr += (char)Properties.Settings.Default.LowAttrChar;
+                            hasAttr = true;
+                        }
+                        else if (this.DSE.LogDebugDuration.Value > this.DataCenter.LogDebugDurationAvg + this.DataCenter.LogDebugDurationStdRange)
+                        {
+                            strAttr += (char)Properties.Settings.Default.HighAttrChar;
+                            hasAttr = true;
+                        }
+                    }
+
+                    if(!hasAttr)
+                    {
+                        strAttr += (char)Properties.Settings.Default.MidAttrChar;
+                    }
+                }
+
+                if (!hasAttr)
+                    strAttr = strAttr.TrimEnd((char)Properties.Settings.Default.PHAttrChar, (char)Properties.Settings.Default.MidAttrChar);
+
+                if (this.DSE.LogSystemDuration.HasValue && !this.DSE.Uptime.NaN
+                        && Math.Abs((this.DSE.LogSystemDuration.Value - this.DSE.Uptime.ConvertToTimeSpan()).TotalHours) > Properties.Settings.Default.ThresholdUpTimeLogHrs.TotalHours)
+                {
+                    strAttr += (char)Properties.Settings.Default.UpTimeLogMismatchAttrChar;
+                }
+
+                if ((this.DSE.InstanceType & DSEInfo.InstanceTypes.Search) == DSEInfo.InstanceTypes.Search)
+                {
+                    strAttr += (char)Properties.Settings.Default.SolrAttrChar;
+                }
+                if ((this.DSE.InstanceType & DSEInfo.InstanceTypes.Analytics) == DSEInfo.InstanceTypes.Analytics)
+                {
+                    strAttr += (char)Properties.Settings.Default.AnalyticsAttrChar;
+                }
+                if ((this.DSE.InstanceType & DSEInfo.InstanceTypes.Graph) == DSEInfo.InstanceTypes.Graph)
+                {
+                    strAttr += (char)Properties.Settings.Default.GraphAttrChar;
+                }
+
+                if (strAttr != string.Empty)
+                {
+                    nodeName += " " + strAttr;
+                }                
+            }
+
+            return nodeName;
         }
 
         public bool UpdateDSENodeToolDateRange()

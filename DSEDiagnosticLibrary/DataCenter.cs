@@ -61,10 +61,13 @@ namespace DSEDiagnosticLibrary
 
 
         TimeSpan? NodeUpTimeAvg { get;  }
+        TimeSpan? NodeUpTimeStdRange { get; }
         TimeSpan? LogSystemDurationAvg { get; }
+        TimeSpan? LogSystemDurationStdRange { get; }
         TimeSpan? LogSystemGap { get; }
         int LogSystemFiles { get; }
         TimeSpan? LogDebugDurationAvg { get; }
+        TimeSpan? LogDebugDurationStdRange { get; }
         TimeSpan? LogDebugGap { get; }
         int LogDebugFiles { get; }
 
@@ -74,7 +77,7 @@ namespace DSEDiagnosticLibrary
     [JsonObject(MemberSerialization.OptOut)]
     public class PlaceholderDataCenter : IDataCenter
     {
-        private DataCenter _assocDC;
+        private readonly DataCenter _assocDC;
 
         protected PlaceholderDataCenter()
         { }
@@ -266,10 +269,13 @@ namespace DSEDiagnosticLibrary
 
 
         public TimeSpan? NodeUpTimeAvg { get; set; }
+        public TimeSpan? NodeUpTimeStdRange { get; set; }
         public TimeSpan? LogSystemDurationAvg { get; set; }
+        public TimeSpan? LogSystemDurationStdRange { get; set; }
         public TimeSpan? LogSystemGap { get; set; }
         public int LogSystemFiles { get; set; }
         public TimeSpan? LogDebugDurationAvg { get; set; }
+        public TimeSpan? LogDebugDurationStdRange { get; set; }
         public TimeSpan? LogDebugGap { get; set; }
         public int LogDebugFiles { get; set; }
 

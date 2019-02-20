@@ -1049,9 +1049,9 @@ namespace DSEDiagnosticAnalytics
         {
             this.AggregationDateTime = aggregationDateTime.Min;
             this.DataCenterName = dataCenter?.Name;
-            this.NodeName = node?.Id.NodeName();
+            this.NodeName = node?.NodeName();
             this.KeySpaceName = keyspace?.Name;
-            this.TableName = ddlStmt?.Name;
+            this.TableName = ddlStmt?.NameWAttrs();
             {
                 var logClass = (classes & ~EventClasses.LogTypes & ~EventClasses.Orphaned);
 
@@ -1096,16 +1096,16 @@ namespace DSEDiagnosticAnalytics
         {            
             this.AggregationDateTime = aggregationDateTime.Min;
             this.DataCenterName = logEvent.DataCenter?.Name;
-            this.NodeName = logEvent.Node?.Id.NodeName();
+            this.NodeName = logEvent.Node?.NodeName();
             this.KeySpaceName = logEvent.Keyspace?.Name;
 
             if (logEvent.DDLItems == null || logEvent.DDLItems.IsEmpty())
             {
-                this.TableName = logEvent.TableViewIndex?.Name;
+                this.TableName = logEvent.TableViewIndex?.NameWAttrs();
             }
             else
             {
-                this.TableName = string.Join(",", logEvent.DDLItems.Select(i => i.FullName).Sort());
+                this.TableName = string.Join(",", logEvent.DDLItems.Select(i => i.NameWAttrs(true)).Sort());
             }
             {
                 var logClass = (logEvent.Class & ~EventClasses.LogTypes & ~EventClasses.Orphaned);

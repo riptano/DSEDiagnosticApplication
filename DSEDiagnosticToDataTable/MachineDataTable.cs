@@ -111,7 +111,7 @@ namespace DSEDiagnosticToDataTable
 
                         if (this.SessionId.HasValue) dataRow.SetField(ColumnNames.SessionId, this.SessionId.Value);
 
-                        dataRow.SetField(ColumnNames.NodeIPAddress, node.Id.NodeName());
+                        dataRow.SetField(ColumnNames.NodeIPAddress, node.NodeName());
                         dataRow.SetField(ColumnNames.DataCenter, dataCenter.Name);
 
                         dataRow.SetField("Cloud-VM Type", node.Machine.CloudVMType?.ToString());

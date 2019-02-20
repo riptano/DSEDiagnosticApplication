@@ -75,6 +75,17 @@ namespace DSEDiagnosticLibrary
         public string ReferenceName { get { return this.Table.Name + '.' + this.Name; } }
         [JsonIgnore]
         public string FullName { get { return this.Table.FullName + '.' + this.Name; } }
+
+        public string NameWAttrs(bool fullName = false, bool forceAttr = false)
+        {
+            return fullName ? this.FullName : this.Name;
+        }
+
+        public string ReferenceNameWAttrs(bool forceAttr = false)
+        {
+            return this.ReferenceName;
+        }
+
         public string DDL { get; }
 
         [JsonProperty(PropertyName = "AggregatedStats")]

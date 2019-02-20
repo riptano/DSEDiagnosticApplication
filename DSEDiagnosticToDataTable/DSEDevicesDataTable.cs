@@ -67,7 +67,7 @@ namespace DSEDiagnosticToDataTable
 
                     if (this.SessionId.HasValue) dataRow.SetField(ColumnNames.SessionId, this.SessionId.Value);
 
-                    dataRow.SetField(ColumnNames.NodeIPAddress, node.Id.NodeName());
+                    dataRow.SetField(ColumnNames.NodeIPAddress, node.NodeName());
                     dataRow.SetField(ColumnNames.DataCenter, node.DataCenter.Name);
 
                     dataRow.SetField("Data", deviceName = node.DSE.Devices.Data?.FirstOrDefault());
@@ -109,7 +109,7 @@ namespace DSEDiagnosticToDataTable
 
                         if (this.SessionId.HasValue) dataRow.SetField(ColumnNames.SessionId, this.SessionId.Value);
 
-                        dataRow.SetField(ColumnNames.NodeIPAddress, node.Id.NodeName());
+                        dataRow.SetField(ColumnNames.NodeIPAddress, node.NodeName());
                         dataRow.SetField(ColumnNames.DataCenter, node.DataCenter.Name);
 
                         dataRow.SetField("Data", deviceName = node.DSE.Devices.Data.ElementAtOrDefault(nIdx));

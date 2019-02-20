@@ -380,6 +380,12 @@ namespace DSEDiagnosticConsoleApplication
             set { DSEDiagnosticFileParser.LibrarySettings.LogIgnoreParsingErrors = value; }
         }
 
+        public static bool EnableAttrSymbols
+        {
+            get { return DSEDiagnosticLibrary.LibrarySettings.EnableAttrSymbols; }
+            set { DSEDiagnosticLibrary.LibrarySettings.EnableAttrSymbols = value; }
+        }
+
         private static bool batchMode = false;
         public static bool BatchMode
         {

@@ -423,13 +423,13 @@ namespace DSEDiagnosticToDataTable
                             var dataRow = this.Table.NewRow();
 
                             dataRow.SetField(ColumnNames.DataCenter, dcnodetblAttrib.DataCenter.Name);
-                            dataRow.SetField(ColumnNames.NodeIPAddress, dcnodetblAttrib.Node.Id.NodeName());
+                            dataRow.SetField(ColumnNames.NodeIPAddress, dcnodetblAttrib.Node.NodeName());
                             dataRow.SetField(ColumnNames.KeySpace, dcnodetblAttrib.Keyspace.Name);
 
                             if (dcnodetblAttrib.TableViewIndex is ICQLTable tableInstance)
                                 dataRow.SetField(Columns.CompactionStrategy, tableInstance.Compaction);
 
-                            dataRow.SetField(ColumnNames.Table, dcnodetblAttrib.TableViewIndex.ReferenceName);
+                            dataRow.SetField(ColumnNames.Table, dcnodetblAttrib.TableViewIndex.ReferenceNameWAttrs());
                             dataRow.SetField(Columns.CQLType, dcnodetblAttrib.TableViewIndex.GetType().Name);
 
                             dataRow.SetField(Columns.WeightedFactorMax, dcnodetblAttrib.MaxWeightedFactor);
@@ -709,7 +709,7 @@ namespace DSEDiagnosticToDataTable
                             if (dcnodetblAttrib.TableViewIndex is ICQLTable tableInstance)
                                 dataRow.SetField(Columns.CompactionStrategy, tableInstance.Compaction);
 
-                            dataRow.SetField(ColumnNames.Table, dcnodetblAttrib.TableViewIndex.ReferenceName);
+                            dataRow.SetField(ColumnNames.Table, dcnodetblAttrib.TableViewIndex.ReferenceNameWAttrs());
                             dataRow.SetField(Columns.CQLType, dcnodetblAttrib.TableViewIndex.GetType().Name);
 
                             dataRow.SetField(Columns.WeightedFactorMax, dcnodetblAttrib.MaxWeightedFactor);

@@ -107,7 +107,7 @@ namespace DSEDiagnosticToDataTable
 
                             dataRow.SetField(ColumnNames.Source, stat.Source.ToString());
                             dataRow.SetField(ColumnNames.DataCenter, stat.DataCenter.Name);
-                            dataRow.SetField(ColumnNames.NodeIPAddress, stat.Node.Id.NodeName());
+                            dataRow.SetField(ColumnNames.NodeIPAddress, stat.Node.NodeName());
                             dataRow.SetField(ColumnNames.KeySpace, keyspaceName);
                             dataRow.SetField("Type", stat.Class.ToString());
 
@@ -147,7 +147,7 @@ namespace DSEDiagnosticToDataTable
 
                                 dataRow.SetField(ColumnNames.Source, stat.Source.ToString());
                                 dataRow.SetField(ColumnNames.DataCenter, stat.DataCenter.Name);
-                                dataRow.SetField(ColumnNames.NodeIPAddress, stat.Node.Id.NodeName());
+                                dataRow.SetField(ColumnNames.NodeIPAddress, stat.Node.NodeName());
                                 dataRow.SetField(ColumnNames.KeySpace, keyspaceName);
                                 dataRow.SetField("Type", stat.Class.ToString());
 
@@ -175,7 +175,7 @@ namespace DSEDiagnosticToDataTable
 
                                     dataRow.SetField(ColumnNames.Source, stat.Source.ToString());
                                     dataRow.SetField(ColumnNames.DataCenter, stat.DataCenter.Name);
-                                    dataRow.SetField(ColumnNames.NodeIPAddress, stat.Node.Id.NodeName());
+                                    dataRow.SetField(ColumnNames.NodeIPAddress, stat.Node.NodeName());
                                     dataRow.SetField(ColumnNames.KeySpace, keyspaceName);
                                     dataRow.SetField("Type", stat.Class.ToString());
 
@@ -235,7 +235,7 @@ namespace DSEDiagnosticToDataTable
 
             dataRow.SetField(ColumnNames.Source, stat.Source.ToString());
             dataRow.SetField(ColumnNames.DataCenter, stat.DataCenter.Name);
-            dataRow.SetField(ColumnNames.NodeIPAddress, stat.Node.Id.NodeName());
+            dataRow.SetField(ColumnNames.NodeIPAddress, stat.Node.NodeName());
             dataRow.SetField(ColumnNames.KeySpace, keyspaceName);
             dataRow.SetField("Type", stat.Class.ToString());
 
@@ -307,15 +307,15 @@ namespace DSEDiagnosticToDataTable
             if (stat.TableViewIndex is DSEDiagnosticLibrary.ICQLIndex cqlIndex)
             {                
                 dataRow.SetField("Properties", cqlIndex.Table.Compaction);
-                dataRow.SetField(ColumnNames.Table, warn ? cqlIndex.Table.Name + '.' + cqlIndex.Name + " (warn)" : cqlIndex.Table.Name + '.' + cqlIndex.Name);                
+                dataRow.SetField(ColumnNames.Table, warn ? cqlIndex.Table.Name + '.' + cqlIndex.NameWAttrs() + " (warn)" : cqlIndex.Table.Name + '.' + cqlIndex.NameWAttrs());                
             }
             else if (stat.TableViewIndex is DSEDiagnosticLibrary.ICQLTable)
             {
                 dataRow.SetField("Properties", ((DSEDiagnosticLibrary.ICQLTable)stat.TableViewIndex).Compaction);
-                dataRow.SetField(ColumnNames.Table, warn ? stat.TableViewIndex.Name + " (warn)" : stat.TableViewIndex.Name);
+                dataRow.SetField(ColumnNames.Table, warn ? stat.TableViewIndex.NameWAttrs() + " (warn)" : stat.TableViewIndex.NameWAttrs());
             }
             else
-                dataRow.SetField(ColumnNames.Table, warn ? stat.TableViewIndex.Name + " (warn)" : stat.TableViewIndex.Name);
+                dataRow.SetField(ColumnNames.Table, warn ? stat.TableViewIndex.NameWAttrs() + " (warn)" : stat.TableViewIndex.NameWAttrs());
         }
     }
 }

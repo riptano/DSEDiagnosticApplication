@@ -739,7 +739,7 @@ namespace DSEDiagtnosticToExcel.Properties {
 ""RuleType"": 28,
 ""SubRuleType"": 27,
 ""Value"": 0.0,
-""FormulaText"": ""AND(ISNUMBER(${2}{0}),((DAY(${2}{0})-1)*24)+HOUR(${2}{0})+(MINUTE(${2}{0})/60)<=1)"",
+""FormulaText"": ""AND(ISNUMBER(${2}{0}),(DAY(${2}{0})*24)+HOUR(${2}{0})+(MINUTE(${2}{0})/60)<=1)"",
 ""FormulaTextBetween"": null,
 ""Color"": ""Green"",
 ""ShowValue"": true,
@@ -753,7 +753,7 @@ namespace DSEDiagtnosticToExcel.Properties {
 ""RuleType"": 28,
 ""SubRuleType"": 27,
 ""Value"": 0.0,
-""FormulaText"": ""AND(ISNUMBER(${2}{0}),((DAY(${2}{0})-1)*24)+HOUR(${2}{0})+(MINUTE(${2}{0})/60)>1,((DAY(${2}{0})-1)*24)+HOUR(${2}{0})+(MINUTE(${2}{0})/60)<=6)"",
+""FormulaText"": ""AND(ISNUMBER(${2}{0}),(DAY(${2}{0})*24)+HOUR(${2}{0})+(MINUTE(${2}{0})/60)>1,(DAY(${2}{0})*24)+HOUR(${2}{0})+(MINUTE(${2}{0})/60)<=6)"",
 ""FormulaTextBetween"": null,
 ""Color"": ""Yellow"",
 ""ShowValue"": true,
@@ -767,7 +767,7 @@ namespace DSEDiagtnosticToExcel.Properties {
 ""RuleType"": 28,
 ""SubRuleType"": 27,
 ""Value"": 0.0,
-""FormulaText"": ""AND(ISNUMBER(${2}{0}),((DAY(${2}{0})-1)*24)+HOUR(${2}{0})+(MINUTE(${2}{0})/60)>6)"",
+""FormulaText"": ""AND(ISNUMBER(${2}{0}),(DAY(${2}{0})*24)+HOUR(${2}{0})+(MINUTE(${2}{0})/60)>6)"",
 ""FormulaTextBetween"": null,
 ""Color"": ""Red"",
 ""ShowValue"": true,
@@ -1738,6 +1738,24 @@ namespace DSEDiagtnosticToExcel.Properties {
         public string CondFmtJsonActiveTblsPercent {
             get {
                 return ((string)(this["CondFmtJsonActiveTblsPercent"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("5")]
+        public int RefreshWSAttrRow {
+            get {
+                return ((int)(this["RefreshWSAttrRow"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("11")]
+        public int RefreshWSAttrColumn {
+            get {
+                return ((int)(this["RefreshWSAttrColumn"]));
             }
         }
     }

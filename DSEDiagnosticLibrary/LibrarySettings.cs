@@ -41,6 +41,7 @@ namespace DSEDiagnosticLibrary
         public static int LogMessageToStringMaxLength = Properties.Settings.Default.LogMessageToStringMaxLength;
         public static string DefaultClusterTZ = Properties.Settings.Default.DefaultClusterTZ;
         public static bool LogEventsAreMemoryMapped = Properties.Settings.Default.LogEventsAreMemoryMapped;
+        public static bool EnableAttrSymbols = Properties.Settings.Default.EnableAttrSymbols;
 
         public static DateTimeOffset? NodeToolCaptureTimestamp
         {
@@ -59,6 +60,25 @@ namespace DSEDiagnosticLibrary
             }
 
             return default(T);
+        }
+
+        public static IEnumerable<Tuple<char,string>> GetAttributeSymbols()
+        {
+            return new List<Tuple<char, string>>()
+            {
+                new Tuple<char, string>((char)Properties.Settings.Default.HighAttrChar, "Indicates high value"),
+                new Tuple<char, string>((char)Properties.Settings.Default.LowAttrChar, "Indicates low value"),
+                new Tuple<char, string>((char)Properties.Settings.Default.MidAttrChar, "Indicates value within typical/normal ranges"),
+                new Tuple<char, string>((char)Properties.Settings.Default.PHAttrChar, "No Value/NaN"),
+                new Tuple<char, string>((char)Properties.Settings.Default.SolrAttrChar, "solr"),
+                new Tuple<char, string>((char)Properties.Settings.Default.AnalyticsAttrChar, "Analytics"),
+                new Tuple<char, string>((char)Properties.Settings.Default.GraphAttrChar, "Graph"),
+                new Tuple<char, string>((char)Properties.Settings.Default.IndexAttrChar, "Index"),
+                new Tuple<char, string>((char)Properties.Settings.Default.MVAttrChar, "Materialized Value"),
+                new Tuple<char, string>((char)Properties.Settings.Default.MVTblAttrChar, "Source of a Materialized View(s)"),
+                new Tuple<char, string>((char)Properties.Settings.Default.TriggerAttrChar, "Trigger"),
+                new Tuple<char, string>((char)Properties.Settings.Default.UpTimeLogMismatchAttrChar, "Mismatch")
+            };
         }
 
     }

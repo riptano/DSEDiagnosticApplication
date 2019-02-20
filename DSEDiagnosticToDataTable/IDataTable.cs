@@ -22,5 +22,10 @@ namespace DSEDiagnosticToDataTable
         /// <returns>Loaded data table</returns>
         /// <exception cref="Exception">Should re-thrown any exception except for OperationCanceledException</exception>
         DataTable LoadTable();
-    }    
+    }
+
+    public interface ILogFileStats
+    {
+        IEnumerable<DSEDiagnosticLibrary.IAggregatedStats> LogFileStats { get; set; }
+    }
 }

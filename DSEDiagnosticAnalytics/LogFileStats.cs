@@ -475,17 +475,20 @@ namespace DSEDiagnosticAnalytics
                     
                     Logger.Instance.InfoFormat("Analyzing Log Information for DC \"{0}\"", dc);
 
-                    var nodeUpTimeAvgMS = dc.Nodes.Where(n => !n.DSE.Uptime.NaN)
-                                            .Select(n => n.DSE.Uptime.ConvertTimeUOM(UnitOfMeasure.Types.MS))
-                                            .DefaultIfEmpty()
-                                            .Average();
-                    var logSysAvgMS = dc.Nodes.Where(n => n.DSE.LogSystemDuration.HasValue)
+                    var nodeUpTime = dc.Nodes.Where(n => !n.DSE.Uptime.NaN)
+                                                .Select(n => n.DSE.Uptime.ConvertTimeUOM(UnitOfMeasure.Types.MS))
+                                                .ToArray();
+                    var nodeUpTimeAvgMS = nodeUpTime.DefaultIfEmpty()
+                                                    .Average();
+                    var logSys = dc.Nodes.Where(n => n.DSE.LogSystemDuration.HasValue)
                                             .Select(n => n.DSE.LogSystemDuration.Value.TotalMilliseconds)
-                                            .DefaultIfEmpty()
+                                            .ToArray();
+                    var logSysAvgMS = logSys.DefaultIfEmpty()
                                             .Average();
-                    var logDebugAvgMS = dc.Nodes.Where(n => n.DSE.LogDebugDuration.HasValue)
+                    var logDebug = dc.Nodes.Where(n => n.DSE.LogDebugDuration.HasValue)
                                             .Select(n => n.DSE.LogDebugDuration.Value.TotalMilliseconds)
-                                            .DefaultIfEmpty()
+                                            .ToArray();
+                    var logDebugAvgMS = logDebug.DefaultIfEmpty()
                                             .Average();
                     var logSysGapMS = dc.Nodes.Where(n => n.DSE.LogSystemGap.HasValue)
                                             .Select(n => n.DSE.LogSystemGap.Value.TotalMilliseconds)
@@ -505,14 +508,17 @@ namespace DSEDiagnosticAnalytics
                     if (nodeUpTimeAvgMS > 0m)
                     {
                         dc.NodeUpTimeAvg = TimeSpan.FromMilliseconds((double)nodeUpTimeAvgMS);
+                        dc.NodeUpTimeStdRange = TimeSpan.FromMilliseconds(nodeUpTime.StandardDeviationP() / Math.Sqrt(nodeUpTime.Length));
                     }
                     if (logSysAvgMS > 0d)
                     {
                         dc.LogSystemDurationAvg = TimeSpan.FromMilliseconds(logSysAvgMS);
+                        dc.LogSystemDurationStdRange = TimeSpan.FromMilliseconds(logSys.StandardDeviationP() / Math.Sqrt(logSys.Length));
                     }
                     if (logDebugAvgMS > 0d)
                     {
                         dc.LogDebugDurationAvg = TimeSpan.FromMilliseconds(logDebugAvgMS);
+                        dc.LogDebugDurationStdRange = TimeSpan.FromMilliseconds(logDebug.StandardDeviationP() / Math.Sqrt(logDebug.Length));
                     }
                     if (logSysGapMS > 0d)
                     {

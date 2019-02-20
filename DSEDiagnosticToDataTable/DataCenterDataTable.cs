@@ -170,6 +170,13 @@ namespace DSEDiagnosticToDataTable
             dtDCInfo.Columns.Add("LWT Percent", typeof(decimal))
                             .AllowDBNull();
 
+            dtDCInfo.Columns.Add("Node UpTime", typeof(TimeSpan))
+                            .AllowDBNull();
+            dtDCInfo.Columns.Add("Log System Duration", typeof(TimeSpan))
+                            .AllowDBNull();
+            dtDCInfo.Columns.Add("Log Debug Duration", typeof(TimeSpan))
+                            .AllowDBNull();
+
             dtDCInfo.DefaultView.ApplyDefaultSort = false;
             dtDCInfo.DefaultView.AllowDelete = false;
             dtDCInfo.DefaultView.AllowEdit = false;
@@ -361,6 +368,16 @@ namespace DSEDiagnosticToDataTable
                                 else
                                     dataRow.SetField("DSE Version", dseVersion.First().ToString());
                             }
+                        }
+
+
+                        {
+                            if (dataCenter.NodeUpTimeAvg.HasValue)
+                                dataRow.SetField("Node UpTime", dataCenter.NodeUpTimeAvg.Value);
+                            if (dataCenter.LogSystemDurationAvg.HasValue)
+                                dataRow.SetField("Log System Duration", dataCenter.LogSystemDurationAvg.Value);
+                            if (dataCenter.LogDebugDurationAvg.HasValue)
+                                dataRow.SetField("Log Debug Duration", dataCenter.LogDebugDurationAvg.Value);
                         }
 
                         {

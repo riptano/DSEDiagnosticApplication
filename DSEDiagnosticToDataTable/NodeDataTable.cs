@@ -122,7 +122,7 @@ namespace DSEDiagnosticToDataTable
                         if (this.SessionId.HasValue) dataRow.SetField(ColumnNames.SessionId, this.SessionId.Value);
 
                         dataRow.SetField(ColumnNames.DataCenter, dataCenter.Name);
-                        dataRow.SetField(ColumnNames.NodeIPAddress, node.Id.NodeName());
+                        dataRow.SetField(ColumnNames.NodeIPAddress, node.NodeName());
                         dataRow.SetField("Rack", node.DSE.Rack);
                         dataRow.SetField("Status", node.DSE.Statuses.ToString());
                         dataRow.SetField("Instance Type", node.DSE.InstanceType.ToString());

@@ -396,5 +396,140 @@ namespace DSEDiagnosticLibrary.Properties {
                 return ((int)(this["SSTablePathSnapShotGuidDirPos"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("164")]
+        public ulong SolrAttrChar {
+            get {
+                return ((ulong)(this["SolrAttrChar"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("8593")]
+        public ulong HighAttrChar {
+            get {
+                return ((ulong)(this["HighAttrChar"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("8595")]
+        public ulong LowAttrChar {
+            get {
+                return ((ulong)(this["LowAttrChar"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("8801")]
+        public ulong MidAttrChar {
+            get {
+                return ((ulong)(this["MidAttrChar"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("9675")]
+        public ulong PHAttrChar {
+            get {
+                return ((ulong)(this["PHAttrChar"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("8800")]
+        public ulong UpTimeLogMismatchAttrChar {
+            get {
+                return ((ulong)(this["UpTimeLogMismatchAttrChar"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("04:00:00")]
+        public global::System.TimeSpan ThresholdAvgHrs {
+            get {
+                return ((global::System.TimeSpan)(this["ThresholdAvgHrs"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1.00:00:00")]
+        public global::System.TimeSpan ThresholdUpTimeLogHrs {
+            get {
+                return ((global::System.TimeSpan)(this["ThresholdUpTimeLogHrs"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool EnableAttrSymbols {
+            get {
+                return ((bool)(this["EnableAttrSymbols"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("8366")]
+        public ulong TriggerAttrChar {
+            get {
+                return ((ulong)(this["TriggerAttrChar"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("8376")]
+        public ulong IndexAttrChar {
+            get {
+                return ((ulong)(this["IndexAttrChar"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("8594")]
+        public ulong MVTblAttrChar {
+            get {
+                return ((ulong)(this["MVTblAttrChar"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("8592")]
+        public ulong MVAttrChar {
+            get {
+                return ((ulong)(this["MVAttrChar"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("41990")]
+        public ulong GraphAttrChar {
+            get {
+                return ((ulong)(this["GraphAttrChar"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("42222")]
+        public ulong AnalyticsAttrChar {
+            get {
+                return ((ulong)(this["AnalyticsAttrChar"]));
+            }
+        }
     }
 }

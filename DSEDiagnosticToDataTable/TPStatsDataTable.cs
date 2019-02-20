@@ -102,7 +102,7 @@ namespace DSEDiagnosticToDataTable
 
                         dataRow.SetField(ColumnNames.Source, stat.Source.ToString());
                         dataRow.SetField(ColumnNames.DataCenter, stat.DataCenter.Name);
-                        dataRow.SetField(ColumnNames.NodeIPAddress, stat.Node.Id.NodeName());
+                        dataRow.SetField(ColumnNames.NodeIPAddress, stat.Node.NodeName());
 
                         dataRow.SetField("Attribute", item.Attr);
 

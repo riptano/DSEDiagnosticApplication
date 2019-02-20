@@ -87,10 +87,8 @@ namespace DSEDiagnosticToDataTable
 
                     var keyspaceName = warn ? stat.Keyspace.Name + " (warn)" : (stat.Keyspace?.Name ?? "<KS does not Exist>");
 
-                    {
-                        object errorValue;
-
-                        if (stat.Data.TryGetValue(DSEDiagnosticLibrary.AggregatedStats.DCNotInKS, out errorValue))
+                    {                       
+                        if (stat.Data.TryGetValue(DSEDiagnosticLibrary.AggregatedStats.DCNotInKS, out object errorValue))
                         {
                             keyspaceName += string.Format(" {{!{0}}}", errorValue);
                             dataRow = this.Table.NewRow();
@@ -99,11 +97,11 @@ namespace DSEDiagnosticToDataTable
 
                             dataRow.SetField(ColumnNames.Source, stat.Source.ToString());
                             dataRow.SetField(ColumnNames.DataCenter, stat.DataCenter.Name);
-                            dataRow.SetField(ColumnNames.NodeIPAddress, stat.Node.Id.NodeName());
+                            dataRow.SetField(ColumnNames.NodeIPAddress, stat.Node.NodeName());
                             dataRow.SetField(ColumnNames.KeySpace, keyspaceName);
                             if (stat.TableViewIndex != null)
                             {
-                                var itemName = stat.TableViewIndex.Name;
+                                var itemName = stat.TableViewIndex.NameWAttrs();
 
                                 if (stat.TableViewIndex is DSEDiagnosticLibrary.ICQLIndex)
                                     itemName += " (index)";
@@ -147,11 +145,11 @@ namespace DSEDiagnosticToDataTable
 
                                 dataRow.SetField(ColumnNames.Source, stat.Source.ToString());
                                 dataRow.SetField(ColumnNames.DataCenter, stat.DataCenter.Name);
-                                dataRow.SetField(ColumnNames.NodeIPAddress, stat.Node.Id.NodeName());
+                                dataRow.SetField(ColumnNames.NodeIPAddress, stat.Node.NodeName());
                                 dataRow.SetField(ColumnNames.KeySpace, keyspaceName);
                                 if (stat.TableViewIndex != null)
                                 {
-                                    dataRow.SetField(ColumnNames.Table, warn ? stat.TableViewIndex.Name + " (warn)" : stat.TableViewIndex.Name);
+                                    dataRow.SetField(ColumnNames.Table, warn ? stat.TableViewIndex.NameWAttrs() + " (warn)" : stat.TableViewIndex.NameWAttrs());
                                     dataRow.SetField("Active", stat.TableViewIndex.IsActive);
                                 }
 
@@ -171,12 +169,12 @@ namespace DSEDiagnosticToDataTable
 
                         dataRow.SetField(ColumnNames.Source, stat.Source.ToString());
                         dataRow.SetField(ColumnNames.DataCenter, stat.DataCenter.Name);
-                        dataRow.SetField(ColumnNames.NodeIPAddress, stat.Node.Id.NodeName());
+                        dataRow.SetField(ColumnNames.NodeIPAddress, stat.Node.NodeName());
                         dataRow.SetField(ColumnNames.KeySpace, keyspaceName);
 
                         if (stat.TableViewIndex != null)
                         {
-                            dataRow.SetField(ColumnNames.Table, warn ? stat.TableViewIndex.Name + " (warn)" : stat.TableViewIndex.Name);
+                            dataRow.SetField(ColumnNames.Table, warn ? stat.TableViewIndex.NameWAttrs() + " (warn)" : stat.TableViewIndex.NameWAttrs());
                             dataRow.SetField("Active", stat.TableViewIndex.IsActive);
                         }
 

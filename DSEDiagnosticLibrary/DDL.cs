@@ -19,6 +19,9 @@ namespace DSEDiagnosticLibrary
         IEnumerable<IAggregatedStats> AggregatedStats { get; }
         IDDL AssociateItem(IAggregatedStats aggregatedStat);
 
+        string NameWAttrs(bool fullName = false, bool forceAttr = false);
+        string ReferenceNameWAttrs(bool forceAttr = false);
+
         object ToDump();
     }
 

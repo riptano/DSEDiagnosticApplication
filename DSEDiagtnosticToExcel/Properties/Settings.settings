@@ -1004,7 +1004,7 @@
 "RuleType": 28,
 "SubRuleType": 27,
 "Value": 0.0,
-"FormulaText": "AND(ISNUMBER(${2}{0}),((DAY(${2}{0})-1)*24)+HOUR(${2}{0})+(MINUTE(${2}{0})/60)&lt;=1)",
+"FormulaText": "AND(ISNUMBER(${2}{0}),(DAY(${2}{0})*24)+HOUR(${2}{0})+(MINUTE(${2}{0})/60)&lt;=1)",
 "FormulaTextBetween": null,
 "Color": "Green",
 "ShowValue": true,
@@ -1018,7 +1018,7 @@
 "RuleType": 28,
 "SubRuleType": 27,
 "Value": 0.0,
-"FormulaText": "AND(ISNUMBER(${2}{0}),((DAY(${2}{0})-1)*24)+HOUR(${2}{0})+(MINUTE(${2}{0})/60)&gt;1,((DAY(${2}{0})-1)*24)+HOUR(${2}{0})+(MINUTE(${2}{0})/60)&lt;=6)",
+"FormulaText": "AND(ISNUMBER(${2}{0}),(DAY(${2}{0})*24)+HOUR(${2}{0})+(MINUTE(${2}{0})/60)&gt;1,(DAY(${2}{0})*24)+HOUR(${2}{0})+(MINUTE(${2}{0})/60)&lt;=6)",
 "FormulaTextBetween": null,
 "Color": "Yellow",
 "ShowValue": true,
@@ -1032,7 +1032,7 @@
 "RuleType": 28,
 "SubRuleType": 27,
 "Value": 0.0,
-"FormulaText": "AND(ISNUMBER(${2}{0}),((DAY(${2}{0})-1)*24)+HOUR(${2}{0})+(MINUTE(${2}{0})/60)&gt;6)",
+"FormulaText": "AND(ISNUMBER(${2}{0}),(DAY(${2}{0})*24)+HOUR(${2}{0})+(MINUTE(${2}{0})/60)&gt;6)",
 "FormulaTextBetween": null,
 "Color": "Red",
 "ShowValue": true,
@@ -1850,6 +1850,12 @@
     "IncludeTotalRow": true
   }
 ]</Value>
+    </Setting>
+    <Setting Name="RefreshWSAttrRow" Type="System.Int32" Scope="Application">
+      <Value Profile="(Default)">5</Value>
+    </Setting>
+    <Setting Name="RefreshWSAttrColumn" Type="System.Int32" Scope="Application">
+      <Value Profile="(Default)">11</Value>
     </Setting>
   </Settings>
 </SettingsFile>

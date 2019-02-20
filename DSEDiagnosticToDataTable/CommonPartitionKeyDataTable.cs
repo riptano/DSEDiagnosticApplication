@@ -217,7 +217,7 @@ namespace DSEDiagnosticToDataTable
 
                     dataRow.SetField(ColumnNames.DataCenter, statData.DataCenter.Name);
                     dataRow.SetField(ColumnNames.KeySpace, statData.Table.Keyspace.Name);
-                    dataRow.SetField(ColumnNames.Table, statData.Table.Name);                    
+                    dataRow.SetField(ColumnNames.Table, statData.Table.NameWAttrs());                    
                     dataRow.SetField(Columns.ReadCount, statData.Reads);
                     dataRow.SetField(Columns.ReadStdDev, statData.ReadStdDev);
                     dataRow.SetField(Columns.WriteCount, statData.Writes);

@@ -70,7 +70,7 @@ namespace DSEDiagnosticToDataTable
                             if (this.SessionId.HasValue) dataRow.SetField(ColumnNames.SessionId, this.SessionId.Value);
 
                             dataRow.SetField(ColumnNames.DataCenter, dataCenter.Name);
-                            dataRow.SetField(ColumnNames.NodeIPAddress, node.Id.NodeName());
+                            dataRow.SetField(ColumnNames.NodeIPAddress, node.NodeName());
                             dataRow.SetField("Start Token (exclusive)", tokenRange.StartRange.ToString());
                             dataRow.SetField("End Token (inclusive)", tokenRange.EndRange.ToString());
                             dataRow.SetField("Slots", tokenRange.SlotsFormatted());

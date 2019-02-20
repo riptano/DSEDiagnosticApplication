@@ -107,6 +107,16 @@ namespace DSEDiagnosticLibrary
             return this.IsActive;
         }
 
+        public string NameWAttrs(bool fullName = false, bool forceAttr = false)
+        {
+            return fullName ? this.FullName : this.Name;
+        }
+
+        public string ReferenceNameWAttrs(bool forceAttr = false)
+        {
+            return this.ReferenceName;
+        }
+
         public object ToDump()
         {
             return new { Function = this.FullName, Cluster = this.Cluster.Name, DataCenter = this.DataCenter.Name, Me = this };

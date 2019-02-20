@@ -179,5 +179,50 @@
     <Setting Name="SSTablePathSnapShotGuidDirPos" Type="System.Int32" Scope="Application">
       <Value Profile="(Default)">2</Value>
     </Setting>
+    <Setting Name="SolrAttrChar" Type="System.UInt64" Scope="Application">
+      <Value Profile="(Default)">164</Value>
+    </Setting>
+    <Setting Name="HighAttrChar" Type="System.UInt64" Scope="Application">
+      <Value Profile="(Default)">8593</Value>
+    </Setting>
+    <Setting Name="LowAttrChar" Type="System.UInt64" Scope="Application">
+      <Value Profile="(Default)">8595</Value>
+    </Setting>
+    <Setting Name="MidAttrChar" Type="System.UInt64" Scope="Application">
+      <Value Profile="(Default)">8801</Value>
+    </Setting>
+    <Setting Name="PHAttrChar" Type="System.UInt64" Scope="Application">
+      <Value Profile="(Default)">9675</Value>
+    </Setting>
+    <Setting Name="UpTimeLogMismatchAttrChar" Type="System.UInt64" Scope="Application">
+      <Value Profile="(Default)">8800</Value>
+    </Setting>
+    <Setting Name="ThresholdAvgHrs" Type="System.TimeSpan" Scope="Application">
+      <Value Profile="(Default)">04:00:00</Value>
+    </Setting>
+    <Setting Name="ThresholdUpTimeLogHrs" Type="System.TimeSpan" Scope="Application">
+      <Value Profile="(Default)">1.00:00:00</Value>
+    </Setting>
+    <Setting Name="EnableAttrSymbols" Type="System.Boolean" Scope="Application">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="TriggerAttrChar" Type="System.UInt64" Scope="Application">
+      <Value Profile="(Default)">8366</Value>
+    </Setting>
+    <Setting Name="IndexAttrChar" Type="System.UInt64" Scope="Application">
+      <Value Profile="(Default)">8376</Value>
+    </Setting>
+    <Setting Name="MVTblAttrChar" Type="System.UInt64" Scope="Application">
+      <Value Profile="(Default)">8594</Value>
+    </Setting>
+    <Setting Name="MVAttrChar" Type="System.UInt64" Scope="Application">
+      <Value Profile="(Default)">8592</Value>
+    </Setting>
+    <Setting Name="GraphAttrChar" Type="System.UInt64" Scope="Application">
+      <Value Profile="(Default)">41990</Value>
+    </Setting>
+    <Setting Name="AnalyticsAttrChar" Type="System.UInt64" Scope="Application">
+      <Value Profile="(Default)">42222</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

@@ -10,15 +10,16 @@ using DSEDiagnosticLogger;
 
 namespace DSEDiagnosticToDataTable
 {
-    public sealed class LogInfoDataTable : DataTableLoad
+    public sealed class LogInfoDataTable : DataTableLoad, ILogFileStats
     {
         public LogInfoDataTable(DSEDiagnosticLibrary.Cluster cluster, IEnumerable<DSEDiagnosticLibrary.IAggregatedStats> logFileStats, CancellationTokenSource cancellationSource = null, Guid? sessionId = null)
             : base(cluster, cancellationSource, sessionId)
         {
-            this.LogFileStats = logFileStats;
+            if(logFileStats != null)
+                this.LogFileStats = logFileStats;
         }
 
-        public IEnumerable<DSEDiagnosticLibrary.IAggregatedStats> LogFileStats { get; }
+        public IEnumerable<DSEDiagnosticLibrary.IAggregatedStats> LogFileStats { get; set; }
 
         public override DataTable CreateInitializationTable()
         {
@@ -85,7 +86,7 @@ namespace DSEDiagnosticToDataTable
 
                     if (this.SessionId.HasValue) dataRow.SetField(ColumnNames.SessionId, this.SessionId.Value);
 
-                    dataRow.SetField(ColumnNames.NodeIPAddress, logInfo.Node.Id.NodeName());
+                    dataRow.SetField(ColumnNames.NodeIPAddress, logInfo.Node.NodeName());
                     dataRow.SetField(ColumnNames.DataCenter, logInfo.DataCenter?.Name);
                     dataRow.SetField("Node's TimeZone", logInfo.Node.Machine.TimeZone?.Name ?? logInfo.Node.Machine.TimeZoneName + '?');
                     dataRow.SetField("Instance Type", logInfo.Product.ToString());

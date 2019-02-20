@@ -73,7 +73,7 @@ namespace DSEDiagnosticToDataTable
 
                     dataRow.SetField("Multi-Instance Server Id", node.DSE.PhysicalServerId);
                     dataRow.SetField(ColumnNames.DataCenter, node.DataCenter.Name);
-                    dataRow.SetField(ColumnNames.NodeIPAddress, node.Id.NodeName());
+                    dataRow.SetField(ColumnNames.NodeIPAddress, node.NodeName());
                     dataRow.SetField("Rack", node.DSE.Rack);
                     dataRow.SetField("Instance Type", node.DSE.InstanceType.ToString());
                     dataRow.SetField("Host Names", node.Id.HostNames.IsEmpty() ? null : string.Join(", ", node.Id.HostNames));

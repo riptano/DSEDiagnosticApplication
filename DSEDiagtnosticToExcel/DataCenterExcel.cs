@@ -340,12 +340,27 @@ namespace DSEDiagtnosticToExcel
                                                                                         .TotalColumn()
                                                                                         );
 
-                                                                workSheet.UpdateWorksheet(this.DataTable, 3);
+                                                                 this.DataTable.SetGroupHeader("Average", -1, true,
+                                                                        this.DataTable.GetColumn("Node UpTime")
+                                                                            .AvgerageColumn(includeCondFmt: false)
+                                                                            .SetNumericFormat(Properties.Settings.Default.ExcelTimeSpanFormat)
+                                                                            .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonAnalysisDuration),
+                                                                        this.DataTable.GetColumn("Log System Duration")
+                                                                            .AvgerageColumn(includeCondFmt: false)
+                                                                            .SetNumericFormat(Properties.Settings.Default.ExcelTimeSpanFormat)
+                                                                            .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonAnalysisDuration),
+                                                                        this.DataTable.GetColumn("Log Debug Duration")
+                                                                            .AvgerageColumn(includeCondFmt: false)
+                                                                            .SetNumericFormat(Properties.Settings.Default.ExcelTimeSpanFormat)
+                                                                            .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonAnalysisDuration)
+                                                                        );
+
+                                                                 workSheet.UpdateWorksheet(this.DataTable, 3);
 
                                                                 workSheet.View.FreezePanes(4, 2);
                                                                 workSheet.ExcelRange(3,
                                                                                       this.DataTable.GetColumn(DSEDiagnosticToDataTable.ColumnNames.DataCenter),
-                                                                                      this.DataTable.GetColumn("LWT Percent"))
+                                                                                      this.DataTable.GetColumn("Log Debug Duration"))
                                                                             .First().AutoFilter = true;
 
                                                                 workSheet.AutoFitColumn();

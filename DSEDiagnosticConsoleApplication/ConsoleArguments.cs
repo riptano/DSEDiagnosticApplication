@@ -142,7 +142,7 @@ namespace DSEDiagnosticConsoleApplication
             {
                 Optional = true,
                 DefaultValue = ParserSettings.LogRestrictedTimeRange == null ? null : string.Format("{0}, {1}", ParserSettings.LogRestrictedTimeRange.Min, ParserSettings.LogRestrictedTimeRange.Max),
-                Description = "Only import log entries from/to this date/time range. Empty string will parse all entries. Syntax: \"<FromDateTimeOnly> [+|-HH[:MM]]|[IANA TimeZone Name]\", \", <ToDateTimeOnly> [+|-HH[:MM]]|[IANA TimeZone Name]\", or \"<FromDateTime> [+|-HH[:MM]]|[IANA TimeZone Name],<ToDateTime> [+|-HH[:MM]]|[IANA TimeZone Name]\". If [IANA TimeZone Name] or [+|-HH[:MM]] (timezone offset) is not given the local machine's TZ is used. Ignored if LogRangeBasedOnPrevHrs is defined.",
+                Description = "Only import log entries from/to this date/time range. Empty string will parse all entries. Syntax: \"<FromDateTimeOnly> [+|-HH[:MM]]|[IANA TimeZone Name]\", \", <ToDateTimeOnly> [+|-HH[:MM]]|[IANA TimeZone Name]\", or \"<FromDateTime> [+|-HH[:MM]]|[IANA TimeZone Name],<ToDateTime> [+|-HH[:MM]]|[IANA TimeZone Name]\". If [IANA TimeZone Name] or [+|-HH[:MM]] (timezone offset) is not given the local machine's TZ is used.",
                 Example = "-R \"2018-02-01 00:00:00 +00:00, 2018-02-21 00:00:00 UDT\" only logs between Feb01 to Feb21 2018 UDT -or- -R \",2018-02-21 00:00:00 UDT\" All logs up to Feb21 2018 UDT -or- -R \"2018-02-01 00:00:00 UDT\" only logs from Feb01 2018 UDT to last log entries"
             });
 
@@ -270,6 +270,13 @@ namespace DSEDiagnosticConsoleApplication
                 DefaultValue = DSEDiagtnosticToExcel.LibrarySettings.ExcelPackageCache,
                 Optional = true,
                 Description = "Enables/Disables the Excel Package caching. If disabled each time a worksheet is generated the workbook is saved and reloaded (Excel Package is deleted and recreated)."
+            });
+
+            this._cmdLineParser.Arguments.Add(new ValueArgument<bool>("IncludeAttributeSymbols")
+            {
+                DefaultValue = ParserSettings.EnableAttrSymbols,
+                Optional = true,
+                Description = "Enables/Disables the generation of attribute symbols on the end of names (e.g., node)."
             });
 
             this._cmdLineParser.Arguments.Add(new ValueArgument<bool>("ExcelWorkSheetSave")
@@ -429,6 +436,7 @@ namespace DSEDiagnosticConsoleApplication
                         break;
                     case "LogRangeBasedOnPrevHrs":
                         ParserSettings.OnlyIncludeXHrsofLogsFromDiagCaptureTime = ((ValueArgument<int>)item).Value;
+                        ParserSettings.LogRestrictedTimeRange = null;
                         break;
                     case "LogTimeRange":
                         {
@@ -489,6 +497,7 @@ namespace DSEDiagnosticConsoleApplication
                                         }
 
                                         ParserSettings.LogRestrictedTimeRange = new DateTimeOffsetRange(startDTOS, endDTOS);
+                                        ParserSettings.OnlyIncludeXHrsofLogsFromDiagCaptureTime = -1;
                                     }
                                     catch (System.Exception ex)
                                     {
@@ -835,6 +844,9 @@ namespace DSEDiagnosticConsoleApplication
                         break;
                     case "ExcelPackageCache":
                         DSEDiagtnosticToExcel.LibrarySettings.ExcelPackageCache = ((ValueArgument<bool>)item).Value;
+                        break;
+                    case "IncludeAttributeSymbols":
+                        ParserSettings.EnableAttrSymbols = ((ValueArgument<bool>)item).Value;
                         break;
                     case "ExcelWorkSheetSave":
                         DSEDiagtnosticToExcel.LibrarySettings.ExcelSaveWorkSheet = ((ValueArgument<bool>)item).Value;

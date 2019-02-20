@@ -109,7 +109,7 @@ namespace DSEDiagnosticToDataTable
 
                             if (nbrGrpValues == 1 && grpValueItem.TotalNodes == 1)
                             {
-                                dataRow.SetField(ColumnNames.NodeIPAddress, grpValueItem.Nodes.First().Id.NodeName());
+                                dataRow.SetField(ColumnNames.NodeIPAddress, grpValueItem.Nodes.First().NodeName());
                             }
                             else if (grpValueItem.TotalNodes == dcNodeCnt)
                             {
@@ -118,7 +118,7 @@ namespace DSEDiagnosticToDataTable
                             else if (nbrGrpValues == 1)
                             {
                                 dataRow.SetField(ColumnNames.NodeIPAddress, string.Format("<Partial ({0})>: ", grpValueItem.TotalNodes)
-                                                                                + string.Join(", ", grpValueItem.Nodes.Select(n => n.Id.NodeName()).OrderBy(hn => hn)));
+                                                                                + string.Join(", ", grpValueItem.Nodes.Select(n => n.NodeName()).OrderBy(hn => hn)));
                             }
                             else if (nIdx == 0
                                         && grpValueItem.Nodes.Count() > groupItem.GrpValues.ElementAt(1).Nodes.Count())
@@ -127,7 +127,7 @@ namespace DSEDiagnosticToDataTable
                             }
                             else
                             {
-                                dataRow.SetField(ColumnNames.NodeIPAddress, string.Join(", ", grpValueItem.Nodes.Select(n => n.Id.NodeName()).OrderBy(hn => hn)));
+                                dataRow.SetField(ColumnNames.NodeIPAddress, string.Join(", ", grpValueItem.Nodes.Select(n => n.NodeName()).OrderBy(hn => hn)));
                             }
 
                             dataRow.SetField("Yaml Type", groupItem.Type);

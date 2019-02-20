@@ -504,7 +504,7 @@ namespace DSEDiagnosticLibrary
 
         IDDL AssociateItem(IDDL ddl);
 
-        void SetID(string uuid);
+        void SetID(string uuid);    
     }
 
     [JsonObject(MemberSerialization.OptOut)]
@@ -769,7 +769,55 @@ namespace DSEDiagnosticLibrary
             return this.Columns.FirstOrDefault(c => c.Name == columnName);
         }
 
-        public bool IsFlagged { get; protected set; }        
+        public bool IsFlagged { get; protected set; }
+
+        private string DetermineAttrStr()
+        {
+            string strAttr = string.Empty;
+
+            if (this.Stats.NbrSolrIndexes > 0)
+                strAttr += (char)DSEDiagnosticLibrary.Properties.Settings.Default.SolrAttrChar;
+            if (this.Stats.NbrSecondaryIndexes > 0 || this.Stats.NbrSasIIIndexes > 0 || this.Stats.NbrCustomIndexes > 0)
+                strAttr += (char)DSEDiagnosticLibrary.Properties.Settings.Default.IndexAttrChar;
+
+            if (this.Stats.NbrTriggers > 0)
+                strAttr += (char)DSEDiagnosticLibrary.Properties.Settings.Default.TriggerAttrChar;
+            if (this.Stats.NbrMaterializedViews > 0)
+                strAttr += (char)DSEDiagnosticLibrary.Properties.Settings.Default.MVTblAttrChar;
+            else if (this is ICQLMaterializedView)
+                strAttr += (char)DSEDiagnosticLibrary.Properties.Settings.Default.MVAttrChar;
+
+            return strAttr;
+        }
+        public string NameWAttrs(bool fullName = false, bool forceAttr = false)
+        {
+            var name = fullName ? this.FullName : this.Name;
+
+            if(LibrarySettings.EnableAttrSymbols || forceAttr)
+            {
+                var strAttr = this.DetermineAttrStr();
+
+                if (strAttr != string.Empty)
+                    name += " " + strAttr;
+            }
+
+            return name;
+        }
+
+        public string ReferenceNameWAttrs(bool forceAttr = false)
+        {
+            var name = this.ReferenceName;
+
+            if (LibrarySettings.EnableAttrSymbols || forceAttr)
+            {
+                var strAttr = this.DetermineAttrStr();
+
+                if (strAttr != string.Empty)
+                    name += " " + strAttr;
+            }
+
+            return name;
+        }
         #endregion
 
         #region IParsed

@@ -122,6 +122,11 @@ namespace DSEDiagnosticConsoleApplication
                 var parsedResults = ((Task<IEnumerable<DSEDiagnosticFileParser.DiagnosticFile>>)tasks[0]).Result;
                 var excelResults = ((Task<IFilePath>)tasks[1]).Result;
 
+                {
+                    var loadRefreshWS = new DSEDiagtnosticToExcel.RefreshWSExcel(excelResults);
+                    loadRefreshWS.Load();
+                }
+
                 var loadAppInfo = new DSEDiagtnosticToExcel.ApplicationInfoExcel(excelResults);
 
                 loadAppInfo.ApplicationInfo.Aborted = AlreadyCanceled || tasks.Any(t => t.IsCanceled);
