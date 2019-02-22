@@ -1485,8 +1485,8 @@ namespace DSEDiagnosticLibrary
                     }
                 }
 
-                if (!hasAttr)
-                    strAttr = strAttr.TrimEnd((char)Properties.Settings.Default.PHAttrChar, (char)Properties.Settings.Default.MidAttrChar);
+                //if (!hasAttr)
+                //    strAttr = strAttr.TrimEnd((char)Properties.Settings.Default.PHAttrChar, (char)Properties.Settings.Default.MidAttrChar);
 
                 if (this.DSE.LogSystemDuration.HasValue && !this.DSE.Uptime.NaN
                         && Math.Abs((this.DSE.LogSystemDuration.Value - this.DSE.Uptime.ConvertToTimeSpan()).TotalHours) > Properties.Settings.Default.ThresholdUpTimeLogHrs.TotalHours)

@@ -71,6 +71,7 @@ namespace DSEDiagnosticLibrary
         public decimal MaxReadRepairDCChance = decimal.MinValue;
 
         public uint NbrOrderBys;
+        public uint NbrCompactStorage;
 
         public UnitOfMeasure Storage = UnitOfMeasure.NaNValue;
         public long ReadCount;
@@ -402,6 +403,12 @@ namespace DSEDiagnosticLibrary
                 this.Stats.MaxTTL = this.Stats.MaxTTL.Max((TimeSpan)(((ICQLTable)ddl).GetPropertyValue("default_time_to_live") ?? TimeSpan.MinValue));
                 this.Stats.MaxReadRepairChance = Math.Max(this.Stats.MaxReadRepairChance, (decimal)(((ICQLTable)ddl).GetPropertyValue("read_repair_chance") ?? decimal.MinValue));
                 this.Stats.MaxReadRepairDCChance = Math.Max(this.Stats.MaxReadRepairDCChance, (decimal)(((ICQLTable)ddl).GetPropertyValue("dclocal_read_repair_chance") ?? decimal.MinValue));
+
+                {
+                    var compactStorage = ((ICQLTable)ddl).GetPropertyValue("compact storage");
+                    if (compactStorage != null && (bool)compactStorage)
+                        ++this.Stats.NbrCompactStorage;
+                }
 
                 if (((ICQLTable)ddl).OrderByCols.HasAtLeastOneElement())
                     ++this.Stats.NbrOrderBys;

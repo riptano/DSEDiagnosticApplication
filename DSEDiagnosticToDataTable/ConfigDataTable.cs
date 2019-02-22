@@ -81,7 +81,8 @@ namespace DSEDiagnosticToDataTable
                                                               let vCnt = gv.Count()      
                                                               let nodes = gv.SelectMany(c => c.DataCenter is DSEDiagnosticLibrary.DataCenter
                                                                                                     ? new DSEDiagnosticLibrary.INode[] { c.Node }
-                                                                                                    : c.DataCenter.Nodes).DuplicatesRemoved(n => n)
+                                                                                                    : c.DataCenter.Nodes)
+                                                                             .DuplicatesRemoved(n => n)
                                                               select new { Value = gv.Key,
                                                                             ValueCnt = vCnt,                                                                  
                                                                             TotalNodes = nodes.Count(),
@@ -90,6 +91,7 @@ namespace DSEDiagnosticToDataTable
                                                                 .OrderByDescending(i => i.TotalNodes)
                                              };
                     var dcNodeCnt = dataCenter.Nodes.Count();
+                    var nodeMissingConfig = dataCenter.Nodes.Where(n => n.Configurations.IsEmpty()).Count();
 
                     foreach (var groupItem in groupedTPConfLines)
                     {                       
@@ -109,16 +111,22 @@ namespace DSEDiagnosticToDataTable
 
                             if (nbrGrpValues == 1 && grpValueItem.TotalNodes == 1)
                             {
-                                dataRow.SetField(ColumnNames.NodeIPAddress, grpValueItem.Nodes.First().NodeName());
+                                dataRow.SetField(ColumnNames.NodeIPAddress, grpValueItem.Nodes.First().Id.NodeName());
                             }
                             else if (grpValueItem.TotalNodes == dcNodeCnt)
                             {
                                 dataRow.SetField(ColumnNames.NodeIPAddress, "<Common All Nodes in DC>");
                             }
+                            else if (nodeMissingConfig > 0 && grpValueItem.TotalNodes == dcNodeCnt - nodeMissingConfig)
+                            {
+                                dataRow.SetField(ColumnNames.NodeIPAddress, string.Format("<Common All Nodes ({0}) w/Configs>",
+                                                                                            grpValueItem.TotalNodes));
+                            }
                             else if (nbrGrpValues == 1)
                             {
-                                dataRow.SetField(ColumnNames.NodeIPAddress, string.Format("<Partial ({0})>: ", grpValueItem.TotalNodes)
-                                                                                + string.Join(", ", grpValueItem.Nodes.Select(n => n.NodeName()).OrderBy(hn => hn)));
+                                dataRow.SetField(ColumnNames.NodeIPAddress, string.Format("<Partial ({0})>: {1}",
+                                                                                                grpValueItem.TotalNodes,
+                                                                                                string.Join(", ", grpValueItem.Nodes.Select(n => n.Id.NodeName()).OrderBy(hn => hn))));
                             }
                             else if (nIdx == 0
                                         && grpValueItem.Nodes.Count() > groupItem.GrpValues.ElementAt(1).Nodes.Count())
@@ -127,7 +135,7 @@ namespace DSEDiagnosticToDataTable
                             }
                             else
                             {
-                                dataRow.SetField(ColumnNames.NodeIPAddress, string.Join(", ", grpValueItem.Nodes.Select(n => n.NodeName()).OrderBy(hn => hn)));
+                                dataRow.SetField(ColumnNames.NodeIPAddress, string.Join(", ", grpValueItem.Nodes.Select(n => n.Id.NodeName()).OrderBy(hn => hn)));
                             }
 
                             dataRow.SetField("Yaml Type", groupItem.Type);

@@ -3115,7 +3115,7 @@
       },
       "ParseMessage": {
         "RegExStrings": [
-          "(?<action>\\w+) messages were dropped in last (?<thresholdinterval_ms>[0-9,.]+\\s*\\w+): (?<drpinteral>[0-9,]+) internal and (?<drpcrossnode>[0-9,]+) cross node\\.?\\s*(?:Mean internal dropped latency: (?<drpmeanlatencyinteral_ms>[0-9,.]+\\s*\\w+) and Mean cross-node dropped latency: (?<drpmeanlatencycrossnode_ms>[0-9,.]+\\s*\\w+))*"
+          "(?<action>\\w+) messages were dropped in last (?<thresholdinterval_ms>[0-9,.]+\\s*\\w+):\\s+(?<drpinteral>[0-9,]+)\\s+(for)?\\s*internal\\s+(timeout)?\\s*and\\s+(?<drpcrossnode>[0-9,]+)\\s+(for)?\\s*cross node\\.?\\s*(?:Mean internal dropped latency: (?<drpmeanlatencyinteral_ms>[0-9,.]+\\s*\\w+) and Mean cross-node dropped latency: (?<drpmeanlatencycrossnode_ms>[0-9,.]+\\s*\\w+))*"
         ]
       },
       "ParseThreadId": null,
@@ -3128,8 +3128,8 @@
       "Examples": [
         "INFO  [ScheduledTasks:1] 2018-10-09 17:30:12,394  DroppedMessages.java:104 - MUTATION messages were dropped in last 5000 ms: 6 internal and 21 cross node. Mean internal dropped latency: 3718 ms and Mean cross-node dropped latency: 4317 ms",
         "INFO  [ScheduledTasks:1] 2018-10-09 17:30:12,394  DroppedMessages.java:104 - READ messages were dropped in last 5000 ms: 71 internal and 79 cross node. Mean internal dropped latency: 5624 ms and Mean cross-node dropped latency: 5528 ms",
-        "INFO  [ScheduledTasks:1] 2017-07-20 08:02:52,511 MessagingService.java:946 - MUTATION messages were dropped in last 5000 ms: 822 for internal timeout and 2152 for cross node timeout"
-
+        "INFO  [ScheduledTasks:1] 2017-07-20 08:02:52,511 MessagingService.java:946 - MUTATION messages were dropped in last 5000 ms: 822 for internal timeout and 2152 for cross node timeout",
+        "INFO  [ScheduledTasks:1] 2019-02-08 18:33:26,468  MessagingService.java:929 - MUTATION messages were dropped in last 5000 ms: 881 for internal timeout and 0 for cross node timeout"
       ]
     },
     {

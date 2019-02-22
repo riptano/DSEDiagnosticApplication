@@ -321,6 +321,31 @@ namespace DataTableToExcel
             return dataColumn;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="dataColumn"></param>
+        /// <param name="haveTotalLine"></param>
+        /// <param name="includeCondFmt">
+        /// Excel numeric format string. Null to use default, empty string for no format.
+        /// </param>
+        /// <param name="remove"></param>
+        /// <returns></returns>
+        public static DataColumn CountNonBlankColumn(this DataColumn dataColumn, bool haveTotalLine = true, string includeCondFmt = null, bool remove = false)
+        {
+            if (dataColumn.ExtendedProperties.ContainsKey("CountNonBlankColumn"))
+            {
+                if (remove)
+                    dataColumn.ExtendedProperties.Remove("CountNonBlankColumn");
+                else
+                    dataColumn.ExtendedProperties["CountNonBlankColumn"] = new Tuple<bool, string>(haveTotalLine, includeCondFmt);
+            }
+            else if (!remove)
+                dataColumn.ExtendedProperties.Add("CountNonBlankColumn", new Tuple<bool, string>(haveTotalLine, includeCondFmt));
+
+            return dataColumn;
+        }
+
         public static DataColumn AvgerageColumn(this DataColumn dataColumn, bool haveAvgTotalLine = true, bool includeCondFmt = true, bool remove = false)
         {
             if (dataColumn.ExtendedProperties.ContainsKey("AverageColumn"))
@@ -500,6 +525,25 @@ namespace DataTableToExcel
                     ++currentLastRow;
                 }
 
+                if (dataColumn.ExtendedProperties.ContainsKey("CountNonBlankColumn"))
+                {
+                    var addCntLine = (Tuple<bool, string>)dataColumn.ExtendedProperties["CountNonBlankColumn"];
+
+                    workSheet.Cells[currentLastRow + 1, dataColumn.Ordinal + 1]
+                                .FormulaR1C1 = string.Format("=COUNTA(R{0}C{1}:R{2}C{1})", wsHeaderRow + 1, dataColumn.Ordinal + 1, currentLastRow);
+
+                    if (addCntLine.Item1)
+                    {
+                        workSheet.Cells[currentLastRow + 1, dataColumn.Ordinal + 1].Style.Border.Top.Style = OfficeOpenXml.Style.ExcelBorderStyle.Double;
+                    }
+                    if (addCntLine.Item2 == null)
+                        workSheet.Cells[currentLastRow + 1, dataColumn.Ordinal + 1].Style.Numberformat.Format = "#,###,##0";
+                    else                        
+                        workSheet.Cells[currentLastRow + 1, dataColumn.Ordinal + 1].Style.Numberformat.Format = addCntLine.Item2 == string.Empty ? null : addCntLine.Item2;
+
+                    ++currentLastRow;
+                }
+                
                 if (dataColumn.ExtendedProperties.ContainsKey("AverageColumn"))
                 {
                     var addTotLine = (Tuple<bool,bool>)dataColumn.ExtendedProperties["AverageColumn"];

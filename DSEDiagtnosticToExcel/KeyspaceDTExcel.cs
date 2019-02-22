@@ -153,7 +153,15 @@ namespace DSEDiagtnosticToExcel
 
                                                                  this.DataTable.SetGroupHeader(" ", -1, true,
                                                                     this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.OrderBy)
-                                                                        .SetNumericFormat("#,###").SetCaption("OrderBy (tables)")
+                                                                        .SetNumericFormat("#,###").SetCaption("OrderBy (tables)").TotalColumn()
+                                                                    );
+
+                                                                 this.DataTable.SetGroupHeader("Compact", -1, true,
+                                                                    this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.CompactStorage)
+                                                                        .SetNumericFormat("#,###")
+                                                                        .SetCaption("Storage")
+                                                                        .TotalColumn()
+                                                                        .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDDLWarnUse)
                                                                     );
 
                                                                  this.DataTable.SetGroupHeader(" ", -1, true,

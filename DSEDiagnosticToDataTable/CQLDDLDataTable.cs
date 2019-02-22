@@ -48,11 +48,15 @@ namespace DSEDiagnosticToDataTable
             dtDDL.Columns.Add("Static", typeof(int)).AllowDBNull = true;//q
             dtDDL.Columns.Add("Frozen", typeof(int)).AllowDBNull = true;//r
             dtDDL.Columns.Add("Tuple", typeof(int)).AllowDBNull = true;//s
-            dtDDL.Columns.Add("UDT", typeof(int)).AllowDBNull = true;//t
-            dtDDL.Columns.Add("Total", typeof(int)).AllowDBNull = true;//u
-            dtDDL.Columns.Add("HasOrderBy", typeof(bool)).AllowDBNull = true;//v
-            dtDDL.Columns.Add("Associated Table", typeof(string)).AllowDBNull = true;//w
-            dtDDL.Columns.Add("Index", typeof(bool)).AllowDBNull = true; //x
+            dtDDL.Columns.Add("UDT", typeof(int)).AllowDBNull = true;            
+            dtDDL.Columns.Add("Total", typeof(int)).AllowDBNull = true;
+            dtDDL.Columns.Add("HasOrderBy", typeof(bool)).AllowDBNull = true;
+            dtDDL.Columns.Add("Compact Storage", typeof(bool)).AllowDBNull = true;
+            dtDDL.Columns.Add("Associated Table", typeof(string)).AllowDBNull = true;
+            dtDDL.Columns.Add("Index", typeof(bool)).AllowDBNull = true; 
+            dtDDL.Columns.Add("NbrIndexes", typeof(int)).AllowDBNull = true;
+            dtDDL.Columns.Add("NbrMVs", typeof(int)).AllowDBNull = true;
+            dtDDL.Columns.Add("NbrTriggers", typeof(int)).AllowDBNull = true;
             dtDDL.Columns.Add("Storage (MB)", typeof(decimal)).AllowDBNull = true;
             dtDDL.Columns.Add("DDL", typeof(string));//z
 
@@ -156,7 +160,17 @@ namespace DSEDiagnosticToDataTable
                             dataRow.SetField("Frozen", (int)((DSEDiagnosticLibrary.ICQLTable)ddlItem).Stats.Frozens);
                             dataRow.SetField("Tuple", (int)((DSEDiagnosticLibrary.ICQLTable)ddlItem).Stats.Tuples);
                             dataRow.SetField("UDT", (int)((DSEDiagnosticLibrary.ICQLTable)ddlItem).Stats.UDTs);
-                            dataRow.SetField("HasOrderBy", ((DSEDiagnosticLibrary.ICQLTable)ddlItem).OrderByCols.HasAtLeastOneElement());
+
+                            if(((DSEDiagnosticLibrary.ICQLTable)ddlItem).OrderByCols.HasAtLeastOneElement())
+                                dataRow.SetField("HasOrderBy", true);
+
+                            {
+                                var compactStorage = ((DSEDiagnosticLibrary.ICQLTable)ddlItem).GetPropertyValue("compact storage");
+
+                                if(compactStorage != null && (bool)compactStorage)
+                                    dataRow.SetField("Compact Storage", true);
+                            }
+
 
                             dataRow.SetFieldStringLimit("Partition Key", string.Join(",", ((DSEDiagnosticLibrary.ICQLTable)ddlItem).PrimaryKeys.Select(k => k.Name + ' ' + k.CQLType.Name)));
                             dataRow.SetFieldStringLimit("Cluster Key", string.Join(",", ((DSEDiagnosticLibrary.ICQLTable)ddlItem).ClusteringKeys.Select(k => k.Name + ' ' + k.CQLType.Name)));
@@ -169,6 +183,20 @@ namespace DSEDiagnosticToDataTable
                             dataRow.SetField("TTL", ((DSEDiagnosticLibrary.ICQLTable)ddlItem).GetPropertyValue("default_time_to_live"));
                             dataRow.SetField("Memtable Flush Period", ((DSEDiagnosticLibrary.ICQLTable)ddlItem).GetPropertyValueInMSLong("memtable_flush_period_in_ms"));
                             dataRow.SetFieldToDecimal("Storage (MB)", ((DSEDiagnosticLibrary.ICQLTable)ddlItem).Stats.Storage, DSEDiagnosticLibrary.UnitOfMeasure.Types.MiB);
+
+                            {
+                                var nbrIndexes = (int)((DSEDiagnosticLibrary.ICQLTable)ddlItem).Stats.NbrCustomIndexes
+                                                                    + ((DSEDiagnosticLibrary.ICQLTable)ddlItem).Stats.NbrSasIIIndexes
+                                                                    + ((DSEDiagnosticLibrary.ICQLTable)ddlItem).Stats.NbrSecondaryIndexes
+                                                                    + ((DSEDiagnosticLibrary.ICQLTable)ddlItem).Stats.NbrSolrIndexes;
+                                if(nbrIndexes > 0)
+                                    dataRow.SetField("NbrIndexes", nbrIndexes);
+                            }
+                            
+                            if(((DSEDiagnosticLibrary.ICQLTable)ddlItem).Stats.NbrMaterializedViews > 0)
+                                dataRow.SetField("NbrMVs", ((DSEDiagnosticLibrary.ICQLTable)ddlItem).Stats.NbrMaterializedViews);
+                            if (((DSEDiagnosticLibrary.ICQLTable)ddlItem).Stats.NbrTriggers > 0)
+                                dataRow.SetField("NbrTriggers", ((DSEDiagnosticLibrary.ICQLTable)ddlItem).Stats.NbrTriggers);
 
                             if (ddlItem is DSEDiagnosticLibrary.ICQLMaterializedView)
                             {

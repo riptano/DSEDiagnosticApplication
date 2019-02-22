@@ -54,6 +54,7 @@ namespace DSEDiagnosticToDataTable
             public const string GCGrace = "GC Grace (Max)";
             public const string TTL = "TTL (Max)";
             public const string OrderBy = "OrderBy";
+            public const string CompactStorage = "Compact Storage";
             public const string Storage = "Storage (MB)";
             public const string StorageUtilized = "Storage Utilized";
             public const string ReadPercent = "Read Percent";
@@ -112,7 +113,8 @@ namespace DSEDiagnosticToDataTable
             dtKeySpace.Columns.Add(Columns.TTL, typeof(TimeSpan)).AllowDBNull = true;
 
             dtKeySpace.Columns.Add(Columns.OrderBy, typeof(int)).AllowDBNull = true;
-
+            dtKeySpace.Columns.Add(Columns.CompactStorage, typeof(int)).AllowDBNull = true;
+            
             dtKeySpace.Columns.Add(Columns.Storage, typeof(decimal)).AllowDBNull = true;
             dtKeySpace.Columns.Add(Columns.StorageUtilized, typeof(decimal)).AllowDBNull = true;
             dtKeySpace.Columns.Add(Columns.ReadPercent, typeof(decimal)).AllowDBNull = true;
@@ -313,7 +315,8 @@ namespace DSEDiagnosticToDataTable
                 dataRow[Columns.TTL] = keySpace.Stats.MaxTTL;
 
             dataRow[Columns.OrderBy] = keySpace.Stats.NbrOrderBys;
-
+            dataRow[Columns.CompactStorage] = keySpace.Stats.NbrCompactStorage;
+            
             if (!keySpace.Stats.Storage.NaN)
             {
                 var ksStorage = keySpace.Stats.Storage.ConvertSizeUOM(DSEDiagnosticLibrary.UnitOfMeasure.Types.MiB);

@@ -463,7 +463,7 @@ namespace DSEDiagnosticLibrary
         public uint Frozens;
         public uint Tuples;
         public uint UDTs;
-
+        
         public uint NbrColumns;
         public uint NbrSecondaryIndexes;
         public uint NbrSolrIndexes;
@@ -1021,7 +1021,8 @@ namespace DSEDiagnosticLibrary
                     }                        
                     else
                         this.UpdateColumnStats(column.UDT.Columns);
-                }           
+                }
+                
             }
         }
 

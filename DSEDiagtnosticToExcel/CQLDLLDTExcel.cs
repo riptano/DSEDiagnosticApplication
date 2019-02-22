@@ -131,22 +131,37 @@ namespace DSEDiagtnosticToExcel
                                                                 );
 
                                                                 this.DataTable.GetColumn("HasOrderBy")
-                                                                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonTrueYellow);
+                                                                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonTrueYellow)
+                                                                    .CountNonBlankColumn(includeCondFmt: "#,###,###");
+                                                                this.DataTable.GetColumn("Compact Storage")
+                                                                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonTrueYellow)
+                                                                    .CountNonBlankColumn(includeCondFmt: "#,###,###");
 
                                                                 this.DataTable.GetColumn("Storage (MB)")
                                                                     .SetNumericFormat("###,###,###,###.0000")
                                                                     .TotalColumn()
                                                                     .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDataBarLightBlue);
 
+                                                                this.DataTable.GetColumn("NbrIndexes")
+                                                                        .SetNumericFormat("#,###")
+                                                                        .TotalColumn();
+                                                                this.DataTable.GetColumn("NbrMVs")
+                                                                        .SetNumericFormat("#,###")
+                                                                        .TotalColumn();
+                                                                this.DataTable.GetColumn("NbrTriggers")
+                                                                        .SetNumericFormat("#,###")
+                                                                        .TotalColumn();
+
+
                                                                 workSheet.UpdateWorksheet(this.DataTable, 2);
 
                                                                 workSheet.ExcelRange(2,
                                                                                       this.DataTable.GetColumn("Active"),
-                                                                                      this.DataTable.GetColumn("Storage (MB)"))
+                                                                                      this.DataTable.GetColumn("NbrTriggers"))
                                                                             .First().AutoFilter = true;
 
                                                                 workSheet.AutoFitColumn(workSheet.ExcelRange(this.DataTable.GetColumn("Active"),
-                                                                                                                this.DataTable.GetColumn("Storage (MB)")));
+                                                                                                                this.DataTable.GetColumn("NbrTriggers")));
                                                             },
                                                             -1,
                                                            -1,
