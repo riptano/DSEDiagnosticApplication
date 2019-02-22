@@ -1404,8 +1404,7 @@ namespace DSEDiagnosticLibrary
             var nodeName = this.Id.NodeName();
 
             if(LibrarySettings.EnableAttrSymbols || forceAttrs)
-            {
-                bool hasAttr = false;
+            {                
                 string strAttr = string.Empty;
 
                 if (this.DSE.Uptime.NaN)
@@ -1414,8 +1413,10 @@ namespace DSEDiagnosticLibrary
                 }
                 else
                 {
+                    bool hasAttr = false;
+
                     if (Math.Abs((this.DSE.Uptime.ConvertToTimeSpan() - this.DataCenter.NodeUpTimeAvg.Value).TotalHours) > Properties.Settings.Default.ThresholdAvgHrs.TotalHours)
-                    {
+                    {                        
                         if (this.DSE.Uptime.ConvertToTimeSpan() < this.DataCenter.NodeUpTimeAvg - this.DataCenter.NodeUpTimeStdRange)
                         {
                             strAttr += (char)Properties.Settings.Default.LowAttrChar;
@@ -1440,6 +1441,8 @@ namespace DSEDiagnosticLibrary
                 }
                 else
                 {
+                    bool hasAttr = false;
+
                     if (Math.Abs((this.DSE.LogSystemDuration.Value - this.DataCenter.LogSystemDurationAvg.Value).TotalHours) > Properties.Settings.Default.ThresholdAvgHrs.TotalHours)
                     {
                         if (this.DSE.LogSystemDuration.Value < this.DataCenter.LogSystemDurationAvg - this.DataCenter.LogSystemDurationStdRange)
@@ -1465,6 +1468,8 @@ namespace DSEDiagnosticLibrary
                 }
                 else
                 {
+                    bool hasAttr = false;
+
                     if (Math.Abs((this.DSE.LogDebugDuration.Value - this.DataCenter.LogDebugDurationAvg.Value).TotalHours) > Properties.Settings.Default.ThresholdAvgHrs.TotalHours)
                     {
                         if (this.DSE.LogDebugDuration.Value < this.DataCenter.LogDebugDurationAvg - this.DataCenter.LogDebugDurationStdRange)
