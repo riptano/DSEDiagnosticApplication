@@ -178,8 +178,10 @@ namespace DSEDiagnosticFileParser
                 #region zip
                 try
                 {
-                    var zip = new ICSharpCode.SharpZipLib.Zip.FastZip();
-                    zip.RestoreDateTimeOnExtract = true;
+                    var zip = new ICSharpCode.SharpZipLib.Zip.FastZip()
+                    {
+                        RestoreDateTimeOnExtract = true
+                    };
                     zip.ExtractZip(filePath.PathResolved, newExtractedFolder.PathResolved, ICSharpCode.SharpZipLib.Zip.FastZip.Overwrite.RenameOnlyIfDifferent, null, null, null, true);
                 }
                 catch(System.Exception ex)
@@ -214,11 +216,17 @@ namespace DSEDiagnosticFileParser
                 }
                 catch (System.Exception ex)
                 {
-                    if ((ex is ICSharpCode.SharpZipLib.Tar.TarException || ex is System.ArgumentOutOfRangeException || ex is ICSharpCode.SharpZipLib.GZip.GZipException)
-                            && (ex.Message == "Header checksum is invalid" || ex.Message == "Header CRC value mismatch" || ex.Message.StartsWith("Cannot be less than zero")))
+                    if ((ex is ICSharpCode.SharpZipLib.Tar.TarException
+                                || ex is System.ArgumentOutOfRangeException
+                                || ex is ICSharpCode.SharpZipLib.GZip.GZipException)
+                            && (ex.Message == "Header checksum is invalid"
+                                    || ex.Message == "Header CRC value mismatch"
+                                    || ex.Message.StartsWith("Cannot be less than zero")
+                                    || ex.Message.StartsWith("ModTime cannot be before Jan 1st 1970")))
                     {
-                        Logger.Instance.InfoFormat("Invalid GZ header checksum detected for File \"{0}\". Trying \"msgz\" format...",
-                                                        filePath.PathResolved);
+                        Logger.Instance.InfoFormat("Invalid GZ header checksum detected or bad ModTime (\"{1}\") for File \"{0}\". Trying \"msgz\" format...",
+                                                        filePath.PathResolved,
+                                                        ex.Message);
 
                         bResult = UnZipFileToFolder("msgz",
                                                         filePath,
@@ -256,11 +264,15 @@ namespace DSEDiagnosticFileParser
                 }
                 catch (System.Exception ex)
                 {
-                    if ((ex is ICSharpCode.SharpZipLib.Tar.TarException || ex is System.ArgumentOutOfRangeException)
-                            && (ex.Message == "Header checksum is invalid" || ex.Message.StartsWith("Cannot be less than zero")))
+                    if ((ex is ICSharpCode.SharpZipLib.Tar.TarException
+                                || ex is System.ArgumentOutOfRangeException)
+                            && (ex.Message == "Header checksum is invalid"
+                                    || ex.Message.StartsWith("Cannot be less than zero")
+                                    || ex.Message.StartsWith("ModTime cannot be before Jan 1st 1970")))
                     {
-                        Logger.Instance.InfoFormat("Invalid Tar header checksum detected for File \"{0}\". Trying \"tar.gz\" format...",
-                                                            filePath.PathResolved);
+                        Logger.Instance.InfoFormat("Invalid Tar header checksum detected or bad ModTime (\"{1}\") for File \"{0}\". Trying \"tar.gz\" format...",
+                                                            filePath.PathResolved,
+                                                            ex.Message);
                         bResult = UnZipFileToFolder("tar.gz",
                                                         filePath,
                                                         newExtractedFolder,
@@ -856,9 +868,9 @@ namespace DSEDiagnosticFileParser
                     setOutput((JValue)jsonValue);
                     return true;
                 }
-                else if(onNullValue != null)
+                else
                 {
-                    onNullValue();
+                    onNullValue?.Invoke();
                 }
             }
 
@@ -908,9 +920,9 @@ namespace DSEDiagnosticFileParser
                     setOutput((JValue)jsonValue);
                     return true;
                 }
-                else if(onNullValue != null)
+                else
                 {
-                    onNullValue();
+                    onNullValue?.Invoke();
                 }
             }
 

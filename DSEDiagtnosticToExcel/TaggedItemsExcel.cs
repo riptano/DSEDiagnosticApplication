@@ -558,17 +558,17 @@ namespace DSEDiagtnosticToExcel
             dtOverview.SetGroupHeader("SSTables", -1, true,
                 dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.SSTablesMax, typeof(long))
                     .SetNumericFormat("#,###,###,##0")
-                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonSSTables)
+                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonSSTablesTable)
                     .SetDBNull()
                     .SetCaption("Max"),
                 dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.SSTablesMin, typeof(long))
                     .SetNumericFormat("#,###,###,##0")
-                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonSSTables)
+                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonSSTablesTable)
                     .SetDBNull()
                     .SetCaption("Min"),
                 dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.SSTablesAvg, typeof(decimal))
                     .SetNumericFormat("#,###,###,##0.000")
-                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonSSTables)
+                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonSSTablesTable)
                     .SetDBNull()
                     .SetCaption("Avg"),
                  dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.SSTablePercent, typeof(decimal))
