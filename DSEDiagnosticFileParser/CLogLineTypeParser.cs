@@ -1235,7 +1235,7 @@ namespace DSEDiagnosticFileParser
             {
                 if (!(objSessionKey is string) && objSessionKey is System.Collections.IEnumerable)
                 {
-                    return ((IEnumerable<object>)objSessionKey).Sum(s => s.GetHashCode()).ToString();
+                    return ((IEnumerable<object>)objSessionKey).Sum(s => (long) s.GetHashCode()).ToString();
                 }
                 else
                 {

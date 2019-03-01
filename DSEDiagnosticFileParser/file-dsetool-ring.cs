@@ -133,7 +133,8 @@ namespace DSEDiagnosticFileParser
                     || line.StartsWith("Address")
                     || line.StartsWith("Server ID")
                     || line.StartsWith("Note:")
-                    || line.StartsWith("Warning:"))
+                    || line.StartsWith("Warning:")
+                    || line.StartsWith("Node Status"))
                 {
                     usesTokens = line.EndsWith("Token");
                     continue;
