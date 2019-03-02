@@ -81,7 +81,7 @@ namespace DSEDiagtnosticToExcel
                 this.AddDCColumns(dtOverview, sourceTable)
             );
 
-            dtOverview.SetGroupHeader("Read", -1, true,               
+            dtOverview.SetGroupHeader("Read (ms)", -1, true,               
                 dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.ReadMax, typeof(decimal))
                     .SetNumericFormat("#,###,###,##0.000")
                     .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonReadLatencyMax)
@@ -103,70 +103,74 @@ namespace DSEDiagtnosticToExcel
                     .SetCaption("Percent")
                     );            
 
-            dtOverview.SetGroupHeader("Write", -1, true,
-                dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.WriteFactor, typeof(decimal))
-                    .SetNumericFormat("#,###,###,##0.00")
-                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor)
-                    .SetDBNull()
-                    .SetCaption("Factor"),
-                dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.WritePercent, typeof(decimal))
-                    .SetDBNull()
+            dtOverview.SetGroupHeader(string.Empty, -1, false,
+                dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.KeysPercent, typeof(decimal))
                     .SetNumericFormat("##0.00%")
-                    .SetCaption("Percent")
-                    );
-
-            dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.KeysPercent, typeof(decimal))
-                .SetNumericFormat("##0.00%")
-                .SetDBNull();
-
-            dtOverview.SetGroupHeader("SSTable", -1, true,
-                dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.SSTablesFactor, typeof(decimal))
-                    .SetNumericFormat("#,###,###,##0.00")
-                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor)
-                    .SetDBNull()
-                    .SetCaption("Factor"),
-                dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.SSTablePercent, typeof(decimal))
-                    .SetDBNull()
+                    .SetDBNull(),
+                dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.StoragePercent, typeof(decimal))
                     .SetNumericFormat("##0.00%")
-                    .SetCaption("Percent")
-                    );
+                    .SetDBNull());
 
-            dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.StoragePercent, typeof(decimal))
-                .SetNumericFormat("##0.00%")
-                .SetDBNull();
+            dtOverview.SetGroupHeader("Informational", -2, true,
+               dtOverview.SetGroupHeader("Write", -1, true,
+                    dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.WriteFactor, typeof(decimal))
+                        .SetNumericFormat("#,###,###,##0.00")
+                        .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor)
+                        .SetDBNull()
+                        .SetCaption("Factor"),
+                    dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.WritePercent, typeof(decimal))
+                        .SetDBNull()
+                        .SetNumericFormat("##0.00%")
+                        .SetCaption("Percent")
+                        ));
 
-            dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.TombstoneRatioFactor, typeof(decimal))
-                .SetNumericFormat("#,###,###,##0.00")
-                .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor)
-                .SetDBNull();
+            dtOverview.SetGroupHeader("Influencer", -2, true,
+               dtOverview.SetGroupHeader("SSTable", -1, true,
+                    dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.SSTablesFactor, typeof(decimal))
+                        .SetNumericFormat("#,###,###,##0.00")
+                        .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor)
+                        .SetDBNull()
+                        .SetCaption("Factor"),
+                    dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.SSTablePercent, typeof(decimal))
+                        .SetDBNull()
+                        .SetNumericFormat("##0.00%")
+                        .SetCaption("Percent")
+                        ),
+               dtOverview.SetGroupHeader(string.Empty, -1, false,
+                    dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.TombstoneRatioFactor, typeof(decimal))
+                        .SetNumericFormat("#,###,###,##0.00")
+                        .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor)
+                        .SetDBNull(),
 
-            dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.PartitionSizeFactor, typeof(decimal))
-                .SetNumericFormat("#,###,###,##0.00")
-                .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor)
-                .SetDBNull();
+                    dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.PartitionSizeFactor, typeof(decimal))
+                        .SetNumericFormat("#,###,###,##0.00")
+                        .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor)
+                        .SetDBNull(),
 
-            dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.SecondaryIndexes, typeof(int))
-                .SetNumericFormat("##0")
-                .SetDBNull();
-            dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.MaterializedViews, typeof(int))
-                .SetNumericFormat("##0")
-                .SetDBNull();
+                    dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.SecondaryIndexes, typeof(int))
+                        .SetNumericFormat("##0")
+                        .SetDBNull(),
+                    dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.MaterializedViews, typeof(int))
+                        .SetNumericFormat("##0")
+                        .SetDBNull()),
 
-            dtOverview.SetGroupHeader("Common Partition Keys", -1, true,
-               dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.CommonKey, typeof(string))
-                    .SetDBNull()
-                    .SetCaption("Key"),
-                dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.CommonKeyFactor, typeof(decimal))
-                    .SetNumericFormat("#,###,###,##0.00")
-                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor)
-                    .SetDBNull()
-                    .SetCaption("Factor")
-                );
-
-            dtOverview.Columns.Add(Columns.BaseTableFactor, typeof(decimal))
-                .SetNumericFormat("#,###,###,##0.00")
-                .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor)
-                .SetDBNull();
+                dtOverview.SetGroupHeader("Common Partition Keys", -1, true,
+                   dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.CommonKey, typeof(string))
+                        .SetDBNull()
+                        .SetCaption("Key"),
+                    dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.CommonKeyFactor, typeof(decimal))
+                        .SetNumericFormat("#,###,###,##0.00")
+                        .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor)
+                        .SetDBNull()
+                        .SetCaption("Factor")
+                    ),
+                dtOverview.SetGroupHeader(string.Empty, -1, false,
+                    dtOverview.Columns.Add(Columns.BaseTableFactor, typeof(decimal))
+                        .SetNumericFormat("#,###,###,##0.00")
+                        .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor)
+                        .SetDBNull()
+                        )
+                );           
 
             decimal? WeightAvg(IEnumerable<DataRow> dataRows, string columnName)
             {
@@ -318,7 +322,7 @@ namespace DSEDiagtnosticToExcel
                 this.AddDCColumns(dtOverview, sourceTable)
             );
 
-            dtOverview.SetGroupHeader("Write", -1, true,
+            dtOverview.SetGroupHeader("Write (ms)", -1, true,
                 dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.WriteMax, typeof(decimal))
                     .SetNumericFormat("#,###,###,##0.000")
                     .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonWriteLatencyMax)
@@ -340,70 +344,72 @@ namespace DSEDiagtnosticToExcel
                     .SetCaption("Percent")
                     );
 
-            dtOverview.SetGroupHeader("Read", -1, true,
-                dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.ReadFactor, typeof(decimal))
-                    .SetNumericFormat("#,###,###,##0.00")
-                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor)
-                    .SetDBNull()
-                    .SetCaption("Factor"),
-                dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.ReadPercent, typeof(decimal))
-                    .SetDBNull()
-                    .SetNumericFormat("##0.00%")
-                    .SetCaption("Percent")
-                    );
+            dtOverview.SetGroupHeader(string.Empty, -1, false,
+                        dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.KeysPercent, typeof(decimal))
+                            .SetNumericFormat("##0.00%")
+                            .SetDBNull(),
+                        dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.StoragePercent, typeof(decimal))
+                           .SetNumericFormat("##0.00%")
+                           .SetDBNull());
 
-            dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.KeysPercent, typeof(decimal))
-                .SetNumericFormat("##0.00%")
-                .SetDBNull();
+            dtOverview.SetGroupHeader("Influencer", -2, true,
+                dtOverview.SetGroupHeader(string.Empty, -1, true,
+                    dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.PartitionSizeFactor, typeof(decimal))
+                        .SetNumericFormat("#,###,###,##0.00")
+                        .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor)
+                        .SetDBNull(),
+                    dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.SecondaryIndexes, typeof(int))
+                        .SetNumericFormat("##0")
+                        .SetDBNull(),
+                    dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.MaterializedViews, typeof(int))
+                        .SetNumericFormat("##0")
+                        .SetDBNull()),
 
-            dtOverview.SetGroupHeader("SSTable", -1, true,
-                dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.SSTablesFactor, typeof(decimal))
-                    .SetNumericFormat("#,###,###,##0.00")
-                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor)
-                    .SetDBNull()
-                    .SetCaption("Factor"),
-                dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.SSTablePercent, typeof(decimal))
-                    .SetDBNull()
-                    .SetNumericFormat("##0.00%")
-                    .SetCaption("Percent")
-                    );
+                    dtOverview.SetGroupHeader("Common Partition Keys", -1, true,
+                       dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.CommonKey, typeof(string))
+                            .SetDBNull()
+                            .SetCaption("Key"),
+                        dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.CommonKeyFactor, typeof(decimal))
+                            .SetNumericFormat("#,###,###,##0.00")
+                            .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor)
+                            .SetDBNull()
+                            .SetCaption("Factor")
+                        ));               
 
-            dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.StoragePercent, typeof(decimal))
-                .SetNumericFormat("##0.00%")
-                .SetDBNull();
+            dtOverview.SetGroupHeader("Informational", -2, true,
+                dtOverview.SetGroupHeader("Read", -1, true,
+                    dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.ReadFactor, typeof(decimal))
+                        .SetNumericFormat("#,###,###,##0.00")
+                        .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor)
+                        .SetDBNull()
+                        .SetCaption("Factor"),
+                    dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.ReadPercent, typeof(decimal))
+                        .SetDBNull()
+                        .SetNumericFormat("##0.00%")
+                        .SetCaption("Percent")
+                        ),
 
-            dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.TombstoneRatioFactor, typeof(decimal))
-                .SetNumericFormat("#,###,###,##0.00")
-                .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor)
-                .SetDBNull();
-
-            dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.PartitionSizeFactor, typeof(decimal))
-                 .SetNumericFormat("#,###,###,##0.00")
-                .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor)
-                .SetDBNull();
-
-            dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.SecondaryIndexes, typeof(int))
-                .SetNumericFormat("##0")
-                .SetDBNull();
-            dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.MaterializedViews, typeof(int))
-                .SetNumericFormat("##0")
-                .SetDBNull();
-
-            dtOverview.SetGroupHeader("Common Partition Keys", -1, true,
-               dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.CommonKey, typeof(string))
-                    .SetDBNull()
-                    .SetCaption("Key"),
-                dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.CommonKeyFactor, typeof(decimal))
-                    .SetNumericFormat("#,###,###,##0.00")
-                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor)
-                    .SetDBNull()
-                    .SetCaption("Factor")
-                );
-
-            dtOverview.Columns.Add(Columns.BaseTableFactor, typeof(decimal))
-                .SetNumericFormat("#,###,###,##0.00")
-                .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor)
-                .SetDBNull();
+                dtOverview.SetGroupHeader("SSTable", -1, true,
+                    dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.SSTablesFactor, typeof(decimal))
+                        .SetNumericFormat("#,###,###,##0.00")
+                        .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor)
+                        .SetDBNull()
+                        .SetCaption("Factor"),
+                    dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.SSTablePercent, typeof(decimal))
+                        .SetDBNull()
+                        .SetNumericFormat("##0.00%")
+                        .SetCaption("Percent")
+                        ),
+                dtOverview.SetGroupHeader(string.Empty, -1, false,
+                    dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.TombstoneRatioFactor, typeof(decimal))
+                        .SetNumericFormat("#,###,###,##0.00")
+                        .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor)
+                        .SetDBNull(),
+                    dtOverview.Columns.Add(Columns.BaseTableFactor, typeof(decimal))
+                        .SetNumericFormat("#,###,###,##0.00")
+                        .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor)
+                        .SetDBNull())
+            );
 
             decimal? WeightAvg(IEnumerable<DataRow> dataRows, string columnName)
             {
@@ -555,7 +561,7 @@ namespace DSEDiagtnosticToExcel
                 this.AddDCColumns(dtOverview, sourceTable)
             );
 
-            dtOverview.SetGroupHeader("SSTables", -1, true,
+            dtOverview.SetGroupHeader("SSTables (count)", -1, true,
                 dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.SSTablesMax, typeof(long))
                     .SetNumericFormat("#,###,###,##0")
                     .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonSSTablesTable)
@@ -577,70 +583,70 @@ namespace DSEDiagtnosticToExcel
                     .SetCaption("Percent")
                     );
 
-            dtOverview.SetGroupHeader("Read", -1, true,
-                dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.ReadFactor, typeof(decimal))
-                    .SetNumericFormat("#,###,###,##0.00")
-                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor)
-                    .SetDBNull()
-                    .SetCaption("Factor"),
-                dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.ReadPercent, typeof(decimal))
-                    .SetDBNull()
+            dtOverview.SetGroupHeader(string.Empty, -1, false,
+                dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.KeysPercent, typeof(decimal))
                     .SetNumericFormat("##0.00%")
-                    .SetCaption("Percent")
-                    );
-
-            dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.KeysPercent, typeof(decimal))
-                .SetNumericFormat("##0.00%")
-                .SetDBNull();
-
-            dtOverview.SetGroupHeader("Write", -1, true,
-                dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.WriteFactor, typeof(decimal))
-                    .SetNumericFormat("#,###,###,##0.00")
-                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor)
-                    .SetDBNull()
-                    .SetCaption("Factor"),
-                dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.WritePercent, typeof(decimal))
-                    .SetDBNull()
+                    .SetDBNull(),
+                dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.StoragePercent, typeof(decimal))
                     .SetNumericFormat("##0.00%")
-                    .SetCaption("Percent")
-                    );
+                    .SetDBNull());
 
-            dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.StoragePercent, typeof(decimal))
-                .SetNumericFormat("##0.00%")
-                .SetDBNull();
+            dtOverview.SetGroupHeader("Informational", -2, true,
+               dtOverview.SetGroupHeader("Read", -1, true,
+                    dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.ReadFactor, typeof(decimal))
+                        .SetNumericFormat("#,###,###,##0.00")
+                        .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor)
+                        .SetDBNull()
+                        .SetCaption("Factor"),
+                    dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.ReadPercent, typeof(decimal))
+                        .SetDBNull()
+                        .SetNumericFormat("##0.00%")
+                        .SetCaption("Percent")
+                        ),            
+                    dtOverview.SetGroupHeader("Write", -1, true,
+                        dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.WriteFactor, typeof(decimal))
+                            .SetNumericFormat("#,###,###,##0.00")
+                            .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor)
+                            .SetDBNull()
+                            .SetCaption("Factor"),
+                        dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.WritePercent, typeof(decimal))
+                            .SetDBNull()
+                            .SetNumericFormat("##0.00%")
+                            .SetCaption("Percent")
+                            ),
+                    dtOverview.SetGroupHeader(string.Empty, -1, false,
+                        dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.TombstoneRatioFactor, typeof(decimal))
+                            .SetNumericFormat("#,###,###,##0.00")
+                            .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor)
+                            .SetDBNull(),
 
-            dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.TombstoneRatioFactor, typeof(decimal))
-                .SetNumericFormat("#,###,###,##0.00")
-                .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor)
-                .SetDBNull();
+                        dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.PartitionSizeFactor, typeof(decimal))
+                             .SetNumericFormat("#,###,###,##0.00")
+                            .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor)
+                            .SetDBNull(),
+                        dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.SecondaryIndexes, typeof(int))
+                            .SetNumericFormat("##0")
+                            .SetDBNull(),
+                        dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.MaterializedViews, typeof(int))
+                            .SetNumericFormat("##0")
+                            .SetDBNull()),
 
-            dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.PartitionSizeFactor, typeof(decimal))
-                 .SetNumericFormat("#,###,###,##0.00")
-                .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor)
-                .SetDBNull();
-
-            dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.SecondaryIndexes, typeof(int))
-                .SetNumericFormat("##0")
-                .SetDBNull();
-            dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.MaterializedViews, typeof(int))
-                .SetNumericFormat("##0")
-                .SetDBNull();
-
-            dtOverview.SetGroupHeader("Common Partition Keys", -1, true,
-               dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.CommonKey, typeof(string))
-                    .SetDBNull()
-                    .SetCaption("Key"),
-                dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.CommonKeyFactor, typeof(decimal))
-                    .SetNumericFormat("#,###,###,##0.00")
-                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor)
-                    .SetDBNull()
-                    .SetCaption("Factor")
-                );
-
-            dtOverview.Columns.Add(Columns.BaseTableFactor, typeof(decimal))
-                .SetNumericFormat("#,###,###,##0.00")
-                .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor)
-                .SetDBNull();
+                    dtOverview.SetGroupHeader("Common Partition Keys", -1, true,
+                       dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.CommonKey, typeof(string))
+                            .SetDBNull()
+                            .SetCaption("Key"),
+                        dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.CommonKeyFactor, typeof(decimal))
+                            .SetNumericFormat("#,###,###,##0.00")
+                            .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor)
+                            .SetDBNull()
+                            .SetCaption("Factor")
+                        ),
+                    dtOverview.SetGroupHeader(string.Empty, -1, false,
+                        dtOverview.Columns.Add(Columns.BaseTableFactor, typeof(decimal))
+                            .SetNumericFormat("#,###,###,##0.00")
+                            .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor)
+                            .SetDBNull())
+            );
 
             decimal? WeightAvg(IEnumerable<DataRow> dataRows, string columnName)
             {
@@ -818,70 +824,72 @@ namespace DSEDiagtnosticToExcel
                     .SetCaption("Live Read")                
                     );
 
-            dtOverview.SetGroupHeader("Read", -1, true,
-                dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.ReadFactor, typeof(decimal))
-                    .SetNumericFormat("#,###,###,##0.00")
-                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor)
-                    .SetDBNull()
-                    .SetCaption("Factor"),
-                dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.ReadPercent, typeof(decimal))
-                    .SetDBNull()
+            dtOverview.SetGroupHeader(string.Empty, -1, false,
+                dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.KeysPercent, typeof(decimal))
                     .SetNumericFormat("##0.00%")
-                    .SetCaption("Percent")
-                    );
-
-            dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.KeysPercent, typeof(decimal))
-                .SetNumericFormat("##0.00%")
-                .SetDBNull();
-
-            dtOverview.SetGroupHeader("Write", -1, true,
-                dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.WriteFactor, typeof(decimal))
-                    .SetNumericFormat("#,###,###,##0.00")
-                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor)
-                    .SetDBNull()
-                    .SetCaption("Factor"),
-                dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.WritePercent, typeof(decimal))
-                    .SetDBNull()
+                    .SetDBNull(),
+                dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.StoragePercent, typeof(decimal))
                     .SetNumericFormat("##0.00%")
-                    .SetCaption("Percent")
-                    );
+                    .SetDBNull());
 
-            dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.StoragePercent, typeof(decimal))
-                .SetNumericFormat("##0.00%")
-                .SetDBNull();
+            dtOverview.SetGroupHeader("Informational", -2, true,
+                dtOverview.SetGroupHeader("Read", -1, true,
+                    dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.ReadFactor, typeof(decimal))
+                        .SetNumericFormat("#,###,###,##0.00")
+                        .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor)
+                        .SetDBNull()
+                        .SetCaption("Factor"),
+                    dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.ReadPercent, typeof(decimal))
+                        .SetDBNull()
+                        .SetNumericFormat("##0.00%")
+                        .SetCaption("Percent")
+                        ),
+                
+                dtOverview.SetGroupHeader("Write", -1, true,
+                    dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.WriteFactor, typeof(decimal))
+                        .SetNumericFormat("#,###,###,##0.00")
+                        .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor)
+                        .SetDBNull()
+                        .SetCaption("Factor"),
+                    dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.WritePercent, typeof(decimal))
+                        .SetDBNull()
+                        .SetNumericFormat("##0.00%")
+                        .SetCaption("Percent")
+                        ),
+                 dtOverview.SetGroupHeader(string.Empty, -1, false,
+                    dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.SSTablesFactor, typeof(decimal))
+                        .SetNumericFormat("#,###,###,##0.00")
+                        .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor)
+                        .SetDBNull(),
 
-            dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.SSTablesFactor, typeof(decimal))
-                .SetNumericFormat("#,###,###,##0.00")
-                .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor)
-                .SetDBNull();
+                    dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.PartitionSizeFactor, typeof(decimal))
+                       .SetNumericFormat("#,###,###,##0.00")
+                        .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor)
+                        .SetDBNull(),
 
-            dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.PartitionSizeFactor, typeof(decimal))
-               .SetNumericFormat("#,###,###,##0.00")
-                .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor)
-                .SetDBNull();
+                    dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.SecondaryIndexes, typeof(int))
+                        .SetNumericFormat("##0")
+                        .SetDBNull(),
+                    dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.MaterializedViews, typeof(int))
+                        .SetNumericFormat("##0")
+                        .SetDBNull()),
 
-            dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.SecondaryIndexes, typeof(int))
-                .SetNumericFormat("##0")
-                .SetDBNull();
-            dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.MaterializedViews, typeof(int))
-                .SetNumericFormat("##0")
-                .SetDBNull();
-
-            dtOverview.SetGroupHeader("Common Partition Keys", -1, true,
-               dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.CommonKey, typeof(string))
-                    .SetDBNull()
-                    .SetCaption("Key"),
-                dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.CommonKeyFactor, typeof(decimal))
-                    .SetNumericFormat("#,###,###,##0.00")
-                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor)
-                    .SetDBNull()
-                    .SetCaption("Factor")
-                );
-
-            dtOverview.Columns.Add(Columns.BaseTableFactor, typeof(decimal))
-                .SetNumericFormat("#,###,###,##0.00")
-                .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor)
-                .SetDBNull();
+                dtOverview.SetGroupHeader("Common Partition Keys", -1, true,
+                   dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.CommonKey, typeof(string))
+                        .SetDBNull()
+                        .SetCaption("Key"),
+                    dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.CommonKeyFactor, typeof(decimal))
+                        .SetNumericFormat("#,###,###,##0.00")
+                        .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor)
+                        .SetDBNull()
+                        .SetCaption("Factor")
+                    ),
+                dtOverview.SetGroupHeader(string.Empty, -1, false,
+                    dtOverview.Columns.Add(Columns.BaseTableFactor, typeof(decimal))
+                        .SetNumericFormat("#,###,###,##0.00")
+                        .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor)
+                        .SetDBNull())
+            );
 
             decimal? WeightAvg(IEnumerable<DataRow> dataRows, string columnName)
             {
@@ -1065,70 +1073,72 @@ namespace DSEDiagtnosticToExcel
                     .SetCaption("Avg")                
                     );
 
-            dtOverview.SetGroupHeader("Read", -1, true,
-                dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.ReadFactor, typeof(decimal))
-                    .SetNumericFormat("#,###,###,##0.00")
-                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor)
-                    .SetDBNull()
-                    .SetCaption("Factor"),
-                dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.ReadPercent, typeof(decimal))
-                    .SetDBNull()
+            dtOverview.SetGroupHeader(string.Empty, -1, false,
+                dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.KeysPercent, typeof(decimal))
                     .SetNumericFormat("##0.00%")
-                    .SetCaption("Percent")
-                    );
-
-            dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.KeysPercent, typeof(decimal))
-                .SetNumericFormat("##0.00%")
-                .SetDBNull();
-
-            dtOverview.SetGroupHeader("Write", -1, true,
-                dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.WriteFactor, typeof(decimal))
-                    .SetNumericFormat("#,###,###,##0.00")
-                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor)
-                    .SetDBNull()
-                    .SetCaption("Factor"),
-                dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.WritePercent, typeof(decimal))
-                    .SetDBNull()
+                    .SetDBNull(),
+                dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.StoragePercent, typeof(decimal))
                     .SetNumericFormat("##0.00%")
-                    .SetCaption("Percent")
-                    );
+                    .SetDBNull());
 
-            dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.StoragePercent, typeof(decimal))
-                .SetNumericFormat("##0.00%")
-                .SetDBNull();
+            dtOverview.SetGroupHeader("Informational", -2, true,
+               dtOverview.SetGroupHeader("Read", -1, true,
+                    dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.ReadFactor, typeof(decimal))
+                        .SetNumericFormat("#,###,###,##0.00")
+                        .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor)
+                        .SetDBNull()
+                        .SetCaption("Factor"),
+                    dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.ReadPercent, typeof(decimal))
+                        .SetDBNull()
+                        .SetNumericFormat("##0.00%")
+                        .SetCaption("Percent")
+                        ),
+               
+                dtOverview.SetGroupHeader("Write", -1, true,
+                    dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.WriteFactor, typeof(decimal))
+                        .SetNumericFormat("#,###,###,##0.00")
+                        .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor)
+                        .SetDBNull()
+                        .SetCaption("Factor"),
+                    dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.WritePercent, typeof(decimal))
+                        .SetDBNull()
+                        .SetNumericFormat("##0.00%")
+                        .SetCaption("Percent")
+                        ),
+                dtOverview.SetGroupHeader(string.Empty, -1, false,
+                    dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.TombstoneRatioFactor, typeof(decimal))
+                        .SetNumericFormat("#,###,###,##0.00")
+                        .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor)
+                        .SetDBNull(),
 
-            dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.TombstoneRatioFactor, typeof(decimal))
-                .SetNumericFormat("#,###,###,##0.00")
-                .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor)
-                .SetDBNull();
+                    dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.SSTablesFactor, typeof(decimal))
+                        .SetNumericFormat("#,###,###,##0.00")
+                        .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor)
+                        .SetDBNull(),
 
-            dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.SSTablesFactor, typeof(decimal))
-                .SetNumericFormat("#,###,###,##0.00")
-                .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor)
-                .SetDBNull();
+                    dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.SecondaryIndexes, typeof(int))
+                        .SetNumericFormat("##0")
+                        .SetDBNull(),
+                    dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.MaterializedViews, typeof(int))
+                        .SetNumericFormat("##0")
+                        .SetDBNull()),
 
-            dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.SecondaryIndexes, typeof(int))
-                .SetNumericFormat("##0")
-                .SetDBNull();
-            dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.MaterializedViews, typeof(int))
-                .SetNumericFormat("##0")
-                .SetDBNull();
-
-            dtOverview.SetGroupHeader("Common Partition Keys", -1, true,
-               dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.CommonKey, typeof(string))
-                    .SetDBNull()
-                    .SetCaption("Key"),
-                dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.CommonKeyFactor, typeof(decimal))
-                    .SetNumericFormat("#,###,###,##0.00")
-                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor)
-                    .SetDBNull()
-                    .SetCaption("Factor")
-                );
-
-            dtOverview.Columns.Add(Columns.BaseTableFactor, typeof(decimal))
-                .SetNumericFormat("#,###,###,##0.00")
-                .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor)
-                .SetDBNull();
+                    dtOverview.SetGroupHeader("Common Partition Keys", -1, true,
+                       dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.CommonKey, typeof(string))
+                            .SetDBNull()
+                            .SetCaption("Key"),
+                        dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.CommonKeyFactor, typeof(decimal))
+                            .SetNumericFormat("#,###,###,##0.00")
+                            .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor)
+                            .SetDBNull()
+                            .SetCaption("Factor")
+                        ),
+                    dtOverview.SetGroupHeader(string.Empty, -1, false,
+                        dtOverview.Columns.Add(Columns.BaseTableFactor, typeof(decimal))
+                            .SetNumericFormat("#,###,###,##0.00")
+                            .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor)
+                            .SetDBNull())
+            );
 
             decimal? WeightAvg(IEnumerable<DataRow> dataRows, string columnName)
             {
@@ -1265,7 +1275,6 @@ namespace DSEDiagtnosticToExcel
             return dtOverview;
         }
 
-
         public override Tuple<IFilePath, string, int> Load()
         {
             int nbrRows = 0;
@@ -1325,11 +1334,11 @@ namespace DSEDiagtnosticToExcel
                     return this.CreateInitializationLargePartitionsTable(linqDCView);
                 });
                 
-                nbrRows += this.GenerateTaggedTypeWorkSheet(readViewTask.Result, this.UseDataTableDefaultView);
-                nbrRows += this.GenerateTaggedTypeWorkSheet(writeViewTask.Result, this.UseDataTableDefaultView);
-                nbrRows += this.GenerateTaggedTypeWorkSheet(sstablesiewTask.Result, this.UseDataTableDefaultView);
-                nbrRows += this.GenerateTaggedTypeWorkSheet(tombstonesViewTask.Result, this.UseDataTableDefaultView);
-                nbrRows += this.GenerateTaggedTypeWorkSheet(partitionsViewTask.Result, this.UseDataTableDefaultView);
+                nbrRows += this.GenerateTaggedTypeWorkSheet(readViewTask.Result, this.UseDataTableDefaultView, 3);
+                nbrRows += this.GenerateTaggedTypeWorkSheet(writeViewTask.Result, this.UseDataTableDefaultView, 3);
+                nbrRows += this.GenerateTaggedTypeWorkSheet(sstablesiewTask.Result, this.UseDataTableDefaultView, 3);
+                nbrRows += this.GenerateTaggedTypeWorkSheet(tombstonesViewTask.Result, this.UseDataTableDefaultView, 3);
+                nbrRows += this.GenerateTaggedTypeWorkSheet(partitionsViewTask.Result, this.UseDataTableDefaultView, 3);
             }
            
             return new Tuple<IFilePath, string, int>(this.ExcelTargetWorkbook, this.WorkSheetName, nbrRows);
@@ -1566,7 +1575,7 @@ namespace DSEDiagtnosticToExcel
                                                        excelTemplateFile: this.ExcelTemplateWorkbook);
         }
 
-        int GenerateTaggedTypeWorkSheet(DataTable sourceDataTable, bool useDefaultDataView)
+        int GenerateTaggedTypeWorkSheet(DataTable sourceDataTable, bool useDefaultDataView, int nStartRow = 2)
         {
             return DataTableToExcel.Helpers.WorkBook(this.ExcelTargetWorkbook.PathResolved, sourceDataTable.TableName, sourceDataTable,
                                                         (stage, orgFilePath, targetFilePath, workSheetName, excelPackage, excelDataTable, rowCount, loadRange) =>
@@ -1585,7 +1594,7 @@ namespace DSEDiagtnosticToExcel
                                                                         var workSheet = excelPackage.Workbook.Worksheets[workSheetName];
 
                                                                         if(workSheet != null && rowCount > 0)
-                                                                            workSheet.AltFileFillRow(3,
+                                                                            workSheet.AltFileFillRow(nStartRow + 1,
                                                                                                        excelDataTable.GetColumn(Columns.KSCSType),
                                                                                                        null,
                                                                                                        excelDataTable.GetColumn(DT.ColumnNames.Table),
@@ -1605,15 +1614,15 @@ namespace DSEDiagtnosticToExcel
                                                         },
                                                          workSheet =>
                                                          {
-                                                             workSheet.Cells["1:1"].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.LightGray;
-                                                             workSheet.Cells["1:2"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                                                             workSheet.Cells[string.Format("1:{0}", nStartRow - 1)].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.LightGray;
+                                                             workSheet.Cells[string.Format("1:{0}", nStartRow)].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
                                                              //workSheet.Cells["1:2"].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
                                                              
-                                                             workSheet.UpdateWorksheet(sourceDataTable, 2);
+                                                             workSheet.UpdateWorksheet(sourceDataTable, nStartRow);
 
-                                                             workSheet.View.FreezePanes(3, 1);
+                                                             workSheet.View.FreezePanes(nStartRow + 1, 1);
                                                             
-                                                             workSheet.ExcelRange(2,
+                                                             workSheet.ExcelRange(nStartRow,
                                                                                       sourceDataTable.GetColumn(DT.ColumnNames.Table),
                                                                                       sourceDataTable.GetColumn(Columns.BaseTableFactor))
                                                                             .First().AutoFilter = true;                                                             
@@ -1621,7 +1630,7 @@ namespace DSEDiagtnosticToExcel
                                                          },
                                                          -1,
                                                         -1,
-                                                        "A2",
+                                                        string.Format("A{0}", nStartRow),
                                                         useDefaultDataView,
                                                         appendToWorkSheet: this.AppendToWorkSheet,
                                                        cachePackage: LibrarySettings.ExcelPackageCache,

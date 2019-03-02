@@ -390,35 +390,35 @@ namespace DSEDiagnosticFileParser
                             ++this.NbrWarnings;
                             notFoound = true;
                             this._unknownDDLs.Add(tableName);
-                        }
 
-                        skipSection = true;
-                        statItem = null;
-
-                        if(statItemCurrentKeyspace == null)
-                        {
-                            var errorStatItem = new AggregatedStats(this.File,
-                                                                    this.Node,
-                                                                    SourceTypes.CFStats,
-                                                                    EventTypes.AggregateDataTool,
-                                                                    EventClasses.Node | EventClasses.KeyspaceTableViewIndexStats);
-                            this._statsList.Add(errorStatItem);
-                            notFoound = true;
-                            errorStatItem.AssociateItem(AggregatedStats.ErrorCItemNotFnd,
-                                                                        new List<string>() { string.Format("{1} \"{0}\" not found", tableName, attribute) });
-                        }
-                        else
-                        {                           
-                            if(statItemCurrentKeyspace.Data.TryGetValue(AggregatedStats.ErrorCItemNotFnd, out object existingValue))
+                            if (statItemCurrentKeyspace == null)
                             {
-                                ((List<string>)existingValue).Add(string.Format("{1} \"{0}\" not found", tableName, attribute));
+                                var errorStatItem = new AggregatedStats(this.File,
+                                                                        this.Node,
+                                                                        SourceTypes.CFStats,
+                                                                        EventTypes.AggregateDataTool,
+                                                                        EventClasses.Node | EventClasses.KeyspaceTableViewIndexStats);
+                                this._statsList.Add(errorStatItem);
+                                notFoound = true;
+                                errorStatItem.AssociateItem(AggregatedStats.ErrorCItemNotFnd,
+                                                                            new List<string>() { string.Format("{1} \"{0}\" not found", tableName, attribute) });
                             }
                             else
                             {
-                                statItemCurrentKeyspace.AssociateItem(AggregatedStats.ErrorCItemNotFnd,
-                                                                        new List<string>() { string.Format("{1} \"{0}\" not found", tableName, attribute) });
+                                if (statItemCurrentKeyspace.Data.TryGetValue(AggregatedStats.ErrorCItemNotFnd, out object existingValue))
+                                {
+                                    ((List<string>)existingValue).Add(string.Format("{1} \"{0}\" not found", tableName, attribute));
+                                }
+                                else
+                                {
+                                    statItemCurrentKeyspace.AssociateItem(AggregatedStats.ErrorCItemNotFnd,
+                                                                            new List<string>() { string.Format("{1} \"{0}\" not found", tableName, attribute) });
+                                }
                             }
                         }
+
+                        skipSection = true;
+                        statItem = null;                        
                     }
                     else
                     {

@@ -220,6 +220,8 @@ namespace DSEDiagnosticLibrary.Properties {
   <string>dsefs</string>
   <string>dse_system_local</string>
   <string>dse_analytics</string>
+  <string>dse_insights_local</string>
+  <string>dse_insights</string>
 </ArrayOfString>")]
         public global::System.Collections.Specialized.StringCollection DSEKeyspaces {
             get {

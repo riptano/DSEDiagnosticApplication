@@ -100,6 +100,8 @@
   &lt;string&gt;dsefs&lt;/string&gt;
   &lt;string&gt;dse_system_local&lt;/string&gt;
   &lt;string&gt;dse_analytics&lt;/string&gt;
+  &lt;string&gt;dse_insights_local&lt;/string&gt;
+  &lt;string&gt;dse_insights&lt;/string&gt;
 &lt;/ArrayOfString&gt;</Value>
     </Setting>
     <Setting Name="PerformanceKeyspaces" Type="System.Collections.Specialized.StringCollection" Scope="Application">

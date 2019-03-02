@@ -311,10 +311,10 @@ namespace DSEDiagtnosticToExcel
                                                                                         .SetCaption("Min-Node"),
                                                                        this.DataTable.GetColumn("Writes Avg")
                                                                                         .SetCaption("Avg")
-                                                                                        .SetNumericFormat("##0.00%"),
+                                                                                        .SetNumericFormat("#,###,###,##0.00"),
                                                                        this.DataTable.GetColumn("Writes StdDev")
                                                                                         .SetCaption("StdDev")
-                                                                                        .SetNumericFormat("##0.00%"),
+                                                                                        .SetNumericFormat("#,###,###,##0.00"),
                                                                        this.DataTable.GetColumn("Writes Total")
                                                                                         .SetCaption("Total")
                                                                                         .SetNumericFormat("#,###,###,##0")

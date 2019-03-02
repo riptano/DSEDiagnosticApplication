@@ -2128,7 +2128,7 @@ namespace DSEDiagnosticFileParser
                         {
                             var localPrimaryKS = primaryKS;
 
-                            if (localPrimaryKS == null || !LibrarySettings.IgnoreWarningsErrosInKeySpaces.Any(k => k == localPrimaryKS.Name))
+                            if (localPrimaryKS == null || !this.IgnoreWarningsErrosInKeySpaces.Any(k => k == localPrimaryKS.Name))
                             {
                                 var instanceNames = ddlInstances?.Select(d => localPrimaryKS == null ? d.Name : d.FullName);
                                 var names = new List<string>();
