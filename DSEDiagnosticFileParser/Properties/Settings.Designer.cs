@@ -1860,6 +1860,7 @@ public static class {0}
 {""Key"":""SSTABLEPATH"",""Value"":""[a-z0-9\\-_@#/.\\ +%]+""},
 {""Key"":""SSTABLEPATHS"",""Value"":""[a-z0-9\\-_@#/.,\\ +%]*""},
 {""Key"":""NODE"",""Value"":""[^ ]+""},
+{""Key"":""NODELIST"",""Value"":""\\[\\s*(?<nodetxt>(?<NODES>[^\\]]+))\\]""},
 {""Key"":""SOLRINDEXNAME"",""Value"":""[a-z0-9'\\-_$%+=!?<>^*&@/.]+""},
 {""Key"":""CQLSELECT"",""Value"":""select\\s+(?<querycols>.+)\\s+from\\s+(?<TABLEVIEWNAME>[a-z0-9'\\-_$%+=!?<>^*&@/.]+)(?:\\s+where\\s+(?<whereclause>.+?))??(?:\\s+order\\s+by\\s+(?<orderbycols>.+?))??(?:\\s+limit\\s+(?<limit>\\d+?))??(?<allowfiltering>\\s+allow\\s+filtering)??""}
 ]")]

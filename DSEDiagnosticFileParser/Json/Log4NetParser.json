@@ -445,6 +445,7 @@
 {"Key":"SSTABLEPATH","Value":"[a-z0-9\\-_@#/.\\ +%]+"},
 {"Key":"SSTABLEPATHS","Value":"[a-z0-9\\-_@#/.,\\ +%]*"},
 {"Key":"NODE","Value":"[^ ]+"},
+{"Key":"NODELIST","Value":"\\[\\s*(?<nodetxt>(?<NODES>[^\\]]+))\\]"},
 {"Key":"SOLRINDEXNAME","Value":"[a-z0-9'\\-_$%+=!?<>^*&@/.]+"},
 {"Key":"CQLSELECT","Value":"select\\s+(?<querycols>.+)\\s+from\\s+(?$<TABLEVIEWNAME>)(?:\\s+where\\s+(?<whereclause>.+?))??(?:\\s+order\\s+by\\s+(?<orderbycols>.+?))??(?:\\s+limit\\s+(?<limit>\\d+?))??(?<allowfiltering>\\s+allow\\s+filtering)??"}
 ]
@@ -2579,7 +2580,7 @@
       },
       "ParseMessage": {
         "RegExStrings": [
-          "The\\sfollowing\\snodes\\sseems\\sto\\sbe\\sdown\\:\\s*\\[\\s*(?<nodetxt>(?:(?<NODES>[^\\], ]+)\\,?\\s?)+)\\s*\\]"
+          "The\\sfollowing\\snodes\\sseems\\sto\\sbe\\sdown\\:\\s*$<!NODELIST>"
         ]
       },
       "ParseThreadId": null,
@@ -3367,6 +3368,114 @@
       "Examples": [
         "INFO  [RemoteMessageClient worker-7-11] 2019-03-02 12:11:01,971  ClientServerConnection.java:269 - Terminating pending requests towards: /10.2.144.155:8609"
       ]
+    },
+    {
+      "Description": "Exceeded number of max connections",
+      "TagId": 51.0,
+      "MatchVersion": null,
+      "LevelMatch": {
+        "RegExStrings": [
+          "WARN"
+        ]
+      },
+      "FileNameMatch": {
+        "RegExStrings": [
+          "^MessageClient.java$"
+        ]
+      },
+      "FileLineMatch": null,
+      "MessageMatch": {
+        "RegExStrings": [
+          "^Exceeded\\s+number\\s+of\\s+max\\s+connections\\s"
+        ]
+      },
+      "ParseMessage": {
+        "RegExStrings": [
+          "^Exceeded\\s+number\\s+of\\s+max\\s+connections\\s+due\\s+to\\s+(?<item>[a-z ]+)\\s+(?$<NODE>)"
+        ]
+      },
+      "ParseThreadId": null,
+      "EventType": "SingleInstance",
+      "EventClass": "Detection,Node,Unavailable,Network",
+      "AnalyticsGroup": null,
+      "SubClass": "'Exceeded Connections ' + item",
+      "Product": "Cassandra",
+      "IgnoreEvent": false,
+      "Examples": [
+        "WARN  [SharedPool-Worker-46] 2019-03-02 11:09:55,966  MessageClient.java:237 - Exceeded number of max connections due to new connection required for host 10.252.72.132:8609"
+      ]
+    },
+    {
+      "Description": "Solr Connection Refused",
+      "TagId": 52.0,
+      "MatchVersion": null,
+      "LevelMatch": {
+        "RegExStrings": [
+          "ERROR"
+        ]
+      },
+      "FileNameMatch": {
+        "RegExStrings": [
+          "^CqlSolrQueryExecutor.java$"
+        ]
+      },
+      "FileLineMatch": null,
+      "MessageMatch": {
+        "RegExStrings": [
+          "^Connection\\s+refused"
+        ]
+      },
+      "ParseMessage": {
+        "RegExStrings": [
+          "^Connection\\s+refused:?\\s*(?$<NODE>)"
+        ]
+      },
+      "ParseThreadId": null,
+      "EventType": "SingleInstance",
+      "EventClass": "Detection,Node,Unavailable,Solr",
+      "AnalyticsGroup": null,
+      "SubClass": "'Connection Refused'",
+      "Product": "Search",
+      "IgnoreEvent": false,
+      "Examples": [
+        "ERROR [SharedPool-Worker-50] 2019-03-02 11:09:56,279  CqlSolrQueryExecutor.java:447 - Connection refused: /10.252.72.134:8609"
+      ]
+    },
+    {
+      "Description": "Row Response Timeout",
+      "TagId": 53.0,
+      "MatchVersion": null,
+      "LevelMatch": {
+        "RegExStrings": [
+          "ERROR"
+        ]
+      },
+      "FileNameMatch": {
+        "RegExStrings": [
+          "^RowResponseHandler.java$"
+        ]
+      },
+      "FileLineMatch": null,
+      "MessageMatch": {
+        "RegExStrings": [
+          "^Row\\s+retrieval\\s+response\\s+timeout\\s"
+        ]
+      },
+      "ParseMessage": {
+        "RegExStrings": [
+          "^Row\\s+retrieval\\s+response\\s*timeout\\s+of\\s+(?<DURATION>[0-9.]+),\\s+(?<SUBCLASS>[^:\\[]+)\\:\\s+$<!NODELIST>"
+        ]
+      },
+      "ParseThreadId": null,
+      "EventType": "SingleInstance",
+      "EventClass": "Detection,Node,Row,TimeOut",
+      "AnalyticsGroup": null,
+      "SubClass": null,
+      "Product": "Cassandra",
+      "IgnoreEvent": false,
+      "Examples": [
+        "ERROR [SharedPool-Worker-2] 2019-03-02 09:53:00,053  RowResponseHandler.java:206 - Row retrieval response timeout of 10000, missing responses from nodes: [10.2.144.141]"
+      ]
     }
   ]
-    }
+}

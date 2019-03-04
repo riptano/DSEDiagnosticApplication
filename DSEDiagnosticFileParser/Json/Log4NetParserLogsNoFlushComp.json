@@ -220,6 +220,18 @@
     {
       "Description": "Terminating pending requests Client",
       "LinkedTagId": 50.0
+    },
+    {
+      "Description": "Exceeded number of max connections",
+      "LinkedTagId": 51.0
+    },
+    {
+      "Description": "Solr Connection Refused",
+      "LinkedTagId": 52.0
+    },
+    {
+      "Description": "Row Response Timeout",
+      "LinkedTagId": 53.0
     }
   ]
 }
