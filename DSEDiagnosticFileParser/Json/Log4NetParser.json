@@ -1086,7 +1086,7 @@
         ]
       },
       "ParseThreadId": null,
-      "EventType": "SessionBegin",
+      "EventType": "SessionBegin,SingleInstance",
       "EventClass": "NodeDetection, Change",
       "SubClass": null,
       "Product": "Cassandra",
