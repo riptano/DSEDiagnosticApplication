@@ -66,5 +66,9 @@
   "DropStats": {
     "AnalyticsGroup": "DropStats",
     "AggregateGroupFunctionName": "DropStats"
+  },
+  "SolrExpiredStats": {
+    "AnalyticsGroup": "SolrExpiredStats",
+    "AggregateGroupFunctionName": "SolrExpiredStats"
   }
 }

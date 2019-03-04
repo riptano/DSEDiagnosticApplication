@@ -1032,6 +1032,20 @@ namespace DSEDiagnosticAnalytics
                                         new IEnumerable<decimal>[] { drpLatInternal, drpLatCrossNode });
         }
 
+        public static LogEventGrouping SolrExpiredStats(ref LogEventGroup logEventGroup, string analyticsGroup, IEnumerable<ILogEvent> assocatedLogEvents)
+        {
+            var fndRows = assocatedLogEvents.Select(i => i.LogProperties.GetPropLongValue("fndrows")).Where(i => i > 0);
+            var expiredDocs = assocatedLogEvents.Select(i => i.LogProperties.GetPropLongValue("expireddocs")).Where(i => i > 0);
+            var fndRowDurations = assocatedLogEvents.Select(i => i.LogProperties.GetPropUOMValue("fndrowsduration", UnitOfMeasure.Types.MS)).Where(i => i > 0);
+            var expiredDocDurations = assocatedLogEvents.Select(i => i.LogProperties.GetPropUOMValue("expireddocsduration", UnitOfMeasure.Types.MS)).Where(i => i > 0);
+
+            return new LogEventGrouping(ref logEventGroup,
+                                        assocatedLogEvents,
+                                        LogEventGrouping.GroupingTypes.SolrExpiredStats,
+                                        new IEnumerable<long>[] { fndRows, expiredDocs },
+                                        new IEnumerable<decimal>[] { fndRowDurations, expiredDocDurations });
+        }
+
     }
 
     public struct LogEventGroup
@@ -1232,7 +1246,8 @@ namespace DSEDiagnosticAnalytics
             MaximumMemoryUsageReachedStats,
             FreeDeviceStorageStats,
             CompactionInsufficientSpaceStats,
-            DropStats
+            DropStats,
+            SolrExpiredStats
         }
 
         public static IEnumerable<LogEventGrouping> CreateLogEventGrouping(LogEventGroup logEventGroup, IEnumerable<ILogEvent> assocatedLogEvents)
@@ -1394,6 +1409,15 @@ namespace DSEDiagnosticAnalytics
                                                 decimalAggreations[0],
                                                 decimalAggreations[1]);
                     this.HasValue = forceHasValue ? true : this.DropStats.HasValue;
+                    break;
+                case GroupingTypes.SolrExpiredStats:
+                    this.GroupKey = groupKey;
+                    this.DurationStats = new DurationStatItems(assocatedLogEvents);
+                    this.SolrExpiredStats = new SolrExpired(longAggreations[0],
+                                                                longAggreations[1],
+                                                                decimalAggreations[0],
+                                                                decimalAggreations[1]);
+                    this.HasValue = forceHasValue ? true : (this.DurationStats?.HasValue ?? false) || this.SolrExpiredStats.HasValue;
                     break;
                 default:
                     break;
@@ -1954,5 +1978,41 @@ namespace DSEDiagnosticAnalytics
         }
 
         public readonly Drops DropStats;
+
+        public sealed class SolrExpired
+        {
+            public SolrExpired(IEnumerable<long> rowsFnd,
+                                IEnumerable<long> expiredDocs,
+                                IEnumerable<decimal> rowsFndDuration,
+                                IEnumerable<decimal> expiredDocsDuration)
+            {
+                var fndItems = rowsFnd == null ? expiredDocs : rowsFnd.Concat(expiredDocs);
+                var durationItems = rowsFndDuration == null ? rowsFndDuration : rowsFndDuration.Concat(expiredDocsDuration);
+
+                this.NbrFndExpiredDocs = new ItemStatsLong(fndItems);
+                this.FndExpiredDocsDuration = new ItemStatsDecimal(durationItems);
+
+                if(this.NbrFndExpiredDocs.HasValue && this.FndExpiredDocsDuration.HasValue)
+                {
+                    this.FndExpiredOPS = new ItemStatsDecimal(fndItems.Select(durationItems, (fnd, dur) => dur == 0m ? 0m : (decimal)fnd / (dur / 1000m)));
+                }
+                    
+                if (this.NbrFndExpiredDocs.HasValue)
+                    this.UOM = "Found&Expired";
+                if (this.FndExpiredOPS.HasValue)
+                    this.UOM = string.IsNullOrEmpty(this.UOM) ? "Found&Expired/sec" : this.UOM + ", Found&Expired/sec";
+                
+                this.HasValue = this.FndExpiredDocsDuration.HasValue || this.NbrFndExpiredDocs.HasValue;
+            }
+
+            public readonly bool HasValue;            
+            public readonly ItemStatsLong NbrFndExpiredDocs;
+            public readonly ItemStatsDecimal FndExpiredDocsDuration;
+            public readonly ItemStatsDecimal FndExpiredOPS;
+
+            public readonly string UOM;
+        }
+
+        public readonly SolrExpired SolrExpiredStats;
     }
 }

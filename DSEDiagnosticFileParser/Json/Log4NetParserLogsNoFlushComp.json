@@ -200,6 +200,26 @@
     {
       "Description": "RejectedExecutionException",
       "LinkedTagId": 47.0
+    },
+    {
+      "Description": "Solr Fnd expired columns",
+      "LinkedTagId": 48.0
+    },
+    {
+      "Description": "Solr soft commit",
+      "LinkedTagId": 48.1
+    },
+    {
+      "Description": "Solr Expired Columns",
+      "LinkedTagId": 48.2
+    },
+    {
+      "Description": "Cannot send response",
+      "LinkedTagId": 49.0
+    },
+    {
+      "Description": "Terminating pending requests Client",
+      "LinkedTagId": 50.0
     }
   ]
 }

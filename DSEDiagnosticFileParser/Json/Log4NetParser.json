@@ -3169,6 +3169,204 @@
       "Examples": [
         "ERROR [MessagingService-Incoming-/10.95.19.147] 2018-10-10 04:07:59,166  MessagingService.java:825 - java.util.concurrent.RejectedExecutionException while receiving HINTS.HINT from /10.95.19.147, caused by: Too many pending remote requests!"
       ]
+    },
+    {
+      "Description": "Solr Fnd expired columns",
+      "TagId": 48.0,
+      "MatchVersion": null,
+      "LevelMatch": {
+        "RegExStrings": [
+          "INFO"
+        ]
+      },
+      "ThreadIdMatch": null,
+      "FileNameMatch": {
+        "RegExStrings": [
+          "^AbstractSolrSecondaryIndex.java$"
+        ]
+      },
+      "FileLineMatch": null,
+      "MessageMatch": {
+        "RegExStrings": [
+          "^Found\\s"
+        ]
+      },
+      "ParseMessage": {
+        "RegExStrings": [
+          "^Found\\s+(?<fndrows>[0-9,]+)\\s+(?<item>\\w+)\\s+with\\s+(?<item1>\\w+\\s+\\w+)\\s+in\\s+(?<fndrowsduration_MS>[0-9,.]+\\s*\\w+)\\s+for\\s+\\w+\\s+(?$<DDLITEMNAME>)"
+        ]
+      },
+      "ParseThreadId": null,
+      "EventType": "SessionBegin",
+      "EventClass": "SolrExpiredCols",
+      "SubClass": "item + ' ' + item2",
+      "AssociateEventToNode": false,
+      "Product": "Search",
+      "SessionKey": "ThreadId + DDLITEMNAME",
+      "SessionKeyAction": "Add",
+      "SessionLookup": null,
+      "Examples": [
+        "=> INFO  [Solr TTL scheduler-0] 2019-03-02 10:04:10,587  AbstractSolrSecondaryIndex.java:1760 - Found 107 rows with expired columns in 1 milliseconds for core click_list_search.most_recent_sub_orders",
+        "INFO  [Solr TTL scheduler-0] 2019-03-02 10:04:10,588  AbstractSolrSecondaryIndex.java:1272 - Executing soft commit on index click_list_search.most_recent_sub_orders",
+        "INFO  [Solr TTL scheduler-0] 2019-03-02 10:04:10,596  AbstractSolrSecondaryIndex.java:1797 - Expired 107 documents in 8 milliseconds for core click_list_search.most_recent_sub_orders"
+      ]
+    },
+    {
+      "Description": "Solr soft commit",
+      "TagId": 48.1,
+      "MatchVersion": null,
+      "LevelMatch": {
+        "RegExStrings": [
+          "INFO"
+        ]
+      },
+      "ThreadIdMatch": null,
+      "FileNameMatch": {
+        "RegExStrings": [
+          "^AbstractSolrSecondaryIndex.java$"
+        ]
+      },
+      "FileLineMatch": null,
+      "MessageMatch": {
+        "RegExStrings": [
+          "^Executing\\s+soft\\s+commit\\s"
+        ]
+      },
+      "ParseMessage": {
+        "RegExStrings": [
+          "^Executing\\s+(?<SUBCLASS>soft\\s+commit)\\s+\\w+\\s+index\\s+(?$<DDLITEMNAME>)"
+        ]
+      },
+      "ParseThreadId": null,
+      "EventType": "SessionBeginOrItem",
+      "EventClass": "SolrExpiredCols",
+      "SubClass": null,
+      "AssociateEventToNode": false,
+      "LogPropertySessionMerge": true,
+      "Product": "Search",
+      "SessionKey": "ThreadId + DDLITEMNAME",
+      "SessionKeyAction": "Read",
+      "SessionLookup": null,
+      "Examples": [
+        "INFO  [Solr TTL scheduler-0] 2019-03-02 10:04:10,587  AbstractSolrSecondaryIndex.java:1760 - Found 107 rows with expired columns in 1 milliseconds for core click_list_search.most_recent_sub_orders",
+        "=> INFO  [Solr TTL scheduler-0] 2019-03-02 10:04:10,588  AbstractSolrSecondaryIndex.java:1272 - Executing soft commit on index click_list_search.most_recent_sub_orders",
+        "INFO  [Solr TTL scheduler-0] 2019-03-02 10:04:10,596  AbstractSolrSecondaryIndex.java:1797 - Expired 107 documents in 8 milliseconds for core click_list_search.most_recent_sub_orders"
+      ]
+    },
+    {
+      "Description": "Solr Expired Columns",
+      "TagId": 48.2,
+      "MatchVersion": null,
+      "LevelMatch": {
+        "RegExStrings": [
+          "INFO"
+        ]
+      },
+      "ThreadIdMatch": null,
+      "FileNameMatch": {
+        "RegExStrings": [
+          "^AbstractSolrSecondaryIndex.java$"
+        ]
+      },
+      "FileLineMatch": null,
+      "MessageMatch": {
+        "RegExStrings": [
+          "^Expired\\s"
+        ]
+      },
+      "ParseMessage": {
+        "RegExStrings": [
+          "^Expired\\s+(?<expireddocs>[0-9,]+)\\s+(?<item>\\w+)\\s+\\w+\\s+(?<expireddocsduration_MS>[0-9,.]+\\s*\\w+)\\s+\\w+\\s+core\\s+(?$<DDLITEMNAME>)"
+        ]
+      },
+      "ParseThreadId": null,
+      "EventType": "SessionEnd",
+      "EventClass": "SolrExpiredCols",
+      "SubClass": "'Expired ' + item",
+      "AssociateEventToNode": true,
+      "LogPropertySessionMerge": true,
+      "AnalyticsGroup": "SolrExpiredStats",
+      "Product": "Search",
+      "SessionKey": "ThreadId + DDLITEMNAME",
+      "SessionKeyAction": "ReadRemove",
+      "SessionLookup": null,
+      "Examples": [
+        "INFO  [Solr TTL scheduler-0] 2019-03-02 10:04:10,587  AbstractSolrSecondaryIndex.java:1760 - Found 107 rows with expired columns in 1 milliseconds for core click_list_search.most_recent_sub_orders",
+        "INFO  [Solr TTL scheduler-0] 2019-03-02 10:04:10,588  AbstractSolrSecondaryIndex.java:1272 - Executing soft commit on index click_list_search.most_recent_sub_orders",
+        "=> INFO  [Solr TTL scheduler-0] 2019-03-02 10:04:10,596  AbstractSolrSecondaryIndex.java:1797 - Expired 107 documents in 8 milliseconds for core click_list_search.most_recent_sub_orders"
+      ]
+    },
+    {
+      "Description": "Cannot send response",
+      "TagId": 49.0,
+      "MatchVersion": null,
+      "LevelMatch": {
+        "RegExStrings": [
+          "ERROR"
+        ]
+      },
+      "FileNameMatch": {
+        "RegExStrings": [
+          "^MessageServer.java$"
+        ]
+      },
+      "FileLineMatch": null,
+      "MessageMatch": {
+        "RegExStrings": [
+          "^Cannot\\s+send\\s+response\\s"
+        ]
+      },
+      "ParseMessage": {
+        "RegExStrings": [
+          "^Cannot\\s+send\\s+response\\s+to\\s+(?$<NODE>)\\s+due\\s+to\\s+(?<SUBCLASS>[^!.]+)"
+        ]
+      },
+      "ParseThreadId": null,
+      "EventType": "SingleInstance",
+      "EventClass": "Detection,Node,Close,Network",
+      "AnalyticsGroup": null,
+      "SubClass": null,
+      "Product": "Cassandra",
+      "IgnoreEvent": false,
+      "Examples": [
+        "ERROR [RemoteMessageServer query worker - 47] 2019-03-02 12:10:59,766  MessageServer.java:319 - Cannot send response to null due to closed channel!"
+      ]
+    },
+    {
+      "Description": "Terminating pending requests Client",
+      "TagId": 50.0,
+      "MatchVersion": null,
+      "LevelMatch": {
+        "RegExStrings": [
+          "INFO"
+        ]
+      },
+      "FileNameMatch": {
+        "RegExStrings": [
+          "^ClientServerConnection.java$"
+        ]
+      },
+      "FileLineMatch": null,
+      "MessageMatch": {
+        "RegExStrings": [
+          "^Terminating\\s+pending\\s+requests\\s"
+        ]
+      },
+      "ParseMessage": {
+        "RegExStrings": [
+          "^Terminating\\s+pending\\s+requests\\s+towards:?\\s+(?$<NODE>)"
+        ]
+      },
+      "ParseThreadId": null,
+      "EventType": "SingleInstance",
+      "EventClass": "Detection,Node,Terminate,Requests",
+      "AnalyticsGroup": null,
+      "SubClass": "'Terminating Client Requests'",
+      "Product": "Cassandra",
+      "IgnoreEvent": false,
+      "Examples": [
+        "INFO  [RemoteMessageClient worker-7-11] 2019-03-02 12:11:01,971  ClientServerConnection.java:269 - Terminating pending requests towards: /10.2.144.155:8609"
+      ]
     }
   ]
     }

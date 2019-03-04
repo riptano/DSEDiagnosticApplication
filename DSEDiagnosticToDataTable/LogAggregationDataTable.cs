@@ -679,6 +679,29 @@ namespace DSEDiagnosticToDataTable
 
                             unitOfMeasure += analyticsGrp.DropStats.UOM + ',';
                         }
+
+                        if (analyticsGrp.SolrExpiredStats != null && analyticsGrp.SolrExpiredStats.HasValue)
+                        {
+
+                            if (analyticsGrp.SolrExpiredStats.NbrFndExpiredDocs.HasValue)
+                            {
+                                dataRow.SetField(Columns.CountMax, analyticsGrp.SolrExpiredStats.NbrFndExpiredDocs.Max);
+                                dataRow.SetField(Columns.CountMin, analyticsGrp.SolrExpiredStats.NbrFndExpiredDocs.Min);
+                                dataRow.SetField(Columns.CountMean, analyticsGrp.SolrExpiredStats.NbrFndExpiredDocs.Mean);
+                                dataRow.SetField(Columns.CountStdDevp, analyticsGrp.SolrExpiredStats.NbrFndExpiredDocs.StdDev);
+                                dataRow.SetField(Columns.CountTotal, analyticsGrp.SolrExpiredStats.NbrFndExpiredDocs.Sum);
+                            }
+
+                            if (analyticsGrp.SolrExpiredStats.FndExpiredOPS.HasValue)
+                            {
+                                dataRow.SetField(Columns.OPSMax, analyticsGrp.SolrExpiredStats.FndExpiredOPS.Max);
+                                dataRow.SetField(Columns.OPSMin, analyticsGrp.SolrExpiredStats.FndExpiredOPS.Min);
+                                dataRow.SetField(Columns.OPSMean, analyticsGrp.SolrExpiredStats.FndExpiredOPS.Mean);
+                                dataRow.SetField(Columns.OPSStdDevp, analyticsGrp.SolrExpiredStats.FndExpiredOPS.StdDev);                                
+                            }
+
+                            unitOfMeasure += analyticsGrp.SolrExpiredStats.UOM + ',';
+                        }
                     }
 
                     dataRow.SetField(Columns.UOM, unitOfMeasure.TrimEnd(','));
