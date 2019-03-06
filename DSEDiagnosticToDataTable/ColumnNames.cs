@@ -29,6 +29,7 @@ namespace DSEDiagnosticToDataTable
         public const string Keyspaces = "Keyspaces";
         public const string Machine = "Servers";
         public const string Node = "Nodes";
+        public const string NodeState = "NodeState";
         public const string DataCenters = "DataCenters";
         public const string TokenRanges = "TokenRanges";
         public const string CFStats = "CFStats";

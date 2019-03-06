@@ -533,5 +533,14 @@ namespace DSEDiagnosticLibrary.Properties {
                 return ((ulong)(this["AnalyticsAttrChar"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("04:00:00")]
+        public global::System.TimeSpan NodeDetectedLongPuaseThreshold {
+            get {
+                return ((global::System.TimeSpan)(this["NodeDetectedLongPuaseThreshold"]));
+            }
+        }
     }
 }

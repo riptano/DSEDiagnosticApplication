@@ -495,6 +495,21 @@ namespace DataTableToExcel
             return dataColumn;
         }
 
+        public static DataColumn HideColumn(this DataColumn dataColumn, bool remove = false)
+        {
+            if (dataColumn.ExtendedProperties.ContainsKey("ColumnHide"))
+            {
+                if (remove)
+                    dataColumn.ExtendedProperties.Remove("ColumnHide");
+                else
+                    dataColumn.ExtendedProperties["ColumnHide"] = true;
+            }
+            else if (!remove)
+                dataColumn.ExtendedProperties.Add("ColumnHide", true);
+
+            return dataColumn;
+        }
+        
         static public void UpdateWorksheet(this OfficeOpenXml.ExcelWorksheet workSheet, DataTable dataTable, int wsHeaderRow)
         {
             var lastRow = workSheet.Dimension.End.Row;
@@ -629,6 +644,10 @@ namespace DataTableToExcel
                             if(colWidth >= 0)
                                 workSheet.Column(dataColumn.Ordinal + 1).Width = colWidth;
                         }
+                        else if (key == "ColumnHide")
+                        {
+                            workSheet.Column(dataColumn.Ordinal + 1).Hidden = true;
+                        }                        
                         else if (key == "Comment")
                         {
                             var hdrComment = (string)dataColumn.ExtendedProperties["Comment"];

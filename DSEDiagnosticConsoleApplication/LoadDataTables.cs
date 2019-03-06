@@ -73,7 +73,8 @@ namespace DSEDiagnosticConsoleApplication
                     new DSEDiagnosticToDataTable.DSEDevicesDataTable(cluster, cancellationSource, sessionGuid),
                     new DSEDiagnosticToDataTable.DataCenterDataTable(cluster, cancellationSource, sessionGuid),
                     new DSEDiagnosticToDataTable.LogInfoDataTable(cluster, null, cancellationSource, sessionGuid),
-                    new DSEDiagnosticToDataTable.NodeDataTable(cluster, cancellationSource, sessionGuid)
+                    new DSEDiagnosticToDataTable.NodeDataTable(cluster, cancellationSource, sessionGuid),
+                    new DSEDiagnosticToDataTable.NodeStateDataTable(cluster, cancellationSource, sessionGuid)
                 };
 
                 loadDataTables.ForEach(ldtInstance =>

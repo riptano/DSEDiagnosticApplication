@@ -70,6 +70,8 @@ namespace DSEDiagtnosticToExcel
                                                                     this.LoadDefaultAttributes(workSheet);
                                                                 }
                                                                 workSheet.AutoFitColumn(workSheet.Cells["A1:Q1"]);
+
+                                                                workSheet.CreateExcelTable(this.DataTable);
                                                              },
                                                              -1,
                                                             -1,

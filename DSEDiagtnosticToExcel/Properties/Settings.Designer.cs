@@ -1758,5 +1758,14 @@ namespace DSEDiagtnosticToExcel.Properties {
                 return ((int)(this["RefreshWSAttrColumn"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("[>=32] 0.00 \"days\";[<1]  [hh]:mm:ss.000;d hh:mm:ss")]
+        public string ExcelTimeSpanSecsFormat {
+            get {
+                return ((string)(this["ExcelTimeSpanSecsFormat"]));
+            }
+        }
     }
 }

@@ -2279,5 +2279,48 @@ namespace DataTableToExcel
                                                         DataTableHelpers.ExcelTranslateColumnFromColOrdinaltoLetter(dtCol2.Ordinal))];
         }
 
+        static public void CreateExcelTable(this ExcelWorksheet excelWorkSheet, DataTable dataTable, string tableName = null, ExcelRange excelRange = null)
+        {
+            if (tableName == null) tableName = dataTable.TableName;
+
+            var table = excelWorkSheet.Tables.FirstOrDefault(t => t.Name == tableName);
+            var rowCnt = dataTable.Rows.Count;
+
+            if (rowCnt == 0)
+            {
+                rowCnt = 1;
+            }
+            else
+            {
+                rowCnt = excelWorkSheet.Dimension.End.Row;
+
+                if (rowCnt == 0)
+                {
+                    rowCnt = dataTable.Rows.Count + 1;
+                }
+            }
+
+            if (table == null)
+            {
+                using (var tblRange = excelRange ?? excelWorkSheet.Cells[string.Format("A1:{0}{1}",
+                                                                                        DataTableHelpers.ExcelTranslateColumnFromColOrdinaltoLetter(dataTable.Columns.Count-1),
+                                                                                        rowCnt + 2)])
+                {
+                    table = excelWorkSheet.Tables.Add(tblRange, tableName);
+
+                    table.ShowFilter = true;
+                    table.ShowHeader = true;
+                    table.TableStyle = OfficeOpenXml.Table.TableStyles.Light21;
+                }
+            }
+            else
+            {
+                var oldaddy = table.Address;
+                var newaddy = new ExcelAddressBase(oldaddy.Start.Row, oldaddy.Start.Column, rowCnt + 2, oldaddy.End.Column);
+
+                //Edit the raw XML by searching for all references to the old address
+                table.TableXml.InnerXml = table.TableXml.InnerXml.Replace(oldaddy.ToString(), newaddy.ToString());
+            }
+        }
     }
 }

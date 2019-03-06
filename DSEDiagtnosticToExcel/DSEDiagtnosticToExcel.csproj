@@ -70,6 +70,7 @@
     <Compile Include="MultiInstanceExcel.cs" />
     <Compile Include="NodeConfigChangesExcel.cs" />
     <Compile Include="DataCenterExcel.cs" />
+    <Compile Include="NodeStateExcel.cs" />
     <Compile Include="RefreshWSExcel.cs" />
     <Compile Include="TaggedItemsExcel.cs" />
     <Compile Include="TPStatsExcel.cs" />

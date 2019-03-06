@@ -226,5 +226,8 @@
     <Setting Name="AnalyticsAttrChar" Type="System.UInt64" Scope="Application">
       <Value Profile="(Default)">42222</Value>
     </Setting>
+    <Setting Name="NodeDetectedLongPuaseThreshold" Type="System.TimeSpan" Scope="Application">
+      <Value Profile="(Default)">04:00:00</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

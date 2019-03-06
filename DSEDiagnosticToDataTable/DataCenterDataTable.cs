@@ -49,6 +49,16 @@ namespace DSEDiagnosticToDataTable
                             .AllowDBNull();
             dtDCInfo.Columns.Add("Status Unknown", typeof(long))
                             .AllowDBNull();
+            dtDCInfo.Columns.Add("Status Starts", typeof(long))
+                           .AllowDBNull();
+            dtDCInfo.Columns.Add("Status Restarts", typeof(long))
+                           .AllowDBNull();
+            dtDCInfo.Columns.Add("Long Down Pause", typeof(long))
+                           .AllowDBNull();            
+            dtDCInfo.Columns.Add("Status Not Responding", typeof(long))
+                           .AllowDBNull();
+            dtDCInfo.Columns.Add("Status Dead", typeof(long))
+                           .AllowDBNull();
 
             dtDCInfo.Columns.Add("DSE Version", typeof(string))
                             .AllowDBNull();
@@ -326,6 +336,36 @@ namespace DSEDiagnosticToDataTable
                             dataRow.SetField("Status Up", nbrUp);
                             dataRow.SetField("Status Down", nbrDown);
                             dataRow.SetField("Status Unknown", totNodes - (nbrUp + nbrDown));
+
+                            var dcStates = dcNodes.Select(n => new
+                            {
+                                NbrStarts = n.StateChanges.Count(s => (s.State & NodeStateChange.DetectedStates.Started) == NodeStateChange.DetectedStates.Started
+                                                                        && s.State != NodeStateChange.DetectedStates.Restarted),
+                                NbrRestarts = n.StateChanges.Count(s => s.State == NodeStateChange.DetectedStates.Restarted),
+                                NbrLngPauses = n.StateChanges.Count(s => (s.State & NodeStateChange.DetectedStates.LongPuase) == NodeStateChange.DetectedStates.LongPuase),
+                                NbrNotResponding = n.StateChanges.Count(s => (s.State & NodeStateChange.DetectedStates.NotResponding) == NodeStateChange.DetectedStates.NotResponding),
+                                NbrDead = n.StateChanges.Count(s => (s.State & NodeStateChange.DetectedStates.Dead) == NodeStateChange.DetectedStates.Dead)
+                            });
+
+                            var nbrStarts = dcStates.DefaultIfEmpty().Sum(s => s.NbrStarts);
+                            if (nbrStarts > 0)
+                                dataRow.SetField("Status Starts", nbrStarts);
+
+                            var nbrRestarts = dcStates.DefaultIfEmpty().Sum(s => s.NbrRestarts);
+                            if(nbrRestarts > 0)
+                                dataRow.SetField("Status Restarts", nbrRestarts);
+
+                            var nbrLngPauses = dcStates.DefaultIfEmpty().Sum(s => s.NbrLngPauses);
+                            if (nbrLngPauses > 0)
+                                dataRow.SetField("Long Down Pause", nbrLngPauses);
+
+                            var nbrNotRespondings = dcStates.DefaultIfEmpty().Sum(s => s.NbrNotResponding);
+                            if (nbrNotRespondings > 0)
+                                dataRow.SetField("Status Not Responding", nbrNotRespondings);
+
+                            var nbrDead = dcStates.DefaultIfEmpty().Sum(s => s.NbrDead);
+                            if (nbrDead > 0)
+                                dataRow.SetField("Status Dead", nbrDead);
                         }
 
                         {

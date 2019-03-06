@@ -101,6 +101,7 @@ namespace DSEDiagtnosticToExcel
                     .SetDBNull()
                     .SetNumericFormat("##0.00%")
                     .SetCaption("Percent")
+                    .SetComment("Total Percent Cells Read")
                     );            
 
             dtOverview.SetGroupHeader(string.Empty, -1, false,
@@ -112,7 +113,7 @@ namespace DSEDiagtnosticToExcel
                     .SetDBNull());
 
             dtOverview.SetGroupHeader("Informational", -2, true,
-               dtOverview.SetGroupHeader("Write", -1, true,
+               dtOverview.SetGroupHeader("Written", -1, true,
                     dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.WriteFactor, typeof(decimal))
                         .SetNumericFormat("#,###,###,##0.00")
                         .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor)
@@ -122,6 +123,7 @@ namespace DSEDiagtnosticToExcel
                         .SetDBNull()
                         .SetNumericFormat("##0.00%")
                         .SetCaption("Percent")
+                        .SetComment("Total Percent Cells Written")
                         ));
 
             dtOverview.SetGroupHeader("Influencer", -2, true,
@@ -387,6 +389,7 @@ namespace DSEDiagtnosticToExcel
                         .SetDBNull()
                         .SetNumericFormat("##0.00%")
                         .SetCaption("Percent")
+                        .SetComment("Total Percent Cells Read")
                         ),
 
                 dtOverview.SetGroupHeader("SSTable", -1, true,
@@ -602,8 +605,9 @@ namespace DSEDiagtnosticToExcel
                         .SetDBNull()
                         .SetNumericFormat("##0.00%")
                         .SetCaption("Percent")
+                        .SetComment("Total Percent Cells Read")
                         ),            
-                    dtOverview.SetGroupHeader("Write", -1, true,
+                    dtOverview.SetGroupHeader("Written", -1, true,
                         dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.WriteFactor, typeof(decimal))
                             .SetNumericFormat("#,###,###,##0.00")
                             .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor)
@@ -613,6 +617,7 @@ namespace DSEDiagtnosticToExcel
                             .SetDBNull()
                             .SetNumericFormat("##0.00%")
                             .SetCaption("Percent")
+                            .SetComment("Total Percent Cells Written")
                             ),
                     dtOverview.SetGroupHeader(string.Empty, -1, false,
                         dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.TombstoneRatioFactor, typeof(decimal))
@@ -817,7 +822,8 @@ namespace DSEDiagtnosticToExcel
                 dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.TombstonesRead, typeof(long))
                     .SetNumericFormat("#,###,###,##0")
                     .SetDBNull()
-                    .SetCaption("Read"),
+                    .SetCaption("Tombstones")
+                    .SetComment("Tomstones Read"),
                 dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.LiveRead, typeof(long))
                     .SetNumericFormat("#,###,###,##0")
                     .SetDBNull()
@@ -843,9 +849,10 @@ namespace DSEDiagtnosticToExcel
                         .SetDBNull()
                         .SetNumericFormat("##0.00%")
                         .SetCaption("Percent")
+                        .SetComment("Total Percent Cells Read")
                         ),
                 
-                dtOverview.SetGroupHeader("Write", -1, true,
+                dtOverview.SetGroupHeader("Written", -1, true,
                     dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.WriteFactor, typeof(decimal))
                         .SetNumericFormat("#,###,###,##0.00")
                         .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor)
@@ -855,6 +862,7 @@ namespace DSEDiagtnosticToExcel
                         .SetDBNull()
                         .SetNumericFormat("##0.00%")
                         .SetCaption("Percent")
+                        .SetComment("Total Percent Cells Written")
                         ),
                  dtOverview.SetGroupHeader(string.Empty, -1, false,
                     dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.SSTablesFactor, typeof(decimal))
@@ -1092,9 +1100,10 @@ namespace DSEDiagtnosticToExcel
                         .SetDBNull()
                         .SetNumericFormat("##0.00%")
                         .SetCaption("Percent")
+                        .SetComment("Total Percent Cells Read")
                         ),
                
-                dtOverview.SetGroupHeader("Write", -1, true,
+                dtOverview.SetGroupHeader("Written", -1, true,
                     dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.WriteFactor, typeof(decimal))
                         .SetNumericFormat("#,###,###,##0.00")
                         .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor)
@@ -1104,6 +1113,7 @@ namespace DSEDiagtnosticToExcel
                         .SetDBNull()
                         .SetNumericFormat("##0.00%")
                         .SetCaption("Percent")
+                        .SetComment("Total Percent Cells Written")
                         ),
                 dtOverview.SetGroupHeader(string.Empty, -1, false,
                     dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.TombstoneRatioFactor, typeof(decimal))
@@ -1528,42 +1538,7 @@ namespace DSEDiagtnosticToExcel
 
                                                              workSheet.AutoFitColumn(sourceDataTable);
 
-                                                             var tableName = wsName + "Table";
-                                                             var table = workSheet.Tables.FirstOrDefault(t => t.Name == tableName);
-                                                             var rowCnt = sourceDataTable.Rows.Count;
-
-                                                             if (rowCnt == 0)
-                                                             {
-                                                                 rowCnt = 1;
-                                                             }
-                                                             else
-                                                             {
-                                                                 rowCnt = workSheet.Dimension.End.Row;
-                                                             }
-
-                                                             if (table == null)
-                                                             {
-                                                                 using (var tblRange = workSheet.TranslaateToColumnRange(sourceDataTable,
-                                                                                                                            DSEDiagnosticToDataTable.ColumnNames.KeySpace,
-                                                                                                                            DSEDiagnosticToDataTable.ColumnNames.ReconciliationRef,
-                                                                                                                            1,
-                                                                                                                            rowCnt + 2))
-                                                                 {
-                                                                     table = workSheet.Tables.Add(tblRange, tableName);
-
-                                                                     table.ShowFilter = true;
-                                                                     table.ShowHeader = true;
-                                                                     //table.TableStyle = OfficeOpenXml.Table.TableStyles.Light21;
-                                                                 }
-                                                             }
-                                                             else
-                                                             {
-                                                                 var oldaddy = table.Address;
-                                                                 var newaddy = new ExcelAddressBase(oldaddy.Start.Row, oldaddy.Start.Column, rowCnt + 2, oldaddy.End.Column);
-
-                                                                 //Edit the raw XML by searching for all references to the old address
-                                                                 table.TableXml.InnerXml = table.TableXml.InnerXml.Replace(oldaddy.ToString(), newaddy.ToString());
-                                                             }
+                                                             workSheet.CreateExcelTable(this.DataTable, wsName + "Table");                                                            
                                                          },
                                                          -1,
                                                         -1,

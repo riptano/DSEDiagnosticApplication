@@ -622,6 +622,155 @@ namespace DSEDiagnosticAnalytics
                 gcStat.Item2.TestAddEvent(eventArgs.LogEvent);
             }
 
+            if ((eventArgs.LogEvent.Class & EventClasses.Pause) == EventClasses.Pause
+                    && (eventArgs.LogEvent.Class & EventClasses.GC) == EventClasses.GC
+                    && ((eventArgs.LogEvent.Type & EventTypes.SessionEnd) == EventTypes.SessionEnd
+                            || (eventArgs.LogEvent.Type & EventTypes.SingleInstance) == EventTypes.SingleInstance))
+            {
+                if (eventArgs.LogEvent.AssociatedNodes != null && eventArgs.LogEvent.AssociatedNodes.HasAtLeastOneElement())
+                {
+                    foreach (var targetNode in eventArgs.LogEvent.AssociatedNodes)
+                    {
+                        var nodeState = new DSEDiagnosticLibrary.NodeStateChange(NodeStateChange.DetectedStates.GCPause,
+                                                                                    eventArgs.LogEvent.EventTime,
+                                                                                    eventArgs.LogEvent.EventTimeLocal,
+                                                                                    eventArgs.LogEvent.Node,
+                                                                                    eventArgs.LogEvent.Duration);
+                        targetNode.AssociateItem(nodeState);
+                    }
+                }
+                else
+                {
+                    var nodeState = new DSEDiagnosticLibrary.NodeStateChange(NodeStateChange.DetectedStates.GCPause,
+                                                                                    eventArgs.LogEvent.EventTime,
+                                                                                    eventArgs.LogEvent.EventTimeLocal,
+                                                                                    duration: eventArgs.LogEvent.Duration);
+                    eventArgs.LogEvent.Node.AssociateItem(nodeState);
+                }
+            }
+            else if ((eventArgs.LogEvent.Class & EventClasses.Change) == EventClasses.Change
+                        && !string.IsNullOrEmpty(eventArgs.LogEvent.SubClass))
+            {
+                if (eventArgs.LogEvent.SubClass.StartsWith("shutdown", StringComparison.OrdinalIgnoreCase)
+                            || eventArgs.LogEvent.SubClass.StartsWith("startup", StringComparison.OrdinalIgnoreCase))
+                {
+                    var nodeChangeState = eventArgs.LogEvent.SubClass.StartsWith("startup", StringComparison.OrdinalIgnoreCase)
+                                            ? NodeStateChange.DetectedStates.Started
+                                            : NodeStateChange.DetectedStates.Shutdown;
+                    var eventDuration = eventArgs.LogEvent.Duration;
+
+                    if ((nodeChangeState & NodeStateChange.DetectedStates.Started) == NodeStateChange.DetectedStates.Started
+                            && (eventArgs.LogEvent.Type & EventTypes.SessionEnd) == EventTypes.SessionEnd
+                            && eventDuration.HasValue)
+                    {
+                        nodeChangeState = NodeStateChange.DetectedStates.Restarted;
+                    }
+                    else
+                    {
+                        eventDuration = null;
+                    }
+
+                    if (eventArgs.LogEvent.AssociatedNodes != null && eventArgs.LogEvent.AssociatedNodes.HasAtLeastOneElement())
+                    {
+                        foreach (var targetNode in eventArgs.LogEvent.AssociatedNodes)
+                        {
+                            var nodeState = new DSEDiagnosticLibrary.NodeStateChange(nodeChangeState,
+                                                                                        eventArgs.LogEvent.EventTime,
+                                                                                        eventArgs.LogEvent.EventTimeLocal,
+                                                                                        eventArgs.LogEvent.Node,
+                                                                                        eventDuration);
+                            targetNode.AssociateItem(nodeState);
+                        }
+                    }
+                    else
+                    {
+                        var nodeState = new DSEDiagnosticLibrary.NodeStateChange(nodeChangeState,
+                                                                                    eventArgs.LogEvent.EventTime,
+                                                                                    eventArgs.LogEvent.EventTimeLocal,
+                                                                                    duration: eventDuration);
+                        eventArgs.LogEvent.Node.AssociateItem(nodeState);
+                    }
+                }
+                else if(eventArgs.LogEvent.SubClass.EndsWith(" DOWN", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (eventArgs.LogEvent.AssociatedNodes != null && eventArgs.LogEvent.AssociatedNodes.HasAtLeastOneElement())
+                    {
+                        foreach (var targetNode in eventArgs.LogEvent.AssociatedNodes)
+                        {
+                            var nodeState = new DSEDiagnosticLibrary.NodeStateChange(NodeStateChange.DetectedStates.Down,
+                                                                                        eventArgs.LogEvent.EventTime,
+                                                                                        eventArgs.LogEvent.EventTimeLocal,
+                                                                                        eventArgs.LogEvent.Node,
+                                                                                        eventArgs.LogEvent.Duration);
+                            targetNode.AssociateItem(nodeState);
+                        }
+                    }
+                }
+                else if (eventArgs.LogEvent.SubClass.EndsWith(" UP", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (eventArgs.LogEvent.AssociatedNodes != null && eventArgs.LogEvent.AssociatedNodes.HasAtLeastOneElement())
+                    {
+                        foreach (var targetNode in eventArgs.LogEvent.AssociatedNodes)
+                        {
+                            var nodeState = new DSEDiagnosticLibrary.NodeStateChange(NodeStateChange.DetectedStates.Up,
+                                                                                        eventArgs.LogEvent.EventTime,
+                                                                                        eventArgs.LogEvent.EventTimeLocal,
+                                                                                        eventArgs.LogEvent.Node,
+                                                                                        eventArgs.LogEvent.Duration);
+                            targetNode.AssociateItem(nodeState);
+                        }
+                    }
+                }
+            }
+            else if ((eventArgs.LogEvent.Class & EventClasses.TimeOut) == EventClasses.TimeOut
+                        && (eventArgs.LogEvent.Class & EventClasses.Row) == EventClasses.Row)
+            {
+                if (eventArgs.LogEvent.AssociatedNodes != null)
+                {
+                    foreach (var targetNode in eventArgs.LogEvent.AssociatedNodes)
+                    {
+                        var nodeState = new DSEDiagnosticLibrary.NodeStateChange(NodeStateChange.DetectedStates.NotResponding,
+                                                                                    eventArgs.LogEvent.EventTime,
+                                                                                    eventArgs.LogEvent.EventTimeLocal,
+                                                                                    eventArgs.LogEvent.Node,
+                                                                                    eventArgs.LogEvent.Duration);
+                        targetNode.AssociateItem(nodeState);
+                    }
+                }
+            }           
+            else if ((eventArgs.LogEvent.Class & EventClasses.Unavailable) == EventClasses.Unavailable
+                        && (eventArgs.LogEvent.Class & EventClasses.Node) == EventClasses.Node)
+            {
+                if (eventArgs.LogEvent.AssociatedNodes != null)
+                {
+                    foreach (var targetNode in eventArgs.LogEvent.AssociatedNodes)
+                    {
+                        var nodeState = new DSEDiagnosticLibrary.NodeStateChange(NodeStateChange.DetectedStates.NotResponding,
+                                                                                    eventArgs.LogEvent.EventTime,
+                                                                                    eventArgs.LogEvent.EventTimeLocal,
+                                                                                    eventArgs.LogEvent.Node,
+                                                                                    eventArgs.LogEvent.Duration);
+                        targetNode.AssociateItem(nodeState);
+                    }
+                }
+            }
+            else if ((eventArgs.LogEvent.Class & EventClasses.Shard) == EventClasses.Shard
+                        && (eventArgs.LogEvent.Class & EventClasses.NodeDetection) == EventClasses.NodeDetection
+                        && eventArgs.LogEvent.SubClass.EndsWith(" dead", StringComparison.OrdinalIgnoreCase))
+            {
+                if (eventArgs.LogEvent.AssociatedNodes != null)
+                {
+                    foreach (var targetNode in eventArgs.LogEvent.AssociatedNodes)
+                    {
+                        var nodeState = new DSEDiagnosticLibrary.NodeStateChange(NodeStateChange.DetectedStates.Dead,
+                                                                                    eventArgs.LogEvent.EventTime,
+                                                                                    eventArgs.LogEvent.EventTimeLocal,
+                                                                                    eventArgs.LogEvent.Node,
+                                                                                    eventArgs.LogEvent.Duration);
+                        targetNode.AssociateItem(nodeState);
+                    }
+                }
+            }
         }
 
         public override IEnumerable<IAggregatedStats> ComputeStats()

@@ -622,6 +622,86 @@ namespace DSEDiagnosticLibrary
     }
 
     [JsonObject(MemberSerialization.OptOut)]
+    public sealed class NodeStateChange
+    {
+
+        public NodeStateChange(DetectedStates state,
+                                DateTimeOffset eventTime,
+                                DateTime eventTimeLocal,
+                                INode detectedByNode = null,
+                                TimeSpan? duration = null)
+        {
+            this.State = state;
+            this.EventTime = eventTime;
+            this.EventTimeLocal = eventTimeLocal;
+            this.DetectedByNode = detectedByNode;
+
+            if(duration.HasValue)
+            {
+                this.Duration = duration;
+                if (this.Duration.Value > LibrarySettings.NodeDetectedLongPuaseThreshold) this.State |= DetectedStates.LongPuase;
+            }
+        }
+
+        [Flags]
+        public enum DetectedStates
+        {
+            None = 0x0000,
+            Dead = 0x0001,
+            NotResponding = 0x0002,
+            Down = 0x0004,
+            Up = 0x0008,
+            Shutdown = 0x0010 | Down,            
+            Started = 0x0020 | Up,
+            Restarted = 0x0040 | Started,
+            GCPause = 0x0080 | NotResponding,
+            LongPuase = 0x1000
+        }
+
+        public Int16 SortOrder()
+        {
+            switch (this.State)
+            {
+                case DetectedStates.None:
+                    break;
+                case DetectedStates.Dead:
+                    return 3;                    
+                case DetectedStates.NotResponding:
+                    return 2;
+                case DetectedStates.Down:
+                    return 1;                    
+                case DetectedStates.Up:
+                    return 7;
+                case DetectedStates.Shutdown:
+                    return 0;
+                case DetectedStates.Started:
+                    return 6;
+                case DetectedStates.Restarted:
+                    return 5;
+                case DetectedStates.GCPause:
+                    return 4;
+                case DetectedStates.LongPuase:
+                    break;
+                default:
+                    break;
+            }
+
+            return 0;
+        }
+
+        public DetectedStates State { get; }
+        public DateTimeOffset EventTime { get; }
+        public DateTime EventTimeLocal { get; }
+
+        public TimeSpan? Duration { get; }
+
+        /// <summary>
+        /// If null, this event occurred on this node
+        /// </summary>
+        public INode DetectedByNode { get; }
+    }
+
+    [JsonObject(MemberSerialization.OptOut)]
 	public sealed class MachineInfo
 	{
         [JsonObject(MemberSerialization.OptOut)]
@@ -1117,8 +1197,11 @@ namespace DSEDiagnosticLibrary
 
         IEnumerable<LogFileInfo> LogFiles { get; }
         INode AssociateItem(LogFileInfo logFileInfo);
+        INode AssociateItem(NodeStateChange stateChange);
 
         IEnumerable<IConfigurationLine> Configurations { get; }
+
+        IEnumerable<NodeStateChange> StateChanges { get; }
 
         /// <summary>
         /// Will return the node&apos;s name and optionally include certain attributes 
@@ -1397,6 +1480,18 @@ namespace DSEDiagnosticLibrary
             {
                 return this.DataCenter.GetConfigurations(this);
             }
+        }
+
+        [JsonProperty(PropertyName = "StateChanges")]
+        private CTS.List<NodeStateChange> _stateChanges = new CTS.List<NodeStateChange>();
+
+        [JsonIgnore]
+        public IEnumerable<NodeStateChange> StateChanges { get { return this._stateChanges.UnSafe; } }
+
+        public INode AssociateItem(NodeStateChange stateChange)
+        {            
+            this._stateChanges.Add(stateChange);
+            return this;
         }
 
         public string NodeName(bool forceAttrs = false)

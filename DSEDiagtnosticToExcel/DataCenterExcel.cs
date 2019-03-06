@@ -65,56 +65,86 @@ namespace DSEDiagtnosticToExcel
                                                              },
                                                              workSheet =>
                                                              {
-                                                                 workSheet.Cells["1:3"].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.LightGray;
-                                                                 workSheet.Cells["1:3"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-                                                                 //workSheet.Cells["1:1"].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
+                                                             workSheet.Cells["1:3"].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.LightGray;
+                                                             workSheet.Cells["1:3"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                                                             //workSheet.Cells["1:1"].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
 
-                                                                 this.DataTable.GetColumn(DSEDiagnosticToDataTable.ColumnNames.DataCenter)
-                                                                                  .SetCaption("Name")
-                                                                                  .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDCNodeStatus);
+                                                             this.DataTable.GetColumn(DSEDiagnosticToDataTable.ColumnNames.DataCenter)
+                                                                              .SetCaption("Name")
+                                                                              .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDCNodeStatus);
 
-                                                                 this.DataTable.SetGroupHeader("Total", -1, false,
-                                                                    this.DataTable.GetColumn("Total Nodes")
-                                                                                     .SetCaption("Nodes")
-                                                                                     .SetNumericFormat("#,###,###,##0")
-                                                                                     .TotalColumn());
+                                                             this.DataTable.SetGroupHeader("Total", -1, false,
+                                                                this.DataTable.GetColumn("Total Nodes")
+                                                                                 .SetCaption("Nodes")
+                                                                                 .SetNumericFormat("#,###,###,##0")
+                                                                                 .TotalColumn());
 
-                                                                 this.DataTable.SetGroupHeader("Workload Types (Nodes)", -2, true,
-                                                                     this.DataTable.GetColumn("Cassandra")
-                                                                                     .SetNumericFormat("#,###,###,##0")
-                                                                                     .TotalColumn(),
-                                                                     this.DataTable.GetColumn("Search")
-                                                                                     .SetNumericFormat("#,###,###,##0")
-                                                                                     .TotalColumn(),
-                                                                     this.DataTable.GetColumn("Analytics")
-                                                                                     .SetNumericFormat("#,###,###,##0")
-                                                                                     .TotalColumn(),
-                                                                     this.DataTable.GetColumn("Graph")
-                                                                                     .SetNumericFormat("#,###,###,##0")
-                                                                                     .TotalColumn(),
-                                                                     this.DataTable.GetColumn("Multi-Instance")
-                                                                                     .SetNumericFormat("#,###,###,##0")
-                                                                                     .TotalColumn(),
-                                                                     this.DataTable.GetColumn("Other")
-                                                                                     .SetNumericFormat("#,###,###,##0")
-                                                                                     .TotalColumn()
-                                                                 );
+                                                             this.DataTable.SetGroupHeader("Workload Types (Nodes)", -2, true,
+                                                                 this.DataTable.GetColumn("Cassandra")
+                                                                                 .SetNumericFormat("#,###,###,##0")
+                                                                                 .TotalColumn(),
+                                                                 this.DataTable.GetColumn("Search")
+                                                                                 .SetNumericFormat("#,###,###,##0")
+                                                                                 .TotalColumn(),
+                                                                 this.DataTable.GetColumn("Analytics")
+                                                                                 .SetNumericFormat("#,###,###,##0")
+                                                                                 .TotalColumn(),
+                                                                 this.DataTable.GetColumn("Graph")
+                                                                                 .SetNumericFormat("#,###,###,##0")
+                                                                                 .TotalColumn(),
+                                                                 this.DataTable.GetColumn("Multi-Instance")
+                                                                                 .SetNumericFormat("#,###,###,##0")
+                                                                                 .TotalColumn(),
+                                                                 this.DataTable.GetColumn("Other")
+                                                                                 .SetNumericFormat("#,###,###,##0")
+                                                                                 .TotalColumn()
+                                                             );
 
-                                                                 this.DataTable.SetGroupHeader("Status (Nodes)", -2, true,
-                                                                     this.DataTable.GetColumn("Status Up")
-                                                                                     .SetCaption("Up")
-                                                                                     .SetNumericFormat("#,###,###,##0")
-                                                                                     .TotalColumn(),
-                                                                     this.DataTable.GetColumn("Status Down")
-                                                                                     .SetCaption("Down")
-                                                                                     .SetNumericFormat("#,###,###,##0")
-                                                                                     .TotalColumn()
-                                                                                     .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonNodeNbrStatusDown),
-                                                                     this.DataTable.GetColumn("Status Unknown")
-                                                                                     .SetCaption("Unknown")
-                                                                                     .SetNumericFormat("#,###,###,##0")
-                                                                                     .TotalColumn()
-                                                                                     .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonNodeNbrStatusUnkown)
+                                                             this.DataTable.SetGroupHeader("Status (Nodes)", -2, true,
+                                                                 this.DataTable.SetGroupHeader("Current", -1, false, 
+                                                                         this.DataTable.GetColumn("Status Up")
+                                                                                         .SetCaption("Up")
+                                                                                         .SetNumericFormat("#,###,###,##0")
+                                                                                         .TotalColumn(),
+                                                                         this.DataTable.GetColumn("Status Down")
+                                                                                         .SetCaption("Down")
+                                                                                         .SetNumericFormat("#,###,###,##0")
+                                                                                         .TotalColumn()
+                                                                                         .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonNodeNbrStatusDown),
+                                                                         this.DataTable.GetColumn("Status Unknown")
+                                                                                         .SetCaption("Unknown")
+                                                                                         .SetNumericFormat("#,###,###,##0")
+                                                                                         .TotalColumn()
+                                                                                         .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonNodeNbrStatusUnkown)),
+                                                                 this.DataTable.SetGroupHeader("Detected Occurrences", -1, true,
+                                                                         this.DataTable.GetColumn("Status Starts")
+                                                                                        .SetCaption("Starts")
+                                                                                        .SetComment("Start only occurrences, no corresponding shutdown")
+                                                                                        .SetNumericFormat("#,###,###,##0")
+                                                                                        .TotalColumn(),
+                                                                         this.DataTable.GetColumn("Status Restarts")
+                                                                                        .SetCaption("ReStart")
+                                                                                        .SetComment("Corresponding shutdown and restart occurrences")
+                                                                                        .SetNumericFormat("#,###,###,##0")
+                                                                                        .TotalColumn(),
+                                                                         this.DataTable.GetColumn("Long Down Pause")
+                                                                                        .SetCaption("Long")
+                                                                                        .SetComment("Number of occurrences where the amount of time between shutdown and restart exceed threshold")
+                                                                                        .SetNumericFormat("#,###,###,##0")
+                                                                                        .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonNodeNbrStatusDown)
+                                                                                        .TotalColumn(),                                                                               
+                                                                         this.DataTable.GetColumn("Status Not Responding")
+                                                                                        .SetCaption("Not Responding")
+                                                                                        .SetComment("Number of occurrences where nodes were not responding")
+                                                                                        .SetNumericFormat("#,###,###,##0")
+                                                                                        .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonNodeNbrStatusDown)
+                                                                                        .TotalColumn(),
+                                                                         this.DataTable.GetColumn("Status Dead")
+                                                                                        .SetCaption("Dead")
+                                                                                        .SetComment("Number of occurrences where nodes were detected as \"Dead\"")
+                                                                                        .SetNumericFormat("#,###,###,##0")
+                                                                                        .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonNodeNbrStatusDown)
+                                                                                        .TotalColumn())
                                                                      );
 
                                                                  this.DataTable.SetGroupHeader("DSE", -2, true,
