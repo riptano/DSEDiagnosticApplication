@@ -1256,12 +1256,7 @@
           "INFO"
         ]
       },
-      "ThreadIdMatch": {
-        "RegExStrings": [
-          "^MemtablePostFlush\\:",
-          "^StreamReceiveTask\\:"
-        ]
-      },
+      "ThreadIdMatch": null,
       "FileNameMatch": {
         "RegExStrings": [
           "^ColumnFamilyStore.java$",
@@ -1312,12 +1307,7 @@
           "INFO"
         ]
       },
-      "ThreadIdMatch": {
-        "RegExStrings": [
-          "^MemtablePostFlush\\:",
-          "^StreamReceiveTask\\:"
-        ]
-      },
+      "ThreadIdMatch": null,
       "FileNameMatch": {
         "RegExStrings": [
           "^AbstractSolrSecondaryIndex.java$"
@@ -1347,7 +1337,11 @@
         "INFO  [MemtablePostFlush:18247] 2017-05-12 23:20:52,570  ColumnFamilyStore.java:1006 - Flushing SecondaryIndex Cql3SolrSecondaryIndex{columnDefs=[ColumnDefinition{name=appownrtxt, type=org.apache.cassandra.db.marshal.UTF8Type, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_appownrtxt_index, indexType=CUSTOM}, ColumnDefinition{name=maxaudtcretddt, type=org.apache.cassandra.db.marshal.TimestampType, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_maxaudtcretddt_index, indexType=CUSTOM}, ColumnDefinition{name=dlrshporgid, type=org.apache.cassandra.db.marshal.LongType, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_dlrshporgid_index, indexType=CUSTOM}, ColumnDefinition{name=maxappasgnmtaudtdt, type=org.apache.cassandra.db.marshal.TimestampType, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_maxappasgnmtaudtdt_index, indexType=CUSTOM}, ColumnDefinition{name=chnlid, type=org.apache.cassandra.db.marshal.Int32Type, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_chnlid_index, indexType=CUSTOM}, ColumnDefinition{name=dcsnstatlkupid, type=org.apache.cassandra.db.marshal.Int32Type, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_dcsnstatlkupid_index, indexType=CUSTOM}, ColumnDefinition{name=appcretddt, type=org.apache.cassandra.db.marshal.TimestampType, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_appcretddt_index, indexType=CUSTOM}, ColumnDefinition{name=cntrtcretddt, type=org.apache.cassandra.db.marshal.TimestampType, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_cntrtcretddt_index, indexType=CUSTOM}, ColumnDefinition{name=appstatdt, type=org.apache.cassandra.db.marshal.TimestampType, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_appstatdt_index, indexType=CUSTOM}, ColumnDefinition{name=apprecvddt, type=org.apache.cassandra.db.marshal.TimestampType, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_apprecvddt_index, indexType=CUSTOM}, ColumnDefinition{name=hrflag, type=org.apache.cassandra.db.marshal.BooleanType, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_hrflag_index, indexType=CUSTOM}, ColumnDefinition{name=lobid, type=org.apache.cassandra.db.marshal.Int32Type, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_lobid_index, indexType=CUSTOM}, ColumnDefinition{name=cmtmentcd, type=org.apache.cassandra.db.marshal.UTF8Type, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_cmtmentcd_index, indexType=CUSTOM}, ColumnDefinition{name=cntrtrecvddt, type=org.apache.cassandra.db.marshal.TimestampType, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_cntrtrecvddt_index, indexType=CUSTOM}, ColumnDefinition{name=apptaskaudtdtfltr, type=org.apache.cassandra.db.marshal.SetType(org.apache.cassandra.db.marshal.TimestampType), kind=REGULAR, componentIndex=0, indexName=coafstatim_application_apptaskaudtdtfltr_index, indexType=CUSTOM}, ColumnDefinition{name=fundddt, type=org.apache.cassandra.db.marshal.TimestampType, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_fundddt_index, indexType=CUSTOM}, ColumnDefinition{name=dcsndt, type=org.apache.cassandra.db.marshal.TimestampType, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_dcsndt_index, indexType=CUSTOM}, ColumnDefinition{name=appstatlkupid, type=org.apache.cassandra.db.marshal.Int32Type, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_appstatlkupid_index, indexType=CUSTOM}, ColumnDefinition{name=maxapptaskaudtcretddt, type=org.apache.cassandra.db.marshal.TimestampType, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_maxapptaskaudtcretddt_index, indexType=CUSTOM}, ColumnDefinition{name=solr_query, type=org.apache.cassandra.db.marshal.UTF8Type, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_solr_query_index, indexType=CUSTOM}, ColumnDefinition{name=notecretddtfltr, type=org.apache.cassandra.db.marshal.TimestampType, kind=REGULAR, componentIndex=0, indexName=coafstatim_application_notecretddtfltr_index, indexType=CUSTOM}]}",
         "=>INFO  [MemtablePostFlush:18247] 2017-05-12 23:20:52,571  AbstractSolrSecondaryIndex.java:1133 - Executing hard commit on index coafstatim.application",
         "INFO  [MemtablePostFlush:18247] 2017-05-12 23:20:52,571  IndexWriter.java:3429 - commitInternalStart startTime=1494645652571",
-        "INFO  [MemtablePostFlush:18247] 2017-05-12 23:20:52,763  IndexWriter.java:3454 - commitInternalComplete duration=192 ms startTime=1494645652571"
+        "INFO  [MemtablePostFlush:18247] 2017-05-12 23:20:52,763  IndexWriter.java:3454 - commitInternalComplete duration=192 ms startTime=1494645652571",
+        "=>INFO  [MemtableFlushWriter:123922] 2019-03-02 06:28:07,325  AbstractSolrSecondaryIndex.java:1272 - Executing hard commit on index click_list_search.most_sub_orders_tracked",
+        "INFO  [MemtableFlushWriter:123922] 2019-03-02 06:28:07,325  IndexWriter.java:3476 - commitInternalStart startTime=1551526087325",
+        "INFO  [MemtableFlushWriter:123922] 2019-03-02 06:28:07,347  IndexWriter.java:3501 - commitInternalComplete duration=22 ms startTime=1551526087325"
+
       ]
     },
     {
@@ -1360,12 +1354,7 @@
           "INFO"
         ]
       },
-      "ThreadIdMatch": {
-        "RegExStrings": [
-          "^MemtablePostFlush\\:",
-          "^StreamReceiveTask\\:"
-        ]
-      },
+      "ThreadIdMatch": null,
       "FileNameMatch": {
         "RegExStrings": [
           "^IndexWriter.java$"
@@ -1409,12 +1398,7 @@
           "INFO"
         ]
       },
-      "ThreadIdMatch": {
-        "RegExStrings": [
-          "^MemtablePostFlush\\:",
-          "^StreamReceiveTask\\:"
-        ]
-      },
+      "ThreadIdMatch": null,
       "FileNameMatch": {
         "RegExStrings": [
           "^IndexWriter.java$"
