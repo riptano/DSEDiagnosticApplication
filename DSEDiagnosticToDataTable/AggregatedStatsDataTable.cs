@@ -128,74 +128,85 @@ namespace DSEDiagnosticToDataTable
                         }                                         
                     }
 
-                    foreach (var item in stat.Data)
+                    
+
+                    if (stat.Source == DSEDiagnosticLibrary.SourceTypes.CassandraLog)
                     {
-                        this.CancellationToken.ThrowIfCancellationRequested();
+                        var logAggData = new List<KeyValuePair<string,object>>();
+                        var logData = new List<KeyValuePair<string, object>>();
 
-                        if(item.Key == DSEDiagnosticLibrary.AggregatedStats.DCNotInKS)
+                        foreach (var item in stat.Data)
                         {
-                            continue;
-                        }
+                            this.CancellationToken.ThrowIfCancellationRequested();
 
-                        if (item.Key.StartsWith(DSEDiagnosticLibrary.AggregatedStats.Error))
-                        {
-                            if (item.Value is string strError)
-                            {                                
-                                dataRow = this.Table.NewRow();
-
-                                if (this.SessionId.HasValue) dataRow.SetField(ColumnNames.SessionId, this.SessionId.Value);
-
-                                dataRow.SetField(ColumnNames.Source, stat.Source.ToString());
-                                dataRow.SetField(ColumnNames.DataCenter, stat.DataCenter.Name);
-                                dataRow.SetField(ColumnNames.NodeIPAddress, stat.Node.NodeName());
-                                dataRow.SetField(ColumnNames.KeySpace, keyspaceName);
-                                dataRow.SetField("Type", stat.Class.ToString());
-
-                                if (stat.TableViewIndex != null)
+                            if (item.Key == DSEDiagnosticLibrary.AggregatedStats.DCNotInKS) continue;
+                             
+                            if(item.Value is string)
+                            {
+                                logAggData.Add(item);
+                            }
+                            else if(item.Value is System.Collections.IEnumerable valueCollection)
+                            {
+                                foreach(var valueItem in valueCollection)
                                 {
-                                    this.SetTableIndexInfo(dataRow, stat, warn);
+                                    if (valueItem is string)
+                                    {
+                                        logAggData.Add(new KeyValuePair<string, object>(item.Key, valueItem));
+                                    }
+                                    else
+                                    {
+                                        logData.Add(new KeyValuePair<string, object>(item.Key, valueItem));
+                                    }
                                 }
-
-                                dataRow.SetField("Attribute", item.Key);
-                                dataRow.SetField("Value", strError);
-
-                                this.Table.Rows.Add(dataRow);
-
-                                ++nbrItems;
                             }
                             else
                             {
-                                foreach (var strErrorItem in (IList<string>)item.Value)
-                                {
-                                    this.CancellationToken.ThrowIfCancellationRequested();
-
-                                    dataRow = this.Table.NewRow();
-
-                                    if (this.SessionId.HasValue) dataRow.SetField(ColumnNames.SessionId, this.SessionId.Value);
-
-                                    dataRow.SetField(ColumnNames.Source, stat.Source.ToString());
-                                    dataRow.SetField(ColumnNames.DataCenter, stat.DataCenter.Name);
-                                    dataRow.SetField(ColumnNames.NodeIPAddress, stat.Node.NodeName());
-                                    dataRow.SetField(ColumnNames.KeySpace, keyspaceName);
-                                    dataRow.SetField("Type", stat.Class.ToString());
-
-                                    if (stat.TableViewIndex != null)
-                                    {
-                                        this.SetTableIndexInfo(dataRow, stat, warn);
-                                    }
-
-                                    dataRow.SetField("Attribute", item.Key);
-                                    dataRow.SetField("Value", strErrorItem);
-
-                                    this.Table.Rows.Add(dataRow);
-
-                                    ++nbrItems;
-                                }
-                            }
-                            continue;
+                                logData.Add(item);
+                            }                            
                         }
 
-                        nbrItems += this.AddAggregatedDataRow(stat, warn, keyspaceName, item.Key, item.Value);
+                        if(logData.HasAtLeastOneElement())
+                        {
+                            foreach (var item in logData)
+                            {
+                                this.CancellationToken.ThrowIfCancellationRequested();
+
+                                nbrItems += this.AddAggregatedDataRow(stat,
+                                                                        warn,
+                                                                        keyspaceName,
+                                                                        item.Key,
+                                                                        item.Value);
+                            }
+                        }
+
+                        if(logAggData.HasAtLeastOneElement())
+                        {
+                            var aggData = from item in logAggData
+                                          group item by item into g
+                                          select new
+                                          {
+                                              GrpKey = g.Key,
+                                              Count = (long)g.Count()
+                                          };
+
+                            foreach (var item in aggData)
+                            {
+                                this.CancellationToken.ThrowIfCancellationRequested();
+                                
+                                nbrItems += this.AddAggregatedDataRow(stat,
+                                                                        warn,
+                                                                        keyspaceName,
+                                                                        item.GrpKey.Key,
+                                                                        item.GrpKey.Value,
+                                                                        item.Count,
+                                                                        "Occurrences");
+                            }
+
+                        }
+                    }
+                    else
+                    {
+                        nbrItems += this.ProcessStatData(stat, stat.Data, warn, keyspaceName);
                     }
                 }
 
@@ -214,8 +225,36 @@ namespace DSEDiagnosticToDataTable
             return this.Table;
         }
 
-        private int AddAggregatedDataRow(DSEDiagnosticLibrary.IAggregatedStats stat, bool warn, string keyspaceName, string propName, object propValue)
-        {           
+        int ProcessStatData(DSEDiagnosticLibrary.IAggregatedStats stat,
+                                IDictionary<string, object> dataStat,
+                                bool warn,
+                                string keyspaceName)
+        {
+            int nbrItems = 0;
+
+            foreach (var item in dataStat)
+            {
+                this.CancellationToken.ThrowIfCancellationRequested();
+
+                if (item.Key == DSEDiagnosticLibrary.AggregatedStats.DCNotInKS)
+                {
+                    continue;
+                }
+
+                nbrItems += this.AddAggregatedDataRow(stat, warn, keyspaceName, item.Key, item.Value);
+            }
+
+            return nbrItems;
+        }
+
+        private int AddAggregatedDataRow(DSEDiagnosticLibrary.IAggregatedStats stat,
+                                            bool warn,
+                                            string keyspaceName,
+                                            string propName,
+                                            object propValue,
+                                            long? numericValue = null,
+                                            string numericUOM = null)
+        {
             if(!(propValue is string) && propValue is System.Collections.IEnumerable)
             {
                 int nbrItems = 0;
@@ -280,7 +319,21 @@ namespace DSEDiagnosticToDataTable
             {
                 dataRow.SetField("Value", propValue);
 
-                if(DSEDiagnosticLibrary.MiscHelpers.IsNumber(propValue)) dataRow.SetField("NumericValue", propValue);
+                if (numericValue.HasValue)
+                {
+                    dataRow.SetField("NumericValue", numericValue.Value);
+                    if (!string.IsNullOrEmpty(numericUOM)) dataRow.SetField("Unit of Measure", numericUOM);
+                }
+                else if (DSEDiagnosticLibrary.MiscHelpers.IsNumber(propValue))
+                {
+                    dataRow.SetField("NumericValue", propValue);
+                    if (!string.IsNullOrEmpty(numericUOM)) dataRow.SetField("Unit of Measure", numericUOM);
+                }
+                else if(propValue is string)
+                {
+                    dataRow.SetField("NumericValue", 1L);
+                    dataRow.SetField("Unit of Measure", "Occurrences");
+                }
             }
 
             if (stat.ReconciliationRefs.HasAtLeastOneElement())
