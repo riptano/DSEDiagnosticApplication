@@ -124,7 +124,7 @@ namespace DSEDiagnosticConsoleApplication.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("{0}\\{1}-{2:yyyyMMddHHmmss}-{3}{4}{5}")]
+        [global::System.Configuration.DefaultSettingValueAttribute("{0}\\{1}{4}-{2:yyMMddHHmmss}-{3}{5}")]
         public string ExcelFileNameGeneratedStringFormat {
             get {
                 return ((string)(this["ExcelFileNameGeneratedStringFormat"]));
@@ -133,7 +133,7 @@ namespace DSEDiagnosticConsoleApplication.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Validate")]
+        [global::System.Configuration.DefaultSettingValueAttribute("AllFilesLogs")]
         public string DefaultProfile {
             get {
                 return ((string)(this["DefaultProfile"]));

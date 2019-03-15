@@ -1,0 +1,628 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema",
+  "title": "CLogTypeParser",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "LogClass": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "Parsers": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "$ref": "#/definitions/CLogLineTypeParser"
+      }
+    }
+  },
+  "definitions": {
+    "CLogLineTypeParser": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "TagId": {
+          "type": "number",
+          "format": "decimal"
+        },
+        "Description": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "SessionBeginTagId": {
+          "type": [
+            "null",
+            "number"
+          ],
+          "format": "decimal"
+        },
+        "RunningCount": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "Examples": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "MatchVersion": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/definitions/Version"
+            }
+          ]
+        },
+        "LevelMatch": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/definitions/RegExParseString"
+            }
+          ]
+        },
+        "ThreadIdMatch": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/definitions/RegExParseString"
+            }
+          ]
+        },
+        "FileNameMatch": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/definitions/RegExParseString"
+            }
+          ]
+        },
+        "FileLineMatch": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/definitions/RegExParseString"
+            }
+          ]
+        },
+        "MessageMatch": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/definitions/RegExParseString"
+            }
+          ]
+        },
+        "ParseMessage": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/definitions/RegExParseString"
+            }
+          ]
+        },
+        "ParseThreadId": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/definitions/RegExParseString"
+            }
+          ]
+        },
+        "EventType": {
+          "$ref": "#/definitions/EventTypes"
+        },
+        "EventClass": {
+          "$ref": "#/definitions/EventClasses"
+        },
+        "MaxNumberOfEvents": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "MaxNumberOfEventsPerNode": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "IgnoreEvent": {
+          "type": "boolean"
+        },
+        "Disabled": {
+          "type": "boolean"
+        },
+        "PropertyInherentOption": {
+          "$ref": "#/definitions/PropertyInherentOptions"
+        },
+        "LogPropertySessionMerge": {
+          "type": "boolean"
+        },
+        "AssociateEventToNode": {
+          "type": "boolean"
+        },
+        "SubClass": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "AnalyticsGroup": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "DeltaRunningTotalProperty": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "DeltaRunningTotalKey": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "Product": {
+          "$ref": "#/definitions/InstanceTypes"
+        },
+        "SessionKey": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "SessionKeyAction": {
+          "$ref": "#/definitions/SessionKeyActions"
+        },
+        "SessionLookup": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "SessionLookupAction": {
+          "$ref": "#/definitions/SessionLookupActions"
+        },
+        "SessionParentAction": {
+          "$ref": "#/definitions/SessionParentActions"
+        },
+        "SessionBeginReference": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/definitions/CLogLineTypeParser"
+            }
+          ]
+        },
+        "IsClone": {
+          "type": "boolean"
+        },
+        "LinkedTagId": {
+          "type": [
+            "null",
+            "number"
+          ],
+          "format": "decimal"
+        }
+      }
+    },
+    "Version": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "Major": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "Minor": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "Build": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "Revision": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "MajorRevision": {
+          "type": "integer"
+        },
+        "MinorRevision": {
+          "type": "integer"
+        }
+      }
+    },
+    "RegExParseString": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "RegExStrings": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "EventTypes": {
+      "type": "string",
+      "description": "",
+      "x-enumFlags": true,
+      "enum": [
+        "Unkown",
+        "SingleInstance",
+        "SessionElement",
+        "SessionItem",
+        "SessionBegin",
+        "SessionEnd",
+        "SessionBeginOrItem",
+        "SessionIgnore",
+        "SessionDefinedByDuration",
+        "SessionSpan",
+        "AggregateData",
+        "AggregateDataDerived",
+        "AggregateDataTool",
+        "ExceptionElement",
+        "ExceptionInstance",
+        "SessionException"
+      ],
+      "x-enum": [
+        0,
+        1,
+        2,
+        6,
+        14,
+        22,
+        46,
+        262,
+        542,
+        1054,
+        4096,
+        12288,
+        20480,
+        65537
+      ]
+    },
+    "EventClasses": {
+      "type": "string",
+      "description": "",
+      "x-enumFlags": true,
+      "enum": [
+        "Unknown",
+        "Information",
+        "Warning",
+        "Error",
+        "Exception",
+        "Fatal",
+        "LogTypes",
+        "Compaction",
+        "AntiCompaction",
+        "Memtable",
+        "GC",
+        "Pause",
+        "Repair",
+        "Drops",
+        "Performance",
+        "Stats",
+        "GCStats",
+        "PerformanceStats",
+        "Orphaned",
+        "StatusTypes",
+        "HintHandOff",
+        "DataCenter",
+        "Node",
+        "NodeStats",
+        "Keyspace",
+        "KeyspaceStats",
+        "TableViewIndex",
+        "TableViewIndexStats",
+        "KeyspaceTableViewIndexStats",
+        "Config",
+        "Detection",
+        "NodeDetection",
+        "NotHandled",
+        "Pools",
+        "Caches",
+        "Solr",
+        "Flush",
+        "MemtableFlush",
+        "Commit",
+        "SolrHardCommit",
+        "Change",
+        "Schema",
+        "Shard",
+        "DataModel",
+        "DataModelStats",
+        "Partition",
+        "Tombstone",
+        "SolrExpiredCols",
+        "Query",
+        "Gossip",
+        "Batches",
+        "Prepares",
+        "Authenticator",
+        "Device",
+        "TimeOut",
+        "MetaData",
+        "SSTable",
+        "Row",
+        "FileSystem",
+        "Message",
+        "Unavailable",
+        "Network",
+        "Requests",
+        "Terminate",
+        "Close",
+        "Session"
+      ],
+      "x-enum": [
+        0,
+        1,
+        2,
+        4,
+        8,
+        16,
+        23,
+        32,
+        64,
+        128,
+        256,
+        512,
+        1024,
+        2048,
+        4096,
+        8192,
+        8448,
+        12288,
+        16384,
+        16415,
+        32768,
+        65536,
+        131072,
+        139264,
+        262144,
+        270336,
+        524288,
+        532480,
+        794624,
+        1048576,
+        2097152,
+        2228224,
+        4194304,
+        8388608,
+        16777216,
+        33554432,
+        67108864,
+        67108992,
+        134217728,
+        167772160,
+        268435456,
+        536870912,
+        1073741824,
+        2147483648,
+        2147491840,
+        4294967296,
+        8589934592,
+        8623489024,
+        17179869184,
+        34359738368,
+        68719476736,
+        137438953472,
+        274877906944,
+        549755813888,
+        1099511627776,
+        2199023255552,
+        4398046511104,
+        8796093022208,
+        17592186044416,
+        35184372088832,
+        70368744177664,
+        140737488355328,
+        281474976710656,
+        562949953421312,
+        1125899906842624
+      ]
+    },
+    "PropertyInherentOptions": {
+      "type": "string",
+      "description": "",
+      "x-enumFlags": true,
+      "enum": [
+        "None",
+        "Overwrite",
+        "Merge",
+        "SubClass",
+        "PrimaryKS",
+        "PrimaryDDL",
+        "SSTableFilePaths",
+        "DDLInstances",
+        "AssocatedNodes",
+        "TokenRanges",
+        "TagLogProp",
+        "OptionsProp",
+        "All",
+        "Repair"
+      ],
+      "x-enum": [
+        0,
+        1,
+        2,
+        16,
+        32,
+        64,
+        128,
+        256,
+        512,
+        1024,
+        2048
+      ]
+    },
+    "InstanceTypes": {
+      "type": "string",
+      "description": "",
+      "x-enumFlags": true,
+      "enum": [
+        "Unkown",
+        "Cassandra",
+        "Search",
+        "Analytics",
+        "SearchAnalytics",
+        "TT",
+        "Analytics_TT",
+        "SearchAnalytics_TT",
+        "JT",
+        "Cassandra_JT",
+        "Analytics_JT",
+        "SearchAnalytics_JT",
+        "Graph",
+        "AdvancedReplication",
+        "Hadoop",
+        "CFS",
+        "SW",
+        "Analytics_SW",
+        "SearchAnalytics_SW",
+        "SM",
+        "Analytics_SM",
+        "SearchAnalytics_SM",
+        "MultiInstance"
+      ],
+      "x-enum": [
+        0,
+        1,
+        2,
+        4,
+        6,
+        8,
+        12,
+        14,
+        16,
+        17,
+        20,
+        22,
+        32,
+        64,
+        128,
+        256,
+        512,
+        516,
+        518,
+        1024,
+        1028,
+        1030,
+        2048
+      ]
+    },
+    "SessionKeyActions": {
+      "type": "string",
+      "description": "",
+      "enum": [
+        "Auto",
+        "Add",
+        "Read",
+        "Delete",
+        "ReadRemove"
+      ],
+      "x-enum": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ]
+    },
+    "SessionLookupActions": {
+      "type": "string",
+      "description": "",
+      "x-enumFlags": true,
+      "enum": [
+        "Default",
+        "Label",
+        "Session",
+        "Read",
+        "ReadLabel",
+        "ReadSession",
+        "Define",
+        "DefineLabel",
+        "DefineSession",
+        "Delete",
+        "DeleteLabel",
+        "DeleteSession",
+        "ReadRemoveLabel",
+        "ReadRemoveSession",
+        "Stack",
+        "TieOutId",
+        "AppendTieOutId"
+      ],
+      "x-enum": [
+        0,
+        1,
+        2,
+        4,
+        5,
+        6,
+        8,
+        9,
+        10,
+        16,
+        17,
+        18,
+        21,
+        22,
+        32,
+        64,
+        128
+      ]
+    },
+    "SessionParentActions": {
+      "type": "string",
+      "description": "",
+      "enum": [
+        "Default",
+        "IgnoreCurrent",
+        "IgnoreParents"
+      ],
+      "x-enum": [
+        0,
+        1,
+        2
+      ]
+    }
+  }
+}
+

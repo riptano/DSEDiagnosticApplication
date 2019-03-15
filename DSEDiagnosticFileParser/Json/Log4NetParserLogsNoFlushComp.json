@@ -232,6 +232,43 @@
     {
       "Description": "Row Response Timeout",
       "LinkedTagId": 53.0
+    },
+    {
+      "Description": "Session Repairs (Start)",
+      "TagId": 54.0
+    },
+    {
+      "Description": "Session Repairs (session)",
+      "TagId": 54.1
+    },
+    {
+      "Description": "Session Repairs (request)",
+      "TagId": 54.2
+    },
+    {
+
+      "Description": "Session Repairs (send)",
+      "TagId": 54.3
+    },
+    {
+      "Description": "Session Repairs (Received)",
+      "TagId": 54.4
+    },
+    {
+      "Description": "Session Repairs (consistent)",
+      "TagId": 54.5
+    },
+    {
+      "Description": "Session Repairs (synced)",
+      "TagId": 54.6
+    },
+    {
+      "Description": "Session Repairs (Session Completed)",
+      "TagId": 54.7
+    },
+    {
+      "Description": "Session Repairs (Error)",
+      "TagId": 54.6
     }
   ]
 }

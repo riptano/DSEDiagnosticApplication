@@ -158,6 +158,7 @@ namespace DSEDiagnosticToDataTable
             dtLog.Columns.Add(Columns.StorageMean, typeof(decimal)).AllowDBNull = true;
             dtLog.Columns.Add(Columns.StorageStdDevp, typeof(decimal)).AllowDBNull = true;
             dtLog.Columns.Add(Columns.StorageTotal, typeof(decimal)).AllowDBNull = true;
+            dtLog.Columns.Add(ColumnNames.ReconciliationRef, typeof(string)).AllowDBNull = true;
 
             //dtLog.PrimaryKey = new System.Data.DataColumn[] { dtLog.Columns[ColumnNames.KeySpace], dtLog.Columns["Name"] };
 
@@ -182,6 +183,7 @@ namespace DSEDiagnosticToDataTable
             public ILogEvent LastEvent;
             public ILogEvent FirstEvent;
             public int NbrOccurs;
+            public string SessionTieOut;
             public IEnumerable<DSEDiagnosticAnalytics.LogEventGrouping> AnalyticsGroupings;
         }
 
@@ -267,7 +269,8 @@ namespace DSEDiagnosticToDataTable
                     
                     var nodeEvtGrps = (from logMMV in node.LogEventsCache(LogCassandraEvent.ElementCreationTypes.EventTypeOnly, true, false)
                                         let logEvt = logMMV.Value
-                                        where (logEvt.Type & EventTypes.SingleInstance) != 0
+                                        where (logEvt.Type & EventTypes.ExceptionElement) == EventTypes.ExceptionElement
+                                                || (logEvt.Type & EventTypes.SingleInstance) == EventTypes.SingleInstance
                                                 || (logEvt.Type & EventTypes.SessionEnd) == EventTypes.SessionEnd
                                                 || (logEvt.Type & EventTypes.SessionDefinedByDuration) == EventTypes.SessionDefinedByDuration
                                                 || (logEvt.Type & EventTypes.AggregateData) == EventTypes.AggregateData
@@ -277,13 +280,20 @@ namespace DSEDiagnosticToDataTable
                                         let groupKey = new DSEDiagnosticAnalytics.LogEventGroup(aggregationDateTime, logEvent)
                                         group logEvent by groupKey
                                             into g
-                                        let grpEvents = g.OrderBy(e => e.EventTime)
-                                        select new LogEvtGroup()
+                                        let grpEvents = g.OrderBy(e => e.EventTime).ToArray()
+                                        let SessionTieOuts = grpEvents
+                                                                .Where(t => (t.Class & EventClasses.Repair) == EventClasses.Repair)
+                                                                .Select(t => t.Id)
+                                                                .DuplicatesRemoved(i => i)
+                                       select new LogEvtGroup()
                                         {
                                             GroupKey = g.Key,
                                             HasOrphaned = grpEvents.Any(e => (e.Class & EventClasses.Orphaned) == EventClasses.Orphaned),
                                             LastEvent = grpEvents.Last(),
                                             FirstEvent = grpEvents.First(),
+                                            SessionTieOut = SessionTieOuts.HasAtLeastOneElement()
+                                                                ? string.Join(",",SessionTieOuts)
+                                                                : null,
                                             NbrOccurs = g.Count(),
                                             AnalyticsGroupings = DSEDiagnosticAnalytics.LogEventGrouping.CreateLogEventGrouping(g.Key, grpEvents)
                                         }).ToArray();
@@ -331,7 +341,8 @@ namespace DSEDiagnosticToDataTable
                     dataRow.SetField(Columns.LastOccurrenceUTC, logGrpEvt.LastEvent.EventTime.UtcDateTime);
                     dataRow.SetField(Columns.LastOccurrenceLocal, logGrpEvt.LastEvent.EventTimeLocal);
                     dataRow.SetField(Columns.Occurrences, logGrpEvt.NbrOccurs);
-                    
+                    dataRow.SetField(ColumnNames.ReconciliationRef, logGrpEvt.SessionTieOut);
+
                     foreach (var analyticsGrp in logGrpEvt.AnalyticsGroupings)
                     {
                         this.CancellationToken.ThrowIfCancellationRequested();

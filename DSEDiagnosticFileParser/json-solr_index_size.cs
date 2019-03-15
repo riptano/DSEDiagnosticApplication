@@ -73,9 +73,9 @@ namespace DSEDiagnosticFileParser
                         if(!uomIndexStorage.NaN)
                         {
                             var assocTblStorage = currentDDL.Node.AggregatedStats.FirstOrDefault(s => s.TableViewIndex == currentDDL);
-                            object totalStorageObj;
-
-                            if(assocTblStorage.Data.TryGetValue(Properties.StatPropertyNames.Default.TotalStorage, out totalStorageObj))
+                            
+                            if(assocTblStorage != null
+                                    && assocTblStorage.Data.TryGetValue(Properties.StatPropertyNames.Default.TotalStorage, out object totalStorageObj))
                             {
                                 var uomTblStorage = (UnitOfMeasure)totalStorageObj;
                                 decimal ratio = 1m;

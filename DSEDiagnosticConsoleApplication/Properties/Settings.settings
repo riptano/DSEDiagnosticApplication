@@ -53,10 +53,10 @@
       <Value Profile="(Default)">.\dseHealthAssessment4ATemplate.xlsm</Value>
     </Setting>
     <Setting Name="ExcelFileNameGeneratedStringFormat" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">{0}\{1}-{2:yyyyMMddHHmmss}-{3}{4}{5}</Value>
+      <Value Profile="(Default)">{0}\{1}{4}-{2:yyMMddHHmmss}-{3}{5}</Value>
     </Setting>
     <Setting Name="DefaultProfile" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">Validate</Value>
+      <Value Profile="(Default)">AllFilesLogs</Value>
     </Setting>
     <Setting Name="Profiles" Type="System.String" Scope="Application">
       <Value Profile="(Default)">[

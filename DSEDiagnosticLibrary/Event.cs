@@ -67,9 +67,15 @@ namespace DSEDiagnosticLibrary
         AggregateDataTool = AggregateData | 0x4000,
 
         /// <summary>
+        /// If defined this event is an exception item
+        /// </summary>
+        ExceptionElement = 0x10000,
+
+        /// <summary>
         /// Defines an Exception Instance
         /// </summary>
-        ExceptionInstance = SingleInstance | 0x10000
+        ExceptionInstance = SingleInstance | ExceptionElement,
+        SessionException = SessionItem | ExceptionElement
     }
 
     [Flags]
@@ -127,6 +133,7 @@ namespace DSEDiagnosticLibrary
         Requests        = 0x1000000000000,
         Terminate       = 0x2000000000000,
         Close           = 0x4000000000000,
+        Session         = 0x8000000000000,
         GCStats = GC | Stats,
         MemtableFlush = Memtable | Flush,
         SolrHardCommit = Solr | Commit,

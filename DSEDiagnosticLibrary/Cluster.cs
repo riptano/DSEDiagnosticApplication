@@ -732,7 +732,7 @@ namespace DSEDiagnosticLibrary
                                 cluster._keySpaces.Lock();
                                 try
                                 {
-                                    var existingKSInDC = oldCluster._keySpaces.UnSafe.Where(k => k.DataCenters.Contains(dc));
+                                    var existingKSInDC = oldCluster._keySpaces.UnSafe.Where(k => k.DataCenters.Contains(dc)).ToArray();
 
                                     foreach(var existingKS in existingKSInDC)
                                     {

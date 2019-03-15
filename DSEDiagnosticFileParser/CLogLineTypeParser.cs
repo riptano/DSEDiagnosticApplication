@@ -156,7 +156,10 @@ namespace DSEDiagnosticFileParser
             /// <summary>
             /// looks for the "tag" log property key.
             /// </summary>
-            TagLogProp = 0x0800
+            TagLogProp  = 0x0800,
+            OptionsProp = 0x1000,
+            All = SubClass | PrimaryDDL | PrimaryKS | SSTableFilePaths | DDLInstances | AssocatedNodes | TokenRanges | TagLogProp | OptionsProp,
+            Repair = SubClass | PrimaryKS | DDLInstances | AssocatedNodes | TokenRanges | TagLogProp | OptionsProp
         }
 
         #region constructors
@@ -165,71 +168,7 @@ namespace DSEDiagnosticFileParser
             if (SessionLookupAction == SessionLookupActions.Default)
                 this.SessionLookupAction = SessionLookupActions.ReadSession;
         }
-
-        public CLogLineTypeParser(string levelMatchRegEx,
-                                    string threadidMatchRegEx,
-                                    string filenameMatchRegEx,
-                                    string filelineMatchRegEx,
-                                    string messageMatchRegEx,
-                                    string parsemessageRegEx,
-                                    string parsethreadidRegEx,
-                                    string sessionKey,
-                                    EventTypes eventType,
-                                    EventClasses eventClass,
-                                    string subClass = null,
-                                    Version matchVersion = null,
-                                    DSEInfo.InstanceTypes product = DSEInfo.InstanceTypes.Cassandra,
-                                    string[] examples = null)
-            : this(string.IsNullOrEmpty(levelMatchRegEx) ? null : new RegExParseString(levelMatchRegEx),
-                      string.IsNullOrEmpty(threadidMatchRegEx) ? null : new RegExParseString(threadidMatchRegEx),
-                      string.IsNullOrEmpty(filenameMatchRegEx) ? null : new RegExParseString(filenameMatchRegEx),
-                      string.IsNullOrEmpty(filelineMatchRegEx) ? null : new RegExParseString(filelineMatchRegEx),
-                      string.IsNullOrEmpty(messageMatchRegEx) ? null : new RegExParseString(messageMatchRegEx),
-                      string.IsNullOrEmpty(parsemessageRegEx) ? null : new RegExParseString(parsemessageRegEx),
-                      string.IsNullOrEmpty(parsethreadidRegEx) ? null : new RegExParseString(parsethreadidRegEx),
-                      sessionKey,
-                      eventType,
-                      eventClass,
-                      subClass,
-                      matchVersion,
-                      product,
-                      examples)
-        { }
-
-        public CLogLineTypeParser(RegExParseString levelMatchRegEx,
-                                    RegExParseString threadidMatchRegEx,
-                                    RegExParseString filenameMatchRegEx,
-                                    RegExParseString filelineMatchRegEx,
-                                    RegExParseString messageMatchRegEx,
-                                    RegExParseString parsemessageRegEx,
-                                    RegExParseString parsethreadidRegEx,
-                                    string sessionKey,
-                                    EventTypes eventType,
-                                    EventClasses eventClass,
-                                    string subClass = null,
-                                    Version matchVersion = null,
-                                    DSEInfo.InstanceTypes product = DSEInfo.InstanceTypes.Cassandra,
-                                    string[] examples = null)
-        {
-            this.MatchVersion = matchVersion;
-            this.LevelMatch = levelMatchRegEx;
-            this.ThreadIdMatch = threadidMatchRegEx;
-            this.FileNameMatch = filenameMatchRegEx;
-            this.FileLineMatch = filelineMatchRegEx;
-            this.MessageMatch = messageMatchRegEx;
-            this.ParseMessage = parsemessageRegEx;
-            this.ParseThreadId = parsethreadidRegEx;
-            this.EventType = eventType;
-            this.EventClass = eventClass;
-            this.SubClass = subClass;
-            this.Product = product;
-            this.SessionKey = sessionKey;
-            this.Examples = examples;
-
-            if (this.SessionLookupAction == SessionLookupActions.Default)
-                this.SessionLookupAction = SessionLookupActions.ReadSession;
-        }
-
+               
         #endregion
 
         #region public properties
@@ -388,9 +327,15 @@ namespace DSEDiagnosticFileParser
         public long RunningCount = 0;
 
         /// <summary>
-        /// If true, the event is ignored and not processed.
+        /// If true, the event is processed but ignored as a log event.
         /// </summary>
         public bool IgnoreEvent { get; set; }
+
+        /// <summary>
+        /// If disabled (true), the rule is not included in the parsing rules at all. 
+        /// This is different from IgnoreEvent where in this case the rule is included but the event is ignored.
+        /// </summary>
+        public bool Disabled { get; set; } = false;
 
         /// <summary>
         /// Properties that can be inherent from the parent session
@@ -646,6 +591,7 @@ namespace DSEDiagnosticFileParser
                 this.MaxNumberOfEventsPerNode = useAsCopy.MaxNumberOfEventsPerNode;
                 this.RunningCount = useAsCopy.RunningCount;
                 this.IgnoreEvent = useAsCopy.IgnoreEvent;
+                this.Disabled = useAsCopy.Disabled;
                 this.PropertyInherentOption = useAsCopy.PropertyInherentOption;
                 this.LogPropertySessionMerge = useAsCopy.LogPropertySessionMerge;
                 this.AssociateEventToNode = useAsCopy.AssociateEventToNode;
@@ -695,6 +641,7 @@ namespace DSEDiagnosticFileParser
                 if (this.MaxNumberOfEventsPerNode == -1) this.MaxNumberOfEventsPerNode = useAsCopy.MaxNumberOfEventsPerNode;
                 if (this.RunningCount == 0) this.RunningCount = useAsCopy.RunningCount;
                 if (!this.IgnoreEvent) this.IgnoreEvent = useAsCopy.IgnoreEvent;
+                if (!this.Disabled) this.Disabled = useAsCopy.Disabled;
                 if (this.PropertyInherentOption == PropertyInherentOptions.None) this.PropertyInherentOption = useAsCopy.PropertyInherentOption;
                 if (!this.LogPropertySessionMerge) this.LogPropertySessionMerge = useAsCopy.LogPropertySessionMerge;
                 if (this.AssociateEventToNode) this.AssociateEventToNode = useAsCopy.AssociateEventToNode;
@@ -1262,14 +1209,15 @@ namespace DSEDiagnosticFileParser
         public string ToShortString()
         {
             if (this._toShortStringCache == null)
-                this._toShortStringCache = string.Format("{{{{\"TagId\":{0},\"Description\":\"{1}\",\"SessionBeginTagId\":{2},\"EventType\":{3},\"EventClass\":{4},\"RunningCount\":{{0}},\"IsClone\":{5},\"LinkedTagId\":{6} }}}}",
+                this._toShortStringCache = string.Format("{{{{\"TagId\":{0},\"Description\":\"{1}\",\"SessionBeginTagId\":{2},\"EventType\":{3},\"EventClass\":{4},\"RunningCount\":{{0}},\"IsClone\":{5},\"LinkedTagId\":{6},\"IgnoreEvent\":{7} }}}}",
                                                                 this.TagId,
-                                                                this.Description,
+                                                                this.Disabled ? this.Description + " (DISABLED)" : this.Description,
                                                                 this.SessionBeginTagId,
                                                                 this.EventType,
                                                                 this.EventClass,
                                                                 this.IsClone,
-                                                                this.LinkedTagId);
+                                                                this.LinkedTagId,
+                                                                this.IgnoreEvent);
 
             return string.Format(this._toShortStringCache, this.RunningCount);
         }
@@ -1713,7 +1661,16 @@ namespace DSEDiagnosticFileParser
         /// </summary>
         public string LogClass { get; set; }
 
-        public CLogLineTypeParser[] Parsers { get; set; }
+        private CLogLineTypeParser[] _parsers;
+
+        public CLogLineTypeParser[] Parsers
+        {
+            get {  return this._parsers; }
+            set
+            {
+                this._parsers = value == null ? value : value.Where(n => !n.Disabled).ToArray();
+            }
+        }
 
         public CLogLineTypeParser[] DetermineParsers(Version dseVersion)
         {
@@ -1730,11 +1687,11 @@ namespace DSEDiagnosticFileParser
                 });
             }
 
-            var parserList = this.Parsers.Where(m => m.MatchVersion == null).ToList();
+            var parserList = this.Parsers.Where(m => !m.Disabled && m.MatchVersion == null).ToList();
 
             if (dseVersion != null)
             {
-                var versionedMapper = this.Parsers.Where(m => m.MatchVersion != null && dseVersion >= m.MatchVersion)
+                var versionedMapper = this.Parsers.Where(m => !m.Disabled && m.MatchVersion != null && dseVersion >= m.MatchVersion)
                                             .OrderByDescending(m => m.MatchVersion)
                                             .DuplicatesRemoved(m => m.EventClass);
                 parserList.AddRange(versionedMapper);

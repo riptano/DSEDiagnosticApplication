@@ -893,23 +893,28 @@ namespace DSEDiagnosticFileParser
                     };
             });
 
-            if (fileMappings.ProcessingTaskOption.HasFlag(FileMapper.ProcessingTaskOptions.ScanForNode) 
-                    && onlyNodes != null
+            if (onlyNodes != null
                     && onlyNodes.HasAtLeastOneElement())
             {
-
-                if (!fileMappings.ProcessingTaskOption.HasFlag(FileMapper.ProcessingTaskOptions.AllNodesInDataCenter))
+                if (fileMappings.ProcessingTaskOption.HasFlag(FileMapper.ProcessingTaskOptions.AllNodesInDataCenter))
                 {
-                    processTheseNodes = (string.IsNullOrEmpty(clusterName)
-                                            ? Cluster.GetCurrentOrMaster().Nodes
-                                            : Cluster.GetNodes(null, clusterName)).Where(n => onlyNodes.Any(i => i.Equals(n))).ToArray();
+                    processTheseNodes = Cluster.GetNodes(dataCenterName, clusterName)
+                                            .Where(n => onlyNodes.Any(i => i.Equals(n))).ToArray();                    
                 }
                 else
                 {
-                    processTheseNodes = Cluster.GetNodes(dataCenterName, clusterName).Where(n => onlyNodes.Any(i => i.Equals(n))).ToArray();
+                    processTheseNodes = (string.IsNullOrEmpty(clusterName)
+                                            ? Cluster.GetCurrentOrMaster().Nodes
+                                            : Cluster.GetNodes(null, clusterName))
+                                        .Where(n => onlyNodes.Any(i => i.Equals(n))).ToArray();
+
+                    if(processTheseNodes.IsEmpty())
+                    {
+                        processTheseNodes = onlyNodes.Select(n => Cluster.TryGetAddNode(n, dataCenterName, clusterName)).ToArray();
+                    }
                 }
                 
-                Logger.Instance.InfoFormat("FileMapper<{0}>\t<NoNodeId>\t<NoFile>\tUsing Only Nodes {{1}} for File Mapper File Parsing Class \"{2}\" for Category {3}, Processing Option {4}, Cluster \"{5}\", and Data Center \"{6}\". !",
+                Logger.Instance.InfoFormat("FileMapper<{0}>\t<NoNodeId>\t<NoFile>\tUsing Only Nodes {{{1}}} for File Mapper File Parsing Class \"{2}\" for Category {3}, Processing Option {4}, Cluster \"{5}\", and Data Center \"{6}\". !",
                                                 fileMapperId,
                                                 string.Join(", ", processTheseNodes.Select(n => n.Id.NodeName())),
                                                 fileMappings.FileParsingClass,

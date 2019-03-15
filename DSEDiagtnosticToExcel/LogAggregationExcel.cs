@@ -71,7 +71,8 @@ namespace DSEDiagtnosticToExcel
                                                                  //this.DataTable.GetColumn(DT.ColumnNames.DataCenter);
                                                                  //this.DataTable.GetColumn(DT.ColumnNames.NodeIPAddress);
                                                                  //this.DataTable.GetColumn(DT.ColumnNames.KeySpace);
-                                                                 //this.DataTable.GetColumn(DT.ColumnNames.Table);
+                                                                 this.DataTable.GetColumn(DT.ColumnNames.Table)
+                                                                    .SetWidth(35);
                                                                  this.DataTable.GetColumn(DT.LogAggregationDataTable.Columns.Class)
                                                                     .SetWidth(35);
                                                                  this.DataTable.GetColumn(DT.LogAggregationDataTable.Columns.RelatedInfo)
@@ -191,6 +192,8 @@ namespace DSEDiagtnosticToExcel
                                                                     .SetNumericFormat("#,###,###,##0.00####");
                                                                  this.DataTable.GetColumn(DT.LogAggregationDataTable.Columns.StorageTotal)
                                                                     .SetNumericFormat("#,###,###,##0.00####");
+                                                                 this.DataTable.GetColumn(DT.ColumnNames.ReconciliationRef)
+                                                                    .SetWidth(25);
 
                                                                  workSheet.UpdateWorksheet(this.DataTable, 1);
 

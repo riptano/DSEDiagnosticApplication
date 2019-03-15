@@ -983,6 +983,58 @@ namespace DSEDiagnosticFileParser
             return logEvent;
         }
 
+        private string ProcessExceptionLine(Dictionary<string, object> logProperties, string exceptionLine)
+        {
+            var matches = string.IsNullOrEmpty(exceptionLine) ? null : LibrarySettings.LogExceptionRegExMatches.Matches(exceptionLine);
+
+            if (matches != null)
+            {
+                foreach (Match match in matches)
+                {
+                    UpdateMatchProperties(LibrarySettings.LogExceptionRegExMatches, match, logProperties, true);
+                }
+
+                if (logProperties.ContainsKey("NODE"))
+                {
+                    var assocNodes = logProperties["NODE"];
+
+                    if (assocNodes is IEnumerable<object>)
+                    {
+                        ((IEnumerable<object>)assocNodes)
+                            .Where(n => n is System.Net.IPEndPoint)
+                            .Cast<System.Net.IPEndPoint>()
+                            .ForEach(ep => exceptionLine = exceptionLine.Replace(ep.Port.ToString(), "XXXX"));
+                    }
+                    else
+                    {
+                        if (assocNodes is System.Net.IPEndPoint endPoint)
+                        {
+                            exceptionLine = exceptionLine.Replace(endPoint.Port.ToString(), "XXXX");
+                        }
+                    }
+                }
+                if (logProperties.ContainsKey("CHANNELID"))
+                {
+                    var channelIds = logProperties["CHANNELID"];
+
+                    if (channelIds is IEnumerable<object>)
+                    {
+                        ((IEnumerable<object>)channelIds)
+                            .ForEach(ep => exceptionLine = exceptionLine.Replace(string.Format("0x{0:x8}", ep), "0X00"));
+                    }
+                    else
+                    {
+                        if (channelIds != null)
+                        {
+                            exceptionLine = exceptionLine.Replace(string.Format("0x{0:x8}", channelIds), "0X00");
+                        }
+                    }
+                }
+            }
+
+            return exceptionLine;
+        }
+
         private string DetermineExceptionInfo(ILogMessage logMessage, Dictionary<string, object> logProperties, List<string> exceptionPaths, bool processExceptionString = true)
         {
             string topLefvelException = null;
@@ -1022,53 +1074,8 @@ namespace DSEDiagnosticFileParser
                         exceptDescription = exceptDescription.Replace("/<1ocal node>", string.Format("/{0}", ipAddress));
                 }
 
-                var matches = string.IsNullOrEmpty(exceptDescription) ? null : LibrarySettings.LogExceptionRegExMatches.Matches(exceptDescription);
-
-                if (matches != null)
-                {
-                    foreach (Match match in matches)
-                    {                        
-                        UpdateMatchProperties(LibrarySettings.LogExceptionRegExMatches, match, logProperties, true);
-                    }
-
-                    if (logProperties.ContainsKey("NODE"))
-                    {
-                        var assocNodes = logProperties["NODE"];
-
-                        if (assocNodes is IEnumerable<object>)
-                        {                            
-                            ((IEnumerable<object>)assocNodes)
-                                .Where(n => n is System.Net.IPEndPoint)
-                                .Cast<System.Net.IPEndPoint>()
-                                .ForEach(ep => exceptDescription = exceptDescription.Replace(ep.Port.ToString(), "XXXX"));
-                        }
-                        else
-                        {                            
-                            if (assocNodes is System.Net.IPEndPoint endPoint)
-                            {
-                                exceptDescription = exceptDescription.Replace(endPoint.Port.ToString(), "XXXX");                                
-                            }
-                        }
-                    }
-                    if (logProperties.ContainsKey("CHANNELID"))
-                    {
-                        var channelIds = logProperties["CHANNELID"];
-
-                        if (channelIds is IEnumerable<object>)
-                        {
-                            ((IEnumerable<object>)channelIds)                                
-                                .ForEach(ep => exceptDescription = exceptDescription.Replace(string.Format("0x{0:x8}", ep), "0X00"));
-                        }
-                        else
-                        {                            
-                            if (channelIds != null)
-                            {
-                                exceptDescription = exceptDescription.Replace(string.Format("0x{0:x8}", channelIds), "0X00");
-                            }
-                        }
-                    }
-                }
-
+                exceptDescription = this.ProcessExceptionLine(logProperties, exceptDescription);
+                
                 var clsPath = string.Format("{0}({1})", exceptClass ?? logMessage.Level.ToString(), exceptDescription ?? string.Empty);
 
                 if (exceptionPaths.Count > 1)
@@ -1200,7 +1207,26 @@ namespace DSEDiagnosticFileParser
             var sessionParentAction = matchItem.Item5.SessionParentAction;
             bool orphanedSession = false;
             string analyticsGroup = matchItem.Item5.AnalyticsGroup;
-            
+
+            if ((eventType & EventTypes.ExceptionElement) == EventTypes.ExceptionElement
+                    && logProperties.TryGetValue("error", out object errorObj)
+                    && errorObj != null)
+            {
+                string errorValue;
+
+                if (errorObj is IEnumerable<object>)
+                    errorValue = string.Join("; ", ((IEnumerable<object>)errorObj).Select(i => i.ToString()));
+                else
+                    errorValue = errorObj.ToString();
+
+                if (!string.IsNullOrEmpty(errorValue))
+                {
+                    errorValue = this.ProcessExceptionLine(logProperties, errorValue);
+
+                    logProperties["error"] = errorValue;
+                }
+            }
+
             this.DetermineProperties(logMessage,
                                         logProperties,
                                         out LateDDLResolution? lateDDLresolution,
@@ -1284,7 +1310,10 @@ namespace DSEDiagnosticFileParser
 
                         if ((eventType & EventTypes.SingleInstance) == EventTypes.SingleInstance)
                         {
-                            eventType = EventTypes.SingleInstance;
+                            if ((eventType & EventTypes.ExceptionElement) == EventTypes.ExceptionElement)
+                                eventType = EventTypes.SingleInstance | EventTypes.ExceptionElement;
+                            else
+                                eventType = EventTypes.SingleInstance;
                         }
                         else
                         {
@@ -1300,7 +1329,9 @@ namespace DSEDiagnosticFileParser
                         eventType &= ~EventTypes.SingleInstance;
 
                         if (eventType == EventTypes.Unkown)
+                        {                                                           
                             eventType = EventTypes.SessionItem;
+                        }
                     }
 
                     if ((eventType & EventTypes.SessionIgnore) == EventTypes.SessionIgnore)
@@ -1431,19 +1462,86 @@ namespace DSEDiagnosticFileParser
                         if (!logProperties.ContainsKey("tag")
                                 || (matchItem.Item5.PropertyInherentOption & CLogLineTypeParser.PropertyInherentOptions.Overwrite) != 0)
                         {
-                            if (sessionEvent.LogProperties.ContainsKey("tag")) logProperties.Add("tag", sessionEvent.LogProperties["tag"]);
+                            if (sessionEvent.LogProperties.TryGetValue("tag", out object sessionTagValue))
+                            {
+                                if(logProperties.ContainsKey("tag"))
+                                    logProperties["tag"] = sessionTagValue;
+                                else
+                                    logProperties.Add("tag", sessionTagValue);
+                            }
                         }
                         else if ((matchItem.Item5.PropertyInherentOption & CLogLineTypeParser.PropertyInherentOptions.Merge) != 0
-                                    && sessionEvent.LogProperties.ContainsKey("tag"))
+                                    && sessionEvent.LogProperties.TryGetValue("tag", out object sessionTagValue))
                         {
-                            if (logProperties.ContainsKey("tag"))
-                                logProperties["tag"] = (string) logProperties["tag"] + (string) sessionEvent.LogProperties["tag"];
+                            if (logProperties.TryGetValue("tag", out object tagValue))
+                                logProperties["tag"] = (string) tagValue + (string) sessionTagValue;
                             else
-                                logProperties.Add("tag", sessionEvent.LogProperties["tag"]);
+                                logProperties.Add("tag", sessionTagValue);
+                        }
+                        if (!logProperties.ContainsKey("tag1")
+                                || (matchItem.Item5.PropertyInherentOption & CLogLineTypeParser.PropertyInherentOptions.Overwrite) != 0)
+                        {
+                            if (sessionEvent.LogProperties.TryGetValue("tag1", out object sessionTagValue))
+                            {
+                                if (logProperties.ContainsKey("tag1"))
+                                    logProperties["tag1"] = sessionTagValue;
+                                else
+                                    logProperties.Add("tag1", sessionTagValue);
+                            }
+                        }
+                        else if ((matchItem.Item5.PropertyInherentOption & CLogLineTypeParser.PropertyInherentOptions.Merge) != 0
+                                    && sessionEvent.LogProperties.TryGetValue("tag1", out object sessionTagValue))
+                        {
+                            if (logProperties.TryGetValue("tag1", out object tagValue))
+                                logProperties["tag1"] = (string)tagValue + (string)sessionTagValue;
+                            else
+                                logProperties.Add("tag1", sessionTagValue);
+                        }                        
+                    }
+                    if ((matchItem.Item5.PropertyInherentOption & CLogLineTypeParser.PropertyInherentOptions.OptionsProp) != 0)
+                    {                        
+                        if (!logProperties.ContainsKey("options")
+                                || (matchItem.Item5.PropertyInherentOption & CLogLineTypeParser.PropertyInherentOptions.Overwrite) != 0)
+                        {
+                            if (sessionEvent.LogProperties.TryGetValue("options", out object sessionOptions))
+                            {
+                                if (logProperties.ContainsKey("options"))
+                                    logProperties["options"] = sessionOptions;
+                                else
+                                    logProperties.Add("options", sessionOptions);
+                            }
+                        }
+                        else if ((matchItem.Item5.PropertyInherentOption & CLogLineTypeParser.PropertyInherentOptions.Merge) != 0
+                                    && sessionEvent.LogProperties.TryGetValue("options", out object sessionOptions))
+                        {
+                            if (logProperties.TryGetValue("options", out object options))
+                            {
+                                if (sessionOptions != null && sessionOptions is IEnumerable<object>)
+                                {
+                                    if (options != null && options is IEnumerable<object>)
+                                    {
+                                        logProperties["options"] = ((IEnumerable<object>)options).Concat((IEnumerable<object>)sessionOptions);
+                                    }
+                                    else
+                                    {
+                                        logProperties["options"] = new List<object>() { options };
+                                        ((List<object>)logProperties["options"]).AddRange((IEnumerable<object>)sessionOptions);
+                                    }
+                                }
+                                else
+                                {
+                                    if (options != null && options is IEnumerable<object>)
+                                        logProperties["options"] = ((IEnumerable<object>)options).Concat(sessionOptions);
+                                    else
+                                        logProperties["options"] = options.ToString() + "; " + sessionOptions.ToString();
+                                }
+                            }
+                            else
+                                logProperties.Add("options", sessionOptions);
                         }
                     }
 
-                    if(matchItem.Item5.LogPropertySessionMerge)
+                    if (matchItem.Item5.LogPropertySessionMerge)
                     {
                         var sessionEvtLogProps = this._logEvents.Where(e => e.Id == sessionEvent.Id).Reverse().SelectMany(e => e.LogProperties);
                         
@@ -1561,7 +1659,7 @@ namespace DSEDiagnosticFileParser
                 eventClass |= EventClasses.Exception;
             }
             #endregion
-
+            
             LogCassandraEvent logEvent = null;
 
             #region Generate Log Event
@@ -1873,7 +1971,8 @@ namespace DSEDiagnosticFileParser
         {
             AggregatedStats errorNodeAggStat = null;
             var keyspaceName = StringHelpers.RemoveQuotes((string)logProperties.TryGetValue("KEYSPACE"));
-            var ddlName = StringHelpers.RemoveQuotes((string)logProperties.TryGetValue("DDLITEMNAME") ?? (string)logProperties.TryGetValue("TABLEVIEWNAME"));
+            var tableviewName = logProperties.TryGetValue("TABLEVIEWNAME");
+            var ddlName = StringHelpers.RemoveQuotes((string)logProperties.TryGetValue("DDLITEMNAME"));
             var ddlSchemaId = (string)logProperties.TryGetValue("DDLSCHEMAID");
             var possibleSSTableFilePath = logProperties.TryGetValue("SSTABLEPATH");
             var sstableFilePath = possibleSSTableFilePath is IList<object> 
@@ -1933,6 +2032,34 @@ namespace DSEDiagnosticFileParser
                 else if (primaryKS == null && !string.IsNullOrEmpty(keyspaceName))
                 {
                     primaryKS = this._dcKeyspaces.FirstOrDefault(ki => ki.Equals(keyspaceName));
+                }
+
+                if (tableviewName != null)
+                {
+                    if (ddlNames == null || ddlNames.IsEmpty())
+                    {
+                        ddlNames = new List<string>();
+                    }
+
+                    if (tableviewName is IList<object>)
+                    {                        
+                        if (primaryKS == null)
+                            ddlNames.AddRange(((IList<object>)tableviewName).Cast<string>());
+                        else
+                        {
+                            var ksName = primaryKS.Name;
+                            ddlNames.AddRange(((IList<object>)tableviewName)
+                                                .Cast<string>()
+                                                .Select(i => i.IndexOf('.') >= 0 ? i : ksName + '.' + i));
+                        }
+                    }
+                    else
+                    {
+                        if (primaryKS == null || ((string)tableviewName).IndexOf('.') >= 0)
+                            ddlNames.Add((string)tableviewName);
+                        else
+                            ddlNames.Add(primaryKS.Name + '.' + ((string)tableviewName));
+                    }
                 }
 
                 if (!string.IsNullOrEmpty(sstableFilePath))
@@ -2643,10 +2770,8 @@ namespace DSEDiagnosticFileParser
                                                                                                 true,
                                                                                                 uomType,
                                                                                                 true);
-                                    if(logProperties.ContainsKey(normalizedGroupName))
-                                    {
-                                        var currentValue = logProperties[normalizedGroupName];
-
+                                    if(logProperties.TryGetValue(normalizedGroupName, out object currentValue))
+                                    {                                        
                                         if(currentValue is IList<object>)
                                         {
                                             if(!((IList<object>) currentValue).Contains(objValue))
@@ -2702,12 +2827,50 @@ namespace DSEDiagnosticFileParser
                     {
                         #region List of items
                         
-                        if(logProperties.TryGetValue(groupName, out object itemValue) && itemValue is string)
+                        if(logProperties.TryGetValue(groupName, out object itemValue))
                         {
-                            var listItem = ((string)itemValue).Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                            if (itemValue is string)
+                            {
+                                var listItem = ((string)itemValue).Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
 
-                            if(listItem.Length > 0)
-                                logProperties[groupName] = listItem.Select(i => i.Trim()).ToList();
+                                if (listItem.Length > 1)
+                                    logProperties[groupName] = listItem.Select(i => i.Trim()).ToList();
+                            }
+                            else if(itemValue is IList<object>)
+                            {
+                                int nIdx = 0;
+                                var removeIdx = new List<int>();
+                                var newItems = new List<string>();
+                                foreach (var itemElem in (IList<object>) itemValue)
+                                {
+                                    if(itemElem is string)
+                                    {
+                                        var listItem = ((string)itemElem).Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+
+                                        if (listItem.Length > 1)
+                                        {
+                                            newItems.AddRange(listItem.Select(i => i.Trim()).ToList());
+                                            removeIdx.Add(nIdx);
+                                        }
+                                    }
+                                    ++nIdx;
+                                }
+
+                                if(removeIdx.Count > 0)
+                                {
+                                    foreach(var idx in removeIdx)
+                                    {
+                                        ((IList<object>)itemValue).RemoveAt(idx);
+                                    }
+                                }
+                                if(newItems.Count > 0)
+                                {
+                                    foreach (var newItem in newItems)
+                                    {
+                                        ((IList<object>)itemValue).Add(newItem);
+                                    }
+                                }
+                            }
                         }
                         #endregion
                     }

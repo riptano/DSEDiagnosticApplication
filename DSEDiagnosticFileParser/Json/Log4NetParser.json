@@ -1,428 +1,97 @@
 /*
-  
-  /// Used to uniquely identify this parser block.
-  /// If a session, the begin session decimal should be zero and the session items should be an increment of the begin session. Example: Begin - 4.0, Item - 4.1.
-  /// </summary>
-  public decimal TagId;
+ There are special group names. They are:
+     "SUBCLASS"                      -- this will map the capture group's value to property "SubClass" of LogCassandraEvent class
+     "ID"                            -- this will map the capture group's value to property "Id" of LogCassandraEvent class. It must be a valid GUID.
+     "DURATION_xxx" or "DURATION"    -- this will map the capture group's value to property "Duration" of LogCassandraEvent class
+                                        "xxx" is the time unit. If not provided the time unit must be part of the capture (e.g., "10 ms")
+     "EVENTDURATIONDATETIME"         -- this will map the capture group's value to property "EventTimeDuration". 
+                                        "Duration" is calcuated by subracting the event's timestamp from this timestamp.
+                                        The value must be valid date-time syntax
+     "KEYSPACE"                      -- this will map the capture group's value to property "Keyspace" of the LogCassandraEvent class
+                                        This should be considered the "primary" keyspace for the event.
+     "KEYSPACES"                     -- A single or list of keyspaces (see KEYSPACE above) separated by a comma
+                                        This is either a repeating capture group or a set of capture groups with the same name.
+     "DDLITEMNAME"                   -- this will map the capture group's value to property "DDLItems" of the LogCassandraEvent class.
+                                        This can be table, view, or index qualifier with optional keyspace qualifier. The separator can be a period or slash.
+                                        This should be considered the "primary" DDL item for the event.
+     "DDLITEMNAMES"                  -- A single or list of DDL items (see DDLITEMNAME above) separated by a comma
+                                        This is either a repeating capture group or a set of capture groups with the same name.                                        
+     "DDLSCHEMAID"                   -- this will map the capture group's value to property "DDLItems" of the LogCassandraEvent class, if found.
+                                        This is the GUID of the schema.
+                                        This should be considered the "primary" DDL item for the event.
+     "TABLEVIEWNAME"                 -- Similar to DDLITEMNAME. If the name does not have a keyspace the KEYSPACE value is used as the default.
+                                        Multiple TABLEVIEWNAME names can be defined or it can be a repeating group.
+     "SOLRINDEXNAME"                 -- Translate a Solr index name into a quified DDL name. e.g., coafstatim_application_appownrtxt_index => coafstatim.application_appownrtxt_index
+     "SSTABLEPATH"                   -- this will be used to obtain the keyspace and DDL item plus map to the capture group's value to property "SSTables" of the LogCassandraEvent class
+                                        This should be considered the "primary" keyspace and DDL item for the event. This will overide the KEYSPACE and DDLITEMNAME for primary. If this is not the case use SSTABLEPATHS.
+     "SSTABLEPATHS"                  -- A single or list of sstable pathes (see SSTABLEPATHS above) separated by a comma
+                                        This is either a repeating capture group or a set of capture groups with the same name.                                        
+     "NODE"                          -- An IP Adress (can be IP4 or IP6) or a host name.
+     "NODES"                         -- A single or a list of nodes (see NODE above) separated by a comma
+                                        This is either a repeating capture group or a set of capture groups with the same name.          
+     "TOKENRANGE"                    -- A single pair (e.g., "(8464140199242376099,8468771495322313740]") or a list of tokens (e.g., "(8464140199242376099,8468771495322313740],(8501968907842620341,8530644509697221859]")
+                                        This is either a repeating capture group or a set of capture groups with the same name.
+     "TOKENSTART" or "TOKENEND"      -- A single token (e.g., "8464140199242376099") or a list of tokens (e.g., "8464140199242376099,8468771495322313740,8501968907842620341,8530644509697221859")
+                                        This is either a repeating capture group or a set of capture groups with the same name.
+     "TOKENSTART" or "TOKENEND"      -- A single token (e.g., "8464140199242376099") or a list of tokens (e.g., "8464140199242376099,8468771495322313740,8501968907842620341,8530644509697221859")
+                                        This is either a repeating capture group or a set of capture groups with the same name.
+     "KEY" or "VALUE"                -- Defines a Key-Value pair where the key is the key into the LogProperties property of the LogCassandraEvent class.
+                                        The KEY and VALUE capture groups can be anywhere but are processed in order (i.e., fist KEY matches the first VALUE). These can be used in a repeating capture group or a set of capture groups.
+     "KEYITEM" and "ITEM"            -- Defines a Key and Value List where the key is the key into the LogProperties property of the LogCassandraEvent class and each ITEM group's value is inserted into a list.
+     "KEYITEM" and "ITEM#"           -- Defines a Key and Value List where the key is the key into the LogProperties property of the LogCassandraEvent class and each ITEM group's value is inserted into a sublist which is inserted into a list assocated with the key.
+                                        where # is the item number into the sublist.
+     "KEYITEM#" and "ITEM#-*"        -- Defines multiple Keys and Value List where the key is the key into the LogProperties property of the LogCassandraEvent class and each ITEM group's value is inserted into a sublist which is inserted into a list assocated with the key.
+                                        where # is the key number that matches item numbers. * is the item number into the sublist.
+     groupname                       -- The group's name will become the key into the property collection of the LogEvent message and the group's value the value of the key ("(?<mygroup>[0-0a-z,.]+)" => {key:"mygroup", Value:<groupsvalue>})
+     groupname_UOM                   -- If named capture group is a unit of measure (not a date or time frame), the UOM can be defined by placing type after the name separated by an underscore.
+                                        e.g., "(?<mygroupname_mb_sec>.+)" where the group name is "mygroupname" and the group's UOM type is a "megabyte per second".
+     groupname__referencegroupname   -- If separated by two underscores, the separated value should be an already defined group name where that UOM would be used.
+                                        e.g., "(?<myothername__mygroupname>.+)" where the group name is "myothername" and the group's UOM type is based on "mygroupname" UOM (i.e., megabyte per second).
+      
+ Group names that are concated to the "Relative Info" field of the datatable:
+    "Token Range Group Names(e.g., TOKENRANGE, TOKENSTART, TOKENEND, etc.)"
+    partitionkey
+    whereclause
+    tag
+    nodetxt (can be a repeating group)
 
-  public string Description;
+Additinal group names and mappings:
+    tag1 -- "Path" field of the datatable
+    options -- "Path" field of the datatable. This can be a repeating group
+    
 
-  /// <summary>
-  /// If a session item this should be the session begin blokck's TagId.
-  /// </summary>
-  public decimal? SessionBeginTagId = null;
+ Fields "SessionKey" and "SessionLookup" have the following built-in fields:
+	  ThreadId
+	  ThreadName
+	  FileName
+	  FileNameLine (file name and line number)
+	  EventClass
+	  SubClass
+	  SessionIdKey
+	  Product        
+	  SSTABLEPATH=>DDLITEMNAME -- obtains the DDL Item name from the SSTable Path string
+	  SSTABLEPATH=>KEYSPACE -- obtains the keyspace name from the SSTable Path string
+	  SSTABLEPATH=>KEYSPACEDDLNAME -- obtains the keyspace and DDL names from the SSTable Path string
+	  SSTABLEPATH=>TABLEVIEWNAME -- obtains the table or view name only from the SSTable Path string
+	  SSTABLEPATH=>KEYSPACETABLEVIEWNAME -- obtains the keyspace and table/view name from the SSTable Path string
 
-  /// <summary>
-  /// If null any DSE version will match this mappings.
-  /// If defined, any DSE version that is equal to or greater than this version will match this mapping.
-  /// </summary>
-  /// <example>
-  /// Match Versions:
-  ///     4.7.0
-  ///     4.7.5
-  ///     4.8.0
-  ///     4.8.5
-  ///     5.0.0
-  /// DSE Version 4.8.12 -> 4.8.5
-  ///             4.8.4  -> 4.8.0
-  ///             4.8.0  -> 4.8.0
-  /// </example>
-  public Version MatchVersion { get; set; }
+	  A capture group name (e.g., SSTABLEPATH) as defined above
 
-  /// <summary>
-  /// RegEx used to match the log line's level. e.g., Debug, Info, Warn, Error, Fatal
-  /// </summary>
-  public RegExParseString LevelMatch { get; set; }
+	  C# expression -- Returns a string that represents the session key. This string should be able to be generated for any Timespan sessions and will be used to find the LogCassandraEvent instance when the log line is not a TimespanBegin.
+			   This session key is item1 in the Tuple in the openTimeSpanSessions local variable.
+			   This express must start with a '{' and end with a '}'
+			   It must follow C# syntax. It has the following locally defined variables:
+				  clogLineTypeParser -- A CLogLineTypeParser instance which is an instance of this information
+				  cluster            -- A Cluster instance assocated with this log parsing file
+				  node               -- An INode instance assocated with this log parsing file
+				  keyspace           -- Current IKeyspace instance assocated with this log line. Could be null.
+				  logLineProperties  -- A IDictionary<string, object> instance where the key is the capture group's name and the assocated value
+				  ogLineMessage      -- An ILogMessage instance that consistence of this parsed log line
 
-  /// <summary>
-  /// Log line: INFO  [STREAM-INIT-/10.198.59.26:57796] 2017-01-16 13:34:17,782  StreamResultFuture.java:109 - [Stream #8cf4e000-dc33-11e6-acce-516f8727826c ID#0] Creating new streaming plan for Repair
-  /// RegEx used to match the log line's Thread Id value. e.g.,  'STREAM-IN-/10.198.59.26'
-  /// </summary>
-  public RegExParseString ThreadIdMatch { get; set; }
+	  A static value that must be surrounded in quotes (e.g., 'StaticValue')
 
-  /// <summary>
-  /// Log line: INFO  [STREAM-INIT-/10.198.59.26:57796] 2017-01-16 13:34:17,782  StreamResultFuture.java:109 - [Stream #8cf4e000-dc33-11e6-acce-516f8727826c ID#0] Creating new streaming plan for Repair
-  /// RegEx used to match the log line's file name value. e.g.,  'StreamResultFuture.java'
-  /// </summary>
-  public RegExParseString FileNameMatch { get; set; }
-
-  /// <summary>
-  /// Log line: INFO  [STREAM-INIT-/10.198.59.26:57796] 2017-01-16 13:34:17,782  StreamResultFuture.java:109 - [Stream #8cf4e000-dc33-11e6-acce-516f8727826c ID#0] Creating new streaming plan for Repair
-  /// RegEx used to match the log line's file line position within the file name. e.g., 109
-  /// </summary>
-  public RegExParseString FileLineMatch { get; set; }
-
-  /// <summary>
-  /// Log line: INFO  [STREAM-INIT-/10.198.59.26:57796] 2017-01-16 13:34:17,782  StreamResultFuture.java:109 - [Stream #8cf4e000-dc33-11e6-acce-516f8727826c ID#0] Creating new streaming plan for Repair
-  /// RegEx used to match the log line's message value. e.g., '[Stream #8cf4e000-dc33-11e6-acce-516f8727826c ID#0] Creating new streaming plan for Repair'
-  /// </summary>
-  public RegExParseString MessageMatch { get; set; }
-
-  /// <summary>
-  /// A RegEx that is used splits the log message into different components used to populate the LogCassandraEvent's LogProperties member property dictionary.
-  /// The key is the RegEx named capture group or the capture group position. The dictionary value is the Captured group's value that is converted to the proper type.
-  /// If named capture group is a unit of measure (not a date or time frame), the UOM can be defined by placing type after the name separated by an underscore.
-  /// e.g., "(?<mygroupname_mb_sec>.+)" where the property key is "mygroupname" and the group's UOM type is a megabyte per second.
-  /// If separated by two underscores, the separated value should be an already defined property name where that UOM would be used.
-  /// e.g., "(?<myothername__mygroupname>.+)" where the property key is "myothername" and the group's UOM type is based on the property "mygroupname" (i.e., megabyte per second).
-  ///
-  /// There are special group names. They are:
-  ///     "SUBCLASS"                                -- this will map the capture group's value to property "SubClass" of LogCassandraEvent class
-  ///     "ID"                                      -- this will map the capture group's value to property "Id" of LogCassandraEvent class. It must be a valid GUID.
-  ///     "DURATION_xxx" or "DURATION"    -- this will map the capture group's value to property "Duration" of LogCassandraEvent class
-  ///                                                             "xxx" is the time unit. If not provided the time unit must be part of the capture (e.g., "10 ms")
-  ///     "EVENTDURATIONDATETIME"                   -- this will map the capture group's value to property "EventTimeDuration" and calaculates the "Duration" of the LogCassandraEvent class
-  ///                                                             The value must be valid date-time syntax
-  ///     "KEYSPACE"                                -- this will map the capture group's value to property "Keyspace" of the LogCassandraEvent class
-  ///                                                             This should be considered the "primary" keyspace for the event.
-  ///     "DDLITEMNAME"                             -- this will map the capture group's value to property "DDLItems" of the LogCassandraEvent class.
-  ///                                                             This can be table, view, or index qualifier with optional keyspace qualifier. The separator can be a period or slash.
-  ///                                                             This should be considered the "primary" DDL item for the event.
-  ///     "DDLSCHEMAID"                             -- this will map the capture group's value to property "DDLItems" of the LogCassandraEvent class, if found.
-  ///                                                             This is the GUID of the schema.
-  ///                                                             This should be considered the "primary" DDL item for the event.
-  ///     "TABLEVIEWNAME"                           -- Similar to DDLITEMNAME except that only a table or view name is defined. e.g., tablea.indexa DDLITEMNAME would be "indexa" but TABLEVIEWNAME would be "tablea"
-  ///                                                             If TABLEVIEWNAME is not found DDLITEMNAME is used.
-  ///     "SOLRINDEXNAME"                           -- Translate a Solr index name into a quified DDL name. e.g., coafstatim_application_appownrtxt_index => coafstatim.application_appownrtxt_index
-  ///     "SSTABLEPATH"                             -- this will be used to obtain the keyspace and DDL item plus map to the capture group's value to property "SSTables" of the LogCassandraEvent class
-  ///                                                             This should be considered the "primary" keyspace and DDL item for the event. This will overide the KEYSPACE and DDLITEMNAME for primary. If this is not the case use SSTABLEPATHS.
-  ///     "NODE"                                    -- An IP Adress (can be IP4 or IP6) or a host name.
-  ///     "KEYSPACES"                               -- A single or list of keyspaces (see KEYSPACE above)
-  ///                                                             This is either a repeating capture group or a set of capture groups with the same name.
-  ///     "DDLITEMNAMES"                            -- A single or list of DDL items (see DDLITEMNAME above)
-  ///                                                             This is either a repeating capture group or a set of capture groups with the same name.
-  ///     "SSTABLEPATHS"                            -- A single or list of sstable pathes (see SSTABLEPATHS above)
-  ///                                                             This is either a repeating capture group or a set of capture groups with the same name.
-  ///     "NODES"                                   -- A single or a list of nodes (see NODE above)
-  ///                                                             This is either a repeating capture group or a set of capture groups with the same name.
-  ///     "TOKENRANGE"                              -- A single pair (e.g., "(8464140199242376099,8468771495322313740]") or a list of tokens (e.g., "(8464140199242376099,8468771495322313740],(8501968907842620341,8530644509697221859]")
-  ///                                                             This is either a repeating capture group or a set of capture groups with the same name.
-  ///     "TOKENSTART" or "TOKENEND"      -- A single token (e.g., "8464140199242376099") or a list of tokens (e.g., "8464140199242376099,8468771495322313740,8501968907842620341,8530644509697221859")
-  ///                                                             This is either a repeating capture group or a set of capture groups with the same name.
-  ///     "TOKENSTART" or "TOKENEND"      -- A single token (e.g., "8464140199242376099") or a list of tokens (e.g., "8464140199242376099,8468771495322313740,8501968907842620341,8530644509697221859")
-  ///                                                             This is either a repeating capture group or a set of capture groups with the same name.
-  ///     "KEY" or "VALUE"                -- Defines a Key-Value pair where the key is the key into the LogProperties property of the LogCassandraEvent class.
-  ///                                                             The KEY and VALUE capture groups can be anywhere but are processed in order (i.e., fist KEY matches the first VALUE). These can be used in a repeating capture group or a set of capture groups.
-  ///     "KEYITEM" and "ITEM"            -- Defines a Key and Value List where the key is the key into the LogProperties property of the LogCassandraEvent class and each ITEM group's value is inserted into a list.
-  ///     "KEYITEM" and "ITEM#"           -- Defines a Key and Value List where the key is the key into the LogProperties property of the LogCassandraEvent class and each ITEM group's value is inserted into a sublist which is inserted into a list assocated with the key.
-  ///                                                             where # is the item number into the sublist.
-  ///     "KEYITEM#" and "ITEM#-*"        -- Defines multiple Keys and Value List where the key is the key into the LogProperties property of the LogCassandraEvent class and each ITEM group's value is inserted into a sublist which is inserted into a list assocated with the key.
-  ///                                                             where # is the key number that matches item numbers. * is the item number into the sublist.
-  /// </summary>
-  /// <remarks>
-  /// A collection of values can be defined by using a repeating capture group or a set of capture groups with the same capture group name.
-  /// A RegEx examples:
-  ///     RegEx: ^Compacting\s+\[(?:SSTableReader\(path=(?<SSTABLES>\'[a-z0-9._@\-/]+\')\s*\)\s*\,?\s*)+\]$
-  ///     Returns a named capture group "SSTABLES" with a list of sstables:
-  ///<code>
-  ///         '/data/cassandra/data/usprodofrs/newoffer_3_2_10-70a332308e9a11e6953741bf7da4d7d7/usprodofrs-newoffer_3_2_10-ka-459576-Data.db'
-  ///         '/data/cassandra/data/usprodofrs/newoffer_3_2_10-70a332308e9a11e6953741bf7da4d7d7/usprodofrs-newoffer_3_2_10-ka-459599-Data.db'
-  ///         '/data/cassandra/data/usprodofrs/newoffer_3_2_10-70a332308e9a11e6953741bf7da4d7d7/usprodofrs-newoffer_3_2_10-ka-459573-Data.db'
-  ///         '/data/cassandra/data/usprodofrs/newoffer_3_2_10-70a332308e9a11e6953741bf7da4d7d7/usprodofrs-newoffer_3_2_10-ka-459574-Data.db'
-  ///         '/data/cassandra/data/usprodofrs/newoffer_3_2_10-70a332308e9a11e6953741bf7da4d7d7/usprodofrs-newoffer_3_2_10-ka-459590-Data.db'
-  ///         '/data/cassandra/data/usprodofrs/newoffer_3_2_10-70a332308e9a11e6953741bf7da4d7d7/usprodofrs-newoffer_3_2_10-ka-459587-Data.db'
-  ///         '/data/cassandra/data/usprodofrs/newoffer_3_2_10-70a332308e9a11e6953741bf7da4d7d7/usprodofrs-newoffer_3_2_10-ka-459559-Data.db'
-  ///         '/data/cassandra/data/usprodofrs/newoffer_3_2_10-70a332308e9a11e6953741bf7da4d7d7/usprodofrs-newoffer_3_2_10-ka-459560-Data.db'
-  ///         '/data/cassandra/data/usprodofrs/newoffer_3_2_10-70a332308e9a11e6953741bf7da4d7d7/usprodofrs-newoffer_3_2_10-ka-459558-Data.db'
-  ///         '/data/cassandra/data/usprodofrs/newoffer_3_2_10-70a332308e9a11e6953741bf7da4d7d7/usprodofrs-newoffer_3_2_10-ka-459557-Data.db'
-  ///         '/data/cassandra/data/usprodofrs/newoffer_3_2_10-70a332308e9a11e6953741bf7da4d7d7/usprodofrs-newoffer_3_2_10-ka-459567-Data.db'
-  ///         '/data/cassandra/data/usprodofrs/newoffer_3_2_10-70a332308e9a11e6953741bf7da4d7d7/usprodofrs-newoffer_3_2_10-ka-459568-Data.db'
-  ///         '/data/cassandra/data/usprodofrs/newoffer_3_2_10-70a332308e9a11e6953741bf7da4d7d7/usprodofrs-newoffer_3_2_10-ka-459566-Data.db'
-  ///         '/data/cassandra/data/usprodofrs/newoffer_3_2_10-70a332308e9a11e6953741bf7da4d7d7/usprodofrs-newoffer_3_2_10-ka-459563-Data.db'
-  ///</code>
-  ///
-  ///     RegEx: ^Compacting\s+\[SSTableReader\(path=(?<SSTABLES>\'[a-z0-9._@\-/]+\')\s*\)\s*\,\s*SSTableReader\(path=(?<SSTABLES>\'[a-z0-9._@\-/]+\')\s*\)\s*\,\s*(?:SSTableReader\(path=(?<SSTABLES>\'[a-z0-9._@\-/]+\')\s*\)\s*\,?\s*)+\]$
-  ///     This RegEx string will product the same result as above even though three separate capture groups with the same name (SSTABLE) are defined.
-  /// </remarks>
-  public RegExParseString ParseMessage { get; set; }
-
-  /// <summary>
-  /// A RegEx that is used splits the log threadid into different components used to populate the LogCassandraEvent's LogProperties member property dictionary.
-  /// The key is the RegEx named capture group or the capture group position. The dictionary value is the Captured group's value that is converted to the proper type.
-  /// If named capture group is a unit of measure (not a date or time frame), the UOM can be defined by placing type after the name separated by an underscore.
-  /// e.g., "(?<mygroupname_mb_sec>.+)" where the property key is "mygroupname" and the group's UOM type is a megabyte per second.
-  ///
-  /// There are special group names. They are:
-  /// <see cref="ParseMessage"/>
-  /// </summary>
-  public RegExParseString ParseThreadId { get; set; }
-
-  public EventTypes EventType { get; set; }
-
-    [Flags]
-    public enum EventTypes
-    {
-        Unkown = 0,
-        /// <summary>
-        /// Only one occurrence like an exception, etc.
-        /// </summary>
-        SingleInstance = 0x0001,
-        SessionElement = 0x0002,
-        /// <summary>
-        /// A Session log item that is part of group of items that make up a session (e.g., compaction).
-        /// This log item is not the start or end of this session.
-        /// This log entry will use the associated SessionBegins log id.
-        /// If the start is not associated for this item it will be marked as orphaned.
-        /// </summary>
-        SessionItem = SessionElement | 0x0004,
-        /// <summary>
-        /// A Session log item that is part of group of items that make up a session (e.g., compaction).
-        /// This log entry marks the beginning (start) of the session and is tracked. All entries between SessionBegin and SessionEnd are considered children of this entry.
-        /// </summary>
-        SessionBegin = SessionItem | 0x0008,
-        /// <summary>
-        /// A Session log item that is part of group of items that make up a session (e.g., compaction).
-        /// This log entry marks the end of the session.
-        /// </summary>
-        SessionEnd = SessionItem | 0x0010,
-        /// <summary>
-        /// A special option used to determined if the log entry already has an associated SessionBegin.
-        /// If the entry does not, it will be marked as a SessionBegin, otherwise it will be marked as SessionItem.
-        /// </summary>
-        /// <seealso cref="SessionBegin"/>
-        /// <seealso cref="SessionItem"/>
-        SessionBeginOrItem = SessionBegin | 0x0020,
-        /// <summary>
-        /// If not within a session the log entry will be ignored
-        /// </summary>
-        SessionIgnore = SessionElement | 0x0100,
-        /// <summary>
-        /// Defines a session based on the ending event's duration. A Session Begin is generated based on this event's timestamp minus the duration.
-        /// </summary>
-        SessionDefinedByDuration = SessionEnd | 0x0200,
-        /// <summary>
-        ///  Statistical data that is typically aggregated over some time period (e.g., node uptime, Log Period, etc.)
-        /// </summary>
-        AggregateData = 0x1000,
-        /// <summary>
-        ///  Statistical data that is typically derived by this application or another module (not from nodetool or dsetool)
-        /// </summary>
-        AggregateDataDerived = AggregateData | 0x2000,
-        /// <summary>
-        ///  Statistical data that is typically derived by a DSE/C* tool like nodetool or dsetool
-        /// </summary>
-        AggregateDataTool = AggregateData | 0x4000
-    }
-  
-  public EventClasses EventClass { get; set; }
-
-    [Flags]
-    public enum EventClasses
-    {
-        Unknown = 0,
-        Information = 0x0001,
-        Warning = 0x0002,
-        Error = 0x0004,
-        Exception = 0x0008,
-        Fatal = 0x0010,
-        Compaction = 0x0020,
-        AntiCompaction = 0x0040,
-        MemtableFlush = 0x0080,
-        GC = 0x0100,
-        Pause = 0x0200,
-        Repair = 0x0400,
-        Drops = 0x0800,
-        Performance = 0x1000,
-        Stats = 0x2000,
-        Orphaned = 0x4000,
-        HintHandOff = 0x8000,
-        DataCenter = 0x10000,
-        Node = 0x20000,
-        Keyspace = 0x40000,
-        TableViewIndex = 0x80000,
-        Config = 0x100000,
-        Detection = 0x200000,
-        GCStats = GC | Stats,
-        NodeStats = Node | Stats,
-        KeyspaceStats = Keyspace | Stats,
-        TableViewIndexStats = TableViewIndex | Stats,
-        KeyspaceTableViewIndexStats = Keyspace | TableViewIndexStats,
-        PerformanceStats = Performance | Stats,
-        NodeDetection = Node | Detection,
-        StatusTypes = Information | Warning | Error | Exception | Fatal | Orphaned
-    }
-
-  /// <summary>
-  /// If the running count is equal to this value all log events for this instance are ignored. For a Session item this must be defined at the SessionBegin EventType.
-  /// </summary>
-  public long MaxNumberOfEvents { get; set; } = -1;
-
-  /// <summary>
-  /// If the running count for this node is equal to this value all log events for this instance are ignored. For a Session item this must be defined at the SessionBegin EventType.
-  /// </summary>
-  public long MaxNumberOfEventsPerNode { get; set; } = -1;
-
-  public long RunningCount = 0;
-
-  /// <summary>
-  /// If true, the event is ignored and not processed.
-  /// </summary>
-  public bool IgnoreEvent { get; set; }
-        
-  /// <summary>
-  /// e.g., Hint, Tombstone, etc. or null
-  /// This takes the same values as <see cref="SessionKey"/>
-  /// Callers should call the <see cref="DetermineSubClass(Cluster, INode, IKeyspace, IDictionary{string, object}, ILogMessage, IList{LogCassandraEvent}, IList{Tuple{string, List{LogCassandraEvent}}})"/> method to obtain the correct value.
-  /// </summary>
-  public string SubClass { get; set; }
-
-  public DSEInfo.InstanceTypes Product { get; set; }
-
-    [Flags]
-		public enum InstanceTypes
-		{
-			Unkown = 0,
-      Cassandra = 0x0001,
-      Search = 0x0002,
-      Analytics = 0x0004,
-      TT = 0x0008,
-      JT = 0x0010,
-      Graph = 0x0020,
-      AdvancedReplication = 0x0040,
-      Hadoop = 0x0080,
-      CFS = 0x0100,
-      Analytics_TT = Analytics | TT,
-      Analytics_JT = Analytics | JT,
-      Cassandra_JT = Cassandra | JT
-     }
-        
-  /// <summary>
-  /// This value is used to "tie" together timespan sessions between log lines/events. For beginning timespan events this is used to generate the Session Key.
-  /// For middle/ending timespan events that is used to determine the TimespanBegin LogCassandraEvent instance so that the same event Id and other attributes are shared with the related sessions.
-  ///
-  /// If a keyword is used, the string value is used to create the session key or determine the LogCassandraEvent instance in the open sessions list. Note that the events must be of the same Event Class.
-  ///     Keywords can be:
-  ///         ThreadId
-  ///         ThreadName
-  ///         FileName
-  ///         FileNameLine (file name and line number)
-  ///         EventClass
-  ///         SubClass
-  ///         SessionIdKey
-  ///         Product
-  ///         A capture group name (e.g., SSTABLEPATH) as defined in the <see cref="ParseMessage"/> and <see cref="ParseThreadId"/> properties
-  ///         SSTABLEPATH=>DDLITEMNAME -- obtains the DDL Item name from the SSTable Path string
-  ///         SSTABLEPATH=>KEYSPACE -- obtains the keyspace name from the SSTable Path string
-  ///         SSTABLEPATH=>KEYSPACEDDLNAME -- obtains the keyspace and DDL names from the SSTable Path string
-  ///         SSTABLEPATH=>TABLEVIEWNAME -- obtains the table or view name from the SSTable Path string
-  ///         SSTABLEPATH=>KEYSPACETABLEVIEWNAME -- obtains the keyspace and table/view name from the SSTable Path string
-  /// --or--
-  ///     A C# expression that returns a string that represents the session key. This string should be able to be generated for any Timespan sessions and will be used to find the LogCassandraEvent instance when the log line is not a TimespanBegin.
-  ///             This session key is item1 in the Tuple in the openTimeSpanSessions local variable.
-  ///     This express must start with a '{' and end with a '}'
-  ///     It must follow C# syntax. It has the following locally defined variables:
-  ///         <code>clogLineTypeParser</code> -- A CLogLineTypeParser instance which is an instance of this information
-  ///         <code>cluster</code>            -- A Cluster instance assocated with this log parsing file
-  ///         <code>node</code>               -- An INode instance assocated with this log parsing file
-  ///         <code>keyspace</code>           -- Current IKeyspace instance assocated with this log line. Could be null.
-  ///         <code>logLineProperties</code>  -- A IDictionary<string, object> instance where the key is the capture group's name and the assocated value
-  ///         <code>logLineMessage</code>     -- An ILogMessage instance that consistence of this parsed log line
-  /// --or--
-  ///     A static value that must be surrounded in quotes.
-  /// --or--
-  ///     A set of keywords seperated by a '+' where the values are concatenated.
-  ///
-  /// </summary>
-  /// <remarks>
-  /// If values are concatenated, the ordering is important. Values that are always present (e.g., ThreadId) should be first and values that may not be present or optional should be later (e.g., DDLITEMNAME).
-  ///
-  /// Below is an example where the SessionKey would be the "ThreadId" since this is used to identify a compacation timespan session for all log lines.
-  /// Log line 1 will define the session key with "CompactionExecutor:734". The remaining log logs will use the ThreadId to get the beginning event.
-  /// <code>
-  /// INFO  [CompactionExecutor:734] 2017-02-11 23:58:47,586  CompactionTask.java:141 - Compacting [SSTableReader(path='/data/cassandra/data/usprodsec/session_3-ca531e218ed211e6ab872748a53d9d02/usprodsec-session_3-ka-78735-Data.db'), SSTableReader(path='/data/cassandra/data/usprodsec/session_3-ca531e218ed211e6ab872748a53d9d02/usprodsec-session_3-ka-78732-Data.db'), SSTableReader(path='/data/cassandra/data/usprodsec/session_3-ca531e218ed211e6ab872748a53d9d02/usprodsec-session_3-ka-78734-Data.db'), SSTableReader(path='/data/cassandra/data/usprodsec/session_3-ca531e218ed211e6ab872748a53d9d02/usprodsec-session_3-ka-78733-Data.db')]
-  /// INFO  [CompactionExecutor:734] 2017-02-11 23:58:47,668  ColumnFamilyStore.java:905 - Enqueuing flush of compactions_in_progress: 164 (0%) on-heap, 0 (0%) off-heap
-  /// INFO  [CompactionExecutor:734] 2017-02-11 23:58:47,715  CompactionTask.java:274 - Compacted 4 sstables to[/ data / cassandra / data / usprodsec / session_3 - ca531e218ed211e6ab872748a53d9d02 / usprodsec - session_3 - ka - 78741,].  3,541 bytes to 1,079 (~30% of original) in 128ms = 0.008039MB/s.  35 total partitions merged to 12.  Partition merge counts were {1:1, 3:10, 4:1, }
-  /// </code>
-  ///
-  /// Below is an example where a capture group could be used (i.e., DDLITEMNAMES/ColumnFamily Name) as the SessionKey.
-  /// Log line 1 will define the session key with "product_3_2_0" (i.e., DDLITEMNAMES). The remaining log logs will use the DDLITEMNAMES to get the beginning event.
-  /// <code>
-  /// INFO  [SlabPoolCleaner] 2017-02-12 00:09:07,183  ColumnFamilyStore.java:1211 - Flushing largest CFS(Keyspace='usprodrp', ColumnFamily='product_3_2_0') to free up room. Used total: 0.20/0.00, live: 0.20/0.00, flushing: 0.00/0.00, this: 0.07/0.07
-  /// INFO [SlabPoolCleaner] 2017-02-12 00:09:07,183  ColumnFamilyStore.java:905 - Enqueuing flush of product_3_2_0: 146449687 (7%) on-heap, 0 (0%) off-heap
-  /// INFO [MemtableFlushWriter:3768] 2017-02-12 00:09:07,183  Memtable.java:347 - Writing Memtable-product_3_2_0@1706942500(20.930MiB serialized bytes, 856689 ops, 7%/0% of on/off-heap limit)
-  /// INFO [MemtableFlushWriter:3768] 2017-02-12 00:09:07,384  Memtable.java:382 - Completed flushing /data/cassandra/data/usprodrp/product_3_2_0-ebf4f370e6a511e6a5513b7f00393f0e/usprodrp-product_3_2_0-tmp-ka-1740-Data.db (3.681MiB) for commitlog position ReplayPosition(segmentId= 1486705770182, position= 19949509)
-  /// </code>
-  /// </remarks>
-  public string SessionKey { get; set; }
-
-  public SessionKeyActions SessionKeyAction { get; set; }
-        
-    public enum SessionKeyActions
-    {
-        Auto = 0,
-        Add = 1,
-        Read = 2,
-        Delete = 3,
-        ReadRemove = 4
-    }
-
-  /// <summary>
-  /// Alternative Value used to lookup the session.
-  /// This takes the same values as <see cref="SessionKey"/>
-  /// Callers should call the <see cref="DetermineSessionLookup(Cluster, INode, IKeyspace, IDictionary{string, object}, ILogMessage)"/> method to obtain the correct value.
-  /// </summary>
-  public string SessionLookup { get; set; }
-        
-  public SessionLookupActions SessionLookupAction { get; set; }
-
-    [Flags]
-    public enum SessionLookupActions
-    {
-        Default = 0,
-        Label = 0x0001,
-        /// <summary>
-        /// If defined, the Session Lookup value is used to perform the action (e.g., read, remove, define, etc.) on the Session Key cache (If Label or Stack defined and value not found in session; lookup action cache is used)
-        /// </summary>
-        Session = 0x0002,
-        Read = 0x0004,
-        Define = 0x0008,
-        Delete = 0x0010,
-        /// <summary>
-        /// When defining a label instead of creating it, it is pushed onto a stack that upon delete it is popped off.
-        /// </summary>
-        Stack = 0x0020,
-        /// <summary>
-        /// If defined the lookup value is used as the primary Session tie-out Id. If not defined and Session Key defined, the session key is used.
-        /// </summary>
-        TieOutId = 0x0040,
-        /// <summary>
-        /// If defined the lookup value is appended before the session id (if defined) when a tie-out id is created.
-        /// Typically this is done to allow one session end item to match multiple session begins.
-        /// </summary>
-        AppendTieOutId = 0x0080, 
-        ReadSession = Read | Session,
-        ReadLabel = Read | Label,
-        DefineLabel = Define | Label,
-        DeleteLabel = Delete | Label,
-        ReadRemoveLabel = Read | Delete | Label,
-        ReadRemoveSession = Read | Delete | Session,
-        DefineSession = Define | Session,
-        DeleteSession = Delete | Session
-    }
-
-  /// <summary>
-  /// Determines how parent sessions are added to the current instance's Parent property, if any.
-  /// </summary>
-  public SessionParentActions SessionParentAction { get; set; } = SessionParentActions.Default;
-
-    public enum SessionParentActions
-    {
-        /// <summary>
-        /// Current session and it's parents are added
-        /// </summary>
-        Default = 0,
-        /// <summary>
-        /// Current session is not added as a parent. Note that the current session's parents are added, if any. 
-        /// </summary>
-        IgnoreCurrent = 1,
-        /// <summary>
-        /// Current session's parents are not added
-        /// </summary>
-        IgnoreParents = 2
-    }
-  
-  public string[] Examples;
-
+	  A set of keywords seperated by a '+' where the values are concatenated (e.g., 'StaticValue ' + ThreadId) 
+	    The ordering is important. Values that are always present (e.g., ThreadId) should be first and values that may not be present or optional should be later (e.g., DDLITEMNAME).
 */
 /*
   RegEx Library
@@ -430,24 +99,26 @@
     In this case "<SSTABLEPATHS>[a-z0-9\\-_@#/.,\\ +%]*" is replaced where "$<SSTABLEPATHS>" is position
       Result: "^Compacting\\s+\\[(?:SSTableReader\\s*\\(\\s*path\\s*=\\s*'\\s*(?<SSTABLEPATHS>[a-z0-9\\-_@#/.,\\ +%]*)\\s*'\\s*\\),?\\s*)+\\s*\\]$"
 
-    If "<SSTABLEPATHS>" is not wanted use this syntax of "$<!SSTABLEPATHS>". This yeilds "[a-z0-9\\-_@#/.,\\ +%]*
+    If the froup name "<SSTABLEPATHS>" is not wanted use this syntax of "$<!SSTABLEPATHS>". This yeilds "[a-z0-9\\-_@#/.,\\ +%]* (no group name)
       Result: "^Compacting\\s+\\[(?:SSTableReader\\s*\\(\\s*path\\s*=\\s*'\\s*(?[a-z0-9\\-_@#/.,\\ +%]*)\\s*'\\s*\\),?\\s*)+\\s*\\]$"
 
   [
-{"Key":"ID","Value":"[0-9a-f\\-]+"},
-{"Key":"DURATION","Value":"[0-9,.]+"},
-{"Key":"DURATIONwUOM","Value":"(?<DURATION>[0-9,.]+\\s*\\w+)"},
-{"Key":"KEYSPACE","Value":"[a-z0-9'\\-_$%+=!?<>^*&@]+"},
-{"Key":"DDLITEMNAME","Value":"[a-z0-9'\\-_$%+=!?<>^*&@/.]+"},
-{"Key":"DDLITEMNAMES","Value":"[a-z0-9'\\-_$%+=!?<>^*&@/. ,]*"},
-{"Key":"TABLEVIEWNAME","Value":"[a-z0-9'\\-_$%+=!?<>^*&@/.]+"},
-{"Key":"DDLSCHEMAID","Value":"[0-9a-f\\-]+"},
-{"Key":"SSTABLEPATH","Value":"[a-z0-9\\-_@#/.\\ +%]+"},
-{"Key":"SSTABLEPATHS","Value":"[a-z0-9\\-_@#/.,\\ +%]*"},
-{"Key":"NODE","Value":"[^ ]+"},
-{"Key":"NODELIST","Value":"\\[\\s*(?<nodetxt>(?<NODES>[^\\]]+))\\]"},
-{"Key":"SOLRINDEXNAME","Value":"[a-z0-9'\\-_$%+=!?<>^*&@/.]+"},
-{"Key":"CQLSELECT","Value":"select\\s+(?<querycols>.+)\\s+from\\s+(?$<TABLEVIEWNAME>)(?:\\s+where\\s+(?<whereclause>.+?))??(?:\\s+order\\s+by\\s+(?<orderbycols>.+?))??(?:\\s+limit\\s+(?<limit>\\d+?))??(?<allowfiltering>\\s+allow\\s+filtering)??"}
+    {"Key":"ID","Value":"[0-9a-f\\-]+"},
+    {"Key":"DURATION","Value":"[0-9,.]+"},
+    {"Key":"DURATIONwUOM","Value":"(?<DURATION>[0-9,.]+\\s*\\w+)"},
+    {"Key":"KEYSPACE","Value":"[a-z0-9'\\-_$%+=!?<>^*&@]+"},
+    {"Key":"DDLITEMNAME","Value":"[a-z0-9'\\-_$%+=!?<>^*&@/.]+"},
+    {"Key":"DDLITEMNAMES","Value":"[a-z0-9'\\-_$%+=!?<>^*&@/. ,]*"},
+    {"Key":"TABLEVIEWNAME","Value":"[a-z0-9'\\-_$%+=!?<>^*&@/.]+"},
+    {"Key":"DDLSCHEMAID","Value":"[0-9a-f\\-]+"},
+    {"Key":"SSTABLEPATH","Value":"[a-z0-9\\-_@#/.\\ +%]+"},
+    {"Key":"SSTABLEPATHS","Value":"[a-z0-9\\-_@#/.,\\ +%]*"},
+    {"Key":"NODE","Value":"[^ ]+"},
+    {"Key":"NODELIST","Value":"\\[?\\s*(?<nodetxt>(?<NODES>[^\\]]+))\\]?"},
+    {"Key":"NODEITEMS","Value":"\\s*(?<nodetxt>(?:((?:[^/]+)?/(?<NODES>[0-9.]+))\\s*,?\\s*)+)\\s*"},
+    {"Key":"SOLRINDEXNAME","Value":"[a-z0-9'\\-_$%+=!?<>^*&@/.]+"},
+    {"Key":"CQLSELECT","Value":"select\\s+(?<querycols>.+)\\s+from\\s+(?$<TABLEVIEWNAME>)(?:\\s+where\\s+(?<whereclause>.+?))??(?:\\s+order\\s+by\\s+(?<orderbycols>.+?))??(?:\\s+limit\\s+(?<limit>\\d+?))??(?<allowfiltering>\\s+allow\\s+filtering)??"},
+    {"Key":"TOKENKSTBL","Value":"\\[?(?:(?<TOKENRANGE>\\([0-9\\-]+\\s*,\\s*[0-9\\-]+\\])+,?\\s*)+\\s*\\]?\\s*\\w+\\s*(?<KEYSPACE>[a-z0-9'\\-_$%+=!?<>^*&@]+)\\.\\[\\s*(?:(?<TABLEVIEWNAME>[a-z0-9'\\-_$%+=!?<>^*&@/.]+)\\s*,*\\s*)+\\]"}
 ]
 */
 {
@@ -3459,6 +3130,589 @@
       "IgnoreEvent": false,
       "Examples": [
         "ERROR [SharedPool-Worker-2] 2019-03-02 09:53:00,053  RowResponseHandler.java:206 - Row retrieval response timeout of 10000, missing responses from nodes: [10.2.144.141]"
+      ]
+    },
+    {
+      "Description": "Session Repairs (Start)",
+      "TagId": 54.0,
+      "MatchVersion": null,
+      "LevelMatch": {
+        "RegExStrings": [
+          "INFO"
+        ]
+      },
+      "ThreadIdMatch": null,
+      "FileNameMatch": {
+        "RegExStrings": [
+          "^RepairRunnable.java$",
+          "^StorageService.java$"
+        ]
+      },
+      "FileLineMatch": null,
+      "MessageMatch": {
+        "RegExStrings": [
+          "^Starting\\s+repair\\s+command"
+        ]
+      },
+      "ParseMessage": {
+        "RegExStrings": [
+          "^Starting\\s+repair\\s+command\\s(?<commandid>\\#?[0-9]+),\\s+(?<options>repairing\\s+(?<repairtype>keyspace))\\s+(?<KEYSPACE>[a-z0-9'\\-_$%+=!?<>^*&@]+)\\s+with\\s+repair\\soptions\\s\\((?<options>[^)]+)\\)",
+          "^Starting\\s+repair\\s+command\\s(?<commandid>\\#?[0-9]+),\\s+(?<options>repairing\\s+(?<numranges>[0-9,]+)\\s+(?<repairtype>ranges))\\s+for\\s+keyspace\\s+(?<KEYSPACE>[a-z0-9'\\-_$%+=!?<>^*&@]+)\\s+\\((?<options>[^)]+)\\)"
+        ]
+      },
+      "ParseThreadId": null,
+      "EventType": "SessionBegin",
+      "EventClass": "NodeDetection,Repair,Session",
+      "SubClass": "'repair ' + repairtype",
+      "AssociateEventToNode": false,
+      "LogPropertySessionMerge": false,
+      "AnalyticsGroup": null,
+      "Product": "Cassandra",
+      "SessionKey": "'repair ' + KEYSPACE",
+      "SessionKeyAction": "Add",
+      "SessionLookup": null,
+      "SessionLookupAction": "Default",
+      "Examples": [
+        "=>INFO  [Thread-89] 2019-03-02 11:04:57,767  RepairRunnable.java:136 - Starting repair command #1, repairing keyspace cfic with repair options (parallelism: parallel, primary range: false, incremental: false, job threads: 1, ColumnFamilies: [locs, item, nutrition, ad_upcs, ad_blocks, class_location, pog, store, category], dataCenters: [], hosts: [], runAntiCompaction: false, # of ranges: 1)",
+        "INFO  [Thread-89] 2019-03-02 11:04:57,781  RepairSession.java:224 - [repair #ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5] new session: will sync /10.252.72.154, /10.252.72.156, /10.252.72.126, /10.2.144.155, /10.2.144.153, /10.2.144.125 on range [(6124895493223874760,6129399092851245256]] for cfic.[item, nutrition, pog, locs, ad_blocks, class_location, ad_upcs, store, category]",
+        "INFO  [Repair#1:1] 2019-03-02 11:04:57,794  RepairJob.java:250 - [repair #ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5] Requesting merkle trees for item (to [/10.252.72.156, /10.252.72.126, /10.2.144.155, /10.2.144.153, /10.2.144.125, /10.252.72.154])",
+        "INFO  [AntiEntropyStage:1] 2019-03-02 11:04:57,799  Validator.java:281 - [repair #ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5] Sending completed merkle tree to /10.252.72.152 for cficy.item",
+        "INFO  [AntiEntropyStage:1] 2019-03-02 11:04:57,819  RepairSession.java:176 - [repair #ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5] Received merkle tree for item from /10.252.72.154",
+        "INFO  [RepairJobTask:5] 2019-03-02 11:04:57,829  SyncTask.java:93 - [repair #ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5] Endpoints /10.252.72.156 and /10.2.144.155 are consistent for item",
+        "INFO  [Repair#1:1] 2019-03-02 11:04:57,829  RepairJob.java:187 - [repair #ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5] item is fully synced",
+        "INFO  [RepairJobTask:2] 2019-03-02 11:04:58,687  RepairSession.java:266 - [repair #ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5] Session completed successfully",
+        "INFO  [RepairJobTask:2] 2019-03-02 11:04:58,692  RepairRunnable.java:256 - Repair session ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5 for range [(6124895493223874760,6129399092851245256]] finished",
+        "INFO  [RepairJobTask:2] 2019-03-02 11:04:58,695  ActiveRepairService.java:469 - [repair #ed0c7193-3d04-11e9-a85e-c70ab1af3dd5] Not a global repair, will not do anticompaction",
+        "INFO  [InternalResponseStage:53] 2019-03-02 11:04:58,701  RepairRunnable.java:338 - Repair command #1 finished in 0 seconds",
+
+        "ERROR [AntiEntropySessions:1857] 2016-06-10 21:56:53,281  RepairSession.java:276 - [repair #dc161200-2f4d-11e6-bd0c-93368bf2a346] Cannot proceed on repair because a neighbor (/10.27.34.54) is dead: session failed"
+      ]
+    },
+    {
+      "Description": "Session Repairs (session)",
+      "TagId": 54.1,
+      "MatchVersion": null,
+      "LevelMatch": {
+        "RegExStrings": [
+          "INFO"
+        ]
+      },
+      "ThreadIdMatch": null,
+      "FileNameMatch": {
+        "RegExStrings": [
+          "^RepairSession.java$",
+          "^StorageService.java$"
+        ]
+      },
+      "FileLineMatch": null,
+      "MessageMatch": {
+        "RegExStrings": [
+          "^\\[repair\\s+#[0-9a-f-]+\\]\\s+new\\s+session"
+        ]
+      },
+      "ParseMessage": {
+        "RegExStrings": [
+          "^\\[repair\\s+#(?$<ID>)\\]\\s+new\\s+session:\\s+will\\s+sync\\s+$<!NODEITEMS>\\s+on\\s+range\\s+$<!TOKENKSTBL>"
+        ]
+      },
+      "ParseThreadId": null,
+      "EventType": "SessionBeginOrItem",
+      "EventClass": "NodeDetection,Repair,Session",
+      "SubClass": null,
+      "AssociateEventToNode": false,
+      "LogPropertySessionMerge": true,
+      "PropertyInherentOption": "Repair,Merge",
+      "AnalyticsGroup": null,
+      "Product": "Cassandra",
+      "SessionKey": "ID",
+      "SessionKeyAction": "Add",
+      "SessionLookup": "'repair ' + KEYSPACE",
+      "SessionLookupAction": "ReadRemoveSession",
+      "Examples": [
+        "INFO  [Thread-89] 2019-03-02 11:04:57,767  RepairRunnable.java:136 - Starting repair command #1, repairing keyspace cfic with repair options (parallelism: parallel, primary range: false, incremental: false, job threads: 1, ColumnFamilies: [locs, item, nutrition, ad_upcs, ad_blocks, class_location, pog, store, category], dataCenters: [], hosts: [], runAntiCompaction: false, # of ranges: 1)",
+        "=>INFO  [Thread-89] 2019-03-02 11:04:57,781  RepairSession.java:224 - [repair #ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5] new session: will sync /10.252.72.154, /10.252.72.156, /10.252.72.126, /10.2.144.155, /10.2.144.153, /10.2.144.125 on range [(6124895493223874760,6129399092851245256]] for cfic.[item, nutrition, pog, locs, ad_blocks, class_location, ad_upcs, store, category]",
+        "INFO  [Repair#1:1] 2019-03-02 11:04:57,794  RepairJob.java:250 - [repair #ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5] Requesting merkle trees for item (to [/10.252.72.156, /10.252.72.126, /10.2.144.155, /10.2.144.153, /10.2.144.125, /10.252.72.154])",
+        "INFO  [AntiEntropyStage:1] 2019-03-02 11:04:57,799  Validator.java:281 - [repair #ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5] Sending completed merkle tree to /10.252.72.152 for cficy.item",
+        "INFO  [AntiEntropyStage:1] 2019-03-02 11:04:57,819  RepairSession.java:176 - [repair #ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5] Received merkle tree for item from /10.252.72.154",
+        "INFO  [RepairJobTask:5] 2019-03-02 11:04:57,829  SyncTask.java:93 - [repair #ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5] Endpoints /10.252.72.156 and /10.2.144.155 are consistent for item",
+        "INFO  [Repair#1:1] 2019-03-02 11:04:57,829  RepairJob.java:187 - [repair #ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5] item is fully synced",
+        "INFO  [RepairJobTask:2] 2019-03-02 11:04:58,687  RepairSession.java:266 - [repair #ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5] Session completed successfully",
+        "INFO  [RepairJobTask:2] 2019-03-02 11:04:58,692  RepairRunnable.java:256 - Repair session ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5 for range [(6124895493223874760,6129399092851245256]] finished",
+        "INFO  [RepairJobTask:2] 2019-03-02 11:04:58,695  ActiveRepairService.java:469 - [repair #ed0c7193-3d04-11e9-a85e-c70ab1af3dd5] Not a global repair, will not do anticompaction",
+        "INFO  [InternalResponseStage:53] 2019-03-02 11:04:58,701  RepairRunnable.java:338 - Repair command #1 finished in 0 seconds",
+
+        "INFO  [Thread-4] 2016-08-25 20:00:46,363  StorageService.java:2956 - Starting repair command #1, repairing 256 ranges for keyspace system_traces (parallelism=SEQUENTIAL, full=true)",
+        "?? INFO [RMI TCP Connection(66862)-127.0.0.1] 2016-08-10 07:08:06,169  StorageService.java:2891 - starting user - requested repair of range[(-2100511606573441819, -2090067312984508524]] for keyspace gamingactivity and column families[membergamingeventaggregate, membergamingevent, membergameswagered, gamingexpectation, memberfundingeventaggregate, schema_current_version, memberfundingevent, schema_version, memberactiveduration, membergamingeventsubaggregate, memberwagergameaggregate]",
+        "INFO [Thread-1616292] 2016-08-10 07:08:06,169  StorageService.java:2970 - Starting repair command #9663, repairing 1 ranges for keyspace gamingactivity (parallelism=PARALLEL, full=true)",
+        "=>INFO [AntiEntropySessions: 9665] 2016-08-10 07:08:06,218  RepairSession.java:260 - [repair #cde0eaa0-5ec0-11e6-8767-f5197346a00e] new session: will sync /10.211.34.150, /10.211.34.167, /10.211.34.165, /10.211.34.164, /10.211.34.158 on range (-2100511606573441819,-2090067312984508524] for gamingactivity.[memberfundingeventaggregate, memberactiveduration, membergamingeventsubaggregate, gamingexpectation, membergamingevent, membergameswagered, schema_version, memberfundingevent, memberwagergameaggregate, membergamingeventaggregate, schema_current_version]",
+        "INFO [AntiEntropySessions: 9665] 2016-08-10 07:08:06,218  RepairJob.java:163 - [repair #cde0eaa0-5ec0-11e6-8767-f5197346a00e] requesting merkle trees for memberfundingeventaggregate (to [/10.211.34.167, /10.211.34.165, /10.211.34.164, /10.211.34.158, /10.211.34.150])",
+        "INFO [AntiEntropyStage: 1] 2016-08-10 07:08:06,219  RepairSession.java:171 - [repair #cde0eaa0-5ec0-11e6-8767-f5197346a00e] Received merkle tree for memberfundingeventaggregate from /10.211.34.150",
+        "INFO [AntiEntropyStage: 1] 2016-08-10 07:08:06,219  RepairSession.java:171 - [repair #cde0eaa0-5ec0-11e6-8767-f5197346a00e] Received merkle tree for memberfundingeventaggregate from /10.211.34.164",
+        "INFO [AntiEntropyStage: 1] 2016-08-10 07:08:06,219  RepairSession.java:171 - [repair #cde0eaa0-5ec0-11e6-8767-f5197346a00e] Received merkle tree for memberfundingeventaggregate from /10.211.34.158",
+        "INFO [AntiEntropyStage: 1] 2016-08-10 07:08:06,219  RepairSession.java:171 - [repair #cde0eaa0-5ec0-11e6-8767-f5197346a00e] Received merkle tree for memberfundingeventaggregate from /10.211.34.165",
+        "INFO [AntiEntropyStage: 1] 2016-08-10 07:08:06,219  RepairSession.java:171 - [repair #cde0eaa0-5ec0-11e6-8767-f5197346a00e] Received merkle tree for memberfundingeventaggregate from /10.211.34.167",
+        "INFO [RepairJobTask: 1] 2016-08-10 07:08:06,219  Differencer.java:67 - [repair #cde0eaa0-5ec0-11e6-8767-f5197346a00e] Endpoints /10.211.34.150 and /10.211.34.164 are consistent for memberfundingeventaggregate",
+
+        "ERROR [AntiEntropySessions:1857] 2016-06-10 21:56:53,281  RepairSession.java:276 - [repair #dc161200-2f4d-11e6-bd0c-93368bf2a346] Cannot proceed on repair because a neighbor (/10.27.34.54) is dead: session failed"
+      ]
+    },
+    {
+      "Description": "Session Repairs (request)",
+      "TagId": 54.2,
+      "MatchVersion": null,
+      "LevelMatch": {
+        "RegExStrings": [
+          "INFO"
+        ]
+      },
+      "ThreadIdMatch": null,
+      "FileNameMatch": {
+        "RegExStrings": [
+          "^RepairJob.java$"
+        ]
+      },
+      "FileLineMatch": null,
+      "MessageMatch": {
+        "RegExStrings": [
+          "^\\[repair\\s+#[0-9a-f-]+\\]\\s+Requesting\\s+merkle\\s+trees"
+        ]
+      },
+      "ParseMessage": {
+        "RegExStrings": [
+          "^\\[repair\\s+#(?$<ID>)\\]\\s+Requesting\\s+merkle\\s+trees\\s+for\\s+(?$<TABLEVIEWNAME>)\\s+\\(?to\\s+$<!NODELIST>"
+        ]
+      },
+      "ParseThreadId": null,
+      "EventType": "SessionItem",
+      "EventClass": "NodeDetection,Repair,Session",
+      "SubClass": null,
+      "Disabled": true,
+      "AssociateEventToNode": false,
+      "LogPropertySessionMerge": true,
+      "PropertyInherentOption": "Repair,Merge",
+      "AnalyticsGroup": null,
+      "Product": "Cassandra",
+      "SessionKey": "ID",
+      "SessionKeyAction": "Read",
+      "SessionLookup": null,
+      "SessionLookupAction": "Default",
+      "Examples": [
+        "INFO  [Thread-89] 2019-03-02 11:04:57,767  RepairRunnable.java:136 - Starting repair command #1, repairing keyspace cfic with repair options (parallelism: parallel, primary range: false, incremental: false, job threads: 1, ColumnFamilies: [locs, item, nutrition, ad_upcs, ad_blocks, class_location, pog, store, category], dataCenters: [], hosts: [], runAntiCompaction: false, # of ranges: 1)",
+        "INFO  [Thread-89] 2019-03-02 11:04:57,781  RepairSession.java:224 - [repair #ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5] new session: will sync /10.252.72.154, /10.252.72.156, /10.252.72.126, /10.2.144.155, /10.2.144.153, /10.2.144.125 on range [(6124895493223874760,6129399092851245256]] for cfic.[item, nutrition, pog, locs, ad_blocks, class_location, ad_upcs, store, category]",
+        "=>INFO  [Repair#1:1] 2019-03-02 11:04:57,794  RepairJob.java:250 - [repair #ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5] Requesting merkle trees for item (to [/10.252.72.156, /10.252.72.126, /10.2.144.155, /10.2.144.153, /10.2.144.125, /10.252.72.154])",
+        "INFO  [AntiEntropyStage:1] 2019-03-02 11:04:57,799  Validator.java:281 - [repair #ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5] Sending completed merkle tree to /10.252.72.152 for cficy.item",
+        "INFO  [AntiEntropyStage:1] 2019-03-02 11:04:57,819  RepairSession.java:176 - [repair #ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5] Received merkle tree for item from /10.252.72.154",
+        "INFO  [RepairJobTask:5] 2019-03-02 11:04:57,829  SyncTask.java:93 - [repair #ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5] Endpoints /10.252.72.156 and /10.2.144.155 are consistent for item",
+        "INFO  [Repair#1:1] 2019-03-02 11:04:57,829  RepairJob.java:187 - [repair #ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5] item is fully synced",
+        "INFO  [RepairJobTask:2] 2019-03-02 11:04:58,687  RepairSession.java:266 - [repair #ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5] Session completed successfully",
+        "INFO  [RepairJobTask:2] 2019-03-02 11:04:58,692  RepairRunnable.java:256 - Repair session ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5 for range [(6124895493223874760,6129399092851245256]] finished",
+        "INFO  [RepairJobTask:2] 2019-03-02 11:04:58,695  ActiveRepairService.java:469 - [repair #ed0c7193-3d04-11e9-a85e-c70ab1af3dd5] Not a global repair, will not do anticompaction",
+        "INFO  [InternalResponseStage:53] 2019-03-02 11:04:58,701  RepairRunnable.java:338 - Repair command #1 finished in 0 seconds",
+
+        "INFO  [Thread-4] 2016-08-25 20:00:46,363  StorageService.java:2956 - Starting repair command #1, repairing 256 ranges for keyspace system_traces (parallelism=SEQUENTIAL, full=true)",
+        "?? INFO [RMI TCP Connection(66862)-127.0.0.1] 2016-08-10 07:08:06,169  StorageService.java:2891 - starting user - requested repair of range[(-2100511606573441819, -2090067312984508524]] for keyspace gamingactivity and column families[membergamingeventaggregate, membergamingevent, membergameswagered, gamingexpectation, memberfundingeventaggregate, schema_current_version, memberfundingevent, schema_version, memberactiveduration, membergamingeventsubaggregate, memberwagergameaggregate]",
+        "INFO [Thread-1616292] 2016-08-10 07:08:06,169  StorageService.java:2970 - Starting repair command #9663, repairing 1 ranges for keyspace gamingactivity (parallelism=PARALLEL, full=true)",
+        "INFO [AntiEntropySessions: 9665] 2016-08-10 07:08:06,218  RepairSession.java:260 - [repair #cde0eaa0-5ec0-11e6-8767-f5197346a00e] new session: will sync /10.211.34.150, /10.211.34.167, /10.211.34.165, /10.211.34.164, /10.211.34.158 on range (-2100511606573441819,-2090067312984508524] for gamingactivity.[memberfundingeventaggregate, memberactiveduration, membergamingeventsubaggregate, gamingexpectation, membergamingevent, membergameswagered, schema_version, memberfundingevent, memberwagergameaggregate, membergamingeventaggregate, schema_current_version]",
+        "=>INFO [AntiEntropySessions: 9665] 2016-08-10 07:08:06,218  RepairJob.java:163 - [repair #cde0eaa0-5ec0-11e6-8767-f5197346a00e] requesting merkle trees for memberfundingeventaggregate (to [/10.211.34.167, /10.211.34.165, /10.211.34.164, /10.211.34.158, /10.211.34.150])",
+        "INFO [AntiEntropyStage: 1] 2016-08-10 07:08:06,219  RepairSession.java:171 - [repair #cde0eaa0-5ec0-11e6-8767-f5197346a00e] Received merkle tree for memberfundingeventaggregate from /10.211.34.150",
+        "INFO [AntiEntropyStage: 1] 2016-08-10 07:08:06,219  RepairSession.java:171 - [repair #cde0eaa0-5ec0-11e6-8767-f5197346a00e] Received merkle tree for memberfundingeventaggregate from /10.211.34.164",
+        "INFO [AntiEntropyStage: 1] 2016-08-10 07:08:06,219  RepairSession.java:171 - [repair #cde0eaa0-5ec0-11e6-8767-f5197346a00e] Received merkle tree for memberfundingeventaggregate from /10.211.34.158",
+        "INFO [AntiEntropyStage: 1] 2016-08-10 07:08:06,219  RepairSession.java:171 - [repair #cde0eaa0-5ec0-11e6-8767-f5197346a00e] Received merkle tree for memberfundingeventaggregate from /10.211.34.165",
+        "INFO [AntiEntropyStage: 1] 2016-08-10 07:08:06,219  RepairSession.java:171 - [repair #cde0eaa0-5ec0-11e6-8767-f5197346a00e] Received merkle tree for memberfundingeventaggregate from /10.211.34.167",
+        "INFO [RepairJobTask: 1] 2016-08-10 07:08:06,219  Differencer.java:67 - [repair #cde0eaa0-5ec0-11e6-8767-f5197346a00e] Endpoints /10.211.34.150 and /10.211.34.164 are consistent for memberfundingeventaggregate",
+
+        "ERROR [AntiEntropySessions:1857] 2016-06-10 21:56:53,281  RepairSession.java:276 - [repair #dc161200-2f4d-11e6-bd0c-93368bf2a346] Cannot proceed on repair because a neighbor (/10.27.34.54) is dead: session failed"
+      ]
+    },
+    {
+      "Description": "Session Repairs (send)",
+      "TagId": 54.3,
+      "MatchVersion": null,
+      "LevelMatch": {
+        "RegExStrings": [
+          "INFO"
+        ]
+      },
+      "ThreadIdMatch": null,
+      "FileNameMatch": {
+        "RegExStrings": [
+          "^Validator.java$"
+        ]
+      },
+      "FileLineMatch": null,
+      "MessageMatch": {
+        "RegExStrings": [
+          "^\\[repair\\s+#[0-9a-f-]+\\]\\s+Sending\\s+completed\\s+merkle\\s+tree"
+        ]
+      },
+      "ParseMessage": {
+        "RegExStrings": [
+          "^\\[repair\\s+#(?<ID>[0-9a-f\\\\-]+)\\]\\s+Sending\\s+completed\\s+merkle\\s+tree\\s+to\\s+(?$<NODE>)\\s+for\\s+(?$<TABLEVIEWNAME>)"
+        ]
+      },
+      "ParseThreadId": null,
+      "EventType": "SessionItem",
+      "EventClass": "NodeDetection,Repair,Session",
+      "SubClass": null,
+      "Disabled": true,
+      "AssociateEventToNode": false,
+      "LogPropertySessionMerge": true,
+      "PropertyInherentOption": "Repair,Merge",
+      "AnalyticsGroup": null,
+      "Product": "Cassandra",
+      "SessionKey": "ID",
+      "SessionKeyAction": "Read",
+      "SessionLookup": null,
+      "SessionLookupAction": "Default",
+      "Examples": [
+        "INFO  [Thread-89] 2019-03-02 11:04:57,767  RepairRunnable.java:136 - Starting repair command #1, repairing keyspace cfic with repair options (parallelism: parallel, primary range: false, incremental: false, job threads: 1, ColumnFamilies: [locs, item, nutrition, ad_upcs, ad_blocks, class_location, pog, store, category], dataCenters: [], hosts: [], runAntiCompaction: false, # of ranges: 1)",
+        "INFO  [Thread-89] 2019-03-02 11:04:57,781  RepairSession.java:224 - [repair #ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5] new session: will sync /10.252.72.154, /10.252.72.156, /10.252.72.126, /10.2.144.155, /10.2.144.153, /10.2.144.125 on range [(6124895493223874760,6129399092851245256]] for cfic.[item, nutrition, pog, locs, ad_blocks, class_location, ad_upcs, store, category]",
+        "INFO  [Repair#1:1] 2019-03-02 11:04:57,794  RepairJob.java:250 - [repair #ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5] Requesting merkle trees for item (to [/10.252.72.156, /10.252.72.126, /10.2.144.155, /10.2.144.153, /10.2.144.125, /10.252.72.154])",
+        "=>INFO  [AntiEntropyStage:1] 2019-03-02 11:04:57,799  Validator.java:281 - [repair #ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5] Sending completed merkle tree to /10.252.72.152 for cficy.item",
+        "INFO  [AntiEntropyStage:1] 2019-03-02 11:04:57,819  RepairSession.java:176 - [repair #ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5] Received merkle tree for item from /10.252.72.154",
+        "INFO  [RepairJobTask:5] 2019-03-02 11:04:57,829  SyncTask.java:93 - [repair #ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5] Endpoints /10.252.72.156 and /10.2.144.155 are consistent for item",
+        "INFO  [Repair#1:1] 2019-03-02 11:04:57,829  RepairJob.java:187 - [repair #ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5] item is fully synced",
+        "INFO  [RepairJobTask:2] 2019-03-02 11:04:58,687  RepairSession.java:266 - [repair #ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5] Session completed successfully",
+        "INFO  [RepairJobTask:2] 2019-03-02 11:04:58,692  RepairRunnable.java:256 - Repair session ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5 for range [(6124895493223874760,6129399092851245256]] finished",
+        "INFO  [RepairJobTask:2] 2019-03-02 11:04:58,695  ActiveRepairService.java:469 - [repair #ed0c7193-3d04-11e9-a85e-c70ab1af3dd5] Not a global repair, will not do anticompaction",
+        "INFO  [InternalResponseStage:53] 2019-03-02 11:04:58,701  RepairRunnable.java:338 - Repair command #1 finished in 0 seconds",
+
+        "INFO  [Thread-4] 2016-08-25 20:00:46,363  StorageService.java:2956 - Starting repair command #1, repairing 256 ranges for keyspace system_traces (parallelism=SEQUENTIAL, full=true)",
+        "?? INFO [RMI TCP Connection(66862)-127.0.0.1] 2016-08-10 07:08:06,169  StorageService.java:2891 - starting user - requested repair of range[(-2100511606573441819, -2090067312984508524]] for keyspace gamingactivity and column families[membergamingeventaggregate, membergamingevent, membergameswagered, gamingexpectation, memberfundingeventaggregate, schema_current_version, memberfundingevent, schema_version, memberactiveduration, membergamingeventsubaggregate, memberwagergameaggregate]",
+        "INFO [Thread-1616292] 2016-08-10 07:08:06,169  StorageService.java:2970 - Starting repair command #9663, repairing 1 ranges for keyspace gamingactivity (parallelism=PARALLEL, full=true)",
+        "INFO [AntiEntropySessions: 9665] 2016-08-10 07:08:06,218  RepairSession.java:260 - [repair #cde0eaa0-5ec0-11e6-8767-f5197346a00e] new session: will sync /10.211.34.150, /10.211.34.167, /10.211.34.165, /10.211.34.164, /10.211.34.158 on range (-2100511606573441819,-2090067312984508524] for gamingactivity.[memberfundingeventaggregate, memberactiveduration, membergamingeventsubaggregate, gamingexpectation, membergamingevent, membergameswagered, schema_version, memberfundingevent, memberwagergameaggregate, membergamingeventaggregate, schema_current_version]",
+        "INFO [AntiEntropySessions: 9665] 2016-08-10 07:08:06,218  RepairJob.java:163 - [repair #cde0eaa0-5ec0-11e6-8767-f5197346a00e] requesting merkle trees for memberfundingeventaggregate (to [/10.211.34.167, /10.211.34.165, /10.211.34.164, /10.211.34.158, /10.211.34.150])",
+        "INFO [AntiEntropyStage: 1] 2016-08-10 07:08:06,219  RepairSession.java:171 - [repair #cde0eaa0-5ec0-11e6-8767-f5197346a00e] Received merkle tree for memberfundingeventaggregate from /10.211.34.150",
+        "INFO [AntiEntropyStage: 1] 2016-08-10 07:08:06,219  RepairSession.java:171 - [repair #cde0eaa0-5ec0-11e6-8767-f5197346a00e] Received merkle tree for memberfundingeventaggregate from /10.211.34.164",
+        "INFO [AntiEntropyStage: 1] 2016-08-10 07:08:06,219  RepairSession.java:171 - [repair #cde0eaa0-5ec0-11e6-8767-f5197346a00e] Received merkle tree for memberfundingeventaggregate from /10.211.34.158",
+        "INFO [AntiEntropyStage: 1] 2016-08-10 07:08:06,219  RepairSession.java:171 - [repair #cde0eaa0-5ec0-11e6-8767-f5197346a00e] Received merkle tree for memberfundingeventaggregate from /10.211.34.165",
+        "INFO [AntiEntropyStage: 1] 2016-08-10 07:08:06,219  RepairSession.java:171 - [repair #cde0eaa0-5ec0-11e6-8767-f5197346a00e] Received merkle tree for memberfundingeventaggregate from /10.211.34.167",
+        "INFO [RepairJobTask: 1] 2016-08-10 07:08:06,219  Differencer.java:67 - [repair #cde0eaa0-5ec0-11e6-8767-f5197346a00e] Endpoints /10.211.34.150 and /10.211.34.164 are consistent for memberfundingeventaggregate",
+
+        "ERROR [AntiEntropySessions:1857] 2016-06-10 21:56:53,281  RepairSession.java:276 - [repair #dc161200-2f4d-11e6-bd0c-93368bf2a346] Cannot proceed on repair because a neighbor (/10.27.34.54) is dead: session failed"
+      ]
+    },
+    {
+      "Description": "Session Repairs (Received)",
+      "TagId": 54.4,
+      "MatchVersion": null,
+      "LevelMatch": {
+        "RegExStrings": [
+          "INFO"
+        ]
+      },
+      "ThreadIdMatch": null,
+      "FileNameMatch": {
+        "RegExStrings": [
+          "^RepairSession.java$"
+        ]
+      },
+      "FileLineMatch": null,
+      "MessageMatch": {
+        "RegExStrings": [
+          "^\\[repair\\s+#[0-9a-f-]+\\]\\s+Received\\s+merkle\\s+tree"
+        ]
+      },
+      "ParseMessage": {
+        "RegExStrings": [
+          "^\\[repair\\s+#(?$<ID>)\\]\\s+Received\\s+merkle\\s+tree\\s+for\\s+(?$<TABLEVIEWNAME>)\\s+from\\s+(?$<NODE>)"
+        ]
+      },
+      "ParseThreadId": null,
+      "EventType": "SessionItem",
+      "EventClass": "NodeDetection,Repair,Session",
+      "SubClass": null,
+      "AssociateEventToNode": false,
+      "Disabled": true,
+      "LogPropertySessionMerge": true,
+      "PropertyInherentOption": "Repair,Merge",
+      "AnalyticsGroup": null,
+      "Product": "Cassandra",
+      "SessionKey": "ID",
+      "SessionKeyAction": "Read",
+      "SessionLookup": null,
+      "SessionLookupAction": "Default",
+      "Examples": [
+        "INFO  [Thread-89] 2019-03-02 11:04:57,767  RepairRunnable.java:136 - Starting repair command #1, repairing keyspace cfic with repair options (parallelism: parallel, primary range: false, incremental: false, job threads: 1, ColumnFamilies: [locs, item, nutrition, ad_upcs, ad_blocks, class_location, pog, store, category], dataCenters: [], hosts: [], runAntiCompaction: false, # of ranges: 1)",
+        "INFO  [Thread-89] 2019-03-02 11:04:57,781  RepairSession.java:224 - [repair #ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5] new session: will sync /10.252.72.154, /10.252.72.156, /10.252.72.126, /10.2.144.155, /10.2.144.153, /10.2.144.125 on range [(6124895493223874760,6129399092851245256]] for cfic.[item, nutrition, pog, locs, ad_blocks, class_location, ad_upcs, store, category]",
+        "INFO  [Repair#1:1] 2019-03-02 11:04:57,794  RepairJob.java:250 - [repair #ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5] Requesting merkle trees for item (to [/10.252.72.156, /10.252.72.126, /10.2.144.155, /10.2.144.153, /10.2.144.125, /10.252.72.154])",
+        "INFO  [AntiEntropyStage:1] 2019-03-02 11:04:57,799  Validator.java:281 - [repair #ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5] Sending completed merkle tree to /10.252.72.152 for cficy.item",
+        "=>INFO  [AntiEntropyStage:1] 2019-03-02 11:04:57,819  RepairSession.java:176 - [repair #ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5] Received merkle tree for item from /10.252.72.154",
+        "INFO  [RepairJobTask:5] 2019-03-02 11:04:57,829  SyncTask.java:93 - [repair #ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5] Endpoints /10.252.72.156 and /10.2.144.155 are consistent for item",
+        "INFO  [Repair#1:1] 2019-03-02 11:04:57,829  RepairJob.java:187 - [repair #ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5] item is fully synced",
+        "INFO  [RepairJobTask:2] 2019-03-02 11:04:58,687  RepairSession.java:266 - [repair #ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5] Session completed successfully",
+        "INFO  [RepairJobTask:2] 2019-03-02 11:04:58,692  RepairRunnable.java:256 - Repair session ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5 for range [(6124895493223874760,6129399092851245256]] finished",
+        "INFO  [RepairJobTask:2] 2019-03-02 11:04:58,695  ActiveRepairService.java:469 - [repair #ed0c7193-3d04-11e9-a85e-c70ab1af3dd5] Not a global repair, will not do anticompaction",
+        "INFO  [InternalResponseStage:53] 2019-03-02 11:04:58,701  RepairRunnable.java:338 - Repair command #1 finished in 0 seconds",
+
+        "INFO  [Thread-4] 2016-08-25 20:00:46,363  StorageService.java:2956 - Starting repair command #1, repairing 256 ranges for keyspace system_traces (parallelism=SEQUENTIAL, full=true)",
+        "?? INFO [RMI TCP Connection(66862)-127.0.0.1] 2016-08-10 07:08:06,169  StorageService.java:2891 - starting user - requested repair of range[(-2100511606573441819, -2090067312984508524]] for keyspace gamingactivity and column families[membergamingeventaggregate, membergamingevent, membergameswagered, gamingexpectation, memberfundingeventaggregate, schema_current_version, memberfundingevent, schema_version, memberactiveduration, membergamingeventsubaggregate, memberwagergameaggregate]",
+        "INFO [Thread-1616292] 2016-08-10 07:08:06,169  StorageService.java:2970 - Starting repair command #9663, repairing 1 ranges for keyspace gamingactivity (parallelism=PARALLEL, full=true)",
+        "INFO [AntiEntropySessions: 9665] 2016-08-10 07:08:06,218  RepairSession.java:260 - [repair #cde0eaa0-5ec0-11e6-8767-f5197346a00e] new session: will sync /10.211.34.150, /10.211.34.167, /10.211.34.165, /10.211.34.164, /10.211.34.158 on range (-2100511606573441819,-2090067312984508524] for gamingactivity.[memberfundingeventaggregate, memberactiveduration, membergamingeventsubaggregate, gamingexpectation, membergamingevent, membergameswagered, schema_version, memberfundingevent, memberwagergameaggregate, membergamingeventaggregate, schema_current_version]",
+        "INFO [AntiEntropySessions: 9665] 2016-08-10 07:08:06,218  RepairJob.java:163 - [repair #cde0eaa0-5ec0-11e6-8767-f5197346a00e] requesting merkle trees for memberfundingeventaggregate (to [/10.211.34.167, /10.211.34.165, /10.211.34.164, /10.211.34.158, /10.211.34.150])",
+        "=>INFO [AntiEntropyStage: 1] 2016-08-10 07:08:06,219  RepairSession.java:171 - [repair #cde0eaa0-5ec0-11e6-8767-f5197346a00e] Received merkle tree for memberfundingeventaggregate from /10.211.34.150",
+        "INFO [RepairJobTask: 1] 2016-08-10 07:08:06,219  Differencer.java:67 - [repair #cde0eaa0-5ec0-11e6-8767-f5197346a00e] Endpoints /10.211.34.150 and /10.211.34.164 are consistent for memberfundingeventaggregate",
+
+        "ERROR [AntiEntropySessions:1857] 2016-06-10 21:56:53,281  RepairSession.java:276 - [repair #dc161200-2f4d-11e6-bd0c-93368bf2a346] Cannot proceed on repair because a neighbor (/10.27.34.54) is dead: session failed"
+      ]
+    },
+    {
+      "Description": "Session Repairs (consistent)",
+      "TagId": 54.5,
+      "MatchVersion": null,
+      "LevelMatch": {
+        "RegExStrings": [
+          "INFO"
+        ]
+      },
+      "ThreadIdMatch": null,
+      "FileNameMatch": {
+        "RegExStrings": [
+          "^SyncTask.java$",
+          "^Differencer.java$"
+        ]
+      },
+      "FileLineMatch": null,
+      "MessageMatch": {
+        "RegExStrings": [
+          "^\\[repair\\s+#[0-9a-f-]+\\]\\s+Endpoint"
+        ]
+      },
+      "ParseMessage": {
+        "RegExStrings": [
+          "^\\[repair\\s+#(?$<ID>)\\]\\s+Endpoints?\\s+(?:(?<NODES>$<!NODE>)(?:(?:\\s+and)|,)*\\s*)+\\s+\\w+\\s+consistent\\s+\\w+\\s+(?$<TABLEVIEWNAME>)"
+        ]
+      },
+      "ParseThreadId": null,
+      "EventType": "SessionItem",
+      "EventClass": "NodeDetection,Repair,Session",
+      "SubClass": null,
+      "AssociateEventToNode": false,
+      "Disabled": true,
+      "LogPropertySessionMerge": true,
+      "PropertyInherentOption": "Repair,Merge",
+      "AnalyticsGroup": null,
+      "Product": "Cassandra",
+      "SessionKey": "ID",
+      "SessionKeyAction": "Read",
+      "SessionLookup": null,
+      "SessionLookupAction": "Default",
+      "Examples": [
+        "INFO  [Thread-89] 2019-03-02 11:04:57,767  RepairRunnable.java:136 - Starting repair command #1, repairing keyspace cfic with repair options (parallelism: parallel, primary range: false, incremental: false, job threads: 1, ColumnFamilies: [locs, item, nutrition, ad_upcs, ad_blocks, class_location, pog, store, category], dataCenters: [], hosts: [], runAntiCompaction: false, # of ranges: 1)",
+        "INFO  [Thread-89] 2019-03-02 11:04:57,781  RepairSession.java:224 - [repair #ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5] new session: will sync /10.252.72.154, /10.252.72.156, /10.252.72.126, /10.2.144.155, /10.2.144.153, /10.2.144.125 on range [(6124895493223874760,6129399092851245256]] for cfic.[item, nutrition, pog, locs, ad_blocks, class_location, ad_upcs, store, category]",
+        "INFO  [Repair#1:1] 2019-03-02 11:04:57,794  RepairJob.java:250 - [repair #ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5] Requesting merkle trees for item (to [/10.252.72.156, /10.252.72.126, /10.2.144.155, /10.2.144.153, /10.2.144.125, /10.252.72.154])",
+        "INFO  [AntiEntropyStage:1] 2019-03-02 11:04:57,799  Validator.java:281 - [repair #ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5] Sending completed merkle tree to /10.252.72.152 for cficy.item",
+        "INFO  [AntiEntropyStage:1] 2019-03-02 11:04:57,819  RepairSession.java:176 - [repair #ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5] Received merkle tree for item from /10.252.72.154",
+        "=>INFO  [RepairJobTask:5] 2019-03-02 11:04:57,829  SyncTask.java:93 - [repair #ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5] Endpoints /10.252.72.156 and /10.2.144.155 are consistent for item",
+        "INFO  [Repair#1:1] 2019-03-02 11:04:57,829  RepairJob.java:187 - [repair #ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5] item is fully synced",
+        "INFO  [RepairJobTask:2] 2019-03-02 11:04:58,687  RepairSession.java:266 - [repair #ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5] Session completed successfully",
+        "INFO  [RepairJobTask:2] 2019-03-02 11:04:58,692  RepairRunnable.java:256 - Repair session ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5 for range [(6124895493223874760,6129399092851245256]] finished",
+        "INFO  [RepairJobTask:2] 2019-03-02 11:04:58,695  ActiveRepairService.java:469 - [repair #ed0c7193-3d04-11e9-a85e-c70ab1af3dd5] Not a global repair, will not do anticompaction",
+        "INFO  [InternalResponseStage:53] 2019-03-02 11:04:58,701  RepairRunnable.java:338 - Repair command #1 finished in 0 seconds",
+
+        "INFO  [Thread-4] 2016-08-25 20:00:46,363  StorageService.java:2956 - Starting repair command #1, repairing 256 ranges for keyspace system_traces (parallelism=SEQUENTIAL, full=true)",
+        "?? INFO [RMI TCP Connection(66862)-127.0.0.1] 2016-08-10 07:08:06,169  StorageService.java:2891 - starting user - requested repair of range[(-2100511606573441819, -2090067312984508524]] for keyspace gamingactivity and column families[membergamingeventaggregate, membergamingevent, membergameswagered, gamingexpectation, memberfundingeventaggregate, schema_current_version, memberfundingevent, schema_version, memberactiveduration, membergamingeventsubaggregate, memberwagergameaggregate]",
+        "INFO [Thread-1616292] 2016-08-10 07:08:06,169  StorageService.java:2970 - Starting repair command #9663, repairing 1 ranges for keyspace gamingactivity (parallelism=PARALLEL, full=true)",
+        "INFO [AntiEntropySessions: 9665] 2016-08-10 07:08:06,218  RepairSession.java:260 - [repair #cde0eaa0-5ec0-11e6-8767-f5197346a00e] new session: will sync /10.211.34.150, /10.211.34.167, /10.211.34.165, /10.211.34.164, /10.211.34.158 on range (-2100511606573441819,-2090067312984508524] for gamingactivity.[memberfundingeventaggregate, memberactiveduration, membergamingeventsubaggregate, gamingexpectation, membergamingevent, membergameswagered, schema_version, memberfundingevent, memberwagergameaggregate, membergamingeventaggregate, schema_current_version]",
+        "INFO [AntiEntropySessions: 9665] 2016-08-10 07:08:06,218  RepairJob.java:163 - [repair #cde0eaa0-5ec0-11e6-8767-f5197346a00e] requesting merkle trees for memberfundingeventaggregate (to [/10.211.34.167, /10.211.34.165, /10.211.34.164, /10.211.34.158, /10.211.34.150])",
+        "INFO [AntiEntropyStage: 1] 2016-08-10 07:08:06,219  RepairSession.java:171 - [repair #cde0eaa0-5ec0-11e6-8767-f5197346a00e] Received merkle tree for memberfundingeventaggregate from /10.211.34.150",
+        "=>INFO [RepairJobTask: 1] 2016-08-10 07:08:06,219  Differencer.java:67 - [repair #cde0eaa0-5ec0-11e6-8767-f5197346a00e] Endpoints /10.211.34.150 and /10.211.34.164 are consistent for memberfundingeventaggregate",
+
+        "ERROR [AntiEntropySessions:1857] 2016-06-10 21:56:53,281  RepairSession.java:276 - [repair #dc161200-2f4d-11e6-bd0c-93368bf2a346] Cannot proceed on repair because a neighbor (/10.27.34.54) is dead: session failed"
+      ]
+    },
+    {
+      "Description": "Session Repairs (synced)",
+      "TagId": 54.6,
+      "MatchVersion": null,
+      "LevelMatch": {
+        "RegExStrings": [
+          "INFO"
+        ]
+      },
+      "ThreadIdMatch": null,
+      "FileNameMatch": {
+        "RegExStrings": [
+          "^RepairJob.java$"
+        ]
+      },
+      "FileLineMatch": null,
+      "MessageMatch": {
+        "RegExStrings": [
+          "^\\[repair\\s+#[0-9a-f-]+\\]\\s+[a-z0-9'\\\\-_$%+=!?<>^*&@/.]+\\s+is\\s+fully\\s+sync"
+        ]
+      },
+      "ParseMessage": {
+        "RegExStrings": [
+          "^\\[repair\\s+#(?$<ID>)\\]\\s+(?$<TABLEVIEWNAME>)\\s+is\\s+fully\\s+sync"
+        ]
+      },
+      "IgnoreEvent": true,
+      "ParseThreadId": null,
+      "EventType": "SessionItem",
+      "EventClass": "NodeDetection,Repair,Session",
+      "SubClass": null,
+      "AssociateEventToNode": false,
+      "Disabled": true,
+      "LogPropertySessionMerge": true,
+      "PropertyInherentOption": "Repair,Merge",
+      "AnalyticsGroup": null,
+      "Product": "Cassandra",
+      "SessionKey": "ID",
+      "SessionKeyAction": "Read",
+      "SessionLookup": null,
+      "SessionLookupAction": "Default",
+      "Examples": [
+        "INFO  [Thread-89] 2019-03-02 11:04:57,767  RepairRunnable.java:136 - Starting repair command #1, repairing keyspace cfic with repair options (parallelism: parallel, primary range: false, incremental: false, job threads: 1, ColumnFamilies: [locs, item, nutrition, ad_upcs, ad_blocks, class_location, pog, store, category], dataCenters: [], hosts: [], runAntiCompaction: false, # of ranges: 1)",
+        "INFO  [Thread-89] 2019-03-02 11:04:57,781  RepairSession.java:224 - [repair #ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5] new session: will sync /10.252.72.154, /10.252.72.156, /10.252.72.126, /10.2.144.155, /10.2.144.153, /10.2.144.125 on range [(6124895493223874760,6129399092851245256]] for cfic.[item, nutrition, pog, locs, ad_blocks, class_location, ad_upcs, store, category]",
+        "INFO  [Repair#1:1] 2019-03-02 11:04:57,794  RepairJob.java:250 - [repair #ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5] Requesting merkle trees for item (to [/10.252.72.156, /10.252.72.126, /10.2.144.155, /10.2.144.153, /10.2.144.125, /10.252.72.154])",
+        "INFO  [AntiEntropyStage:1] 2019-03-02 11:04:57,799  Validator.java:281 - [repair #ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5] Sending completed merkle tree to /10.252.72.152 for cficy.item",
+        "INFO  [AntiEntropyStage:1] 2019-03-02 11:04:57,819  RepairSession.java:176 - [repair #ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5] Received merkle tree for item from /10.252.72.154",
+        "INFO  [RepairJobTask:5] 2019-03-02 11:04:57,829  SyncTask.java:93 - [repair #ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5] Endpoints /10.252.72.156 and /10.2.144.155 are consistent for item",
+        "=>INFO  [Repair#1:1] 2019-03-02 11:04:57,829  RepairJob.java:187 - [repair #ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5] item is fully synced",
+        "INFO  [RepairJobTask:2] 2019-03-02 11:04:58,687  RepairSession.java:266 - [repair #ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5] Session completed successfully",
+        "INFO  [RepairJobTask:2] 2019-03-02 11:04:58,692  RepairRunnable.java:256 - Repair session ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5 for range [(6124895493223874760,6129399092851245256]] finished",
+        "X INFO  [RepairJobTask:2] 2019-03-02 11:04:58,695  ActiveRepairService.java:469 - [repair #ed0c7193-3d04-11e9-a85e-c70ab1af3dd5] Not a global repair, will not do anticompaction",
+        "X INFO  [InternalResponseStage:53] 2019-03-02 11:04:58,701  RepairRunnable.java:338 - Repair command #1 finished in 0 seconds",
+
+        "INFO  [Thread-4] 2016-08-25 20:00:46,363  StorageService.java:2956 - Starting repair command #1, repairing 256 ranges for keyspace system_traces (parallelism=SEQUENTIAL, full=true)",
+        "?? INFO [RMI TCP Connection(66862)-127.0.0.1] 2016-08-10 07:08:06,169  StorageService.java:2891 - starting user - requested repair of range[(-2100511606573441819, -2090067312984508524]] for keyspace gamingactivity and column families[membergamingeventaggregate, membergamingevent, membergameswagered, gamingexpectation, memberfundingeventaggregate, schema_current_version, memberfundingevent, schema_version, memberactiveduration, membergamingeventsubaggregate, memberwagergameaggregate]",
+        "INFO [Thread-1616292] 2016-08-10 07:08:06,169  StorageService.java:2970 - Starting repair command #9663, repairing 1 ranges for keyspace gamingactivity (parallelism=PARALLEL, full=true)",
+        "INFO [AntiEntropySessions: 9665] 2016-08-10 07:08:06,218  RepairSession.java:260 - [repair #cde0eaa0-5ec0-11e6-8767-f5197346a00e] new session: will sync /10.211.34.150, /10.211.34.167, /10.211.34.165, /10.211.34.164, /10.211.34.158 on range (-2100511606573441819,-2090067312984508524] for gamingactivity.[memberfundingeventaggregate, memberactiveduration, membergamingeventsubaggregate, gamingexpectation, membergamingevent, membergameswagered, schema_version, memberfundingevent, memberwagergameaggregate, membergamingeventaggregate, schema_current_version]",
+        "INFO [AntiEntropySessions: 9665] 2016-08-10 07:08:06,218  RepairJob.java:163 - [repair #cde0eaa0-5ec0-11e6-8767-f5197346a00e] requesting merkle trees for memberfundingeventaggregate (to [/10.211.34.167, /10.211.34.165, /10.211.34.164, /10.211.34.158, /10.211.34.150])",
+        "INFO [AntiEntropyStage: 1] 2016-08-10 07:08:06,219  RepairSession.java:171 - [repair #cde0eaa0-5ec0-11e6-8767-f5197346a00e] Received merkle tree for memberfundingeventaggregate from /10.211.34.150",
+        "INFO [RepairJobTask: 1] 2016-08-10 07:08:06,219  Differencer.java:67 - [repair #cde0eaa0-5ec0-11e6-8767-f5197346a00e] Endpoints /10.211.34.150 and /10.211.34.164 are consistent for memberfundingeventaggregate",
+
+        "ERROR [AntiEntropySessions:1857] 2016-06-10 21:56:53,281  RepairSession.java:276 - [repair #dc161200-2f4d-11e6-bd0c-93368bf2a346] Cannot proceed on repair because a neighbor (/10.27.34.54) is dead: session failed"
+      ]
+    },
+    {
+      "Description": "Session Repairs (Session Completed)",
+      "TagId": 54.7,
+      "MatchVersion": null,
+      "LevelMatch": {
+        "RegExStrings": [
+          "INFO"
+        ]
+      },
+      "ThreadIdMatch": null,
+      "FileNameMatch": {
+        "RegExStrings": [
+          "^RepairSession.java$"
+        ]
+      },
+      "FileLineMatch": null,
+      "MessageMatch": {
+        "RegExStrings": [
+          "^\\[repair\\s+#[0-9a-f-]+\\]\\s+Session\\s+completed"
+        ]
+      },
+      "ParseMessage": {
+        "RegExStrings": [
+          "^\\[repair\\s+#(?$<ID>)\\]\\s+Session\\s+completed\\s*(?<tag1>(?<status>.+))"
+        ]
+      },
+      "ParseThreadId": null,
+      "EventType": "SessionEnd",
+      "EventClass": "NodeDetection,Repair,Session",
+      "SubClass": null,
+      "AssociateEventToNode": true,
+      "LogPropertySessionMerge": true,
+      "PropertyInherentOption": "Repair,Merge",
+      "AnalyticsGroup": null,
+      "Product": "Cassandra",
+      "SessionKey": "ID",
+      "SessionKeyAction": "ReadRemove",
+      "SessionLookup": null,
+      "SessionLookupAction": "Default",
+      "Examples": [
+        "INFO  [Thread-89] 2019-03-02 11:04:57,767  RepairRunnable.java:136 - Starting repair command #1, repairing keyspace cfic with repair options (parallelism: parallel, primary range: false, incremental: false, job threads: 1, ColumnFamilies: [locs, item, nutrition, ad_upcs, ad_blocks, class_location, pog, store, category], dataCenters: [], hosts: [], runAntiCompaction: false, # of ranges: 1)",
+        "INFO  [Thread-89] 2019-03-02 11:04:57,781  RepairSession.java:224 - [repair #ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5] new session: will sync /10.252.72.154, /10.252.72.156, /10.252.72.126, /10.2.144.155, /10.2.144.153, /10.2.144.125 on range [(6124895493223874760,6129399092851245256]] for cfic.[item, nutrition, pog, locs, ad_blocks, class_location, ad_upcs, store, category]",
+        "INFO  [Repair#1:1] 2019-03-02 11:04:57,794  RepairJob.java:250 - [repair #ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5] Requesting merkle trees for item (to [/10.252.72.156, /10.252.72.126, /10.2.144.155, /10.2.144.153, /10.2.144.125, /10.252.72.154])",
+        "INFO  [AntiEntropyStage:1] 2019-03-02 11:04:57,799  Validator.java:281 - [repair #ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5] Sending completed merkle tree to /10.252.72.152 for cficy.item",
+        "INFO  [AntiEntropyStage:1] 2019-03-02 11:04:57,819  RepairSession.java:176 - [repair #ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5] Received merkle tree for item from /10.252.72.154",
+        "INFO  [RepairJobTask:5] 2019-03-02 11:04:57,829  SyncTask.java:93 - [repair #ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5] Endpoints /10.252.72.156 and /10.2.144.155 are consistent for item",
+        "INFO  [Repair#1:1] 2019-03-02 11:04:57,829  RepairJob.java:187 - [repair #ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5] item is fully synced",
+        "=> INFO  [RepairJobTask:2] 2019-03-02 11:04:58,687  RepairSession.java:266 - [repair #ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5] Session completed successfully",
+        "X INFO  [RepairJobTask:2] 2019-03-02 11:04:58,692  RepairRunnable.java:256 - Repair session ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5 for range [(6124895493223874760,6129399092851245256]] finished",
+        "X INFO  [RepairJobTask:2] 2019-03-02 11:04:58,695  ActiveRepairService.java:469 - [repair #ed0c7193-3d04-11e9-a85e-c70ab1af3dd5] Not a global repair, will not do anticompaction",
+        "X INFO  [InternalResponseStage:53] 2019-03-02 11:04:58,701  RepairRunnable.java:338 - Repair command #1 finished in 0 seconds",
+
+        "INFO  [Thread-4] 2016-08-25 20:00:46,363  StorageService.java:2956 - Starting repair command #1, repairing 256 ranges for keyspace system_traces (parallelism=SEQUENTIAL, full=true)",
+        "?? INFO [RMI TCP Connection(66862)-127.0.0.1] 2016-08-10 07:08:06,169  StorageService.java:2891 - starting user - requested repair of range[(-2100511606573441819, -2090067312984508524]] for keyspace gamingactivity and column families[membergamingeventaggregate, membergamingevent, membergameswagered, gamingexpectation, memberfundingeventaggregate, schema_current_version, memberfundingevent, schema_version, memberactiveduration, membergamingeventsubaggregate, memberwagergameaggregate]",
+        "INFO [Thread-1616292] 2016-08-10 07:08:06,169  StorageService.java:2970 - Starting repair command #9663, repairing 1 ranges for keyspace gamingactivity (parallelism=PARALLEL, full=true)",
+        "INFO [AntiEntropySessions: 9665] 2016-08-10 07:08:06,218  RepairSession.java:260 - [repair #cde0eaa0-5ec0-11e6-8767-f5197346a00e] new session: will sync /10.211.34.150, /10.211.34.167, /10.211.34.165, /10.211.34.164, /10.211.34.158 on range (-2100511606573441819,-2090067312984508524] for gamingactivity.[memberfundingeventaggregate, memberactiveduration, membergamingeventsubaggregate, gamingexpectation, membergamingevent, membergameswagered, schema_version, memberfundingevent, memberwagergameaggregate, membergamingeventaggregate, schema_current_version]",
+        "INFO [AntiEntropySessions: 9665] 2016-08-10 07:08:06,218  RepairJob.java:163 - [repair #cde0eaa0-5ec0-11e6-8767-f5197346a00e] requesting merkle trees for memberfundingeventaggregate (to [/10.211.34.167, /10.211.34.165, /10.211.34.164, /10.211.34.158, /10.211.34.150])",
+        "INFO [AntiEntropyStage: 1] 2016-08-10 07:08:06,219  RepairSession.java:171 - [repair #cde0eaa0-5ec0-11e6-8767-f5197346a00e] Received merkle tree for memberfundingeventaggregate from /10.211.34.150",
+        "INFO [RepairJobTask: 1] 2016-08-10 07:08:06,219  Differencer.java:67 - [repair #cde0eaa0-5ec0-11e6-8767-f5197346a00e] Endpoints /10.211.34.150 and /10.211.34.164 are consistent for memberfundingeventaggregate",
+        "=> INFO  [AntiEntropySessions:3] 2016-10-24 07:33:20,930  RepairSession.java:299 - [repair #aa744eb0-99dd-11e6-9711-9f6e28d1cfe5] session completed successfully",
+
+        "ERROR [AntiEntropySessions:1857] 2016-06-10 21:56:53,281  RepairSession.java:276 - [repair #dc161200-2f4d-11e6-bd0c-93368bf2a346] Cannot proceed on repair because a neighbor (/10.27.34.54) is dead: session failed"
+      ]
+    },
+    {
+      "Description": "Session Repairs (Error)",
+      "TagId": 54.6,
+      "MatchVersion": null,
+      "LevelMatch": {
+        "RegExStrings": [
+          "ERROR"
+        ]
+      },
+      "ThreadIdMatch": null,
+      "FileNameMatch": {
+        "RegExStrings": [
+          "^Repair\\w+.java$",
+          "^ActiveRepair\\w+.java$",
+          "^SyncTask.java$"
+        ]
+      },
+      "FileLineMatch": null,
+      "MessageMatch": {
+        "RegExStrings": [
+          "^\\[repair\\s+#[0-9a-f-]+\\]\\s+"
+        ]
+      },
+      "ParseMessage": {
+        "RegExStrings": [
+          "^\\[repair\\s+#(?$<ID>)\\]\\s+(?<error>.+)"
+        ]
+      },
+      "ParseThreadId": null,
+      "EventType": "SessionException,ExceptionInstance",
+      "EventClass": "NodeDetection,Repair,Session,Error",
+      "SubClass": null,
+      "AssociateEventToNode": true,
+      "LogPropertySessionMerge": false,
+      "PropertyInherentOption": "PrimaryKS,DDLInstances,TokenRanges,SubClass,OptionsProp,Merge",
+      "AnalyticsGroup": null,
+      "Product": "Cassandra",
+      "SessionKey": "ID",
+      "SessionKeyAction": "Read",
+      "SessionLookup": null,
+      "SessionLookupAction": "Default",
+      "Examples": [
+        "INFO  [Thread-89] 2019-03-02 11:04:57,767  RepairRunnable.java:136 - Starting repair command #1, repairing keyspace cfic with repair options (parallelism: parallel, primary range: false, incremental: false, job threads: 1, ColumnFamilies: [locs, item, nutrition, ad_upcs, ad_blocks, class_location, pog, store, category], dataCenters: [], hosts: [], runAntiCompaction: false, # of ranges: 1)",
+        "INFO  [Thread-89] 2019-03-02 11:04:57,781  RepairSession.java:224 - [repair #ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5] new session: will sync /10.252.72.154, /10.252.72.156, /10.252.72.126, /10.2.144.155, /10.2.144.153, /10.2.144.125 on range [(6124895493223874760,6129399092851245256]] for cfic.[item, nutrition, pog, locs, ad_blocks, class_location, ad_upcs, store, category]",
+        "INFO  [Repair#1:1] 2019-03-02 11:04:57,794  RepairJob.java:250 - [repair #ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5] Requesting merkle trees for item (to [/10.252.72.156, /10.252.72.126, /10.2.144.155, /10.2.144.153, /10.2.144.125, /10.252.72.154])",
+        "INFO  [AntiEntropyStage:1] 2019-03-02 11:04:57,799  Validator.java:281 - [repair #ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5] Sending completed merkle tree to /10.252.72.152 for cficy.item",
+        "INFO  [AntiEntropyStage:1] 2019-03-02 11:04:57,819  RepairSession.java:176 - [repair #ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5] Received merkle tree for item from /10.252.72.154",
+        "INFO  [RepairJobTask:5] 2019-03-02 11:04:57,829  SyncTask.java:93 - [repair #ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5] Endpoints /10.252.72.156 and /10.2.144.155 are consistent for item",
+        "INFO  [Repair#1:1] 2019-03-02 11:04:57,829  RepairJob.java:187 - [repair #ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5] item is fully synced",
+        "INFO  [RepairJobTask:2] 2019-03-02 11:04:58,687  RepairSession.java:266 - [repair #ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5] Session completed successfully",
+        "X INFO  [RepairJobTask:2] 2019-03-02 11:04:58,692  RepairRunnable.java:256 - Repair session ed0e1f40-3d04-11e9-a85e-c70ab1af3dd5 for range [(6124895493223874760,6129399092851245256]] finished",
+        "X INFO  [RepairJobTask:2] 2019-03-02 11:04:58,695  ActiveRepairService.java:469 - [repair #ed0c7193-3d04-11e9-a85e-c70ab1af3dd5] Not a global repair, will not do anticompaction",
+        "X INFO  [InternalResponseStage:53] 2019-03-02 11:04:58,701  RepairRunnable.java:338 - Repair command #1 finished in 0 seconds",
+
+        "INFO  [Thread-4] 2016-08-25 20:00:46,363  StorageService.java:2956 - Starting repair command #1, repairing 256 ranges for keyspace system_traces (parallelism=SEQUENTIAL, full=true)",
+        "?? INFO [RMI TCP Connection(66862)-127.0.0.1] 2016-08-10 07:08:06,169  StorageService.java:2891 - starting user - requested repair of range[(-2100511606573441819, -2090067312984508524]] for keyspace gamingactivity and column families[membergamingeventaggregate, membergamingevent, membergameswagered, gamingexpectation, memberfundingeventaggregate, schema_current_version, memberfundingevent, schema_version, memberactiveduration, membergamingeventsubaggregate, memberwagergameaggregate]",
+        "INFO [Thread-1616292] 2016-08-10 07:08:06,169  StorageService.java:2970 - Starting repair command #9663, repairing 1 ranges for keyspace gamingactivity (parallelism=PARALLEL, full=true)",
+        "INFO [AntiEntropySessions: 9665] 2016-08-10 07:08:06,218  RepairSession.java:260 - [repair #cde0eaa0-5ec0-11e6-8767-f5197346a00e] new session: will sync /10.211.34.150, /10.211.34.167, /10.211.34.165, /10.211.34.164, /10.211.34.158 on range (-2100511606573441819,-2090067312984508524] for gamingactivity.[memberfundingeventaggregate, memberactiveduration, membergamingeventsubaggregate, gamingexpectation, membergamingevent, membergameswagered, schema_version, memberfundingevent, memberwagergameaggregate, membergamingeventaggregate, schema_current_version]",
+        "INFO [AntiEntropySessions: 9665] 2016-08-10 07:08:06,218  RepairJob.java:163 - [repair #cde0eaa0-5ec0-11e6-8767-f5197346a00e] requesting merkle trees for memberfundingeventaggregate (to [/10.211.34.167, /10.211.34.165, /10.211.34.164, /10.211.34.158, /10.211.34.150])",
+        "INFO [AntiEntropyStage: 1] 2016-08-10 07:08:06,219  RepairSession.java:171 - [repair #cde0eaa0-5ec0-11e6-8767-f5197346a00e] Received merkle tree for memberfundingeventaggregate from /10.211.34.150",
+        "INFO [RepairJobTask: 1] 2016-08-10 07:08:06,219  Differencer.java:67 - [repair #cde0eaa0-5ec0-11e6-8767-f5197346a00e] Endpoints /10.211.34.150 and /10.211.34.164 are consistent for memberfundingeventaggregate",
+
+        "=>ERROR [AntiEntropySessions:1857] 2016-06-10 21:56:53,281  RepairSession.java:276 - [repair #dc161200-2f4d-11e6-bd0c-93368bf2a346] Cannot proceed on repair because a neighbor (/10.27.34.54) is dead: session failed"
       ]
     }
   ]

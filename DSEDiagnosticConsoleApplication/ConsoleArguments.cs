@@ -591,7 +591,12 @@ namespace DSEDiagnosticConsoleApplication
                         break;
                     case "OnlyNodes":
                         {
-                            var nodes = ((ValueArgument<string>)item).Value.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                            var nodes = new List<string>();
+
+                            foreach(var node in ((ValueArgument<string>)item).Values)
+                            {
+                                nodes.AddRange(node.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries));
+                            }
 
                             if (onlyNodesInitial)
                             {

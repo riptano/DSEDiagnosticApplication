@@ -383,7 +383,7 @@ namespace DSEDiagnosticAnalytics
 
             int keyspaceHC = eventArgs.LogEvent.Keyspace?.GetHashCode() ?? 0;
             int tableHC = eventArgs.LogEvent.TableViewIndex?.GetHashCode() ?? 0;
-            
+
             if ((eventArgs.LogEvent.Class & EventClasses.Partition) == EventClasses.Partition
                     && eventArgs.LogEvent.TableViewIndex != null
                     && eventArgs.LogEvent.LogProperties.ContainsKey(Properties.StatPropertyNames.Default.LogLargePartition))
@@ -398,7 +398,7 @@ namespace DSEDiagnosticAnalytics
                 else
                     evtClass |= EventClasses.Partition;
 
-                var aggStat = AggregatedStats.GetOrAdd(new Tuple<INode, EventClasses,int,int>(sender.Node,
+                var aggStat = AggregatedStats.GetOrAdd(new Tuple<INode, EventClasses, int, int>(sender.Node,
                                                                                                 evtClass,
                                                                                                 keyspaceHC,
                                                                                                 tableHC), sndNode =>
@@ -409,10 +409,10 @@ namespace DSEDiagnosticAnalytics
                                                                                                  EventTypes.AggregateDataTool,
                                                                                                  sndNode.Item2,
                                                                                                  eventArgs.LogEvent.TableViewIndex);
-                                                            //sndNode.Item1.AssociateItem(stat);
-                                                            return stat;
+                                                             //sndNode.Item1.AssociateItem(stat);
+                                                             return stat;
                                                          });
-                
+
                 if (aggStat.Data.TryGetValue(attribName, out object dataValue))
                 {
                     var dataList = (List<UnitOfMeasure>)dataValue;
@@ -429,7 +429,7 @@ namespace DSEDiagnosticAnalytics
                                                 tableHC))
                     {
                         dataList.Clear();
-                    }                
+                    }
                     dataList.Add(partitionSize);
                 }
                 else
@@ -451,14 +451,14 @@ namespace DSEDiagnosticAnalytics
                     }
                 }
             }
-            
+
             if ((eventArgs.LogEvent.Class & EventClasses.Tombstone) == EventClasses.Tombstone
                     && eventArgs.LogEvent.TableViewIndex != null
                     && eventArgs.LogEvent.LogProperties.ContainsKey(Properties.StatPropertyNames.Default.LogTombstones))
             {
                 var evtClass = EventClasses.Tombstone | EventClasses.Node | EventClasses.KeyspaceTableViewIndexStats;
 
-                var nodeStat = AggregatedStats.GetOrAdd(new Tuple<INode, EventClasses,int,int>(sender.Node,
+                var nodeStat = AggregatedStats.GetOrAdd(new Tuple<INode, EventClasses, int, int>(sender.Node,
                                                                                                 evtClass,
                                                                                                 keyspaceHC,
                                                                                                 tableHC), sndNode =>
@@ -474,16 +474,16 @@ namespace DSEDiagnosticAnalytics
                 });
 
                 var tombstones = (long)((dynamic)eventArgs.LogEvent.LogProperties[Properties.StatPropertyNames.Default.LogTombstones]);
-                
+
                 if (nodeStat.Data.TryGetValue(Properties.StatPropertyNames.Default.TombstonesRead, out object dataValue))
                 {
-                    nodeStat.UpdateAssociateItem(Properties.StatPropertyNames.Default.TombstonesRead, (long) dataValue + tombstones);
+                    nodeStat.UpdateAssociateItem(Properties.StatPropertyNames.Default.TombstonesRead, (long)dataValue + tombstones);
                 }
                 else
                 {
                     nodeStat.AssociateItem(Properties.StatPropertyNames.Default.TombstonesRead, tombstones);
                 }
-                
+
                 if (eventArgs.LogEvent.LogProperties.TryGetValue(Properties.StatPropertyNames.Default.LogLiveCells, out dynamic reads))
                 {
                     var readsValue = (long)reads;
@@ -519,7 +519,7 @@ namespace DSEDiagnosticAnalytics
                                                     tableHC))
                         {
                             dataList.Clear();
-                        }                        
+                        }
 
                         dataList.Add(percent);
                     }
@@ -549,7 +549,7 @@ namespace DSEDiagnosticAnalytics
                     evtClass |= EventClasses.KeyspaceTableViewIndexStats;
                 }
 
-                var aggStat = AggregatedStats.GetOrAdd(new Tuple<INode, EventClasses,int,int>(sender.Node,
+                var aggStat = AggregatedStats.GetOrAdd(new Tuple<INode, EventClasses, int, int>(sender.Node,
                                                                                                 evtClass,
                                                                                                 keyspaceHC,
                                                                                                 tableHC), sndNode =>
@@ -564,7 +564,7 @@ namespace DSEDiagnosticAnalytics
                     //sndNode.Item1.AssociateItem(stat);
                     return stat;
                 });
-                
+
                 if (aggStat.Data.TryGetValue(Properties.StatPropertyNames.Default.CompactionInsufficientSpace, out object dataValue))
                 {
                     var dataList = (List<UnitOfMeasure>)dataValue;
@@ -572,7 +572,7 @@ namespace DSEDiagnosticAnalytics
                     if (AggregateStatMembers(sender.File,
                                                     sender.Node,
                                                     evtClass,
-                                                    (IDDL) eventArgs.LogEvent.TableViewIndex ?? eventArgs.LogEvent.Keyspace,
+                                                    (IDDL)eventArgs.LogEvent.TableViewIndex ?? eventArgs.LogEvent.Keyspace,
                                                     Properties.StatPropertyNames.Default.CompactionInsufficientSpace,
                                                     Properties.Settings.Default.LogAggregationNodeStatMbrLimit,
                                                     LogAggNodeStatMbrLimitTake,
@@ -581,7 +581,7 @@ namespace DSEDiagnosticAnalytics
                                                     tableHC))
                     {
                         dataList.Clear();
-                    }                    
+                    }
 
                     dataList.Add(spaceRequired);
                 }
@@ -614,7 +614,7 @@ namespace DSEDiagnosticAnalytics
             {
                 var gcStat = GCStats.GetOrAdd(sender.Node, sndNode =>
                 {
-                    var stat = new Tuple<GCStat,GCStat>(new GCStat(sndNode, GCStat.GCStatTypes.BackToBack), new GCStat(sndNode, GCStat.GCStatTypes.TimeFrame));                    
+                    var stat = new Tuple<GCStat, GCStat>(new GCStat(sndNode, GCStat.GCStatTypes.BackToBack), new GCStat(sndNode, GCStat.GCStatTypes.TimeFrame));
                     return stat;
                 });
 
@@ -691,7 +691,7 @@ namespace DSEDiagnosticAnalytics
                         eventArgs.LogEvent.Node.AssociateItem(nodeState);
                     }
                 }
-                else if(eventArgs.LogEvent.SubClass.EndsWith(" DOWN", StringComparison.OrdinalIgnoreCase))
+                else if (eventArgs.LogEvent.SubClass.EndsWith(" DOWN", StringComparison.OrdinalIgnoreCase))
                 {
                     if (eventArgs.LogEvent.AssociatedNodes != null && eventArgs.LogEvent.AssociatedNodes.HasAtLeastOneElement())
                     {
@@ -737,7 +737,7 @@ namespace DSEDiagnosticAnalytics
                         targetNode.AssociateItem(nodeState);
                     }
                 }
-            }           
+            }
             else if ((eventArgs.LogEvent.Class & EventClasses.Unavailable) == EventClasses.Unavailable
                         && (eventArgs.LogEvent.Class & EventClasses.Node) == EventClasses.Node)
             {
@@ -770,6 +770,17 @@ namespace DSEDiagnosticAnalytics
                         targetNode.AssociateItem(nodeState);
                     }
                 }
+            }
+            else if ((eventArgs.LogEvent.Class & EventClasses.Repair) == EventClasses.Repair)
+            {
+                if((eventArgs.LogEvent.Type & EventTypes.SessionEnd) == EventTypes.SessionEnd
+                        && eventArgs.LogEvent.LogProperties.TryGetValue("status", out object status)
+                        && status != null
+                        && status is string
+                        && ((string)status).StartsWith("success"))
+                {
+                    eventArgs.LogEvent.Node.DSE.RepairServiceHasRan = true;
+                }                    
             }
         }
 
@@ -1199,61 +1210,7 @@ namespace DSEDiagnosticAnalytics
 
     public struct LogEventGroup
     {
-        public LogEventGroup(DateTimeRange aggregationDateTime,
-                                IDataCenter dataCenter,
-                                INode node,
-                                IKeyspace keyspace,
-                                IDDLStmt ddlStmt,
-                                EventClasses classes,
-                                string subClass,
-                                string exception,
-                                IEnumerable<string> exceptionPath)
-            : this()
-        {
-            this.AggregationDateTime = aggregationDateTime.Min;
-            this.DataCenterName = dataCenter?.Name;
-            this.NodeName = node?.NodeName();
-            this.KeySpaceName = keyspace?.Name;
-            this.TableName = ddlStmt?.NameWAttrs();
-            {
-                var logClass = (classes & ~EventClasses.LogTypes & ~EventClasses.Orphaned);
-
-                if((logClass & EventClasses.MemtableFlush) != 0 
-                        && !string.IsNullOrEmpty(subClass)                        
-                        && (subClass.StartsWith("sharedpool", StringComparison.OrdinalIgnoreCase) || subClass.StartsWith("stream", StringComparison.OrdinalIgnoreCase)))
-                {                    
-                    if (subClass.StartsWith("sharedpool", StringComparison.OrdinalIgnoreCase))
-                    {
-                        subClass = "SharedPool";
-                    }
-                    else if(subClass.StartsWith("stream", StringComparison.OrdinalIgnoreCase))
-                    {
-                        var pos = subClass.IndexOf('/');
-
-                        if (pos > 0)
-                        {
-                            this.AssocItem = subClass.Substring(pos + 1);
-                            subClass = subClass.Substring(0, pos - 1);
-                        }
-                        else
-                            subClass = null;
-                    }
-                }
-
-                if (string.IsNullOrEmpty(subClass))
-                {
-                    this.Class = logClass.ToString();
-                }
-                else
-                {
-                    this.Class = logClass.ToString() + '(' + subClass + ')';
-                }                
-            }
-            //this.Orphaned = (classes & EventClasses.Orphaned) == EventClasses.Orphaned;
-            this.Exception = exception;
-            this.Path = exceptionPath?.Join("=>", s => s);
-        }
-
+        
         public LogEventGroup(DateTimeRange aggregationDateTime, ILogEvent logEvent)
             : this()
         {            
@@ -1325,6 +1282,38 @@ namespace DSEDiagnosticAnalytics
                         assocItem += ", ";
                     assocItem += "Tag{ " + (logEvent.LogProperties["tag"]?.ToString() ?? string.Empty) + "}";
                 }
+                if (logEvent.LogProperties.ContainsKey("tag1"))
+                {
+                    var pathFld = this.Path;
+
+                    if (pathFld == null)
+                        pathFld = string.Empty;
+                    else
+                        pathFld += "; ";
+
+                    this.Path = pathFld + "Tag{ " + (logEvent.LogProperties["tag1"]?.ToString() ?? string.Empty) + "}";
+                }
+                if (logEvent.LogProperties.ContainsKey("options"))
+                {
+                    var pathFld = this.Path;
+
+                    if (pathFld == null)
+                        pathFld = string.Empty;
+                    else
+                        pathFld += "; ";
+
+                    var options = logEvent.LogProperties["options"];
+
+                    if(options != null && options is IEnumerable<object>)
+                    {
+                        this.Path = pathFld + "options{ "
+                                                + string.Join("; ", ((IEnumerable<object>)options)
+                                                                        .Select(i => i?.ToString() ?? string.Empty))
+                                                + "}";
+                    }
+                    else
+                        this.Path = pathFld + "options{ " + (options?.ToString() ?? string.Empty) + "}";
+                }
                 if (logEvent.LogProperties.ContainsKey("nodetxt"))
                 {                    
                     var unknownNode = logEvent.LogProperties["nodetxt"];
@@ -1359,8 +1348,35 @@ namespace DSEDiagnosticAnalytics
             }
 
             //this.Orphaned = (logEvent.Class & EventClasses.Orphaned) == EventClasses.Orphaned;
-            this.Exception = logEvent.Exception;
-            this.Path = logEvent.ExceptionPath?.Join("=>", s => s);
+            if((logEvent.Type & EventTypes.ExceptionElement) == EventTypes.ExceptionElement)
+            {
+                if(logEvent.LogProperties.TryGetValue("error", out object errValue)
+                        && errValue != null)
+                {
+                    string errorStr;
+
+                    if (errValue is IEnumerable<object>)
+                        errorStr = string.Join("; ", ((IEnumerable<object>)errValue).Select(i => i.ToString()));
+                    else
+                        errorStr = errValue.ToString();
+
+                    if (!string.IsNullOrEmpty(errorStr))
+                    {
+                        if (string.IsNullOrEmpty(logEvent.Exception))
+                            this.Exception = errorStr;
+                        else
+                            this.Exception = errorStr + "; " + logEvent.Exception;
+                    }
+                }
+                this.Class = "Exception, " + this.Class;
+            }
+            else
+                this.Exception = logEvent.Exception;
+
+            if(this.Path == null)
+                this.Path = logEvent.ExceptionPath?.Join("=>", s => s);
+            else if(logEvent.ExceptionPath != null && logEvent.ExceptionPath.HasAtLeastOneElement())
+                this.Path += ';' + logEvent.ExceptionPath.Join("=>", s => s);
         }
 
         public readonly DateTime AggregationDateTime;

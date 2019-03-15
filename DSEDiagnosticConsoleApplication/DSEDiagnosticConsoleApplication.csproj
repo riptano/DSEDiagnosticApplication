@@ -126,16 +126,16 @@
       <Link>JSON\AggregateGroups.json</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="..\DSEDiagnosticFileParser\Json\CLogLineTypeParser Schema.json">
-      <Link>JSON\CLogLineTypeParser Schema.json</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="..\DSEDiagnosticFileParser\Json\DiagnosticFileRegExAssocations.json">
       <Link>JSON\DiagnosticFileRegExAssocations.json</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="..\DSEDiagnosticFileParser\Json\file-create-folder-structure-Mappings.json">
       <Link>JSON\file-create-folder-structure-Mappings.json</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\DSEDiagnosticFileParser\Json\Log4NetParser-schema.json">
+      <Link>JSON\Log4NetParser-schema.json</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="..\DSEDiagnosticFileParser\Json\Log4NetParser.json">

@@ -1,0 +1,248 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="RegExParseString" nillable="true" type="RegExParseString" />
+  <xs:complexType name="RegExParseString" />
+  <xs:element name="CLogTypeParser" nillable="true" type="CLogTypeParser" />
+  <xs:complexType name="CLogTypeParser">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="LogClass" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Parsers" type="ArrayOfCLogLineTypeParser" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ArrayOfCLogLineTypeParser">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="CLogLineTypeParser" nillable="true" type="CLogLineTypeParser" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="CLogLineTypeParser">
+    <xs:sequence>
+      <xs:element minOccurs="1" maxOccurs="1" name="TagId" type="xs:decimal" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Description" type="xs:string" />
+      <xs:element minOccurs="1" maxOccurs="1" name="SessionBeginTagId" nillable="true" type="xs:decimal" />
+      <xs:element minOccurs="1" maxOccurs="1" name="RunningCount" type="xs:long" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Examples" type="ArrayOfString" />
+      <xs:element minOccurs="0" maxOccurs="1" name="MatchVersion" type="Version" />
+      <xs:element minOccurs="0" maxOccurs="1" name="LevelMatch" type="RegExParseString" />
+      <xs:element minOccurs="0" maxOccurs="1" name="ThreadIdMatch" type="RegExParseString" />
+      <xs:element minOccurs="0" maxOccurs="1" name="FileNameMatch" type="RegExParseString" />
+      <xs:element minOccurs="0" maxOccurs="1" name="FileLineMatch" type="RegExParseString" />
+      <xs:element minOccurs="0" maxOccurs="1" name="MessageMatch" type="RegExParseString" />
+      <xs:element minOccurs="0" maxOccurs="1" name="ParseMessage" type="RegExParseString" />
+      <xs:element minOccurs="0" maxOccurs="1" name="ParseThreadId" type="RegExParseString" />
+      <xs:element minOccurs="1" maxOccurs="1" name="EventType" type="EventTypes" />
+      <xs:element minOccurs="1" maxOccurs="1" name="EventClass" type="EventClasses" />
+      <xs:element minOccurs="1" maxOccurs="1" name="MaxNumberOfEvents" type="xs:long" />
+      <xs:element minOccurs="1" maxOccurs="1" name="MaxNumberOfEventsPerNode" type="xs:long" />
+      <xs:element minOccurs="1" maxOccurs="1" name="IgnoreEvent" type="xs:boolean" />
+      <xs:element minOccurs="1" maxOccurs="1" name="PropertyInherentOption" type="PropertyInherentOptions" />
+      <xs:element minOccurs="1" maxOccurs="1" name="LogPropertySessionMerge" type="xs:boolean" />
+      <xs:element minOccurs="1" maxOccurs="1" name="AssociateEventToNode" type="xs:boolean" />
+      <xs:element minOccurs="0" maxOccurs="1" name="SubClass" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="AnalyticsGroup" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="DeltaRunningTotalProperty" type="ArrayOfString" />
+      <xs:element minOccurs="0" maxOccurs="1" name="DeltaRunningTotalKey" type="xs:string" />
+      <xs:element minOccurs="1" maxOccurs="1" name="Product" type="InstanceTypes" />
+      <xs:element minOccurs="0" maxOccurs="1" name="SessionKey" type="xs:string" />
+      <xs:element minOccurs="1" maxOccurs="1" name="SessionKeyAction" type="SessionKeyActions" />
+      <xs:element minOccurs="0" maxOccurs="1" name="SessionLookup" type="xs:string" />
+      <xs:element minOccurs="1" maxOccurs="1" name="SessionLookupAction" type="SessionLookupActions" />
+      <xs:element minOccurs="1" maxOccurs="1" name="SessionParentAction" type="SessionParentActions" />
+      <xs:element minOccurs="0" maxOccurs="1" name="SessionBeginReference" type="CLogLineTypeParser" />
+      <xs:element minOccurs="1" maxOccurs="1" name="IsClone" type="xs:boolean" />
+      <xs:element minOccurs="1" maxOccurs="1" name="LinkedTagId" nillable="true" type="xs:decimal" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ArrayOfString">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="string" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="Version" />
+  <xs:simpleType name="EventTypes">
+    <xs:list>
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="Unkown" />
+          <xs:enumeration value="SingleInstance" />
+          <xs:enumeration value="SessionElement" />
+          <xs:enumeration value="SessionItem" />
+          <xs:enumeration value="SessionBegin" />
+          <xs:enumeration value="SessionEnd" />
+          <xs:enumeration value="SessionBeginOrItem" />
+          <xs:enumeration value="SessionIgnore" />
+          <xs:enumeration value="SessionDefinedByDuration" />
+          <xs:enumeration value="SessionSpan" />
+          <xs:enumeration value="AggregateData" />
+          <xs:enumeration value="AggregateDataDerived" />
+          <xs:enumeration value="AggregateDataTool" />
+          <xs:enumeration value="ExceptionInstance" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:list>
+  </xs:simpleType>
+  <xs:simpleType name="EventClasses">
+    <xs:list>
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="Unknown" />
+          <xs:enumeration value="Information" />
+          <xs:enumeration value="Warning" />
+          <xs:enumeration value="Error" />
+          <xs:enumeration value="Exception" />
+          <xs:enumeration value="Fatal" />
+          <xs:enumeration value="Compaction" />
+          <xs:enumeration value="AntiCompaction" />
+          <xs:enumeration value="Memtable" />
+          <xs:enumeration value="GC" />
+          <xs:enumeration value="Pause" />
+          <xs:enumeration value="Repair" />
+          <xs:enumeration value="Drops" />
+          <xs:enumeration value="Performance" />
+          <xs:enumeration value="Stats" />
+          <xs:enumeration value="Orphaned" />
+          <xs:enumeration value="HintHandOff" />
+          <xs:enumeration value="DataCenter" />
+          <xs:enumeration value="Node" />
+          <xs:enumeration value="Keyspace" />
+          <xs:enumeration value="TableViewIndex" />
+          <xs:enumeration value="Config" />
+          <xs:enumeration value="Detection" />
+          <xs:enumeration value="NotHandled" />
+          <xs:enumeration value="Pools" />
+          <xs:enumeration value="Caches" />
+          <xs:enumeration value="Solr" />
+          <xs:enumeration value="Flush" />
+          <xs:enumeration value="Commit" />
+          <xs:enumeration value="Change" />
+          <xs:enumeration value="Schema" />
+          <xs:enumeration value="Shard" />
+          <xs:enumeration value="DataModel" />
+          <xs:enumeration value="Partition" />
+          <xs:enumeration value="Tombstone" />
+          <xs:enumeration value="Query" />
+          <xs:enumeration value="Gossip" />
+          <xs:enumeration value="Batches" />
+          <xs:enumeration value="Prepares" />
+          <xs:enumeration value="Authenticator" />
+          <xs:enumeration value="Device" />
+          <xs:enumeration value="TimeOut" />
+          <xs:enumeration value="MetaData" />
+          <xs:enumeration value="SSTable" />
+          <xs:enumeration value="Row" />
+          <xs:enumeration value="FileSystem" />
+          <xs:enumeration value="Message" />
+          <xs:enumeration value="Unavailable" />
+          <xs:enumeration value="Network" />
+          <xs:enumeration value="Requests" />
+          <xs:enumeration value="Terminate" />
+          <xs:enumeration value="Close" />
+          <xs:enumeration value="GCStats" />
+          <xs:enumeration value="MemtableFlush" />
+          <xs:enumeration value="SolrHardCommit" />
+          <xs:enumeration value="SolrExpiredCols" />
+          <xs:enumeration value="NodeStats" />
+          <xs:enumeration value="KeyspaceStats" />
+          <xs:enumeration value="TableViewIndexStats" />
+          <xs:enumeration value="KeyspaceTableViewIndexStats" />
+          <xs:enumeration value="PerformanceStats" />
+          <xs:enumeration value="DataModelStats" />
+          <xs:enumeration value="NodeDetection" />
+          <xs:enumeration value="StatusTypes" />
+          <xs:enumeration value="LogTypes" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:list>
+  </xs:simpleType>
+  <xs:simpleType name="PropertyInherentOptions">
+    <xs:list>
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="None" />
+          <xs:enumeration value="Overwrite" />
+          <xs:enumeration value="Merge" />
+          <xs:enumeration value="SubClass" />
+          <xs:enumeration value="PrimaryKS" />
+          <xs:enumeration value="PrimaryDDL" />
+          <xs:enumeration value="SSTableFilePaths" />
+          <xs:enumeration value="DDLInstances" />
+          <xs:enumeration value="AssocatedNodes" />
+          <xs:enumeration value="TokenRanges" />
+          <xs:enumeration value="TagLogProp" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:list>
+  </xs:simpleType>
+  <xs:simpleType name="InstanceTypes">
+    <xs:list>
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="Unkown" />
+          <xs:enumeration value="Cassandra" />
+          <xs:enumeration value="Search" />
+          <xs:enumeration value="Analytics" />
+          <xs:enumeration value="TT" />
+          <xs:enumeration value="JT" />
+          <xs:enumeration value="Graph" />
+          <xs:enumeration value="AdvancedReplication" />
+          <xs:enumeration value="Hadoop" />
+          <xs:enumeration value="CFS" />
+          <xs:enumeration value="SW" />
+          <xs:enumeration value="SM" />
+          <xs:enumeration value="MultiInstance" />
+          <xs:enumeration value="Analytics_TT" />
+          <xs:enumeration value="Analytics_JT" />
+          <xs:enumeration value="Analytics_SM" />
+          <xs:enumeration value="Analytics_SW" />
+          <xs:enumeration value="Cassandra_JT" />
+          <xs:enumeration value="SearchAnalytics" />
+          <xs:enumeration value="SearchAnalytics_TT" />
+          <xs:enumeration value="SearchAnalytics_JT" />
+          <xs:enumeration value="SearchAnalytics_SW" />
+          <xs:enumeration value="SearchAnalytics_SM" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:list>
+  </xs:simpleType>
+  <xs:simpleType name="SessionKeyActions">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Auto" />
+      <xs:enumeration value="Add" />
+      <xs:enumeration value="Read" />
+      <xs:enumeration value="Delete" />
+      <xs:enumeration value="ReadRemove" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="SessionLookupActions">
+    <xs:list>
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="Default" />
+          <xs:enumeration value="Label" />
+          <xs:enumeration value="Session" />
+          <xs:enumeration value="Read" />
+          <xs:enumeration value="Define" />
+          <xs:enumeration value="Delete" />
+          <xs:enumeration value="Stack" />
+          <xs:enumeration value="TieOutId" />
+          <xs:enumeration value="AppendTieOutId" />
+          <xs:enumeration value="ReadSession" />
+          <xs:enumeration value="ReadLabel" />
+          <xs:enumeration value="DefineLabel" />
+          <xs:enumeration value="DeleteLabel" />
+          <xs:enumeration value="ReadRemoveLabel" />
+          <xs:enumeration value="ReadRemoveSession" />
+          <xs:enumeration value="DefineSession" />
+          <xs:enumeration value="DeleteSession" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:list>
+  </xs:simpleType>
+  <xs:simpleType name="SessionParentActions">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Default" />
+      <xs:enumeration value="IgnoreCurrent" />
+      <xs:enumeration value="IgnoreParents" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="CLogLineTypeParser" nillable="true" type="CLogLineTypeParser" />
+</xs:schema>
