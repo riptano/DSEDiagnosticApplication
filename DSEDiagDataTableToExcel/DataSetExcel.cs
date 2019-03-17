@@ -2316,7 +2316,7 @@ namespace DataTableToExcel
             else
             {
                 var oldaddy = table.Address;
-                var newaddy = new ExcelAddressBase(oldaddy.Start.Row, oldaddy.Start.Column, rowCnt + 2, oldaddy.End.Column);
+                var newaddy = new ExcelAddressBase(oldaddy.Start.Row, oldaddy.Start.Column, rowCnt + 2, dataTable.Columns.Count);
 
                 //Edit the raw XML by searching for all references to the old address
                 table.TableXml.InnerXml = table.TableXml.InnerXml.Replace(oldaddy.ToString(), newaddy.ToString());
