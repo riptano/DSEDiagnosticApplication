@@ -1954,6 +1954,25 @@ namespace DSEDiagnosticFileParser
             return logEvent;
         }
 
+        private List<AggregatedStats> _aggregatedStats = new List<AggregatedStats>();
+
+        private AggregatedStats FindAggregatedStatsInstance(EventTypes eventType, EventClasses eventClass)
+        {
+            AggregatedStats aggStats = this._aggregatedStats.FirstOrDefault(i => i.Type == eventType && i.Class == eventClass);
+
+            if (aggStats == null)
+            {
+                aggStats = new AggregatedStats(this.File,
+                                                this.Node,
+                                                SourceTypes.CassandraLog,
+                                                eventType,
+                                                eventClass);
+                this._aggregatedStats.Add(aggStats);
+            }
+
+            return aggStats;
+        }
+
         private void DetermineProperties(ILogMessage logMessage,
                                             Dictionary<string, object> logProperties,
                                             out LateDDLResolution? lateDDLresolution,
@@ -1968,8 +1987,7 @@ namespace DSEDiagnosticFileParser
                                             out IEnumerable<INode> assocatedNodes,
                                             out IEnumerable<TokenRangeInfo> tokenRanges)
                                             //out string sessionId)
-        {
-            AggregatedStats errorNodeAggStat = null;
+        {            
             var keyspaceName = StringHelpers.RemoveQuotes((string)logProperties.TryGetValue("KEYSPACE"));
             var tableviewName = logProperties.TryGetValue("TABLEVIEWNAME");
             var ddlName = StringHelpers.RemoveQuotes((string)logProperties.TryGetValue("DDLITEMNAME"));
@@ -2338,16 +2356,11 @@ namespace DSEDiagnosticFileParser
                                                                     ddlInstancesCnt > ddlNamesCnt ? "multiple resolved C* object (DDL) instances" : "unresolved C* object names",
                                                                     string.Join(", ", diffNames),
                                                                     logMessage.Message);
-                                    if (errorNodeAggStat == null)
+                                    
                                     {
-                                        errorNodeAggStat = new AggregatedStats(this.File,
-                                                                                this.Node,
-                                                                                SourceTypes.CassandraLog,
-                                                                                EventTypes.AggregateDataTool,
-                                                                                EventClasses.Node | EventClasses.DataModel);
-                                    }
+                                        var errorNodeAggStat = this.FindAggregatedStatsInstance(EventTypes.AggregateDataTool,
+                                                                                                    EventClasses.Node | EventClasses.DataModel);
 
-                                    {                                        
                                         var errValue = string.Format("DDL has {0} for {1}",
                                                                                     ddlInstancesCnt > ddlNamesCnt
                                                                                         ? "multiple resolved C* object (DDL) instances"
@@ -2412,42 +2425,34 @@ namespace DSEDiagnosticFileParser
 
                     if(nodesNotFound.HasAtLeastOneElement())
                     {
-                        if (errorNodeAggStat == null)
+                        var errorNodeAggStat = this.FindAggregatedStatsInstance(EventTypes.AggregateDataTool,
+                                                                                EventClasses.Node);                                                                            
+                        if (errorNodeAggStat.Data.TryGetValue(AggregatedStats.ErrorNodeNotFnd, out object existingValue))
                         {
-                            errorNodeAggStat = new AggregatedStats(this.File,
-                                                                    this.Node,
-                                                                    SourceTypes.CassandraLog,
-                                                                    EventTypes.AggregateDataTool,
-                                                                    EventClasses.Node);
+                            nodesNotFound.ForEach(n =>
+                                                    ((List<string>)existingValue).Add(string.Format("Associated Node \"{0}\" could not be found", n)));                                
                         }
-                        {                            
-                            if (errorNodeAggStat.Data.TryGetValue(AggregatedStats.ErrorNodeNotFnd, out object existingValue))
-                            {
-                                nodesNotFound.ForEach(n =>
-                                                        ((List<string>)existingValue).Add(string.Format("Associated Node \"{0}\" could not be found", n)));                                
-                            }
-                            else
-                            {
-                                errorNodeAggStat.AssociateItem(AggregatedStats.ErrorNodeNotFnd, new List<string>() { string.Format("Associated Node \"{0}\" could not be found", nodesNotFound.First()) });
+                        else
+                        {
+                            errorNodeAggStat.AssociateItem(AggregatedStats.ErrorNodeNotFnd, new List<string>() { string.Format("Associated Node \"{0}\" could not be found", nodesNotFound.First()) });
 
-                                if(errorNodeAggStat.Data.TryGetValue(AggregatedStats.ErrorNodeNotFnd, out existingValue))
-                                    nodesNotFound.Skip(1).ForEach(n =>
-                                                                    ((List<string>)existingValue).Add(string.Format("Associated Node \"{0}\" could not be found", n)));
-                            }
-
-                            if (logProperties.TryGetValue("nodetxt", out existingValue))
-                            {
-                                if(existingValue is IEnumerable<object>)
-                                    existingValue = string.Join(", ", (IEnumerable<object>)existingValue) + ", " + string.Join(", ", nodesNotFound);
-                                else
-                                    existingValue = existingValue.ToString() + ", " + string.Join(", ", nodesNotFound);
-                                logProperties["nodetxt"] = existingValue;
-                            }
-                            else
-                            {
-                                logProperties.Add("nodetxt", string.Join(", ", nodesNotFound));                                
-                            }                            
+                            if(errorNodeAggStat.Data.TryGetValue(AggregatedStats.ErrorNodeNotFnd, out existingValue))
+                                nodesNotFound.Skip(1).ForEach(n =>
+                                                                ((List<string>)existingValue).Add(string.Format("Associated Node \"{0}\" could not be found", n)));
                         }
+
+                        if (logProperties.TryGetValue("nodetxt", out existingValue))
+                        {
+                            if(existingValue is IEnumerable<object>)
+                                existingValue = string.Join(", ", (IEnumerable<object>)existingValue) + ", " + string.Join(", ", nodesNotFound);
+                            else
+                                existingValue = existingValue.ToString() + ", " + string.Join(", ", nodesNotFound);
+                            logProperties["nodetxt"] = existingValue;
+                        }
+                        else
+                        {
+                            logProperties.Add("nodetxt", string.Join(", ", nodesNotFound));                                
+                        }                        
                     }
                 }
             }
@@ -2525,16 +2530,9 @@ namespace DSEDiagnosticFileParser
                                                         logMessage);
                         this.NbrErrors++;
 
-                        if (errorNodeAggStat == null)
-                        {
-                            errorNodeAggStat = new AggregatedStats(this.File,
-                                                                    this.Node,
-                                                                    SourceTypes.CassandraLog,
-                                                                    EventTypes.AggregateDataTool,
-                                                                    EventClasses.Node | EventClasses.DataModel);
-                        }
-
-                        {                            
+                        {          
+                            var errorNodeAggStat = this.FindAggregatedStatsInstance(EventTypes.AggregateDataTool,
+                                                                                    EventClasses.Node | EventClasses.DataModel);
                             if (!errorNodeAggStat.Data.TryGetValue(AggregatedStats.ErrorCItemNotFnd, out object existingValue))                            
                             {
                                 errorNodeAggStat.AssociateItem(AggregatedStats.ErrorCItemNotFnd, existingValue = new List<string>());
@@ -2570,16 +2568,9 @@ namespace DSEDiagnosticFileParser
                                                             logMessage);
                         this.NbrErrors++;
 
-                        if (errorNodeAggStat == null)
                         {
-                            errorNodeAggStat = new AggregatedStats(this.File,
-                                                                    this.Node,
-                                                                    SourceTypes.CassandraLog,
-                                                                    EventTypes.AggregateDataTool,
-                                                                    EventClasses.Node | EventClasses.DataModel);
-                        }
-
-                        {                            
+                            var errorNodeAggStat = this.FindAggregatedStatsInstance(EventTypes.AggregateDataTool,
+                                                                                    EventClasses.Node | EventClasses.DataModel);
                             var errValue = string.Format("Primary Keyspace \"{0}\" could not be found",
                                                           keyspaceName);
                             if (errorNodeAggStat.Data.TryGetValue(AggregatedStats.ErrorKSNotFnd, out object existingValue))
