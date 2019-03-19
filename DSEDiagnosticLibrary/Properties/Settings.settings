@@ -122,6 +122,7 @@
   &lt;string&gt;dse_perf&lt;/string&gt;
   &lt;string&gt;system_auth&lt;/string&gt;
   &lt;string&gt;dse_security&lt;/string&gt;
+  &lt;string&gt;system.hints&lt;/string&gt;
 &lt;/ArrayOfString&gt;</Value>
     </Setting>
     <Setting Name="IsSasIIIndexClasses" Type="System.Collections.Specialized.StringCollection" Scope="Application">

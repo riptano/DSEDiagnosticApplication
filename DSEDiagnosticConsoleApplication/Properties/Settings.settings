@@ -8,25 +8,6 @@
     <Setting Name="DiagFolderStruct" Type="System.String" Scope="Application">
       <Value Profile="(Default)">OpsCtrDiagStruct</Value>
     </Setting>
-    <Setting Name="IgnoreKeySpaces" Type="System.Collections.Specialized.StringCollection" Scope="Application">
-      <Value Profile="(Default)">&lt;?xml version="1.0" encoding="utf-16"?&gt;
-&lt;ArrayOfString xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"&gt;
-  &lt;string&gt;dse_system&lt;/string&gt;
-  &lt;string&gt;system_auth&lt;/string&gt;
-  &lt;string&gt;system_distributed&lt;/string&gt;
-  &lt;string&gt;system_schema&lt;/string&gt;
-  &lt;string&gt;system&lt;/string&gt;
-  &lt;string&gt;dse_security&lt;/string&gt;
-  &lt;string&gt;solr_admin&lt;/string&gt;
-  &lt;string&gt;dse_auth&lt;/string&gt;
-  &lt;string&gt;dse_leases&lt;/string&gt;
-  &lt;string&gt;system_traces&lt;/string&gt;
-  &lt;string&gt;dse_perf&lt;/string&gt;
-  &lt;string&gt;HiveMetaStore&lt;/string&gt;
-  &lt;string&gt;cfs_archive&lt;/string&gt;
-  &lt;string&gt;cfs&lt;/string&gt;
-&lt;/ArrayOfString&gt;</Value>
-    </Setting>
     <Setting Name="ExcelFilePath" Type="System.String" Scope="Application">
       <Value Profile="(Default)" />
     </Setting>

@@ -252,6 +252,7 @@ namespace DSEDiagnosticLibrary.Properties {
   <string>dse_perf</string>
   <string>system_auth</string>
   <string>dse_security</string>
+  <string>system.hints</string>
 </ArrayOfString>")]
         public global::System.Collections.Specialized.StringCollection TablesUsageFlag {
             get {

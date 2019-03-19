@@ -234,10 +234,19 @@ namespace DSEDiagnosticConsoleApplication
         public static IDirectoryPath DiagnosticPath = MakeDirectoryPath(Properties.Settings.Default.DiagnosticPath);
         public static IFilePath ExcelFilePath = MakeFilePath(Properties.Settings.Default.ExcelFilePath, DiagnosticPath);
         public static DiagFolderStructOptions DiagFolderStruct = (DiagFolderStructOptions)Enum.Parse(typeof(DiagFolderStructOptions), Properties.Settings.Default.DiagFolderStruct);
-        public static List<string> IgnoreKeySpaces = Properties.Settings.Default.IgnoreKeySpaces.ToList(false);
+        public static List<string> IgnoreKeySpaces = DSEDiagnosticLibrary.LibrarySettings.SystemKeyspaces.Append(DSEDiagnosticLibrary.LibrarySettings.DSEKeyspaces).ToList();
         public static int OnlyIncludeXHrsofLogsFromDiagCaptureTime = Properties.Settings.Default.OnlyIncludeXHrsofLogsFromDiagCaptureTime;
         public static List<KeyValuePair<string, IFilePath>> AdditionalFilesForParsingClass = new List<KeyValuePair<string, IFilePath>>();
-        public static List<string> WarnWhenKSTblIsDetected = Properties.Settings.Default.WarnWhenKSTblIsDetected.ToList(false);
+        public static List<string> WarnWhenKSTblIsDetected
+        {
+            get { return DSEDiagnosticLibrary.LibrarySettings.TablesUsageFlag.ToList(); }
+            set { DSEDiagnosticLibrary.LibrarySettings.TablesUsageFlag = value?.ToArray() ?? new string[0]; }
+        }
+        public static IEnumerable<string> IgnoreWarningsErrosInKeySpaces
+        {
+            get { return DSEDiagnosticFileParser.LibrarySettings.IgnoreWarningsErrosInKeySpaces; }
+            set { DSEDiagnosticFileParser.LibrarySettings.IgnoreWarningsErrosInKeySpaces = value ?? Enumerable.Empty<string>(); }
+        }
         public static IFilePath ExcelFileTemplatePath = MakeFilePath(Properties.Settings.Default.ExcelFileTemplatePath, ExcelFilePath?.ParentDirectoryPath);
         public static TimeSpan LogAggregationPeriod
         {
