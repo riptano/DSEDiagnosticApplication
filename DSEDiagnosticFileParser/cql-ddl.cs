@@ -981,20 +981,27 @@ namespace DSEDiagnosticFileParser
             {
                 var ksUDTPair = StringHelpers.SplitTableName(colType, null);
 
-                if(!string.IsNullOrEmpty(ksUDTPair.Item1))
+                if (!string.IsNullOrEmpty(ksUDTPair.Item1))
                 {
-                    var newKS = keyspace.DataCenter.TryGetKeyspace(ksUDTPair.Item1);
-
-                    if(newKS != null)
+                    if (keyspace.Name == ksUDTPair.Item1)
                     {
                         colType = ksUDTPair.Item2;
+                    }
+                    else
+                    {
+                        var newKS = keyspace.DataCenter.TryGetKeyspace(ksUDTPair.Item1);
 
-                        if (!newKS.Equals(keyspace))                        
+                        if (newKS != null)
                         {
-                            keyspace = newKS;
-                            prefixKSName = keyspace.Name;                            
+                            colType = ksUDTPair.Item2;
+
+                            if (!newKS.Equals(keyspace))
+                            {
+                                keyspace = newKS;
+                                prefixKSName = keyspace.Name;
+                            }
+
                         }
-                        
                     }
                 }
             }

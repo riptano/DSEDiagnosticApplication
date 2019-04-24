@@ -1982,25 +1982,26 @@ public static class {0}
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute(@"[
-{""Key"":""ID"",""Value"":""[0-9a-f\\-]+""},
-{""Key"":""DURATION"",""Value"":""[0-9,.]+""},
-{""Key"":""DURATIONwUOM"",""Value"":""(?<DURATION>[0-9,.]+\\s*\\w+)""},
-{""Key"":""KEYSPACE"",""Value"":""[a-z0-9'\\-_$%+=!?<>^*&@]+""},
-{""Key"":""DDLITEMNAME"",""Value"":""[a-z0-9'\\-_$%+=!?<>^*&@/.]+""},
-{""Key"":""DDLITEMNAMES"",""Value"":""[a-z0-9'\\-_$%+=!?<>^*&@/. ,]*""},
-{""Key"":""TABLEVIEWNAME"",""Value"":""[a-z0-9'\\-_$%+=!?<>^*&@/.]+""},
-{""Key"":""DDLITEM"",""Value"":""[^ ]+""},
-{""Key"":""DDLSCHEMAID"",""Value"":""[0-9a-f\\-]+""},
-{""Key"":""SSTABLEPATH"",""Value"":""[a-z0-9\\-_@#/.\\ +%]+""},
-{""Key"":""SSTABLEPATHS"",""Value"":""[a-z0-9\\-_@#/.,\\ +%]*""},
-{""Key"":""NODE"",""Value"":""[^ ]+""},
-{""Key"":""NODELIST"",""Value"":""\\[?\\s*(?<nodetxt>(?<NODES>[^\\]]+))\\]?""},
-{""Key"":""NODEITEMS"",""Value"":""\\s*(?<nodetxt>(?:((?:[^/]+)?/(?<NODES>[0-9.]+))\\s*,?\\s*)+)\\s*""},
-{""Key"":""SOLRINDEXNAME"",""Value"":""[a-z0-9'\\-_$%+=!?<>^*&@/.]+""},
-{""Key"":""CQLSELECT"",""Value"":""select\\s+(?<querycols>.+)\\s+from\\s+(?<TABLEVIEWNAME>[a-z0-9'\\-_$%+=!?<>^*&@/.]+)(?:\\s+where\\s+(?<whereclause>.+?))??(?:\\s+order\\s+by\\s+(?<orderbycols>.+?))??(?:\\s+limit\\s+(?<limit>\\d+?))??(?<allowfiltering>\\s+allow\\s+filtering)??""},
-{""Key"":""TOKENKSTBL"",""Value"":""\\[?(?:(?<TOKENRANGE>\\([0-9\\-]+\\s*,\\s*[0-9\\-]+\\])+,?\\s*)+\\s*\\]?\\s*\\w+\\s*(?<KEYSPACE>[a-z0-9'\\-_$%+=!?<>^*&@]+)\\.\\[\\s*(?:(?<TABLEVIEWNAME>[a-z0-9'\\-_$%+=!?<>^*&@/.]+)\\s*,*\\s*)+\\]""}
-]")]
+        [global::System.Configuration.DefaultSettingValueAttribute("[\r\n{\"Key\":\"ID\",\"Value\":\"[0-9a-f\\\\-]+\"},\r\n{\"Key\":\"DURATION\",\"Value\":\"[0-9,.]+\"},\r\n" +
+            "{\"Key\":\"DURATIONwUOM\",\"Value\":\"(?<DURATION>[0-9,.]+\\\\s*\\\\w+)\"},\r\n{\"Key\":\"KEYSPAC" +
+            "E\",\"Value\":\"[a-z0-9\'\\\\-_$%+=!?<>^*&@]+\"},\r\n{\"Key\":\"DDLITEMNAME\",\"Value\":\"[a-z0-9" +
+            "\'\\\\-_$%+=!?<>^*&@/.]+\"},\r\n{\"Key\":\"DDLITEMNAMES\",\"Value\":\"[a-z0-9\'\\\\-_$%+=!?<>^*&" +
+            "@/. ,]*\"},\r\n{\"Key\":\"TABLEVIEWNAME\",\"Value\":\"[a-z0-9\'\\\\-_$%+=!?<>^*&@/.]+\"},\r\n{\"K" +
+            "ey\":\"DDLITEM\",\"Value\":\"[^ ]+\"},\r\n{\"Key\":\"DDLSCHEMAID\",\"Value\":\"[0-9a-f\\\\-]+\"},\r\n" +
+            "{\"Key\":\"SSTABLEPATH\",\"Value\":\"[a-z0-9\\\\-_@#/.\\\\ +%]+\"},\r\n{\"Key\":\"SSTABLEPATHS\",\"" +
+            "Value\":\"[a-z0-9\\\\-_@#/.,\\\\ +%]*\"},\r\n{\"Key\":\"NODE\",\"Value\":\"[^ ]+\"},\r\n{\"Key\":\"NOD" +
+            "ELIST\",\"Value\":\"\\\\[?\\\\s*(?<nodetxt>(?<NODES>[^\\\\]]+))\\\\]?\"},\r\n{\"Key\":\"NODEITEMS\"" +
+            ",\"Value\":\"\\\\s*(?<nodetxt>(?:((?:[^/]+)?/(?<NODES>[0-9.]+))\\\\s*,?\\\\s*)+)\\\\s*\"},\r\n" +
+            "{\"Key\":\"SOLRINDEXNAME\",\"Value\":\"[a-z0-9\'\\\\-_$%+=!?<>^*&@/.]+\"},\r\n{\"Key\":\"SOLRIND" +
+            "EXNAMES\",\"Value\":\"[a-z0-9\'\\\\-_$%+=!?<>^*&@/.,]+\"},\r\n{\"Key\":\"SOLRSSTABLEPATHS\",\"V" +
+            "alue\":\"(?:\\\\s*\\\\w+\\\\s*\\\\(\\\\s*path\\\\s*=\\\\s*\'(?<SSTABLEPATHS>[a-z0-9\\\\-_@#/.\\\\ +%]" +
+            "+)\'\\\\),?)+\"},\r\n{\"Key\":\"CQLSELECT\",\"Value\":\"select\\\\s+(?<querycols>.+)\\\\s+from\\\\s" +
+            "+(?<TABLEVIEWNAME>[a-z0-9\'\\\\-_$%+=!?<>^*&@/.]+)(?:\\\\s+where\\\\s+(?<whereclause>.+" +
+            "?))??(?:\\\\s+order\\\\s+by\\\\s+(?<orderbycols>.+?))??(?:\\\\s+limit\\\\s+(?<limit>\\\\d+?)" +
+            ")??(?<allowfiltering>\\\\s+allow\\\\s+filtering)??\"},\r\n{\"Key\":\"TOKENKSTBL\",\"Value\":\"" +
+            "\\\\[?(?:(?<TOKENRANGE>\\\\([0-9\\\\-]+\\\\s*,\\\\s*[0-9\\\\-]+\\\\])+,?\\\\s*)+\\\\s*\\\\]?\\\\s*\\\\w+" +
+            "\\\\s*(?<KEYSPACE>[a-z0-9\'\\\\-_$%+=!?<>^*&@]+)\\\\.\\\\[\\\\s*(?:(?<TABLEVIEWNAME>[a-z0-9" +
+            "\'\\\\-_$%+=!?<>^*&@/.]+)\\\\s*,*\\\\s*)+\\\\]\"}\r\n]")]
         public string RegExLexiconValues {
             get {
                 return ((string)(this["RegExLexiconValues"]));

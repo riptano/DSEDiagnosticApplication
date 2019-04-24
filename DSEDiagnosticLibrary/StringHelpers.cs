@@ -83,7 +83,7 @@ namespace DSEDiagnosticLibrary
             return System.Net.IPAddress.TryParse(possibleIPAddress, out System.Net.IPAddress ipAddress) ? ipAddress : null;
         }
 
-        private static Regex hostPortMatch = new Regex(@"^(?<ip>(?:\[[\da-fA-F:]+\])|(?:\d{1,3}\.){3}\d{1,3})(?::(?<port>\d+))$", System.Text.RegularExpressions.RegexOptions.Compiled);
+        private static Regex hostPortMatch = new Regex(@"^(?<ip>(?:\[[\da-fA-F:]+\])|(?:\d{1,3}\.){3}\d{1,3})(?::(?<port>\d{1,5}))$", System.Text.RegularExpressions.RegexOptions.Compiled);
         public static IPEndPoint ParseHostPort(string hostPort)
         {
             Match match = hostPortMatch.Match(hostPort);

@@ -296,7 +296,7 @@ namespace DSEDiagnosticLibrary
 
     public sealed class TokenRangeBigInt : TokenRangeInfo, IEquatable<TokenRangeBigInt>
     {
-        public static readonly BigInteger MinValue = BigInteger.Parse("−170141183460469231731687303715884105728");
+        public static readonly BigInteger MinValue = BigInteger.Parse("-170141183460469231731687303715884105728");
         public static readonly BigInteger MaxValue = BigInteger.Parse("170141183460469231731687303715884105727");
 
         public TokenRangeBigInt(BigInteger startToken, BigInteger endToken, UnitOfMeasure? loadToken = null)

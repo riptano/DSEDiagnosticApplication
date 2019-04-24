@@ -134,6 +134,7 @@ namespace DSEDiagnosticLibrary
         Terminate       = 0x2000000000000,
         Close           = 0x4000000000000,
         Session         = 0x8000000000000,
+        TokenRange      = 0x10000000000000,
         GCStats = GC | Stats,
         MemtableFlush = Memtable | Flush,
         SolrHardCommit = Solr | Commit,

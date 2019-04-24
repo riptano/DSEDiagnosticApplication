@@ -2000,7 +2000,8 @@ namespace DSEDiagnosticFileParser
                                     : StringHelpers.RemoveQuotes((string)logProperties.TryGetValue("SSTABLEPATH"));
             var keyspaceNames = TurnPropertyIntoCollection(logProperties, "KEYSPACES");
             var ddlNames = TurnPropertyIntoCollection(logProperties, "DDLITEMNAMES");
-            var solrDDLNames = TurnPropertyIntoCollection(logProperties, "SOLRINDEXNAME");            
+            var solrDDLName = TurnPropertyIntoCollection(logProperties, "SOLRINDEXNAME");
+            var solrDDLNames = TurnPropertyIntoCollection(logProperties, "SOLRINDEXNAMES");            
             IEnumerable<IKeyspace> keyspaceInstances = keyspaceNames == null
                                                             ? null
                                                             : keyspaceNames
@@ -2128,45 +2129,7 @@ namespace DSEDiagnosticFileParser
                         ddlNames.Add(ddlName);
                     }
                 }
-
-                if (solrDDLNames != null && solrDDLNames.HasAtLeastOneElement())
-                {
-                    var ddlItems = solrDDLNames.Select(i => Cluster.TryGetSolrIndexbyString(i, this.Cluster, this.DataCenter))
-                                                    .Where(i => i != null)
-                                                    .DuplicatesRemoved(d => d.FullName);
-
-                    if (ddlItems.HasAtLeastOneElement())
-                    {
-                        if (ddlInstances == null || ddlInstances.IsEmpty())
-                        {
-                            ddlInstances = ddlItems.ToList();
-                        }
-                        else
-                        {
-                            ddlInstances.AddRange(ddlItems);
-
-                            ddlInstances = ddlInstances.DuplicatesRemoved(d => d.FullName).ToList();
-                        }
-                    }
-
-                    if (ddlItems.Count() == 1
-                            && (primaryDDL == null || primaryDDL.Equals(((ICQLIndex)ddlItems.First()).Table)))
-                    {
-                        primaryDDL = ddlItems.First();
-                        primaryKS = primaryDDL.Keyspace;
-                    }
-                    else if (primaryDDL == null && ddlInstances != null)
-                    {
-                       var commonTbl = ((ICQLIndex)ddlInstances.First()).Table;
-
-                        if (ddlInstances.Select(i => ((ICQLIndex)i).Table).All(t => t.Equals(commonTbl)))
-                        {
-                            primaryDDL = commonTbl;
-                            primaryKS = commonTbl.Keyspace;
-                        }                        
-                    }
-                }
-
+                
                 if (ddlNames != null && ddlNames.HasAtLeastOneElement())
                 {
                     var ddlItems = ddlNames.SelectMany(i => Cluster.TryGetTableIndexViewsbyString(i, this.Cluster, this.DataCenter))
@@ -2186,6 +2149,39 @@ namespace DSEDiagnosticFileParser
                         }
                     }
                 }
+
+                if (solrDDLName != null && solrDDLName.HasAtLeastOneElement())
+                {
+                    if (solrDDLNames == null)
+                        solrDDLNames = solrDDLName;
+                    else
+                    {
+                        solrDDLNames.AddRange(solrDDLName);
+                    }
+                }
+
+                if (solrDDLNames != null && solrDDLNames.HasAtLeastOneElement())
+                {
+                    var baseKeyspace = primaryKS?.Name ?? ddlInstances?.Select(t => t.Keyspace.Name).DuplicatesRemoved(t => t).FirstOrDefault();
+                    var ddlItems = solrDDLNames.Select(i => Cluster.TryGetSolrIndexbyString(i, this.Cluster, this.DataCenter, baseKeyspace))
+                                                    .Where(i => i != null)
+                                                    .DuplicatesRemoved(d => d.FullName);
+
+                    if (ddlItems.HasAtLeastOneElement())
+                    {
+                        if (ddlInstances == null || ddlInstances.IsEmpty())
+                        {
+                            ddlInstances = ddlItems.ToList();
+                        }
+                        else
+                        {
+                            ddlInstances.AddRange(ddlItems);
+
+                            ddlInstances = ddlInstances.DuplicatesRemoved(d => d.FullName).ToList();
+                        }
+                    }                    
+                }
+
 
                 if (!string.IsNullOrEmpty(ddlSchemaId))
                 {
@@ -2622,12 +2618,14 @@ namespace DSEDiagnosticFileParser
                                     NormalizedGroupName(normalizedGroupName, logProperties, out uomType);
 
                                     logProperties.TryAddValue(normalizedGroupName,
-                                                                StringHelpers.DetermineProperObjectFormat(groupValueInstance.Captures[nIdx].Value,
-                                                                                                            false,
-                                                                                                            false,
-                                                                                                            true,
-                                                                                                            uomType,
-                                                                                                            true));
+                                                                uomType == "TXT"
+                                                                    ? groupValueInstance.Captures[nIdx].Value
+                                                                    : StringHelpers.DetermineProperObjectFormat(groupValueInstance.Captures[nIdx].Value,
+                                                                                                                    false,
+                                                                                                                    false,
+                                                                                                                    true,
+                                                                                                                    uomType,
+                                                                                                                    true));
                                 }
                             }
                         }
@@ -2748,6 +2746,7 @@ namespace DSEDiagnosticFileParser
                         normalizedGroupName = NormalizedGroupName(groupName, logProperties, out uomType);
 
                         var groupInstance = matchItem.Groups[groupName];
+                        var textValue = uomType == "TXT" || groupName == "partitionkey" || groupName == "whereclause";
 
                         if (groupInstance.Success)
                         {
@@ -2755,13 +2754,15 @@ namespace DSEDiagnosticFileParser
                             {
                                 if (appendToPropertyValueOnDupKey)
                                 {
-                                    var objValue = StringHelpers.DetermineProperObjectFormat(groupInstance.Value,
-                                                                                                true,
-                                                                                                false,
-                                                                                                true,
-                                                                                                uomType,
-                                                                                                true);
-                                    if(logProperties.TryGetValue(normalizedGroupName, out object currentValue))
+                                    var objValue = textValue
+                                                        ? groupInstance.Value
+                                                        : StringHelpers.DetermineProperObjectFormat(groupInstance.Value,
+                                                                                                        true,
+                                                                                                        false,
+                                                                                                        true,
+                                                                                                        uomType,
+                                                                                                        true);
+                                    if (logProperties.TryGetValue(normalizedGroupName, out object currentValue))
                                     {                                        
                                         if(currentValue is IList<object>)
                                         {
@@ -2786,12 +2787,14 @@ namespace DSEDiagnosticFileParser
                                 else
                                 {
                                     logProperties.TryAddValue(normalizedGroupName,
-                                                                StringHelpers.DetermineProperObjectFormat(groupInstance.Value,
-                                                                                                            true,
-                                                                                                            false,
-                                                                                                            true,
-                                                                                                            uomType,
-                                                                                                            true));
+                                                                textValue
+                                                                    ? groupInstance.Value
+                                                                    : StringHelpers.DetermineProperObjectFormat(groupInstance.Value,
+                                                                                                                    true,
+                                                                                                                    false,
+                                                                                                                    true,
+                                                                                                                    uomType,
+                                                                                                                    true));
                                 }
                             }
                             else
@@ -2800,7 +2803,9 @@ namespace DSEDiagnosticFileParser
 
                                 foreach (Capture capture in groupInstance.Captures)
                                 {
-                                    groupCaptures.Add(StringHelpers.DetermineProperObjectFormat(capture.Value,
+                                    groupCaptures.Add(textValue
+                                                        ? capture.Value
+                                                        : StringHelpers.DetermineProperObjectFormat(capture.Value,
                                                                                                     true,
                                                                                                     false,
                                                                                                     true,
@@ -2814,7 +2819,7 @@ namespace DSEDiagnosticFileParser
                         #endregion
                     }
 
-                    if ((groupName == "KEYSPACES" || groupName == "DDLITEMNAMES" || groupName == "SSTABLEPATHS" || groupName == "NODES"))
+                    if ((groupName == "KEYSPACES" || groupName == "DDLITEMNAMES" || groupName == "SSTABLEPATHS" || groupName == "NODES" || groupName == "SOLRINDEXNAMES"))
                     {
                         #region List of items
                         

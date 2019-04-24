@@ -49,7 +49,9 @@ namespace DSEDiagnosticConsoleApplication
         {
             if (exception == null) return;
 
-            lock (lastLogLine.LoggingEvents)
+            object lockInstance = (object)lastLogLine.LoggingEvents ?? exception;
+
+            lock (lockInstance)
             {                
                 System.Diagnostics.Trace.Indent();
 

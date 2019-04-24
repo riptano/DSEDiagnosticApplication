@@ -1,0 +1,15 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="DSEDiagnosticInsightsES.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="ESEnableDebugging" Type="System.Boolean" Scope="Application">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="ESInsightClusterIdField" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">metadata.tags.clusterId.keyword</Value>
+    </Setting>
+    <Setting Name="ESInsightTimestampField" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">metadata.timestamp</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>

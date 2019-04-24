@@ -269,6 +269,10 @@
     {
       "Description": "Session Repairs (Error)",
       "TagId": 54.6
+    },
+    {
+      "Description": "Range Rebuild",
+      "TagId": 55.0
     }
   ]
 }
