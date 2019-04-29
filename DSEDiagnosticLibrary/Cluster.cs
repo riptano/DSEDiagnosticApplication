@@ -50,10 +50,12 @@ namespace DSEDiagnosticLibrary
             }
 		}
 
-		public Cluster(string clusterName, int? hashCode = null)
+		public Cluster(string clusterName, int? hashCode = null, Guid? clusterId = null, Guid? insightClusterId = null)
 			: this()
 		{
 			this.Name = StringHelpers.RemoveQuotes(clusterName);
+            this.ClusterId = clusterId;
+            this.InsightClusterId = insightClusterId;
             if (hashCode.HasValue)
                 this._hashcode = hashCode.Value;
 		}
@@ -70,6 +72,8 @@ namespace DSEDiagnosticLibrary
 
         public string Name { get; }
         public bool IsMaster { get; private set; }
+        public Guid? ClusterId { get; set; }
+        public Guid? InsightClusterId { get; private set; }
 
         public IDirectoryPath DiagnosticDirectory { get; set; }
 
@@ -301,18 +305,20 @@ namespace DSEDiagnosticLibrary
             return Clusters.Last();            
         }
 
-        public static Cluster TryGetAddCluster(string clusterName, int? hashCode = null)
+        public static Cluster TryGetAddCluster(string clusterName, int? hashCode = null, Guid? clusterId = null, Guid? insightClusterId = null)
 		{
             Clusters.Lock();
             try
             {
                 clusterName = StringHelpers.RemoveQuotes(clusterName.Trim());
 
-                var cluster = Clusters.UnSafe.FirstOrDefault(c => c.Name == clusterName);
+                var cluster = Clusters.UnSafe.FirstOrDefault(c => c.Name == clusterName
+                                                                    && (!clusterId.HasValue || clusterId.Value == c.ClusterId)
+                                                                    && (!insightClusterId.HasValue || insightClusterId.Value == c.InsightClusterId));
 
                 if (cluster == null)
                 {
-                    cluster = new Cluster(clusterName, hashCode);
+                    cluster = new Cluster(clusterName, hashCode, clusterId, insightClusterId);
                 }
 
                 return cluster;

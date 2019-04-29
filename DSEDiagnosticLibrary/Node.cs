@@ -1009,6 +1009,8 @@ namespace DSEDiagnosticLibrary
         public InstanceTypes InstanceType;
         public VersionInfo Versions;
         public Guid HostId;
+        public Guid InsightClientId;
+
         /// <summary>
         /// Can be set in the DSE.yaml file (server_id) for multi-instance nodes to allow a group of DSE nodes on one physical server to be identified on that one physical server.
         /// </summary>
