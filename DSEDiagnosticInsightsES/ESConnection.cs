@@ -123,6 +123,93 @@ namespace DSEDiagnosticInsightsES
 
     public abstract class ESQuerySearch
     {
+
+        public static bool Invoke(Nest.IResponse sender,
+                                        Exception exception,
+                                        string additionalInfo,
+                                        ESException.ExceptionEventArgs.Delegate onExceptionEvent,
+                                        bool defaultThrowException = true,
+                                        bool defaultLogException = true,
+                                        bool defaultTreatAsWarning = false,
+                                        object additionalData = null)
+        {
+            string info = additionalInfo ?? string.Empty;
+            bool handled = false;
+            bool throwException = defaultThrowException;
+            bool logException = defaultLogException;
+            bool treatAsWarning = defaultTreatAsWarning;
+
+            if(!(exception is ESException)
+                && sender.ServerError != null
+                && sender.ServerError.Error != null)
+            {
+                info += string.Format(" Error Type: {0} Error Status: {1} Error Reason: {2}",
+                                        sender.ServerError.Error.Type,
+                                        sender.ServerError.Status,
+                                        sender.ServerError.Error.Reason);
+            }
+
+            if(exception == null && sender.OriginalException != null)
+            {
+                exception = sender.OriginalException;
+            }
+
+            if (onExceptionEvent != null)
+            {
+                var eventArgs = new ESException.ExceptionEventArgs(exception,
+                                                                    defaultThrowException,
+                                                                    defaultLogException,
+                                                                    defaultTreatAsWarning,
+                                                                    info,
+                                                                    additionalData);                
+                onExceptionEvent(sender, eventArgs);
+
+                throwException = eventArgs.ThrowException;
+                logException = eventArgs.LogException;
+                treatAsWarning = eventArgs.TreatAsWarning;
+                exception = eventArgs.Exception;
+                handled = true;
+            }
+
+            if(logException)
+            {
+                if (treatAsWarning || exception == null)
+                    DSEDiagnosticLogger.Logger.Instance.WarnFormat("ESQuerySearch Exception Class: {0}({1}), Additional Exception: {1}, Error Info: {2}",
+                                                                    exception.GetType(),
+                                                                    exception.Message,
+                                                                    exception == sender.OriginalException
+                                                                        ? "N/A"
+                                                                        : string.Format("{0}({1})", sender.OriginalException?.GetType(), sender.OriginalException?.Message),
+                                                                    info);
+                else
+                    DSEDiagnosticLogger.Logger.Instance.Error(info, exception);
+            }
+
+            if (throwException && exception != null)
+            {
+                throw exception;
+            }
+
+            return handled;
+        }
+       
+        public static Nest.ISearchResponse<T> CheckResponse<T>(Nest.ISearchResponse<T> response)
+             where T : class
+        {
+            
+            if(response.ServerError != null || response.OriginalException != null)
+            {
+                var exception = new ESException(typeof(T), response.OriginalException, response.ServerError);
+                Invoke(response,
+                            exception,
+                            null,
+                            OnException);
+            }
+            return response;
+        }
+
+        public static ESException.ExceptionEventArgs.Delegate OnException;
+
         public static Nest.SearchDescriptor<T> BuildQuery<T>(Nest.SearchDescriptor<T> searchDescriptor,
                                                                 string queryField,
                                                                 string timestampField,
@@ -222,11 +309,11 @@ namespace DSEDiagnosticInsightsES
         {
             var attrib = esqueryAttrib ?? (ESQueryAttribute)typeof(T).GetCustomAttribute(typeof(ESQueryAttribute));
 
-            return elasticClient.Search<T>(s => BuildQuery(s.Index(attrib.ESIndex),
+            return CheckResponse(elasticClient.Search<T>(s => BuildQuery(s.Index(attrib.ESIndex),
                                                             attrib.QueryFieldName,
                                                             attrib.QueryTimestampFieldName,
                                                             clusterId,
-                                                            nbrDocs));
+                                                            nbrDocs)));
         }
 
         public static Nest.ISearchResponse<T> BuildQuery<T>(Nest.IElasticClient elasticClient,
@@ -236,9 +323,9 @@ namespace DSEDiagnosticInsightsES
         {
             var attrib = esqueryAttrib ?? (ESQueryAttribute)typeof(T).GetCustomAttribute(typeof(ESQueryAttribute));
 
-            return elasticClient.Search<T>(s => BuildQuery(s.Index(attrib.ESIndex),
+            return CheckResponse(elasticClient.Search<T>(s => BuildQuery(s.Index(attrib.ESIndex),
                                                             attrib.QueryTimestampFieldName,
-                                                            nbrDocs));
+                                                            nbrDocs)));
         }
 
         public static Nest.ISearchResponse<T> BuildQuery<T>(Nest.IElasticClient elasticClient,
@@ -250,11 +337,12 @@ namespace DSEDiagnosticInsightsES
         {
             var attrib = esqueryAttrib ?? (ESQueryAttribute)typeof(T).GetCustomAttribute(typeof(ESQueryAttribute));
 
-            return elasticClient.Search<T>(s => BuildQuery(s.Index(attrib.ESIndex),
+            return CheckResponse(elasticClient.Search<T>(s => BuildQuery(s.Index(attrib.ESIndex),
                                                             attrib.QueryFieldName,
                                                             attrib.QueryTimestampFieldName,
                                                             clusterId,
-                                                            nbrDocs));
+                                                            searchRange,
+                                                            nbrDocs)));
         }
 
         public static Nest.ISearchResponse<T> BuildQuery<T>(Nest.IElasticClient elasticClient,
@@ -266,11 +354,11 @@ namespace DSEDiagnosticInsightsES
         {
             var attrib = esqueryAttrib ?? (ESQueryAttribute)typeof(T).GetCustomAttribute(typeof(ESQueryAttribute));
 
-            return elasticClient.Search<T>(s => BuildQuery(s.Index(attrib.GetIndexForTimeFrame(forTimeFrame)),
+            return CheckResponse(elasticClient.Search<T>(s => BuildQuery(s.Index(attrib.GetIndexForTimeFrame(forTimeFrame)),
                                                             attrib.QueryFieldName,
                                                             attrib.QueryTimestampFieldName,
                                                             clusterId,
-                                                            nbrDocs));
+                                                            nbrDocs)));
         }
 
         public static Nest.ISearchResponse<T> BuildCurrentQuery<T>(Nest.IElasticClient elasticClient,
@@ -282,12 +370,12 @@ namespace DSEDiagnosticInsightsES
         {
             var attrib = esqueryAttrib ?? (ESQueryAttribute)typeof(T).GetCustomAttribute(typeof(ESQueryAttribute));
 
-            return elasticClient.Search<T>(s => BuildCurrentQuery(s.Index(attrib.ESIndex),
+            return CheckResponse(elasticClient.Search<T>(s => BuildCurrentQuery(s.Index(attrib.ESIndex),
                                                                     attrib.QueryFieldName,
                                                                     attrib.QueryTimestampFieldName,
                                                                     clusterId,
                                                                     useAsCurrent,
-                                                                    nbrDocs));
+                                                                    nbrDocs)));
         }
     }
 }

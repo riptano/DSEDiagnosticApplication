@@ -59,9 +59,7 @@ namespace DSEDiagnosticInsights
     }
 
     public abstract class Insight : ESQuerySearch, IInsightClass
-    {
-        public static readonly string ESClusterIdTerm = DSEDiagnosticInsightsES.Properties.Settings.Default.ESInsightClusterIdField;
-
+    {       
         public Insight() { }
         
         [JsonProperty("metadata")]
@@ -104,6 +102,17 @@ namespace DSEDiagnosticInsights
         public P Data;
 
         public override object GetData() { return this.Data; }        
+    }
+
+    public abstract class InsightData : Insight        
+    {
+        public InsightData()
+        { }
+
+        [JsonProperty("data")]
+        public string Data;
+
+        public override object GetData() { return this.Data; }
     }
 
     public enum InsightType
