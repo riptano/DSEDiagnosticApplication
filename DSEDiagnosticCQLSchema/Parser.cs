@@ -453,9 +453,9 @@ namespace DSEDiagnosticCQLSchema
             return columns;
         }
 
-        private static CQLColumn ProcessTableColumn(string column, IKeyspace keyspace)
+        public static CQLColumn ProcessTableColumn(string strColumnType, IKeyspace keyspace)
         {
-            var columntype = Common.StringFunctions.Split(column,
+            var columntype = Common.StringFunctions.Split(strColumnType,
                                                             ' ',
                                                             StringFunctions.IgnoreWithinDelimiterFlag.AngleBracket
                                                                 | StringFunctions.IgnoreWithinDelimiterFlag.Parenthese,
@@ -483,10 +483,10 @@ namespace DSEDiagnosticCQLSchema
 
             return new CQLColumn(colName,
                                     ProcessColumnType(colType, keyspace),
-                                    column);
+                                    strColumnType);
         }
 
-        private static CQLColumnType ProcessColumnType(string colType, IKeyspace keyspace)
+        public static CQLColumnType ProcessColumnType(string colType, IKeyspace keyspace)
         {
             bool hasSubTypesd = colType.Last() == '>';
             IEnumerable<CQLColumnType> subTypes = null;
@@ -567,7 +567,7 @@ namespace DSEDiagnosticCQLSchema
         static readonly Regex WithCompactStorageRegEx = new Regex(@"(?:\s|^)compact\s+storage(?:\s|\;|$)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
         static readonly Regex WithOrderByRegEx = new Regex(@"(?:\s|^)clustering\s+order\s+by\s*\(([a-z0-9\-_$%+=@!?^*&,\ ]+)\)(?:\s|\;|$)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
-        private static bool ProcessWithOptions(string strWithClause,
+        public static bool ProcessWithOptions(string strWithClause,
                                                 IEnumerable<CQLColumn> columns,
                                                 List<CQLOrderByColumn> orderByList,
                                                 Dictionary<string, object> properties)

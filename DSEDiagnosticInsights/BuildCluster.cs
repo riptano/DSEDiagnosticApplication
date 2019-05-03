@@ -192,7 +192,8 @@ namespace DSEDiagnosticInsights
                                                                     null,
                                                                     connection.Cluster,
                                                                     false);
-                    ksList.Add(ksInstance);
+
+                    DSEDiagnosticCQLSchema.Parser.AddKeySpace(connection.Cluster, ksInstance, ksList);                    
                 }
             }
 
@@ -203,26 +204,66 @@ namespace DSEDiagnosticInsights
         {            
             var filePath = Common.Path.PathUtils.BuildFilePath(DefaultDirectory + "UDT.cql");
             uint itemNbr = 0;
+            var orderedTypes = from udtDict in schemaDoc.Data.types.Cast<IReadOnlyDictionary<string, dynamic>>()
+                               let ksName = udtDict.TryGetValue<string>("keyspace_name")
+                               let udtColNames = udtDict.TryGetValues<string>("field_names")
+                               let udtColTypes = udtDict.TryGetValues<string>("field_types")
+                               let cntSubTypes = udtColTypes.Count(i => i.Contains("<"))
+                               orderby ksName ascending, cntSubTypes ascending
+                               select new
+                               {
+                                   keyspace = DSEDiagnosticLibrary.KeySpace.TryGet(connection.Cluster, ksName).FirstOrDefault(),
+                                   name = udtDict.TryGetValue<string>("type_name"),
+                                   columns = udtColNames.Select(udtColTypes, (s1, s2) => s1 + ' ' + s2).ToList(),
+                                   cntSubTypes
+                               };
+                               
 
-            foreach (IReadOnlyDictionary<string,dynamic> udtDict in schemaDoc.Data.types)
-            {
-                var keyspace = DSEDiagnosticLibrary.KeySpace.TryGet(connection.Cluster, udtDict.TryGetValue<string>("keyspace_name")).FirstOrDefault();
-                var udtName = udtDict.TryGetValue<string>("type_name");
-                var udtColNames = udtDict.TryGetValues<string>("field_names");
-                var udtColTypes = udtDict.TryGetValues<string>("field_types");
-               
-                if(DSEDiagnosticCQLSchema.Parser.ProcessDDLUDT(keyspace,
-                                                                udtName,
-                                                                udtColNames.Select(udtColNames, (s1, s2) => s1 + ' ' + s2).ToList(),
-                                                                udtName,
+
+            foreach (var udtItem in orderedTypes)
+            {               
+                DSEDiagnosticCQLSchema.Parser.ProcessDDLUDT(udtItem.keyspace,
+                                                                udtItem.name,
+                                                                udtItem.columns,
+                                                                udtItem.name + ' ' + string.Join(",", udtItem.columns),
                                                                 filePath,
                                                                 null,
                                                                 ++itemNbr,
-                                                                out DSEDiagnosticLibrary.CQLUserDefinedType udtInstance))
-                {
+                                                                out DSEDiagnosticLibrary.CQLUserDefinedType udtInstance);               
+            }       
+        }
 
-                }
-            }            
+        public static void BuildUserFunctions(this Connection connection, DSESchemaInformation schemaDoc)
+        {
+            var filePath = Common.Path.PathUtils.BuildFilePath(DefaultDirectory + "Function.cql");
+            uint itemNbr = 0;
+            var orderedFunctions = from udtDict in schemaDoc.Data.functions.Cast<IReadOnlyDictionary<string, dynamic>>()
+                                       let ksName = udtDict.TryGetValue<string>("keyspace_name")
+                                       let udtColNames = udtDict.TryGetValues<string>("field_names")
+                                       let udtColTypes = udtDict.TryGetValues<string>("field_types")
+                                       let cntSubTypes = udtColTypes.Count(i => i.Contains("<"))
+                                       orderby ksName ascending, cntSubTypes ascending
+                                       select new
+                                       {
+                                           keyspace = DSEDiagnosticLibrary.KeySpace.TryGet(connection.Cluster, ksName).FirstOrDefault(),
+                                           name = udtDict.TryGetValue<string>("type_name"),
+                                           columns = udtColNames.Select(udtColTypes, (s1, s2) => s1 + ' ' + s2).ToList(),
+                                           cntSubTypes
+                                       };
+
+
+
+            foreach (var udtItem in orderedFunctions)
+            {
+                DSEDiagnosticCQLSchema.Parser.ProcessDDLUDT(udtItem.keyspace,
+                                                                udtItem.name,
+                                                                udtItem.columns,
+                                                                udtItem.name + ' ' + string.Join(",", udtItem.columns),
+                                                                filePath,
+                                                                null,
+                                                                ++itemNbr,
+                                                                out DSEDiagnosticLibrary.CQLUserDefinedType udtInstance);
+            }
         }
 
 
