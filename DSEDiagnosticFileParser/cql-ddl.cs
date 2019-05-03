@@ -219,7 +219,7 @@ namespace DSEDiagnosticFileParser
         // null, trigger_name, [keyspace_name.]table_name, java_class, null
 
 
-        private List<IDDL> _ddlList = new List<IDDL>();
+        private readonly List<IDDL> _ddlList = new List<IDDL>();
         private readonly List<IKeyspace> _localKS = new List<IKeyspace>();
         private readonly bool _isPreLoaded = false;
 
@@ -443,29 +443,12 @@ namespace DSEDiagnosticFileParser
 
         private bool AddKeySpace(IKeyspace keySpace)
         {
-            var ksInstance = this._localKS.FirstOrDefault(k => k.Name == keySpace.Name);
-
-            if (ksInstance == null)
+            if(DSEDiagnosticCQLSchema.Parser.AddKeySpace(this.Cluster, keySpace, this._localKS))
             {
-                Cluster localCluster = this.Cluster;
-
-                if(localCluster.IsMaster
-                        && keySpace.Cluster != null
-                        && !keySpace.Cluster.IsMaster)
-                {
-                    localCluster = keySpace.Cluster;
-                }
-
-                ksInstance = localCluster.AssociateItem(keySpace);
-                this._localKS.Add(ksInstance);
-
-                if (ReferenceEquals(keySpace, ksInstance))
-                {
-                    this._ddlList.Add(keySpace);
-                    return true;
-                }
+                this._ddlList.Add(keySpace);
+                return true;
             }
-
+            
             return false;
         }
 

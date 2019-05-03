@@ -149,6 +149,7 @@ namespace DSEDiagnosticInsights
             //Keyspaces
             var ksList = connection.BuildKeyspace(schemaDoc);
 
+            connection.BuildUserDefinedTypes(schemaDoc);
 
 
             return ksList;
@@ -209,6 +210,18 @@ namespace DSEDiagnosticInsights
                 var udtName = udtDict.TryGetValue<string>("type_name");
                 var udtColNames = udtDict.TryGetValues<string>("field_names");
                 var udtColTypes = udtDict.TryGetValues<string>("field_types");
+               
+                if(DSEDiagnosticCQLSchema.Parser.ProcessDDLUDT(keyspace,
+                                                                udtName,
+                                                                udtColNames.Select(udtColNames, (s1, s2) => s1 + ' ' + s2).ToList(),
+                                                                udtName,
+                                                                filePath,
+                                                                null,
+                                                                ++itemNbr,
+                                                                out DSEDiagnosticLibrary.CQLUserDefinedType udtInstance))
+                {
+
+                }
             }            
         }
 

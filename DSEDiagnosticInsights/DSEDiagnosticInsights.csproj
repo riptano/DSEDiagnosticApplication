@@ -63,6 +63,10 @@
     <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\DSEDiagnosticCQLSchema\DSEDiagnosticCQLSchema.csproj">
+      <Project>{38532c1d-72e8-4b54-8728-37bb64a7dfa5}</Project>
+      <Name>DSEDiagnosticCQLSchema</Name>
+    </ProjectReference>
     <ProjectReference Include="..\DSEDiagnosticInsightsES\DSEDiagnosticInsightsES.csproj">
       <Project>{a923a441-b3f2-41a9-b8b0-cb66ecc2e2f7}</Project>
       <Name>DSEDiagnosticInsightsES</Name>

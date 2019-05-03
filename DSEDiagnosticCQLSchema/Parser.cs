@@ -13,6 +13,28 @@ namespace DSEDiagnosticCQLSchema
 {
     public static class Parser
     {
+        public static bool AddKeySpace(Cluster localCluster, IKeyspace keySpace, IList<IKeyspace> refKeyspaces)
+        {
+            var ksInstance = refKeyspaces.FirstOrDefault(k => k.Name == keySpace.Name);
+
+            if (ksInstance == null)
+            {                
+                if (localCluster.IsMaster
+                        && keySpace.Cluster != null
+                        && !keySpace.Cluster.IsMaster)
+                {
+                    localCluster = keySpace.Cluster;
+                }
+
+                ksInstance = localCluster.AssociateItem(keySpace);
+                refKeyspaces.Add(ksInstance);
+
+                return ReferenceEquals(keySpace, ksInstance);
+            }
+
+            return false;
+        }
+
         public static bool ProcessDDLTable(IKeyspace ksInstance,
                                             string name,
                                             IList<string> columnsSplit,

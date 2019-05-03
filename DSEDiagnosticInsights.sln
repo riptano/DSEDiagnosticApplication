@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSEDiagnosticLogger", "DSED
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSEDiagnosticInsights", "DSEDiagnosticInsights\DSEDiagnosticInsights.csproj", "{C09A4377-E008-4466-8FDB-865E63757C87}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSEDiagnosticCQLSchema", "DSEDiagnosticCQLSchema\DSEDiagnosticCQLSchema.csproj", "{38532C1D-72E8-4B54-8728-37BB64A7DFA5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{C09A4377-E008-4466-8FDB-865E63757C87}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C09A4377-E008-4466-8FDB-865E63757C87}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C09A4377-E008-4466-8FDB-865E63757C87}.Release|Any CPU.Build.0 = Release|Any CPU
+		{38532C1D-72E8-4B54-8728-37BB64A7DFA5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{38532C1D-72E8-4B54-8728-37BB64A7DFA5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{38532C1D-72E8-4B54-8728-37BB64A7DFA5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{38532C1D-72E8-4B54-8728-37BB64A7DFA5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
