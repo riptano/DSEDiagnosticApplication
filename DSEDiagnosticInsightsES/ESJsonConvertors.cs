@@ -48,7 +48,7 @@ namespace DSEDiagnosticInsightsES
 
             //if (jToken is Newtonsoft.Json.Linq.JArray jArray) return this.DetermineJObjectValue(jArray);
             if (jToken.Type == Newtonsoft.Json.Linq.JTokenType.Array) return this.DetermineJObjectValue(jToken.ToObject<Newtonsoft.Json.Linq.JArray>());
-
+            
             if (jToken.HasValues)
             {
                 var jTokens = new dynamic[jToken.Count()];
@@ -60,6 +60,13 @@ namespace DSEDiagnosticInsightsES
                 }
                 return jTokens;
             }
+
+            if (jToken.Type == Newtonsoft.Json.Linq.JTokenType.Boolean) return jToken.ToObject<bool>();
+            if (jToken.Type == Newtonsoft.Json.Linq.JTokenType.Date) return jToken.ToObject<DateTime>();
+            if (jToken.Type == Newtonsoft.Json.Linq.JTokenType.Float) return jToken.ToObject<decimal>();
+            if (jToken.Type == Newtonsoft.Json.Linq.JTokenType.Guid) return jToken.ToObject<Guid>();
+            if (jToken.Type == Newtonsoft.Json.Linq.JTokenType.Integer) return jToken.ToObject<long>();
+            if (jToken.Type == Newtonsoft.Json.Linq.JTokenType.TimeSpan) return jToken.ToObject<TimeSpan>();
 
             var sValue = jToken.ToObject<dynamic>();
 

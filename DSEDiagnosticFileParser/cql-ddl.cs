@@ -511,7 +511,7 @@ namespace DSEDiagnosticFileParser
         static readonly Regex WithOrderByRegEx = new Regex(@"(?:\s|^)clustering\s+order\s+by\s*\(([a-z0-9\-_$%+=@!?^*&,\ ]+)\)(?:\s|\;|$)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         private bool ProcessDDLTable(Match tableMatch, uint lineNbr)
-        {
+        {            
             var name = tableMatch.Groups[1].Value.Trim();
             var kstblPair = StringHelpers.SplitTableName(name, null);
             var ksInstance = string.IsNullOrEmpty(kstblPair.Item1) ? this._usingKeySpace : this.GetKeySpace(kstblPair.Item1);
@@ -520,7 +520,7 @@ namespace DSEDiagnosticFileParser
                                                                                                  kstblPair.Item2,
                                                                                                  kstblPair.Item1 ?? "<CQL use stmt required or fully qualified name>",
                                                                                                  tableMatch.Groups[0].Value));
-
+                       
             if (ksInstance.TryGetTable(kstblPair.Item2) == null)
             {
                 var strColumns = tableMatch.Groups[2].Success ? tableMatch.Groups[2].Value.Trim() : tableMatch.Groups[4].Value.Trim();
@@ -530,27 +530,22 @@ namespace DSEDiagnosticFileParser
                                                                     StringFunctions.IgnoreWithinDelimiterFlag.AngleBracket
                                                                         | StringFunctions.IgnoreWithinDelimiterFlag.Parenthese,
                                                                     StringFunctions.SplitBehaviorOptions.StringTrimEachElement);
-                var columns = this.ProcessTableColumns(columnsSplit, ksInstance);
-                var properties = new Dictionary<string, object>();
-                var orderByList = new List<CQLOrderByColumn>();
 
-                ProcessWithOptions(strWithClause, columns, orderByList, properties);
+                if (DSEDiagnosticCQLSchema.Parser.ProcessDDLTable(ksInstance,
+                                                                    name,
+                                                                    columnsSplit,
+                                                                    strWithClause,
+                                                                    tableMatch.Value,
+                                                                    this.File,
+                                                                    this.Node,
+                                                                    lineNbr,
+                                                                    out CQLTable cqlTable,
+                                                                    false))                                                            
+                {
+                    this._ddlList.Add(cqlTable);
 
-                var cqlTable = new CQLTable(this.File,
-                                                lineNbr,
-                                                ksInstance,
-                                                kstblPair.Item2,
-                                                columns,
-                                                null,
-                                                null,
-                                                orderByList,
-                                                properties,
-                                                tableMatch.Value,
-                                                this.Node);
-
-                this._ddlList.Add(cqlTable);
-
-                return true;
+                    return true;
+                }                
             }
 
             return false;
@@ -575,19 +570,21 @@ namespace DSEDiagnosticFileParser
                                                                     StringFunctions.IgnoreWithinDelimiterFlag.AngleBracket
                                                                         | StringFunctions.IgnoreWithinDelimiterFlag.Parenthese,
                                                                     StringFunctions.SplitBehaviorOptions.StringTrimEachElement);
-                var columns = this.ProcessTableColumns(columnsSplit, ksInstance);
+                
+                if(DSEDiagnosticCQLSchema.Parser.ProcessDDLUDT(ksInstance,
+                                                                name,
+                                                                columnsSplit,
+                                                                udtMatch.Value,
+                                                                this.File,
+                                                                this.Node,
+                                                                lineNbr,
+                                                                out CQLUserDefinedType cqlUDT,
+                                                                false))
+                {
+                    this._ddlList.Add(cqlUDT);
 
-                var cqlUDT = new CQLUserDefinedType(this.File,
-                                                        lineNbr,
-                                                        ksInstance,
-                                                        kstblPair.Item2,
-                                                        columns,
-                                                        udtMatch.Value,
-                                                        this.Node);
-
-                this._ddlList.Add(cqlUDT);
-
-                return true;
+                    return true;
+                }                
             }
 
             return false;
@@ -611,16 +608,7 @@ namespace DSEDiagnosticFileParser
                                                                                                  name,
                                                                                                  ksidxPair.Item1 ?? "<CQL use stmt required or fully qualified name>",
                                                                                                  indexMatch.Groups[0].Value));
-
-            var tblInstance = ksTblInstance.TryGetTable(kstblPair.Item2);
-
-            if (tblInstance == null) throw new ArgumentNullException("Table", string.Format("CQL Index \"{0}\" could not find associated Table \"{1}\" in Keyspace \"{2}\". DDL: {3}",
-                                                                                             name,
-                                                                                             tablename,
-                                                                                             ksInstance.Name,
-                                                                                             indexMatch.Groups[0].Value));
-
-
+            
             if (ksInstance.TryGetIndex(ksidxPair.Item2) == null)
             {
                 var strColumns = indexMatch.Groups[4].Value.Trim();
@@ -629,23 +617,6 @@ namespace DSEDiagnosticFileParser
                                                                     StringFunctions.IgnoreWithinDelimiterFlag.AngleBracket
                                                                         | StringFunctions.IgnoreWithinDelimiterFlag.Parenthese,
                                                                     StringFunctions.SplitBehaviorOptions.StringTrimEachElement);
-                var colFunctions = columnsSplit.Select(i =>
-                                    {
-                                        List<string> columns = new List<string>();
-                                        string functionName = null;
-
-                                        if(i.Last() == ')')
-                                        {
-                                            Common.StringFunctions.ParseIntoFuncationParams(i, out functionName, out columns);
-                                        }
-                                        else
-                                        {
-                                            columns.Add(i);
-                                        }
-
-                                        return new CQLFunctionColumn(functionName, tblInstance.TryGetColumns(columns), i);
-                                    });
-
                 var usingClass = indexMatch.Groups[5].Success
                                     ? indexMatch.Groups[5].Value.Trim()
                                     : null;
@@ -653,22 +624,25 @@ namespace DSEDiagnosticFileParser
                                     ? indexMatch.Groups[6].Value.Trim()
                                     : null;
 
-                var cqlIdx = new CQLIndex(this.File,
-                                            lineNbr,
-                                            ksidxPair.Item2,
-                                            tblInstance,
-                                            colFunctions,
-                                            indexMatch.Groups[1].Success && indexMatch.Groups[1].Value.ToLower() == "custom",
-                                            usingClass,
-                                            string.IsNullOrEmpty(withOptions)
-                                                ? null
-                                                : JsonConvert.DeserializeObject<Dictionary<string,object>>(withOptions),
-                                            indexMatch.Value,
-                                            this.Node);
+                if(DSEDiagnosticCQLSchema.Parser.ProcessDDLIndex(ksInstance,
+                                                                    name,
+                                                                    ksTblInstance,
+                                                                    tablename,
+                                                                    columnsSplit,
+                                                                    usingClass,
+                                                                    withOptions,
+                                                                    indexMatch.Groups[1].Success && indexMatch.Groups[1].Value.ToLower() == "custom",
+                                                                    indexMatch.Value,
+                                                                    this.File,
+                                                                    this.Node,
+                                                                    lineNbr,
+                                                                    out CQLIndex cqlIdx,
+                                                                    false))
+                {
+                    this._ddlList.Add(cqlIdx);
 
-                this._ddlList.Add(cqlIdx);
-
-                return true;
+                    return true;
+                }                                              
             }
 
             return false;
@@ -692,14 +666,7 @@ namespace DSEDiagnosticFileParser
                                                                                                         tblKsTblPair.Item2,
                                                                                                         tblKsTblPair.Item1 ?? "<CQL use stmt required or fully qualified name>",
                                                                                                         viewMatch.Groups[0].Value));
-            var tblInstance = tblKSInstance.TryGetTable(tblKsTblPair.Item2);
-
-            if (tblInstance == null) throw new ArgumentNullException("Table", string.Format("CQL Materialized View \"{0}\" could not find associated Table \"{1}\" in Keyspace \"{2}\". DDL: {3}",
-                                                                                             viewName,
-                                                                                             tblKsTblPair.Item2,
-                                                                                             tblKSInstance.Name,
-                                                                                             viewMatch.Groups[0].Value));
-
+           
             if (viewKSInstance.TryGetView(viewKsTblPair.Item2) == null)
             {
                 var strColumns = viewMatch.Groups[2].Value.Trim();
@@ -709,79 +676,26 @@ namespace DSEDiagnosticFileParser
                 var columnsSplit = strColumns == "*"
                                     ? null
                                     : strColumns.Split(',');
-                IEnumerable<ICQLColumn> columns;
-                var pkList = new List<ICQLColumn>();
-                var ckList = new List<ICQLColumn>();
 
-                {
-                    var pkValues = Common.StringFunctions.Split(strPrimaryKeys,
-                                                                        ',',
-                                                                        StringFunctions.IgnoreWithinDelimiterFlag.AngleBracket
-                                                                            | StringFunctions.IgnoreWithinDelimiterFlag.Parenthese,
-                                                                        StringFunctions.SplitBehaviorOptions.StringTrimEachElement);
-                    ICQLColumn cqlColumn;
+                if(DSEDiagnosticCQLSchema.Parser.ProcessDDLMaterializediew(viewKSInstance,
+                                                                            viewName,
+                                                                            tblKSInstance,
+                                                                            tblName,
+                                                                            columnsSplit,
+                                                                            strPrimaryKeys,
+                                                                            strWithClause,
+                                                                            strWhereClause,                                                                           
+                                                                            viewMatch.Value,
+                                                                            this.File,
+                                                                            this.Node,
+                                                                            lineNbr,
+                                                                            out CQLMaterializedView cqlView,
+                                                                            false))
+                {                    
+                    this._ddlList.Add(cqlView);
 
-                    if (pkValues[0][0] == '(')
-                    {
-                        var pkCols = pkValues[0].Substring(1, pkValues[0].Length - 2).Split(',');
-
-                        foreach (var pkCol in pkCols)
-                        {
-                            cqlColumn = tblInstance.TryGetColumn(pkCol)?.Copy();
-                            ((CQLColumn)cqlColumn).IsPrimaryKey = true;
-                            pkList.Add(cqlColumn);
-                        }
-                    }
-                    else
-                    {
-                        cqlColumn = tblInstance.TryGetColumn(pkValues[0])?.Copy();
-                        ((CQLColumn)cqlColumn).IsPrimaryKey = true;
-                        pkList.Add(cqlColumn);
-                    }
-
-                    foreach (var clusterCol in pkValues.Skip(1))
-                    {
-                        cqlColumn = tblInstance.TryGetColumn(clusterCol)?.Copy();
-                        ((CQLColumn)cqlColumn).IsClusteringKey = true;
-                        ckList.Add(cqlColumn);
-                    }
-
-                    if (columnsSplit == null)
-                    {
-                        columns = tblInstance.Columns.Select(c => c.Copy()).ToArray();
-                    }
-                    else
-                    {
-                        columns = pkList.Concat(ckList.ToArray())
-                                        .Concat(tblInstance.TryGetColumns(columnsSplit)
-                                                        .Where(c => !(pkList.Any(p => p.Name == c.Name)
-                                                                            || ckList.Any(k => k.Name == c.Name)))
-                                                        .Select(c => c.Copy()).ToArray());
-                    }
-                }
-
-                var properties = new Dictionary<string, object>();
-                var orderByList = new List<CQLOrderByColumn>();
-
-                ProcessWithOptions(strWithClause, columns.Cast<CQLColumn>(), orderByList, properties);
-
-                var cqlView = new CQLMaterializedView(this.File,
-                                                        lineNbr,
-                                                        viewKSInstance,
-                                                        viewKsTblPair.Item2,
-                                                        tblInstance,
-                                                        columns,
-                                                        pkList,
-                                                        ckList,
-                                                        orderByList,
-                                                        properties,
-                                                        strWhereClause,
-                                                        viewMatch.Value,
-                                                        this.Node);
-
-                this._ddlList.Add(cqlView);
-
-                return true;
+                    return true;
+                }                
             }
 
             return false;
@@ -823,7 +737,8 @@ namespace DSEDiagnosticFileParser
                                                 tblInstance,
                                                 triggerMatch.Groups[3].Value.Trim(),
                                                 triggerMatch.Value,
-                                                this.Node);
+                                                this.Node,
+                                                false);
 
                 this._ddlList.Add(cqlTrigger);
 
@@ -861,27 +776,25 @@ namespace DSEDiagnosticFileParser
                 var columns = this.ProcessTableColumns(columnsSplit, ksInstance);
                 var strReturnType = functionMatch.Groups[4].Success ? functionMatch.Groups[4].Value.Trim() : null;
 
-                if (string.IsNullOrEmpty(strReturnType)) throw new ArgumentNullException("return type", string.Format("CQL Function \"{0}\" did not have a return type. DDL: {1}",
-                                                                                                                            name,
-                                                                                                                            functionMatch.Groups[0].Value));
+                if(DSEDiagnosticCQLSchema.Parser.ProcessDDLFunction(ksInstance,
+                                                                    name,
+                                                                    columnsSplit,
+                                                                    functionMatch.Groups[3].Value.Trim(),
+                                                                    functionMatch.Groups[5].Value.Trim(),
+                                                                    functionMatch.Groups[6].Value.Trim(),
+                                                                    strReturnType,
+                                                                    functionMatch.Value,
+                                                                    this.File,
+                                                                    this.Node,
+                                                                    lineNbr,
+                                                                    out CQLFunction cqlFunction,
+                                                                    false))
+                {
 
-                var returnType = this.ProcessColumnType(strReturnType, ksInstance);
+                    this._ddlList.Add(cqlFunction);
 
-                var cqlFunction = new CQLFunction(this.File,
-                                                    lineNbr,
-                                                    ksfunctionPair.Item2,
-                                                    ksInstance,
-                                                    functionMatch.Groups[3].Value.Trim(), //Call type
-                                                    columns,
-                                                    returnType,
-                                                    functionMatch.Groups[5].Value.Trim(), //lang
-                                                    functionMatch.Groups[6].Value.Trim(), //Code block
-                                                    functionMatch.Value,
-                                                    this.Node);
-
-                this._ddlList.Add(cqlFunction);
-
-                return true;
+                    return true;
+                }
             }
 
             return false;

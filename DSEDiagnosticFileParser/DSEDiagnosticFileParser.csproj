@@ -73,7 +73,7 @@
       <HintPath>..\packages\CommonPatterns\Release\Common.TimeZones.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.12.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -197,6 +197,10 @@
     <ProjectReference Include="..\..\SharpZipLib\src\ICSharpCode.SharpZLib.csproj">
       <Project>{0e7413ff-eb9e-4714-acf2-be3a6a7b2ffd}</Project>
       <Name>ICSharpCode.SharpZLib</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DSEDiagnosticCQLSchema\DSEDiagnosticCQLSchema.csproj">
+      <Project>{38532c1d-72e8-4b54-8728-37bb64a7dfa5}</Project>
+      <Name>DSEDiagnosticCQLSchema</Name>
     </ProjectReference>
     <ProjectReference Include="..\DSEDiagnosticLibrary\DSEDiagnosticLibrary.csproj">
       <Project>{aa88d5c0-9218-445c-885c-4b64fbfb9257}</Project>

@@ -38,6 +38,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSEDiagnosticAnalytics", "D
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSEDiagnosticFileParserTests", "DSEDiagnosticFileParserTests\DSEDiagnosticFileParserTests.csproj", "{38ADDB75-7F29-4B0B-82FD-37D4BCC53D62}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSEDiagnosticCQLSchema", "DSEDiagnosticCQLSchema\DSEDiagnosticCQLSchema.csproj", "{38532C1D-72E8-4B54-8728-37BB64A7DFA5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -164,6 +166,14 @@ Global
 		{38ADDB75-7F29-4B0B-82FD-37D4BCC53D62}.Release|Any CPU.Build.0 = Release|Any CPU
 		{38ADDB75-7F29-4B0B-82FD-37D4BCC53D62}.Release|x64.ActiveCfg = Release|Any CPU
 		{38ADDB75-7F29-4B0B-82FD-37D4BCC53D62}.Release|x64.Build.0 = Release|Any CPU
+		{38532C1D-72E8-4B54-8728-37BB64A7DFA5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{38532C1D-72E8-4B54-8728-37BB64A7DFA5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{38532C1D-72E8-4B54-8728-37BB64A7DFA5}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{38532C1D-72E8-4B54-8728-37BB64A7DFA5}.Debug|x64.Build.0 = Debug|Any CPU
+		{38532C1D-72E8-4B54-8728-37BB64A7DFA5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{38532C1D-72E8-4B54-8728-37BB64A7DFA5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{38532C1D-72E8-4B54-8728-37BB64A7DFA5}.Release|x64.ActiveCfg = Release|Any CPU
+		{38532C1D-72E8-4B54-8728-37BB64A7DFA5}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

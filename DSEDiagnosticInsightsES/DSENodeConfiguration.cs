@@ -32,10 +32,35 @@ namespace DSEDiagnosticInsights
             [JsonConverter(typeof(PropDictSerializer))]
             public IReadOnlyDictionary<string, dynamic> jvm_properties;
             public long jvm_startup_time;
+
+            [JsonIgnore]
+            public DateTimeOffset StartupTimeUTC
+            {
+                get
+                {
+                    return DateTimeOffset.FromUnixTimeMilliseconds(this.jvm_startup_time);
+                }
+            }
+
             public string os;
             public string hostname;
             [JsonConverter(typeof(PropDictArraySerializer))]
             public IReadOnlyDictionary<string, dynamic>[] cpu_layout;
+        }
+
+        private static readonly InsightESAttribute ESAttrib = (InsightESAttribute)typeof(DSENodeConfiguration).GetCustomAttribute(typeof(InsightESAttribute));
+
+        public static Nest.ISearchResponse<DSENodeConfiguration> BuilCurrentQueryNodeClientId(Nest.IElasticClient elasticClient,
+                                                                                                Guid nodeClientId,
+                                                                                                DateTimeOffset? useAsCurrent = null,
+                                                                                                int? nbrDocs = 1)
+        {           
+            return elasticClient.Search<DSENodeConfiguration>(s => ESQuerySearch.BuildCurrentQuery<DSENodeConfiguration>(s.Index(ESAttrib.ESIndex),
+                                                                                                                            "metadata.tags.clientId.keyword",
+                                                                                                                            ESAttrib.QueryTimestampFieldName,
+                                                                                                                            nodeClientId,
+                                                                                                                            useAsCurrent,
+                                                                                                                            nbrDocs));
         }
     }
 }

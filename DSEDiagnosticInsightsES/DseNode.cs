@@ -57,6 +57,19 @@ namespace DSEDiagnosticInsights
                                                                                                     nbrDocs));
         }
 
+        public static Nest.ISearchResponse<DseNode> BuilCurrentQueryNodeClientId(Nest.IElasticClient elasticClient,
+                                                                                    Guid nodeClientId,
+                                                                                    DateTimeOffset? useAsCurrent = null,
+                                                                                    int? nbrDocs = 1)
+        {
+            return elasticClient.Search<DseNode>(s => ESQuerySearch.BuildCurrentQuery<DseNode>(s.Index(ESIQAttrib.ESIndex),
+                                                                                                    "clientId",
+                                                                                                    ESIQAttrib.QueryTimestampFieldName,
+                                                                                                    nodeClientId,
+                                                                                                    useAsCurrent,
+                                                                                                    nbrDocs));
+        }
+
 
         public string bootstrap_status;
         public string cluster_name;

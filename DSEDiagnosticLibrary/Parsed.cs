@@ -19,7 +19,8 @@ namespace DSEDiagnosticLibrary
         Yaml,
         EnvFile,
         CQL,
-        JSON
+        JSON,
+        DSEInsights
     }
 
     public interface IParsed

@@ -33,6 +33,15 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Common.Functions">
+      <HintPath>..\..\..\..\AndersenAssoc\Common Patterns\Assemblies\40\Release\Common.Functions.dll</HintPath>
+    </Reference>
+    <Reference Include="Elasticsearch.Net, Version=6.0.0.0, Culture=neutral, PublicKeyToken=96c599bbe3e70f5d, processorArchitecture=MSIL">
+      <HintPath>..\packages\Elasticsearch.Net.6.6.0\lib\net461\Elasticsearch.Net.dll</HintPath>
+    </Reference>
+    <Reference Include="Nest, Version=6.0.0.0, Culture=neutral, PublicKeyToken=96c599bbe3e70f5d, processorArchitecture=MSIL">
+      <HintPath>..\packages\NEST.6.6.0\lib\net461\Nest.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -48,6 +57,21 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DSEDiagnosticInsightsES\DSEDiagnosticInsightsES.csproj">
+      <Project>{a923a441-b3f2-41a9-b8b0-cb66ecc2e2f7}</Project>
+      <Name>DSEDiagnosticInsightsES</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DSEDiagnosticInsights\DSEDiagnosticInsights.csproj">
+      <Project>{c09a4377-e008-4466-8fdb-865e63757c87}</Project>
+      <Name>DSEDiagnosticInsights</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DSEDiagnosticLibrary\DSEDiagnosticLibrary.csproj">
+      <Project>{aa88d5c0-9218-445c-885c-4b64fbfb9257}</Project>
+      <Name>DSEDiagnosticLibrary</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

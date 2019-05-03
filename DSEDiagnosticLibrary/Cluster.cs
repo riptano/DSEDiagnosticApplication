@@ -293,7 +293,7 @@ namespace DSEDiagnosticLibrary
 
         public object ToDump()
         {
-            return new { Name = this.Name, DataCenters = this.DataCenters, Keyspaces = this.Keyspaces };
+            return new { Name = this.Name, DataCenters = this.DataCenters, Keyspaces = this.Keyspaces, IsMaster = this.IsMaster };
         }
 
         #endregion
