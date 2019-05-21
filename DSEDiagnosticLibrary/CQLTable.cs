@@ -396,8 +396,8 @@ namespace DSEDiagnosticLibrary
         public string PrettyPrint()
         {
             return string.IsNullOrEmpty(this.Function)
-                        ? string.Join(",", this.Columns.Select(c => c.DDL))
-                        : string.Format("{0}({1})", this.Function, string.Join(",", this.Columns.Select(c => c.DDL)));
+                        ? string.Join(",", this.Columns.Select(c => c?.DDL ?? "<UnkownColumn>"))
+                        : string.Format("{0}({1})", this.Function, string.Join(",", this.Columns.Select(c => c?.DDL ?? "<UnkownColumn>")));
         }
 
         #region IEquatable
