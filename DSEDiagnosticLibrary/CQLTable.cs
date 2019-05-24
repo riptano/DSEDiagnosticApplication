@@ -354,7 +354,8 @@ namespace DSEDiagnosticLibrary
                specialCol = SpecialColsCache.FirstOrDefault(c => c.Name == specialColName && c.UDT == assocToUDT)
                                     ?? SpecialColsCache.FirstOrDefault(c => c.Name == specialColName && c.Table == assocToTable);                
             }
-            else
+            
+            if(specialCol == null)
             {
                 specialCol = SpecialCols.FirstOrDefault(n => n.Name == specialColName)?.Copy(assocToTable, assocToUDT);
 
