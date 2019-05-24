@@ -543,5 +543,14 @@ namespace DSEDiagnosticLibrary.Properties {
                 return ((global::System.TimeSpan)(this["NodeDetectedLongPuaseThreshold"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("[\r\n{\"Name\":\"solr_query\",\"ColType\":\"text\"}\r\n]")]
+        public string CQLSpecialColumns {
+            get {
+                return ((string)(this["CQLSpecialColumns"]));
+            }
+        }
     }
 }

@@ -171,7 +171,7 @@ namespace DSEDiagnosticCQLSchema
                         columns.Add(i);
                     }
 
-                    return new CQLFunctionColumn(functionName, tblInstance.TryGetColumns(columns), i);
+                    return new CQLFunctionColumn(functionName, CQLSpecialColumn.TryGetCols(tblInstance, columns), i);
                 });
                
                 cqlIdx = new CQLIndex(filePath,

@@ -205,7 +205,7 @@ namespace DSEDiagnosticLibrary
         bool IsStatic { get; }
         bool IsInOrderBy { get;}
         bool IsPrimaryKey { get; }
-        bool IsClusteringKey { get; }
+        bool IsClusteringKey { get; }       
         string DDL { get; }
         object ToDump();
 
@@ -217,11 +217,11 @@ namespace DSEDiagnosticLibrary
     }
 
     [JsonObject(MemberSerialization.OptOut)]
-    public sealed class CQLColumn : ICQLColumn
+    public class CQLColumn : ICQLColumn
     {
         static readonly Regex StaticRegEx = new Regex(LibrarySettings.StaticRegExStr, RegexOptions.Compiled | RegexOptions.IgnoreCase);
         static readonly Regex PrimaryKeyRegEx = new Regex(LibrarySettings.PrimaryKeyRegExStr, RegexOptions.Compiled | RegexOptions.IgnoreCase);
-
+               
         public CQLColumn(string name,
                             CQLColumnType columnType,
                             string ddl,
@@ -241,17 +241,17 @@ namespace DSEDiagnosticLibrary
             {
                 this.CQLType.SetColumn(this);
             }
-        }
+        }       
 
-        public ICQLTable Table { get; private set; }
-        public ICQLUserDefinedType UDT { get; private set; }
-        public string Name { get; private set; }
-        public CQLColumnType CQLType { get; private set; }
-        public bool IsStatic { get; private set; }
+        public ICQLTable Table { get; protected set; }
+        public ICQLUserDefinedType UDT { get; protected set; }
+        public string Name { get; }
+        public CQLColumnType CQLType { get; protected set; }
+        public bool IsStatic { get; protected set; }
         public bool IsInOrderBy { get; set; }
         public bool IsPrimaryKey { get; set; }
-        public bool IsClusteringKey { get; set; }
-        public string DDL { get; private set; }
+        public bool IsClusteringKey { get; set; }        
+        public string DDL { get; }       
 
         #region overrides
         public override string ToString()
@@ -261,7 +261,7 @@ namespace DSEDiagnosticLibrary
         public override bool Equals(object obj)
         {
             if (obj is string) return this.Equals((string)obj);
-            if (obj is CQLColumn) return this.Equals((CQLColumn)obj);
+            if (obj is ICQLColumn) return this.Equals((ICQLColumn)obj);
 
             return base.Equals(obj);
         }
@@ -303,7 +303,7 @@ namespace DSEDiagnosticLibrary
             return this;
         }
 
-        public ICQLColumn Copy(ICQLTable assocatedTbl = null,
+        public virtual ICQLColumn Copy(ICQLTable assocatedTbl = null,
                                     ICQLUserDefinedType associatedUDT = null,
                                     bool associateColumnToType = true,
                                     bool setBaseType = true,
@@ -321,6 +321,90 @@ namespace DSEDiagnosticLibrary
                 IsClusteringKey = resetAttribs ? false : this.IsClusteringKey
             };
         }
+    }
+
+    [JsonObject(MemberSerialization.OptOut)]
+    public class CQLSpecialColumn : CQLColumn
+    {
+        [JsonObject(MemberSerialization.OptOut)]
+        public sealed class Assoc
+        {
+            public Assoc(string name, string colType)
+            {
+                this.Name = name;
+                this.ColType = colType;
+            }
+
+            public string Name { get; }
+            public string ColType { get; }
+        }
+
+        public static readonly ICQLColumn[] SpecialCols = Newtonsoft.Json.JsonConvert.DeserializeObject<Assoc[]>(Properties.Settings.Default.CQLSpecialColumns)
+                                                            .Select(n => new CQLSpecialColumn(n))
+                                                            .ToArray();
+
+        static readonly Common.Patterns.Collections.LockFree.Queue<ICQLColumn> SpecialColsCache = new Common.Patterns.Collections.LockFree.Queue<ICQLColumn>(); 
+
+        public static ICQLColumn TryGetCol(string specialColName, ICQLTable assocToTable = null, ICQLUserDefinedType assocToUDT = null, bool cache = true)
+        {
+            ICQLColumn specialCol = null;
+
+            if (cache && (assocToUDT != null || assocToTable != null))
+            {
+               specialCol = SpecialColsCache.FirstOrDefault(c => c.Name == specialColName && c.UDT == assocToUDT)
+                                    ?? SpecialColsCache.FirstOrDefault(c => c.Name == specialColName && c.Table == assocToTable);                
+            }
+            else
+            {
+                specialCol = SpecialCols.FirstOrDefault(n => n.Name == specialColName)?.Copy(assocToTable, assocToUDT);
+
+                if (cache && specialCol != null && (assocToUDT != null || assocToTable != null))
+                    SpecialColsCache.Enqueue(specialCol);
+            }
+
+            return specialCol;
+        }
+
+        /// <summary>
+        /// Tries to get the column from the table and if not found, tries the special column list.
+        /// </summary>
+        /// <param name="assocTable"></param>
+        /// <param name="specialColNames"></param>
+        /// <param name="cache">
+        /// if true (default) and if it is a special column, it will be cached for the table, so that next search will retrieve the same instance.
+        /// </param>
+        /// <returns></returns>
+        public static IEnumerable<ICQLColumn> TryGetCols(ICQLTable assocTable, IEnumerable<string> specialColNames, bool cache = true)
+        {
+            return specialColNames.Select(c => assocTable.TryGetColumn(c) ?? TryGetCol(c, assocTable, null, cache));
+        }
+
+        internal CQLSpecialColumn(Assoc specialCol)
+           : base(specialCol.Name,
+                   new CQLColumnType(specialCol.ColType, null, specialCol.ColType),
+                   specialCol.Name + " " + specialCol.ColType)
+        {           
+            this.AssocProp = specialCol;
+        }
+        
+        internal Assoc AssocProp { get; }
+
+        public override ICQLColumn Copy(ICQLTable assocatedTbl = null,
+                                                ICQLUserDefinedType associatedUDT = null,
+                                                bool associateColumnToType = true,
+                                                bool setBaseType = true,
+                                                bool resetAttribs = false)
+        {
+            return new CQLSpecialColumn(this.AssocProp)
+            {
+                UDT = associatedUDT,
+                Table = assocatedTbl,
+                IsPrimaryKey = resetAttribs ? false : this.IsPrimaryKey,
+                IsInOrderBy = resetAttribs ? false : this.IsInOrderBy,
+                IsClusteringKey = resetAttribs ? false : this.IsClusteringKey,
+                IsStatic = resetAttribs ? false : this.IsStatic
+            };
+        }        
     }
 
     [JsonObject(MemberSerialization.OptOut)]
@@ -759,8 +843,8 @@ namespace DSEDiagnosticLibrary
         }
 
         public IEnumerable<ICQLColumn> TryGetColumns(IEnumerable<string> columns)
-        {
-            return columns.Select(n => this.TryGetColumn(StringHelpers.RemoveQuotes(n.Trim())));
+        { 
+            return columns.Select(n => this.TryGetColumn(n));
         }
         public ICQLColumn TryGetColumn(string columnName)
         {

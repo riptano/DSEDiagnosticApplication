@@ -230,5 +230,10 @@
     <Setting Name="NodeDetectedLongPuaseThreshold" Type="System.TimeSpan" Scope="Application">
       <Value Profile="(Default)">04:00:00</Value>
     </Setting>
+    <Setting Name="CQLSpecialColumns" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">[
+{"Name":"solr_query","ColType":"text"}
+]</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
