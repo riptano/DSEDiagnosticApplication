@@ -307,22 +307,7 @@
     "ProcessingTaskOption": "ScanForNode,ParallelProcessing,ParallelProcessFiles",
     "ProcessPriorityLevel": 500
   },
-  {
-    "Catagory": "CommandOutputFile",
-    "FilePatterns": [ ".\\nodes\\*\\nodetool\\tpstats" ],
-    "FileParsingClass": "DSEDiagnosticFileParser.file_nodetool_tpstats",
-    "NodeIdPos": -1,
-    "ProcessingTaskOption": "ScanForNode,ParallelProcessing,ParallelProcessFiles",
-    "ProcessPriorityLevel": 500
-  },
-  {
-    "Catagory": "CommandOutputFile",
-    "FilePatterns": [ ".\\nodes\\*\\nodetool\\proxyhistograms" ],
-    "FileParsingClass": "DSEDiagnosticFileParser.file_nodetool_proxyhistograms",
-    "NodeIdPos": -1,
-    "ProcessingTaskOption": "ScanForNode,ParallelProcessing,ParallelProcessFiles",
-    "ProcessPriorityLevel": 500
-  },
+
   {
     "Catagory": "SystemOutputFile",
     "FilePatterns": [ ".\\nodes\\*\\os-metrics\\disk_space.json" ],
@@ -338,6 +323,22 @@
     "NodeIdPos": -1,
     "ProcessingTaskOption": "ScanForNode,ParallelProcessing,ParallelProcessFiles",
     "ProcessPriorityLevel": 500
+  },
+  {
+    "Catagory": "CommandOutputFile",
+    "FilePatterns": [ ".\\nodes\\*\\nodetool\\tpstats" ],
+    "FileParsingClass": "DSEDiagnosticFileParser.file_nodetool_tpstats",
+    "NodeIdPos": -1,
+    "ProcessingTaskOption": "ScanForNode,ParallelProcessing,ParallelProcessFiles",
+    "ProcessPriorityLevel": 450
+  },
+  {
+    "Catagory": "CommandOutputFile",
+    "FilePatterns": [ ".\\nodes\\*\\nodetool\\proxyhistograms" ],
+    "FileParsingClass": "DSEDiagnosticFileParser.file_nodetool_proxyhistograms",
+    "NodeIdPos": -1,
+    "ProcessingTaskOption": "ScanForNode,ParallelProcessing,ParallelProcessFiles",
+    "ProcessPriorityLevel": 450
   },
   {
     "Catagory": "CQLFile",

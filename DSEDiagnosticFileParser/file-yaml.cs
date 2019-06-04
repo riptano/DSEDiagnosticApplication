@@ -509,7 +509,7 @@ namespace DSEDiagnosticFileParser
                 //lineSplit is more than two elements... assume command/value pair....
                 if(lineSplit.Length > 2)
                 {
-                    if (this.Source == SourceTypes.EnvFile)
+                    if (this.Source == SourceTypes.EnvFile || this.Source == SourceTypes.Yaml)
                     {
                         cmdPathValueList.Add(GenerateCmdValuePair(string.Format("Line[{0}]", this.NbrItemsParsed),
                                                                     line));

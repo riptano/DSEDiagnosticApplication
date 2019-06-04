@@ -90,7 +90,7 @@ namespace DSEDiagnosticFileParser
                     }
 
                     var node = Cluster.TryGetAddNode(regExMatch.Groups[2].Value, currentDataCenter);
-
+                    
                     node.DSE.HostId = new Guid(regExMatch.Groups[7].Value);
                     node.DSE.Rack = regExMatch.Groups[8].Value;
                     if(node.DSE.StorageUsed == null)
@@ -120,9 +120,7 @@ namespace DSEDiagnosticFileParser
                         node.DSE.NbrTokens = (uint) nbrVNodes;
                     }
 
-                    ++nbrGenerated;
-
-                    Logger.Instance.InfoFormat("FileMapper<{2}>\t{0}\t{3}\tAdded node to DataCenter \"{1}\"", node.Id, node.DataCenter.Name, this.MapperId, this.ShortFilePath);
+                    ++nbrGenerated;                   
                     continue;
                 }
             }
