@@ -171,6 +171,14 @@
     "ProcessPriorityLevel": 900
   },
   {
+    "Catagory": "CommandOutputFile",
+    "FilePatterns": [ ".\\nodes\\*\\nodetool\\info" ],
+    "FileParsingClass": "DSEDiagnosticFileParser.file_nodetool_info",
+    "NodeIdPos": -1,
+    "ProcessingTaskOption": "ScanForNode,ParallelProcessing,ParallelProcessFiles",
+    "ProcessPriorityLevel": 880
+  },
+  {
     "Catagory": "ConfigurationFile",
     "FilePatterns": [ ".\\nodes\\*\\dse", ".\\nodes\\*\\cassandra-env.sh" ],
     "FileParsingClass": "DSEDiagnosticFileParser.file_DSE_env",
@@ -285,14 +293,6 @@
   },
   {
     "Catagory": "CommandOutputFile",
-    "FilePatterns": [ ".\\nodes\\*\\nodetool\\info" ],
-    "FileParsingClass": "DSEDiagnosticFileParser.file_nodetool_info",
-    "NodeIdPos": -1,
-    "ProcessingTaskOption": "ScanForNode,ParallelProcessing,ParallelProcessFiles",
-    "ProcessPriorityLevel": 500
-  },
-  {
-    "Catagory": "CommandOutputFile",
     "FilePatterns": [ ".\\nodes\\*\\nodetool\\version" ],
     "FileParsingClass": "DSEDiagnosticFileParser.file_nodetool_version",
     "NodeIdPos": -1,
@@ -330,7 +330,7 @@
     "FileParsingClass": "DSEDiagnosticFileParser.file_nodetool_tpstats",
     "NodeIdPos": -1,
     "ProcessingTaskOption": "ScanForNode,ParallelProcessing,ParallelProcessFiles",
-    "ProcessPriorityLevel": 450
+    "ProcessPriorityLevel": 500
   },
   {
     "Catagory": "CommandOutputFile",
@@ -338,7 +338,7 @@
     "FileParsingClass": "DSEDiagnosticFileParser.file_nodetool_proxyhistograms",
     "NodeIdPos": -1,
     "ProcessingTaskOption": "ScanForNode,ParallelProcessing,ParallelProcessFiles",
-    "ProcessPriorityLevel": 450
+    "ProcessPriorityLevel": 500
   },
   {
     "Catagory": "CQLFile",
