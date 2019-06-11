@@ -153,6 +153,13 @@ namespace DSEDiagnosticConsoleApplication
                 Description = "A list of keyspaces that will be ignored separated by a comma. If a keyspace begins with a \"+\" or \"-\" it will be either added or removed from the current default ignored list. The defaults are defined in the IgnoreKeySpaces app-config file."
             });
 
+            this._cmdLineParser.Arguments.Add(new ValueArgument<string>("WhiteListKSInWS")
+            {
+                Optional = true,
+                DefaultValue = string.Join(", ", ParserSettings.WhiteListKeyspaceInWS),
+                Description = "A list of keyspaces that will be included (white listed) in the Keyspace worksheet separated by a comma. If a keyspace begins with a \"+\" or \"-\" it will be either added or removed from the current default list. The defaults are defined in the WhiteListKeyspaceInWS app-config file."
+            });
+
             this._cmdLineParser.Arguments.Add(new ValueArgument<string>("WarnWhenKSTblIsDetected")
             {
                 Optional = true,
@@ -516,6 +523,9 @@ namespace DSEDiagnosticConsoleApplication
                         break;
                     case "IgnoreKeySpaces":
                         ParserSettings.IgnoreKeySpaces = ParserSettings.CreateMergeList(((ValueArgument<string>)item).Value, ParserSettings.IgnoreKeySpaces);
+                        break;
+                    case "WhiteListKSInWS":
+                        ParserSettings.WhiteListKeyspaceInWS = ParserSettings.CreateMergeList(((ValueArgument<string>)item).Value, ParserSettings.WhiteListKeyspaceInWS);
                         break;
                     case "WarnWhenKSTblIsDetected":
                         ParserSettings.WarnWhenKSTblIsDetected = ParserSettings.CreateMergeList(((ValueArgument<string>)item).Value, ParserSettings.WarnWhenKSTblIsDetected);

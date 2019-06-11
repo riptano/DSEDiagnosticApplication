@@ -242,6 +242,7 @@ namespace DSEDiagnosticConsoleApplication
             get { return DSEDiagnosticLibrary.LibrarySettings.TablesUsageFlag.ToList(); }
             set { DSEDiagnosticLibrary.LibrarySettings.TablesUsageFlag = value?.ToArray() ?? new string[0]; }
         }
+        public static List<string> WhiteListKeyspaceInWS = Properties.Settings.Default.WhiteListKeyspaceInWS.ToList();
         public static IEnumerable<string> IgnoreWarningsErrosInKeySpaces
         {
             get { return DSEDiagnosticFileParser.LibrarySettings.IgnoreWarningsErrosInKeySpaces; }

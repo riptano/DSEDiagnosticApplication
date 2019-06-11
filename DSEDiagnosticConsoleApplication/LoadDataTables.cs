@@ -57,7 +57,11 @@ namespace DSEDiagnosticConsoleApplication
                 var loadDataTables = new DSEDiagnosticToDataTable.IDataTable[]
                 {
                     new DSEDiagnosticToDataTable.CQLDDLDataTable(cluster, cancellationSource, ParserSettings.IgnoreKeySpaces.ToArray(), sessionGuid),
-                    new DSEDiagnosticToDataTable.KeyspaceDataTable(cluster, cancellationSource, ParserSettings.IgnoreKeySpaces.ToArray(), sessionGuid)                    
+                    new DSEDiagnosticToDataTable.KeyspaceDataTable(cluster,
+                                                                    cancellationSource,
+                                                                    ParserSettings.IgnoreKeySpaces.ToArray(),
+                                                                    ParserSettings.WhiteListKeyspaceInWS.ToArray(),
+                                                                    sessionGuid)
                 };
                 var loadDataTablesWaitLogAnalysis = new DSEDiagnosticToDataTable.IDataTable[]
                 {

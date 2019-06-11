@@ -12,13 +12,19 @@ namespace DSEDiagnosticToDataTable
 {
     public sealed class KeyspaceDataTable : DataTableLoad
     {
-        public KeyspaceDataTable(DSEDiagnosticLibrary.Cluster cluster, CancellationTokenSource cancellationSource = null, string[] ignoreKeySpaces = null, Guid? sessionId = null)
+        public KeyspaceDataTable(DSEDiagnosticLibrary.Cluster cluster,
+                                    CancellationTokenSource cancellationSource = null,
+                                    string[] ignoreKeySpaces = null,
+                                    string[] whitelistKeySpaces = null,
+                                    Guid? sessionId = null)
             : base(cluster, cancellationSource, sessionId)
         {
             this.IgnoreKeySpaces = ignoreKeySpaces ?? new string[0];
+            this.WhitelistKeySpaces = whitelistKeySpaces ?? new string[0];
         }
 
         public string[] IgnoreKeySpaces { get; }
+        public string[] WhitelistKeySpaces { get; }
 
         public struct Columns
         {
@@ -166,7 +172,7 @@ namespace DSEDiagnosticToDataTable
                 {
                     this.CancellationToken.ThrowIfCancellationRequested();
 
-                    if (this.IgnoreKeySpaces.Any(n => n == keySpace.Name))
+                    if (!this.WhitelistKeySpaces.Any(n => n == keySpace.Name) && this.IgnoreKeySpaces.Any(n => n == keySpace.Name))
                     {
                         continue;
                     }

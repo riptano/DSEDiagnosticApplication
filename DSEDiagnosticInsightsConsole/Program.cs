@@ -16,9 +16,8 @@ namespace DSEDiagnosticInsightsConsole
     {
         static void Main(string[] args)
         {
-            var node = new Uri("https://search-riptano-insights-stage-vmqawjqwydo4zerxyxu7burd4e.us-east-1.es.amazonaws.com");
-            //var clusterId = new Guid("68d8d729-34ec-49c7-82d6-5b5c3e2bc242"); //DSE 6.0
-            var clusterId = new Guid("8a165411-15c8-45b2-9cfd-119159b02384"); //DSE 5.1
+            var node = new Uri("https://search-riptano-insights-stage-vmqawjqwydo4zerxyxu7burd4e.us-east-1.es.amazonaws.com");         
+            var clusterId = new Guid("7ed3dcbc-7de4-4c22-9636-f12234b53e69"); //DSE 5.1 AndersenHA51
 
             ESQuerySearch.OnException += (sender, eventArgs) =>
             {
@@ -37,7 +36,9 @@ namespace DSEDiagnosticInsightsConsole
             var dcs =  esConnection.BuildDCNodes(); //.Dump(1);
             var kss = esConnection.BuildSchema();
 
-            kss.First().ToString();
+
+            var tstKS = kss.First(k => k.Name == "usprodda");
+            var tstKS1 = kss.First(k => k.Name == "dse_insights");
 
             //esConnection.ESConnection.NetworkTrace.FirstOrDefault()?.Dump("Query: ", 0);
             //esConnection.ESConnection.NetworkTrace.Dump("Network Trace: ", 0);

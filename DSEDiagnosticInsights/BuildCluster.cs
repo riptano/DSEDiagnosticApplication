@@ -150,7 +150,7 @@ namespace DSEDiagnosticInsights
             var ksList = connection.BuildKeyspace(schemaDoc);
 
             connection.BuildUserDefinedTypes(schemaDoc);
-
+            connection.BuildUserFunctions(schemaDoc);
 
             return ksList;
         }
@@ -266,6 +266,31 @@ namespace DSEDiagnosticInsights
             }
         }
 
+        public static void BuildTablesViews(this Connection connection, DSESchemaInformation schemaDoc)
+        {
+            var filePath = Common.Path.PathUtils.BuildFilePath(DefaultDirectory + "Table.cql");
+            uint itemNbr = 0;
+            var orderedFunctions = from udtDict in schemaDoc.Data.functions.Cast<IReadOnlyDictionary<string, dynamic>>()
+                                   let ksName = udtDict.TryGetValue<string>("keyspace_name")
+                                   let udtColNames = udtDict.TryGetValues<string>("field_names")
+                                   let udtColTypes = udtDict.TryGetValues<string>("field_types")
+                                   let cntSubTypes = udtColTypes.Count(i => i.Contains("<"))
+                                   orderby ksName ascending, cntSubTypes ascending
+                                   select new
+                                   {
+                                       keyspace = DSEDiagnosticLibrary.KeySpace.TryGet(connection.Cluster, ksName).FirstOrDefault(),
+                                       name = udtDict.TryGetValue<string>("type_name"),
+                                       columns = udtColNames.Select(udtColTypes, (s1, s2) => s1 + ' ' + s2).ToList(),
+                                       cntSubTypes
+                                   };
+
+
+
+            foreach (var udtItem in orderedFunctions)
+            {
+                //DSEDiagnosticCQLSchema.Parser.ProcessDDLTable()
+            }
+        }
 
         private static void BuildYamlConfig(DSEDiagnosticLibrary.INode node,
                                             IReadOnlyDictionary<string,dynamic> yamlDir,
