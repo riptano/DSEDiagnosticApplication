@@ -591,6 +591,15 @@ namespace DSEDiagnosticFileParser
                 {
                     readLogFileInstance.CancellationToken.ThrowIfCancellationRequested();
 
+                    if(logMessage.Level == LogLevels.Debug && Logger.Instance.IsDebugEnabled)
+                    {
+                        Logger.Instance.DebugFormat("MapperId<{0}>\t{1}\t{2}\tTrace\r\n{3}",
+                                                        this.MapperId,
+                                                        this.Node,
+                                                        this.ShortFilePath,
+                                                        logMessage);
+                    }
+
                     if (firstLine)
                     {
                         firstLine = false;
@@ -640,6 +649,32 @@ namespace DSEDiagnosticFileParser
                     logEvent = null;
                     ignoreLogEvent = false;
 
+                    if (logMessage.Level == LogLevels.Debug && Logger.Instance.IsDebugEnabled)
+                    {
+                        if (matchItem == null)
+                        {
+                            Logger.Instance.DebugFormat("MapperId<{0}>\t{1}\t{2}\tMatch:\r\n{3}\r\n<No Match>",
+                                                            this.MapperId,
+                                                            this.Node,
+                                                            this.ShortFilePath,
+                                                            logMessage);
+                        }
+                        else
+                        {
+                            Logger.Instance.DebugFormat("MapperId<{0}>\t{1}\t{2}\tMatch:\r\n{3}\r\n{4},\r\n{5},\r\n{6}\r\nTag: {7} \"{8}\", Running Count: {9}",
+                                                            this.MapperId,
+                                                            this.Node,
+                                                            this.ShortFilePath,
+                                                            logMessage,
+                                                            matchItem.Item1,
+                                                            matchItem.Item2,
+                                                            matchItem.Item3,
+                                                            matchItem.Item5.TagId,
+                                                            matchItem.Item5.Description,
+                                                            matchItem.Item5.RunningCount);
+                        }
+                    }
+
                     if (matchItem == null)
                     {
                         if (enableLogLevelHandling)
@@ -678,7 +713,26 @@ namespace DSEDiagnosticFileParser
 
                         if (logEvent != null && this.DuplicateLogEventFound(logMessage))
                         {
+                            if (logMessage.Level == LogLevels.Debug && Logger.Instance.IsDebugEnabled)
+                            {
+                                Logger.Instance.DebugFormat("MapperId<{0}>\t{1}\t{2}\tDuplicate Found:\r\n{3}",
+                                                                this.MapperId,
+                                                                this.Node,
+                                                                this.ShortFilePath,
+                                                                logMessage);
+                            }
+
                             return;
+                        }
+
+                        if (logMessage.Level == LogLevels.Debug && Logger.Instance.IsDebugEnabled)
+                        {
+                            Logger.Instance.DebugFormat("MapperId<{0}>\t{1}\t{2}\tEvents:\r\n{3}\r\n{4}",
+                                                            this.MapperId,
+                                                            this.Node,
+                                                            this.ShortFilePath,
+                                                            logMessage,
+                                                            logEvent?.ToString() ?? "<No Event Created>");
                         }
 
                         if (logEvent != null

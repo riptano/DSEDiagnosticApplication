@@ -3160,7 +3160,7 @@ Additinal group names and mappings:
       },
       "ParseMessage": {
         "RegExStrings": [
-          "^Starting\\s+repair\\s+command\\s(?<commandid>\\#?[0-9]+),\\s+(?<options>repairing\\s+(?<repairtype>keyspace))\\s+(?<KEYSPACE>[a-z0-9'\\-_$%+=!?<>^*&@]+)\\s+with\\s+repair\\soptions\\s\\((?<options>[^)]+)\\)",
+          "^Starting\\s+repair\\s+command\\s(?<commandid>\\#?[0-9]+)\\s*(?:\\(\\s*(?$<ID>)\\s*\\))?,?\\s*(?<options>repairing\\s+(?<repairtype>keyspace))\\s+(?<KEYSPACE>[a-z0-9'\\-_$%+=!?<>^*&@]+)\\s+with\\s+repair\\soptions\\s\\((?<options>[^)]+)\\)",
           "^Starting\\s+repair\\s+command\\s(?<commandid>\\#?[0-9]+),\\s+(?<options>repairing\\s+(?<numranges>[0-9,]+)\\s+(?<repairtype>ranges))\\s+for\\s+keyspace\\s+(?<KEYSPACE>[a-z0-9'\\-_$%+=!?<>^*&@]+)\\s+\\((?<options>[^)]+)\\)"
         ]
       },
@@ -3753,6 +3753,45 @@ Additinal group names and mappings:
       "IgnoreEvent": false,
       "Examples": [
         "INFO  [RMI TCP Connection(3971)-127.0.0.1] 2019-04-14 22:58:39,689  RangeStreamer.java:126 - Rebuild: range (101274513964565018887909109354692920075,101275414883841448841465412158954529069] exists on /158.171.182.125 for keyspace dse_auth"
+      ]
+    },
+    {
+      "Description": "NodeSync",
+      "TagId": 56.0,
+      "MatchVersion": null,
+      "LevelMatch": {
+        "RegExStrings": [
+          "INFO",
+          "DEBUG"
+        ]
+      },
+      "FileNameMatch": {
+        "RegExStrings": [
+          "^NodeSyncMaintenanceTasks.java$"
+        ]
+      },
+      "FileLineMatch": null,
+      "MessageMatch": {
+        "RegExStrings": [
+          "^In\\s+last\\s+"
+        ]
+      },
+      "ParseMessage": {
+        "RegExStrings": [
+          "In\\s+last\\s+(?<DURATION>[0-9,.]+\\s*\\w+):\\s+validated\\s+(?<size_gb>[0-9.,]+s*\\w*)\\s+\\((?<rate_mb_sec>[0-9.,]+\\s*[a-z/]+)\\),?\\s+(?<inconst_pct>[0-9.,]+\\s*[a-z%/]+) \\w+\\s+inconsistent\\s*(?:\\((?:(?:(?<partial_pct>[0-9.,]+\\s*[a-z%/]+)\\s*partial,?\\s*)|(?:(?<failed_pct>[0-9.,]+\\s*[a-z%/]+)\\s*failed,?\\s*)|(?:(?<uncompleted_pct>[0-9.,]+\\s*[a-z%/]+)\\s*uncompleted,?\\s*))+\\))?"
+        ]
+      },
+      "ParseThreadId": null,
+      "EventType": "SingleInstance",
+      "EventClass": "NodeDetection,Repair",      
+      "SubClass": "'NodeSync Validate'",
+      "Product": "Cassandra",
+      "AnalyticsGroup": "NodeSyncStats",
+      "IgnoreEvent": false,
+      "Examples": [
+        "INFO  [NodeSyncMaintenanceTasks:1] 2019-03-30 07:13:56,775  NodeSyncMaintenanceTasks.java:175 - In last 10m: validated 590MB (1,008kB/s), 0% was inconsistent.",
+        "INFO  [NodeSyncMaintenanceTasks:1] 2019-03-24 13:25:29,380  NodeSyncMaintenanceTasks.java:175 - In last 10m: validated 0B (0B/s), 0% was inconsistent(100% uncompleted).",
+        "INFO  [NodeSyncMaintenanceTasks:1] 2019-03-13 01:21:36,741  NodeSyncMaintenanceTasks.java:175 - In last 10m: validated 1.6GB (2.8MB/s), 1% was inconsistent(0% partial,0% failed)."
       ]
     }
   ]

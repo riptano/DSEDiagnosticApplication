@@ -713,6 +713,35 @@ namespace DSEDiagnosticToDataTable
 
                             unitOfMeasure += analyticsGrp.SolrExpiredStats.UOM + ',';
                         }
+
+                        if (analyticsGrp.NodeSyncStats != null && analyticsGrp.NodeSyncStats.HasValue)
+                        {
+
+                            if (analyticsGrp.NodeSyncStats.Size.HasValue)
+                            {
+                                dataRow.SetField(Columns.SizeMax, analyticsGrp.NodeSyncStats.Size.Max);
+                                dataRow.SetField(Columns.SizeMin, analyticsGrp.NodeSyncStats.Size.Min);
+                                dataRow.SetField(Columns.SizeMean, analyticsGrp.NodeSyncStats.Size.Mean);
+                                dataRow.SetField(Columns.SizeStdDevp, analyticsGrp.NodeSyncStats.Size.StdDev);
+                                dataRow.SetField(Columns.SizeTotal, analyticsGrp.NodeSyncStats.Size.Sum);
+                            }
+                            if (analyticsGrp.NodeSyncStats.Rate.HasValue)
+                            {
+                                dataRow.SetField(Columns.RateMax, analyticsGrp.NodeSyncStats.Rate.Max);
+                                dataRow.SetField(Columns.RateMin, analyticsGrp.NodeSyncStats.Rate.Min);
+                                dataRow.SetField(Columns.RateMean, analyticsGrp.NodeSyncStats.Rate.Mean);
+                                dataRow.SetField(Columns.RateStdDevp, analyticsGrp.NodeSyncStats.Rate.StdDev);
+                            }
+                            if (analyticsGrp.NodeSyncStats.PercentInconsistent.HasValue)
+                            {
+                                dataRow.SetField(Columns.EdenThresholdReadRateMax, analyticsGrp.NodeSyncStats.PercentInconsistent.Max);
+                                dataRow.SetField(Columns.EdenThresholdReadRateMin, analyticsGrp.NodeSyncStats.PercentInconsistent.Min);
+                                dataRow.SetField(Columns.OldThresholdReadRateMean, analyticsGrp.NodeSyncStats.PercentInconsistent.Mean);
+                                dataRow.SetField(Columns.OldThresholdReadRateStdDevp, analyticsGrp.NodeSyncStats.PercentInconsistent.StdDev);
+                            }
+
+                            unitOfMeasure += analyticsGrp.NodeSyncStats.UOM + ',';
+                        }
                     }
 
                     dataRow.SetField(Columns.UOM, unitOfMeasure.TrimEnd(','));

@@ -1203,6 +1203,7 @@ namespace DSEDiagnosticLibrary
                     return Types.Bit | uofType;
                 case "bytes":
                 case "byte":
+                case "b":
                     return Types.Byte | uofType;
                 case "kilobyte":
                 case "kilobytes":

@@ -1206,6 +1206,26 @@ namespace DSEDiagnosticAnalytics
                                         new IEnumerable<decimal>[] { fndRowDurations, expiredDocDurations });
         }
 
+        public static LogEventGrouping NodeSyncStats(ref LogEventGroup logEventGroup, string analyticsGroup, IEnumerable<ILogEvent> assocatedLogEvents)
+        {
+            var sizes = assocatedLogEvents.Select(i => i.LogProperties.GetPropUOMValue("size", UnitOfMeasure.Types.MiB));
+            var rates = assocatedLogEvents.Select(i => i.LogProperties.GetPropUOMValue("rate", UnitOfMeasure.Types.Rate | UnitOfMeasure.Types.SEC | UnitOfMeasure.Types.MiB));
+            var inconstPerct = assocatedLogEvents.Select(i => i.LogProperties.GetPropUOMValue("inconst"));
+            var partialPerct = assocatedLogEvents.Select(i => i.LogProperties.GetPropUOMValue("partial")).Where(i => i > 0);
+            var failedPerct = assocatedLogEvents.Select(i => i.LogProperties.GetPropUOMValue("failed")).Where(i => i > 0);
+            var uncompletedPerct = assocatedLogEvents.Select(i => i.LogProperties.GetPropUOMValue("uncompleted")).Where(i => i > 0);
+
+            return new LogEventGrouping(ref logEventGroup,
+                                        assocatedLogEvents,
+                                        LogEventGrouping.GroupingTypes.NodeSyncStats,
+                                        sizes,
+                                        rates,
+                                        inconstPerct,
+                                        partialPerct,
+                                        failedPerct,
+                                        uncompletedPerct);
+        }
+
     }
 
     public struct LogEventGroup
@@ -1412,7 +1432,8 @@ namespace DSEDiagnosticAnalytics
             FreeDeviceStorageStats,
             CompactionInsufficientSpaceStats,
             DropStats,
-            SolrExpiredStats
+            SolrExpiredStats,
+            NodeSyncStats
         }
 
         public static IEnumerable<LogEventGrouping> CreateLogEventGrouping(LogEventGroup logEventGroup, IEnumerable<ILogEvent> assocatedLogEvents)
@@ -1583,6 +1604,17 @@ namespace DSEDiagnosticAnalytics
                                                                 decimalAggreations[0],
                                                                 decimalAggreations[1]);
                     this.HasValue = forceHasValue ? true : (this.DurationStats?.HasValue ?? false) || this.SolrExpiredStats.HasValue;
+                    break;
+                case GroupingTypes.NodeSyncStats:
+                    this.GroupKey = groupKey;
+                    this.DurationStats = new DurationStatItems(assocatedLogEvents);
+                    this.NodeSyncStats = new NodeSync(decimalAggreations[0],
+                                                                decimalAggreations[1],
+                                                                decimalAggreations[2],
+                                                                decimalAggreations[3],
+                                                                decimalAggreations[4],
+                                                                decimalAggreations[5]);
+                    this.HasValue = forceHasValue ? true : (this.DurationStats?.HasValue ?? false) || this.NodeSyncStats.HasValue;
                     break;
                 default:
                     break;
@@ -2179,5 +2211,44 @@ namespace DSEDiagnosticAnalytics
         }
 
         public readonly SolrExpired SolrExpiredStats;
+
+        public sealed class NodeSync
+        {
+            public NodeSync(IEnumerable<decimal> sizes,
+                                IEnumerable<decimal> rates,
+                                IEnumerable<decimal> percentInconsistent,
+                                IEnumerable<decimal> percentPartial,
+                                IEnumerable<decimal> percentFailed,
+                                IEnumerable<decimal> percentUnCompleted)
+            {
+                this.Size = new ItemStatsDecimal(sizes);
+                this.Rate = new ItemStatsDecimal(rates);
+                this.PercentInconsistent = new ItemStatsDecimal(percentInconsistent);
+                this.PercentPartial = new ItemStatsDecimal(percentPartial);
+                this.PercentFailed = new ItemStatsDecimal(percentFailed);
+                this.PercentUnCompleted = new ItemStatsDecimal(percentUnCompleted);
+
+                if (this.Size.HasValue)
+                    this.UOM = "MiB";
+                if (this.Rate.HasValue)
+                    this.UOM = string.IsNullOrEmpty(this.UOM) ? "mb/sec" : this.UOM + ", mb/sec";
+                if (this.PercentInconsistent.HasValue)
+                    this.UOM = string.IsNullOrEmpty(this.UOM) ? "%Inconsistent" : this.UOM + ", %Inconsistent";
+                
+                this.HasValue = this.Size.HasValue || this.Rate.HasValue || this.PercentInconsistent.HasValue;
+            }
+
+            public readonly bool HasValue;
+            public readonly ItemStatsDecimal Size;
+            public readonly ItemStatsDecimal Rate;
+            public readonly ItemStatsDecimal PercentInconsistent;
+            public readonly ItemStatsDecimal PercentPartial;
+            public readonly ItemStatsDecimal PercentFailed;
+            public readonly ItemStatsDecimal PercentUnCompleted;
+
+            public readonly string UOM;
+        }
+
+        public readonly NodeSync NodeSyncStats;
     }
 }

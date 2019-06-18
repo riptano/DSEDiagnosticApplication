@@ -70,5 +70,9 @@
   "SolrExpiredStats": {
     "AnalyticsGroup": "SolrExpiredStats",
     "AggregateGroupFunctionName": "SolrExpiredStats"
+  },
+  "NodeSyncStats": {
+    "AnalyticsGroup": "NodeSyncStats",
+    "AggregateGroupFunctionName": "NodeSyncStats"
   }
 }

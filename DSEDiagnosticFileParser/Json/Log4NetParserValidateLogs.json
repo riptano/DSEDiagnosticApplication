@@ -216,6 +216,10 @@
     {
       "Description": "Range Rebuild",
       "TagId": 55.0
+    },
+    {
+      "Description": "NodeSync",
+      "TagId": 56.0
     }
   ]
 }
