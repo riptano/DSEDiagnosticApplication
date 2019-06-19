@@ -323,9 +323,15 @@ namespace DSEDiagnosticToDataTable
                                          select new
                                          {
                                              DC = dcGrp.Key,
-                                             TotEvts = dcGrp.Count(),
-                                             CompactionEvts = logKSEvts.Where(i => i.Class.HasFlag(EventClasses.Compaction)).DefaultIfEmpty().Sum(i => i.Count),
-                                             FlushEvts = logKSEvts.Where(i => i.Class.HasFlag(EventClasses.Flush)).DefaultIfEmpty().Sum(i => i.Count),
+                                             TotEvts = dcGrp.LongCount(),
+                                             CompactionEvts = logKSEvts
+                                                                .Where(i => i.Class.HasFlag(EventClasses.Compaction))
+                                                                .Select(i => i.Count)
+                                                                .DefaultIfEmpty().Sum(),
+                                             FlushEvts = logKSEvts
+                                                            .Where(i => i.Class.HasFlag(EventClasses.Flush))
+                                                            .Select(i => i.Count)
+                                                            .DefaultIfEmpty().Sum(),
                                              RepairEvts = logDCEvts.LongCount(e => e.Class.HasFlag(EventClasses.Repair)),
                                              KSEvts = logKSEvts
                                          }).ToArray();
@@ -339,10 +345,18 @@ namespace DSEDiagnosticToDataTable
                 var clusterTotReads = (ulong)this.Cluster.Nodes.Select(n => n.DSE.ReadCount).DefaultIfEmpty().Sum();
                 var clusterTotWrites = (ulong)this.Cluster.Nodes.Select(n => n.DSE.WriteCount).DefaultIfEmpty().Sum();
                 var clusterTotKeys = (ulong)this.Cluster.Nodes.Select(n => n.DSE.KeyCount).DefaultIfEmpty().Sum();
-                var clusterTotEvents = logEvtsCollection.DefaultIfEmpty().Sum(i => i.TotEvts);
-                var clusterTotFlushes = logEvtsCollection.DefaultIfEmpty().Sum(i => i.FlushEvts);
-                var clusterTotCompactions = logEvtsCollection.DefaultIfEmpty().Sum(i => i.CompactionEvts);
-                var clusterTotRepairs = logEvtsCollection.DefaultIfEmpty().Sum(i => i.RepairEvts);
+                long clusterTotEvents = 0;
+                long clusterTotFlushes = 0;
+                long clusterTotCompactions = 0;
+                long clusterTotRepairs = 0;
+
+                if(logEvtsCollection.HasAtLeastOneElement())
+                {
+                    clusterTotEvents = logEvtsCollection.Sum(i => i.TotEvts);
+                    clusterTotFlushes = logEvtsCollection.Sum(i => i.FlushEvts);
+                    clusterTotCompactions = logEvtsCollection.Sum(i => i.CompactionEvts);
+                    clusterTotRepairs = logEvtsCollection.Sum(i => i.RepairEvts);
+                }
 
                 foreach (var dataCenter in this.Cluster.DataCenters)
                 {
@@ -672,6 +686,7 @@ namespace DSEDiagnosticToDataTable
                             }
                         }
 
+                        if(logEvtsCollection.HasAtLeastOneElement())
                         {
                             var dcItems = logEvtsCollection
                                                 .Where(d => d.DC == dataCenter);
@@ -682,8 +697,9 @@ namespace DSEDiagnosticToDataTable
                                 if (clusterTotEvents > 0)
                                 {
                                     var classTotAll = dcItems
+                                                       .Select(i => i.TotEvts)
                                                        .DefaultIfEmpty()
-                                                       .Sum(i => i.TotEvts);
+                                                       .Sum();
 
                                     dataRow.SetField("Log Event Total", classTotAll);
                                     dataRow.SetField("Log Event Percent", (decimal)classTotAll / (decimal)clusterTotEvents);                                    
@@ -694,12 +710,14 @@ namespace DSEDiagnosticToDataTable
                                     var classStats = dcStats
                                                     .Where(i => i.Class.HasFlag(EventClasses.Flush));
                                     var classTotAll = classStats
+                                                    .Select(i => i.Count)
                                                     .DefaultIfEmpty()
-                                                    .Sum(i => i.Count);
+                                                    .Sum();
                                     var classTotUser = classStats
                                                         .Where(d => !d.IsSystem)
+                                                        .Select(i => i.Count)
                                                         .DefaultIfEmpty()
-                                                        .Sum(i => i.Count);
+                                                        .Sum();
 
                                     dataRow.SetField("Flush Total", classTotAll);
                                     dataRow.SetField("Flush Percent", (decimal)classTotAll / (decimal)clusterTotFlushes);
@@ -712,12 +730,14 @@ namespace DSEDiagnosticToDataTable
                                     var classStats = dcStats
                                                     .Where(i => i.Class.HasFlag(EventClasses.Compaction));
                                     var classTotAll = classStats
+                                                    .Select(i => i.Count)
                                                     .DefaultIfEmpty()
-                                                    .Sum(i => i.Count);
+                                                    .Sum();
                                     var classTotUser = classStats
                                                         .Where(d => !d.IsSystem)
+                                                        .Select(i => i.Count)
                                                         .DefaultIfEmpty()
-                                                        .Sum(i => i.Count);
+                                                        .Sum();
 
                                     dataRow.SetField("Compaction Total", classTotAll);
                                     dataRow.SetField("Compaction Percent", (decimal)classTotAll / (decimal)clusterTotCompactions);
@@ -729,8 +749,9 @@ namespace DSEDiagnosticToDataTable
                                 {
                                     var classTotAll = logEvtsCollection
                                                             .Where(d => d.DC == dataCenter)
+                                                            .Select(i => i.RepairEvts)
                                                             .DefaultIfEmpty()
-                                                            .Sum(i => i.RepairEvts);
+                                                            .Sum();
 
                                     dataRow.SetField("Repair Total", classTotAll);
                                     dataRow.SetField("Repair Percent", (decimal)classTotAll / (decimal)clusterTotRepairs);
@@ -738,8 +759,9 @@ namespace DSEDiagnosticToDataTable
                                     {
                                         var classTotUser = dcStats
                                                             .Where(i => i.Class.HasFlag(EventClasses.Repair))
+                                                            .Select(i => i.Count)
                                                             .DefaultIfEmpty()
-                                                            .Sum(i => i.Count);
+                                                            .Sum();
                                         if (classTotUser > 0)
                                         {
                                             dataRow.SetField("Repair Total (User)", classTotUser);

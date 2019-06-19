@@ -201,9 +201,16 @@ namespace DSEDiagnosticToDataTable
                 var clusterTotalWrite = this.Cluster.Nodes.Select(n => n.DSE.WriteCount).DefaultIfEmpty().Sum();
                 var clusterTotalSSTables = this.Cluster.Nodes.Select(n => n.DSE.SSTableCount).DefaultIfEmpty().Sum();
                 var clusterTotalKeys = this.Cluster.Nodes.Select(n => n.DSE.KeyCount).DefaultIfEmpty().Sum();
-                var clusterTotalFlush = logEvtsCollection.Sum(i => i.Cnts.Flushes);
-                var clusterTotalCompaction = logEvtsCollection.Sum(i => i.Cnts.Compactions);
-                var clusterTotalRepair = logEvtsCollection.Sum(i => i.Cnts.Repairs);
+                long clusterTotalFlush = 0;
+                long clusterTotalCompaction = 0;
+                long clusterTotalRepair = 0;
+
+                if (logEvtsCollection.HasAtLeastOneElement())
+                {
+                    clusterTotalFlush = logEvtsCollection.Sum(i => i.Cnts.Flushes);
+                    clusterTotalCompaction = logEvtsCollection.Sum(i => i.Cnts.Compactions);
+                    clusterTotalRepair = logEvtsCollection.Sum(i => i.Cnts.Repairs);
+                }
 
                 foreach (var keySpace in this.Cluster.Keyspaces)
                 {
