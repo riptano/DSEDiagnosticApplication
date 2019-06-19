@@ -69,6 +69,9 @@ namespace DSEDiagnosticToDataTable
             public const string PartitionKeyPercent = "Key Percent";
             public const string SSTables = "SSTable";
             public const string SSTablePercent = "SSTable Percent";
+            public const string FlushPercent = "Flush Percent";
+            public const string CompactionPercent = "Compaction Percent";
+            public const string RepairPercent = "Repair Percent";
             public const string DDL = "DDL";
         }
 
@@ -130,6 +133,10 @@ namespace DSEDiagnosticToDataTable
             dtKeySpace.Columns.Add(Columns.SSTables, typeof(long)).AllowDBNull = true;
             dtKeySpace.Columns.Add(Columns.SSTablePercent, typeof(decimal)).AllowDBNull = true;
 
+            dtKeySpace.Columns.Add(Columns.FlushPercent, typeof(decimal)).AllowDBNull = true;
+            dtKeySpace.Columns.Add(Columns.CompactionPercent, typeof(decimal)).AllowDBNull = true;
+            dtKeySpace.Columns.Add(Columns.RepairPercent, typeof(decimal)).AllowDBNull = true;
+
             dtKeySpace.Columns.Add("DDL", typeof(string));
 
             dtKeySpace.PrimaryKey = new System.Data.DataColumn[] { dtKeySpace.Columns[Columns.Name], dtKeySpace.Columns[ColumnNames.DataCenter] };
@@ -141,6 +148,13 @@ namespace DSEDiagnosticToDataTable
             dtKeySpace.DefaultView.Sort = string.Format("[Name] ASC, [{0}] ASC", ColumnNames.DataCenter);
 
             return dtKeySpace;
+        }
+
+        struct KSEvtCnts
+        {
+            public long Flushes;
+            public long Compactions;
+            public long Repairs;
         }
 
         /// <summary>
@@ -157,6 +171,26 @@ namespace DSEDiagnosticToDataTable
                 int nbrItems = 0;
 
                 Logger.Instance.InfoFormat("Loading Keyspace Information for Cluster \"{0}\"", this.Cluster.Name);
+                
+                var logEvtsCollection = (from logEvCache in this.Cluster.Nodes.SelectMany(d => ((DSEDiagnosticLibrary.Node)d).LogEventsRead(DSEDiagnosticLibrary.LogCassandraEvent.ElementCreationTypes.DCNodeKSDDLTypeClassOnly, false))
+                                         let logEvt = logEvCache.Value
+                                         where logEvt.Keyspace != null
+                                                    && (logEvt.Class.HasFlag(DSEDiagnosticLibrary.EventClasses.Compaction)
+                                                            || logEvt.Class.HasFlag(DSEDiagnosticLibrary.EventClasses.Flush)
+                                                            || logEvt.Class.HasFlag(DSEDiagnosticLibrary.EventClasses.Repair))
+                                         group logEvt by logEvt.Keyspace into ksGrp                                         
+                                         select new
+                                         {
+                                             KS = ksGrp.Key,
+                                             Cnts = new KSEvtCnts()
+                                             {
+                                                 Flushes = ksGrp.LongCount(i => i.Class.HasFlag(DSEDiagnosticLibrary.EventClasses.Flush)),
+                                                 Compactions = ksGrp.LongCount(i => i.Class.HasFlag(DSEDiagnosticLibrary.EventClasses.Compaction)),
+                                                 Repairs = ksGrp.LongCount(e => e.Class.HasFlag(DSEDiagnosticLibrary.EventClasses.Repair))
+                                             }                                                                                         
+                                         }
+                                         ).ToArray();
+
 
                 var clusterTotalStorage = this.Cluster.Nodes
                                                     .Where(n => !n.DSE.StorageUsed.NaN)
@@ -167,6 +201,9 @@ namespace DSEDiagnosticToDataTable
                 var clusterTotalWrite = this.Cluster.Nodes.Select(n => n.DSE.WriteCount).DefaultIfEmpty().Sum();
                 var clusterTotalSSTables = this.Cluster.Nodes.Select(n => n.DSE.SSTableCount).DefaultIfEmpty().Sum();
                 var clusterTotalKeys = this.Cluster.Nodes.Select(n => n.DSE.KeyCount).DefaultIfEmpty().Sum();
+                var clusterTotalFlush = logEvtsCollection.Sum(i => i.Cnts.Flushes);
+                var clusterTotalCompaction = logEvtsCollection.Sum(i => i.Cnts.Compactions);
+                var clusterTotalRepair = logEvtsCollection.Sum(i => i.Cnts.Repairs);
 
                 foreach (var keySpace in this.Cluster.Keyspaces)
                 {
@@ -198,11 +235,15 @@ namespace DSEDiagnosticToDataTable
                             dataRow[Columns.ReplicationFactor] = 0;
                             dataRow.SetFieldStringLimit("DDL", keySpace.DDL);
                             this.SetKeyspaceStats(keySpace, dataRow,
+                                                        logEvtsCollection.FirstOrDefault(i => i.KS == keySpace)?.Cnts,
                                                         clusterTotalStorage,
                                                         clusterTotalReads,
                                                         clusterTotalWrite,
                                                         clusterTotalKeys,
-                                                        clusterTotalSSTables);
+                                                        clusterTotalSSTables,
+                                                        clusterTotalFlush,
+                                                        clusterTotalCompaction,
+                                                        clusterTotalRepair);
                             this.Table.Rows.Add(dataRow);
                             ++nbrItems;
                         }
@@ -229,11 +270,15 @@ namespace DSEDiagnosticToDataTable
                             {                                
                                 firstRepl = false;
                                 this.SetKeyspaceStats(keySpace, dataRow,
+                                                        logEvtsCollection.FirstOrDefault(i => i.KS == keySpace)?.Cnts,
                                                         clusterTotalStorage,
                                                         clusterTotalReads,
                                                         clusterTotalWrite,
                                                         clusterTotalKeys,
-                                                        clusterTotalSSTables);
+                                                        clusterTotalSSTables,
+                                                        clusterTotalFlush,
+                                                        clusterTotalCompaction,
+                                                        clusterTotalRepair);
                             }
 
                             this.Table.Rows.Add(dataRow);
@@ -258,11 +303,15 @@ namespace DSEDiagnosticToDataTable
         }
 
         private void SetKeyspaceStats(DSEDiagnosticLibrary.IKeyspace keySpace, DataRow dataRow,
+                                        KSEvtCnts? ksCnts,
                                         decimal clusterStorage,
                                         long clusterReads,
                                         long clusterWrites,
                                         long clusterKeys,
-                                        long clusterSSTables)
+                                        long clusterSSTables,
+                                        long clusterFlushes,
+                                        long clusterCompactions,
+                                        long clusterRepairs)
         {
             dataRow[Columns.Tables] = (int)keySpace.Stats.Tables;
             dataRow[Columns.Views] = (int)keySpace.Stats.MaterialViews;
@@ -342,6 +391,16 @@ namespace DSEDiagnosticToDataTable
             if (clusterSSTables > 0)
                 dataRow.SetField(Columns.SSTablePercent, ((decimal)keySpace.Stats.SSTableCount) / (decimal)clusterSSTables);
             dataRow.SetField(Columns.SSTables, keySpace.Stats.SSTableCount);
+
+            if(ksCnts.HasValue)
+            {
+                if(ksCnts.Value.Flushes > 0)
+                    dataRow.SetField(Columns.FlushPercent, (decimal) ksCnts.Value.Flushes / (decimal) clusterFlushes);
+                if (ksCnts.Value.Compactions > 0)
+                    dataRow.SetField(Columns.CompactionPercent, (decimal)ksCnts.Value.Compactions / (decimal)clusterCompactions);
+                if (ksCnts.Value.Repairs > 0)
+                    dataRow.SetField(Columns.RepairPercent, (decimal)ksCnts.Value.Repairs / (decimal)clusterRepairs);
+            }
         }
 
     }

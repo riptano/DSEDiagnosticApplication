@@ -180,6 +180,33 @@ namespace DSEDiagnosticToDataTable
             dtDCInfo.Columns.Add("LWT Percent", typeof(decimal))
                             .AllowDBNull();
 
+            dtDCInfo.Columns.Add("Log Event Total", typeof(long))
+                            .AllowDBNull();
+            dtDCInfo.Columns.Add("Log Event Percent", typeof(decimal))
+                            .AllowDBNull();
+            dtDCInfo.Columns.Add("Flush Total", typeof(long))
+                            .AllowDBNull();
+            dtDCInfo.Columns.Add("Flush Total (User)", typeof(long))
+                            .AllowDBNull();
+            dtDCInfo.Columns.Add("Flush Percent", typeof(decimal))
+                            .AllowDBNull();
+
+            dtDCInfo.Columns.Add("Compaction Total", typeof(long))
+                            .AllowDBNull();
+            dtDCInfo.Columns.Add("Compaction Total (User)", typeof(long))
+                            .AllowDBNull();
+            dtDCInfo.Columns.Add("Compaction Percent", typeof(decimal))
+                            .AllowDBNull();
+
+            dtDCInfo.Columns.Add("Repair Total", typeof(long))
+                            .AllowDBNull();
+            dtDCInfo.Columns.Add("Repair Total (User)", typeof(long))
+                            .AllowDBNull();
+            dtDCInfo.Columns.Add("Repair Percent", typeof(decimal))
+                            .AllowDBNull();
+            dtDCInfo.Columns.Add("Repair Est Tasks (User)", typeof(long))
+                           .AllowDBNull();
+
             dtDCInfo.Columns.Add("Node UpTime", typeof(TimeSpan))
                             .AllowDBNull();
             dtDCInfo.Columns.Add("Log System Duration", typeof(TimeSpan))
@@ -274,7 +301,35 @@ namespace DSEDiagnosticToDataTable
                                                                             .Sum(),
                                                     NbrCompStorageWarnings = grpNbrCompSpaceWarnings.Count()
                                       }).ToArray();
-
+                var logEvtsCollection = (from logEvCache in this.Cluster.Nodes.SelectMany(d => ((DSEDiagnosticLibrary.Node)d).LogEventsRead(LogCassandraEvent.ElementCreationTypes.DCNodeKSDDLTypeClassOnly, false))
+                                         let logEvt = logEvCache.Value
+                                         group logEvt by logEvt.DataCenter into dcGrp
+                                         let logDCEvts = dcGrp.Where(dcItem => dcItem.Class.HasFlag(EventClasses.Compaction)
+                                                                                 || dcItem.Class.HasFlag(EventClasses.Flush)
+                                                                                 || dcItem.Class.HasFlag(EventClasses.Repair)).ToArray()
+                                         let logKSEvts = (from dcItem in logDCEvts
+                                                          where dcItem.Keyspace != null
+                                                          group dcItem by new
+                                                          {
+                                                              IsSystem = dcItem.Keyspace.IsDSEKeyspace || dcItem.Keyspace.IsSystemKeyspace,
+                                                              dcItem.Class
+                                                          } into grpKS
+                                                          select
+                                                          new {
+                                                              grpKS.Key.IsSystem,
+                                                              grpKS.Key.Class,
+                                                              Count = grpKS.LongCount()
+                                                          }).ToArray()
+                                         select new
+                                         {
+                                             DC = dcGrp.Key,
+                                             TotEvts = dcGrp.Count(),
+                                             CompactionEvts = logKSEvts.Where(i => i.Class.HasFlag(EventClasses.Compaction)).DefaultIfEmpty().Sum(i => i.Count),
+                                             FlushEvts = logKSEvts.Where(i => i.Class.HasFlag(EventClasses.Flush)).DefaultIfEmpty().Sum(i => i.Count),
+                                             RepairEvts = logDCEvts.LongCount(e => e.Class.HasFlag(EventClasses.Repair)),
+                                             KSEvts = logKSEvts
+                                         }).ToArray();
+                
                 var clusterTotStorage = this.Cluster.Nodes
                                         .Where(n => !n.DSE.StorageUsed.NaN)
                                         .Select(n => n.DSE.StorageUsed.ConvertSizeUOM(DSEDiagnosticLibrary.UnitOfMeasure.Types.MiB))
@@ -284,6 +339,10 @@ namespace DSEDiagnosticToDataTable
                 var clusterTotReads = (ulong)this.Cluster.Nodes.Select(n => n.DSE.ReadCount).DefaultIfEmpty().Sum();
                 var clusterTotWrites = (ulong)this.Cluster.Nodes.Select(n => n.DSE.WriteCount).DefaultIfEmpty().Sum();
                 var clusterTotKeys = (ulong)this.Cluster.Nodes.Select(n => n.DSE.KeyCount).DefaultIfEmpty().Sum();
+                var clusterTotEvents = logEvtsCollection.DefaultIfEmpty().Sum(i => i.TotEvts);
+                var clusterTotFlushes = logEvtsCollection.DefaultIfEmpty().Sum(i => i.FlushEvts);
+                var clusterTotCompactions = logEvtsCollection.DefaultIfEmpty().Sum(i => i.CompactionEvts);
+                var clusterTotRepairs = logEvtsCollection.DefaultIfEmpty().Sum(i => i.RepairEvts);
 
                 foreach (var dataCenter in this.Cluster.DataCenters)
                 {
@@ -612,6 +671,88 @@ namespace DSEDiagnosticToDataTable
                                 dataRow.SetField("Active Tbls/Idxs/Vws", ksInDCActive/ksInDCTot);
                             }
                         }
+
+                        {
+                            var dcItems = logEvtsCollection
+                                                .Where(d => d.DC == dataCenter);
+                            var dcStats = dcItems.SelectMany(d => d.KSEvts);
+
+                            if (dcStats.HasAtLeastOneElement())
+                            {
+                                if (clusterTotEvents > 0)
+                                {
+                                    var classTotAll = dcItems
+                                                       .DefaultIfEmpty()
+                                                       .Sum(i => i.TotEvts);
+
+                                    dataRow.SetField("Log Event Total", classTotAll);
+                                    dataRow.SetField("Log Event Percent", (decimal)classTotAll / (decimal)clusterTotEvents);                                    
+                                }
+
+                                if (clusterTotFlushes > 0)
+                                {
+                                    var classStats = dcStats
+                                                    .Where(i => i.Class.HasFlag(EventClasses.Flush));
+                                    var classTotAll = classStats
+                                                    .DefaultIfEmpty()
+                                                    .Sum(i => i.Count);
+                                    var classTotUser = classStats
+                                                        .Where(d => !d.IsSystem)
+                                                        .DefaultIfEmpty()
+                                                        .Sum(i => i.Count);
+
+                                    dataRow.SetField("Flush Total", classTotAll);
+                                    dataRow.SetField("Flush Percent", (decimal)classTotAll / (decimal)clusterTotFlushes);
+
+                                   if (classTotUser > 0)
+                                        dataRow.SetField("Flush Total (User)", classTotUser);                                    
+                                }
+                                if (clusterTotCompactions > 0)
+                                {
+                                    var classStats = dcStats
+                                                    .Where(i => i.Class.HasFlag(EventClasses.Compaction));
+                                    var classTotAll = classStats
+                                                    .DefaultIfEmpty()
+                                                    .Sum(i => i.Count);
+                                    var classTotUser = classStats
+                                                        .Where(d => !d.IsSystem)
+                                                        .DefaultIfEmpty()
+                                                        .Sum(i => i.Count);
+
+                                    dataRow.SetField("Compaction Total", classTotAll);
+                                    dataRow.SetField("Compaction Percent", (decimal)classTotAll / (decimal)clusterTotCompactions);
+
+                                    if (classTotUser > 0)
+                                        dataRow.SetField("Compaction Total (User)", classTotUser);
+                                }
+                                if (clusterTotRepairs > 0)
+                                {
+                                    var classTotAll = logEvtsCollection
+                                                            .Where(d => d.DC == dataCenter)
+                                                            .DefaultIfEmpty()
+                                                            .Sum(i => i.RepairEvts);
+
+                                    dataRow.SetField("Repair Total", classTotAll);
+                                    dataRow.SetField("Repair Percent", (decimal)classTotAll / (decimal)clusterTotRepairs);
+
+                                    {
+                                        var classTotUser = dcStats
+                                                            .Where(i => i.Class.HasFlag(EventClasses.Repair))
+                                                            .DefaultIfEmpty()
+                                                            .Sum(i => i.Count);
+                                        if (classTotUser > 0)
+                                        {
+                                            dataRow.SetField("Repair Total (User)", classTotUser);
+
+                                            var avgVNodes = (long) Math.Round(((decimal)dcNodes.Sum(n => n.DSE.NbrTokens.HasValue ? (int)n.DSE.NbrTokens.Value : 1)) / (decimal) totNodes);
+                                            var totTables = dataCenter.Keyspaces.Sum(k => (long) (k.Stats.MaterialViews + k.Stats.Tables));
+
+                                            dataRow.SetField("Repair Est Tasks (User)", (long) totNodes * avgVNodes * totTables);
+                                        }
+                                    }                                    
+                                }
+                            }
+                        }                        
                     }
 
                     this.Table.Rows.Add(dataRow);

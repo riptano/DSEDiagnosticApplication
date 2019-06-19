@@ -360,8 +360,76 @@ namespace DSEDiagtnosticToExcel
                                                                                         .SetNumericFormat("##0.00%")
                                                                                         .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDataBarGreenYellow)
                                                                  ));
+                                                                 
+                                                                 this.DataTable.SetGroupHeader("Instance Counts", -2, true,
+                                                                     this.DataTable.SetGroupHeader("Log", -1, true,
+                                                                        this.DataTable.GetColumn("Log Event Total")
+                                                                                         .SetCaption("Events")
+                                                                                         .SetNumericFormat("#,###,###,##0")
+                                                                                         .TotalColumn()
+                                                                                         .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDataBarLightGreen),
+                                                                        this.DataTable.GetColumn("Log Event Percent")
+                                                                                         .SetCaption("Percent-Cluster")
+                                                                                         .SetNumericFormat("##0.00%")
+                                                                                         .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDataBarGreenYellow)
+                                                                                         ),
+                                                                      this.DataTable.SetGroupHeader("Flush", -1, true,
+                                                                        this.DataTable.GetColumn("Flush Total")
+                                                                                         .SetCaption("Total")
+                                                                                         .SetNumericFormat("#,###,###,##0")
+                                                                                         .TotalColumn()
+                                                                                         .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDataBarLightGreen),
+                                                                        this.DataTable.GetColumn("Flush Total (User)")
+                                                                                         .SetCaption("Total (User)")
+                                                                                         .SetNumericFormat("#,###,###,##0")
+                                                                                         .TotalColumn()
+                                                                                         .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDataBarLightBlue),
+                                                                        this.DataTable.GetColumn("Flush Percent")
+                                                                                         .SetCaption("Percent-Cluster")
+                                                                                         .SetNumericFormat("##0.00%")
+                                                                                         .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDataBarGreenYellow)
+                                                                                         ),
+                                                                      this.DataTable.SetGroupHeader("Compaction", -1, true,
+                                                                        this.DataTable.GetColumn("Compaction Total")
+                                                                                         .SetCaption("Total")
+                                                                                         .SetNumericFormat("#,###,###,##0")
+                                                                                         .TotalColumn()
+                                                                                         .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDataBarLightGreen),
+                                                                        this.DataTable.GetColumn("Compaction Total (User)")
+                                                                                         .SetCaption("Total (User)")
+                                                                                         .SetNumericFormat("#,###,###,##0")
+                                                                                         .TotalColumn()
+                                                                                         .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDataBarLightBlue),
+                                                                        this.DataTable.GetColumn("Compaction Percent")
+                                                                                         .SetCaption("Percent-Cluster")
+                                                                                         .SetNumericFormat("##0.00%")
+                                                                                         .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDataBarGreenYellow)
+                                                                                         ),
+                                                                      this.DataTable.SetGroupHeader("Repairs", -1, true,
+                                                                        this.DataTable.GetColumn("Repair Total")
+                                                                                         .SetCaption("Total")
+                                                                                         .SetNumericFormat("#,###,###,##0")
+                                                                                         .TotalColumn()
+                                                                                         .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDataBarLightGreen),
+                                                                        this.DataTable.GetColumn("Repair Total (User)")
+                                                                                         .SetCaption("Total (User)")
+                                                                                         .SetNumericFormat("#,###,###,##0")
+                                                                                         .TotalColumn()
+                                                                                         .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDataBarLightBlue),
+                                                                        this.DataTable.GetColumn("Repair Percent")
+                                                                                         .SetCaption("Percent-Cluster")
+                                                                                         .SetNumericFormat("##0.00%")
+                                                                                         .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDataBarGreenYellow),                                                                                        
+                                                                      this.DataTable.GetColumn("Repair Est Tasks (User)")
+                                                                                         .SetCaption("Est. Tasks (User)")
+                                                                                         .SetNumericFormat("#,###,###,##0")
+                                                                                         .SetComment("The estimated number of tasks to complete a full repair for User Keyspaces")
+                                                                                         .TotalColumn()
+                                                                        )                                                                                         
+                                                                    );
 
-                                                                this.DataTable.SetGroupHeader(" ", -1, true,
+
+                                                                 this.DataTable.SetGroupHeader(" ", -1, true,
                                                                        this.DataTable.GetColumn("Batch Percent")                                                                                        
                                                                                         .SetNumericFormat("##0.00%")
                                                                                         .TotalColumn(),

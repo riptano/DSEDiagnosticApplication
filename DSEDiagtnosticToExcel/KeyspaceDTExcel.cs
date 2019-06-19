@@ -164,32 +164,49 @@ namespace DSEDiagtnosticToExcel
                                                                         .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDDLWarnUse)
                                                                     );
 
-                                                                 this.DataTable.SetGroupHeader(" ", -1, true,
+                                                                 this.DataTable.SetGroupHeader("Storage", -1, true,
                                                                    this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.Storage)
                                                                         .SetNumericFormat("###,###,###,###.0000")
                                                                         .TotalColumn()
                                                                         .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDataBarLightBlue),
                                                                     this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.StorageUtilized)
-                                                                        .SetNumericFormat("##0%")                                                                        
-                                                                        .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDataBarLightBlue),
+                                                                        .SetNumericFormat("##0%")
+                                                                        .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDataBarLightBlue)
+                                                                        );
+                                                                 this.DataTable.SetGroupHeader("Cells", -1, true,
                                                                     this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.ReadPercent)
                                                                         .SetNumericFormat("##0%")
                                                                         .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDataBarLightBlue),
                                                                     this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.WritePercent)
                                                                         .SetNumericFormat("##0%")
-                                                                        .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDataBarLightBlue),
+                                                                        .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDataBarLightBlue)
+                                                                        );
+                                                                 this.DataTable.SetGroupHeader("Partitions", -1, true,
                                                                     this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.PartitionKeys)
                                                                         .SetNumericFormat("###,###,###,##0")
                                                                         .TotalColumn()
                                                                         .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDataBarLightBlue),
                                                                     this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.PartitionKeyPercent)
                                                                         .SetNumericFormat("##0%")
+                                                                        .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDataBarLightBlue)
+                                                                        );
+                                                                 this.DataTable.SetGroupHeader("SSTables", -1, true,
+                                                                     this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.SSTables)
+                                                                         .SetNumericFormat("###,###,###,##0")
+                                                                         .TotalColumn()
+                                                                         .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDataBarLightBlue),
+                                                                     this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.SSTablePercent)
+                                                                         .SetNumericFormat("##0%")
+                                                                         .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDataBarLightBlue)
+                                                                         );
+                                                                this.DataTable.SetGroupHeader("Operations", -1, true,
+                                                                    this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.FlushPercent)
+                                                                        .SetNumericFormat("##0%")
                                                                         .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDataBarLightBlue),
-                                                                    this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.SSTables)
-                                                                        .SetNumericFormat("###,###,###,##0")
-                                                                        .TotalColumn()
+                                                                    this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.CompactionPercent)
+                                                                        .SetNumericFormat("##0%")
                                                                         .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDataBarLightBlue),
-                                                                    this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.SSTablePercent)
+                                                                    this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.RepairPercent)
                                                                         .SetNumericFormat("##0%")
                                                                         .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDataBarLightBlue)
                                                                    );
@@ -201,11 +218,11 @@ namespace DSEDiagtnosticToExcel
                                                                  workSheet.View.FreezePanes(3, 3);
                                                                  workSheet.ExcelRange(2,
                                                                                       this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.Name),
-                                                                                      this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.SSTablePercent))
+                                                                                      this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.RepairPercent))
                                                                             .First().AutoFilter = true;
 
                                                                  workSheet.AutoFitColumn(workSheet.ExcelRange(this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.Name),
-                                                                                                                this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.SSTablePercent)));
+                                                                                                                this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.RepairPercent)));
                                                              },
                                                             -1,
                                                            -1,

@@ -449,7 +449,8 @@ namespace DSEDiagnosticLibrary
             EventTypeOnly = 10,
             AggregationPeriodOnly = 11,
             AggregationPeriodOnlyWProps = 12,
-            AggregationPeriodOnlyWPropsTZ = 13
+            AggregationPeriodOnlyWPropsTZ = 13,
+            DCNodeKSDDLTypeClassOnly = 14
         }
         
         public LogCassandraEvent(MemoryMapper.ReadElement readView, MemoryMapperElementCreationTypes instanceType)
@@ -482,6 +483,24 @@ namespace DSEDiagnosticLibrary
                 readView.SkipInt();
                 readView.SkipString();
                 readView.SkipInt(); //Source
+                this.Type = (EventTypes)readView.GetIntValue();
+                this.Class = (EventClasses)readView.GetLongValue();
+                return;
+            }
+
+            if (creationType == ElementCreationTypes.DCNodeKSDDLTypeClassOnly)
+            {
+                int hashCode1;
+               
+                hashCode1 = readView.GetIntValue();
+                this.Node = hashCode1 == 0 ? null : Cluster.TryGetNode(hashCode1);
+                this.EventTime = readView.GetStructValue<DateTimeOffset>();
+                hashCode1 = readView.GetIntValue();
+                this._keyspace = hashCode1 == 0 ? null : Cluster.TryGetKeySpace(hashCode1);
+                hashCode1 = readView.GetIntValue();
+                this.TableViewIndex = hashCode1 == 0 ? null : Cluster.TryGetDDLStmt(hashCode1);
+                readView.SkipString(); //id
+                this.Source = (SourceTypes)readView.GetIntValue();
                 this.Type = (EventTypes)readView.GetIntValue();
                 this.Class = (EventClasses)readView.GetLongValue();
                 return;
