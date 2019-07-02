@@ -3761,8 +3761,7 @@ Additinal group names and mappings:
       "MatchVersion": null,
       "LevelMatch": {
         "RegExStrings": [
-          "INFO",
-          "DEBUG"
+          "INFO"
         ]
       },
       "FileNameMatch": {

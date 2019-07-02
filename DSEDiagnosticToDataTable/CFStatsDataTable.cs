@@ -96,7 +96,7 @@ namespace DSEDiagnosticToDataTable
                             if (this.SessionId.HasValue) dataRow.SetField(ColumnNames.SessionId, this.SessionId.Value);
 
                             dataRow.SetField(ColumnNames.Source, stat.Source.ToString());
-                            dataRow.SetField(ColumnNames.DataCenter, stat.DataCenter.Name);
+                            dataRow.SetField(ColumnNames.DataCenter, stat.DataCenter?.Name);
                             dataRow.SetField(ColumnNames.NodeIPAddress, stat.Node.NodeName());
                             dataRow.SetField(ColumnNames.KeySpace, keyspaceName);
                             if (stat.TableViewIndex != null)
@@ -144,7 +144,7 @@ namespace DSEDiagnosticToDataTable
                                 if (this.SessionId.HasValue) dataRow.SetField(ColumnNames.SessionId, this.SessionId.Value);
 
                                 dataRow.SetField(ColumnNames.Source, stat.Source.ToString());
-                                dataRow.SetField(ColumnNames.DataCenter, stat.DataCenter.Name);
+                                dataRow.SetField(ColumnNames.DataCenter, stat.DataCenter?.Name);
                                 dataRow.SetField(ColumnNames.NodeIPAddress, stat.Node.NodeName());
                                 dataRow.SetField(ColumnNames.KeySpace, keyspaceName);
                                 if (stat.TableViewIndex != null)
@@ -168,7 +168,7 @@ namespace DSEDiagnosticToDataTable
                         if(this.SessionId.HasValue) dataRow.SetField(ColumnNames.SessionId, this.SessionId.Value);
 
                         dataRow.SetField(ColumnNames.Source, stat.Source.ToString());
-                        dataRow.SetField(ColumnNames.DataCenter, stat.DataCenter.Name);
+                        dataRow.SetField(ColumnNames.DataCenter, stat.DataCenter?.Name);
                         dataRow.SetField(ColumnNames.NodeIPAddress, stat.Node.NodeName());
                         dataRow.SetField(ColumnNames.KeySpace, keyspaceName);
 

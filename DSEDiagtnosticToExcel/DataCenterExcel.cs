@@ -410,15 +410,18 @@ namespace DSEDiagtnosticToExcel
                                                                                          .SetCaption("Total")
                                                                                          .SetNumericFormat("#,###,###,##0")
                                                                                          .TotalColumn()
+                                                                                         .SetComment("Includes NodeSync and any non-keyspace based repairs")
                                                                                          .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDataBarLightGreen),
                                                                         this.DataTable.GetColumn("Repair Total (User)")
                                                                                          .SetCaption("Total (User)")
                                                                                          .SetNumericFormat("#,###,###,##0")
+                                                                                         .SetComment("Only application keyspaces (no NodeSync activities)")
                                                                                          .TotalColumn()
                                                                                          .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDataBarLightBlue),
                                                                         this.DataTable.GetColumn("Repair Percent")
                                                                                          .SetCaption("Percent-Cluster")
                                                                                          .SetNumericFormat("##0.00%")
+                                                                                         .SetComment("All types of repairs (keyspace/non-keyspace) for whole cluster")
                                                                                          .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDataBarGreenYellow),                                                                                        
                                                                       this.DataTable.GetColumn("Repair Est Tasks (User)")
                                                                                          .SetCaption("Est. Tasks (User)")

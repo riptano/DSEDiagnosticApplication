@@ -159,7 +159,7 @@ namespace DSEDiagnosticLibrary
         {
             IPAddress nodeAddress = null;
 
-            if (this._addresses != null)
+            if (this._addresses != null && this._addresses.HasAtLeastOneElement())
             {
                 if (this._addresses.Count == 1)
                 {
@@ -167,12 +167,8 @@ namespace DSEDiagnosticLibrary
                 }
                 else
                 {
-                    nodeAddress = this._addresses.FirstOrDefault(a => a.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork);
-
-                    if(nodeAddress == null)
-                    {
-                        nodeAddress = this._addresses.First();
-                    }
+                    nodeAddress = this._addresses.FirstOrDefault(a => a.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+                                    ?? this._addresses.FirstOrDefault();                    
                 }
             }
 
@@ -227,6 +223,18 @@ namespace DSEDiagnosticLibrary
             }
 
             return true ;
+        }
+
+        public static bool GlobalIP6Address(string possibleNodeName)
+        {
+            possibleNodeName = possibleNodeName?.Trim();
+
+            if (string.IsNullOrEmpty(possibleNodeName))
+            {
+                return false;
+            }
+
+            return IgnoreIP6Addresses.IsMatch(possibleNodeName);
         }
 
         public static bool DetermineIfNameHasIPAddressOrHostName(string possibleNodeName, bool checkForHostName = true)
@@ -404,8 +412,7 @@ namespace DSEDiagnosticLibrary
             //Prefer IP Address
             if (this._addresses.HasAtLeastOneElement() && other._addresses.HasAtLeastOneElement())
             {
-                if (this._addresses.Contains(other._addresses)) return true;
-                return false;
+                if (this._addresses.Contains(other._addresses)) return true;                
             }
 
             if (this._hostnames.Any(other._hostnames, (x, y) => HostNameEqual(x, y))) return true;
@@ -581,7 +588,7 @@ namespace DSEDiagnosticLibrary
 		{
             if (this._hashCode != 0) return this._hashCode;
 
-            if (this._addresses.HasAtLeastOneElement())
+            if (this._addresses != null && this._addresses.HasAtLeastOneElement())
                 return this._hashCode = this._addresses.First().GetHashCode();
             
 			return string.IsNullOrEmpty(this.HostName) ? 0 : this.HostName.GetHashCode();
@@ -1212,6 +1219,8 @@ namespace DSEDiagnosticLibrary
         /// <returns></returns>
         string NodeName(bool forceAttrs = false);
 
+        string DCName();
+
         object ToDump();
 
         bool UpdateDSENodeToolDateRange();
@@ -1618,6 +1627,11 @@ namespace DSEDiagnosticLibrary
             return nodeName;
         }
 
+        public string DCName()
+        {
+            return this.DataCenter?.Name ?? "<UnKnown>";
+        }
+
         public bool UpdateDSENodeToolDateRange()
         {
             bool bResult = false;
@@ -1713,7 +1727,7 @@ namespace DSEDiagnosticLibrary
             {
                 if (this._hashcode != 0) return this._hashcode;
                 if (this.Id == null) return 0;
-                if (this.Cluster.IsMaster) return this.Id.GetHashCode();
+                if (this.Cluster.IsMaster || this.DataCenter == null) return this.Id.GetHashCode();
 
                 return this._hashcode = this.DataCenter.GetHashCode() * 31 + this.Id.GetHashCode();
             }

@@ -66,6 +66,8 @@ namespace DSEDiagnosticFileParser
 
                 INode node = null;
 
+                if (NodeIdentifier.GlobalIP6Address(hostList[0])) continue;
+
                 if (this.CreateNewNodeWhenNotFound)
                 {
                     if(NodeIdentifier.ValidNodeIdName(hostList[0]))

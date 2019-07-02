@@ -591,9 +591,9 @@ namespace DSEDiagnosticFileParser
                 {
                     readLogFileInstance.CancellationToken.ThrowIfCancellationRequested();
 
-                    if(logMessage.Level == LogLevels.Debug && Logger.Instance.IsDebugEnabled)
+                    if(logMessage.TraceEnabled && Logger.Instance.IsDebugEnabled)
                     {
-                        Logger.Instance.DebugFormat("MapperId<{0}>\t{1}\t{2}\tTrace\r\n{3}",
+                        Logger.Instance.DebugFormat("MapperId<{0}>\t{1}\t{2}\tTrace:\r\n{3}",
                                                         this.MapperId,
                                                         this.Node,
                                                         this.ShortFilePath,
@@ -649,11 +649,11 @@ namespace DSEDiagnosticFileParser
                     logEvent = null;
                     ignoreLogEvent = false;
 
-                    if (logMessage.Level == LogLevels.Debug && Logger.Instance.IsDebugEnabled)
+                    if (logMessage.TraceEnabled && Logger.Instance.IsDebugEnabled)
                     {
                         if (matchItem == null)
                         {
-                            Logger.Instance.DebugFormat("MapperId<{0}>\t{1}\t{2}\tMatch:\r\n{3}\r\n<No Match>",
+                            Logger.Instance.DebugFormat("MapperId<{0}>\t{1}\t{2}\tTrace Match:\r\n{3}\r\n<No Match>",
                                                             this.MapperId,
                                                             this.Node,
                                                             this.ShortFilePath,
@@ -661,7 +661,7 @@ namespace DSEDiagnosticFileParser
                         }
                         else
                         {
-                            Logger.Instance.DebugFormat("MapperId<{0}>\t{1}\t{2}\tMatch:\r\n{3}\r\n{4},\r\n{5},\r\n{6}\r\nTag: {7} \"{8}\", Running Count: {9}",
+                            Logger.Instance.DebugFormat("MapperId<{0}>\t{1}\t{2}\tTrace Match:\r\n{3}\r\n{4},\r\n{5},\r\n{6}\r\nTag: {7} \"{8}\", Running Count: {9}",
                                                             this.MapperId,
                                                             this.Node,
                                                             this.ShortFilePath,
@@ -713,7 +713,7 @@ namespace DSEDiagnosticFileParser
 
                         if (logEvent != null && this.DuplicateLogEventFound(logMessage))
                         {
-                            if (logMessage.Level == LogLevels.Debug && Logger.Instance.IsDebugEnabled)
+                            if (logMessage.TraceEnabled && Logger.Instance.IsDebugEnabled)
                             {
                                 Logger.Instance.DebugFormat("MapperId<{0}>\t{1}\t{2}\tDuplicate Found:\r\n{3}",
                                                                 this.MapperId,
@@ -725,7 +725,7 @@ namespace DSEDiagnosticFileParser
                             return;
                         }
 
-                        if (logMessage.Level == LogLevels.Debug && Logger.Instance.IsDebugEnabled)
+                        if (logMessage.TraceEnabled && Logger.Instance.IsDebugEnabled)
                         {
                             Logger.Instance.DebugFormat("MapperId<{0}>\t{1}\t{2}\tEvents:\r\n{3}\r\n{4}",
                                                             this.MapperId,
@@ -1690,7 +1690,7 @@ namespace DSEDiagnosticFileParser
             {
                 case LogLevels.Unknown:
                     break;
-                case LogLevels.Debug:
+                case LogLevels.Debug:                
                     break;
                 case LogLevels.Info:
                     eventClass |= EventClasses.Information;
@@ -1703,7 +1703,7 @@ namespace DSEDiagnosticFileParser
                     break;
                 case LogLevels.Fatal:
                     eventClass |= EventClasses.Fatal;
-                    break;
+                    break;               
                 default:
                     break;
             }

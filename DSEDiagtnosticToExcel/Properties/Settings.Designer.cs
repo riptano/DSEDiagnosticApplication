@@ -1767,5 +1767,29 @@ namespace DSEDiagtnosticToExcel.Properties {
                 return ((string)(this["ExcelTimeSpanSecsFormat"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute(@"[
+{
+""Type"": 0,
+""SubType"": 3,
+""RuleType"": 28,
+""SubRuleType"": 27,
+""Value"": 0.0,
+""FormulaText"": ""${2}{0} = \""<UnKnown>\"""",
+""FormulaTextBetween"": null,
+""Color"": ""Red"",
+""ShowValue"": true,
+""StopIfTrue"": true,
+""Priority"": 1,
+""IncludeTotalRow"": false
+}
+]")]
+        public string CondFmtMachineDCUnknown {
+            get {
+                return ((string)(this["CondFmtMachineDCUnknown"]));
+            }
+        }
     }
 }

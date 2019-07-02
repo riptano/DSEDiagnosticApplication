@@ -131,7 +131,7 @@ namespace DSEDiagnosticToDataTable
                            {
                                 nodeConfigChanges.Add(new NodeConfigChange()
                                 {
-                                    DataCenter = node.DataCenter.Name,
+                                    DataCenter = node.DCName(),
                                     Node = node.NodeName(),
                                     LogEvent = logConfigLine,
                                     CurrentConfigLine = currMatchItem,

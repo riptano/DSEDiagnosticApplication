@@ -1860,5 +1860,23 @@
     <Setting Name="ExcelTimeSpanSecsFormat" Type="System.String" Scope="Application">
       <Value Profile="(Default)">[&gt;=32] 0.00 "days";[&lt;1]  [hh]:mm:ss.000;d hh:mm:ss</Value>
     </Setting>
+    <Setting Name="CondFmtMachineDCUnknown" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">[
+{
+"Type": 0,
+"SubType": 3,
+"RuleType": 28,
+"SubRuleType": 27,
+"Value": 0.0,
+"FormulaText": "${2}{0} = \"&lt;UnKnown&gt;\"",
+"FormulaTextBetween": null,
+"Color": "Red",
+"ShowValue": true,
+"StopIfTrue": true,
+"Priority": 1,
+"IncludeTotalRow": false
+}
+]</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

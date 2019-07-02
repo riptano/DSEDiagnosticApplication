@@ -43,6 +43,8 @@ namespace DSEDiagnosticLibrary
         uint LogLinePosition { get; }
 
         int OriginalLineHashCode { get; }
+
+        bool TraceEnabled { get; }
     }
 
     public enum LogCompletionStatus

@@ -419,9 +419,9 @@ namespace DSEDiagnosticAnalytics
                         TimeSpan minTzOffset = TimeSpan.Zero;
                         TimeSpan maxTZOffset = TimeSpan.Zero;                                            
                         var systemLogFiles = nodeLogStats
-                                                   .Where(l => !l.IsDebugFile);
+                                                   .Where(l => l.LogItems > 0 && !l.IsDebugFile);
                         var debugLogFiles = nodeLogStats
-                                                    .Where(l => l.IsDebugFile);
+                                                    .Where(l => l.LogItems > 0 && l.IsDebugFile);
 
                         var systemLogEntries = systemLogFiles;
 

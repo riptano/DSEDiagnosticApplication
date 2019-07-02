@@ -70,83 +70,120 @@ namespace DSEDiagtnosticToExcel
                                                                 //workBook.Cells["1:1"].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
                                                                 workSheet.View.FreezePanes(3, 2);
 
-                                                                workSheet.Cells["K1:N1"].Style.WrapText = true;
-                                                                workSheet.Cells["K1:N1"].Merge = true;
-                                                                workSheet.Cells["K1:N1"].Value = "CPU Load (Percent)";
-                                                                workSheet.Cells["K1:K2"].Style.Border.Left.Style = OfficeOpenXml.Style.ExcelBorderStyle.Medium;
-                                                                workSheet.Cells["N1:N2"].Style.Border.Right.Style = OfficeOpenXml.Style.ExcelBorderStyle.Medium;
+                                                                //this.DataTable.GetColumn(DSEDiagnosticToDataTable.ColumnNames.NodeIPAddress);
+                                                                this.DataTable.GetColumn(DSEDiagnosticToDataTable.ColumnNames.DataCenter)
+                                                                    .SetConditionalFormat(Properties.Settings.Default.CondFmtMachineDCUnknown);
 
-                                                                workSheet.Cells["O1:T1"].Style.WrapText = true;
-                                                                workSheet.Cells["O1:T1"].Merge = true;
-                                                                workSheet.Cells["O1:T1"].Value = "Memory (MB)";
-                                                                workSheet.Cells["O1:O2"].Style.Border.Left.Style = OfficeOpenXml.Style.ExcelBorderStyle.Medium;
-                                                                workSheet.Cells["T1:T2"].Style.Border.Right.Style = OfficeOpenXml.Style.ExcelBorderStyle.Medium;
+                                                                //this.DataTable.GetColumn("Cloud-VM Type");
+                                                                //this.DataTable.GetColumn("CPU Architecture");
+                                                                this.DataTable.GetColumn("Cores")
+                                                                    .SetNumericFormat("#0");
+                                                                this.DataTable.GetColumn("Physical Memory (MB)")
+                                                                    .SetNumericFormat("#,###,###,##0.00");
+                                                                //this.DataTable.GetColumn("OS");
+                                                                //this.DataTable.GetColumn("OS Version");
+                                                                //this.DataTable.GetColumn("Kernel");
+                                                                //this.DataTable.GetColumn("TimeZone");
 
-                                                                workSheet.Cells["U1:Y1"].Style.WrapText = true;
-                                                                workSheet.Cells["U1:Y1"].Merge = true;
-                                                                workSheet.Cells["U1:Y1"].Value = "Java";
-                                                                workSheet.Cells["U1:U2"].Style.Border.Left.Style = OfficeOpenXml.Style.ExcelBorderStyle.Medium;
-                                                                workSheet.Cells["Y1:Y2"].Style.Border.Right.Style = OfficeOpenXml.Style.ExcelBorderStyle.Dashed;
+                                                                //CPU Load
+                                                                this.DataTable.SetGroupHeader("CPU Load(Percent)", -2, true,
+                                                                   this.DataTable.GetColumn("Average")
+                                                                        .SetNumericFormat("##0.00%"),
+                                                                    this.DataTable.GetColumn("Idle")
+                                                                        .SetNumericFormat("##0.00%"),
+                                                                    this.DataTable.GetColumn("System")
+                                                                        .SetNumericFormat("##0.00%"),
+                                                                    this.DataTable.GetColumn("User")
+                                                                        .SetNumericFormat("##0.00%")
+                                                                    );
 
-                                                                workSheet.Cells["Z1:AC1"].Style.WrapText = true;
-                                                                workSheet.Cells["Z1:AC1"].Merge = true;
-                                                                workSheet.Cells["Z1:AC1"].Value = "Java Non-Heap (MB)";
-                                                                workSheet.Cells["Z1:Z2"].Style.Border.Left.Style = OfficeOpenXml.Style.ExcelBorderStyle.Dashed;
-                                                                workSheet.Cells["AC1:AC2"].Style.Border.Right.Style = OfficeOpenXml.Style.ExcelBorderStyle.Dashed;
+                                                                //Memory
+                                                                this.DataTable.SetGroupHeader("Memory (MB)", -2, true,
+                                                                    this.DataTable.GetColumn("Available")
+                                                                        .SetNumericFormat("#,###,###,##0.00"),
+                                                                    this.DataTable.GetColumn("Cache")
+                                                                        .SetNumericFormat("#,###,###,##0.00"),
+                                                                    this.DataTable.GetColumn("Buffers")
+                                                                        .SetNumericFormat("#,###,###,##0.00"),
+                                                                    this.DataTable.GetColumn("Shared")
+                                                                        .SetNumericFormat("#,###,###,##0.00"),
+                                                                    this.DataTable.GetColumn("Free")
+                                                                        .SetNumericFormat("#,###,###,##0.00"),
+                                                                    this.DataTable.GetColumn("Used")
+                                                                        .SetNumericFormat("#,###,###,##0.00")
+                                                                    );
 
-                                                                workSheet.Cells["AD1:AG1"].Style.WrapText = true;
-                                                                workSheet.Cells["AD1:AG1"].Merge = true;
-                                                                workSheet.Cells["AD1:AG1"].Value = "Java Heap (MB)";
-                                                                workSheet.Cells["AD1:AD2"].Style.Border.Left.Style = OfficeOpenXml.Style.ExcelBorderStyle.Dashed;
-                                                                workSheet.Cells["AG1:AG2"].Style.Border.Right.Style = OfficeOpenXml.Style.ExcelBorderStyle.Medium;
+                                                                //Java
+                                                                this.DataTable.SetGroupHeader("Java", -2, true,
+                                                                    this.DataTable.GetColumn("Vendor"),
+                                                                    this.DataTable.GetColumn("Model"),
+                                                                    this.DataTable.GetColumn("Runtime Name"),
+                                                                    this.DataTable.GetColumn("Runtime Version"),
+                                                                    this.DataTable.GetColumn("GC")
+                                                                );
+
+                                                                //Java NonHeapMemoryUsage
+                                                                this.DataTable.SetGroupHeader("Java Non-Heap (MB)", -2, true,
+                                                                    this.DataTable.GetColumn("Non-Heap Committed")
+                                                                        .SetCaption("Committed")
+                                                                        .SetNumericFormat("#,###,###,##0.00"),
+                                                                    this.DataTable.GetColumn("Non-Heap Init")
+                                                                        .SetCaption("Init")
+                                                                        .SetNumericFormat("#,###,###,##0.00"),
+                                                                    this.DataTable.GetColumn("Non-Heap Max")
+                                                                        .SetCaption("Max")
+                                                                        .SetNumericFormat("#,###,###,##0.00"),
+                                                                    this.DataTable.GetColumn("Non-Heap Used")
+                                                                        .SetCaption("Used")
+                                                                        .SetNumericFormat("#,###,###,##0.00")
+                                                                );
+
+                                                                //Java HeapMemoryUsage
+                                                                this.DataTable.SetGroupHeader("Java Heap (MB)", -2, true,
+                                                                    this.DataTable.GetColumn("Heap Committed")
+                                                                        .SetCaption("Committed")
+                                                                        .SetNumericFormat("#,###,###,##0.00"),
+                                                                    this.DataTable.GetColumn("Heap Init")
+                                                                        .SetCaption("Init")
+                                                                        .SetNumericFormat("#,###,###,##0.00"),
+                                                                    this.DataTable.GetColumn("Heap Max")
+                                                                        .SetCaption("Max")
+                                                                        .SetNumericFormat("#,###,###,##0.00"),
+                                                                    this.DataTable.GetColumn("Heap Used")
+                                                                        .SetCaption("Used")
+                                                                        .SetNumericFormat("#,###,###,##0.00")
+                                                                    );
+
+                                                                //NTP
+                                                                this.DataTable.SetGroupHeader("NTP", -2, true,
+                                                                    this.DataTable.GetColumn("Correction (ms)")
+                                                                        .SetNumericFormat("#,###,###,##0"),
+                                                                    this.DataTable.GetColumn("Polling (secs)")
+                                                                        .SetNumericFormat("#,###,###,##0"),
+                                                                    this.DataTable.GetColumn("Maximum Error (us)")
+                                                                        .SetNumericFormat("#,###,###,##0"),
+                                                                    this.DataTable.GetColumn("Estimated Error (us)")
+                                                                        .SetNumericFormat("#,###,###,##0"),
+                                                                    this.DataTable.GetColumn("Time Constant")
+                                                                        .SetNumericFormat("#,###,###,##0"),
+                                                                    this.DataTable.GetColumn("Precision (us)")
+                                                                        .SetNumericFormat("#,###,###,##0"),
+                                                                    this.DataTable.GetColumn("Frequency (ppm)")
+                                                                            .SetNumericFormat("#,###,###,##0"),
+                                                                    this.DataTable.GetColumn("Tolerance (ppm)")
+                                                                        .SetNumericFormat("#,###,###,##0")
+                                                                    );
+                                                            
+                                                                //this.DataTable.GetColumn("Host Names");
+
                                                                 
-                                                                workSheet.Cells["AH1:AO1"].Style.WrapText = true;
-                                                                workSheet.Cells["AH1:AO1"].Merge = true;
-                                                                workSheet.Cells["AH1:AO1"].Value = "NTP";
-                                                                workSheet.Cells["AH1:AO2"].Style.Border.Left.Style = OfficeOpenXml.Style.ExcelBorderStyle.Medium;
-                                                                workSheet.Cells["AH1:AO2"].Style.Border.Right.Style = OfficeOpenXml.Style.ExcelBorderStyle.Medium;
+                                                                workSheet.UpdateWorksheet(this.DataTable, 2);
 
-                                                                workSheet.Cells["AP1:AP1"].Style.WrapText = true;
-                                                                workSheet.Cells["AP1:AP1"].Merge = true;
-                                                                workSheet.Cells["AP1:AP1"].Value = "Host Names";
-                                                                workSheet.Cells["AP1:AP2"].Style.Border.Left.Style = OfficeOpenXml.Style.ExcelBorderStyle.Medium;
-                                                                workSheet.Cells["AP1:AP2"].Style.Border.Right.Style = OfficeOpenXml.Style.ExcelBorderStyle.Medium;
+                                                                workSheet.ExcelRange(2,
+                                                                                      this.DataTable.GetColumn(DSEDiagnosticToDataTable.ColumnNames.NodeIPAddress),
+                                                                                      this.DataTable.GetColumn("Host Names"))
+                                                                            .First().AutoFilter = true;
 
-                                                                workSheet.Cells["E:E"].Style.Numberformat.Format = "#,###,###,##0";
-                                                                workSheet.Cells["F:F"].Style.Numberformat.Format = "#,###,###,##0";
-                                                                workSheet.Cells["K:K"].Style.Numberformat.Format = "#,###,###,##0.00";
-                                                                workSheet.Cells["L:L"].Style.Numberformat.Format = "#,###,###,##0.00";
-                                                                workSheet.Cells["M:M"].Style.Numberformat.Format = "#,###,###,##0.00";
-                                                                workSheet.Cells["N:N"].Style.Numberformat.Format = "#,###,###,##0.00";
-                                                                workSheet.Cells["O:O"].Style.Numberformat.Format = "#,###,###,##0.00";
-                                                                workSheet.Cells["P:P"].Style.Numberformat.Format = "#,###,###,##0.00";
-                                                                workSheet.Cells["Q:Q"].Style.Numberformat.Format = "#,###,###,##0.00";
-                                                                workSheet.Cells["R:R"].Style.Numberformat.Format = "#,###,###,##0.00";
-                                                                workSheet.Cells["S:S"].Style.Numberformat.Format = "#,###,###,##0.00";
-                                                                workSheet.Cells["T:T"].Style.Numberformat.Format = "#,###,###,##0.00";
-                                                                workSheet.Cells["V:V"].Style.Numberformat.Format = "#,###,###,##0";
-
-                                                                workSheet.Cells["Z:Z"].Style.Numberformat.Format = "#,###,###,##0.00";
-                                                                workSheet.Cells["AA:AA"].Style.Numberformat.Format = "#,###,###,##0.00";
-                                                                workSheet.Cells["AB:AB"].Style.Numberformat.Format = "#,###,###,##0.00";
-                                                                workSheet.Cells["AC:AC"].Style.Numberformat.Format = "#,###,###,##0.00";
-
-                                                                workSheet.Cells["AD:AD"].Style.Numberformat.Format = "#,###,###,##0.00";
-                                                                workSheet.Cells["AE:AE"].Style.Numberformat.Format = "#,###,###,##0.00";
-                                                                workSheet.Cells["AF:AF"].Style.Numberformat.Format = "#,###,###,##0.00";
-                                                                workSheet.Cells["AG:AG"].Style.Numberformat.Format = "#,###,###,##0.00";
-
-                                                                workSheet.Cells["AH:AH"].Style.Numberformat.Format = "#,###,###,##0";
-                                                                workSheet.Cells["AI:AI"].Style.Numberformat.Format = "#,###,###,##0";
-                                                                workSheet.Cells["AJ:AJ"].Style.Numberformat.Format = "#,###,###,##0";
-                                                                workSheet.Cells["AK:AK"].Style.Numberformat.Format = "#,###,###,##0";
-                                                                workSheet.Cells["AL:AL"].Style.Numberformat.Format = "#,###,###,##0";
-                                                                workSheet.Cells["AM:AM"].Style.Numberformat.Format = "#,###,###,##0";
-                                                                workSheet.Cells["AN:AN"].Style.Numberformat.Format = "#,###,###,##0";
-                                                                workSheet.Cells["AO:AO"].Style.Numberformat.Format = "#,###,###,##0";
-
-                                                                workSheet.Cells["A2:AP2"].AutoFilter = true;
-                                                                
                                                                 workSheet.AutoFitColumn();
                                                             },
                                                             -1,

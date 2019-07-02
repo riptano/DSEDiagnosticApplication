@@ -68,7 +68,7 @@ namespace DSEDiagnosticToDataTable
                     if (this.SessionId.HasValue) dataRow.SetField(ColumnNames.SessionId, this.SessionId.Value);
 
                     dataRow.SetField(ColumnNames.NodeIPAddress, node.NodeName());
-                    dataRow.SetField(ColumnNames.DataCenter, node.DataCenter.Name);
+                    dataRow.SetField(ColumnNames.DataCenter, node.DCName());
 
                     dataRow.SetField("Data", deviceName = node.DSE.Devices.Data?.FirstOrDefault());
                     if(deviceName != null && node.Machine.Devices.PercentUtilized != null) //
@@ -110,7 +110,7 @@ namespace DSEDiagnosticToDataTable
                         if (this.SessionId.HasValue) dataRow.SetField(ColumnNames.SessionId, this.SessionId.Value);
 
                         dataRow.SetField(ColumnNames.NodeIPAddress, node.NodeName());
-                        dataRow.SetField(ColumnNames.DataCenter, node.DataCenter.Name);
+                        dataRow.SetField(ColumnNames.DataCenter, node.DCName());
 
                         dataRow.SetField("Data", deviceName = node.DSE.Devices.Data.ElementAtOrDefault(nIdx));
                         if (deviceName != null && node.Machine.Devices.PercentUtilized != null)

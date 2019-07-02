@@ -34,6 +34,8 @@ namespace DSEDiagnosticLog4NetParser
         public int FileLine { get; set; }
         public string Message { get; set; }
 
+        public bool TraceEnabled { get; set; } = false;
+
         public int OriginalLineHashCode { get; }
 
         private List<string> _extraMessages = new List<string>();

@@ -98,7 +98,7 @@ namespace DSEDiagnosticToDataTable
             dtStats.Columns.Add(ColumnNames.KeySpace, typeof(string));
             dtStats.Columns.Add(Columns.CompactionStrategy, typeof(string)).AllowDBNull = true;
             dtStats.Columns.Add(ColumnNames.Table, typeof(string));
-            dtStats.Columns.Add(ColumnNames.DataCenter, typeof(string));
+            dtStats.Columns.Add(ColumnNames.DataCenter, typeof(string)).AllowDBNull = true;
             dtStats.Columns.Add(ColumnNames.NodeIPAddress, typeof(string)).AllowDBNull = true;
             dtStats.Columns.Add(Columns.CQLType, typeof(string));
 
@@ -422,7 +422,7 @@ namespace DSEDiagnosticToDataTable
                         {
                             var dataRow = this.Table.NewRow();
 
-                            dataRow.SetField(ColumnNames.DataCenter, dcnodetblAttrib.DataCenter.Name);
+                            dataRow.SetField(ColumnNames.DataCenter, dcnodetblAttrib.DataCenter?.Name);
                             dataRow.SetField(ColumnNames.NodeIPAddress, dcnodetblAttrib.Node.NodeName());
                             dataRow.SetField(ColumnNames.KeySpace, dcnodetblAttrib.Keyspace.Name);
 
@@ -614,7 +614,7 @@ namespace DSEDiagnosticToDataTable
 
                             {
                                 var commonKey = commonKeys.FirstOrDefault(i => i.TblInstance == dcnodetblAttrib.TableViewIndex
-                                                                                && i.DCName == dcnodetblAttrib.DataCenter.Name);
+                                                                                && i.DCName == dcnodetblAttrib.DataCenter?.Name);
 
                                 if (commonKey != null)
                                 {
@@ -703,7 +703,7 @@ namespace DSEDiagnosticToDataTable
                         {
                             var dataRow = this.Table.NewRow();
 
-                            dataRow.SetField(ColumnNames.DataCenter, dcnodetblAttrib.DataCenter.Name);                            
+                            dataRow.SetField(ColumnNames.DataCenter, dcnodetblAttrib.DataCenter?.Name);                            
                             dataRow.SetField(ColumnNames.KeySpace, dcnodetblAttrib.Keyspace.Name);
 
                             if (dcnodetblAttrib.TableViewIndex is ICQLTable tableInstance)
@@ -894,7 +894,7 @@ namespace DSEDiagnosticToDataTable
 
                             {
                                 var commonKey = commonKeys.FirstOrDefault(i => i.TblInstance == dcnodetblAttrib.TableViewIndex
-                                                                                && i.DCName == dcnodetblAttrib.DataCenter.Name);
+                                                                                && i.DCName == dcnodetblAttrib.DataCenter?.Name);
 
                                 if (commonKey != null)
                                 {

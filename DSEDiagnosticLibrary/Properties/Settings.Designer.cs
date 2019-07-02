@@ -553,5 +553,14 @@ namespace DSEDiagnosticLibrary.Properties {
                 return ((string)(this["CQLSpecialColumns"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool TreatLogDirNamesAsHostName {
+            get {
+                return ((bool)(this["TreatLogDirNamesAsHostName"]));
+            }
+        }
     }
 }

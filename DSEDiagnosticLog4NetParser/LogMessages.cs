@@ -14,7 +14,7 @@ namespace DSEDiagnosticLog4NetParser
 {
     public sealed class LogMessages : ILogMessages
     {
-        private readonly static string[] LogLevels = new string[] { "DEBUG ", "INFO ", "WARN ", "ERROR ", "FATAL " };
+        private readonly static string[] LogLevels = new string[] { "DEBUG ", "INFO ", "WARN ", "ERROR ", "FATAL ", "TRACE." };
 
         public LogMessages(IFilePath logFile, string log4netConversionPattern, INode node = null)
         {
@@ -260,8 +260,34 @@ namespace DSEDiagnosticLog4NetParser
                 }
                 #endregion
                 #region Log Level
-                {                    
-                    if (Enum.TryParse(lineMatch.Groups["Level"].Value.Trim(), true, out LogLevels logLevel))
+                {
+                    var levelValue = lineMatch.Groups["Level"].Value.Trim();
+
+                    if(string.IsNullOrEmpty(levelValue))
+                    {
+                        if (!ignoreErros)
+                        {
+                            var error = string.Format("{0}\t{1}\tInvalid Log Level detected ({2}) in line \"{3}\" within Log4Net Log file at line number {4}. Line ignored.",
+                                                    this.Node,
+                                                    this.LogFile.PathResolved,
+                                                    levelValue,
+                                                    logLine,
+                                                    logLinePos);
+                            Logger.Instance.Warn(error);
+                            this._errors.Add(error);
+                        }
+                        return null;
+                    }
+                    else if(levelValue.StartsWith("TRACE", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        var splitValue = levelValue.Split('.');
+                        var levels = splitValue.Skip(1);
+
+                        logMessage.TraceEnabled = true;
+                        levelValue = string.Join(".", levels);                        
+                    }
+
+                    if (Enum.TryParse(levelValue, true, out LogLevels logLevel))
                     {
                         logMessage.Level = logLevel;
                     }
@@ -272,7 +298,7 @@ namespace DSEDiagnosticLog4NetParser
                             var error = string.Format("{0}\t{1}\tInvalid Log Level detected ({2}) in line \"{3}\" within Log4Net Log file at line number {4}. Line ignored.",
                                                     this.Node,
                                                     this.LogFile.PathResolved,
-                                                    lineMatch.Groups["Level"].Value,
+                                                    levelValue,
                                                     logLine,
                                                     logLinePos);
                             Logger.Instance.Warn(error);

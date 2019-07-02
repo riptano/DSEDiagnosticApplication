@@ -72,6 +72,14 @@ namespace DSEDiagnosticConsoleApplication
                 Description = "Excel Template file that is used to create Excel target file (ExcelFilePath), if it doesn't already exists."
             });
 
+            this._cmdLineParser.Arguments.Add(new FileArgument("SetNodeMappingFile")
+            {
+                Optional = true,
+                FileMustExist = true,
+                DefaultValue = null,
+                Description = "If defined it must be a valid Linux \"hosts\" type file that will be used to map a node's IP address to a host name.\r\n\tIt must only define nodes in the cluster! Optional data center line(s) can be added where all nodes under this line will belong to that DC.\r\n\tThis line must start with \"Datacenter:\" and after the colon the DC name.\r\n\t\"NodeMappingFile\" file can also be placed under the diagnostic directory for auto pickup"
+            });
+
             this._cmdLineParser.Arguments.Add(new ValueArgument<string>('L', "AlternativeLogFilePath")
             {
                 Optional = true,
@@ -310,7 +318,7 @@ namespace DSEDiagnosticConsoleApplication
             {
                 Description = "If defined, all parsing errors related to logs will be ignored. Warning: If defined unexpected results may occur including abnormal termination of the application, exceptions, and/or invalid/missing log event generation."
             });
-
+            
             this._cmdLineParser.Arguments.Add(new SwitchArgument('B', "Batch", false)
             {
                 Description = "Enables Batch Mode, which basically disables prompts and enables Exception Tracing"
@@ -435,6 +443,26 @@ namespace DSEDiagnosticConsoleApplication
                                                                     ? null
                                                                     : ParserSettings.MakeFilePath(((FileArgument)item).Value.ToString(), ParserSettings.ExcelFileTemplatePath?.ParentDirectoryPath, ParserSettings.ExcelFileTemplatePath);
                         break;
+                    case "AlternativeLogFilePath":
+                        {
+                            if (additionalFilesForParsingClassInitial)
+                            {
+                                ParserSettings.AdditionalFilesForParsingClass.Clear();
+                                additionalFilesForParsingClassInitial = false;
+                            }
+
+                            foreach (var filePath in ((ValueArgument<string>)item).Values)
+                            {
+                                var paths = filePath.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                                                    .Select(p => p.Last() == '"' ? p.Substring(0, p.Length - 1) + '\\' : p)
+                                                    .Select(p => string.IsNullOrEmpty(System.IO.Path.GetExtension(p))
+                                                                    ? (p.Last() == '\\' ? p : p + '\\') + Properties.Settings.Default.AppendFilePathForAddLogArgument
+                                                                    : p);
+
+                                ParserSettings.AdditionalFilesForParsingClass.AddRange(paths.Select(p => new KeyValuePair<string, IFilePath>("LogFile", PathUtils.BuildFilePath(p))));
+                            }
+                        }
+                        break;
                     case "DiagFolderStruct":
                         ParserSettings.DiagFolderStruct = ((ValueArgument<ParserSettings.DiagFolderStructOptions>) item).Value;
                         break;
@@ -530,7 +558,7 @@ namespace DSEDiagnosticConsoleApplication
                     case "WarnWhenKSTblIsDetected":
                         ParserSettings.WarnWhenKSTblIsDetected = ParserSettings.CreateMergeList(((ValueArgument<string>)item).Value, ParserSettings.WarnWhenKSTblIsDetected);
                         break;
-                    case "AlternativeLogFilePath":
+                    case "SetNodeMappingFile":
                         {
                             if (additionalFilesForParsingClassInitial)
                             {
@@ -538,15 +566,13 @@ namespace DSEDiagnosticConsoleApplication
                                 additionalFilesForParsingClassInitial = false;
                             }
 
-                            foreach (var filePath in ((ValueArgument<string>)item).Values)
-                            {
-                                var paths = filePath.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
-                                                    .Select(p => p.Last() == '"' ? p.Substring(0, p.Length - 1) + '\\' : p)
-                                                    .Select(p => string.IsNullOrEmpty(System.IO.Path.GetExtension(p))
-                                                                    ? (p.Last() == '\\' ? p : p + '\\') + Properties.Settings.Default.AppendFilePathForAddLogArgument
-                                                                    : p);
+                            var fileValue = ((FileArgument)item).Value;
 
-                                ParserSettings.AdditionalFilesForParsingClass.AddRange(paths.Select(p => new KeyValuePair<string, IFilePath>("LogFile", PathUtils.BuildFilePath(p))));
+                            if (fileValue != null)
+                            {
+                                var filePath = ParserSettings.MakeFilePath(fileValue.ToString(), ParserSettings.DiagnosticPath);
+
+                                ParserSettings.AdditionalFilesForParsingClass.Add(new KeyValuePair<string, IFilePath>("file_nodemapping", filePath));                                
                             }
                         }
                         break;
@@ -865,7 +891,7 @@ namespace DSEDiagnosticConsoleApplication
                         break;
                     case "ExcelWorkSheetSave":
                         DSEDiagtnosticToExcel.LibrarySettings.ExcelSaveWorkSheet = ((ValueArgument<bool>)item).Value;
-                        break;
+                        break;                    
                     case "ShowDefaults":
                     case "help":
                         ShowDefaults();

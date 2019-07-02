@@ -30,7 +30,7 @@ namespace DSEDiagnosticToDataTable
 
             dtStats.Columns.Add(ColumnNames.Source, typeof(string)); //A
             dtStats.Columns.Add("Type", typeof(string)); //B
-            dtStats.Columns.Add(ColumnNames.DataCenter, typeof(string));
+            dtStats.Columns.Add(ColumnNames.DataCenter, typeof(string)).AllowDBNull = true;
             dtStats.Columns.Add(ColumnNames.NodeIPAddress, typeof(string));
             dtStats.Columns.Add(ColumnNames.KeySpace, typeof(string)).AllowDBNull = true;
             dtStats.Columns.Add(ColumnNames.Table, typeof(string)).AllowDBNull = true;
@@ -106,7 +106,7 @@ namespace DSEDiagnosticToDataTable
                             if (this.SessionId.HasValue) dataRow.SetField(ColumnNames.SessionId, this.SessionId.Value);
 
                             dataRow.SetField(ColumnNames.Source, stat.Source.ToString());
-                            dataRow.SetField(ColumnNames.DataCenter, stat.DataCenter.Name);
+                            dataRow.SetField(ColumnNames.DataCenter, stat.DataCenter?.Name);
                             dataRow.SetField(ColumnNames.NodeIPAddress, stat.Node.NodeName());
                             dataRow.SetField(ColumnNames.KeySpace, keyspaceName);
                             dataRow.SetField("Type", stat.Class.ToString());
@@ -273,7 +273,7 @@ namespace DSEDiagnosticToDataTable
             if (this.SessionId.HasValue) dataRow.SetField(ColumnNames.SessionId, this.SessionId.Value);
 
             dataRow.SetField(ColumnNames.Source, stat.Source.ToString());
-            dataRow.SetField(ColumnNames.DataCenter, stat.DataCenter.Name);
+            dataRow.SetField(ColumnNames.DataCenter, stat.DataCenter?.Name);
             dataRow.SetField(ColumnNames.NodeIPAddress, stat.Node.NodeName());
             dataRow.SetField(ColumnNames.KeySpace, keyspaceName);
             dataRow.SetField("Type", stat.Class.ToString());

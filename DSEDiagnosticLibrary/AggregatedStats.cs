@@ -98,7 +98,7 @@ namespace DSEDiagnosticLibrary
         {
             this.Node = node;
             this.DataCenter = this.Node.DataCenter;
-            this.Cluster = this.DataCenter.Cluster;
+            this.Cluster = this.DataCenter?.Cluster ?? Cluster.GetCurrentOrMaster();
 
             if(DDLItem != null)
             {

@@ -80,7 +80,7 @@ namespace DSEDiagnosticToDataTable
                         dataRow.SetField(ColumnNames.UTCTimeStamp, nodeState.EventTime.UtcDateTime);
                         dataRow.SetField(ColumnNames.LogLocalTimeStamp, nodeState.EventTimeLocal);
                         
-                        dataRow.SetField(ColumnNames.DataCenter, node.DataCenter.Name);
+                        dataRow.SetField(ColumnNames.DataCenter, node.DCName());
                         dataRow.SetField(ColumnNames.NodeIPAddress, node.Id.NodeName());
                         dataRow.SetField(Columns.SortOrder, nodeState.SortOrder());
                         dataRow.SetField(Columns.State, nodeState.State);
@@ -91,7 +91,7 @@ namespace DSEDiagnosticToDataTable
                         {
                             dataRow.SetField(Columns.SourceNode,
                                                 string.Format("{0}|{1}",
-                                                                nodeState.DetectedByNode.DataCenter.Name,
+                                                                nodeState.DetectedByNode.DCName(),
                                                                 nodeState.DetectedByNode.Id.NodeName()));
                         }
 

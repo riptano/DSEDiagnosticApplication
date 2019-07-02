@@ -389,7 +389,7 @@ namespace DSEDiagnosticConsoleApplication
             get { return DSEDiagnosticFileParser.LibrarySettings.LogIgnoreParsingErrors; }
             set { DSEDiagnosticFileParser.LibrarySettings.LogIgnoreParsingErrors = value; }
         }
-
+        
         public static bool EnableAttrSymbols
         {
             get { return DSEDiagnosticLibrary.LibrarySettings.EnableAttrSymbols; }

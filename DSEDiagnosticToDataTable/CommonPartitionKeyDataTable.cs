@@ -215,7 +215,7 @@ namespace DSEDiagnosticToDataTable
 
                     dataRow.SetFieldStringLimit(Columns.PartitionKey, statData.PartitionKey);
 
-                    dataRow.SetField(ColumnNames.DataCenter, statData.DataCenter.Name);
+                    dataRow.SetField(ColumnNames.DataCenter, statData.DataCenter?.Name);
                     dataRow.SetField(ColumnNames.KeySpace, statData.Table.Keyspace.Name);
                     dataRow.SetField(ColumnNames.Table, statData.Table.NameWAttrs());                    
                     dataRow.SetField(Columns.ReadCount, statData.Reads);
