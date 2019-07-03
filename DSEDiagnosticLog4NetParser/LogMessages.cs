@@ -82,6 +82,9 @@ namespace DSEDiagnosticLog4NetParser
                             : new DateTimeOffsetRange(this._startingLogDateTime, this._endingLogDateTime);
             }
         }
+
+        public DateTimeOffsetRange LogFileTimeRange { get; internal set; }
+
         public LogCompletionStatus CompletionStatus { get; internal set; }
 
         private List<string> _errors = new List<string>();

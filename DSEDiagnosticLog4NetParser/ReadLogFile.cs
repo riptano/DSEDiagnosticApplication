@@ -269,6 +269,8 @@ namespace DSEDiagnosticLog4NetParser
                 logMessages.CompletionStatus = skippedLines ? LogCompletionStatus.PartiallyCompleted : LogCompletionStatus.Completed;
             }
 
+            logMessages.LogFileTimeRange = logMessages.LogTimeRange == null ? null : new DateTimeOffsetRange(logMessages.LogTimeRange);
+
             this.Completed = true;
             return this.Log;
         }
@@ -313,7 +315,9 @@ namespace DSEDiagnosticLog4NetParser
                 }
             }
 
-            if(this.Log.LogTimeRange != null && this.LogTimeFrame != null)
+            logMessages.LogFileTimeRange = logMessages.LogTimeRange == null ? null : new DateTimeOffsetRange(logMessages.LogTimeRange);
+
+            if (this.Log.LogTimeRange != null && this.LogTimeFrame != null)
             {
                 if(!this.LogTimeFrame.IsBetween(this.Log.LogTimeRange))
                 {
@@ -325,8 +329,8 @@ namespace DSEDiagnosticLog4NetParser
                     }
                     else
                     {
-                        ((LogMessages)this.Log).SetStartingTime(interRange.Min);
-                        ((LogMessages)this.Log).SetEndingTime(interRange.Max);
+                        logMessages.SetStartingTime(interRange.Min);
+                        logMessages.SetEndingTime(interRange.Max);
                     }
                 }
             }

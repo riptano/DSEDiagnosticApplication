@@ -523,18 +523,19 @@ namespace DSEDiagnosticFileParser
                                 return (uint)0;
                             }
 
-                            var logExtendedRangeAfter = fndOverlapppingLogs.FirstOrDefault(l => l.LogFileDateRange.Includes(logFileInfo.LogFileDateRange.Min));
-                            var logExtendedRangeBefore = fndOverlapppingLogs.FirstOrDefault(l => l.LogFileDateRange.IsBetween(logFileInfo.LogFileDateRange.Max));
+                            var logExtendedRangeAfter = fndOverlapppingLogs.FirstOrDefault(l => l.LogDateRange.Includes(logFileInfo.LogFileDateRange.Min));
+                            var logExtendedRangeBefore = fndOverlapppingLogs.FirstOrDefault(l => l.LogDateRange.IsBetween(logFileInfo.LogFileDateRange.Max));
 
                             if (logExtendedRangeAfter != null && logExtendedRangeBefore != null)
                             {
-                                Logger.Instance.ErrorFormat("MapperId<{0}>\t{1}\t{2}\tLog file skipped since Date Range {3} spans existing log ranges \"{4}\" and \"{5}\".",
+                                Logger.Instance.ErrorFormat("MapperId<{0}>\t{1}\t{2}\tLog file skipped since Date Range {3} ({6}) spans existing log ranges \"{4}\" and \"{5}\".",
                                                                 this.MapperId,
                                                                 this.Node,
                                                                 this.ShortFilePath,
                                                                 logFileInfo.LogFileDateRange,
                                                                 logExtendedRangeBefore.LogFile?.FileName,
-                                                                logExtendedRangeAfter.LogFile?.FileName);
+                                                                logExtendedRangeAfter.LogFile?.FileName,
+                                                                this.LogRestrictedTimeRange);
                                 ++this.NbrErrors;
                                 this.Node.AssociateItem(logFileInfo);
                                 return (uint)0;
@@ -542,27 +543,42 @@ namespace DSEDiagnosticFileParser
 
                             if (logExtendedRangeBefore != null)
                             {
-                                Logger.Instance.WarnFormat("MapperId<{0}>\t{1}\t{2}\tLog file date/time {3} will be truncated after {4}. Detected overlapping file is {5}",
+                                var minLogDTO = this.LogRestrictedTimeRange != null
+                                                    && this.LogRestrictedTimeRange.Min > logFileInfo.LogFileDateRange.Min
+                                                        ? this.LogRestrictedTimeRange.Min
+                                                        : DateTimeOffset.MinValue;
+
+                                Logger.Instance.WarnFormat("MapperId<{0}>\t{1}\t{2}\tLog file date/time {3} will be from {4} to {5} (log range before {7}). Detected overlapping file is {6}",
                                                                 this.MapperId,
                                                                 this.Node,
                                                                 this.ShortFilePath,
                                                                 logFileInfo.LogFileDateRange,
+                                                                minLogDTO,
                                                                 logExtendedRangeBefore.LogFileDateRange.Min,
-                                                                logExtendedRangeBefore.LogFile?.FileName);
+                                                                logExtendedRangeBefore.LogFile?.FileName,
+                                                                this.LogRestrictedTimeRange);
                                 ++this.NbrWarnings;
-                                this.LogRestrictedTimeRange = new DateTimeOffsetRange(DateTimeOffset.MinValue, logExtendedRangeBefore.LogFileDateRange.Min);
+                                this.LogRestrictedTimeRange = new DateTimeOffsetRange(minLogDTO, logExtendedRangeBefore.LogFileDateRange.Min);
                             }
                             else if (logExtendedRangeAfter != null)
                             {
-                                Logger.Instance.WarnFormat("MapperId<{0}>\t{1}\t{2}\tLog file date/time {3} will be truncated before {4}. Detected overlapping file is {5}",
+                                var maxLogDTO = this.LogRestrictedTimeRange != null
+                                                    && this.LogRestrictedTimeRange.Max < logFileInfo.LogFileDateRange.Max
+                                                        ? this.LogRestrictedTimeRange.Max
+                                                        : DateTimeOffset.MaxValue;
+
+                                Logger.Instance.WarnFormat("MapperId<{0}>\t{1}\t{2}\tLog file date/time {3} will be from {4} to {5} (log range after {7}). Detected overlapping file is {6}",
                                                                 this.MapperId,
                                                                 this.Node,
                                                                 this.ShortFilePath,
                                                                 logFileInfo.LogFileDateRange,
                                                                 logExtendedRangeAfter.LogFileDateRange.Max,
-                                                                logExtendedRangeAfter.LogFile?.FileName);
+                                                                maxLogDTO,
+                                                                logExtendedRangeAfter.LogFile?.FileName,
+                                                                this.LogRestrictedTimeRange);
                                 ++this.NbrWarnings;
-                                this.LogRestrictedTimeRange = new DateTimeOffsetRange(logExtendedRangeAfter.LogFileDateRange.Max, DateTimeOffset.MaxValue);
+                                
+                                this.LogRestrictedTimeRange = new DateTimeOffsetRange(logExtendedRangeAfter.LogFileDateRange.Max, maxLogDTO);
                             }
                         }
                     }

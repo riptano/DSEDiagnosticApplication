@@ -64,6 +64,8 @@ namespace DSEDiagnosticLibrary
         IFilePath LogFile { get; }
         IEnumerable<ILogMessage> Messages { get; }
         DateTimeOffsetRange LogTimeRange { get; }
+        DateTimeOffsetRange LogFileTimeRange { get; }
+
         IEnumerable<string> Errors { get; }
 
         LogCompletionStatus CompletionStatus { get; }

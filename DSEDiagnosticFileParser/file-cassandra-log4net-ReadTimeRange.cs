@@ -168,10 +168,10 @@ namespace DSEDiagnosticFileParser
                     if (nbrItemsParsed > 0)
                     {
                         logFileInfo = new LogFileInfo(logFile,
-                                                        logMessages.LogTimeRange,
+                                                        logMessages.LogFileTimeRange,
                                                         0,
                                                         null,
-                                                        null,
+                                                        logMessages.LogTimeRange,
                                                         null,
                                                         isDebugFile);
                     }

@@ -89,18 +89,18 @@ namespace DSEDiagnosticConsoleApplication
             if (ParserSettings.OnlyIncludeXHrsofLogsFromDiagCaptureTime > 0
                 && DSEDiagnosticLibrary.DSEInfo.NodeToolCaptureTimestamp.HasValue)
             {
-                DSEDiagnosticFileParser.LibrarySettings.LogRestrictedTimeRange = new DateTimeOffsetRange(DSEDiagnosticLibrary.DSEInfo.NodeToolCaptureTimestamp.Value - TimeSpan.FromHours(ParserSettings.OnlyIncludeXHrsofLogsFromDiagCaptureTime), DSEDiagnosticLibrary.DSEInfo.NodeToolCaptureTimestamp.Value);
+                ParserSettings.LogRestrictedTimeRange = new DateTimeOffsetRange(DSEDiagnosticLibrary.DSEInfo.NodeToolCaptureTimestamp.Value - TimeSpan.FromHours(ParserSettings.OnlyIncludeXHrsofLogsFromDiagCaptureTime), DSEDiagnosticLibrary.DSEInfo.NodeToolCaptureTimestamp.Value);
             }
 
-            if (DSEDiagnosticFileParser.LibrarySettings.LogRestrictedTimeRange != null)
+            if (ParserSettings.LogRestrictedTimeRange != null)
             {
                 Logger.Instance.WarnFormat("Using UTC Log Range of {0} to {1}",
-                                                DSEDiagnosticFileParser.LibrarySettings.LogRestrictedTimeRange.Min == DateTimeOffset.MinValue
+                                                ParserSettings.LogRestrictedTimeRange.Min == DateTimeOffset.MinValue
                                                             ? "MinValue"
-                                                            : DSEDiagnosticFileParser.LibrarySettings.LogRestrictedTimeRange.Min.ToString(@"yyyy-MM-dd HH:mm:ss zzz"),
-                                                 DSEDiagnosticFileParser.LibrarySettings.LogRestrictedTimeRange.Max == DateTimeOffset.MaxValue
+                                                            : ParserSettings.LogRestrictedTimeRange.Min.ToString(@"yyyy-MM-dd HH:mm:ss zzz"),
+                                                 ParserSettings.LogRestrictedTimeRange.Max == DateTimeOffset.MaxValue
                                                             ? "MaxValue"
-                                                            : DSEDiagnosticFileParser.LibrarySettings.LogRestrictedTimeRange.Max.ToString(@"yyyy-MM-dd HH:mm:ss zzz"));
+                                                            : ParserSettings.LogRestrictedTimeRange.Max.ToString(@"yyyy-MM-dd HH:mm:ss zzz"));
             }
 
             DSEDiagnosticFileParser.LibrarySettings.IgnoreWarningsErrosInKeySpaces = ParserSettings.IgnoreKeySpaces;
