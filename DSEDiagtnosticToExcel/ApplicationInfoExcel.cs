@@ -27,6 +27,7 @@ namespace DSEDiagtnosticToExcel
             public bool Aborted;
             public int Errors;
             public int Warnings;
+            public bool UnhandledException;
 
             public sealed class ResultInfo
             {
@@ -103,7 +104,8 @@ namespace DSEDiagtnosticToExcel
                 dataRow.SetField("Nbr Errors", item.NbrErrors);
                 dataRow.SetField("Nbr Exceptions", item.NbrExceptions);
 
-                hasException = item.NbrExceptions > 0;
+                if(!hasException)
+                    hasException = item.NbrExceptions > 0;
 
                 this.DataTable.Rows.Add(dataRow);
             }
@@ -238,7 +240,11 @@ namespace DSEDiagtnosticToExcel
 
                                                                 if (!this.AppendToWorkSheet)
                                                                 {
-                                                                    workSheet.Cells["A2"].Value = this.ApplicationInfo.Aborted ? "** Aborted **" : (hasException ? "** Exception(s) Detected **" : null);
+                                                                    if(this.ApplicationInfo.UnhandledException)
+                                                                        workSheet.Cells["A2"].Value =  "** UnHandled Exception(s) Detected **";
+                                                                    else
+                                                                        workSheet.Cells["A2"].Value = this.ApplicationInfo.Aborted ? "** Aborted **" : (hasException ? "** Exception(s) Detected **" : null);
+
                                                                     workSheet.Cells["A3"].Value = this.ApplicationInfo.ApplicationName;
                                                                     workSheet.Cells["A4"].Value = this.ApplicationInfo.ApplicationVersion;
                                                                     workSheet.Cells["A5"].Value = this.ApplicationInfo.ApplicationAssemblyDir;
