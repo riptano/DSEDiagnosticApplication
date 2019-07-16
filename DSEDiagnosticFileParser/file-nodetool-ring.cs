@@ -172,10 +172,10 @@ namespace DSEDiagnosticFileParser
 
                         try
                         {
-                            node.DSE.AddTokenPair(startToken, regExSplit[7], regExSplit[5]);                            
+                            node.DSE.AddTokenPair(startToken ?? regExSplit[7], regExSplit[7], regExSplit[5]);                            
                             startToken = regExSplit[7];
                         }
-                        catch (System.ArgumentException ex)
+                        catch (System.Exception ex)
                         {
                             InvokeExceptionEvent(this,
                                                     ex,

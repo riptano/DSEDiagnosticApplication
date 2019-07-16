@@ -168,10 +168,10 @@ namespace DSEDiagnosticToDataTable
                 dataRow.SetField("TimeZone", node.Machine.TimeZone.Name);
             }
             //CPU Load
-            dataRow.SetFieldToDecimal("Average", node.Machine.CPULoad.Average)
-                    .SetFieldToDecimal("Idle", node.Machine.CPULoad.Idle)
-                    .SetFieldToDecimal("System", node.Machine.CPULoad.System)
-                    .SetFieldToDecimal("User", node.Machine.CPULoad.User);
+            dataRow.SetFieldToDecimal("Average", node.Machine.CPULoad.Average, convertFromPercent: true)
+                    .SetFieldToDecimal("Idle", node.Machine.CPULoad.Idle, convertFromPercent: true)
+                    .SetFieldToDecimal("System", node.Machine.CPULoad.System, convertFromPercent: true)
+                    .SetFieldToDecimal("User", node.Machine.CPULoad.User, convertFromPercent: true);
             //Memory
             dataRow.SetFieldToInt("Available", node.Machine.Memory.Available, DSEDiagnosticLibrary.UnitOfMeasure.Types.MiB)
                     .SetFieldToInt("Cache", node.Machine.Memory.Cache, DSEDiagnosticLibrary.UnitOfMeasure.Types.MiB)

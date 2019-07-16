@@ -190,6 +190,12 @@ namespace DSEDiagnosticLibrary
             else
             {
                 this.SlotsNum = (ulong)(this.EndRangeNum - this.StartRangeNum);
+
+                if (this.SlotsNum == 0)
+                {
+                    this.WrapsRange = true;
+                    this.SlotsNum = ulong.MaxValue;
+                }
             }
         }
 
@@ -314,6 +320,12 @@ namespace DSEDiagnosticLibrary
             else
             {
                 this.SlotsNum = this.EndRangeNum - this.StartRangeNum;
+
+                if(this.SlotsNum == 0)
+                {
+                    this.WrapsRange = true;
+                    this.SlotsNum = MaxValue;
+                }
             }
         }
 

@@ -34,7 +34,7 @@ namespace DSEDiagnosticFileParser
             
             if(!string.IsNullOrEmpty(fileLine))
             {
-                this.Node.Machine.CPULoad.Average = UnitOfMeasure.Create(fileLine, UnitOfMeasure.Types.Percent | UnitOfMeasure.Types.Utilization);
+                this.Node.Machine.CPULoad.Average = UnitOfMeasure.Create(fileLine, UnitOfMeasure.Types.Utilization);
                 ++this.NbrItemsParsed;
             }
 
