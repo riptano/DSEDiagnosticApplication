@@ -725,6 +725,8 @@ namespace DSEDiagnosticLibrary
             public UnitOfMeasure Idle;
             public UnitOfMeasure System;
             public UnitOfMeasure User;
+            public UnitOfMeasure IOWait;
+            public UnitOfMeasure StealTime;
 		}
 
         [JsonObject(MemberSerialization.OptOut)]

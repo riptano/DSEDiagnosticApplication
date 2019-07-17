@@ -30,8 +30,10 @@ namespace DSEDiagnosticFileParser
             jObject.TryGetValue("%idle").NullSafeSet<decimal>(c => this.Node.Machine.CPULoad.Idle = UnitOfMeasure.Create(c, UnitOfMeasure.Types.Percent | UnitOfMeasure.Types.Utilization));
             jObject.TryGetValue("%system").NullSafeSet<decimal>(c => this.Node.Machine.CPULoad.System = UnitOfMeasure.Create(c, UnitOfMeasure.Types.Percent | UnitOfMeasure.Types.Utilization));
             jObject.TryGetValue("%user").NullSafeSet<decimal>(c => this.Node.Machine.CPULoad.User = UnitOfMeasure.Create(c, UnitOfMeasure.Types.Percent | UnitOfMeasure.Types.Utilization));
+            jObject.TryGetValue("%iowait").NullSafeSet<decimal>(c => this.Node.Machine.CPULoad.IOWait = UnitOfMeasure.Create(c, UnitOfMeasure.Types.Percent | UnitOfMeasure.Types.Utilization));
+            jObject.TryGetValue("%steal").NullSafeSet<decimal>(c => this.Node.Machine.CPULoad.StealTime = UnitOfMeasure.Create(c, UnitOfMeasure.Types.Percent | UnitOfMeasure.Types.Utilization));
 
-            this.NbrItemsParsed = 3;
+            this.NbrItemsParsed = 5;
             this.Processed = true;
             return 0;
         }

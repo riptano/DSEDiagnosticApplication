@@ -39,14 +39,16 @@ namespace DSEDiagnosticToDataTable
             dtOSMachineInfo.Columns.Add("Idle", typeof(decimal)).AllowDBNull = true;
             dtOSMachineInfo.Columns.Add("System", typeof(decimal)).AllowDBNull = true;
             dtOSMachineInfo.Columns.Add("User", typeof(decimal)).AllowDBNull = true;
-                                                                  //Memory
+            dtOSMachineInfo.Columns.Add("IOWait", typeof(decimal)).AllowDBNull = true;
+            dtOSMachineInfo.Columns.Add("StealTime", typeof(decimal)).AllowDBNull = true;
+            //Memory
             dtOSMachineInfo.Columns.Add("Available", typeof(int)).AllowDBNull = true;
             dtOSMachineInfo.Columns.Add("Cache", typeof(int)).AllowDBNull = true;
             dtOSMachineInfo.Columns.Add("Buffers", typeof(int)).AllowDBNull = true;
             dtOSMachineInfo.Columns.Add("Shared", typeof(int)).AllowDBNull = true;
             dtOSMachineInfo.Columns.Add("Free", typeof(int)).AllowDBNull = true;
-            dtOSMachineInfo.Columns.Add("Used", typeof(int)).AllowDBNull = true; //t
-                                                              //Java
+            dtOSMachineInfo.Columns.Add("Used", typeof(int)).AllowDBNull = true;
+            //Java
             dtOSMachineInfo.Columns.Add("Vendor", typeof(string)).AllowDBNull = true;
             dtOSMachineInfo.Columns.Add("Model", typeof(string)).AllowDBNull = true;
             dtOSMachineInfo.Columns.Add("Runtime Name", typeof(string)).AllowDBNull = true;
@@ -171,7 +173,9 @@ namespace DSEDiagnosticToDataTable
             dataRow.SetFieldToDecimal("Average", node.Machine.CPULoad.Average, convertFromPercent: true)
                     .SetFieldToDecimal("Idle", node.Machine.CPULoad.Idle, convertFromPercent: true)
                     .SetFieldToDecimal("System", node.Machine.CPULoad.System, convertFromPercent: true)
-                    .SetFieldToDecimal("User", node.Machine.CPULoad.User, convertFromPercent: true);
+                    .SetFieldToDecimal("User", node.Machine.CPULoad.User, convertFromPercent: true)
+                    .SetFieldToDecimal("IOWait", node.Machine.CPULoad.User, convertFromPercent: true)
+                    .SetFieldToDecimal("StealTime", node.Machine.CPULoad.User, convertFromPercent: true);
             //Memory
             dataRow.SetFieldToInt("Available", node.Machine.Memory.Available, DSEDiagnosticLibrary.UnitOfMeasure.Types.MiB)
                     .SetFieldToInt("Cache", node.Machine.Memory.Cache, DSEDiagnosticLibrary.UnitOfMeasure.Types.MiB)

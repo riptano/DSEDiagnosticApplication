@@ -94,6 +94,10 @@ namespace DSEDiagtnosticToExcel
                                                                     this.DataTable.GetColumn("System")
                                                                         .SetNumericFormat("##0.00%"),
                                                                     this.DataTable.GetColumn("User")
+                                                                        .SetNumericFormat("##0.00%"),
+                                                                    this.DataTable.GetColumn("IOWait")
+                                                                        .SetNumericFormat("##0.00%"),
+                                                                    this.DataTable.GetColumn("StealTime")
                                                                         .SetNumericFormat("##0.00%")
                                                                     );
 

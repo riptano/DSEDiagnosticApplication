@@ -21,6 +21,7 @@ namespace DSEDiagnosticLibrary
         string UsingClassNormalized { get; }
         Dictionary<string,object> WithOptions { get; }
         UnitOfMeasure Storage { get; }
+        long ReadCount { get; }
     }
 
     [JsonObject(MemberSerialization.OptOut)]

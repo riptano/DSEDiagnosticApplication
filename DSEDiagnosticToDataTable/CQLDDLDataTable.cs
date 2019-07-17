@@ -57,8 +57,20 @@ namespace DSEDiagnosticToDataTable
             dtDDL.Columns.Add("NbrIndexes", typeof(int)).AllowDBNull = true;
             dtDDL.Columns.Add("NbrMVs", typeof(int)).AllowDBNull = true;
             dtDDL.Columns.Add("NbrTriggers", typeof(int)).AllowDBNull = true;
-            dtDDL.Columns.Add("Storage (MB)", typeof(decimal)).AllowDBNull = true;
-            dtDDL.Columns.Add("DDL", typeof(string));//z
+            dtDDL.Columns.Add(KeyspaceDataTable.Columns.Storage, typeof(decimal)).AllowDBNull = true;
+            dtDDL.Columns.Add(KeyspaceDataTable.Columns.StorageUtilized, typeof(decimal)).AllowDBNull = true;
+            dtDDL.Columns.Add(KeyspaceDataTable.Columns.ReadPercent, typeof(decimal)).AllowDBNull = true;
+            dtDDL.Columns.Add(KeyspaceDataTable.Columns.WritePercent, typeof(decimal)).AllowDBNull = true;
+            dtDDL.Columns.Add(KeyspaceDataTable.Columns.PartitionKeys, typeof(long)).AllowDBNull = true;
+            dtDDL.Columns.Add(KeyspaceDataTable.Columns.PartitionKeyPercent, typeof(decimal)).AllowDBNull = true;
+            dtDDL.Columns.Add(KeyspaceDataTable.Columns.SSTables, typeof(long)).AllowDBNull = true;
+            dtDDL.Columns.Add(KeyspaceDataTable.Columns.SSTablePercent, typeof(decimal)).AllowDBNull = true;
+
+            dtDDL.Columns.Add(KeyspaceDataTable.Columns.FlushPercent, typeof(decimal)).AllowDBNull = true;
+            dtDDL.Columns.Add(KeyspaceDataTable.Columns.CompactionPercent, typeof(decimal)).AllowDBNull = true;
+            dtDDL.Columns.Add(KeyspaceDataTable.Columns.RepairPercent, typeof(decimal)).AllowDBNull = true;
+
+            dtDDL.Columns.Add(KeyspaceDataTable.Columns.DDL, typeof(string));
 
             dtDDL.PrimaryKey = new System.Data.DataColumn[] { dtDDL.Columns[ColumnNames.KeySpace], dtDDL.Columns["Name"] };
 
@@ -69,6 +81,13 @@ namespace DSEDiagnosticToDataTable
             dtDDL.DefaultView.Sort = string.Format("[{0}] ASC, [Name] ASC", ColumnNames.KeySpace);
 
             return dtDDL;
+        }
+
+        struct ObjEvtCnts
+        {
+            public long Flushes;
+            public long Compactions;
+            public long Repairs;
         }
 
         /// <summary>
@@ -86,6 +105,46 @@ namespace DSEDiagnosticToDataTable
 
                 Logger.Instance.InfoFormat("Loading CQL DDL Information for Cluster \"{0}\"", this.Cluster.Name);
 
+                var logEvtsCollection = (from logEvCache in this.Cluster.Nodes.SelectMany(d => ((DSEDiagnosticLibrary.Node)d).LogEventsRead(DSEDiagnosticLibrary.LogCassandraEvent.ElementCreationTypes.DCNodeKSDDLTypeClassOnly, false))
+                                         let logEvt = logEvCache.Value
+                                         where logEvt.TableViewIndex != null
+                                                    && (logEvt.Class.HasFlag(DSEDiagnosticLibrary.EventClasses.Compaction)
+                                                            || logEvt.Class.HasFlag(DSEDiagnosticLibrary.EventClasses.Flush)
+                                                            || logEvt.Class.HasFlag(DSEDiagnosticLibrary.EventClasses.Repair))
+                                         group logEvt by logEvt.TableViewIndex into objGrp
+                                         select new
+                                         {
+                                             ObjIns = objGrp.Key,
+                                             Cnts = new ObjEvtCnts()
+                                             {
+                                                 Flushes = objGrp.LongCount(i => i.Class.HasFlag(DSEDiagnosticLibrary.EventClasses.Flush)),
+                                                 Compactions = objGrp.LongCount(i => i.Class.HasFlag(DSEDiagnosticLibrary.EventClasses.Compaction)),
+                                                 Repairs = objGrp.LongCount(e => e.Class.HasFlag(DSEDiagnosticLibrary.EventClasses.Repair))
+                                             }
+                                         }
+                                         ).ToArray();
+
+
+                var clusterTotalStorage = this.Cluster.Nodes
+                                                    .Where(n => !n.DSE.StorageUsed.NaN)
+                                                    .Select(n => n.DSE.StorageUsed.ConvertSizeUOM(DSEDiagnosticLibrary.UnitOfMeasure.Types.MiB))
+                                                    .DefaultIfEmpty()
+                                                    .Sum();
+                var clusterTotalReads = this.Cluster.Nodes.Select(n => n.DSE.ReadCount).DefaultIfEmpty().Sum();
+                var clusterTotalWrites = this.Cluster.Nodes.Select(n => n.DSE.WriteCount).DefaultIfEmpty().Sum();
+                var clusterTotalSSTables = this.Cluster.Nodes.Select(n => n.DSE.SSTableCount).DefaultIfEmpty().Sum();
+                var clusterTotalKeys = this.Cluster.Nodes.Select(n => n.DSE.KeyCount).DefaultIfEmpty().Sum();
+                long clusterTotalFlush = 0;
+                long clusterTotalCompaction = 0;
+                long clusterTotalRepair = 0;
+
+                if (logEvtsCollection.HasAtLeastOneElement())
+                {
+                    clusterTotalFlush = logEvtsCollection.Sum(i => i.Cnts.Flushes);
+                    clusterTotalCompaction = logEvtsCollection.Sum(i => i.Cnts.Compactions);
+                    clusterTotalRepair = logEvtsCollection.Sum(i => i.Cnts.Repairs);
+                }
+
                 foreach (var keySpace in this.Cluster.Keyspaces)
                 {
                     var ddlCnt = 0;
@@ -101,6 +160,8 @@ namespace DSEDiagnosticToDataTable
 
                     foreach (var ddlItem in keySpace.DDLs)
                     {
+                        bool addStats = false;
+
                         this.CancellationToken.ThrowIfCancellationRequested();
 
                         if (this.Table.Rows.Contains(new object[] { keySpace.Name, ddlItem.Name }))
@@ -115,7 +176,7 @@ namespace DSEDiagnosticToDataTable
                         dataRow.SetField("Keyspace Name", keySpace.Name);
                         dataRow.SetField("Name", ddlItem.Name);
                         dataRow.SetField("Type", ddlItem.GetType().Name);
-                        dataRow.SetFieldStringLimit("DDL", ddlItem.DDL);
+                        dataRow.SetFieldStringLimit(KeyspaceDataTable.Columns.DDL, ddlItem.DDL);
                         dataRow.SetField("Total", ddlItem.Items);
 
                         if (ddlItem is IDDLStmt && ((IDDLStmt)ddlItem).IsActive.HasValue)
@@ -137,7 +198,22 @@ namespace DSEDiagnosticToDataTable
                             {
                                 dataRow.SetField("Compaction Strategy", ((DSEDiagnosticLibrary.ICQLIndex)ddlItem).UsingClassNormalized);
                             }
-                            dataRow.SetFieldToDecimal("Storage (MB)", ((DSEDiagnosticLibrary.ICQLIndex)ddlItem).Storage, DSEDiagnosticLibrary.UnitOfMeasure.Types.MiB);
+                            addStats = true;
+                            {
+                                var idxStorage = ((DSEDiagnosticLibrary.ICQLIndex)ddlItem).Storage;
+
+                                if (!idxStorage.NaN)
+                                {
+                                    var idxSize = idxStorage.ConvertSizeUOM(DSEDiagnosticLibrary.UnitOfMeasure.Types.MiB);
+
+                                    dataRow.SetField(KeyspaceDataTable.Columns.Storage, idxSize);
+
+                                    if (clusterTotalStorage > 0m)
+                                        dataRow.SetField(KeyspaceDataTable.Columns.StorageUtilized, idxSize / clusterTotalStorage);
+                                }
+                                if (clusterTotalReads > 0)
+                                    dataRow.SetField(KeyspaceDataTable.Columns.ReadPercent, ((decimal)((DSEDiagnosticLibrary.ICQLIndex)ddlItem).ReadCount) / (decimal)clusterTotalReads);                                
+                            }                            
                         }
                         else if (ddlItem is DSEDiagnosticLibrary.ICQLUserDefinedType)
                         {
@@ -182,8 +258,31 @@ namespace DSEDiagnosticToDataTable
                             dataRow.SetField("GC Grace Period", ((DSEDiagnosticLibrary.ICQLTable)ddlItem).GetPropertyValue("gc_grace_seconds"));
                             dataRow.SetField("TTL", ((DSEDiagnosticLibrary.ICQLTable)ddlItem).GetPropertyValue("default_time_to_live"));
                             dataRow.SetField("Memtable Flush Period", ((DSEDiagnosticLibrary.ICQLTable)ddlItem).GetPropertyValueInMSLong("memtable_flush_period_in_ms"));
-                            dataRow.SetFieldToDecimal("Storage (MB)", ((DSEDiagnosticLibrary.ICQLTable)ddlItem).Stats.Storage, DSEDiagnosticLibrary.UnitOfMeasure.Types.MiB);
+                            addStats = true;
 
+                            {
+                                var stats = ((DSEDiagnosticLibrary.ICQLTable)ddlItem).Stats;
+
+                                if (!stats.Storage.NaN)
+                                {
+                                    var tblStorage = stats.Storage.ConvertSizeUOM(DSEDiagnosticLibrary.UnitOfMeasure.Types.MiB);
+
+                                    dataRow.SetField(KeyspaceDataTable.Columns.Storage, tblStorage);
+
+                                    if (clusterTotalStorage > 0m)
+                                        dataRow.SetField(KeyspaceDataTable.Columns.StorageUtilized, tblStorage / clusterTotalStorage);
+                                }
+                                if (clusterTotalReads > 0)
+                                    dataRow.SetField(KeyspaceDataTable.Columns.ReadPercent, ((decimal)stats.ReadCount) / (decimal)clusterTotalReads);
+                                if (clusterTotalWrites > 0)
+                                    dataRow.SetField(KeyspaceDataTable.Columns.WritePercent, ((decimal)stats.WriteCount) / (decimal)clusterTotalWrites);
+                                if (clusterTotalKeys > 0)
+                                    dataRow.SetField(KeyspaceDataTable.Columns.PartitionKeyPercent, ((decimal)stats.KeyCount) / (decimal)clusterTotalKeys);
+                                dataRow.SetField(KeyspaceDataTable.Columns.PartitionKeys, stats.KeyCount);
+                                if (clusterTotalSSTables > 0)
+                                    dataRow.SetField(KeyspaceDataTable.Columns.SSTablePercent, ((decimal)stats.SSTableCount) / (decimal)clusterTotalSSTables);
+                                dataRow.SetField(KeyspaceDataTable.Columns.SSTables, stats.SSTableCount);
+                            }
                             {
                                 var nbrIndexes = (int)((DSEDiagnosticLibrary.ICQLTable)ddlItem).Stats.NbrCustomIndexes
                                                                     + ((DSEDiagnosticLibrary.ICQLTable)ddlItem).Stats.NbrSasIIIndexes
@@ -201,6 +300,21 @@ namespace DSEDiagnosticToDataTable
                             if (ddlItem is DSEDiagnosticLibrary.ICQLMaterializedView)
                             {
                                 dataRow.SetField("Associated Table", ((DSEDiagnosticLibrary.ICQLMaterializedView)ddlItem).Table.FullName);
+                            }
+                        }
+
+                        if(addStats)
+                        {
+                            var objCnts = logEvtsCollection.FirstOrDefault(i => i.ObjIns == ddlItem)?.Cnts;
+
+                            if (objCnts.HasValue)
+                            {
+                                if (objCnts.Value.Flushes > 0)
+                                    dataRow.SetField(KeyspaceDataTable.Columns.FlushPercent, (decimal)objCnts.Value.Flushes / (decimal)clusterTotalFlush);
+                                if (objCnts.Value.Compactions > 0)
+                                    dataRow.SetField(KeyspaceDataTable.Columns.CompactionPercent, (decimal)objCnts.Value.Compactions / (decimal)clusterTotalCompaction);
+                                if (objCnts.Value.Repairs > 0)
+                                    dataRow.SetField(KeyspaceDataTable.Columns.RepairPercent, (decimal)objCnts.Value.Repairs / (decimal)clusterTotalRepair);
                             }
                         }
 
