@@ -629,7 +629,7 @@ namespace DSEDiagnosticLibrary
     }
 
     [JsonObject(MemberSerialization.OptOut)]
-    public sealed class NodeStateChange
+    public sealed class NodeStateChange : IComparable<NodeStateChange>, IEquatable<NodeStateChange>
     {
 
         public NodeStateChange(DetectedStates state,
@@ -645,7 +645,11 @@ namespace DSEDiagnosticLibrary
 
             if(duration.HasValue)
             {
-                this.Duration = duration;
+                if (duration.Value.TotalMilliseconds >= 0d)
+                    this.Duration = duration;
+                else
+                    this.Duration = TimeSpan.Zero;
+
                 if (this.Duration.Value > LibrarySettings.NodeDetectedLongPuaseThreshold) this.State |= DetectedStates.LongPuase;
             }
         }
@@ -662,7 +666,12 @@ namespace DSEDiagnosticLibrary
             Started = 0x0020 | Up,
             Restarted = 0x0040 | Started,
             GCPause = 0x0080 | NotResponding,
-            LongPuase = 0x1000
+            LongPuase = 0x1000,
+            Added = 0x2000,
+            Removed = 0x4000,
+            TokenOwnershipChanged = 0x8000,
+            UnableToStart = 0x10000,
+            OtherStates = UnableToStart | TokenOwnershipChanged | Added | Removed
         }
 
         public Int16 SortOrder()
@@ -689,11 +698,96 @@ namespace DSEDiagnosticLibrary
                     return 4;
                 case DetectedStates.LongPuase:
                     break;
+                case DetectedStates.Added:
+                    return 7;
+                case DetectedStates.Removed:
+                    return 7;
+                case DetectedStates.TokenOwnershipChanged:
+                    return 8;
+                case DetectedStates.UnableToStart:
+                    return 8;
                 default:
                     break;
             }
 
             return 0;
+        }
+
+        public int CompareTo(NodeStateChange other)
+        {
+            if (other == null) return 1;
+
+            if(this.State == other.State
+                && this.EventTime == other.EventTime)
+            {
+                var sortOrder = this.SortOrder();
+                var otherSortOrder = other.SortOrder();
+
+                if(sortOrder == otherSortOrder)
+                {
+                    if (this.DetectedByNode == other.DetectedByNode)
+                        return 0;
+
+                    if (this.DetectedByNode == null)
+                        return -1;
+                    if (other.DetectedByNode == null)
+                        return 1;
+
+                    return this.DetectedByNode.Id.NodeName().CompareTo(other.DetectedByNode.Id.NodeName());
+                }
+
+                return sortOrder < otherSortOrder ? -1 : 1;
+            }
+
+            return this.EventTime.CompareTo(other.EventTime);
+        }
+
+        public bool Equals(NodeStateChange other)
+        {
+            if (other == null) return false;
+            if (ReferenceEquals(this, other)) return true;
+
+            if (this.State == other.State
+                    && this.EventTime == other.EventTime)
+            {
+                var sortOrder = this.SortOrder();
+                var otherSortOrder = other.SortOrder();
+
+                if (sortOrder == otherSortOrder)
+                {
+                    if (this.DetectedByNode == other.DetectedByNode)
+                        return true;
+
+                    if (this.DetectedByNode == null || other.DetectedByNode == null)
+                        return false;
+
+                    return this.DetectedByNode.Id.NodeName() == other.DetectedByNode.Id.NodeName();
+                }
+
+                return false;
+            }
+
+            return false;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if(obj is NodeStateChange n)
+            {
+                return this.Equals(n);
+            }
+
+            return base.Equals(obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return this.EventTime.GetHashCode() * 31
+                            + this.State.GetHashCode() * 62
+                            + this.DetectedByNode?.GetHashCode() ?? 0;
+            }
         }
 
         public DetectedStates State { get; }
@@ -1502,8 +1596,20 @@ namespace DSEDiagnosticLibrary
         public IEnumerable<NodeStateChange> StateChanges { get { return this._stateChanges.UnSafe; } }
 
         public INode AssociateItem(NodeStateChange stateChange)
-        {            
-            this._stateChanges.Add(stateChange);
+        {
+            bool isLocked = false;
+            try
+            {
+                System.Threading.Monitor.Enter(this._stateChanges.UnSafe, ref isLocked);
+
+                if (!this._stateChanges.UnSafe.Exists(n => n.Equals(stateChange)))
+                    this._stateChanges.UnSafe.Add(stateChange);
+            }
+            finally
+            {
+                if (isLocked) System.Threading.Monitor.Exit(this._stateChanges.UnSafe);
+            }
+
             return this;
         }
 

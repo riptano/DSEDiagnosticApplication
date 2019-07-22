@@ -34,7 +34,7 @@
       "LinkedTagId": 8.1
     },
     {
-      "Description": "Sharding Same Token",
+      "Description": "Sharding Token Owership Changed",
       "LinkedTagId": 8.2
     },
     {
@@ -220,6 +220,10 @@
     {
       "Description": "NodeSync",
       "TagId": 56.0
+    },
+    {
+      "Description": "New HostId",
+      "TagId": 57.0
     }
   ]
 }

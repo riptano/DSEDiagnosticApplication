@@ -59,6 +59,8 @@ namespace DSEDiagnosticToDataTable
                            .AllowDBNull();
             dtDCInfo.Columns.Add("Status Dead", typeof(long))
                            .AllowDBNull();
+            dtDCInfo.Columns.Add("Status Other", typeof(long))
+                           .AllowDBNull();
 
             dtDCInfo.Columns.Add("DSE Version", typeof(string))
                             .AllowDBNull();
@@ -417,7 +419,11 @@ namespace DSEDiagnosticToDataTable
                                 NbrRestarts = n.StateChanges.Count(s => s.State == NodeStateChange.DetectedStates.Restarted),
                                 NbrLngPauses = n.StateChanges.Count(s => (s.State & NodeStateChange.DetectedStates.LongPuase) == NodeStateChange.DetectedStates.LongPuase),
                                 NbrNotResponding = n.StateChanges.Count(s => (s.State & NodeStateChange.DetectedStates.NotResponding) == NodeStateChange.DetectedStates.NotResponding),
-                                NbrDead = n.StateChanges.Count(s => (s.State & NodeStateChange.DetectedStates.Dead) == NodeStateChange.DetectedStates.Dead)
+                                NbrDead = n.StateChanges.Count(s => (s.State & NodeStateChange.DetectedStates.Dead) == NodeStateChange.DetectedStates.Dead),
+                                NbrOther = n.StateChanges
+                                            .Where(s => NodeStateChange.DetectedStates.OtherStates.HasFlag(s.State))
+                                            .DuplicatesRemoved(s => s.State)
+                                            .Count()
                             });
 
                             var nbrStarts = dcStates.DefaultIfEmpty().Sum(s => s.NbrStarts);
@@ -439,6 +445,10 @@ namespace DSEDiagnosticToDataTable
                             var nbrDead = dcStates.DefaultIfEmpty().Sum(s => s.NbrDead);
                             if (nbrDead > 0)
                                 dataRow.SetField("Status Dead", nbrDead);
+
+                            var nbrOther = dcStates.DefaultIfEmpty().Sum(s => s.NbrOther);
+                            if (nbrOther > 0)
+                                dataRow.SetField("Status Other", nbrOther);
                         }
 
                         {

@@ -627,6 +627,11 @@ namespace DSEDiagnosticAnalytics
                     && ((eventArgs.LogEvent.Type & EventTypes.SessionEnd) == EventTypes.SessionEnd
                             || (eventArgs.LogEvent.Type & EventTypes.SingleInstance) == EventTypes.SingleInstance))
             {
+                var pauseDuration = eventArgs.LogEvent.Duration.HasValue
+                                        ? eventArgs.LogEvent.Duration
+                                        : (TimeSpan?) CassandraLogEventAggregate.GetPropUOM(eventArgs.LogEvent.LogProperties, "pause")
+                                                            ?.ConvertToTimeSpan();
+                                        
                 if (eventArgs.LogEvent.AssociatedNodes != null && eventArgs.LogEvent.AssociatedNodes.HasAtLeastOneElement())
                 {
                     foreach (var targetNode in eventArgs.LogEvent.AssociatedNodes)
@@ -635,7 +640,7 @@ namespace DSEDiagnosticAnalytics
                                                                                     eventArgs.LogEvent.EventTime,
                                                                                     eventArgs.LogEvent.EventTimeLocal,
                                                                                     eventArgs.LogEvent.Node,
-                                                                                    eventArgs.LogEvent.Duration);
+                                                                                    pauseDuration);
                         targetNode.AssociateItem(nodeState);
                     }
                 }
@@ -644,7 +649,7 @@ namespace DSEDiagnosticAnalytics
                     var nodeState = new DSEDiagnosticLibrary.NodeStateChange(NodeStateChange.DetectedStates.GCPause,
                                                                                     eventArgs.LogEvent.EventTime,
                                                                                     eventArgs.LogEvent.EventTimeLocal,
-                                                                                    duration: eventArgs.LogEvent.Duration);
+                                                                                    duration: pauseDuration);
                     eventArgs.LogEvent.Node.AssociateItem(nodeState);
                 }
             }
@@ -721,6 +726,28 @@ namespace DSEDiagnosticAnalytics
                         }
                     }
                 }
+                else if (eventArgs.LogEvent.SubClass.EndsWith(" now part of the cluster", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (eventArgs.LogEvent.AssociatedNodes != null && eventArgs.LogEvent.AssociatedNodes.HasAtLeastOneElement())
+                    {
+                        foreach (var targetNode in eventArgs.LogEvent.AssociatedNodes)
+                        {
+                            var nodeState = new DSEDiagnosticLibrary.NodeStateChange(NodeStateChange.DetectedStates.Added,
+                                                                                        eventArgs.LogEvent.EventTime,
+                                                                                        eventArgs.LogEvent.EventTimeLocal,
+                                                                                        eventArgs.LogEvent.Node,
+                                                                                        eventArgs.LogEvent.Duration);
+                            targetNode.AssociateItem(nodeState);
+                        }
+                    }
+                }
+                else if (eventArgs.LogEvent.SubClass.StartsWith("Unable to start ", StringComparison.OrdinalIgnoreCase))
+                {
+                    var nodeState = new DSEDiagnosticLibrary.NodeStateChange(NodeStateChange.DetectedStates.UnableToStart,
+                                                                                        eventArgs.LogEvent.EventTime,
+                                                                                        eventArgs.LogEvent.EventTimeLocal);
+                    eventArgs.LogEvent.Node.AssociateItem(nodeState);                       
+                }
             }
             else if ((eventArgs.LogEvent.Class & EventClasses.TimeOut) == EventClasses.TimeOut
                         && (eventArgs.LogEvent.Class & EventClasses.Row) == EventClasses.Row)
@@ -770,6 +797,33 @@ namespace DSEDiagnosticAnalytics
                         targetNode.AssociateItem(nodeState);
                     }
                 }
+            }
+            else if ((eventArgs.LogEvent.Class & EventClasses.NodeDetection) == EventClasses.NodeDetection
+                        && (eventArgs.LogEvent.Class & EventClasses.Drops) == EventClasses.Drops
+                        && ((eventArgs.LogEvent.Type & EventTypes.SessionEnd) == EventTypes.SessionEnd
+                                || (eventArgs.LogEvent.Type & EventTypes.SingleInstance) == EventTypes.SingleInstance))
+            {
+                if (eventArgs.LogEvent.AssociatedNodes != null)
+                {
+                    foreach (var targetNode in eventArgs.LogEvent.AssociatedNodes)
+                    {
+                        var nodeState = new DSEDiagnosticLibrary.NodeStateChange(NodeStateChange.DetectedStates.Removed,
+                                                                                    eventArgs.LogEvent.EventTime,
+                                                                                    eventArgs.LogEvent.EventTimeLocal,
+                                                                                    eventArgs.LogEvent.Node,
+                                                                                    eventArgs.LogEvent.Duration);
+                        targetNode.AssociateItem(nodeState);
+                    }
+                }
+            }
+            else if ((eventArgs.LogEvent.Class & EventClasses.NodeDetection) == EventClasses.NodeDetection
+                        && (eventArgs.LogEvent.Class & EventClasses.Shard) == EventClasses.Shard
+                        && (eventArgs.LogEvent.Type & EventTypes.SingleInstance) == EventTypes.SingleInstance)
+            {
+                var nodeState = new DSEDiagnosticLibrary.NodeStateChange(NodeStateChange.DetectedStates.TokenOwnershipChanged,
+                                                                            eventArgs.LogEvent.EventTime,
+                                                                            eventArgs.LogEvent.EventTimeLocal);
+                eventArgs.LogEvent.Node.AssociateItem(nodeState);                
             }
             else if ((eventArgs.LogEvent.Class & EventClasses.Repair) == EventClasses.Repair)
             {
@@ -936,6 +990,22 @@ namespace DSEDiagnosticAnalytics
             }
 
             return -1M;
+        }
+
+        public static UnitOfMeasure? GetPropUOM(this IReadOnlyDictionary<string, object> propTable, string key)
+        {
+            if (propTable.TryGetValue(key, out object value))
+            {
+                if (value != null)
+                {
+                    if (value is UnitOfMeasure uom)
+                    {                        
+                        return uom;
+                    }                    
+                }
+            }
+
+            return (UnitOfMeasure?) null;
         }
 
         public static long IsOffSetValue(this IReadOnlyDictionary<string, object> propTable, string key, ref long offsetValue)

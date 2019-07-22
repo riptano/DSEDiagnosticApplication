@@ -46,7 +46,7 @@
       "LinkedTagId": 8.1
     },
     {
-      "Description": "Sharding Same Token",
+      "Description": "Sharding Token Owership Changed",
       "LinkedTagId": 8.2
     },
     {
@@ -265,6 +265,10 @@
     {
       "Description": "Range Rebuild",
       "TagId": 55.0
+    },
+    {
+      "Description": "New HostId",
+      "TagId": 57.0
     }
   ]
 }

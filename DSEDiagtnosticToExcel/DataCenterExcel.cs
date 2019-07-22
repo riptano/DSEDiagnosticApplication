@@ -144,6 +144,11 @@ namespace DSEDiagtnosticToExcel
                                                                                         .SetComment("Number of occurrences where nodes were detected as \"Dead\"")
                                                                                         .SetNumericFormat("#,###,###,##0")
                                                                                         .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonNodeNbrStatusDown)
+                                                                                        .TotalColumn(),
+                                                                         this.DataTable.GetColumn("Status Other")
+                                                                                        .SetCaption("Other")
+                                                                                        .SetNumericFormat("#,###,###,##0")
+                                                                                        .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonNodeNbrStatusDown)
                                                                                         .TotalColumn())
                                                                      );
 

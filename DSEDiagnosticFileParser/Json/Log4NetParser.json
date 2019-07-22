@@ -1238,7 +1238,7 @@ Additinal group names and mappings:
       ]
     },
     {
-      "Description": "Sharding Same Token",
+      "Description": "Sharding Token Owership Changed",
       "TagId": 8.2,
       "SessionBeginTagId": 8.0,
       "MatchVersion": null,
@@ -1497,7 +1497,7 @@ Additinal group names and mappings:
         "RegExStrings": [
           "^GC\\s+for\\s+(?<GC>ParNew):\\s+(?$<DURATION>\\s*\\w+)\\s+\\w+\\s+(?<nbrcollections>[0-9]+)\\s+collections\\,\\s+(?<usedmemory_bytes>[0-9]+)\\s+used;\\s+max\\s+\\w+\\s(?<maxmemory_bytes>[0-9]+)",
           "^ConcurrentMarkSweep\\s+GC\\s+\\w+\\s+(?$<DURATION>\\s*\\w+)\\.\\s+(?<GC>CMS)\\s+Old\\s+Gen:\\s+(?<oldgenfrom_bytes>[0-9]+)\\s+\\->\\s+(?<oldgento_bytes>[0-9]+);\\s+Par\\s+Eden\\s+Space:\\s+(?<paredenspacefrom_bytes>[0-9]+)\\s+\\->\\s+(?<paredenspaceto_bytes>[0-9]+)",
-          "^G1\\s+Young\\s+\\w+\\s+GC\\s+\\w+\\s+(?<DURATION>[0-9,.]+\\s*\\w+)\\.(?:\\s+(?<GC>G1)\\s+Eden\\s+Space:\\s+(?<edenspacefrom_bytes>[0-9]+)\\s+\\->\\s+(?<edenspaceto_bytes>[0-9]+);)?(?:\\s+G1\\s+Old\\s+Gen:\\s+(?<oldgenfrom_bytes>[0-9]+)\\s+\\->\\s+(?<oldgento_bytes>[0-9]+);)?(?:\\s+G1\\s+Survivor\\s+Space:\\s+(?<survivorspacefrom_bytes>[0-9]+)\\s+\\->\\s+(?<survivorspaceto_bytes>[0-9]+))?"
+          "^G1\\s+(?<pool>(Young|Old|Survivor\\s\\w*))\\s*\\w+\\s+GC\\s+\\w+\\s+(?<DURATION>[0-9,.]+\\s*\\w+)\\.(?:\\s+(?<GC>G1)\\s+Eden\\s+Space:\\s+(?<edenspacefrom_bytes>[0-9]+)\\s+\\->\\s+(?<edenspaceto_bytes>[0-9]+);)?(?:\\s+G1\\s+Old\\s+Gen:\\s+(?<oldgenfrom_bytes>[0-9]+)\\s+\\->\\s+(?<oldgento_bytes>[0-9]+);)?(?:\\s+G1\\s+Survivor\\s+Space:\\s+(?<survivorspacefrom_bytes>[0-9]+)\\s+\\->\\s+(?<survivorspaceto_bytes>[0-9]+))?"
         ]
       },
       "ParseThreadId": null,
@@ -1511,7 +1511,8 @@ Additinal group names and mappings:
         "=> INFO  [Service Thread] 2017-01-16 13:51:39,295  GCInspector.java:258 - ConcurrentMarkSweep GC in 491ms.  CMS Old Gen: 3201269976 -> 1128616640; Par Eden Space: 1145856 -> 824106248;",
         "=> INFO  [Service Thread] 2017-05-01 01:34:24,475  GCInspector.java:258 - G1 Young Generation GC in 265ms.  G1 Eden Space: 16307453952 -> 0; G1 Survivor Space: 436207616 -> 444596224;",
         "=> WARN  [Service Thread] 2018-03-02 04:23:15,916  GCInspector.java:282 - G1 Young Generation GC in 1558ms.  G1 Eden Space: 3053453312 -> 0; G1 Old Gen: 18404605968 -> 15753805840; G1 Survivor Space: 369098752 -> 436207616;",
-        "=> WARN  [Service Thread] 2018-03-02 04:23:15,916  GCInspector.java:282 - G1 Young Generation GC in 504ms.  G1 Eden Space: 7205814272 -> 0; G1 Old Gen: 5762973968 -> 6270484744;)"
+        "=> WARN  [Service Thread] 2018-03-02 04:23:15,916  GCInspector.java:282 - G1 Young Generation GC in 504ms.  G1 Eden Space: 7205814272 -> 0; G1 Old Gen: 5762973968 -> 6270484744;)",
+        "=> WARN  [Service Thread] 2019-03-14 17:41:16,125  GCInspector.java:243 - G1 Old Generation GC in 1756ms.  G1 Old Gen: 10874189952 -> 1972566088; G1 Survivor Space: 41943040 -> 0; "
       ]
     },
     {
@@ -2384,9 +2385,9 @@ Additinal group names and mappings:
       },
       "ParseThreadId": null,
       "EventType": "SingleInstance",
-      "EventClass": "Detection,Node",
+      "EventClass": "Detection,Node,Change",
       "AnalyticsGroup": null,
-      "SubClass": "'Silent Shutdown'",
+      "SubClass": "'Shutdown Silent'",
       "Product": "Cassandra",
       "Examples": [
         "WARN  [StorageServiceShutdownHook] 2018-07-23 21:50:14,726  Gossiper.java:1538 - No local state, state is in silent shutdown, or node hasn't joined, not announcing shutdown"
@@ -3782,7 +3783,7 @@ Additinal group names and mappings:
       },
       "ParseThreadId": null,
       "EventType": "SingleInstance",
-      "EventClass": "NodeDetection,Repair",      
+      "EventClass": "NodeDetection,Repair",
       "SubClass": "'NodeSync Validate'",
       "Product": "Cassandra",
       "AnalyticsGroup": "NodeSyncStats",
@@ -3791,6 +3792,42 @@ Additinal group names and mappings:
         "INFO  [NodeSyncMaintenanceTasks:1] 2019-03-30 07:13:56,775  NodeSyncMaintenanceTasks.java:175 - In last 10m: validated 590MB (1,008kB/s), 0% was inconsistent.",
         "INFO  [NodeSyncMaintenanceTasks:1] 2019-03-24 13:25:29,380  NodeSyncMaintenanceTasks.java:175 - In last 10m: validated 0B (0B/s), 0% was inconsistent(100% uncompleted).",
         "INFO  [NodeSyncMaintenanceTasks:1] 2019-03-13 01:21:36,741  NodeSyncMaintenanceTasks.java:175 - In last 10m: validated 1.6GB (2.8MB/s), 1% was inconsistent(0% partial,0% failed)."
+      ]
+    },
+    {
+      "Description": "New HostId",
+      "TagId": 57.0,
+      "MatchVersion": null,
+      "LevelMatch": {
+        "RegExStrings": [
+          "WARN"
+        ]
+      },
+      "FileNameMatch": {
+        "RegExStrings": [
+          "^SystemKeyspace.java$"
+        ]
+      },
+      "FileLineMatch": null,
+      "MessageMatch": {
+        "RegExStrings": [
+          "^No\\s+host\\s+ID\\s+found"
+        ]
+      },
+      "ParseMessage": {
+        "RegExStrings": [
+          "No\\s+host\\s+ID\\s+found,?\\s+created\\s+(?<newhostid>[0-9a-f\\\\-]+)"
+        ]
+      },
+      "ParseThreadId": null,
+      "EventType": "SingleInstance",
+      "EventClass": "NodeDetection,Shard",
+      "SubClass": "'NewHostId ' + newhostid",
+      "Product": "Cassandra",
+      "AnalyticsGroup": null,
+      "IgnoreEvent": false,
+      "Examples": [
+        "WARN  [main] 2018-12-03 18:21:24,975  SystemKeyspace.java:1385 - No host ID found, created 8a436404-ed7e-4b92-aeca-dfbbfaa0bc5e (Note: This should happen exactly once per node)."
       ]
     }
   ]
