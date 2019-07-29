@@ -12,12 +12,12 @@ using DSEDiagnosticInsights;
 
 namespace DSEDiagnosticInsightsConsole
 {
-    class Program
+    partial class Program
     {
         static void Main(string[] args)
         {
             var node = new Uri("https://search-riptano-insights-stage-vmqawjqwydo4zerxyxu7burd4e.us-east-1.es.amazonaws.com");         
-            var clusterId = new Guid("7ed3dcbc-7de4-4c22-9636-f12234b53e69"); //DSE 5.1 AndersenHA51
+            var clusterId = new Guid("0f8045cf-5a4c-4ac3-88ad-240c187dbb93"); //DSE 5.1 AndersenHA51
 
             ESQuerySearch.OnException += (sender, eventArgs) =>
             {
@@ -36,9 +36,22 @@ namespace DSEDiagnosticInsightsConsole
             var dcs =  esConnection.BuildDCNodes(); //.Dump(1);
             var kss = esConnection.BuildSchema();
 
+            var cancellationSource = new System.Threading.CancellationTokenSource();
 
-            var tstKS = kss.First(k => k.Name == "usprodda");
-            var tstKS1 = kss.First(k => k.Name == "dse_insights");
+            var datatableTasks = LoadDataTables(esConnection.Cluster, cancellationSource);
+            var excelTasks = LoadExcelWorkbook(esConnection.Cluster, datatableTasks, cancellationSource);
+
+            #region Wait for Tasks to Complete
+            {
+                var tasks = new List<Task>() { datatableTasks, excelTasks };
+                //tasks.AddRange(aggInfoStatsTask);
+
+                System.Threading.Tasks.Task.WaitAll(tasks.ToArray(), cancellationSource.Token);
+            }
+            #endregion
+
+            // var tstKS = kss.FirstOrDefault(k => k.Name == "usprodda");
+            // var tstKS1 = kss.FirstOrDefault(k => k.Name == "dse_insights");
 
             //esConnection.ESConnection.NetworkTrace.FirstOrDefault()?.Dump("Query: ", 0);
             //esConnection.ESConnection.NetworkTrace.Dump("Network Trace: ", 0);

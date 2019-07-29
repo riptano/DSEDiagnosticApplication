@@ -144,13 +144,17 @@ namespace DSEDiagnosticInsights
                                                                                     connection.InsightClusterId,
                                                                                     connection.AnalysisPeriod.Max)
                                             .Documents
-                                            .First();
+                                            .FirstOrDefault();
+
+            if (schemaDoc == null) return Enumerable.Empty<DSEDiagnosticLibrary.IKeyspace>();
 
             //Keyspaces
             var ksList = connection.BuildKeyspace(schemaDoc);
 
             connection.BuildUserDefinedTypes(schemaDoc);
             connection.BuildUserFunctions(schemaDoc);
+            connection.BuildTablesViews(schemaDoc);
+            connection.BuildIndexes(schemaDoc);
 
             return ksList;
         }
@@ -172,14 +176,41 @@ namespace DSEDiagnosticInsights
                 {
                     var replicationDict = ksDict.TryGetValue<IReadOnlyDictionary<string, dynamic>>("replication");
                     var replClass = replicationDict.TryGetValue<string>("class");
+                    var replFactor = replicationDict.TryGetStructValue<ushort>("replication_factor");
+                    var durableWrites = ksDict.TryGetValue<bool>("durable_writes");
+
                     var replications = new List<DSEDiagnosticLibrary.KeyspaceReplicationInfo>();
-                    var replFactor = replicationDict.TryGetStructValue<int>("replication_factor");
+                    var ddlDCReplFactor = new List<Tuple<string, ushort>>();
 
                     if (replFactor.HasValue && replFactor.Value > 0)
                     {
                         var defaultDC = connection.Cluster.DataCenters.FirstOrDefault();
 
                         replications.Add(new DSEDiagnosticLibrary.KeyspaceReplicationInfo(replFactor.Value, defaultDC));
+                        ddlDCReplFactor.Add(new Tuple<string, ushort>(null, replFactor.Value));
+                    }
+                    else
+                    {
+                        foreach (var item in replicationDict)
+                        {
+                            if(item.Key == "class" || item.Key == "replication_factor") continue;
+
+                            var dcName = item.Key;
+                            var dcInstance = connection.Cluster.TryGetDataCenter(dcName);
+                            ushort replFactorValue;
+
+                            if(item.Value is string strRepl && Common.StringFunctions.ParseIntoNumeric(strRepl, out object objRepl))
+                            {
+                                replFactorValue = (ushort)((dynamic)objRepl);
+                            }
+                            else
+                            {
+                                replFactorValue = (ushort)item.Value;
+                            }
+
+                            replications.Add(new DSEDiagnosticLibrary.KeyspaceReplicationInfo(replFactorValue, dcInstance));
+                            ddlDCReplFactor.Add(new Tuple<string, ushort>(dcName, replFactorValue));
+                        }
                     }
 
                     ksInstance = new DSEDiagnosticLibrary.KeySpace(filePath,
@@ -187,8 +218,11 @@ namespace DSEDiagnosticInsights
                                                                     ksName,
                                                                     replClass,
                                                                     replications,
-                                                                    ksDict.TryGetValue<bool>("durable_writes"),
-                                                                    ksName + '.' + replClass,
+                                                                    durableWrites,
+                                                                    DSEDiagnosticCQLSchema.Parser.GenerateKeyspaceDDLString(ksName,
+                                                                                                                            replClass,
+                                                                                                                            ddlDCReplFactor,
+                                                                                                                            durableWrites),
                                                                     null,
                                                                     connection.Cluster,
                                                                     false);
@@ -198,6 +232,53 @@ namespace DSEDiagnosticInsights
             }
 
             return ksList;
+        }
+
+        public static void BuildIndexes(this Connection connection, DSESchemaInformation schemaDoc)
+        {
+            var filePath = Common.Path.PathUtils.BuildFilePath(DefaultDirectory + "Index.cql");
+            uint itemNbr = 0;
+            var indexes = from idxDict in schemaDoc.Data.indexes.Cast<IReadOnlyDictionary<string, dynamic>>()
+                                   let ksName = idxDict.TryGetValue<string>("keyspace_name")
+                                   let tblName = idxDict.TryGetValue<string>("table_name")
+                                   let idxName = idxDict.TryGetValue<string>("index_name")
+                                   let idxKind = idxDict.TryGetValue<string>("kind")
+                                   let options = idxDict.TryGetValue<IReadOnlyDictionary<string,object>>("options")
+                                   let ksInstance = DSEDiagnosticLibrary.KeySpace.TryGet(connection.Cluster, ksName).FirstOrDefault()
+                                   select new
+                                   {
+                                       keyspace = ksInstance,
+                                       tblName,
+                                       idxName,
+                                       isCustom = idxKind == "CUSTOM",
+                                       options,
+                                       target = options.TryGetValue<string>("target"),
+                                       idxclass = options.TryGetValue<string>("class_name")
+                                   };
+
+            foreach (var idxItem in indexes)
+            {
+                var colunms = new List<string>() { idxItem.target };
+                DSEDiagnosticCQLSchema.Parser.ProcessDDLIndex(idxItem.keyspace,
+                                                                idxItem.idxName,
+                                                                idxItem.keyspace,
+                                                                idxItem.tblName,
+                                                                colunms,
+                                                                idxItem.idxclass,
+                                                                null,
+                                                                idxItem.isCustom,
+                                                                DSEDiagnosticCQLSchema.Parser.GenerateIndexDDLString(idxItem.idxName,
+                                                                                                                        idxItem.idxclass,
+                                                                                                                        colunms,
+                                                                                                                        idxItem.tblName,
+                                                                                                                        idxItem.options),
+                                                                filePath,
+                                                                null,
+                                                                ++itemNbr,
+                                                                out DSEDiagnosticLibrary.CQLIndex idxInstance,                                                                
+                                                                withDict: idxItem.options
+                                                                );
+            }
         }
 
         public static void BuildUserDefinedTypes(this Connection connection, DSESchemaInformation schemaDoc)
@@ -225,7 +306,7 @@ namespace DSEDiagnosticInsights
                 DSEDiagnosticCQLSchema.Parser.ProcessDDLUDT(udtItem.keyspace,
                                                                 udtItem.name,
                                                                 udtItem.columns,
-                                                                udtItem.name + ' ' + string.Join(",", udtItem.columns),
+                                                                DSEDiagnosticCQLSchema.Parser.GenerateUDTDDLString(udtItem.keyspace.Name, udtItem.name, udtItem.columns),
                                                                 filePath,
                                                                 null,
                                                                 ++itemNbr,
@@ -239,26 +320,26 @@ namespace DSEDiagnosticInsights
             uint itemNbr = 0;
             var orderedFunctions = from udtDict in schemaDoc.Data.functions.Cast<IReadOnlyDictionary<string, dynamic>>()
                                        let ksName = udtDict.TryGetValue<string>("keyspace_name")
-                                       let udtColNames = udtDict.TryGetValues<string>("field_names")
-                                       let udtColTypes = udtDict.TryGetValues<string>("field_types")
+                                       let udtColNames = udtDict.TryGetValues<string>("argument_names")
+                                       let udtColTypes = udtDict.TryGetValues<string>("argument_types")
                                        let cntSubTypes = udtColTypes.Count(i => i.Contains("<"))
                                        orderby ksName ascending, cntSubTypes ascending
                                        select new
                                        {
                                            keyspace = DSEDiagnosticLibrary.KeySpace.TryGet(connection.Cluster, ksName).FirstOrDefault(),
-                                           name = udtDict.TryGetValue<string>("type_name"),
+                                           name = udtDict.TryGetValue<string>("function_name"),
                                            columns = udtColNames.Select(udtColTypes, (s1, s2) => s1 + ' ' + s2).ToList(),
                                            cntSubTypes
                                        };
 
 
 
-            foreach (var udtItem in orderedFunctions)
+            foreach (var funcItem in orderedFunctions)
             {
-                DSEDiagnosticCQLSchema.Parser.ProcessDDLUDT(udtItem.keyspace,
-                                                                udtItem.name,
-                                                                udtItem.columns,
-                                                                udtItem.name + ' ' + string.Join(",", udtItem.columns),
+                DSEDiagnosticCQLSchema.Parser.ProcessDDLUDT(funcItem.keyspace,
+                                                                funcItem.name,
+                                                                funcItem.columns,
+                                                                funcItem.name + ' ' + string.Join(",", funcItem.columns),
                                                                 filePath,
                                                                 null,
                                                                 ++itemNbr,
@@ -270,25 +351,96 @@ namespace DSEDiagnosticInsights
         {
             var filePath = Common.Path.PathUtils.BuildFilePath(DefaultDirectory + "Table.cql");
             uint itemNbr = 0;
-            var orderedFunctions = from udtDict in schemaDoc.Data.functions.Cast<IReadOnlyDictionary<string, dynamic>>()
-                                   let ksName = udtDict.TryGetValue<string>("keyspace_name")
-                                   let udtColNames = udtDict.TryGetValues<string>("field_names")
-                                   let udtColTypes = udtDict.TryGetValues<string>("field_types")
-                                   let cntSubTypes = udtColTypes.Count(i => i.Contains("<"))
-                                   orderby ksName ascending, cntSubTypes ascending
-                                   select new
-                                   {
-                                       keyspace = DSEDiagnosticLibrary.KeySpace.TryGet(connection.Cluster, ksName).FirstOrDefault(),
-                                       name = udtDict.TryGetValue<string>("type_name"),
-                                       columns = udtColNames.Select(udtColTypes, (s1, s2) => s1 + ' ' + s2).ToList(),
-                                       cntSubTypes
-                                   };
+
+            var tblDicts = schemaDoc.Data.tables.Cast<IReadOnlyDictionary<string, dynamic>>()
+                            .Concat(schemaDoc.Data.views.Cast<IReadOnlyDictionary<string, dynamic>>())
+                            .Select(d =>
+                            {
+                                var viewName = d.TryGetValue<string>("view_name");
+                                return new
+                                {
+                                    ksName = d.TryGetValue<string>("keyspace_name"),
+                                    tblName = viewName == null ? d.TryGetValue<string>("table_name") : viewName,
+                                    baseTblName = d.TryGetValue<string>("base_table_name"),
+                                    isView = viewName != null,
+                                    dist = d
+                                };
+                            })
+                            .ToArray();
+            var tblCols = from colDict in schemaDoc.Data.columns.Cast<IReadOnlyDictionary<string, dynamic>>()
+                          let ksName = colDict.TryGetValue<string>("keyspace_name")
+                          let tblName = colDict.TryGetValue<string>("table_name") ?? colDict.TryGetValue<string>("view_name")
+                          select new
+                          {
+                              ksName,
+                              tblName,
+                              colName = colDict.TryGetValue<string>("column_name"),
+                              clusterOrder = colDict.TryGetValue<string>("clustering_order"),
+                              kind = colDict.TryGetValue<string>("kind"),                              
+                              pos = colDict.TryGetValue<int>("position"),
+                              type = colDict.TryGetValue<string>("type"),
+                              Props = colDict
+                          };
+
+            var groupedTblCols = from colItem in tblCols
+                              group colItem by new { colItem.ksName, colItem.tblName } into grpTbl
+                              orderby grpTbl.Key.ksName, grpTbl.Key.tblName
+                              let tableDict = tblDicts.FirstOrDefault(d => d.ksName == grpTbl.Key.ksName && d.tblName == grpTbl.Key.tblName)
+                              let ksInstance = DSEDiagnosticLibrary.KeySpace.TryGet(connection.Cluster, grpTbl.Key.ksName).FirstOrDefault()
+                              select new
+                              {
+                                  grpTbl.Key.ksName,
+                                  grpTbl.Key.tblName,
+                                  Keyspace = ksInstance,
+                                  BaseTable = tableDict.baseTblName == null ? null : ksInstance?.TryGetTable(tableDict.baseTblName),
+                                  IsView = tableDict?.isView ?? false,
+                                  tableDict,
+                                  columns = (from col in grpTbl                                             
+                                             select new DSEDiagnosticCQLSchema.Parser.ColumnDefination
+                                             {
+                                                 Name = col.colName,
+                                                 Type = col.type,
+                                                 Kind = col.kind == "partition_key"
+                                                            ? DSEDiagnosticCQLSchema.Parser.ColumnDefination.Kinds.PartitionKey
+                                                            : (col.kind == "clustering"
+                                                                    ? DSEDiagnosticCQLSchema.Parser.ColumnDefination.Kinds.ClustingKey
+                                                                    : DSEDiagnosticCQLSchema.Parser.ColumnDefination.Kinds.Regular),
+                                                 KindPos = col.pos,
+                                                 OrderBy = string.IsNullOrEmpty(col.clusterOrder) || col.clusterOrder == "none"
+                                                                ? DSEDiagnosticCQLSchema.Parser.ColumnDefination.OrderByDirection.None
+                                                                : (col.clusterOrder == "asc"
+                                                                        ? DSEDiagnosticCQLSchema.Parser.ColumnDefination.OrderByDirection.Ascending
+                                                                        : DSEDiagnosticCQLSchema.Parser.ColumnDefination.OrderByDirection.Descending)
+                                             })
+                              };
 
 
-
-            foreach (var udtItem in orderedFunctions)
+            foreach (var tblvwItem in groupedTblCols)
             {
-                //DSEDiagnosticCQLSchema.Parser.ProcessDDLTable()
+                if (tblvwItem.IsView)
+                {
+                    DSEDiagnosticCQLSchema.Parser.ProcessDDLView(tblvwItem.Keyspace,
+                                                                    tblvwItem.tblName,
+                                                                    tblvwItem.BaseTable,
+                                                                    tblvwItem.columns,
+                                                                    tblvwItem.tableDict.dist,
+                                                                    tblvwItem.tableDict.dist.TryGetValue<string>("where_clause"),
+                                                                    filePath,
+                                                                    ++itemNbr,
+                                                                    null,
+                                                                    out DSEDiagnosticLibrary.CQLMaterializedView view);                                                                    
+                }
+                else
+                {
+                    DSEDiagnosticCQLSchema.Parser.ProcessDDLTable(tblvwItem.Keyspace,
+                                                                    tblvwItem.tblName,
+                                                                    tblvwItem.columns,
+                                                                    tblvwItem.tableDict.dist,
+                                                                    filePath,
+                                                                    ++itemNbr,
+                                                                    null,
+                                                                    out DSEDiagnosticLibrary.CQLTable table);
+                }
             }
         }
 

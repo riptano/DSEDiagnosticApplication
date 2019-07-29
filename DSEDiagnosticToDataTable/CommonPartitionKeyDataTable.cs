@@ -81,6 +81,8 @@ namespace DSEDiagnosticToDataTable
         /// <exception cref="Exception">Should re-thrown any exception except for OperationCanceledException</exception>
         public override DataTable LoadTable()
         {
+            if (this.CommonPKStats == null) return this.Table;
+
             this.Table.BeginLoadData();
             try
             {

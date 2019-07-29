@@ -121,6 +121,55 @@ namespace DSEDiagnosticLibrary
                                                                     "yyyy-MM-dd HH:mm:ss,f",
                                                                     "yyyy-MM-dd HH:mm:ss.f",};
 
+        static public object DetermineProperUOMFormat(dynamic numValue,
+                                                        string convertToUOMBasedOnContext = null,
+                                                        bool convertNumericToDecimal = true)
+        {
+            if(MiscHelpers.IsNumberType(numValue))
+            {
+                if (!string.IsNullOrEmpty(convertToUOMBasedOnContext))
+                {
+                    if (convertToUOMBasedOnContext == "size") convertToUOMBasedOnContext = "bytes";
+                    if (convertToUOMBasedOnContext == "duration") convertToUOMBasedOnContext = "ms";
+
+                    var uomType = UnitOfMeasure.ConvertToType(convertToUOMBasedOnContext);
+
+                    if ((uomType & UnitOfMeasure.Types.Attrs) == uomType)
+                    {
+                        switch (uomType)
+                        {
+                            case UnitOfMeasure.Types.Storage:
+                                uomType |= UnitOfMeasure.Types.Byte;
+                                break;
+                            case UnitOfMeasure.Types.Memory:
+                                uomType |= UnitOfMeasure.Types.Byte;
+                                break;
+                            case UnitOfMeasure.Types.Rate:
+                                uomType |= UnitOfMeasure.Types.MiB | UnitOfMeasure.Types.SEC;
+                                break;
+                            case UnitOfMeasure.Types.Time:
+                                uomType |= UnitOfMeasure.Types.MS;
+                                break;
+                            case UnitOfMeasure.Types.Operations:
+                                uomType |= UnitOfMeasure.Types.SEC;
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+
+                    if (uomType != UnitOfMeasure.Types.Unknown)
+                    {
+                        return UnitOfMeasure.Create((decimal) numValue, uomType);
+                    }
+                }
+
+                if (convertNumericToDecimal) return (decimal)numValue;
+            }
+
+            return numValue;
+        }
+
         static public object DetermineProperObjectFormat(string strValue,
                                                             bool ignoreBraces = false,
                                                             bool removeNamespace = true,

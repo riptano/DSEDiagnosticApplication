@@ -1,0 +1,28 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="DSEDiagnosticInsightsConsole.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="ExcelWorkbookPath" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">.\</Value>
+    </Setting>
+    <Setting Name="WhiteListKeyspaceInWS" Type="System.Collections.Specialized.StringCollection" Scope="Application">
+      <Value Profile="(Default)">&lt;?xml version="1.0" encoding="utf-16"?&gt;
+&lt;ArrayOfString xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"&gt;
+  &lt;string&gt;OpsCenter&lt;/string&gt;
+  &lt;string&gt;system_traces&lt;/string&gt;
+&lt;/ArrayOfString&gt;</Value>
+    </Setting>
+    <Setting Name="ExcelFileTemplatePath" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">.\dseHealthAssessment4ATemplate.xlsm</Value>
+    </Setting>
+    <Setting Name="LoadSystemDSEKeyspaces" Type="System.Boolean" Scope="Application">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="ExcelFileNameGeneratedStringFormat" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">{0}\{1}{2}</Value>
+    </Setting>
+    <Setting Name="ExcelWorkbookFile" Type="System.String" Scope="Application">
+      <Value Profile="(Default)" />
+    </Setting>
+  </Settings>
+</SettingsFile>

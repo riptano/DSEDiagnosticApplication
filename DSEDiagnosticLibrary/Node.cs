@@ -1629,8 +1629,9 @@ namespace DSEDiagnosticLibrary
                 {
                     bool hasAttr = false;
 
-                    if (Math.Abs((this.DSE.Uptime.ConvertToTimeSpan() - this.DataCenter.NodeUpTimeAvg.Value).TotalHours) > Properties.Settings.Default.ThresholdAvgHrs.TotalHours)
-                    {                        
+                    if (this.DataCenter.NodeUpTimeAvg.HasValue
+                            && Math.Abs((this.DSE.Uptime.ConvertToTimeSpan() - this.DataCenter.NodeUpTimeAvg.Value).TotalHours) > Properties.Settings.Default.ThresholdAvgHrs.TotalHours)
+                    {              
                         if (this.DSE.Uptime.ConvertToTimeSpan() < this.DataCenter.NodeUpTimeAvg - this.DataCenter.NodeUpTimeStdRange)
                         {
                             strAttr += (char)Properties.Settings.Default.LowAttrChar;

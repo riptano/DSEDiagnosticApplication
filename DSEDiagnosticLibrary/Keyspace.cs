@@ -89,6 +89,12 @@ namespace DSEDiagnosticLibrary
             this.DataCenter = datacenter;
         }
 
+        public KeyspaceReplicationInfo(ushort replicationFactor, IDataCenter datacenter)
+        {
+            this.RF = replicationFactor;
+            this.DataCenter = datacenter;
+        }
+
         public ushort RF { get; }
         public IDataCenter DataCenter { get; }
 

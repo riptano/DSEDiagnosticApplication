@@ -787,6 +787,23 @@ namespace DSEDiagnosticLibrary
             return null;
         }
 
+        public static IKeyspace TryGetKeySpace(string keyspaceName)
+        {
+            IKeyspace keyspace = null;
+
+            foreach (var currentCluster in Clusters)
+            {
+                foreach (var currentDC in currentCluster.DataCenters)
+                {
+                    keyspace = currentDC.TryGetKeyspace(keyspaceName);
+
+                    if (keyspace != null) return keyspace;
+                }
+            }
+
+            return null;
+        }
+
         public static IDDLStmt TryGetDDLStmt(int ddlHashCode)
         {
             IDDLStmt ddl = null;

@@ -35,6 +35,452 @@ namespace DSEDiagnosticCQLSchema
             return false;
         }
 
+        public struct ColumnDefination
+        {
+            public enum Kinds
+            {              
+                Unknown = 0,
+                PartitionKey = 1,
+                ClustingKey = 2,
+                Regular = 3
+            }
+            public enum OrderByDirection
+            {
+                None = 0,
+                Ascending = 1,
+                Descending = 2
+            }
+
+            public string Name;
+            public string Type;
+
+            /// <summary>
+            /// Position within Kind
+            /// </summary>
+            public int KindPos;
+            public Kinds Kind;
+
+            /// <summary>
+            /// Position within Table definition
+            /// </summary>
+            public int TblPos;
+            public OrderByDirection OrderBy;
+        }
+
+        public static string GenerateIndexDDLString(string indexName,
+                                                        string indexClass,
+                                                        IEnumerable<string> indexColumns,
+                                                        string baseTableName,
+                                                        IReadOnlyDictionary<string,object> withOptions)
+        {
+            var buildDDL = new StringBuilder();
+
+            if (string.IsNullOrEmpty(indexClass))
+            {
+                buildDDL.AppendFormat("CREATE INDEX {0} ON {1} ( {2} )",
+                                        indexName,
+                                        baseTableName,
+                                        string.Join(", ", indexColumns));
+            }
+            else
+            {
+                buildDDL.AppendFormat("CREATE INDEX {0} ON {1} ( {2} ) USING '{3}'",
+                                        indexName,
+                                        baseTableName,
+                                        string.Join(", ", indexColumns),
+                                        indexClass);                
+            }
+
+            if (withOptions != null)
+                GenerateWithOptionsDDLString(buildDDL, Enumerable.Empty<string>(), withOptions);
+
+            buildDDL.Append(';');
+
+            return buildDDL.ToString();
+        }
+
+        public static string GenerateKeyspaceDDLString(string ksName,
+                                                        string replicationClass,
+                                                        IEnumerable<Tuple<string, ushort>> dcreplicationfactors,                                                       
+                                                        bool durableWrites)
+        {
+            var buildDDL = new StringBuilder();
+            var dcs = dcreplicationfactors == null || dcreplicationfactors.IsEmpty() ? 0 : dcreplicationfactors.Count();
+
+            buildDDL.AppendFormat("CREATE KEYSPACE {0} WITH REPLICATION = ",
+                                    ksName);
+
+            if(dcs > 1 || (dcs == 1 && !string.IsNullOrEmpty(dcreplicationfactors.First().Item1)))
+            {
+                buildDDL.AppendFormat("{{ 'class' : '{0}', {1} }}",
+                                       replicationClass,
+                                       string.Join(", ", dcreplicationfactors.Select(i => string.Format("'{0}' : {1}", i.Item1, i.Item2))));
+            }
+            else if(dcs == 0)
+            {
+                buildDDL.AppendFormat("{{ 'class' : '{0}' }}",
+                                       replicationClass);
+            }
+            else
+            {
+                buildDDL.AppendFormat("{{ 'class' : '{0}', 'replication_factor' : {1} }}",
+                                       replicationClass,
+                                       dcreplicationfactors.First().Item2);
+            }
+
+            buildDDL.Append(';');
+
+            return buildDDL.ToString();
+        }
+
+        public static string GenerateUDTDDLString(string ksName, 
+                                                    string udtName,
+                                                    IEnumerable<string> columnDefinations)
+        {
+            var buildDDL = new StringBuilder();
+            
+            buildDDL.AppendFormat("CREATE TYPE {0}.{1} ( {2} )",
+                                    ksName,
+                                    udtName,
+                                    string.Join(", ", columnDefinations));
+           
+            buildDDL.Append(';');
+
+            return buildDDL.ToString();
+        }
+
+        public static StringBuilder GenerateWithOptionsDDLString(StringBuilder buildDDL,
+                                                                    IEnumerable<string> orderByDefinations,
+                                                                    IReadOnlyDictionary<string, dynamic> withProperties = null)
+        {
+            bool andRequired = false;
+            bool withRequired = true;
+
+            if (orderByDefinations.HasAtLeastOneElement())
+            {
+                buildDDL.Append(" WITH");
+                withRequired = false;
+                buildDDL.AppendFormat(" CLUSTERING ORDER BY ({0})",
+                                        string.Join(", ", orderByDefinations));
+            }
+
+            if(withProperties == null)
+            {
+                return buildDDL;
+            }
+            
+
+            foreach (var prop in withProperties)
+            {
+                if (prop.Key == "keyspace_name"
+                        || prop.Key == "table_name"
+                        || prop.Key == "where_clause"
+                        || prop.Key == "view_name"
+                        || prop.Key == "base_table_id"
+                        || prop.Key == "base_table_name"
+                        || prop.Key == "extensions"
+                        || prop.Key == "class_name"
+                        || prop.Key == "target"
+                        || prop.Value == null)
+                    continue;
+
+                if(withRequired)
+                {
+                    buildDDL.Append(" WITH");
+                    withRequired = false;
+                }
+
+                if (prop.Key == "flags")
+                {
+                    if (prop.Value is Object[] flagArray)
+                    {
+                        if (andRequired) buildDDL.Append(" AND ");
+                        buildDDL.Append(string.Join(" AND ", flagArray.Select(i => i.ToString())));
+                        andRequired = true;
+                    }
+                    continue;
+                }
+
+                if (andRequired)
+                    buildDDL.Append(" AND ");
+                else
+                {
+                    buildDDL.Append(' ');
+                    andRequired = true;
+                }
+
+                if (prop.Key == "comment")
+                {
+                    buildDDL.AppendFormat("{0} = '{1}'", prop.Key, prop.Value);
+                }
+                else if (prop.Value is Dictionary<string, Object> jsonValue)
+                {
+                    buildDDL.AppendFormat("{0} = {{ {1} }}",
+                                            prop.Key,
+                                            string.Join(", ", jsonValue.Select(i => string.Format("{0} : {1}",
+                                                                                                    i.Key,
+                                                                                                    DSEDiagnosticLibrary.MiscHelpers.IsNumberType(i.Value) ? i.Value : string.Format("'{0}'", i.Value)))));
+                }
+                else
+                {
+                    if (DSEDiagnosticLibrary.MiscHelpers.IsNumberType(prop.Value))
+                        buildDDL.AppendFormat("{0} = {1}", prop.Key, prop.Value);
+                    else
+                        buildDDL.AppendFormat("{0} = '{1}'", prop.Key, prop.Value);
+                }
+            }
+
+            return buildDDL;
+        }
+
+        public static string GenerateTableDDLString(string ksName,
+                                                        string tblName,
+                                                        IEnumerable<string> columnDefinations,
+                                                        IEnumerable<string> partitionKeys,
+                                                        IEnumerable<string> clusteringKeys,
+                                                        IEnumerable<string> orderByDefinations,
+                                                        IReadOnlyDictionary<string, dynamic> tblProperties = null)
+        {
+            var buildDDL = new StringBuilder();
+
+            buildDDL.AppendFormat("CREATE TABLE {0}.{1}",
+                                    ksName,
+                                    tblName);
+            buildDDL.AppendFormat(" ({0},  PRIMARY KEY (({1}) {2}) )",
+                                    string.Join(", ", columnDefinations),
+                                    string.Join(", ", partitionKeys),
+                                    string.Join(", ", clusteringKeys));
+           
+            if(tblProperties != null)
+                GenerateWithOptionsDDLString(buildDDL, orderByDefinations, tblProperties);
+
+            buildDDL.Append(';');
+
+            return buildDDL.ToString();
+        }
+
+        public static string GenerateViewDDLString(string ksName,
+                                                        string viewName,
+                                                        string baseTblName,
+                                                        IEnumerable<string> selectColumns,
+                                                        IEnumerable<string> partitionKeys,
+                                                        IEnumerable<string> clusteringKeys,
+                                                        IEnumerable<string> orderByDefinations,
+                                                        string whereClause,
+                                                        IReadOnlyDictionary<string, dynamic> viewProperties = null)
+        {
+            var buildDDL = new StringBuilder();
+
+            buildDDL.AppendFormat("CREATE MATERIALIZED VIEW {0}.{1} AS SELECT",
+                                    ksName,
+                                    viewName);
+            buildDDL.AppendFormat(" {0} FROM {1} WHERE {2} PRIMARY KEY (({3}) {4}) )",
+                                    string.Join(", ", selectColumns),
+                                    baseTblName,
+                                    whereClause,
+                                    string.Join(", ", partitionKeys),
+                                    string.Join(", ", clusteringKeys));
+           
+            GenerateWithOptionsDDLString(buildDDL, orderByDefinations, viewProperties);
+
+            buildDDL.Append(';');
+
+            return buildDDL.ToString();
+        }
+
+        public static bool ProcessDDLTable(IKeyspace ksInstance,
+                                                   string name,                                                   
+                                                   IEnumerable<ColumnDefination> tblColumns,                                                   
+                                                   IReadOnlyDictionary<string,dynamic> tblProperties,
+                                                   IFilePath filePath,
+                                                   uint itemNbr,
+                                                   INode node,                                                   
+                                                   out CQLTable cqlTable,
+                                                   bool checkIfExist = true,
+                                                   string ddl = null)
+        {
+            var kstblPair = StringHelpers.SplitTableName(name, null);
+                        
+            cqlTable = null;
+
+            if(ksInstance == null)
+            {
+                if (!string.IsNullOrEmpty(kstblPair.Item1))
+                {
+                    ksInstance = node?.DataCenter?.TryGetKeyspace(kstblPair.Item1)
+                                    ?? Cluster.TryGetKeySpace(kstblPair.Item1);
+                }
+            }
+            else if (!string.IsNullOrEmpty(kstblPair.Item1) && ksInstance.Name != kstblPair.Item1)
+            {
+                ksInstance = node?.DataCenter?.TryGetKeyspace(kstblPair.Item1)
+                                    ?? Cluster.TryGetKeySpace(kstblPair.Item1);
+            }
+
+            if (ksInstance == null) throw new ArgumentNullException("keyspace", string.Format("CQL Table \"{0}\" could not find associated keyspace \"{1}\". DDL: {2}",
+                                                                                                 kstblPair.Item2,
+                                                                                                 kstblPair.Item1 ?? "<CQL use stmt required or fully qualified name>",
+                                                                                                 ddl));
+
+            if (!checkIfExist || ksInstance.TryGetTable(kstblPair.Item2) == null)
+            {
+                var preColumns = tblColumns
+                                .OrderBy(i => i.TblPos)
+                                .ThenBy(i => i.Kind)
+                                .ThenBy(i => i.KindPos)
+                                .Select(i => new Tuple<ICQLColumn, ColumnDefination>(ProcessTableColumn(i.Name,
+                                                                                                            i.Type,
+                                                                                                            string.Format("{0} {1}", i.Name, i.Type),
+                                                                                                            ksInstance),
+                                                                                        i));
+                var columns = preColumns.Select(i => i.Item1);
+                var partitionKeys = preColumns
+                                        .Where(i => i.Item2.Kind == ColumnDefination.Kinds.PartitionKey)
+                                        .OrderBy(i => i.Item2.KindPos)
+                                        .Select(i => i.Item1);
+                var clusteringKeys = preColumns
+                                        .Where(i => i.Item2.Kind == ColumnDefination.Kinds.ClustingKey)
+                                        .OrderBy(i => i.Item2.KindPos)
+                                        .Select(i => i.Item1);
+                var orderBy = preColumns
+                                .Where(i => i.Item2.OrderBy != ColumnDefination.OrderByDirection.None)
+                                .Select(i => new CQLOrderByColumn()
+                                {
+                                    Column = i.Item1,
+                                    IsDescending = i.Item2.OrderBy == ColumnDefination.OrderByDirection.Descending
+                                });                
+                var properties = new Dictionary<string, object>();
+
+                if(string.IsNullOrEmpty(ddl))
+                {
+                    ddl = GenerateTableDDLString(ksInstance.Name,
+                                                    kstblPair.Item2,
+                                                    columns.Select(i => i.DDL),
+                                                    partitionKeys.Select(i => i.Name),
+                                                    clusteringKeys.Select(i => i.Name),
+                                                    orderBy.Select(i => i.Column.Name + ' ' + (i.IsDescending ? "DESC" : "ASC")),
+                                                    tblProperties);
+                }
+
+                ProcessWithOptions(tblProperties, columns, orderBy, properties);
+
+                cqlTable = new CQLTable(filePath,
+                                            itemNbr,
+                                            ksInstance,
+                                            kstblPair.Item2,
+                                            columns,
+                                            partitionKeys,
+                                            clusteringKeys,
+                                            orderBy,
+                                            properties,
+                                            ddl,
+                                            node);
+                return true;
+            }
+
+            return false;
+        }    
+
+        public static bool ProcessDDLView(IKeyspace ksInstance,
+                                                   string name,
+                                                   ICQLTable baseTable,
+                                                   IEnumerable<ColumnDefination> tblColumns,
+                                                   IReadOnlyDictionary<string, dynamic> viewProperties,
+                                                   string whereClause,
+                                                   IFilePath filePath,
+                                                   uint itemNbr,
+                                                   INode node,
+                                                   out CQLMaterializedView cqlView,
+                                                   bool checkIfExist = true,
+                                                   string ddl = null)
+        {
+            var kstblPair = StringHelpers.SplitTableName(name, null);
+
+            cqlView = null;
+
+            if (ksInstance == null)
+            {
+                if (!string.IsNullOrEmpty(kstblPair.Item1))
+                {
+                    ksInstance = node?.DataCenter?.TryGetKeyspace(kstblPair.Item1)
+                                    ?? Cluster.TryGetKeySpace(kstblPair.Item1);
+                }
+            }
+            else if (!string.IsNullOrEmpty(kstblPair.Item1) && ksInstance.Name != kstblPair.Item1)
+            {
+                ksInstance = node?.DataCenter?.TryGetKeyspace(kstblPair.Item1)
+                                    ?? Cluster.TryGetKeySpace(kstblPair.Item1);
+            }
+
+            if (ksInstance == null) throw new ArgumentNullException("keyspace", string.Format("CQL View \"{0}\" could not find associated keyspace \"{1}\". DDL: {2}",
+                                                                                                 kstblPair.Item2,
+                                                                                                 kstblPair.Item1 ?? "<CQL use stmt required or fully qualified name>",
+                                                                                                 ddl));
+
+            if (!checkIfExist || ksInstance.TryGetView(kstblPair.Item2) == null)
+            {
+                var preColumns = tblColumns
+                                .OrderBy(i => i.TblPos)
+                                .ThenBy(i => i.Kind)
+                                .ThenBy(i => i.KindPos)
+                                .Select(i => new Tuple<ICQLColumn, ColumnDefination>(ProcessTableColumn(i.Name,
+                                                                                                            i.Type,
+                                                                                                            string.Format("{0} {1}", i.Name, i.Type),
+                                                                                                            ksInstance),
+                                                                                        i));
+                var columns = preColumns.Select(i => i.Item1);
+                var partitionKeys = preColumns
+                                        .Where(i => i.Item2.Kind == ColumnDefination.Kinds.PartitionKey)
+                                        .OrderBy(i => i.Item2.KindPos)
+                                        .Select(i => i.Item1);
+                var clusteringKeys = preColumns
+                                        .Where(i => i.Item2.Kind == ColumnDefination.Kinds.ClustingKey)
+                                        .OrderBy(i => i.Item2.KindPos)
+                                        .Select(i => i.Item1);
+                var orderBy = preColumns
+                                .Where(i => i.Item2.OrderBy != ColumnDefination.OrderByDirection.None)
+                                .Select(i => new CQLOrderByColumn()
+                                {
+                                    Column = i.Item1,
+                                    IsDescending = i.Item2.OrderBy == ColumnDefination.OrderByDirection.Descending
+                                });
+                var properties = new Dictionary<string, object>();
+
+                if (string.IsNullOrEmpty(ddl))
+                {
+                    ddl = GenerateViewDDLString(ksInstance.Name,
+                                                kstblPair.Item2,
+                                                baseTable.FullName,
+                                                columns.Select(i => i.Name),
+                                                partitionKeys.Select(i => i.Name),
+                                                clusteringKeys.Select(i => i.Name),
+                                                orderBy.Select(i => i.Column.Name + ' ' + (i.IsDescending ? "DESC" : "ASC")),
+                                                whereClause,
+                                                viewProperties);
+                }
+
+                ProcessWithOptions(viewProperties, columns, orderBy, properties);
+
+                cqlView = new CQLMaterializedView(filePath,
+                                            itemNbr,
+                                            ksInstance,
+                                            kstblPair.Item2,
+                                            baseTable,
+                                            columns,
+                                            partitionKeys,
+                                            clusteringKeys,
+                                            orderBy,
+                                            properties,
+                                            whereClause,
+                                            ddl,
+                                            node);
+                return true;
+            }
+
+            return false;
+
+        }
+
         public static bool ProcessDDLTable(IKeyspace ksInstance,
                                             string name,
                                             IList<string> columnsSplit,
@@ -129,7 +575,8 @@ namespace DSEDiagnosticCQLSchema
                                             INode node,
                                             uint lineNbr,
                                             out CQLIndex cqlIdx,
-                                            bool checkIfExist = true)
+                                            bool checkIfExist = true,
+                                            IReadOnlyDictionary<string,object> withDict = null)
         {
             var ksidxPair = StringHelpers.SplitTableName(name, null);            
             var kstblPair = StringHelpers.SplitTableName(tableName, null);
@@ -182,7 +629,7 @@ namespace DSEDiagnosticCQLSchema
                                         isCustomIdx,
                                         usingClass,
                                         string.IsNullOrEmpty(withOptions)
-                                            ? null
+                                            ? (withDict == null ? null : withDict)
                                             : JsonConvert.DeserializeObject<Dictionary<string, object>>(withOptions),
                                         ddl,
                                         node);
@@ -481,6 +928,11 @@ namespace DSEDiagnosticCQLSchema
                 }
             }
 
+            return ProcessTableColumn(colName, colType, strColumnType, keyspace);
+        }
+
+        public static CQLColumn ProcessTableColumn(string colName, string colType, string strColumnType, IKeyspace keyspace)
+        {                       
             return new CQLColumn(colName,
                                     ProcessColumnType(colType, keyspace),
                                     strColumnType);
@@ -566,6 +1018,34 @@ namespace DSEDiagnosticCQLSchema
 
         static readonly Regex WithCompactStorageRegEx = new Regex(@"(?:\s|^)compact\s+storage(?:\s|\;|$)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
         static readonly Regex WithOrderByRegEx = new Regex(@"(?:\s|^)clustering\s+order\s+by\s*\(([a-z0-9\-_$%+=@!?^*&,\ ]+)\)(?:\s|\;|$)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+        public static bool ProcessWithOptions(IReadOnlyDictionary<string,dynamic> tblProperies,
+                                                IEnumerable<ICQLColumn> columns,
+                                                IEnumerable<CQLOrderByColumn> orderByList,
+                                                Dictionary<string, object> properties)
+        {
+
+            tblProperies.ForEach(kv => properties.Add(kv.Key,
+                                                        kv.Value is string strValue
+                                                            ? StringHelpers.DetermineProperObjectFormat(strValue, true, false, false, kv.Key)
+                                                            : StringHelpers.DetermineProperUOMFormat(kv.Value, kv.Key)));
+
+            if (orderByList.HasAtLeastOneElement())
+            {
+                properties.Add("clustering order by",
+                                string.Join(", ",
+                                                orderByList.Select(i => string.Format("{0} {1}",
+                                                                                        i.Column.Name,
+                                                                                        i.IsDescending ? "desc" : "asc"))));
+            }
+
+            if(tblProperies.TryGetValue("flags", out dynamic dFlags) && dFlags is Object[] flags)
+            {
+                flags.ForEach(i => properties.Add(i.ToString(), true));
+            }
+            
+            return true;
+        }
 
         public static bool ProcessWithOptions(string strWithClause,
                                                 IEnumerable<CQLColumn> columns,

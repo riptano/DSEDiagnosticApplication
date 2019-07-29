@@ -19,7 +19,7 @@ namespace DSEDiagnosticLibrary
         IEnumerable<CQLFunctionColumn> Columns { get; }
         string UsingClass { get; }
         string UsingClassNormalized { get; }
-        Dictionary<string,object> WithOptions { get; }
+        IReadOnlyDictionary<string,object> WithOptions { get; }
         UnitOfMeasure Storage { get; }
         long ReadCount { get; }
     }
@@ -34,7 +34,7 @@ namespace DSEDiagnosticLibrary
                         IEnumerable<CQLFunctionColumn> columns,
                         bool isCustom,
                         string usingClass,
-                        Dictionary<string, object> withOptions,
+                        IReadOnlyDictionary<string, object> withOptions,
                         string ddl,
                         INode defindingNode = null,
                         bool associateIndexToKeyspace = true,
@@ -183,7 +183,7 @@ namespace DSEDiagnosticLibrary
         public string UsingClass { get; }
 
         public string UsingClassNormalized { get; }
-        public Dictionary<string, object> WithOptions { get; }
+        public IReadOnlyDictionary<string, object> WithOptions { get; }
 
         public UnitOfMeasure Storage { get; private set; }
         public long ReadCount { get; private set; }
