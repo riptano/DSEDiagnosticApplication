@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Common;
 using Newtonsoft.Json;
+using DSEDiagnosticParamsSettings;
 
 namespace DSEDiagnosticLibrary
 {
@@ -16,11 +17,11 @@ namespace DSEDiagnosticLibrary
                                                                     .Select(s => string.IsNullOrEmpty(s) ? ' ' : s[0])
                                                                     .DuplicatesRemoved(i => i)
                                                                     .ToArray();
-        public static UnitOfMeasure.Types DefaultStorageSizeUnit = ParseEnum<UnitOfMeasure.Types>(Properties.Settings.Default.DefaultStorageSizeUnit);
-        public static UnitOfMeasure.Types DefaultMemorySizeUnit = ParseEnum<UnitOfMeasure.Types>(Properties.Settings.Default.DefaultMemorySizeUnit);
-        public static UnitOfMeasure.Types DefaultMemoryRate = ParseEnum<UnitOfMeasure.Types>(Properties.Settings.Default.DefaultMemoryRate);
-        public static UnitOfMeasure.Types DefaultStorageRate = ParseEnum<UnitOfMeasure.Types>(Properties.Settings.Default.DefaultStorageRate);
-        public static UnitOfMeasure.Types DefaultTimeUnit = ParseEnum<UnitOfMeasure.Types>(Properties.Settings.Default.DefaultTimeUnit);
+        public static UnitOfMeasure.Types DefaultStorageSizeUnit = Helpers.ParseEnumString<UnitOfMeasure.Types>(Properties.Settings.Default.DefaultStorageSizeUnit);
+        public static UnitOfMeasure.Types DefaultMemorySizeUnit = Helpers.ParseEnumString<UnitOfMeasure.Types>(Properties.Settings.Default.DefaultMemorySizeUnit);
+        public static UnitOfMeasure.Types DefaultMemoryRate = Helpers.ParseEnumString<UnitOfMeasure.Types>(Properties.Settings.Default.DefaultMemoryRate);
+        public static UnitOfMeasure.Types DefaultStorageRate = Helpers.ParseEnumString<UnitOfMeasure.Types>(Properties.Settings.Default.DefaultStorageRate);
+        public static UnitOfMeasure.Types DefaultTimeUnit = Helpers.ParseEnumString<UnitOfMeasure.Types>(Properties.Settings.Default.DefaultTimeUnit);
         public static string IPAdressRegEx = Properties.Settings.Default.IPAdressRegEx;
         public static List<YamlConfigurationLine.ConfigTypeMapper> ConfigTypeMappers = JsonConvert.DeserializeObject<List<YamlConfigurationLine.ConfigTypeMapper>>(Properties.Settings.Default.ConfigTypeMappers);
         public static int UnitOfMeasureRoundDecimals = Properties.Settings.Default.UnitOfMeasureRoundDecimals;
@@ -50,19 +51,7 @@ namespace DSEDiagnosticLibrary
             set { DSEDiagnosticLibrary.DSEInfo.NodeToolCaptureTimestamp = value; }
         }
 
-        public static T ParseEnum<T>(string enumValue)
-            where T : struct
-        {
-            T enumItem;
-
-            if(Enum.TryParse<T>(enumValue, out enumItem))
-            {
-                return enumItem;
-            }
-
-            return default(T);
-        }
-
+       
         public static IEnumerable<Tuple<char,string>> GetAttributeSymbols()
         {
             return new List<Tuple<char, string>>()

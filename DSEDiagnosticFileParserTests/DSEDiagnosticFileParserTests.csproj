@@ -232,6 +232,10 @@
       <Project>{b81ff061-57dc-469f-94e4-967a17bce4ad}</Project>
       <Name>DSEDiagnosticLog4NetParser</Name>
     </ProjectReference>
+    <ProjectReference Include="..\DSEDiagnosticParamsSettings\DSEDiagnosticParamsSettings.csproj">
+      <Project>{c5373095-4629-41ec-a11b-65d7b7a5761d}</Project>
+      <Name>DSEDiagnosticParamsSettings</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="DDL\Simple_DDL">

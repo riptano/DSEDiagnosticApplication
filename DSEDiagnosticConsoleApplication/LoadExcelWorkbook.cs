@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Common;
 using Common.Patterns.Tasks;
+using DSEDiagnosticParamsSettings;
 
 namespace DSEDiagnosticConsoleApplication
 {
@@ -134,7 +135,7 @@ namespace DSEDiagnosticConsoleApplication
                 loadAppInfo.ApplicationInfo.Warnings = (int)ConsoleWarnings.Counter;
                 loadAppInfo.ApplicationInfo.ApplicationArgs = CommandLineArgsString;
                 loadAppInfo.ApplicationInfo.ApplicationAssemblyDir = Common.Functions.Instance.AssemblyDir;
-                loadAppInfo.ApplicationInfo.ApplicationLibrarySettings = ParserSettings.SettingValues();
+                loadAppInfo.ApplicationInfo.ApplicationLibrarySettings = Helpers.SettingValues(typeof(ParserSettings));
                 loadAppInfo.ApplicationInfo.ApplicationName = Common.Functions.Instance.ApplicationName;
                 loadAppInfo.ApplicationInfo.ApplicationStartEndTime = new DateTimeRange(RunDateTime, DateTime.Now);
                 loadAppInfo.ApplicationInfo.ApplicationVersion = Common.Functions.Instance.ApplicationVersion;

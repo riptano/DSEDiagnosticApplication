@@ -223,6 +223,10 @@
       <Project>{d374eb28-89c6-4ecf-b68e-7bedeac4212e}</Project>
       <Name>DSEDiagnosticLogger</Name>
     </ProjectReference>
+    <ProjectReference Include="..\DSEDiagnosticParamsSettings\DSEDiagnosticParamsSettings.csproj">
+      <Project>{c5373095-4629-41ec-a11b-65d7b7a5761d}</Project>
+      <Name>DSEDiagnosticParamsSettings</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\DataSources\" />

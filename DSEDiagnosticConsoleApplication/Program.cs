@@ -439,7 +439,7 @@ namespace DSEDiagnosticConsoleApplication
                     }
                 }
 
-                Logger.Instance.InfoFormat("Settings:\r\n\t{0}", ParserSettings.SettingValues());
+                Logger.Instance.InfoFormat("Settings:\r\n\t{0}", DSEDiagnosticParamsSettings.Helpers.SettingValues(typeof(ParserSettings)));
             }
             #endregion
 

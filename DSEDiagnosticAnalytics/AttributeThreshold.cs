@@ -327,7 +327,7 @@ namespace DSEDiagnosticAnalytics
 
         public readonly static AttributeThreshold Empty = new AttributeThreshold();
 
-        public readonly static AttributeThreshold[] AttributeThresholds = DSEDiagnosticFileParser.LibrarySettings.ReadJsonFileIntoObject<AttributeThreshold[]>(Properties.Settings.Default.AttributeThresholds);
+        public readonly static AttributeThreshold[] AttributeThresholds = DSEDiagnosticParamsSettings.Helpers.ReadJsonFileIntoObject<AttributeThreshold[]>(Properties.Settings.Default.AttributeThresholds);
 
         public static AttributeThreshold FindAttrThreshold(string attrName, bool ifnotFoundEmpty = true)
         {

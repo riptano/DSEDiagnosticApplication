@@ -8,7 +8,7 @@ namespace DSEDiagnosticConsoleApplication
 {
     public static class Profiles
     {
-        public static IEnumerable<Profile> ProfileCollection = DSEDiagnosticFileParser.LibrarySettings.ReadJsonFileIntoObject<Profile[]>(Properties.Settings.Default.Profiles);
+        public static IEnumerable<Profile> ProfileCollection = DSEDiagnosticParamsSettings.Helpers.ReadJsonFileIntoObject<Profile[]>(Properties.Settings.Default.Profiles);
 
         public static string DefaultProfileName = Properties.Settings.Default.DefaultProfile;
 
@@ -22,11 +22,11 @@ namespace DSEDiagnosticConsoleApplication
 
             if(CurrentProfile != null && setAssocatedOptions)
             {
-                DSEDiagnosticFileParser.LibrarySettings.DefaultLogLevelHandling = DSEDiagnosticLibrary.LibrarySettings.ParseEnum<DSEDiagnosticFileParser.file_cassandra_log4net.DefaultLogLevelHandlers>(CurrentProfile.DefaultLogLevelHandling);
-                DSEDiagnosticFileParser.LibrarySettings.Log4NetParser = DSEDiagnosticFileParser.LibrarySettings.ReadJsonFileIntoObject<DSEDiagnosticFileParser.CLogTypeParser>(CurrentProfile.Log4NetParser);
+                DSEDiagnosticFileParser.LibrarySettings.DefaultLogLevelHandling = DSEDiagnosticParamsSettings.Helpers.ParseEnumString<DSEDiagnosticFileParser.file_cassandra_log4net.DefaultLogLevelHandlers>(CurrentProfile.DefaultLogLevelHandling);
+                DSEDiagnosticFileParser.LibrarySettings.Log4NetParser = DSEDiagnosticParamsSettings.Helpers.ReadJsonFileIntoObject<DSEDiagnosticFileParser.CLogTypeParser>(CurrentProfile.Log4NetParser);
                 DSEDiagnosticFileParser.LibrarySettings.ProcessFileMappingValue = CurrentProfile.ProcessFileMappings;
                 DSEDiagnosticLibrary.LibrarySettings.LogEventsAreMemoryMapped = CurrentProfile.EnableVirtualMemory;
-                DSEDiagnosticFileParser.LibrarySettings.DebugLogProcessing = DSEDiagnosticLibrary.LibrarySettings.ParseEnum<DSEDiagnosticFileParser.file_cassandra_log4net.DebugLogProcessingTypes>(CurrentProfile.DebugLogProcessingTypes);
+                DSEDiagnosticFileParser.LibrarySettings.DebugLogProcessing = DSEDiagnosticParamsSettings.Helpers.ParseEnumString<DSEDiagnosticFileParser.file_cassandra_log4net.DebugLogProcessingTypes>(CurrentProfile.DebugLogProcessingTypes);
 
                 if(CurrentProfile.IgnoreLogTagEvents != null)
                     ParserSettings.IgnoreLogParsingTagEvents = CurrentProfile.IgnoreLogTagEvents.Split(new Char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);

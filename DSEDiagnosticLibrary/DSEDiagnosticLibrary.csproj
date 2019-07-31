@@ -122,6 +122,12 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DSEDiagnosticParamsSettings\DSEDiagnosticParamsSettings.csproj">
+      <Project>{c5373095-4629-41ec-a11b-65d7b7a5761d}</Project>
+      <Name>DSEDiagnosticParamsSettings</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.

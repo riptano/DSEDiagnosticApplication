@@ -94,10 +94,6 @@
       <Project>{17a460cf-1048-4851-844a-987a4a3762f8}</Project>
       <Name>DSEDiagnosticAnalytics</Name>
     </ProjectReference>
-    <ProjectReference Include="..\DSEDiagnosticFileParser\DSEDiagnosticFileParser.csproj">
-      <Project>{50db5780-7118-44e2-8d1f-e7288304eac5}</Project>
-      <Name>DSEDiagnosticFileParser</Name>
-    </ProjectReference>
     <ProjectReference Include="..\DSEDiagnosticLibrary\DSEDiagnosticLibrary.csproj">
       <Project>{aa88d5c0-9218-445c-885c-4b64fbfb9257}</Project>
       <Name>DSEDiagnosticLibrary</Name>
@@ -109,6 +105,10 @@
     <ProjectReference Include="..\DSEDiagnosticLogger\DSEDiagnosticLogger.csproj">
       <Project>{d374eb28-89c6-4ecf-b68e-7bedeac4212e}</Project>
       <Name>DSEDiagnosticLogger</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DSEDiagnosticTaskSchedulers\DSEDiagnosticTaskSchedulers.csproj">
+      <Project>{9a2c0e86-0475-4a74-b653-88ad1644e1c0}</Project>
+      <Name>DSEDiagnosticTaskSchedulers</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

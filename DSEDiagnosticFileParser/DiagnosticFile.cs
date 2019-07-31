@@ -998,19 +998,19 @@ namespace DSEDiagnosticFileParser
                         case FileMapper.SchedulerTypes.Disabled:
                             break;
                         case FileMapper.SchedulerTypes.LimitedConcurrencyLevelTaskScheduler:
-                            taskScheduler = new DSEDiagnosticFileParser.Tasks.Schedulers.LimitedConcurrencyLevelTaskScheduler(fileMappings.SchedulerMaxConcurrencyLevel);
+                            taskScheduler = new Schedulers.LimitedConcurrencyLevelTaskScheduler(fileMappings.SchedulerMaxConcurrencyLevel);
                             break;
                         case FileMapper.SchedulerTypes.ThreadPerTaskScheduler:
-                            taskScheduler = new DSEDiagnosticFileParser.Tasks.Schedulers.ThreadPerTaskScheduler();
+                            taskScheduler = new Schedulers.ThreadPerTaskScheduler();
                             break;
                         case FileMapper.SchedulerTypes.WorkStealingTaskScheduler:
-                            taskScheduler = new DSEDiagnosticFileParser.Tasks.Schedulers.WorkStealingTaskScheduler(fileMappings.SchedulerAvailableThreads);
+                            taskScheduler = new Schedulers.WorkStealingTaskScheduler(fileMappings.SchedulerAvailableThreads);
                             break;
                         case FileMapper.SchedulerTypes.CurrentThreadTaskScheduler:
-                            taskScheduler = new DSEDiagnosticFileParser.Tasks.Schedulers.CurrentThreadTaskScheduler();
+                            taskScheduler = new Schedulers.CurrentThreadTaskScheduler();
                             break;
                         case FileMapper.SchedulerTypes.OrderedTaskScheduler:
-                            taskScheduler = new DSEDiagnosticFileParser.Tasks.Schedulers.OrderedTaskScheduler();
+                            taskScheduler = new Schedulers.OrderedTaskScheduler();
                             break;
                         default:
                             break;
@@ -1025,11 +1025,11 @@ namespace DSEDiagnosticFileParser
             }
             else if (fileMappings.FileMaxDegreeOfParallelism == -2)
             {
-                taskScheduler = new DSEDiagnosticFileParser.Tasks.Schedulers.LimitedConcurrencyLevelTaskScheduler(System.Environment.ProcessorCount);
+                taskScheduler = new Schedulers.LimitedConcurrencyLevelTaskScheduler(System.Environment.ProcessorCount);
             }
             else if (fileMappings.FileMaxDegreeOfParallelism >= 1)
             {
-                taskScheduler = new DSEDiagnosticFileParser.Tasks.Schedulers.LimitedConcurrencyLevelTaskScheduler(fileMappings.FileMaxDegreeOfParallelism);
+                taskScheduler = new Schedulers.LimitedConcurrencyLevelTaskScheduler(fileMappings.FileMaxDegreeOfParallelism);
             }
 
             var action = (Action<IFilePath, NodeIdentifier>) ((targetFile, nodeId) =>

@@ -38,7 +38,7 @@ namespace DSEDiagnosticFileParser.Tests
         [TestMethod()]
         public void FindReplaceRegExTest()
         {
-            var RegExLexiconValues = new RegExLexicon(LibrarySettings.ReadJsonFileIntoObject<KeyValuePair<string, string>[]>(DSEDiagnosticFileParserTests.Properties.Settings.Default.test));
+            var RegExLexiconValues = new RegExLexicon(DSEDiagnosticParamsSettings.Helpers.ReadJsonFileIntoObject<KeyValuePair<string, string>[]>(DSEDiagnosticFileParserTests.Properties.Settings.Default.test));
 
             for (int nIdx = 0; nIdx < TstStrs.Length; ++nIdx)
             {

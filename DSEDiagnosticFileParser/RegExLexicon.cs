@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Common;
+using DSEDiagnosticParamsSettings;
 
 namespace DSEDiagnosticFileParser
 {
@@ -21,7 +22,7 @@ namespace DSEDiagnosticFileParser
 
         static RegExLexicon()
         {
-            Instance = new RegExLexicon(LibrarySettings.ReadJsonFileIntoObject<KeyValuePair<string, string>[]>(Properties.Settings.Default.RegExLexiconValues));
+            Instance = new RegExLexicon(Helpers.ReadJsonFileIntoObject<KeyValuePair<string, string>[]>(Properties.Settings.Default.RegExLexiconValues));
         }
 
         public RegExLexicon(KeyValuePair<string,string>[] keysvalues)

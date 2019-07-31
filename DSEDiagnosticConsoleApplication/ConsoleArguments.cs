@@ -7,6 +7,7 @@ using Common;
 using Common.Path;
 using Common.Patterns.TimeZoneInfo;
 using CommandLineParser.Arguments;
+using DSEDiagnosticParamsSettings;
 
 namespace DSEDiagnosticConsoleApplication
 {
@@ -432,16 +433,16 @@ namespace DSEDiagnosticConsoleApplication
                 switch (item.LongName)
                 {
                     case "DiagnosticPath":                        
-                        ParserSettings.DiagnosticPath = ParserSettings.MakeDirectoryPath(((DirectoryArgument)item).Value.ToString(), ParserSettings.DiagnosticPath);
+                        ParserSettings.DiagnosticPath = Helpers.MakeDirectoryPath(((DirectoryArgument)item).Value.ToString(), ParserSettings.DiagnosticPath);
                         diagnosticPathPresent = true;
                         break;
                     case "ExcelFilePath":
-                        ParserSettings.ExcelFilePath = ParserSettings.MakeFilePath(((FileArgument) item).Value.ToString(), ParserSettings.ExcelFilePath?.ParentDirectoryPath, ParserSettings.ExcelFilePath);
+                        ParserSettings.ExcelFilePath = Helpers.MakeFilePath(((FileArgument) item).Value.ToString(), ParserSettings.ExcelFilePath?.ParentDirectoryPath, ParserSettings.ExcelFilePath);
                         break;
                     case "ExcelFileTemplatePath":
                         ParserSettings.ExcelFileTemplatePath = ((FileArgument)item).Value == null
                                                                     ? null
-                                                                    : ParserSettings.MakeFilePath(((FileArgument)item).Value.ToString(), ParserSettings.ExcelFileTemplatePath?.ParentDirectoryPath, ParserSettings.ExcelFileTemplatePath);
+                                                                    : Helpers.MakeFilePath(((FileArgument)item).Value.ToString(), ParserSettings.ExcelFileTemplatePath?.ParentDirectoryPath, ParserSettings.ExcelFileTemplatePath);
                         break;
                     case "AlternativeLogFilePath":
                         {
@@ -550,13 +551,13 @@ namespace DSEDiagnosticConsoleApplication
                         }
                         break;
                     case "IgnoreKeySpaces":
-                        ParserSettings.IgnoreKeySpaces = ParserSettings.CreateMergeList(((ValueArgument<string>)item).Value, ParserSettings.IgnoreKeySpaces);
+                        ParserSettings.IgnoreKeySpaces = Helpers.CreateMergeList(((ValueArgument<string>)item).Value, ParserSettings.IgnoreKeySpaces);
                         break;
                     case "WhiteListKSInWS":
-                        ParserSettings.WhiteListKeyspaceInWS = ParserSettings.CreateMergeList(((ValueArgument<string>)item).Value, ParserSettings.WhiteListKeyspaceInWS);
+                        ParserSettings.WhiteListKeyspaceInWS = Helpers.CreateMergeList(((ValueArgument<string>)item).Value, ParserSettings.WhiteListKeyspaceInWS);
                         break;
                     case "WarnWhenKSTblIsDetected":
-                        ParserSettings.WarnWhenKSTblIsDetected = ParserSettings.CreateMergeList(((ValueArgument<string>)item).Value, ParserSettings.WarnWhenKSTblIsDetected);
+                        ParserSettings.WarnWhenKSTblIsDetected = Helpers.CreateMergeList(((ValueArgument<string>)item).Value, ParserSettings.WarnWhenKSTblIsDetected);
                         break;
                     case "SetNodeMappingFile":
                         {
@@ -570,7 +571,7 @@ namespace DSEDiagnosticConsoleApplication
 
                             if (fileValue != null)
                             {
-                                var filePath = ParserSettings.MakeFilePath(fileValue.ToString(), ParserSettings.DiagnosticPath);
+                                var filePath = Helpers.MakeFilePath(fileValue.ToString(), ParserSettings.DiagnosticPath);
 
                                 ParserSettings.AdditionalFilesForParsingClass.Add(new KeyValuePair<string, IFilePath>("file_nodemapping", filePath));                                
                             }
@@ -785,9 +786,9 @@ namespace DSEDiagnosticConsoleApplication
                                                                                                     "Profile");
                             }
 
-                            DSEDiagnosticFileParser.LibrarySettings.DefaultLogLevelHandling = DSEDiagnosticLibrary.LibrarySettings.ParseEnum<DSEDiagnosticFileParser.file_cassandra_log4net.DefaultLogLevelHandlers>(profile.DefaultLogLevelHandling);
-                            DSEDiagnosticFileParser.LibrarySettings.Log4NetParser = DSEDiagnosticFileParser.LibrarySettings.ReadJsonFileIntoObject<DSEDiagnosticFileParser.CLogTypeParser>(profile.Log4NetParser);
-                            DSEDiagnosticFileParser.LibrarySettings.DebugLogProcessing = DSEDiagnosticLibrary.LibrarySettings.ParseEnum<DSEDiagnosticFileParser.file_cassandra_log4net.DebugLogProcessingTypes>(profile.DebugLogProcessingTypes);
+                            DSEDiagnosticFileParser.LibrarySettings.DefaultLogLevelHandling = Helpers.ParseEnumString<DSEDiagnosticFileParser.file_cassandra_log4net.DefaultLogLevelHandlers>(profile.DefaultLogLevelHandling);
+                            DSEDiagnosticFileParser.LibrarySettings.Log4NetParser = Helpers.ReadJsonFileIntoObject<DSEDiagnosticFileParser.CLogTypeParser>(profile.Log4NetParser);
+                            DSEDiagnosticFileParser.LibrarySettings.DebugLogProcessing = Helpers.ParseEnumString<DSEDiagnosticFileParser.file_cassandra_log4net.DebugLogProcessingTypes>(profile.DebugLogProcessingTypes);
 
                             if (!results.Any(i => i.LongName == "ProcessFileMappingPath"))
                             {

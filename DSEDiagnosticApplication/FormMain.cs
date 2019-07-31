@@ -458,7 +458,7 @@ namespace DSEDiagnosticApplication
 
                 if (!string.IsNullOrEmpty(this.ultraTextEditorProcessMapperJSONFile.Text))
                 {
-                    DSEDiagnosticFileParser.LibrarySettings.ProcessFileMappings = DSEDiagnosticFileParser.LibrarySettings.ReadJsonFileIntoObject<DSEDiagnosticFileParser.FileMapper[]>(this.ultraTextEditorProcessMapperJSONFile.Text);
+                    DSEDiagnosticFileParser.LibrarySettings.ProcessFileMappings = DSEDiagnosticParamsSettings.Helpers.ReadJsonFileIntoObject<DSEDiagnosticFileParser.FileMapper[]>(this.ultraTextEditorProcessMapperJSONFile.Text);
                 }
 
                 var diagPath = PathUtils.BuildDirectoryPath(this.ultraTextEditorDiagnosticsFolder.Text);
@@ -518,7 +518,7 @@ namespace DSEDiagnosticApplication
 
                 if (!string.IsNullOrEmpty(this.ultraTextEditorProcessMapperJSONFile.Text))
                 {
-                    DSEDiagnosticFileParser.LibrarySettings.ProcessFileMappings = DSEDiagnosticFileParser.LibrarySettings.ReadJsonFileIntoObject<DSEDiagnosticFileParser.FileMapper[]>(this.ultraTextEditorProcessMapperJSONFile.Text);
+                    DSEDiagnosticFileParser.LibrarySettings.ProcessFileMappings = DSEDiagnosticParamsSettings.Helpers.ReadJsonFileIntoObject<DSEDiagnosticFileParser.FileMapper[]>(this.ultraTextEditorProcessMapperJSONFile.Text);
                 }
 
                 var diagPath = PathUtils.BuildDirectoryPath(this.ultraTextEditorDiagnosticsFolder.Text);

@@ -259,7 +259,7 @@ namespace DSEDiagnosticToDataTable
                 var parallelOptions = new System.Threading.Tasks.ParallelOptions()
                 {
                     CancellationToken = this.CancellationToken,
-                    TaskScheduler = new DSEDiagnosticFileParser.Tasks.Schedulers.WorkStealingTaskScheduler(this.Cluster.Nodes.Count())
+                    TaskScheduler = new Schedulers.WorkStealingTaskScheduler(this.Cluster.Nodes.Count())
                 };
 
                 
