@@ -647,6 +647,7 @@ namespace DataTableToExcel
                         else if (key == "ColumnHide")
                         {
                             workSheet.Column(dataColumn.Ordinal + 1).Hidden = true;
+                            workSheet.Column(dataColumn.Ordinal + 1).Width = 0;
                         }                        
                         else if (key == "Comment")
                         {
@@ -722,17 +723,20 @@ namespace DataTableToExcel
                 
                 foreach (var item in dataColumn.ExtendedProperties.Keys)
                 {
-                    if (item != null && item is string)
+                    if (item != null && item is string key)
                     {
-                        var key = (string)item;
-
                         if (key == "ColumnWidth")
                         {
                             var colWidth = (int)dataColumn.ExtendedProperties["ColumnWidth"];
 
                             if (colWidth >= 0)
                                 workSheet.Column(dataColumn.Ordinal + 1).Width = colWidth;
-                        }                        
+                        }
+                        else if (key == "ColumnHide")
+                        {
+                            workSheet.Column(dataColumn.Ordinal + 1).Hidden = true;
+                            workSheet.Column(dataColumn.Ordinal + 1).Width = 0;
+                        }
                     }
                 }                
             }

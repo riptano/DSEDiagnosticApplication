@@ -81,22 +81,25 @@ namespace DSEDiagtnosticToExcel
                 this.AddDCColumns(dtOverview, sourceTable)
             );
 
-            dtOverview.SetGroupHeader("Read (ms)", -1, true,               
+            dtOverview.SetGroupHeader("Read", -1, true,               
                 dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.ReadMax, typeof(decimal))
                     .SetNumericFormat("#,###,###,##0.000")
                     .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonReadLatencyMax)
                     .SetDBNull()
-                    .SetCaption("Max"),
+                    .SetCaption("Max(ms)")
+                    .HideColumn(),
                 dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.ReadMin, typeof(decimal))
                     .SetNumericFormat("#,###,###,##0.000")
                     .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonReadLatencyMin)
                     .SetDBNull()
-                    .SetCaption("Min"),
+                    .SetCaption("Min(ms)")
+                    .HideColumn(),
                 dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.ReadAvg, typeof(decimal))
                     .SetNumericFormat("#,###,###,##0.000")
                     .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonReadLatencyAvg)
                     .SetDBNull()
-                    .SetCaption("Avg"),
+                    .SetCaption("Avg(ms)")
+                    .HideColumn(),
                  dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.ReadPercent, typeof(decimal))
                     .SetDBNull()
                     .SetNumericFormat("##0.00%")
@@ -324,22 +327,25 @@ namespace DSEDiagtnosticToExcel
                 this.AddDCColumns(dtOverview, sourceTable)
             );
 
-            dtOverview.SetGroupHeader("Write (ms)", -1, true,
+            dtOverview.SetGroupHeader("Write", -1, true,
                 dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.WriteMax, typeof(decimal))
                     .SetNumericFormat("#,###,###,##0.000")
                     .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonWriteLatencyMax)
                     .SetDBNull()
-                    .SetCaption("Max"),
+                    .SetCaption("Max(ms)")
+                    .HideColumn(),
                 dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.WriteMin, typeof(decimal))
                     .SetNumericFormat("#,###,###,##0.000")
                     .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonWriteLatencyAvg)
                     .SetDBNull()
-                    .SetCaption("Min"),
+                    .SetCaption("Min(ms)")
+                    .HideColumn(),
                 dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.WriteAvg, typeof(decimal))
                     .SetNumericFormat("#,###,###,##0.000")
                     .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonWriteLatencyAvg)
                     .SetDBNull()
-                    .SetCaption("Avg"),
+                    .SetCaption("Avg(ms)")
+                    .HideColumn(),
                  dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.WritePercent, typeof(decimal))
                     .SetDBNull()
                     .SetNumericFormat("##0.00%")
@@ -551,7 +557,7 @@ namespace DSEDiagtnosticToExcel
             return dtOverview;
         }
 
-        public DataTable CreateInitializationSSTablesLatencyTable(DataTable sourceTable)
+        public DataTable CreateInitializationSSTablesTable(DataTable sourceTable)
         {
             var dtOverview = new DataTable(SSTablesTables, DSEDiagnosticToDataTable.TableNames.Namespace);
 
@@ -564,22 +570,25 @@ namespace DSEDiagtnosticToExcel
                 this.AddDCColumns(dtOverview, sourceTable)
             );
 
-            dtOverview.SetGroupHeader("SSTables (count)", -1, true,
+            dtOverview.SetGroupHeader("SSTables", -1, true,
                 dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.SSTablesMax, typeof(long))
                     .SetNumericFormat("#,###,###,##0")
                     .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonSSTablesTable)
                     .SetDBNull()
-                    .SetCaption("Max"),
+                    .SetCaption("Max(count)")
+                    .HideColumn(),
                 dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.SSTablesMin, typeof(long))
                     .SetNumericFormat("#,###,###,##0")
                     .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonSSTablesTable)
                     .SetDBNull()
-                    .SetCaption("Min"),
+                    .SetCaption("Min(count)")
+                    .HideColumn(),
                 dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.SSTablesAvg, typeof(decimal))
                     .SetNumericFormat("#,###,###,##0.000")
                     .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonSSTablesTable)
                     .SetDBNull()
-                    .SetCaption("Avg"),
+                    .SetCaption("Avg(count)")
+                    .HideColumn(),
                  dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.SSTablePercent, typeof(decimal))
                     .SetDBNull()
                     .SetNumericFormat("##0.00%")
@@ -808,22 +817,25 @@ namespace DSEDiagtnosticToExcel
                     .SetNumericFormat("##0.00%")
                     .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonTombstoneLiveRatio)
                     .SetDBNull()
-                    .SetCaption("Max"),
+                    .SetCaption("Max")
+                    .HideColumn(),
                 dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.TombstoneRatioMin, typeof(decimal))
                     .SetNumericFormat("##0.00%")
                     .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonTombstoneLiveRatio)
                     .SetDBNull()
-                    .SetCaption("Min"),
+                    .SetCaption("Min")
+                    .HideColumn(),
                 dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.TombstoneRatioAvg, typeof(decimal))
                     .SetNumericFormat("##0.00%")
                     .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonTombstoneLiveRatio)
                     .SetDBNull()
-                    .SetCaption("Avg"),
+                    .SetCaption("Avg")
+                    .HideColumn(),
                 dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.TombstonesRead, typeof(long))
                     .SetNumericFormat("#,###,###,##0")
                     .SetDBNull()
                     .SetCaption("Tombstones")
-                    .SetComment("Tomstones Read"),
+                    .SetComment("Tombstones Read"),
                 dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.LiveRead, typeof(long))
                     .SetNumericFormat("#,###,###,##0")
                     .SetDBNull()
@@ -1068,17 +1080,20 @@ namespace DSEDiagtnosticToExcel
                     .SetNumericFormat("#,###,###,##0.0000")
                     .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonPartitionSize)
                     .SetDBNull()
-                    .SetCaption("Max"),
+                    .SetCaption("Max(mb)")
+                    .HideColumn(),
                 dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.PartitionSizeMin, typeof(decimal))
                     .SetNumericFormat("#,###,###,##0.0000")
                     .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonPartitionSize)
                     .SetDBNull()
-                    .SetCaption("Min"),
+                    .SetCaption("Min(mb)")
+                    .HideColumn(),
                 dtOverview.Columns.Add(DT.TaggedItemsDataTable.Columns.PartitionSizeAvg, typeof(decimal))
                     .SetNumericFormat("#,###,###,##0.0000")
                     .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonPartitionSize)
                     .SetDBNull()
-                    .SetCaption("Avg")                
+                    .SetCaption("Avg(mb)")
+                    .HideColumn()
                     );
 
             dtOverview.SetGroupHeader(string.Empty, -1, false,
@@ -1333,7 +1348,7 @@ namespace DSEDiagtnosticToExcel
                 });
                 var sstablesiewTask = Task.Factory.StartNew(() =>
                 {
-                    return this.CreateInitializationSSTablesLatencyTable(linqDCView);
+                    return this.CreateInitializationSSTablesTable(linqDCView);
                 });
                 var tombstonesViewTask = Task.Factory.StartNew(() =>
                 {

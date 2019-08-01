@@ -1521,8 +1521,8 @@ namespace DataTableToExcel
         }
 
         static public void AutoFitColumn(this ExcelWorksheet workSheet, DataTable dataTable = null)
-        {
-            if(dataTable != null)
+        {            
+            if (dataTable != null)
             {
                 var colsWidths = new List<DataColumn>();
                 var dtcols = new List<DataColumn>();
@@ -1535,10 +1535,8 @@ namespace DataTableToExcel
 
                     foreach (var item in dataColumn.ExtendedProperties.Keys)
                     {
-                        if (item != null && item is string)
-                        {
-                            var key = (string)item;
-
+                        if (item != null && item is string key)
+                        {                            
                             if (key == "ColumnWidth")
                             {
                                 var colWidth = (int)dataColumn.ExtendedProperties["ColumnWidth"];
@@ -1546,7 +1544,11 @@ namespace DataTableToExcel
                                 if (colWidth >= 0)
                                     colsWidths.Add(dataColumn);
                             }
-                        }
+                            if (key == "ColumnHide")
+                            {
+                               colsWidths.Add(dataColumn);
+                            }
+                        }                        
                     }
                 }
 
@@ -1588,13 +1590,15 @@ namespace DataTableToExcel
                         workSheet.AutoFitColumn(dataTable, workSheet.ExcelRange(colRange.ToArray()));
                     }
 
+                    //workSheet.ApplyColumnAttribs(dataTable);
+
                     return;
                 }
             }
 
             try
             {
-                workSheet.Cells.AutoFitColumns();
+                workSheet.Cells.AutoFitColumns();                
             }
             catch (System.ArithmeticException)
             { }
@@ -1605,7 +1609,7 @@ namespace DataTableToExcel
                 Logger.Instance.Error(string.Format("Excel AutoFitColumns Exception Occurred in Worksheet \"{0}\". Worksheet was loaded/updated but NOT auto-formatted...", workSheet.Name), ex);
             }
 
-            if(dataTable != null)
+            if (dataTable != null)
             {
                 workSheet.ApplyColumnAttribs(dataTable);
             }
