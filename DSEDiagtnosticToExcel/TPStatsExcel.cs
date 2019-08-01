@@ -54,7 +54,7 @@ namespace DSEDiagtnosticToExcel
                                                                         break;
                                                                 }
                                                             },
-                                                             workSheet =>
+                                                              (workSheet, splitNbr) =>
                                                              {
                                                                 workSheet.Cells["1:1"].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.LightGray;
                                                                 workSheet.Cells["1:1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
@@ -71,7 +71,13 @@ namespace DSEDiagtnosticToExcel
                                                                 }
                                                                 workSheet.AutoFitColumn(workSheet.Cells["A1:Q1"]);
 
-                                                                workSheet.CreateExcelTable(this.DataTable);
+                                                                 var wsName = this.DataTable.TableName;
+                                                                 if (splitNbr.HasValue && splitNbr.Value > 1)
+                                                                 {
+                                                                     wsName += splitNbr.Value.ToString("000");
+                                                                 }
+
+                                                                 workSheet.CreateExcelTable(this.DataTable, wsName);
                                                              },
                                                              -1,
                                                             -1,

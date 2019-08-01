@@ -69,7 +69,7 @@ namespace DSEDiagtnosticToExcel
                                                                          break;
                                                                  }
                                                              },
-                                                             workSheet =>
+                                                             (workSheet, splitNbr) =>
                                                              {
                                                                  var dtKeySpace = this.DataTable;
 
@@ -97,6 +97,7 @@ namespace DSEDiagtnosticToExcel
                                                                          .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDDLWarnUse),
                                                                      this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.Triggers).SetNumericFormat("#,###").TotalColumn()
                                                                          .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDDLWarnUse),
+                                                                     this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.USTs).SetNumericFormat("#,###").TotalColumn(),
                                                                      this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.Total).SetNumericFormat("#,##0").TotalColumn()
                                                                         .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonTotTbls),
                                                                      this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.Active).SetNumericFormat("#,##0").TotalColumn()
@@ -164,6 +165,13 @@ namespace DSEDiagtnosticToExcel
                                                                         .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDDLWarnUse)
                                                                     );
 
+                                                                 this.DataTable.SetGroupHeader("Node", -1, true,
+                                                                        this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.TblsNodeSync)
+                                                                            .SetNumericFormat("###,###,###,###")
+                                                                            .SetCaption("Sync")
+                                                                            .TotalColumn()
+                                                                        );
+
                                                                  this.DataTable.SetGroupHeader("Storage", -1, true,
                                                                    this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.Storage)
                                                                         .SetNumericFormat("###,###,###,###.0000")
@@ -209,7 +217,7 @@ namespace DSEDiagtnosticToExcel
                                                                     this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.RepairPercent)
                                                                         .SetNumericFormat("##0%")
                                                                         .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDataBarLightBlue)
-                                                                   );
+                                                                   );                                                                 
 
                                                                  //this.DataTable.GetColumn(DT.KeyspaceDataTable.Columns.DDL);
 

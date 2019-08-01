@@ -76,5 +76,23 @@ namespace DSEDiagnosticToDataTable.Properties {
                 return ((string)(this["SystemBatchLogTableName"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("system_distributed.nodesync_status")]
+        public string SystemNodeSuncStatusTableName {
+            get {
+                return ((string)(this["SystemNodeSuncStatusTableName"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("system_distributed.nodesync_user_validations")]
+        public string SystemNodeSuncValdateTableName {
+            get {
+                return ((string)(this["SystemNodeSuncValdateTableName"]));
+            }
+        }
     }
 }

@@ -64,7 +64,7 @@ namespace DSEDiagtnosticToExcel
                                                                         break;
                                                                 }
                                                             },
-                                                            workSheet =>
+                                                            (workSheet, splitNbr) =>
                                                             {
                                                                 workSheet.Cells["1:2"].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.LightGray;
                                                                 workSheet.Cells["1:2"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
@@ -137,7 +137,9 @@ namespace DSEDiagtnosticToExcel
                                                                 this.DataTable.GetColumn("Compact Storage")
                                                                     .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonTrueYellow)
                                                                     .CountNonBlankColumn(includeCondFmt: "#,###,###");
-
+                                                                this.DataTable.GetColumn("Node Sync")
+                                                                    .CountNonBlankColumn(true, "#,###,###");
+                                                                
                                                                 this.DataTable.GetColumn("NbrIndexes")
                                                                         .SetNumericFormat("#,###")
                                                                         .TotalColumn();

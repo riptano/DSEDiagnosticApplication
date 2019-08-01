@@ -99,7 +99,7 @@ namespace DSEDiagtnosticToExcel
                                                                         break;
                                                                 }
                                                             },
-                                                             workSheet =>
+                                                             (workSheet, splitNbr) =>
                                                              {
                                                                  workSheet.Cells["M:M"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
                                                                 workSheet.Cells["1:1"].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.LightGray;

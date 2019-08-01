@@ -39,6 +39,7 @@ namespace DSEDiagnosticToDataTable
             public const string CustomIndexes = "Custom Indexes";
             public const string Functions = "Functions";
             public const string Triggers = "Triggers";
+            public const string USTs = "User Defined Types";
             public const string Total = "Total";
             public const string Active = "Active";
             public const string ActivePercent = "Active Percent";
@@ -72,6 +73,7 @@ namespace DSEDiagnosticToDataTable
             public const string FlushPercent = "Flush Percent";
             public const string CompactionPercent = "Compaction Percent";
             public const string RepairPercent = "Repair Percent";
+            public const string TblsNodeSync = "Node Sync";
             public const string DDL = "DDL";
         }
 
@@ -95,6 +97,7 @@ namespace DSEDiagnosticToDataTable
             dtKeySpace.Columns.Add(Columns.CustomIndexes, typeof(int)).AllowDBNull = true;
             dtKeySpace.Columns.Add(Columns.Functions, typeof(int)).AllowDBNull = true;
             dtKeySpace.Columns.Add(Columns.Triggers, typeof(int)).AllowDBNull = true;
+            dtKeySpace.Columns.Add(Columns.USTs, typeof(int)).AllowDBNull = true;
             dtKeySpace.Columns.Add(Columns.Total, typeof(int)).AllowDBNull = true;
             dtKeySpace.Columns.Add(Columns.Active, typeof(int)).AllowDBNull = true;
             dtKeySpace.Columns.Add(Columns.ActivePercent, typeof(decimal)).AllowDBNull = true;
@@ -123,7 +126,8 @@ namespace DSEDiagnosticToDataTable
 
             dtKeySpace.Columns.Add(Columns.OrderBy, typeof(int)).AllowDBNull = true;
             dtKeySpace.Columns.Add(Columns.CompactStorage, typeof(int)).AllowDBNull = true;
-            
+            dtKeySpace.Columns.Add(Columns.TblsNodeSync, typeof(int)).AllowDBNull = true;
+
             dtKeySpace.Columns.Add(Columns.Storage, typeof(decimal)).AllowDBNull = true;
             dtKeySpace.Columns.Add(Columns.StorageUtilized, typeof(decimal)).AllowDBNull = true;
             dtKeySpace.Columns.Add(Columns.ReadPercent, typeof(decimal)).AllowDBNull = true;
@@ -136,7 +140,7 @@ namespace DSEDiagnosticToDataTable
             dtKeySpace.Columns.Add(Columns.FlushPercent, typeof(decimal)).AllowDBNull = true;
             dtKeySpace.Columns.Add(Columns.CompactionPercent, typeof(decimal)).AllowDBNull = true;
             dtKeySpace.Columns.Add(Columns.RepairPercent, typeof(decimal)).AllowDBNull = true;
-
+            
             dtKeySpace.Columns.Add("DDL", typeof(string));
 
             dtKeySpace.PrimaryKey = new System.Data.DataColumn[] { dtKeySpace.Columns[Columns.Name], dtKeySpace.Columns[ColumnNames.DataCenter] };
@@ -329,6 +333,7 @@ namespace DSEDiagnosticToDataTable
             dataRow[Columns.CustomIndexes] = (int)keySpace.Stats.CustomIndexes;
             dataRow[Columns.Triggers] = (int)keySpace.Stats.Triggers;
             dataRow[Columns.Functions] = (int)keySpace.Stats.Functions;
+            dataRow[Columns.USTs] = (int)keySpace.Stats.UserDefinedTypes;
             dataRow[Columns.Total] = (int)(keySpace.Stats.Tables
                                         + keySpace.Stats.MaterialViews
                                         + keySpace.Stats.SecondaryIndexes
@@ -336,7 +341,8 @@ namespace DSEDiagnosticToDataTable
                                         + keySpace.Stats.SasIIIndexes
                                         + keySpace.Stats.CustomIndexes
                                         + keySpace.Stats.Functions
-                                        + keySpace.Stats.Triggers);
+                                        + keySpace.Stats.Triggers
+                                        + keySpace.Stats.UserDefinedTypes);
 
             dataRow[Columns.STCS] = (int)keySpace.Stats.STCS;
             dataRow[Columns.LCS] = (int)keySpace.Stats.LCS;
@@ -408,6 +414,9 @@ namespace DSEDiagnosticToDataTable
                 if (ksCnts.Value.Repairs > 0)
                     dataRow.SetField(Columns.RepairPercent, (decimal)ksCnts.Value.Repairs / (decimal)clusterRepairs);
             }
+
+            if(keySpace.Stats.NbrNodeSync > 0)
+                dataRow.SetField(Columns.TblsNodeSync, (int) keySpace.Stats.NbrNodeSync);
         }
 
     }

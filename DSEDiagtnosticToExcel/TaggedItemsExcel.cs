@@ -1389,7 +1389,7 @@ namespace DSEDiagtnosticToExcel
                                                                     break;
                                                             }
                                                         },
-                                                         workSheet =>
+                                                         (workSheet, splitNbr) =>
                                                          {
                                                              //workSheet.Cells["1:1"].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.LightGray;
                                                              workSheet.Cells["1:1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
@@ -1538,7 +1538,14 @@ namespace DSEDiagtnosticToExcel
 
                                                              workSheet.AutoFitColumn(sourceDataTable);
 
-                                                             workSheet.CreateExcelTable(this.DataTable, wsName + "Table");                                                            
+                                                             var newWSName = wsName + "Table";
+
+                                                             if (splitNbr.HasValue && splitNbr.Value > 1)
+                                                             {
+                                                                 newWSName += splitNbr.Value.ToString("000");
+                                                             }
+
+                                                             workSheet.CreateExcelTable(this.DataTable, newWSName);                                                            
                                                          },
                                                          -1,
                                                         -1,
@@ -1587,7 +1594,7 @@ namespace DSEDiagtnosticToExcel
                                                                     break;
                                                             }
                                                         },
-                                                         workSheet =>
+                                                         (workSheet, splitNbr) =>
                                                          {
                                                              workSheet.Cells[string.Format("1:{0}", nStartRow - 1)].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.LightGray;
                                                              workSheet.Cells[string.Format("1:{0}", nStartRow)].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;

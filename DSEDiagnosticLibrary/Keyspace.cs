@@ -72,6 +72,7 @@ namespace DSEDiagnosticLibrary
 
         public uint NbrOrderBys;
         public uint NbrCompactStorage;
+        public uint NbrNodeSync;
 
         public UnitOfMeasure Storage = UnitOfMeasure.NaNValue;
         public long ReadCount;
@@ -366,16 +367,16 @@ namespace DSEDiagnosticLibrary
 
             ++this.Stats.NbrObjects;
 
-            if (ddl is ICQLTable)
+            if (ddl is ICQLTable icqlTable)
             {
                 if (ddl is ICQLMaterializedView)
                     ++this.Stats.MaterialViews;
                 else
                     ++this.Stats.Tables;
 
-                if (!string.IsNullOrEmpty(((ICQLTable)ddl).Compaction))
+                if (!string.IsNullOrEmpty(icqlTable.Compaction))
                 {
-                    switch (((ICQLTable)ddl).Compaction)
+                    switch (icqlTable.Compaction)
                     {
                         case "SizeTieredCompactionStrategy":
                             ++this.Stats.STCS;
@@ -398,35 +399,34 @@ namespace DSEDiagnosticLibrary
                     }
                 }
 
-                this.Stats.Columns += ((ICQLTable)ddl).Stats.NbrColumns;
-                this.Stats.ColumnStat.Blobs += ((ICQLTable)ddl).Stats.Blobs;
-                this.Stats.ColumnStat.Collections += ((ICQLTable)ddl).Stats.Collections;
-                this.Stats.ColumnStat.Frozen += ((ICQLTable)ddl).Stats.Frozens;
-                this.Stats.ColumnStat.Static += ((ICQLTable)ddl).Stats.Statics;
-                this.Stats.ColumnStat.Tuple += ((ICQLTable)ddl).Stats.Tuples;
-                this.Stats.ColumnStat.UDT += ((ICQLTable)ddl).Stats.UDTs;
-                this.Stats.MaxGCGrace = this.Stats.MaxGCGrace.Max((TimeSpan)(((ICQLTable)ddl).GetPropertyValue("gc_grace_seconds") ?? TimeSpan.MinValue));
-                this.Stats.MaxTTL = this.Stats.MaxTTL.Max((TimeSpan)(((ICQLTable)ddl).GetPropertyValue("default_time_to_live") ?? TimeSpan.MinValue));
-                this.Stats.MaxReadRepairChance = Math.Max(this.Stats.MaxReadRepairChance, (decimal)(((ICQLTable)ddl).GetPropertyValue("read_repair_chance") ?? decimal.MinValue));
-                this.Stats.MaxReadRepairDCChance = Math.Max(this.Stats.MaxReadRepairDCChance, (decimal)(((ICQLTable)ddl).GetPropertyValue("dclocal_read_repair_chance") ?? decimal.MinValue));
+                if (icqlTable.NodeSyncEnabled) ++this.Stats.NbrNodeSync;
+                this.Stats.Columns += icqlTable.Stats.NbrColumns;
+                this.Stats.ColumnStat.Blobs += icqlTable.Stats.Blobs;
+                this.Stats.ColumnStat.Collections += icqlTable.Stats.Collections;
+                this.Stats.ColumnStat.Frozen += icqlTable.Stats.Frozens;
+                this.Stats.ColumnStat.Static += icqlTable.Stats.Statics;
+                this.Stats.ColumnStat.Tuple += icqlTable.Stats.Tuples;
+                this.Stats.ColumnStat.UDT += icqlTable.Stats.UDTs;                
+                this.Stats.MaxGCGrace = this.Stats.MaxGCGrace.Max((TimeSpan)(icqlTable.GetPropertyValue("gc_grace_seconds") ?? TimeSpan.MinValue));
+                this.Stats.MaxTTL = this.Stats.MaxTTL.Max((TimeSpan)(icqlTable.GetPropertyValue("default_time_to_live") ?? TimeSpan.MinValue));
+                this.Stats.MaxReadRepairChance = Math.Max(this.Stats.MaxReadRepairChance, (decimal)(icqlTable.GetPropertyValue("read_repair_chance") ?? decimal.MinValue));
+                this.Stats.MaxReadRepairDCChance = Math.Max(this.Stats.MaxReadRepairDCChance, (decimal)(icqlTable.GetPropertyValue("dclocal_read_repair_chance") ?? decimal.MinValue));
 
                 {
-                    var compactStorage = ((ICQLTable)ddl).GetPropertyValue("compact storage");
+                    var compactStorage = icqlTable.GetPropertyValue("compact storage");
                     if (compactStorage != null && (bool)compactStorage)
                         ++this.Stats.NbrCompactStorage;
                 }
 
-                if (((ICQLTable)ddl).OrderByCols.HasAtLeastOneElement())
+                if (icqlTable.OrderByCols.HasAtLeastOneElement())
                     ++this.Stats.NbrOrderBys;
             }
             else if (ddl is ICQLUserDefinedType)
             {
                 ++this.Stats.UserDefinedTypes;
             }
-            else if (ddl is ICQLIndex)
-            {
-                var idxInstance = (ICQLIndex)ddl;
-
+            else if (ddl is ICQLIndex idxInstance)
+            {                
                 if (idxInstance.IsCustom)
                 {
                     if (idxInstance.IsSolr)

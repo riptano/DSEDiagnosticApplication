@@ -1651,7 +1651,8 @@ namespace DataTableToExcel
         static public ExcelRangeBase WorkSheet(this ExcelPackage excelPkg,
                                                 string workSheetName,
                                                 System.Data.DataTable dtExcel,
-                                                Action<ExcelWorksheet> worksheetAction = null,
+                                                int? splitWSCnt,
+                                                Action<ExcelWorksheet,int?> worksheetAction = null,
                                                 bool enableMaxRowLimitPerWorkSheet = true,
                                                 int maxRowInExcelWorkSheet = -1,
                                                 string startingWSCell = "A1",
@@ -1678,20 +1679,35 @@ namespace DataTableToExcel
                                             workSheetName,
                                             excelPkg.File?.Name,
                                             clearWorkSheet ? " Worksheet Cleared" : string.Empty);
-                if (!appendToWorkSheet && clearWorkSheet)
+                if (!appendToWorkSheet)
                 {
-                    var clrWorkSheet = excelPkg.Workbook.Worksheets[workSheetName];
+                    var nrWorkSheet = excelPkg.Workbook.Worksheets[workSheetName];
 
-                    if (clrWorkSheet != null)
+                    if (nrWorkSheet != null)
                     {
-                        clrWorkSheet.Cells.Clear();
-                        foreach (ExcelComment comment in clrWorkSheet.Comments.Cast<ExcelComment>().ToArray())
+                        if (clearWorkSheet)
+                        {
+                            nrWorkSheet.Cells.Clear();
+                            foreach (ExcelComment comment in nrWorkSheet.Comments.Cast<ExcelComment>().ToArray())
+                            {
+                                try
+                                {
+                                    nrWorkSheet.Comments.Remove(comment);
+                                }
+                                catch { }
+                            }
+                        }
+
+                        if (worksheetAction != null)
                         {
                             try
                             {
-                                clrWorkSheet.Comments.Remove(comment);
+                                worksheetAction(nrWorkSheet, null);
                             }
-                            catch { }
+                            catch (System.Exception ex)
+                            {
+                                Logger.Instance.Error(string.Format("Exception Occurred in Worksheet \"{0}\" for Workbook \"{1}\"", workSheetName, excelPkg.File?.Name), ex);
+                            }
                         }
                     }
                 }
@@ -1729,23 +1745,40 @@ namespace DataTableToExcel
                                             workSheetName,
                                             excelPkg.File?.Name,
                                             clearWorkSheet ? " Worksheet Cleared" : string.Empty);
-                if (!appendToWorkSheet && clearWorkSheet)
-                {
-                    var clrWorkSheet = excelPkg.Workbook.Worksheets[workSheetName];
 
-                    if (clrWorkSheet != null)
+                if (!appendToWorkSheet)
+                {
+                    var nrWorkSheet = excelPkg.Workbook.Worksheets[workSheetName];
+
+                    if (nrWorkSheet != null)
                     {
-                        clrWorkSheet.Cells.Clear();
-                        foreach (ExcelComment comment in clrWorkSheet.Comments.Cast<ExcelComment>().ToArray())
+                        if (clearWorkSheet)
+                        {
+                            nrWorkSheet.Cells.Clear();
+                            foreach (ExcelComment comment in nrWorkSheet.Comments.Cast<ExcelComment>().ToArray())
+                            {
+                                try
+                                {
+                                    nrWorkSheet.Comments.Remove(comment);
+                                }
+                                catch { }
+                            }                            
+                        }
+
+                        if (worksheetAction != null)
                         {
                             try
                             {
-                                clrWorkSheet.Comments.Remove(comment);
+                                worksheetAction(nrWorkSheet, null);
                             }
-                            catch { }
+                            catch (System.Exception ex)
+                            {
+                                Logger.Instance.Error(string.Format("Exception Occurred in Worksheet \"{0}\" for Workbook \"{1}\"", workSheetName, excelPkg.File?.Name), ex);
+                            }
                         }
                     }
                 }
+                
                 return null;
             }
 
@@ -1755,6 +1788,7 @@ namespace DataTableToExcel
                 var dtSplits = dtExcel.SplitTable(maxRowInExcelWorkSheet, useDefaultView);
                 ExcelRangeBase excelRange = null;
                 int splitCnt = 1;
+                bool isSplit = dtSplits.Count() > 1;
 
                 foreach (var dtSplit in dtSplits)
                 {
@@ -1763,6 +1797,7 @@ namespace DataTableToExcel
                                                 ? string.Format("{0}-{1:000}", workSheetName, splitCnt)
                                                 : workSheetName,
                                             dtSplit,
+                                            isSplit ? (int?) splitCnt : null,
                                             worksheetAction,
                                             true,
                                             -1,
@@ -1874,6 +1909,7 @@ namespace DataTableToExcel
                     return WorkSheet(excelPkg,
                                         workSheetName,
                                         dtExcel,
+                                        null,
                                         worksheetAction,
                                         false,
                                         Properties.Settings.Default.ExcelPackageMaxRowsLimit,
@@ -1898,11 +1934,11 @@ namespace DataTableToExcel
 
             var loadRange = workSheet.Cells[startingWSCell].LoadFromDataTable(dtExcel, printHeaders);
 
-            if (loadRange != null && worksheetAction != null)
+            if (worksheetAction != null)
             {
                 try
                 {
-                    worksheetAction(workSheet);
+                    worksheetAction(workSheet, splitWSCnt);
                 }
                 catch (System.Exception ex)
                 {
@@ -1926,7 +1962,7 @@ namespace DataTableToExcel
                                                 System.Data.DataTable dtExcel,
                                                 ref int nResult,
                                                 Action<WorkBookProcessingStage, IFilePath, IFilePath, string, ExcelPackage, DataTable, int, string> workBookActions = null,
-                                                Action<ExcelWorksheet> worksheetAction = null,
+                                                Action<ExcelWorksheet, int?> worksheetAction = null,
                                                 bool enableMaxRowLimitPerWorkSheet = true,
                                                 int maxRowInExcelWorkSheet = -1,
                                                 string startingWSCell = "A1",
@@ -1948,6 +1984,7 @@ namespace DataTableToExcel
                 var loadRange = WorkSheet(excelPkg,
                                             workSheetName,
                                             dtExcel,
+                                            null,
                                             worksheetAction,
                                             enableMaxRowLimitPerWorkSheet,
                                             maxRowInExcelWorkSheet,
@@ -2025,7 +2062,7 @@ namespace DataTableToExcel
                                                     string workSheetName,
                                                     DataTable dtExcel,
                                                     Action<WorkBookProcessingStage, IFilePath, IFilePath, string, ExcelPackage, DataTable, int, string> workBookActions = null,
-                                                    Action<ExcelWorksheet> worksheetAction = null,
+                                                    Action<ExcelWorksheet, int?> worksheetAction = null,
                                                     int maxRowInExcelWorkBook = -1,
                                                     int maxRowInExcelWorkSheet = -1,
                                                     string startingWSCell = "A1",

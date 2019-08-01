@@ -208,6 +208,10 @@ namespace DSEDiagnosticToDataTable
                             .AllowDBNull();
             dtDCInfo.Columns.Add("Repair Est Tasks (User)", typeof(long))
                            .AllowDBNull();
+            dtDCInfo.Columns.Add("Node Sync Tables (User)", typeof(long))
+                          .AllowDBNull();
+            dtDCInfo.Columns.Add("Node Sync Count", typeof(long))
+                          .AllowDBNull();
 
             dtDCInfo.Columns.Add("Node UpTime", typeof(TimeSpan))
                             .AllowDBNull();
@@ -266,7 +270,13 @@ namespace DSEDiagnosticToDataTable
                                                                         .SelectMany(d => ((DSEDiagnosticLibrary.AggregatedStats)d).DataUnSafe
                                                                                                     .Where(a => (a.Key == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.LocalWriteCount)
                                                                                                                     && a.Value != null))
-                                       let grpNbrCompSpaceWarnings = grpData.SelectMany(d => ((DSEDiagnosticLibrary.AggregatedStats)d).DataUnSafe
+                                      let grpNodeSyncValues = grpData.Where(i => i.TableViewIndex.FullName == Properties.Settings.Default.SystemNodeSuncStatusTableName
+                                                                              || i.TableViewIndex.FullName == Properties.Settings.Default.SystemNodeSuncValdateTableName)
+                                                                        .SelectMany(d => ((DSEDiagnosticLibrary.AggregatedStats)d).DataUnSafe
+                                                                                              .Where(a => (a.Key == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.LocalWriteCount
+                                                                                                                || a.Key == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.LocalReadCount)
+                                                                                                              && a.Value != null))
+                                      let grpNbrCompSpaceWarnings = grpData.SelectMany(d => ((DSEDiagnosticLibrary.AggregatedStats)d).DataUnSafe
                                                                         .Where(a => (a.Key == DSEDiagnosticAnalytics.Properties.StatPropertyNames.Default.CompactionInsufficientSpace)
                                                                                         && a.Value != null))
                                       select new {
@@ -301,7 +311,10 @@ namespace DSEDiagnosticToDataTable
                                                     BatchesTotal = grpBatchesValues.Select(a => (long)(dynamic)a.Value)
                                                                             .DefaultIfEmpty()
                                                                             .Sum(),
-                                                    NbrCompStorageWarnings = grpNbrCompSpaceWarnings.Count()
+                                                    NodeSyncTotal = grpNodeSyncValues.Select(a => (long)(dynamic)a.Value)
+                                                                            .DefaultIfEmpty()
+                                                                            .Sum(),                                                    
+                                          NbrCompStorageWarnings = grpNbrCompSpaceWarnings.Count()
                                       }).ToArray();
                 var logEvtsCollection = (from logEvCache in this.Cluster.Nodes.SelectMany(d => ((DSEDiagnosticLibrary.Node)d).LogEventsRead(LogCassandraEvent.ElementCreationTypes.DCNodeKSDDLTypeClassOnly, false))
                                          let logEvt = logEvCache.Value
@@ -673,18 +686,28 @@ namespace DSEDiagnosticToDataTable
                                 if (dcBatchTot > 0)
                                     dataRow.SetField("Batch Percent", (decimal)dcBatchTot / (decimal)dcTotWrites);
                             }
+
+                            {
+                                var dcNodeSyncTrans = dcStats.Sum(i => i.NodeSyncTotal);
+
+                                if(dcNodeSyncTrans > 0)
+                                    dataRow.SetField("Node Sync Count", dcNodeSyncTrans);
+                            }
                         }
 
                         {
-                            var ksInDCTot = dataCenter.Keyspaces
-                                                .Where(ks => !ks.IsDSEKeyspace && !ks.IsSystemKeyspace)
-                                                .Select(ks => (decimal)(ks.Stats.Tables
-                                                                        + ks.Stats.MaterialViews
-                                                                        + ks.Stats.SecondaryIndexes
-                                                                        + ks.Stats.CustomIndexes
-                                                                        + ks.Stats.SasIIIndexes))
+                            var ksInDC = dataCenter.Keyspaces
+                                                .Where(ks => !ks.IsDSEKeyspace && !ks.IsSystemKeyspace);
+                            var ksInDCTot = ksInDC.Select(ks => (decimal)(ks.Stats.Tables
+                                                                            + ks.Stats.MaterialViews
+                                                                            + ks.Stats.SecondaryIndexes
+                                                                            + ks.Stats.CustomIndexes
+                                                                            + ks.Stats.SasIIIndexes))
                                                 .DefaultIfEmpty()
                                                 .Sum();
+                            var nodesyncTblInDC = ksInDC.Select(ks => (long) ks.Stats.NbrNodeSync)
+                                                    .DefaultIfEmpty()
+                                                    .Sum();
 
                             if (ksInDCTot > 0m)
                             {
@@ -694,7 +717,12 @@ namespace DSEDiagnosticToDataTable
 
                                 dataRow.SetField("Active Tbls/Idxs/Vws", ksInDCActive/ksInDCTot);
                             }
-                        }
+
+                            if (nodesyncTblInDC > 0L)
+                            {                                
+                                dataRow.SetField("Node Sync Tables (User)", nodesyncTblInDC);
+                            }
+                        }                        
 
                         if(logEvtsCollection.HasAtLeastOneElement())
                         {

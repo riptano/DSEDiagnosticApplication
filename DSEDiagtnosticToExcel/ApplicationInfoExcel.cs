@@ -232,7 +232,7 @@ namespace DSEDiagtnosticToExcel
                                                                        break;
                                                                }
                                                            },
-                                                            workSheet =>
+                                                            (workSheet, splitNbr) =>
                                                             {
                                                                 workSheet.Column(1).Width = 100;
                                                                 workSheet.Column(1).Style.WrapText = true;

@@ -63,7 +63,7 @@ namespace DSEDiagtnosticToExcel
                                                                          break;
                                                                  }
                                                              },
-                                                             workSheet =>
+                                                             (workSheet, splitNbr) =>
                                                              {
                                                              workSheet.Cells["1:3"].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.LightGray;
                                                              workSheet.Cells["1:3"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
@@ -432,6 +432,16 @@ namespace DSEDiagtnosticToExcel
                                                                                          .SetCaption("Est. Tasks (User)")
                                                                                          .SetNumericFormat("#,###,###,##0")
                                                                                          .SetComment("The estimated number of tasks to complete a full repair for User Keyspaces")
+                                                                                         .TotalColumn(),
+                                                                      this.DataTable.GetColumn("Node Sync Tables (User)")
+                                                                                         .SetCaption("NodeSync Tables (User)")
+                                                                                         .SetNumericFormat("#,###,###,##0")
+                                                                                         .SetComment("The number of User/Application tables where NodeSync is enabled within a DC.")
+                                                                                         .TotalColumn(),
+                                                                      this.DataTable.GetColumn("Node Sync Count")
+                                                                                         .SetCaption("NodeSync Counts")
+                                                                                         .SetNumericFormat("#,###,###,##0")
+                                                                                         .SetComment("The estimated number of NodeSync cell operations (read/write)")
                                                                                          .TotalColumn()
                                                                         )                                                                                         
                                                                     );

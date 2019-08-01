@@ -55,7 +55,7 @@ namespace DSEDiagtnosticToExcel
                                                                         break;
                                                                 }
                                                             },
-                                                             workSheet =>
+                                                             (workSheet, splitNbr) =>
                                                              {                                                                 
                                                                  workSheet.Cells["1:1"].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.LightGray;
                                                                  workSheet.Cells["1:1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
@@ -199,7 +199,13 @@ namespace DSEDiagtnosticToExcel
 
                                                                  workSheet.AutoFitColumn(this.DataTable);
 
-                                                                 workSheet.CreateExcelTable(this.DataTable, "AggregatedLogTable");                                                                 
+                                                                 var wsName = "AggregatedLogTable";
+                                                                 if(splitNbr.HasValue && splitNbr.Value > 1)
+                                                                 {
+                                                                     wsName += splitNbr.Value.ToString("000");
+                                                                 }
+
+                                                                 workSheet.CreateExcelTable(this.DataTable, wsName);                                                                 
                                                              },
                                                              -1,
                                                             -1,

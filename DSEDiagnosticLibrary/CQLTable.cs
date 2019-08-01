@@ -574,7 +574,8 @@ namespace DSEDiagnosticLibrary
 
         string Compaction { get; }
         string Compression { get; }
-        bool WithCompactStorage { get; }        
+        bool WithCompactStorage { get; }  
+        bool NodeSyncEnabled { get; }
         CQLTableStats Stats { get; }
        
         IEnumerable<ICQLColumn> TryGetColumns(IEnumerable<string> columns);
@@ -714,6 +715,15 @@ namespace DSEDiagnosticLibrary
                         this.Compression = null;
                     }
                 }
+                if (this.Properties.TryGetValue("nodesync", out pValue))
+                {                    
+                    var nodesyncProps = (Dictionary<string, object>)pValue;
+                   
+                    if (nodesyncProps.TryGetValue("enabled", out object enabled))
+                    {
+                        this.NodeSyncEnabled = bool.Parse((string)enabled);
+                    }
+                }
                 if (this.Properties.TryGetValue("id", out pValue))
                 {
                     if (pValue is string)
@@ -757,6 +767,7 @@ namespace DSEDiagnosticLibrary
         public string Compaction { get; }
         public string Compression { get; }
         public bool WithCompactStorage { get; }
+        public bool NodeSyncEnabled { get; }
         public CQLTableStats Stats { get; }
 
         [JsonProperty(PropertyName="DDLs")]
