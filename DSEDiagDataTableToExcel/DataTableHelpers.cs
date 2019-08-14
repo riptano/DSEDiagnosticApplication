@@ -512,7 +512,7 @@ namespace DataTableToExcel
         
         static public void UpdateWorksheet(this OfficeOpenXml.ExcelWorksheet workSheet, DataTable dataTable, int wsHeaderRow)
         {
-            var lastRow = workSheet.Dimension.End.Row;
+            var lastRow = workSheet.Dimension?.End.Row ?? wsHeaderRow + 1;
 
             foreach (DataColumn dataColumn in dataTable.Columns)
             {
@@ -684,7 +684,7 @@ namespace DataTableToExcel
 
             if(dataTable.ExtendedProperties.Count > 0)
             {
-                lastRow = workSheet.Dimension.End.Row;
+                lastRow = workSheet.Dimension?.End.Row ?? wsHeaderRow + 1;
 
                 foreach (var key in dataTable.ExtendedProperties.Keys)
                 {

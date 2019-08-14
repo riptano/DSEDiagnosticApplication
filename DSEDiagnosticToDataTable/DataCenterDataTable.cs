@@ -186,6 +186,12 @@ namespace DSEDiagnosticToDataTable
                             .AllowDBNull();
             dtDCInfo.Columns.Add("Log Event Percent", typeof(decimal))
                             .AllowDBNull();
+
+            dtDCInfo.Columns.Add("GC Events Total", typeof(long))
+                           .AllowDBNull();
+            dtDCInfo.Columns.Add("GC Events Percent", typeof(decimal))
+                            .AllowDBNull();
+
             dtDCInfo.Columns.Add("Flush Total", typeof(long))
                             .AllowDBNull();
             dtDCInfo.Columns.Add("Flush Total (User)", typeof(long))
@@ -321,7 +327,8 @@ namespace DSEDiagnosticToDataTable
                                          group logEvt by logEvt.DataCenter into dcGrp
                                          let logDCEvts = dcGrp.Where(dcItem => dcItem.Class.HasFlag(EventClasses.Compaction)
                                                                                  || dcItem.Class.HasFlag(EventClasses.Flush)
-                                                                                 || dcItem.Class.HasFlag(EventClasses.Repair)).ToArray()
+                                                                                 || dcItem.Class.HasFlag(EventClasses.Repair)
+                                                                                 || dcItem.Class.HasFlag(EventClasses.GC)).ToArray()
                                          let logKSEvts = (from dcItem in logDCEvts
                                                           where dcItem.Keyspace != null
                                                           group dcItem by new
@@ -348,6 +355,7 @@ namespace DSEDiagnosticToDataTable
                                                             .Select(i => i.Count)
                                                             .DefaultIfEmpty().Sum(),
                                              RepairEvts = logDCEvts.LongCount(e => e.Class.HasFlag(EventClasses.Repair)),
+                                             GCEvts = logDCEvts.LongCount(e => e.Class.HasFlag(EventClasses.GC)),
                                              KSEvts = logKSEvts
                                          }).ToArray();
                 
@@ -364,13 +372,15 @@ namespace DSEDiagnosticToDataTable
                 long clusterTotFlushes = 0;
                 long clusterTotCompactions = 0;
                 long clusterTotRepairs = 0;
+                long clusterTotGCs = 0;
 
-                if(logEvtsCollection.HasAtLeastOneElement())
+                if (logEvtsCollection.HasAtLeastOneElement())
                 {
                     clusterTotEvents = logEvtsCollection.Sum(i => i.TotEvts);
                     clusterTotFlushes = logEvtsCollection.Sum(i => i.FlushEvts);
                     clusterTotCompactions = logEvtsCollection.Sum(i => i.CompactionEvts);
                     clusterTotRepairs = logEvtsCollection.Sum(i => i.RepairEvts);
+                    clusterTotGCs = logEvtsCollection.Sum(i => i.GCEvts);
                 }
 
                 foreach (var dataCenter in this.Cluster.DataCenters)
@@ -741,6 +751,17 @@ namespace DSEDiagnosticToDataTable
 
                                     dataRow.SetField("Log Event Total", classTotAll);
                                     dataRow.SetField("Log Event Percent", (decimal)classTotAll / (decimal)clusterTotEvents);                                    
+                                }
+
+                                if (clusterTotGCs > 0)
+                                {
+                                    var classTotAll = dcItems
+                                                       .Select(i => i.GCEvts)
+                                                       .DefaultIfEmpty()
+                                                       .Sum();
+
+                                    dataRow.SetField("GC Events Total", classTotAll);
+                                    dataRow.SetField("GC Events Percent", (decimal)classTotAll / (decimal)clusterTotGCs);
                                 }
 
                                 if (clusterTotFlushes > 0)

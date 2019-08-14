@@ -654,6 +654,7 @@ namespace DSEDiagnosticAnalytics
                 }
             }
             else if ((eventArgs.LogEvent.Class & EventClasses.Change) == EventClasses.Change
+                        && (eventArgs.LogEvent.Class & EventClasses.Node) == EventClasses.Node
                         && !string.IsNullOrEmpty(eventArgs.LogEvent.SubClass))
             {
                 if (eventArgs.LogEvent.SubClass.StartsWith("shutdown", StringComparison.OrdinalIgnoreCase)
@@ -748,6 +749,13 @@ namespace DSEDiagnosticAnalytics
                                                                                         eventArgs.LogEvent.EventTimeLocal);
                     eventArgs.LogEvent.Node.AssociateItem(nodeState);                       
                 }
+                else if (eventArgs.LogEvent.SubClass.StartsWith("NewHostId ", StringComparison.OrdinalIgnoreCase))
+                {
+                    var nodeState = new DSEDiagnosticLibrary.NodeStateChange(NodeStateChange.DetectedStates.Added,
+                                                                                        eventArgs.LogEvent.EventTime,
+                                                                                        eventArgs.LogEvent.EventTimeLocal);
+                    eventArgs.LogEvent.Node.AssociateItem(nodeState);
+                }
             }
             else if ((eventArgs.LogEvent.Class & EventClasses.TimeOut) == EventClasses.TimeOut
                         && (eventArgs.LogEvent.Class & EventClasses.Row) == EventClasses.Row)
@@ -765,8 +773,7 @@ namespace DSEDiagnosticAnalytics
                     }
                 }
             }
-            else if ((eventArgs.LogEvent.Class & EventClasses.Unavailable) == EventClasses.Unavailable
-                        && (eventArgs.LogEvent.Class & EventClasses.Node) == EventClasses.Node)
+            else if (eventArgs.LogEvent.Class == (EventClasses.NodeDetection | EventClasses.Unavailable))
             {
                 if (eventArgs.LogEvent.AssociatedNodes != null)
                 {
@@ -798,10 +805,7 @@ namespace DSEDiagnosticAnalytics
                     }
                 }
             }
-            else if ((eventArgs.LogEvent.Class & EventClasses.NodeDetection) == EventClasses.NodeDetection
-                        && (eventArgs.LogEvent.Class & EventClasses.Drops) == EventClasses.Drops
-                        && ((eventArgs.LogEvent.Type & EventTypes.SessionEnd) == EventTypes.SessionEnd
-                                || (eventArgs.LogEvent.Type & EventTypes.SingleInstance) == EventTypes.SingleInstance))
+            else if (eventArgs.LogEvent.Class == (EventClasses.NodeDetection | EventClasses.Drops))
             {
                 if (eventArgs.LogEvent.AssociatedNodes != null)
                 {
@@ -818,7 +822,7 @@ namespace DSEDiagnosticAnalytics
             }
             else if ((eventArgs.LogEvent.Class & EventClasses.NodeDetection) == EventClasses.NodeDetection
                         && (eventArgs.LogEvent.Class & EventClasses.Shard) == EventClasses.Shard
-                        && (eventArgs.LogEvent.Type & EventTypes.SingleInstance) == EventTypes.SingleInstance)
+                        && eventArgs.LogEvent.SubClass == "Ownership Changed")
             {
                 var nodeState = new DSEDiagnosticLibrary.NodeStateChange(NodeStateChange.DetectedStates.TokenOwnershipChanged,
                                                                             eventArgs.LogEvent.EventTime,

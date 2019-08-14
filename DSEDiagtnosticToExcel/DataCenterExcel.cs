@@ -378,6 +378,17 @@ namespace DSEDiagtnosticToExcel
                                                                                          .SetNumericFormat("##0.00%")
                                                                                          .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDataBarGreenYellow)
                                                                                          ),
+                                                                     this.DataTable.SetGroupHeader("GC", -1, true,
+                                                                        this.DataTable.GetColumn("GC Events Total")
+                                                                                         .SetCaption("Occurrences")
+                                                                                         .SetNumericFormat("#,###,###,##0")
+                                                                                         .TotalColumn()
+                                                                                         .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDataBarLightGreen),
+                                                                        this.DataTable.GetColumn("GC Events Percent")
+                                                                                         .SetCaption("Percent-Cluster")
+                                                                                         .SetNumericFormat("##0.00%")
+                                                                                         .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonDataBarGreenYellow)
+                                                                                         ),
                                                                       this.DataTable.SetGroupHeader("Flush", -1, true,
                                                                         this.DataTable.GetColumn("Flush Total")
                                                                                          .SetCaption("Total")
