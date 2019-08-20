@@ -94,5 +94,41 @@ namespace DSEDiagnosticToDataTable.Properties {
                 return ((string)(this["SystemNodeSuncValdateTableName"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1000")]
+        public long DCTotalGCDQNbr {
+            get {
+                return ((long)(this["DCTotalGCDQNbr"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("7500")]
+        public long DCTotalLogEvtDQNbr {
+            get {
+                return ((long)(this["DCTotalLogEvtDQNbr"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("2500")]
+        public long DCTotalFlushDQNbr {
+            get {
+                return ((long)(this["DCTotalFlushDQNbr"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1000")]
+        public long DCTotalCompactionDQNbr {
+            get {
+                return ((long)(this["DCTotalCompactionDQNbr"]));
+            }
+        }
     }
 }

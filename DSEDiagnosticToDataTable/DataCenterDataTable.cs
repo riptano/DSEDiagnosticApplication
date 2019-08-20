@@ -219,6 +219,8 @@ namespace DSEDiagnosticToDataTable
             dtDCInfo.Columns.Add("Node Sync Count", typeof(long))
                           .AllowDBNull();
 
+            dtDCInfo.Columns.Add("Diagnostic Data Quality", typeof(string))
+                            .AllowDBNull();
             dtDCInfo.Columns.Add("Node UpTime", typeof(TimeSpan))
                             .AllowDBNull();
             dtDCInfo.Columns.Add("Log System Duration", typeof(TimeSpan))
@@ -535,7 +537,7 @@ namespace DSEDiagnosticToDataTable
                                                         SSTablesTotal = n.DSE.SSTableCount,
                                                         ReadTotal = n.DSE.ReadCount,
                                                         WriteTotal = n.DSE.WriteCount,
-                                                        KeyTotal = n.DSE.KeyCount
+                                                        KeyTotal = n.DSE.KeyCount                                                        
                                                     }).ToArray();
 
                             var dcTotStorage = totalsNodes.Sum(n => n.StorageTotal);
@@ -543,7 +545,7 @@ namespace DSEDiagnosticToDataTable
                             var dcTotReads = (ulong)totalsNodes.Sum(n => n.ReadTotal);
                             var dcTotWrites = (ulong)totalsNodes.Sum(n => n.WriteTotal);
                             var dcTotKeys = (ulong)totalsNodes.Sum(n => n.KeyTotal);
-                            var dcStats = statCollection.Where(i => i.DC.Equals(dataCenter)).ToArray();
+                            var dcStats = statCollection.Where(i => i.DC.Equals(dataCenter)).ToArray();                            
 
                             if (dcTotStorage > 0)
                             {
@@ -732,7 +734,12 @@ namespace DSEDiagnosticToDataTable
                             {                                
                                 dataRow.SetField("Node Sync Tables (User)", nodesyncTblInDC);
                             }
-                        }                        
+                        }
+
+                        long dcLogEvts = 0;
+                        long dcGCs = 0;
+                        long dcFlushes = 0;
+                        long dcCompactions = 0;
 
                         if(logEvtsCollection.HasAtLeastOneElement())
                         {
@@ -744,42 +751,42 @@ namespace DSEDiagnosticToDataTable
                             {
                                 if (clusterTotEvents > 0)
                                 {
-                                    var classTotAll = dcItems
-                                                       .Select(i => i.TotEvts)
-                                                       .DefaultIfEmpty()
-                                                       .Sum();
+                                    dcLogEvts = dcItems
+                                                .Select(i => i.TotEvts)
+                                                .DefaultIfEmpty()
+                                                .Sum();
 
-                                    dataRow.SetField("Log Event Total", classTotAll);
-                                    dataRow.SetField("Log Event Percent", (decimal)classTotAll / (decimal)clusterTotEvents);                                    
+                                    dataRow.SetField("Log Event Total", dcLogEvts);
+                                    dataRow.SetField("Log Event Percent", (decimal)dcLogEvts / (decimal)clusterTotEvents);                                    
                                 }
 
                                 if (clusterTotGCs > 0)
                                 {
-                                    var classTotAll = dcItems
-                                                       .Select(i => i.GCEvts)
-                                                       .DefaultIfEmpty()
-                                                       .Sum();
+                                    dcGCs = dcItems
+                                            .Select(i => i.GCEvts)
+                                            .DefaultIfEmpty()
+                                            .Sum();
 
-                                    dataRow.SetField("GC Events Total", classTotAll);
-                                    dataRow.SetField("GC Events Percent", (decimal)classTotAll / (decimal)clusterTotGCs);
+                                    dataRow.SetField("GC Events Total", dcGCs);
+                                    dataRow.SetField("GC Events Percent", (decimal)dcGCs / (decimal)clusterTotGCs);
                                 }
 
                                 if (clusterTotFlushes > 0)
                                 {
                                     var classStats = dcStats
                                                     .Where(i => i.Class.HasFlag(EventClasses.Flush));
-                                    var classTotAll = classStats
-                                                    .Select(i => i.Count)
-                                                    .DefaultIfEmpty()
-                                                    .Sum();
+                                    dcFlushes = classStats
+                                                .Select(i => i.Count)
+                                                .DefaultIfEmpty()
+                                                .Sum();
                                     var classTotUser = classStats
                                                         .Where(d => !d.IsSystem)
                                                         .Select(i => i.Count)
                                                         .DefaultIfEmpty()
                                                         .Sum();
 
-                                    dataRow.SetField("Flush Total", classTotAll);
-                                    dataRow.SetField("Flush Percent", (decimal)classTotAll / (decimal)clusterTotFlushes);
+                                    dataRow.SetField("Flush Total", dcFlushes);
+                                    dataRow.SetField("Flush Percent", (decimal)dcFlushes / (decimal)clusterTotFlushes);
 
                                    if (classTotUser > 0)
                                         dataRow.SetField("Flush Total (User)", classTotUser);                                    
@@ -788,7 +795,7 @@ namespace DSEDiagnosticToDataTable
                                 {
                                     var classStats = dcStats
                                                     .Where(i => i.Class.HasFlag(EventClasses.Compaction));
-                                    var classTotAll = classStats
+                                    dcCompactions = classStats
                                                     .Select(i => i.Count)
                                                     .DefaultIfEmpty()
                                                     .Sum();
@@ -798,8 +805,8 @@ namespace DSEDiagnosticToDataTable
                                                         .DefaultIfEmpty()
                                                         .Sum();
 
-                                    dataRow.SetField("Compaction Total", classTotAll);
-                                    dataRow.SetField("Compaction Percent", (decimal)classTotAll / (decimal)clusterTotCompactions);
+                                    dataRow.SetField("Compaction Total", dcCompactions);
+                                    dataRow.SetField("Compaction Percent", (decimal)dcCompactions / (decimal)clusterTotCompactions);
 
                                     if (classTotUser > 0)
                                         dataRow.SetField("Compaction Total (User)", classTotUser);
@@ -833,7 +840,54 @@ namespace DSEDiagnosticToDataTable
                                     }                                    
                                 }
                             }
-                        }                        
+                        }
+
+                        {
+                            var dcQualityFactor = (decimal) dataCenter.DataQualityFactor();
+                            var inds = new string[] { "Excellent", "Good", "OK", "Poor" };                            
+                            var offset = (dataCenter.LogDebugFiles > 0 ? 0 : 1)
+                                            + (dataCenter.LogSystemFiles > 0 ? 0 : 2);
+
+                            if (dataCenter.LogSystemFiles == 0 || dataCenter.LogDebugFiles == 0)
+                                ++offset;
+                        
+                            if((dataCenter.LogSystemFiles > 0 || dataCenter.LogDebugFiles > 0)
+                                    && dcLogEvts < Properties.Settings.Default.DCTotalLogEvtDQNbr)                            
+                            {
+                                dcQualityFactor -= 1m - ((decimal) dcLogEvts / (decimal) Properties.Settings.Default.DCTotalLogEvtDQNbr);
+                            }
+                            if (dataCenter.LogSystemFiles > 0
+                                    && dcGCs < Properties.Settings.Default.DCTotalGCDQNbr)                            
+                            {
+                                dcQualityFactor -= 1m - ((decimal) dcGCs / (decimal) Properties.Settings.Default.DCTotalGCDQNbr);
+                            }
+                            if (dataCenter.LogDebugFiles > 0
+                                    && dcFlushes < Properties.Settings.Default.DCTotalFlushDQNbr)                            
+                            {
+                                dcQualityFactor -= 1m - ((decimal)dcFlushes / (decimal)Properties.Settings.Default.DCTotalFlushDQNbr);
+                            }
+                            if (dataCenter.LogDebugFiles > 0
+                                    && dcCompactions < Properties.Settings.Default.DCTotalCompactionDQNbr)                            
+                            {
+                                dcQualityFactor -= 1m - ((decimal)dcCompactions / (decimal)Properties.Settings.Default.DCTotalCompactionDQNbr);
+                            }
+
+                            for (int f = 5 - offset; f > 0; --f)
+                            {                                
+                                if (dcQualityFactor >= (f * totNodes))
+                                {
+                                    if (dcQualityFactor >= (((decimal)f + 0.5m) * (decimal)totNodes))
+                                    {
+                                        dataRow.SetField("Diagnostic Data Quality", inds[f - 2 + offset] + "(high)");
+                                    }
+                                    else
+                                    {
+                                        dataRow.SetField("Diagnostic Data Quality", inds[f - 2 + offset]);
+                                    }
+                                    break;
+                                }
+                            }
+                        }
                     }
 
                     this.Table.Rows.Add(dataRow);

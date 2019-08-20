@@ -562,5 +562,17 @@ namespace DSEDiagnosticLibrary.Properties {
                 return ((bool)(this["TreatLogDirNamesAsHostName"]));
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string DCLogTheshold {
+            get {
+                return ((string)(this["DCLogTheshold"]));
+            }
+            set {
+                this["DCLogTheshold"] = value;
+            }
+        }
     }
 }

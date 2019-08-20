@@ -26,5 +26,17 @@
     <Setting Name="SystemNodeSuncValdateTableName" Type="System.String" Scope="Application">
       <Value Profile="(Default)">system_distributed.nodesync_user_validations</Value>
     </Setting>
+    <Setting Name="DCTotalGCDQNbr" Type="System.Int64" Scope="Application">
+      <Value Profile="(Default)">1000</Value>
+    </Setting>
+    <Setting Name="DCTotalLogEvtDQNbr" Type="System.Int64" Scope="Application">
+      <Value Profile="(Default)">7500</Value>
+    </Setting>
+    <Setting Name="DCTotalFlushDQNbr" Type="System.Int64" Scope="Application">
+      <Value Profile="(Default)">2500</Value>
+    </Setting>
+    <Setting Name="DCTotalCompactionDQNbr" Type="System.Int64" Scope="Application">
+      <Value Profile="(Default)">1000</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

@@ -188,6 +188,10 @@
       <Link>dseHealthAssessment4ATemplate.xlsm</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="..\dseHealthAssessment4BTemplate.xlsm">
+      <Link>dseHealthAssessment4BTemplate.xlsm</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="..\dseHealthAssessment4Template.xlsm">
       <Link>dseHealthAssessment4Template.xlsm</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

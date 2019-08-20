@@ -1320,7 +1320,49 @@ namespace DSEDiagnosticLibrary
         object ToDump();
 
         bool UpdateDSENodeToolDateRange();
-	}
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns>
+        /// Returns 1 to indicate higher then DC Average
+        /// Returns 0 to indicate Within DC Average Threshold
+        /// Returns -1 to indicate lower then DC Average
+        /// False to indicate node&apos;s value is NaN
+        /// </returns>
+        int? NodeUpTimeDCAvgState();
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns>
+        /// Returns 1 to indicate higher then DC Average
+        /// Returns 0 to indicate Within DC Average Threshold
+        /// Returns -1 to indicate lower then DC Average
+        /// False to indicate node&apos;s value is NaN
+        /// </returns>
+        int? NodeSystemLogDCAvgState();
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns>
+        /// Returns 1 to indicate higher then DC Average
+        /// Returns 0 to indicate Within DC Average Threshold
+        /// Returns -1 to indicate lower then DC Average
+        /// False to indicate node&apos;s value is NaN
+        /// </returns>
+        int? NodeDebugLogDCAvgState();
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns>
+        /// Returns 1 to indicate higher then debug duration than system
+        /// Returns 0 to indicate Within DC Average Threshold
+        /// Returns -1 to indicate lower then debug duration than system
+        /// False to indicate node&apos;s value is NaN
+        /// </returns>
+        int? NodeSystemDebugLogState();
+        bool NodeDCAvgStateWithinThrehold();
+    }
 
     [JsonObject(MemberSerialization.OptOut)]
     public sealed class Node : INode
@@ -1613,6 +1655,144 @@ namespace DSEDiagnosticLibrary
             return this;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns>
+        /// Returns 1 to indicate higher then DC Average
+        /// Returns 0 to indicate Within DC Average Threshold
+        /// Returns -1 to indicate lower then DC Average
+        /// False to indicate node&apos;s value is NaN
+        /// </returns>
+        public int? NodeUpTimeDCAvgState()
+        {
+            if (this.DSE.Uptime.NaN)
+            {
+                return null;
+            }
+
+            if (this.DataCenter.NodeUpTimeAvg.HasValue
+                    && Math.Abs((this.DSE.Uptime.ConvertToTimeSpan() - this.DataCenter.NodeUpTimeAvg.Value).TotalHours) > Properties.Settings.Default.ThresholdAvgHrs.TotalHours)
+            {
+                if (this.DSE.Uptime.ConvertToTimeSpan() < this.DataCenter.NodeUpTimeAvg - this.DataCenter.NodeUpTimeStdRange)
+                {
+                    return -1;
+                }
+                else if (this.DSE.Uptime.ConvertToTimeSpan() > this.DataCenter.NodeUpTimeAvg + this.DataCenter.NodeUpTimeStdRange)
+                {
+                    return 1;
+                }
+            }
+
+            return 0;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns>
+        /// Returns 1 to indicate higher then DC Average
+        /// Returns 0 to indicate Within DC Average Threshold
+        /// Returns -1 to indicate lower then DC Average
+        /// False to indicate node&apos;s value is NaN
+        /// </returns>
+        public int? NodeSystemLogDCAvgState()
+        {
+            if (!this.DSE.LogSystemDuration.HasValue)
+            {
+                return null;
+            }
+
+            if (Math.Abs((this.DSE.LogSystemDuration.Value - this.DataCenter.LogSystemDurationAvg.Value).TotalHours) > Properties.Settings.Default.ThresholdAvgHrs.TotalHours)
+            {
+                if (this.DSE.LogSystemDuration.Value < this.DataCenter.LogSystemDurationAvg - this.DataCenter.LogSystemDurationStdRange)
+                {
+                    return -1;
+                }
+                else if (this.DSE.LogSystemDuration.Value > this.DataCenter.LogSystemDurationAvg + this.DataCenter.LogSystemDurationStdRange)
+                {
+                    return 1;
+                }
+            }
+
+            return 0;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns>
+        /// Returns 1 to indicate higher then DC Average
+        /// Returns 0 to indicate Within DC Average Threshold
+        /// Returns -1 to indicate lower then DC Average
+        /// False to indicate node&apos;s value is NaN
+        /// </returns>
+        public int? NodeDebugLogDCAvgState()
+        {
+            if (!this.DSE.LogDebugDuration.HasValue)
+            {
+                return null;
+            }
+
+            if (Math.Abs((this.DSE.LogDebugDuration.Value - this.DataCenter.LogDebugDurationAvg.Value).TotalHours) > Properties.Settings.Default.ThresholdAvgHrs.TotalHours)
+            {
+                if (this.DSE.LogDebugDuration.Value < this.DataCenter.LogDebugDurationAvg - this.DataCenter.LogDebugDurationStdRange)
+                {
+                    return -1;
+                }
+                else if (this.DSE.LogDebugDuration.Value > this.DataCenter.LogDebugDurationAvg + this.DataCenter.LogDebugDurationStdRange)
+                {
+                    return 1;
+                }
+            }
+
+            return 0;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns>
+        /// Returns 1 to indicate higher then debug duration than system
+        /// Returns 0 to indicate Within DC Average Threshold
+        /// Returns -1 to indicate lower then debug duration than system
+        /// False to indicate node&apos;s value is NaN
+        /// </returns>
+        public int? NodeSystemDebugLogState()
+        {
+            if (!this.DSE.LogDebugDuration.HasValue || !this.DSE.LogSystemDuration.HasValue)
+            {
+                return null;
+            }
+
+            if (Math.Abs((this.DSE.LogDebugDuration.Value - this.DSE.LogSystemDuration.Value).TotalHours) > Properties.Settings.Default.ThresholdAvgHrs.TotalHours)
+            {
+                if (this.DSE.LogDebugDuration.Value < this.DSE.LogSystemDuration.Value)
+                {
+                    return -1;
+                }
+                else if (this.DSE.LogDebugDuration.Value > this.DSE.LogSystemDuration.Value)
+                {
+                    return 1;
+                }
+            }
+
+            return 0;
+        }
+
+
+        public bool NodeDCAvgStateWithinThrehold()
+        {
+            if(!this.DSE.Uptime.NaN
+                && this.DSE.LogSystemDuration.HasValue
+                && Math.Abs((this.DSE.LogSystemDuration.Value - this.DSE.Uptime.ConvertToTimeSpan()).TotalHours) <= Properties.Settings.Default.ThresholdUpTimeLogHrs.TotalHours)
+            {
+                return true;
+            }
+            
+            return false;
+        }
+
         public string NodeName(bool forceAttrs = false)
         {
             var nodeName = this.Id.NodeName();
@@ -1620,96 +1800,74 @@ namespace DSEDiagnosticLibrary
             if(LibrarySettings.EnableAttrSymbols || forceAttrs)
             {                
                 string strAttr = string.Empty;
+                var upTimeState = this.NodeUpTimeDCAvgState();
+                var systemState = this.NodeSystemLogDCAvgState();
+                var debugState = this.NodeDebugLogDCAvgState();
 
-                if (this.DSE.Uptime.NaN)
+                if (upTimeState.HasValue)
                 {
-                    strAttr += (char)Properties.Settings.Default.PHAttrChar;
-                }
-                else
-                {
-                    bool hasAttr = false;
-
-                    if (this.DataCenter.NodeUpTimeAvg.HasValue
-                            && Math.Abs((this.DSE.Uptime.ConvertToTimeSpan() - this.DataCenter.NodeUpTimeAvg.Value).TotalHours) > Properties.Settings.Default.ThresholdAvgHrs.TotalHours)
-                    {              
-                        if (this.DSE.Uptime.ConvertToTimeSpan() < this.DataCenter.NodeUpTimeAvg - this.DataCenter.NodeUpTimeStdRange)
-                        {
-                            strAttr += (char)Properties.Settings.Default.LowAttrChar;
-                            hasAttr = true;
-                        }
-                        else if (this.DSE.Uptime.ConvertToTimeSpan() > this.DataCenter.NodeUpTimeAvg + this.DataCenter.NodeUpTimeStdRange)
-                        {
-                            strAttr += (char)Properties.Settings.Default.HighAttrChar;
-                            hasAttr = true;
-                        }
+                    if (upTimeState.Value == -1)
+                    {
+                        strAttr += (char)Properties.Settings.Default.LowAttrChar;                        
                     }
-
-                    if(!hasAttr)
+                    else if(upTimeState.Value == 1)
+                    {
+                        strAttr += (char)Properties.Settings.Default.HighAttrChar;
+                    }
+                    else
                     {
                         strAttr += (char)Properties.Settings.Default.MidAttrChar;
                     }
                 }
-
-                if (!this.DSE.LogSystemDuration.HasValue)
+                else
                 {
                     strAttr += (char)Properties.Settings.Default.PHAttrChar;
                 }
-                else
-                {
-                    bool hasAttr = false;
 
-                    if (Math.Abs((this.DSE.LogSystemDuration.Value - this.DataCenter.LogSystemDurationAvg.Value).TotalHours) > Properties.Settings.Default.ThresholdAvgHrs.TotalHours)
+                if (systemState.HasValue)
+                {
+                    if (systemState.Value == -1)
                     {
-                        if (this.DSE.LogSystemDuration.Value < this.DataCenter.LogSystemDurationAvg - this.DataCenter.LogSystemDurationStdRange)
-                        {
-                            strAttr += (char)Properties.Settings.Default.LowAttrChar;
-                            hasAttr = true;
-                        }
-                        else if (this.DSE.LogSystemDuration.Value > this.DataCenter.LogSystemDurationAvg + this.DataCenter.LogSystemDurationStdRange)
-                        {
-                            strAttr += (char)Properties.Settings.Default.HighAttrChar;
-                            hasAttr = true;
-                        }                       
+                        strAttr += (char)Properties.Settings.Default.LowAttrChar;
                     }
-                    if (!hasAttr)
+                    else if (systemState.Value == 1)
+                    {
+                        strAttr += (char)Properties.Settings.Default.HighAttrChar;
+                    }
+                    else
                     {
                         strAttr += (char)Properties.Settings.Default.MidAttrChar;
                     }
                 }
-
-                if (!this.DSE.LogDebugDuration.HasValue)
+                else
                 {
                     strAttr += (char)Properties.Settings.Default.PHAttrChar;
                 }
-                else
+
+                if (debugState.HasValue)
                 {
-                    bool hasAttr = false;
-
-                    if (Math.Abs((this.DSE.LogDebugDuration.Value - this.DataCenter.LogDebugDurationAvg.Value).TotalHours) > Properties.Settings.Default.ThresholdAvgHrs.TotalHours)
+                    if (debugState.Value == -1)
                     {
-                        if (this.DSE.LogDebugDuration.Value < this.DataCenter.LogDebugDurationAvg - this.DataCenter.LogDebugDurationStdRange)
-                        {
-                            strAttr += (char)Properties.Settings.Default.LowAttrChar;
-                            hasAttr = true;
-                        }
-                        else if (this.DSE.LogDebugDuration.Value > this.DataCenter.LogDebugDurationAvg + this.DataCenter.LogDebugDurationStdRange)
-                        {
-                            strAttr += (char)Properties.Settings.Default.HighAttrChar;
-                            hasAttr = true;
-                        }
+                        strAttr += (char)Properties.Settings.Default.LowAttrChar;
                     }
-
-                    if(!hasAttr)
+                    else if (debugState.Value == 1)
+                    {
+                        strAttr += (char)Properties.Settings.Default.HighAttrChar;
+                    }
+                    else
                     {
                         strAttr += (char)Properties.Settings.Default.MidAttrChar;
                     }
+                }
+                else
+                {
+                    strAttr += (char)Properties.Settings.Default.PHAttrChar;
                 }
 
                 //if (!hasAttr)
                 //    strAttr = strAttr.TrimEnd((char)Properties.Settings.Default.PHAttrChar, (char)Properties.Settings.Default.MidAttrChar);
 
-                if (this.DSE.LogSystemDuration.HasValue && !this.DSE.Uptime.NaN
-                        && Math.Abs((this.DSE.LogSystemDuration.Value - this.DSE.Uptime.ConvertToTimeSpan()).TotalHours) > Properties.Settings.Default.ThresholdUpTimeLogHrs.TotalHours)
+                if (!this.NodeDCAvgStateWithinThrehold())
                 {
                     strAttr += (char)Properties.Settings.Default.UpTimeLogMismatchAttrChar;
                 }

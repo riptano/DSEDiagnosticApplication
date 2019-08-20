@@ -71,6 +71,8 @@ namespace DSEDiagnosticLibrary
         TimeSpan? LogDebugGap { get; }
         int LogDebugFiles { get; }
 
+        int DataQualityFactor();
+
         object ToDump();
     }
 
@@ -278,6 +280,20 @@ namespace DSEDiagnosticLibrary
         public TimeSpan? LogDebugDurationStdRange { get; set; }
         public TimeSpan? LogDebugGap { get; set; }
         public int LogDebugFiles { get; set; }
+
+        public int DataQualityFactor()
+        {
+            int factor = this._nodes.UnSafe
+                            .Select(n => (n.NodeUpTimeDCAvgState().HasValue ? n.NodeUpTimeDCAvgState().Value == 0 ? 1 : 0 : 0)
+                                            + (n.NodeSystemLogDCAvgState().HasValue ? n.NodeSystemLogDCAvgState().Value == 0 ? 1 : 0 : 0)
+                                            + (n.NodeDebugLogDCAvgState().HasValue ? n.NodeDebugLogDCAvgState().Value == 0 ? 1 : 0 : 0)
+                                            + (n.NodeSystemDebugLogState().HasValue ? n.NodeSystemDebugLogState().Value == 0 ? 1 : 0 : 0)
+                                            + (n.NodeDCAvgStateWithinThrehold() ? 1 : 0))
+                            .DefaultIfEmpty()
+                            .Sum();
+            return factor;
+        }
+
 
         #endregion
 
