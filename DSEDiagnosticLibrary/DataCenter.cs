@@ -4,6 +4,7 @@ using System.Collections.Concurrent;
 using System.Linq;
 using System.Text;
 using Newtonsoft.Json;
+using Common;
 using Common.Patterns;
 using System.Threading.Tasks;
 using Common.Patterns.Tasks;
@@ -288,7 +289,13 @@ namespace DSEDiagnosticLibrary
                                             + (n.NodeSystemLogDCAvgState().HasValue ? n.NodeSystemLogDCAvgState().Value == 0 ? 1 : 0 : 0)
                                             + (n.NodeDebugLogDCAvgState().HasValue ? n.NodeDebugLogDCAvgState().Value == 0 ? 1 : 0 : 0)
                                             + (n.NodeSystemDebugLogState().HasValue ? n.NodeSystemDebugLogState().Value == 0 ? 1 : 0 : 0)
-                                            + (n.NodeDCAvgStateWithinThrehold() ? 1 : 0))
+                                            + (n.NodeDCAvgStateWithinThrehold() ? 1 : 0)
+                                            + (n.Configurations.IsEmpty() ? 0 : 1)
+                                            + (n.DSE.Versions?.DSE == null ? 0 : 1)
+                                            + (n.DSE.Devices?.CommitLog == null && (n.DSE.Devices.Data?.IsEmpty() ?? true) ? 0 : 1)
+                                            + (n.Machine?.Java?.HeapMemory.Committed.NaN ?? true ? 0 : 1)
+                                            + (n.Machine?.Memory?.Available.NaN ?? true ? 0 : 1)
+                                            + (n.DSE.WriteCount > 0 || n.DSE.ReadCount > 0 || n.DSE.SSTableCount > 0 ? 1 : 0))
                             .DefaultIfEmpty()
                             .Sum();
             return factor;

@@ -97,7 +97,7 @@ namespace DSEDiagnosticToDataTable.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("1000")]
+        [global::System.Configuration.DefaultSettingValueAttribute("350")]
         public long DCTotalGCDQNbr {
             get {
                 return ((long)(this["DCTotalGCDQNbr"]));
@@ -106,7 +106,7 @@ namespace DSEDiagnosticToDataTable.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("7500")]
+        [global::System.Configuration.DefaultSettingValueAttribute("10000")]
         public long DCTotalLogEvtDQNbr {
             get {
                 return ((long)(this["DCTotalLogEvtDQNbr"]));
@@ -115,7 +115,7 @@ namespace DSEDiagnosticToDataTable.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("2500")]
+        [global::System.Configuration.DefaultSettingValueAttribute("10000")]
         public long DCTotalFlushDQNbr {
             get {
                 return ((long)(this["DCTotalFlushDQNbr"]));
@@ -124,7 +124,7 @@ namespace DSEDiagnosticToDataTable.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("1000")]
+        [global::System.Configuration.DefaultSettingValueAttribute("5000")]
         public long DCTotalCompactionDQNbr {
             get {
                 return ((long)(this["DCTotalCompactionDQNbr"]));

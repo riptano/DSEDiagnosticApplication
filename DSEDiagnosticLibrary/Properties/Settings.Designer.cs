@@ -466,7 +466,7 @@ namespace DSEDiagnosticLibrary.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("1.00:00:00")]
+        [global::System.Configuration.DefaultSettingValueAttribute("16:00:00")]
         public global::System.TimeSpan ThresholdUpTimeLogHrs {
             get {
                 return ((global::System.TimeSpan)(this["ThresholdUpTimeLogHrs"]));
@@ -560,18 +560,6 @@ namespace DSEDiagnosticLibrary.Properties {
         public bool TreatLogDirNamesAsHostName {
             get {
                 return ((bool)(this["TreatLogDirNamesAsHostName"]));
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string DCLogTheshold {
-            get {
-                return ((string)(this["DCLogTheshold"]));
-            }
-            set {
-                this["DCLogTheshold"] = value;
             }
         }
     }

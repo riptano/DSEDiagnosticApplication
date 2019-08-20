@@ -844,7 +844,7 @@ namespace DSEDiagnosticToDataTable
 
                         {
                             var dcQualityFactor = (decimal) dataCenter.DataQualityFactor();
-                            var inds = new string[] { "Excellent", "Good", "OK", "Poor" };                            
+                            var inds = new string[] { "Poor", "OK", "Good", "Excellent" };                            
                             var offset = (dataCenter.LogDebugFiles > 0 ? 0 : 1)
                                             + (dataCenter.LogSystemFiles > 0 ? 0 : 2);
 
@@ -872,21 +872,31 @@ namespace DSEDiagnosticToDataTable
                                 dcQualityFactor -= 1m - ((decimal)dcCompactions / (decimal)Properties.Settings.Default.DCTotalCompactionDQNbr);
                             }
 
-                            for (int f = 5 - offset; f > 0; --f)
-                            {                                
-                                if (dcQualityFactor >= (f * totNodes))
-                                {
-                                    if (dcQualityFactor >= (((decimal)f + 0.5m) * (decimal)totNodes))
+                            var dqType = string.Empty;
+                            int lastAdjNodeFactor = 0;
+
+                            for (int f = 4; f > 0; --f)
+                            {
+                                var adjNodeFactor = (f * 3) - offset;  //(f * (maxNodeDQ/4)) - offset
+
+                                if (dcQualityFactor >= adjNodeFactor * totNodes)
+                                {                         
+                                    if (lastAdjNodeFactor > 0
+                                            && dcQualityFactor >= (((decimal)(lastAdjNodeFactor - adjNodeFactor)/2m) + (decimal)adjNodeFactor) * totNodes)
                                     {
-                                        dataRow.SetField("Diagnostic Data Quality", inds[f - 2 + offset] + "(high)");
+                                        dataRow.SetField("Diagnostic Data Quality", dqType = inds[f-1] + "(upper)");
                                     }
                                     else
                                     {
-                                        dataRow.SetField("Diagnostic Data Quality", inds[f - 2 + offset]);
+                                        dataRow.SetField("Diagnostic Data Quality", dqType = inds[f-1]);
                                     }
+                                    lastAdjNodeFactor = adjNodeFactor;
                                     break;
                                 }
                             }
+
+                            Logger.Instance.InfoFormat("Diagnostic Data Quality for DataCenter \"{0}\", Factor {1:###,###,##0.00} (\"{4}\"), Avg. Factor {2:###,###,##0.00}, Offset {3}",
+                                                       dataCenter.Name, dcQualityFactor, dcQualityFactor / (decimal)totNodes, offset, dqType);
                         }
                     }
 
