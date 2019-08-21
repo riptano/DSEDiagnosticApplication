@@ -1,0 +1,306 @@
+{
+  "LogClass": "file_cassandra_log4net",
+  "Parsers": [
+    {
+      "Description": "Compaction (finish)",
+      "LinkedTagId": 1.1
+    },
+    {
+      "Description": "Compaction (begin)",
+      "LinkedTagId": 1.0
+    },
+    {
+      "Description": "Flushing (begin;type)",
+      "LinkedTagId": 2.0
+    },
+    {
+      "Description": "Flushing (enqueuing)",
+      "LinkedTagId": 2.1
+    },
+    {
+      "Description": "Flushing (writing)",
+      "LinkedTagId": 2.12
+    },
+    {
+      "Description": "Flushing (finish)",
+      "LinkedTagId": 2.2
+    },
+    {
+      "Description": "Hint Handoff (start)",
+      "LinkedTagId": 3.0
+    },
+    {
+      "Description": "Hiint Handoff (handshaking)",
+      "LinkedTagId": 3.1
+    },
+    {
+      "Description": "Hint Handoff (finish)",
+      "LinkedTagId": 3.2
+    },
+    {
+      "Description": "Hint Handoff (dropped hints node down)",
+      "LinkedTagId": 19.0
+    },
+    {
+      "Description": "Node Down or Joined Cluster",
+      "LinkedTagId": 4.0
+    },
+    {
+      "Description": "Node Up",
+      "LinkedTagId": 4.1
+    },
+    {
+      "Description": "Node Shutdown",
+      "LinkedTagId": 5.0
+    },
+    {
+      "Description": "Node Startup",
+      "LinkedTagId": 5.1
+    },
+    {
+      "Description": "Node not able to start",
+      "LinkedTagId": 5.2
+    },
+    {
+      "Description": "Node Configuration",
+      "LinkedTagId": 6.0
+    },
+    {
+      "Description": "Not Mark Node Down (pause)",
+      "LinkedTagId": 18.0
+    },
+    {
+      "Description": "Solr Hard Commit (secondary index)",
+      "LinkedTagId": 7.0
+    },
+    {
+      "Description": "Solr Hard Commit (Excuting)",
+      "LinkedTagId": 7.1
+    },
+    {
+      "Description": "Solr Hard Commit (start)",
+      "LinkedTagId": 7.2
+    },
+    {
+      "Description": "Solr Hard Commit (completed)",
+      "LinkedTagId": 7.3
+    },
+    {
+      "Description": "Solr Index (completed)",
+      "LinkedTagId": 7.4
+    },
+    {
+      "Description": "Sharding Start",
+      "LinkedTagId": 8.0
+    },
+    {
+      "Description": "Sharding Same Token",
+      "LinkedTagId": 8.1
+    },
+    {
+      "Description": "Sharding Token Owership Changed",
+      "LinkedTagId": 8.2
+    },
+    {
+      "Description": "Sharding Updating",
+      "LinkedTagId": 8.3
+    },
+    {
+      "Description": "Create table or view",
+      "LinkedTagId": 9.0
+    },
+    {
+      "Description": "Create keyspace",
+      "LinkedTagId": 10.0
+    },
+    {
+      "Description": "Update keyspace, table, columnfamily, or view",
+      "LinkedTagId": 11.0
+    },
+    {
+      "Description": "Drop keyspace, table, columnfamily, or view",
+      "LinkedTagId": 12.0
+    },
+    {
+      "Description": "GC",
+      "LinkedTagId": 13.0
+    },
+    {
+      "Description": "Pool Status",
+      "LinkedTagId": 14.0
+    },
+    {
+      "Description": "Cache Status",
+      "LinkedTagId": 15.0
+    },
+    {
+      "Description": "Memtable OPS",
+      "LinkedTagId": 16.0
+    },
+    {
+      "Description": "large partition/row",
+      "LinkedTagId": 20.0
+    },
+    {
+      "Description": "tombstone",
+      "LinkedTagId": 21.0
+    },
+    {
+      "Description": "tombstone (ignore)",
+      "LinkedTagId": 21.5
+    },
+    {
+      "Description": "commit log syncs",
+      "LinkedTagId": 22.0
+    },
+    {
+      "Description": "Aggregation query",
+      "LinkedTagId": 23.0
+    },
+    {
+      "Description": "Gossip stage",
+      "LinkedTagId": 24.0
+    },
+    {
+      "Description": "Batches",
+      "LinkedTagId": 25.0
+    },
+    {
+      "Description": "Solr Resouce loading (start)",
+      "LinkedTagId": 26.0
+    },
+    {
+      "Description": "Solr Resouce loading (completed)",
+      "LinkedTagId": 26.1,
+      "SessionBeginLinkedTagId": 26.0
+    },
+    {
+      "Description": "LeveledCompactionStrategy orphaned SSTable",
+      "LinkedTagId": 27.0
+    },
+    {
+      "Description": "Materialized View Mutation",
+      "LinkedTagId": 28.0
+    },
+    {
+      "Description": "Discarded Prepared",
+      "LinkedTagId": 29.0
+    },
+    {
+      "Description": "Node Assassinating Start",
+      "LinkedTagId": 30.0
+    },
+    {
+      "Description": "Node Assassinating Finish",
+      "LinkedTagId": 30.1
+    },
+    {
+      "Description": "Nodes seems to be down",
+      "LinkedTagId": 31.0
+    },
+    {
+      "Description": "Maximum memory usage reached (partition)",
+      "LinkedTagId": 32.0
+    },
+    {
+      "Description": "Plain text authenticatior",
+      "LinkedTagId": 33.0
+    },
+    {
+      "Description": "Free Data Volumes",
+      "LinkedTagId": 34.0
+    },
+    {
+      "Description": "silent shutdown",
+      "LinkedTagId": 35.0
+    },
+    {
+      "Description": "query timed out",
+      "LinkedTagId": 36.0
+    },
+    {
+      "Description": "degraded mode",
+      "LinkedTagId": 37.0
+    },
+    {
+      "Description": "read cardinality failure",
+      "LinkedTagId": 38.0
+    },
+    {
+      "Description": "Insufficient Space to Compact",
+      "LinkedTagId": 39.0
+    },
+    {
+      "Description": "Not enough space for compaction",
+      "LinkedTagId": 40.0
+    },
+    {
+      "Description": "Logged Batch TTL warning",
+      "LinkedTagId": 41.0
+    },
+    {
+      "Description": "Nodes seems to be down",
+      "LinkedTagId": 42.0
+    },
+    {
+      "Description": "FileSystem Error",
+      "LinkedTagId": 43.0
+    },
+    {
+      "Description": "Transaction Failure",
+      "LinkedTagId": 44.0
+    },
+    {
+      "Description": "Gossip marked as unavailable",
+      "LinkedTagId": 45.0
+    },
+    {
+      "Description": "Drops",
+      "LinkedTagId": 46.0
+    },
+    {
+      "Description": "RejectedExecutionException",
+      "LinkedTagId": 47.0
+    },
+    {
+      "Description": "Solr Fnd expired columns",
+      "LinkedTagId": 48.0
+    },
+    {
+      "Description": "Solr soft commit",
+      "LinkedTagId": 48.1
+    },
+    {
+      "Description": "Solr Expired Columns",
+      "LinkedTagId": 48.2
+    },
+    {
+      "Description": "Cannot send response",
+      "LinkedTagId": 49.0
+    },
+    {
+      "Description": "Terminating pending requests Client",
+      "LinkedTagId": 50.0
+    },
+    {
+      "Description": "Exceeded number of max connections",
+      "LinkedTagId": 51.0
+    },
+    {
+      "Description": "Solr Connection Refused",
+      "LinkedTagId": 52.0
+    },
+    {
+      "Description": "Row Response Timeout",
+      "LinkedTagId": 53.0
+    },
+    {
+      "Description": "Range Rebuild",
+      "LinkedTagId": 55.0
+    },
+    {
+      "Description": "New HostId",
+      "LinkedTagId": 57.0
+    }
+  ]
+}

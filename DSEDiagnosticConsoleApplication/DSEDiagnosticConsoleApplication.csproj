@@ -146,6 +146,10 @@
       <Link>JSON\Log4NetParserLogsNoFlushComp.json</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="..\DSEDiagnosticFileParser\Json\Log4NetParserNoRepairs.json">
+      <Link>JSON\Log4NetParserNoRepairs.json</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="..\DSEDiagnosticFileParser\Json\Log4NetParserValidateLogs.json">
       <Link>JSON\Log4NetParserValidateLogs.json</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

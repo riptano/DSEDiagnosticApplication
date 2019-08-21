@@ -122,7 +122,10 @@ namespace DSEDiagnosticConsoleApplication.Properties {
             "arser\":\".\\\\Json\\\\Log4NetParserLogsNoFlushCompGC.json\",\"ProcessFileMappings\":\".\\\\" +
             "Json\\\\ProcessFileMappingsValidate.json\",\"EnableVirtualMemory\":false, \"DefaultLog" +
             "LevelHandling\":\"Fatal, Exception\", \"DebugLogProcessingTypes\":\"OnlyLogDateRange\"}" +
-            "\r\n]")]
+            ",\r\n{\"ProfileName\":\"AllNoRepairs\",\"Log4NetParser\":\".\\\\Json\\\\Log4NetParserNoRepair" +
+            "s.json\",\"ProcessFileMappings\":\".\\\\Json\\\\ProcessFileMappings.json\",\"EnableVirtual" +
+            "Memory\":false, \"DefaultLogLevelHandling\":\"Warning, Error, Fatal, Exception\", \"De" +
+            "bugLogProcessingTypes\":\"OnlyFlushCompactionMsgs\"}\r\n]")]
         public string Profiles {
             get {
                 return ((string)(this["Profiles"]));
