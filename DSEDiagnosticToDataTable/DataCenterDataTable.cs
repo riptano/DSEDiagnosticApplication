@@ -843,10 +843,11 @@ namespace DSEDiagnosticToDataTable
                         }
 
                         {
-                            var dcQualityFactor = (decimal) dataCenter.DataQualityFactor();
+                            var dcQualityFactor = dataCenter.DataQualityFactor();
                             var inds = new string[] { "Poor", "OK", "Good", "Excellent" };                            
-                            var offset = (dataCenter.LogDebugFiles > 0 ? 0 : 1)
-                                            + (dataCenter.LogSystemFiles > 0 ? 0 : 2);
+                            var offset = (decimal) ((dataCenter.LogDebugFiles > 0 ? 0 : 1)
+                                                        + (dataCenter.LogSystemFiles > 0 ? 0 : 2));
+                            var audit = string.Empty; 
 
                             if (dataCenter.LogSystemFiles == 0 || dataCenter.LogDebugFiles == 0)
                                 ++offset;
@@ -854,49 +855,79 @@ namespace DSEDiagnosticToDataTable
                             if((dataCenter.LogSystemFiles > 0 || dataCenter.LogDebugFiles > 0)
                                     && dcLogEvts < Properties.Settings.Default.DCTotalLogEvtDQNbr)                            
                             {
-                                dcQualityFactor -= 1m - ((decimal) dcLogEvts / (decimal) Properties.Settings.Default.DCTotalLogEvtDQNbr);
+                                dcQualityFactor -= (1m - ((decimal) dcLogEvts / (decimal) Properties.Settings.Default.DCTotalLogEvtDQNbr)) * totNodes;
+                                audit += "LogEvt,";
                             }
                             if (dataCenter.LogSystemFiles > 0
                                     && dcGCs < Properties.Settings.Default.DCTotalGCDQNbr)                            
                             {
-                                dcQualityFactor -= 1m - ((decimal) dcGCs / (decimal) Properties.Settings.Default.DCTotalGCDQNbr);
+                                dcQualityFactor -= (1m - ((decimal) dcGCs / (decimal) Properties.Settings.Default.DCTotalGCDQNbr)) * totNodes;
+                                audit += "GC,";
                             }
                             if (dataCenter.LogDebugFiles > 0
                                     && dcFlushes < Properties.Settings.Default.DCTotalFlushDQNbr)                            
                             {
-                                dcQualityFactor -= 1m - ((decimal)dcFlushes / (decimal)Properties.Settings.Default.DCTotalFlushDQNbr);
+                                dcQualityFactor -= (1m - ((decimal)dcFlushes / (decimal)Properties.Settings.Default.DCTotalFlushDQNbr)) * totNodes;
+                                audit += "Flush,";
                             }
                             if (dataCenter.LogDebugFiles > 0
                                     && dcCompactions < Properties.Settings.Default.DCTotalCompactionDQNbr)                            
                             {
-                                dcQualityFactor -= 1m - ((decimal)dcCompactions / (decimal)Properties.Settings.Default.DCTotalCompactionDQNbr);
+                                dcQualityFactor -= (1m - ((decimal)dcCompactions / (decimal)Properties.Settings.Default.DCTotalCompactionDQNbr)) * totNodes;
+                                audit += "Comp,";
                             }
 
                             var dqType = string.Empty;
-                            int lastAdjNodeFactor = 0;
+                            decimal lastAdjNodeFactor = 0m;
+                            var divFactor = dataCenter.DataQualityMaxFactor / Properties.Settings.Default.DCDQDivideFactor;
 
                             for (int f = 4; f > 0; --f)
                             {
-                                var adjNodeFactor = (f * 3) - offset;  //(f * (maxNodeDQ/4)) - offset
+                                var adjNodeFactor = ((decimal) f * divFactor) - offset;  //(f * (maxNodeDQ/4)) - offset
 
-                                if (dcQualityFactor >= adjNodeFactor * totNodes)
+                                if(Logger.Instance.IsDebugEnabled)
+                                {
+                                    Logger.Instance.InfoFormat("Diagnostic Data Quality for DataCenter \"{0}\" (Nodes {1}), DC Factor {2:###,###,##0.00}, Max. Factor: {3:###,###,##0.00}, Adjusted/Compare Factor: {4:###,###,##0.00}, Divide Factor: {5}, OffSet: {6}, Index: {7}",
+                                                                dataCenter.Name,
+                                                                totNodes,
+                                                                dcQualityFactor,
+                                                                dataCenter.DataQualityMaxFactor,
+                                                                adjNodeFactor,
+                                                                divFactor,
+                                                                offset,
+                                                                f);
+                                }
+
+                                if (dcQualityFactor >= adjNodeFactor)
                                 {                         
-                                    if (lastAdjNodeFactor > 0
-                                            && dcQualityFactor >= (((decimal)(lastAdjNodeFactor - adjNodeFactor)/2m) + (decimal)adjNodeFactor) * totNodes)
+                                    if (lastAdjNodeFactor > 0m
+                                            && dcQualityFactor >= ((lastAdjNodeFactor - adjNodeFactor)/2m) + adjNodeFactor)
                                     {
                                         dataRow.SetField("Diagnostic Data Quality", dqType = inds[f-1] + "(upper)");
                                     }
                                     else
                                     {
                                         dataRow.SetField("Diagnostic Data Quality", dqType = inds[f-1]);
-                                    }
-                                    lastAdjNodeFactor = adjNodeFactor;
+                                    }                                    
                                     break;
                                 }
+                                lastAdjNodeFactor = adjNodeFactor;
                             }
 
-                            Logger.Instance.InfoFormat("Diagnostic Data Quality for DataCenter \"{0}\", Factor {1:###,###,##0.00} (\"{4}\"), Avg. Factor {2:###,###,##0.00}, Offset {3}",
-                                                       dataCenter.Name, dcQualityFactor, dcQualityFactor / (decimal)totNodes, offset, dqType);
+                            if(string.IsNullOrEmpty(dqType))
+                            {
+                                dataRow.SetField("Diagnostic Data Quality", dqType = "Poor (low)");
+                            }
+
+                            Logger.Instance.InfoFormat("Diagnostic Data Quality for DataCenter \"{0}\" (nodes {6}), Factor {1:###,###,##0.00} (\"{4}\") DC Max. Factor: {5:###,###,##0.00}, Avg. Factor {2:###,###,##0.00}, Offset {3}, Audit: {7}",
+                                                       dataCenter.Name,
+                                                       dcQualityFactor,
+                                                       dcQualityFactor / (decimal)totNodes,
+                                                       offset,
+                                                       dqType,
+                                                       dataCenter.DataQualityMaxFactor,
+                                                       totNodes,
+                                                       audit);
                         }
                     }
 

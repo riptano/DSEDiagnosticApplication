@@ -239,5 +239,17 @@
     <Setting Name="TreatLogDirNamesAsHostName" Type="System.Boolean" Scope="Application">
       <Value Profile="(Default)">False</Value>
     </Setting>
+    <Setting Name="DCDQNegativeNumeratorFactor" Type="System.Decimal" Scope="Application">
+      <Value Profile="(Default)">-2</Value>
+    </Setting>
+    <Setting Name="DCDQNodeSysLogAvgStateFactor" Type="System.Decimal" Scope="Application">
+      <Value Profile="(Default)">-1</Value>
+    </Setting>
+    <Setting Name="DCDQNoCountsFactor" Type="System.Decimal" Scope="Application">
+      <Value Profile="(Default)">-1.5</Value>
+    </Setting>
+    <Setting Name="DCDQSysDebugLogAvgStateFactor" Type="System.Decimal" Scope="Application">
+      <Value Profile="(Default)">-0.5</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

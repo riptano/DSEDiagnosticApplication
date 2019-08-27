@@ -72,7 +72,8 @@ namespace DSEDiagnosticLibrary
         TimeSpan? LogDebugGap { get; }
         int LogDebugFiles { get; }
 
-        int DataQualityFactor();
+        decimal DataQualityFactor();
+        decimal DataQualityMaxFactor { get; }
 
         object ToDump();
     }
@@ -282,24 +283,27 @@ namespace DSEDiagnosticLibrary
         public TimeSpan? LogDebugGap { get; set; }
         public int LogDebugFiles { get; set; }
 
-        public int DataQualityFactor()
+        public decimal DataQualityFactor()
         {
-            int factor = this._nodes.UnSafe
-                            .Select(n => (n.NodeUpTimeDCAvgState().HasValue ? n.NodeUpTimeDCAvgState().Value == 0 ? 1 : 0 : 0)
-                                            + (n.NodeSystemLogDCAvgState().HasValue ? n.NodeSystemLogDCAvgState().Value == 0 ? 1 : 0 : 0)
-                                            + (n.NodeDebugLogDCAvgState().HasValue ? n.NodeDebugLogDCAvgState().Value == 0 ? 1 : 0 : 0)
-                                            + (n.NodeSystemDebugLogState().HasValue ? n.NodeSystemDebugLogState().Value == 0 ? 1 : 0 : 0)
-                                            + (n.NodeDCAvgStateWithinThrehold() ? 1 : 0)
-                                            + (n.Configurations.IsEmpty() ? 0 : 1)
-                                            + (n.DSE.Versions?.DSE == null ? 0 : 1)
-                                            + (n.DSE.Devices?.CommitLog == null && (n.DSE.Devices.Data?.IsEmpty() ?? true) ? 0 : 1)
-                                            + (n.Machine?.Java?.HeapMemory.Committed.NaN ?? true ? 0 : 1)
-                                            + (n.Machine?.Memory?.Available.NaN ?? true ? 0 : 1)
-                                            + (n.DSE.WriteCount > 0 || n.DSE.ReadCount > 0 || n.DSE.SSTableCount > 0 ? 1 : 0))
+            decimal negFactor = Properties.Settings.Default.DCDQNegativeNumeratorFactor / (decimal) this._nodes.UnSafe.Count;            
+            decimal factor = this._nodes.UnSafe
+                            .Select(n => (n.NodeUpTimeDCAvgState().HasValue ? (n.NodeUpTimeDCAvgState().Value == 0 ? 1m : negFactor) : 0m)
+                                            + (n.NodeSystemLogDCAvgState().HasValue ? (n.NodeSystemLogDCAvgState().Value == 0 ? 1m : negFactor) : 0m)
+                                            + (n.NodeDebugLogDCAvgState().HasValue ? (n.NodeDebugLogDCAvgState().Value == 0 ? 1m : negFactor) : 1m)
+                                            + (n.NodeSystemDebugLogState().HasValue ? (n.NodeSystemDebugLogState().Value == 0 ? 1m : Properties.Settings.Default.DCDQSysDebugLogAvgStateFactor + negFactor) : 1m)
+                                            + (n.NodeDCAvgStateWithinThrehold() ? 1m : Properties.Settings.Default.DCDQNodeSysLogAvgStateFactor + negFactor)
+                                            + (n.Configurations.IsEmpty() ? 0m : 1m)
+                                            + (n.DSE.Versions?.DSE == null ? 0m : 1m)
+                                            + (n.DSE.Devices?.CommitLog == null && (n.DSE.Devices.Data?.IsEmpty() ?? true) ? 0m : 1m)
+                                            + (n.Machine?.Java?.HeapMemory.Committed.NaN ?? true ? 0m : 1m)
+                                            + (n.Machine?.Memory?.Available.NaN ?? true ? 0m : 1m)
+                                            + (n.DSE.WriteCount > 0 || n.DSE.ReadCount > 0 || n.DSE.SSTableCount > 0 ? 1m : Properties.Settings.Default.DCDQNoCountsFactor))
                             .DefaultIfEmpty()
                             .Sum();
             return factor;
         }
+
+        public decimal DataQualityMaxFactor { get { return this._nodes.Count * 11; } }
 
 
         #endregion

@@ -562,5 +562,41 @@ namespace DSEDiagnosticLibrary.Properties {
                 return ((bool)(this["TreatLogDirNamesAsHostName"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("-2")]
+        public decimal DCDQNegativeNumeratorFactor {
+            get {
+                return ((decimal)(this["DCDQNegativeNumeratorFactor"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("-1")]
+        public decimal DCDQNodeSysLogAvgStateFactor {
+            get {
+                return ((decimal)(this["DCDQNodeSysLogAvgStateFactor"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("-1.5")]
+        public decimal DCDQNoCountsFactor {
+            get {
+                return ((decimal)(this["DCDQNoCountsFactor"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("-0.5")]
+        public decimal DCDQSysDebugLogAvgStateFactor {
+            get {
+                return ((decimal)(this["DCDQSysDebugLogAvgStateFactor"]));
+            }
+        }
     }
 }
