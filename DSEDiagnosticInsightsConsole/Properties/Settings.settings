@@ -13,7 +13,7 @@
 &lt;/ArrayOfString&gt;</Value>
     </Setting>
     <Setting Name="ExcelFileTemplatePath" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">.\dseHealthAssessment4ATemplate.xlsm</Value>
+      <Value Profile="(Default)">.\dseHealthAssessment4BTemplate.xlsm</Value>
     </Setting>
     <Setting Name="LoadSystemDSEKeyspaces" Type="System.Boolean" Scope="Application">
       <Value Profile="(Default)">True</Value>

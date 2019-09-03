@@ -27,6 +27,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSEDiagnosticFileParser", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataTableToExcel", "DSEDiagDataTableToExcel\DataTableToExcel.csproj", "{C4BE43F8-B1C2-4A51-A130-E2EED35A739C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSEDiagnosticParamsSettings", "DSEDiagnosticParamsSettings\DSEDiagnosticParamsSettings.csproj", "{C5373095-4629-41EC-A11B-65D7B7A5761D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSEDiagnosticTaskSchedulers", "DSEDiagnosticTaskSchedulers\DSEDiagnosticTaskSchedulers.csproj", "{9A2C0E86-0475-4A74-B653-88AD1644E1C0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -81,6 +85,14 @@ Global
 		{C4BE43F8-B1C2-4A51-A130-E2EED35A739C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C4BE43F8-B1C2-4A51-A130-E2EED35A739C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C4BE43F8-B1C2-4A51-A130-E2EED35A739C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C5373095-4629-41EC-A11B-65D7B7A5761D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C5373095-4629-41EC-A11B-65D7B7A5761D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C5373095-4629-41EC-A11B-65D7B7A5761D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C5373095-4629-41EC-A11B-65D7B7A5761D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9A2C0E86-0475-4A74-B653-88AD1644E1C0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9A2C0E86-0475-4A74-B653-88AD1644E1C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9A2C0E86-0475-4A74-B653-88AD1644E1C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9A2C0E86-0475-4A74-B653-88AD1644E1C0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

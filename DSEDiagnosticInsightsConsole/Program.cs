@@ -16,8 +16,10 @@ namespace DSEDiagnosticInsightsConsole
     {
         static void Main(string[] args)
         {
-            var node = new Uri("https://search-riptano-insights-stage-vmqawjqwydo4zerxyxu7burd4e.us-east-1.es.amazonaws.com");         
-            var clusterId = new Guid("0f8045cf-5a4c-4ac3-88ad-240c187dbb93"); //DSE 5.1 AndersenHA51
+           //var node = new Uri("https://search-riptano-insights-stage-vmqawjqwydo4zerxyxu7burd4e.us-east-1.es.amazonaws.com");
+            var node = new Uri("https://search-riptano-insights-test-vs27zxgfxtbfyhqzcpk3umt5g4.us-east-1.es.amazonaws.com");
+            var clusterId = new Guid("cf8b173e-9e50-4d96-9c92-c0f15a233c63"); //DSE 5.1 AndersenHA51
+            //var clusterId = "andersenha51";
 
             ESQuerySearch.OnException += (sender, eventArgs) =>
             {

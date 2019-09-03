@@ -253,8 +253,7 @@ namespace DSEDiagnosticInsightsES
                                                                 int? nbrDocs = null)
             where T : class
         {
-            return searchDescriptor
-                    .AllTypes()
+            return searchDescriptor                    
                     .Size(nbrDocs)
                     .Query(q => q.Bool(c => c.Must(m => m.Term(queryField, clusterId))))
                     .Sort(s => s.Ascending(timestampField));
@@ -267,8 +266,7 @@ namespace DSEDiagnosticInsightsES
                                                                 int? nbrDocs = null)
             where T : class
         {
-            return searchDescriptor
-                    .AllTypes()
+            return searchDescriptor                    
                     .Size(nbrDocs)
                     .Query(q => q.Bool(c => c.Must(m => m.Term(queryField, clusterId))))
                     .Sort(s => s.Ascending(timestampField));
@@ -279,8 +277,7 @@ namespace DSEDiagnosticInsightsES
                                                                 int? nbrDocs = null)
             where T : class
         {
-            return searchDescriptor
-                    .AllTypes()
+            return searchDescriptor                    
                     .Size(nbrDocs)
                     .Sort(s => s.Ascending(timestampField));
         }
@@ -293,8 +290,7 @@ namespace DSEDiagnosticInsightsES
                                                                int? nbrDocs = null)
            where T : class
         {
-            return searchDescriptor
-                    .AllTypes()
+            return searchDescriptor                    
                     .Size(nbrDocs)
                     .Query(q => q.Bool(c => c.Must(m => m.Term(queryField, clusterId),
                                                     m => m.Range(r => r.Field(timestampField)
@@ -311,8 +307,7 @@ namespace DSEDiagnosticInsightsES
                                                                         int? nbrDocs = 1)
            where T : class
         {
-            return searchDescriptor
-                    .AllTypes()
+            return searchDescriptor                   
                     .Size(nbrDocs)
                     .Query(q => q.Bool(c => c.Must(m => m.Term(queryField, clusterId),
                                                     m => m.Range(r => r.Field(timestampField)
@@ -329,7 +324,7 @@ namespace DSEDiagnosticInsightsES
            where T : class
         {
             return searchDescriptor
-                    .AllTypes()
+                    //.AllTypes()
                     .Size(nbrDocs)
                     .Query(q => q.Bool(c => c.Must(m => m.Term(queryField, clusterId),
                                                     m => m.Range(r => r.Field(timestampField)
