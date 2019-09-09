@@ -170,8 +170,12 @@
       "LinkedTagId": 44.0
     },
     {
-      "Description": "Gossip marked as unavailable",
+      "Description": "Gossip Event",
       "LinkedTagId": 45.0
+    },
+    {
+      "Description": "Gossip marked as unavailable",
+      "LinkedTagId": 45.1
     },
     {
       "Description": "Drops",
@@ -215,15 +219,15 @@
     },
     {
       "Description": "Range Rebuild",
-      "TagId": 55.0
+      "LinkedTagId": 55.0
     },
     {
       "Description": "NodeSync",
-      "TagId": 56.0
+      "LinkedTagId": 56.0
     },
     {
       "Description": "New HostId",
-      "TagId": 57.0
+      "LinkedTagId": 57.0
     }
   ]
 }

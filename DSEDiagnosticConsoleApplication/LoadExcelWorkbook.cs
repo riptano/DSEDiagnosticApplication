@@ -142,6 +142,14 @@ namespace DSEDiagnosticConsoleApplication
                 loadAppInfo.ApplicationInfo.DiagnosticDirectory = ParserSettings.DiagnosticPath.PathResolved;
                 loadAppInfo.ApplicationInfo.WorkingDir = Common.Functions.Instance.ApplicationRunTimeDir;
 
+                {
+                    var inds = new string[] { "Poor", "OK", "Good", "Excellent" };
+
+                    loadAppInfo.ApplicationInfo.DataQuality = DSEDiagnosticLibrary.Cluster.GetCurrentOrMaster().DataQualityOverallFactor.HasValue
+                                                                ? inds[DSEDiagnosticLibrary.Cluster.GetCurrentOrMaster().DataQualityOverallFactor.Value]
+                                                                : "Unknown";
+                }
+
                 var resultItems = from result in parsedResults
                                   group result by new { DC = result.Node?.DataCenter?.Name, Node = result.Node?.Id.NodeName(), Class = result.GetType().Name, Category = result.Catagory, MapperId = result.MapperId } into g
                                   select new

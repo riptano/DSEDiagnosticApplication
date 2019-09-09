@@ -899,15 +899,26 @@ namespace DSEDiagnosticToDataTable
                                 }
 
                                 if (dcQualityFactor >= adjNodeFactor)
-                                {                         
+                                {
+                                    var dqFactor = f - 1;
+
+                                    if (dataCenter.Cluster.DataQualityOverallFactor.HasValue)
+                                    {
+                                        if(dataCenter.Cluster.DataQualityOverallFactor > dqFactor)
+                                            dataCenter.Cluster.DataQualityOverallFactor = dqFactor;
+                                    }
+                                    else
+                                        dataCenter.Cluster.DataQualityOverallFactor = dqFactor;
+
                                     if (lastAdjNodeFactor > 0m
+                                            && dqFactor > 0
                                             && dcQualityFactor >= ((lastAdjNodeFactor - adjNodeFactor)/2m) + adjNodeFactor)
                                     {
-                                        dataRow.SetField("Diagnostic Data Quality", dqType = inds[f-1] + "(upper)");
+                                        dataRow.SetField("Diagnostic Data Quality", dqType = inds[dqFactor] + "+");
                                     }
                                     else
                                     {
-                                        dataRow.SetField("Diagnostic Data Quality", dqType = inds[f-1]);
+                                        dataRow.SetField("Diagnostic Data Quality", dqType = inds[dqFactor]);
                                     }                                    
                                     break;
                                 }
@@ -916,7 +927,8 @@ namespace DSEDiagnosticToDataTable
 
                             if(string.IsNullOrEmpty(dqType))
                             {
-                                dataRow.SetField("Diagnostic Data Quality", dqType = "Poor (low)");
+                                dataRow.SetField("Diagnostic Data Quality", dqType = "Poor-");
+                                dataCenter.Cluster.DataQualityOverallFactor = 0;
                             }
 
                             Logger.Instance.InfoFormat("Diagnostic Data Quality for DataCenter \"{0}\" (nodes {6}), Factor {1:###,###,##0.00} (\"{4}\") DC Max. Factor: {5:###,###,##0.00}, Avg. Factor {2:###,###,##0.00}, Offset {3}, Audit: {7}",

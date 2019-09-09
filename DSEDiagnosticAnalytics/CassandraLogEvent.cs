@@ -773,7 +773,8 @@ namespace DSEDiagnosticAnalytics
                     }
                 }
             }
-            else if (eventArgs.LogEvent.Class == (EventClasses.NodeDetection | EventClasses.Unavailable))
+            else if ((eventArgs.LogEvent.Class & (EventClasses.NodeDetection | EventClasses.Unavailable))
+                        == (EventClasses.NodeDetection | EventClasses.Unavailable))
             {
                 if (eventArgs.LogEvent.AssociatedNodes != null)
                 {
@@ -805,7 +806,10 @@ namespace DSEDiagnosticAnalytics
                     }
                 }
             }
-            else if (eventArgs.LogEvent.Class == (EventClasses.NodeDetection | EventClasses.Drops))
+            else if ((eventArgs.LogEvent.Class & (EventClasses.NodeDetection | EventClasses.Drops))
+                                == (EventClasses.NodeDetection | EventClasses.Drops)
+                        && !string.IsNullOrEmpty(eventArgs.LogEvent.SubClass)
+                        && eventArgs.LogEvent.SubClass.StartsWith("Assassinating"))
             {
                 if (eventArgs.LogEvent.AssociatedNodes != null)
                 {

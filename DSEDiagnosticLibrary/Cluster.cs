@@ -212,7 +212,10 @@ namespace DSEDiagnosticLibrary
 
         public OpsCenterInfo OpsCenter { get; }
 
-		public IEvent AssociateItem(IEvent eventItem)
+        public int? DataQualityOverallFactor { get; set; }
+
+
+        public IEvent AssociateItem(IEvent eventItem)
 		{
 
 			return eventItem;

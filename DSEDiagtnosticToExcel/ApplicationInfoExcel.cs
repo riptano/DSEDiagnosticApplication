@@ -28,6 +28,7 @@ namespace DSEDiagtnosticToExcel
             public int Errors;
             public int Warnings;
             public bool UnhandledException;
+            public string DataQuality;
 
             public sealed class ResultInfo
             {
@@ -134,32 +135,41 @@ namespace DSEDiagtnosticToExcel
                                                                                var startRow = rangeAddress.Start.Row;
                                                                                var endRow = rangeAddress.End.Row;
                                                                                bool canceled = false; //j
-                                                                               bool errors = false; //l
-                                                                               bool exceptions = false; //m
-                                                                               bool notCompleted = false; //g
-                                                                               bool warnings = false; //k
+                                                                               bool errors = false; //k
+                                                                               bool exceptions = false; //L
+                                                                               bool notCompleted = false; //F
+                                                                               bool warnings = false; //I
 
                                                                                for(int nRow = startRow; nRow <= endRow; ++nRow)
                                                                                {
                                                                                    if(workSheet.Cells[nRow,2] != null)
                                                                                    {
-                                                                                       //K
-                                                                                       if(workSheet.Cells[nRow, 11].Value is int &&  ((int)workSheet.Cells[nRow, 11].Value) > 0)
+                                                                                       //J
+                                                                                       if(workSheet.Cells[nRow, 10].Value is int &&  ((int)workSheet.Cells[nRow, 10].Value) > 0)
                                                                                        {
                                                                                            workSheet.Cells[nRow, 2].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
                                                                                            workSheet.Cells[nRow, 2].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Yellow);
-                                                                                           workSheet.Cells[nRow, 11].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                                                                                           workSheet.Cells[nRow, 11].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Yellow);
+                                                                                           workSheet.Cells[nRow, 10].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                                                                                           workSheet.Cells[nRow, 10].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Yellow);
                                                                                            warnings = true;
                                                                                        }
-                                                                                       //J
-                                                                                       if (workSheet.Cells[nRow, 10].Value is int && ((int)workSheet.Cells[nRow, 10].Value) > 0)
+                                                                                       //I
+                                                                                       if (workSheet.Cells[nRow, 9].Value is int && ((int)workSheet.Cells[nRow, 9].Value) > 0)
                                                                                        {
                                                                                            workSheet.Cells[nRow, 2].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
                                                                                            workSheet.Cells[nRow, 2].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Red);
-                                                                                           workSheet.Cells[nRow, 10].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                                                                                           workSheet.Cells[nRow, 10].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Red);
+                                                                                           workSheet.Cells[nRow, 9].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                                                                                           workSheet.Cells[nRow, 9].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Red);
                                                                                            canceled = true;
+                                                                                       }
+                                                                                       //K
+                                                                                       if (workSheet.Cells[nRow, 11].Value is int && ((int)workSheet.Cells[nRow, 11].Value) > 0)
+                                                                                       {
+                                                                                           workSheet.Cells[nRow, 2].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                                                                                           workSheet.Cells[nRow, 2].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Red);
+                                                                                           workSheet.Cells[nRow, 11].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                                                                                           workSheet.Cells[nRow, 11].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Red);
+                                                                                           errors = true;
                                                                                        }
                                                                                        //L
                                                                                        if (workSheet.Cells[nRow, 12].Value is int && ((int)workSheet.Cells[nRow, 12].Value) > 0)
@@ -168,55 +178,72 @@ namespace DSEDiagtnosticToExcel
                                                                                            workSheet.Cells[nRow, 2].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Red);
                                                                                            workSheet.Cells[nRow, 12].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
                                                                                            workSheet.Cells[nRow, 12].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Red);
-                                                                                           errors = true;
-                                                                                       }
-                                                                                       //M
-                                                                                       if (workSheet.Cells[nRow, 13].Value is int && ((int)workSheet.Cells[nRow, 13].Value) > 0)
-                                                                                       {
-                                                                                           workSheet.Cells[nRow, 2].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                                                                                           workSheet.Cells[nRow, 2].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Red);
-                                                                                           workSheet.Cells[nRow, 13].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                                                                                           workSheet.Cells[nRow, 13].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Red);
                                                                                            exceptions = true;
                                                                                        }
-                                                                                       //G
-                                                                                       if (workSheet.Cells[nRow, 7].Value is int && ((int)workSheet.Cells[nRow, 7].Value) == 0)
+                                                                                       //F
+                                                                                       if (workSheet.Cells[nRow, 6].Value is int && ((int)workSheet.Cells[nRow, 6].Value) == 0)
                                                                                        {
                                                                                            workSheet.Cells[nRow, 2].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
                                                                                            workSheet.Cells[nRow, 2].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Red);
-                                                                                           workSheet.Cells[nRow, 7].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                                                                                           workSheet.Cells[nRow, 7].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Red);
+                                                                                           workSheet.Cells[nRow, 6].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                                                                                           workSheet.Cells[nRow, 6].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Red);
                                                                                            notCompleted = true;
                                                                                        }
                                                                                    }
                                                                                    workSheet.Row(nRow).OutlineLevel = 2;
-                                                                                   workSheet.Row(nRow).Collapsed = false;
+                                                                                   //workSheet.Row(nRow).Collapsed = false;
                                                                                }
 
                                                                                if(errors)
                                                                                {
-                                                                                   workSheet.Cells[13, 12].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.LightGray;
-                                                                                   workSheet.Cells[13, 12].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.OrangeRed);
+                                                                                   workSheet.Cells[14, 11].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.LightGray;
+                                                                                   workSheet.Cells[14, 11].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.OrangeRed);
                                                                                }
                                                                                if(exceptions)
                                                                                {
-                                                                                   workSheet.Cells[13, 13].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.LightGray;
-                                                                                   workSheet.Cells[13, 13].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.OrangeRed);
+                                                                                   workSheet.Cells[14, 12].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.LightGray;
+                                                                                   workSheet.Cells[14, 12].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.OrangeRed);
                                                                                }
                                                                                if(notCompleted)
                                                                                {
-                                                                                   workSheet.Cells[13, 7].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.LightGray;
-                                                                                   workSheet.Cells[13, 7].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.OrangeRed);
+                                                                                   workSheet.Cells[14, 6].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.LightGray;
+                                                                                   workSheet.Cells[14, 6].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.OrangeRed);
                                                                                }
                                                                                if(canceled)
                                                                                {
-                                                                                   workSheet.Cells[13, 10].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.LightGray;
-                                                                                   workSheet.Cells[13, 10].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.OrangeRed);
+                                                                                   workSheet.Cells[14, 9].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.LightGray;
+                                                                                   workSheet.Cells[14, 9].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.OrangeRed);
                                                                                }
                                                                                if (warnings)
                                                                                {
-                                                                                   workSheet.Cells[13, 11].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.LightGray;
-                                                                                   workSheet.Cells[13, 11].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightYellow);
+                                                                                   workSheet.Cells[14, 10].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.LightGray;
+                                                                                   workSheet.Cells[14, 10].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightYellow);
+                                                                               }
+
+                                                                               if (errors)
+                                                                               {
+                                                                                   workSheet.Cells[14, 1].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.LightGray;
+                                                                                   workSheet.Cells[14, 1].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.OrangeRed);
+                                                                               }
+                                                                               else if (exceptions)
+                                                                               {
+                                                                                   workSheet.Cells[14, 1].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.LightGray;
+                                                                                   workSheet.Cells[14, 1].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.OrangeRed);
+                                                                               }
+                                                                               else if (notCompleted)
+                                                                               {
+                                                                                   workSheet.Cells[14, 1].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.LightGray;
+                                                                                   workSheet.Cells[14, 1].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.OrangeRed);
+                                                                               }
+                                                                               else if (canceled)
+                                                                               {
+                                                                                   workSheet.Cells[14, 1].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.LightGray;
+                                                                                   workSheet.Cells[14, 1].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.OrangeRed);
+                                                                               }
+                                                                               else if (warnings)
+                                                                               {
+                                                                                   workSheet.Cells[14, 1].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.LightGray;
+                                                                                   workSheet.Cells[14, 1].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightYellow);
                                                                                }
                                                                            }
 
@@ -234,9 +261,9 @@ namespace DSEDiagtnosticToExcel
                                                            },
                                                             (workSheet, splitNbr) =>
                                                             {
-                                                                workSheet.Column(1).Width = 100;
-                                                                workSheet.Column(1).Style.WrapText = true;
-                                                                workSheet.Column(1).Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
+                                                                //workSheet.Column(1).Width = 100;
+                                                                //workSheet.Column(1).Style.WrapText = true;
+                                                                //workSheet.Column(1).Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
 
                                                                 if (!this.AppendToWorkSheet)
                                                                 {
@@ -262,36 +289,37 @@ namespace DSEDiagtnosticToExcel
                                                                     workSheet.Cells["A9"].Value = "Working Directory: " + this.ApplicationInfo.WorkingDir;
                                                                     workSheet.Cells["A10"].Value = "Diagnostic Directory: " + this.ApplicationInfo.DiagnosticDirectory;
                                                                     workSheet.Cells["A11"].Value = string.Format("Errors: {0:###,###,##0} Warnings: {1:###,###,##0}", this.ApplicationInfo.Errors, this.ApplicationInfo.Warnings);
+                                                                    workSheet.Cells["A12"].Value = string.Format("Data Quality: {0}", this.ApplicationInfo.DataQuality);
 
-                                                                    for (int nRow = 1; nRow <= 11; ++nRow)
+                                                                    for (int nRow = 1; nRow <= 12; ++nRow)
                                                                     {
                                                                         workSheet.Row(nRow).OutlineLevel = 1;
-                                                                        workSheet.Row(nRow).Collapsed = true;
+                                                                        //workSheet.Row(nRow).Collapsed = false;
                                                                     }
-                                                                    workSheet.Column(1).OutlineLevel = 1;
-                                                                    workSheet.Column(1).Collapsed = true;
+                                                                    //workSheet.Column(1).OutlineLevel = 1;
+                                                                    //workSheet.Column(1).Collapsed = false;
                                                                 }
 
                                                                 //DataTable
-                                                                workSheet.Cells["13:13"].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.LightGray;
-                                                                workSheet.Cells["13:13"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                                                                workSheet.Cells["14:14"].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.LightGray;
+                                                                workSheet.Cells["14:14"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
                                                                 //workSheet.View.FreezePanes(3, 1);
 
+                                                                workSheet.Cells["F:F"].Style.Numberformat.Format = "#,###,###,##0";
                                                                 workSheet.Cells["G:G"].Style.Numberformat.Format = "#,###,###,##0";
                                                                 workSheet.Cells["H:H"].Style.Numberformat.Format = "#,###,###,##0";
                                                                 workSheet.Cells["I:I"].Style.Numberformat.Format = "#,###,###,##0";
                                                                 workSheet.Cells["J:J"].Style.Numberformat.Format = "#,###,###,##0";
                                                                 workSheet.Cells["K:K"].Style.Numberformat.Format = "#,###,###,##0";
                                                                 workSheet.Cells["L:L"].Style.Numberformat.Format = "#,###,###,##0";
-                                                                workSheet.Cells["M:M"].Style.Numberformat.Format = "#,###,###,##0";
 
-                                                                workSheet.Cells["B13:M13"].AutoFilter = true;
+                                                                workSheet.Cells["A14:L14"].AutoFilter = true;
 
-                                                                workSheet.AutoFitColumn(workSheet.Cells["B:M"]);
+                                                                workSheet.AutoFitColumn(workSheet.Cells["B:L"]);
                                                             },
                                                             -1,
                                                            -1,
-                                                           "B13",
+                                                           "A14",
                                                            this.UseDataTableDefaultView,
                                                            appendToWorkSheet: this.AppendToWorkSheet,
                                                            clearWorkSheet: false,

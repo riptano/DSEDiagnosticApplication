@@ -427,6 +427,13 @@ namespace DSEDiagnosticFileParser
             LogLinesHash.Clear();
         }
 
+#if DEBUG
+        /// <summary>
+        /// If true (default false) all Log event messages with BreakOnDebug enabled in Debug builds will be ignored (will not break).
+        /// </summary>
+        public static bool DisableEventLogBreakOnDebug = false;
+#endif
+
         /// <summary>
         /// A collection of keyspace names and if a warning or error occurred for that keyspace it will be ignored.       
         /// </summary>
@@ -659,11 +666,18 @@ namespace DSEDiagnosticFileParser
                     }
                     else
                     {
-                        matchItem = CLogTypeParser.FindMatch(this._parser, logMessage, this.CancellationToken);
+                        matchItem = CLogTypeParser.FindMatch(this._parser, logMessage, this.CancellationToken);                    
                     }
 
                     logEvent = null;
                     ignoreLogEvent = false;
+
+#if DEBUG
+                    if (matchItem != null && matchItem.Item5.BrekOnDebug && !DisableEventLogBreakOnDebug && System.Diagnostics.Debugger.IsAttached)
+                    {
+                        System.Diagnostics.Debugger.Break();
+                    }
+#endif
 
                     if (logMessage.TraceEnabled && Logger.Instance.IsDebugEnabled)
                     {

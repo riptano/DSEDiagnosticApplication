@@ -182,8 +182,12 @@
       "LinkedTagId": 44.0
     },
     {
-      "Description": "Gossip marked as unavailable",
+      "Description": "Gossip Event",
       "LinkedTagId": 45.0
+    },
+    {
+      "Description": "Gossip marked as unavailable",
+      "LinkedTagId": 45.1
     },
     {
       "Description": "Drops",

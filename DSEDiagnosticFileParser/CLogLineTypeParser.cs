@@ -338,6 +338,11 @@ namespace DSEDiagnosticFileParser
         public bool Disabled { get; set; } = false;
 
         /// <summary>
+        /// Only applies with Debug builds. If true a debug-break occurs while in the debugger when processing the assocated message.
+        /// </summary>
+        public bool BrekOnDebug { get; set; } = false;
+
+        /// <summary>
         /// Properties that can be inherent from the parent session
         /// </summary>
         public PropertyInherentOptions PropertyInherentOption { get; set; } = PropertyInherentOptions.None;

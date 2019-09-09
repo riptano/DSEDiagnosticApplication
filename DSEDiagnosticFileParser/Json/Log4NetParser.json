@@ -2275,7 +2275,7 @@ Additinal group names and mappings:
       },
       "ParseMessage": {
         "RegExStrings": [
-          "^\\w+\\s+\\w+\\s+\\w+\\s+\\w+\\s+\\(\\s*(?<max_memory>[0-9,.]+\\s*\\w+)\\s*\\),\\s+cannot\\sallocate\\schunk\\sof\\s+(?<chuck_memory>[0-9,.]+\\s*\\w+)"
+          "^\\w+\\s+\\w+\\s+\\w+\\s+\\w+\\s+\\(\\s*(?<max_memory_bytes>[0-9,.]+\\s*\\w*)\\s*\\),\\s+cannot\\sallocate\\schunk\\sof\\s+(?<chuck_memory_bytes>[0-9,.]+\\s*\\w*)"
         ]
       },
       "ParseThreadId": null,
@@ -2285,7 +2285,8 @@ Additinal group names and mappings:
       "SubClass": "'Maximum Memory Reached Partition'",
       "Product": "Cassandra",
       "Examples": [
-        "INFO  [RMI TCP Connection(34857)-127.0.0.1] 2018-07-20 04:33:45,512  NoSpamLogger.java:94 - Maximum memory usage reached (512.000MiB), cannot allocate chunk of 1.000MiB"
+        "INFO  [RMI TCP Connection(34857)-127.0.0.1] 2018-07-20 04:33:45,512  NoSpamLogger.java:94 - Maximum memory usage reached (512.000MiB), cannot allocate chunk of 1.000MiB",
+        "INFO  [RMI TCP Connection(3353760)-127.0.0.1] 2019-09-03 15:59:16,428  NoSpamLogger.java:94 - Maximum memory usage reached (536870912), cannot allocate chunk of 1048576"
       ]
     },
     {
@@ -2720,12 +2721,12 @@ Additinal group names and mappings:
       ]
     },
     {
-      "Description": "Gossip marked as unavailable",
+      "Description": "Gossip Event",
       "TagId": 45.0,
       "MatchVersion": null,
       "LevelMatch": {
-        "RegExStrings": [
-          "ERROR"
+        "RegExStrings": [         
+          "WARN"
         ]
       },
       "FileNameMatch": {
@@ -2736,7 +2737,44 @@ Additinal group names and mappings:
       "FileLineMatch": null,
       "MessageMatch": {
         "RegExStrings": [
-          "Gossip\\s+to\\s+[^ ]+\\s+failed"
+          "Gossip\\s+to\\s+[^ ]+\\s+failed\\:?\\s+\\w+"
+        ]
+      },
+      "ParseMessage": {
+        "RegExStrings": [
+          "Gossip\\s+to\\s+(?<NODE>[^ ]+)\\s+failed\\:\\s+(?<SUBCLASS>\\w+)"
+        ]
+      },
+      "ParseThreadId": null,
+      "EventType": "SingleInstance",
+      "EventClass": "Detection,Node,Gossip",
+      "AnalyticsGroup": null,
+      "SubClass": null,
+      "Product": "Cassandra",
+      "IgnoreEvent": false,
+      "Examples": [
+        "WARN  [dsefs-netty-worker-1] 2019-09-03 16:00:18,939  LocationService.scala:420 - Gossip to 10.242.5.230:5599 failed: Timeout waiting for response from 10.242.5.230:5599"
+      ]
+    },
+    {
+      "Description": "Gossip marked as unavailable",
+      "TagId": 45.1,
+      "MatchVersion": null,
+      "LevelMatch": {
+        "RegExStrings": [
+          "ERROR",
+          "WARN"
+        ]
+      },
+      "FileNameMatch": {
+        "RegExStrings": [
+          "^LocationService.scala$"
+        ]
+      },
+      "FileLineMatch": null,
+      "MessageMatch": {
+        "RegExStrings": [
+          "Gossip\\s+to\\s+[^ ]+\\s+failed\\."
         ]
       },
       "ParseMessage": {
@@ -2751,8 +2789,10 @@ Additinal group names and mappings:
       "SubClass": "'unavailable'",
       "Product": "Cassandra",
       "IgnoreEvent": false,
+      "BrekOnDebug": false,
       "Examples": [
-        "ERROR [dsefs-netty-worker-1] 2018-10-10 06:04:23,249  LocationService.scala:492 - Gossip to 10.95.19.55:5599 failed. Node will be marked as unavailable."
+        "=> ERROR [dsefs-netty-worker-1] 2018-10-10 06:04:23,249  LocationService.scala:492 - Gossip to 10.95.19.55:5599 failed. Node will be marked as unavailable.",
+        "=> WARN  [dsefs-netty-worker-1] 2019-09-03 16:00:18,939  LocationService.scala:499 - Gossip to 10.242.5.230:5599 failed. Node will be marked as unavailable."
       ]
     },
     {
@@ -3056,7 +3096,7 @@ Additinal group names and mappings:
       },
       "ParseThreadId": null,
       "EventType": "SingleInstance",
-      "EventClass": "Detection,Node,Unavailable,Network",
+      "EventClass": "Detection,Node,Network",
       "AnalyticsGroup": null,
       "SubClass": "'Exceeded Connections ' + item",
       "Product": "Cassandra",
