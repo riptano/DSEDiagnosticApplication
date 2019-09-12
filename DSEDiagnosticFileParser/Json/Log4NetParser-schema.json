@@ -179,6 +179,18 @@
             "string"
           ]
         },
+        "NodeTransitionState": {
+          "$ref": "#/definitions/NodeStates"
+        },
+        "NodeTransitionStateSession": {
+          "$ref": "#/definitions/NodeStates"
+        },
+        "NodeTransitionStateOnlyAssocNodes": {
+          "type": "boolean"
+        },
+        "NodeTransitionStateOnlySourceNode": {
+          "type": "boolean"
+        },
         "DeltaRunningTotalProperty": {
           "type": [
             "array",
@@ -625,6 +637,45 @@
         0,
         1,
         2
+      ]
+    },
+    "NodeStates": {
+      "type": "string",
+      "description": "Node Transition States",
+      "x-enumFlags": true,
+      "enum": [
+        "None",
+        "Dead",
+        "NotResponding",
+        "Down",
+        "Up",
+        "Shutdown",
+        "Started",
+        "Restarted",
+        "GCPause",
+        "LongPuase",
+        "Added",
+        "Removed",
+        "TokenOwnershipChanged",
+        "UnableToStart",
+        "NetworkEvent"
+      ],
+      "x-enum": [
+        0,
+        1,
+        2,
+        4,
+        8,
+        20,
+        40,
+        320,
+        66,
+        128,
+        512,
+        1024,
+        2048,
+        4096,
+        8192
       ]
     }
   }

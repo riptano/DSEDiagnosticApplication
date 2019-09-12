@@ -301,6 +301,10 @@ namespace DSEDiagnosticLibrary
         public IKeyspace Keyspace { get; }
         public IDDLStmt TableViewIndex { get; }
 
+        public string AnalyticsGroup { get; } = null;
+
+        public NodeStateChange.DetectedStates? NodeTransitionState { get; } = null;
+
         public bool Equals(Guid other)
         {
             return this.Id == other;

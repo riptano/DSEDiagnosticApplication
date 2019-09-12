@@ -145,10 +145,15 @@ namespace DSEDiagtnosticToExcel
                                                                                         .SetNumericFormat("#,###,###,##0")
                                                                                         .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonNodeNbrStatusDown)
                                                                                         .TotalColumn(),
+                                                                         this.DataTable.GetColumn("Network Events")
+                                                                                        .SetCaption("Network")
+                                                                                        .SetComment("Number of Possible Network Related Event")
+                                                                                        .SetNumericFormat("#,###,###,##0")
+                                                                                        .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonNodeNbrStatusDown)
+                                                                                        .TotalColumn(),                                                                        
                                                                          this.DataTable.GetColumn("Status Other")
                                                                                         .SetCaption("Other")
                                                                                         .SetNumericFormat("#,###,###,##0")
-                                                                                        .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonNodeNbrStatusDown)
                                                                                         .TotalColumn())
                                                                      );
 

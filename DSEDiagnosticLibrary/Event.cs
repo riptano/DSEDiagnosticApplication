@@ -187,5 +187,9 @@ namespace DSEDiagnosticLibrary
         DSEInfo.InstanceTypes Product { get; }
         IKeyspace Keyspace { get; }
         IDDLStmt TableViewIndex { get; }
+
+        string AnalyticsGroup { get; }
+        
+        NodeStateChange.DetectedStates? NodeTransitionState { get; }
     }
 }

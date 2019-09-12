@@ -32,5 +32,8 @@
     <Setting Name="AttributeThresholds" Type="System.String" Scope="Application">
       <Value Profile="(Default)">.\AggregateGroups.json,.\Json\AttributeThresholds.json,[cpld]\Json\AttributeThresholds.json,[cpld]\AttributeThresholds.json,[ApplicationRunTimeDirectory]\Json\AttributeThresholds.json,[ApplicationRunTimeDirectory]\AttributeThresholds.json,.\Json\AttributeThresholds.json,.\AttributeThresholds.json</Value>
     </Setting>
+    <Setting Name="NetworkExceptinMatchRegEx" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">(NativeIoException)|((Closed)?ChannelException)|(TimeoutException)</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

@@ -50,6 +50,10 @@
       "LinkedTagId": 4.1
     },
     {
+      "Description": "Joined Cluster",
+      "LinkedTagId": 4.2
+    },
+    {
       "Description": "Node Shutdown",
       "LinkedTagId": 5.0
     },
@@ -104,6 +108,10 @@
     {
       "Description": "Sharding Updating",
       "LinkedTagId": 8.3
+    },
+    {
+      "Description": "Sharding Dead",
+      "LinkedTagId": 8.4
     },
     {
       "Description": "Create table or view",

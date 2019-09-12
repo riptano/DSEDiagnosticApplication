@@ -384,6 +384,28 @@ namespace DSEDiagnosticFileParser
         public string AnalyticsGroup { get; set; }
 
         /// <summary>
+        /// This event will generate a Node State Change Event (only non-Session events)
+        /// </summary>
+        /// <seealso cref="NodeTransitionStateSession"/>
+        public NodeStateChange.DetectedStates? NodeTransitionState { get; set; } = null;
+
+        /// <summary>
+        /// This event will generate a Node State Change Event (only Session events)
+        /// </summary>
+        /// <seealso cref="NodeTransitionState"/>
+        public NodeStateChange.DetectedStates? NodeTransitionStateSession { get; set; } = null;
+
+        /// <summary>
+        /// If true (default false), the transition state only applies to associated nodes within the event.
+        /// </summary>
+        public bool NodeTransitionStateOnlyAssocNodes { get; set; } = false;
+
+        /// <summary>
+        /// If true (default false), the transition state only applies to source node (not to associated nodes);
+        /// </summary>
+        public bool NodeTransitionStateOnlySourceNode { get; set; } = false;
+
+        /// <summary>
         /// The property name (group name) of a running total value that will be converted to a delta between instances.
         /// </summary>
         public string[] DeltaRunningTotalProperty { get; set; }
@@ -613,7 +635,12 @@ namespace DSEDiagnosticFileParser
                 this.SessionParentAction = useAsCopy.SessionParentAction;
                 this.Examples = useAsCopy.Examples;
                 this.SessionBeginReference = useAsCopy.SessionBeginReference;
-                                
+                this.NodeTransitionState = useAsCopy.NodeTransitionState;
+                this.NodeTransitionStateSession = useAsCopy.NodeTransitionStateSession;
+                this.NodeTransitionStateOnlyAssocNodes = useAsCopy.NodeTransitionStateOnlyAssocNodes;
+                this.NodeTransitionStateOnlySourceNode = useAsCopy.NodeTransitionStateOnlySourceNode;
+                this.BrekOnDebug = useAsCopy.BrekOnDebug;
+
                 this._nodesRunningCnt = useAsCopy._nodesRunningCnt;
                 for (int nIdx = 0; nIdx < this.CachedInfo.Length; nIdx++)
                 {
@@ -662,7 +689,12 @@ namespace DSEDiagnosticFileParser
                 if (this.SessionParentAction == SessionParentActions.Default) this.SessionParentAction = useAsCopy.SessionParentAction;
                 if (this.Examples == null) this.Examples = useAsCopy.Examples;
                 if (this.SessionBeginReference == null) this.SessionBeginReference = useAsCopy.SessionBeginReference;
-                if (this._nodesRunningCnt == null) this._nodesRunningCnt = useAsCopy._nodesRunningCnt;                
+                if (this._nodesRunningCnt == null) this._nodesRunningCnt = useAsCopy._nodesRunningCnt;
+                if (!this.NodeTransitionState.HasValue) this.NodeTransitionState = useAsCopy.NodeTransitionState;
+                if (!this.NodeTransitionStateSession.HasValue) this.NodeTransitionStateSession = useAsCopy.NodeTransitionStateSession;
+                this.NodeTransitionStateOnlyAssocNodes = useAsCopy.NodeTransitionStateOnlyAssocNodes;
+                this.NodeTransitionStateOnlySourceNode = useAsCopy.NodeTransitionStateOnlySourceNode;
+                if (!this.BrekOnDebug) this.BrekOnDebug = useAsCopy.BrekOnDebug;
             }
             
             this.IsClone = true;

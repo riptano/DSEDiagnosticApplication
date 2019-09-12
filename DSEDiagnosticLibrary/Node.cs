@@ -664,13 +664,14 @@ namespace DSEDiagnosticLibrary
             Up = 0x0008,
             Shutdown = 0x0010 | Down,            
             Started = 0x0020 | Up,
-            Restarted = 0x0040 | Started,
-            GCPause = 0x0080 | NotResponding,
-            LongPuase = 0x1000,
-            Added = 0x2000,
-            Removed = 0x4000,
-            TokenOwnershipChanged = 0x8000,
-            UnableToStart = 0x10000,
+            Restarted = 0x0100 | Started,
+            GCPause = 0x0040 | NotResponding,
+            LongPuase = 0x0080,
+            Added = 0x0200,
+            Removed = 0x0400,
+            TokenOwnershipChanged = 0x0800,
+            UnableToStart = 0x1000,
+            NetworkEvent = 0x2000,
             OtherStates = UnableToStart | TokenOwnershipChanged | Added | Removed
         }
 
@@ -1564,6 +1565,31 @@ namespace DSEDiagnosticLibrary
 
         public IMMLogValue AssociateItem(ILogEvent eventItems)
         {
+            if (eventItems.NodeTransitionState.HasValue)
+            {
+                if (eventItems.AssociatedNodes != null && eventItems.AssociatedNodes.HasAtLeastOneElement())
+                {
+                    foreach (var targetNode in eventItems.AssociatedNodes)
+                    {
+                        var nodeState = new DSEDiagnosticLibrary.NodeStateChange(eventItems.NodeTransitionState.Value,
+                                                                                    eventItems.EventTime,
+                                                                                    eventItems.EventTimeLocal,
+                                                                                    eventItems.Node,
+                                                                                    eventItems.Duration);
+                        targetNode.AssociateItem(nodeState);
+                    }
+                }
+                else
+                {
+                    var nodeState = new DSEDiagnosticLibrary.NodeStateChange(eventItems.NodeTransitionState.Value,
+                                                                                eventItems.EventTime,
+                                                                                eventItems.EventTimeLocal,
+                                                                                null,
+                                                                                eventItems.Duration);
+                    this.AssociateItem(nodeState);
+                }
+            }
+
             if (this._eventsCMM == null)
             {
                 var mmValue = new CMM.MMValue<ILogEvent>(eventItems);
@@ -1654,7 +1680,7 @@ namespace DSEDiagnosticLibrary
 
             return this;
         }
-
+        
         /// <summary>
         /// 
         /// </summary>

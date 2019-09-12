@@ -59,6 +59,7 @@ namespace DSEDiagnosticLibrary
                                     DSEInfo.InstanceTypes product = DSEInfo.InstanceTypes.Cassandra,
                                     bool assocateToNode = false,
                                     string analyticsGroup = null,
+                                    NodeStateChange.DetectedStates? nodeTransitionState = null,
                                     bool tempEvent = false)
         {
             if (logFile == null) throw new ArgumentNullException("logFile cannot be null");
@@ -88,6 +89,11 @@ namespace DSEDiagnosticLibrary
             this.Product = product;
             this.LogProperties = logProperties ?? EmptyLogProperties;
             this.AnalyticsGroup = analyticsGroup.InternString();
+            this.NodeTransitionState = nodeTransitionState.HasValue
+                                        ? (nodeTransitionState.Value == NodeStateChange.DetectedStates.None
+                                                ? null
+                                                : nodeTransitionState)
+                                        : null;
             this.SSTables = ssTables ?? EmptySSTables;
             this.DDLItems = ddlItems ?? EmptyDDLItems;
             this.AssociatedNodes = assocatedNodes ?? EmptyAssocatedNodes;
@@ -113,7 +119,7 @@ namespace DSEDiagnosticLibrary
             this.TempEvent = tempEvent;
             if(assocateToNode && !tempEvent)
             {
-                this.Node.AssociateItem(this);
+                this.Node.AssociateItem(this);                
             }
         }
 
@@ -141,6 +147,7 @@ namespace DSEDiagnosticLibrary
                                    DSEInfo.InstanceTypes product = DSEInfo.InstanceTypes.Cassandra,
                                    bool assocateToNode = false,
                                    string analyticsGroup = null,
+                                   NodeStateChange.DetectedStates? nodeTransitionState = null,
                                    bool tempEvent = false)
             :  this(logFile,
                         node,
@@ -166,6 +173,7 @@ namespace DSEDiagnosticLibrary
                         product,
                         assocateToNode,
                         analyticsGroup,
+                        nodeTransitionState,
                         tempEvent)
         {
             this.Duration = (TimeSpan)uomDuration;
@@ -198,6 +206,7 @@ namespace DSEDiagnosticLibrary
                                    DSEInfo.InstanceTypes product = DSEInfo.InstanceTypes.Cassandra,
                                    bool assocateToNode = false,
                                    string analyticsGroup = null,
+                                   NodeStateChange.DetectedStates? nodeTransitionState = null,
                                    bool tempEvent = false)
             :  this(logFile,
                         node,
@@ -223,6 +232,7 @@ namespace DSEDiagnosticLibrary
                         product,
                         assocateToNode,
                         analyticsGroup,
+                        nodeTransitionState,
                         tempEvent)
         {
             this.Duration = TimeSpan.FromMilliseconds(durationMS);
@@ -257,6 +267,7 @@ namespace DSEDiagnosticLibrary
                                    DSEInfo.InstanceTypes product = DSEInfo.InstanceTypes.Cassandra,
                                    bool assocateToNode = false,
                                    string analyticsGroup = null,
+                                   NodeStateChange.DetectedStates? nodeTransitionState = null,
                                    bool tempEvent = false)
             : this(logFile,
                         node,
@@ -282,6 +293,7 @@ namespace DSEDiagnosticLibrary
                         product,
                         assocateToNode,
                         analyticsGroup,
+                        nodeTransitionState,
                         tempEvent)
         {
             this.EventTimeBegin = logBeginTime;
@@ -313,6 +325,7 @@ namespace DSEDiagnosticLibrary
                                    DSEInfo.InstanceTypes product = DSEInfo.InstanceTypes.Cassandra,
                                    bool assocateToNode = false,
                                    string analyticsGroup = null,
+                                   NodeStateChange.DetectedStates? nodeTransitionState = null,
                                    bool tempEvent = false)
             : this(logFile,
                         node,
@@ -338,6 +351,7 @@ namespace DSEDiagnosticLibrary
                         product,
                         assocateToNode,
                         analyticsGroup,
+                        nodeTransitionState,
                         tempEvent)
         {
             this.EventTimeBegin = new DateTimeOffset(logLocalBeginTime, this.EventTime.Offset);
@@ -672,6 +686,8 @@ namespace DSEDiagnosticLibrary
         
         public IReadOnlyDictionary<string, object> LogProperties { get; private set; }
         public string AnalyticsGroup { get; }
+
+        public NodeStateChange.DetectedStates? NodeTransitionState { get; }
 
 #if DEBUG
         public string LogMessage { get; }

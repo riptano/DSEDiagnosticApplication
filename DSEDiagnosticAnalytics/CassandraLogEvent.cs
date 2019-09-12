@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using DSEDiagnosticLibrary;
@@ -138,6 +139,10 @@ namespace DSEDiagnosticAnalytics
             public IKeyspace Keyspace { get; } = null;
             public IDDLStmt TableViewIndex { get; } = null;
 
+            public string AnalyticsGroup { get; } = null;
+
+            public NodeStateChange.DetectedStates? NodeTransitionState { get; } = null;
+
             public bool Equals(Guid other)
             {
                 return this.Id == other;
@@ -204,8 +209,7 @@ namespace DSEDiagnosticAnalytics
 
             public string SessionTieOutId => throw new NotImplementedException();
 
-            public IReadOnlyDictionary<string, object> LogProperties => throw new NotImplementedException();
-            public string AnalyticsGroup { get; } = null;
+            public IReadOnlyDictionary<string, object> LogProperties => throw new NotImplementedException();            
 
 #if DEBUG
             public string LogMessage { get; } = null;
@@ -265,6 +269,9 @@ namespace DSEDiagnosticAnalytics
         public static CTS.Dictionary<INode, Tuple<GCStat,GCStat>> GCStats = new CTS.Dictionary<INode, Tuple<GCStat, GCStat>>();
 
         public static CTS.List<Tuple<INode, EventClasses, int, int, string>> AggregatedStatsReduced = new CTS.List<Tuple<INode, EventClasses, int, int, string>>();
+
+        public readonly Regex NetworkExceptionMatchRegEx = new Regex(Properties.Settings.Default.NetworkExceptinMatchRegEx,
+                                                                            RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         public static void CleanUp()
         {
@@ -622,218 +629,7 @@ namespace DSEDiagnosticAnalytics
                 gcStat.Item2.TestAddEvent(eventArgs.LogEvent);
             }
 
-            if ((eventArgs.LogEvent.Class & EventClasses.Pause) == EventClasses.Pause
-                    && (eventArgs.LogEvent.Class & EventClasses.GC) == EventClasses.GC
-                    && ((eventArgs.LogEvent.Type & EventTypes.SessionEnd) == EventTypes.SessionEnd
-                            || (eventArgs.LogEvent.Type & EventTypes.SingleInstance) == EventTypes.SingleInstance))
-            {
-                var pauseDuration = eventArgs.LogEvent.Duration.HasValue
-                                        ? eventArgs.LogEvent.Duration
-                                        : (TimeSpan?) CassandraLogEventAggregate.GetPropUOM(eventArgs.LogEvent.LogProperties, "pause")
-                                                            ?.ConvertToTimeSpan();
-                                        
-                if (eventArgs.LogEvent.AssociatedNodes != null && eventArgs.LogEvent.AssociatedNodes.HasAtLeastOneElement())
-                {
-                    foreach (var targetNode in eventArgs.LogEvent.AssociatedNodes)
-                    {
-                        var nodeState = new DSEDiagnosticLibrary.NodeStateChange(NodeStateChange.DetectedStates.GCPause,
-                                                                                    eventArgs.LogEvent.EventTime,
-                                                                                    eventArgs.LogEvent.EventTimeLocal,
-                                                                                    eventArgs.LogEvent.Node,
-                                                                                    pauseDuration);
-                        targetNode.AssociateItem(nodeState);
-                    }
-                }
-                else
-                {
-                    var nodeState = new DSEDiagnosticLibrary.NodeStateChange(NodeStateChange.DetectedStates.GCPause,
-                                                                                    eventArgs.LogEvent.EventTime,
-                                                                                    eventArgs.LogEvent.EventTimeLocal,
-                                                                                    duration: pauseDuration);
-                    eventArgs.LogEvent.Node.AssociateItem(nodeState);
-                }
-            }
-            else if ((eventArgs.LogEvent.Class & EventClasses.Change) == EventClasses.Change
-                        && (eventArgs.LogEvent.Class & EventClasses.Node) == EventClasses.Node
-                        && !string.IsNullOrEmpty(eventArgs.LogEvent.SubClass))
-            {
-                if (eventArgs.LogEvent.SubClass.StartsWith("shutdown", StringComparison.OrdinalIgnoreCase)
-                            || eventArgs.LogEvent.SubClass.StartsWith("startup", StringComparison.OrdinalIgnoreCase))
-                {
-                    var nodeChangeState = eventArgs.LogEvent.SubClass.StartsWith("startup", StringComparison.OrdinalIgnoreCase)
-                                            ? NodeStateChange.DetectedStates.Started
-                                            : NodeStateChange.DetectedStates.Shutdown;
-                    var eventDuration = eventArgs.LogEvent.Duration;
-
-                    if ((nodeChangeState & NodeStateChange.DetectedStates.Started) == NodeStateChange.DetectedStates.Started
-                            && (eventArgs.LogEvent.Type & EventTypes.SessionEnd) == EventTypes.SessionEnd
-                            && eventDuration.HasValue)
-                    {
-                        nodeChangeState = NodeStateChange.DetectedStates.Restarted;
-                    }
-                    else
-                    {
-                        eventDuration = null;
-                    }
-
-                    if (eventArgs.LogEvent.AssociatedNodes != null && eventArgs.LogEvent.AssociatedNodes.HasAtLeastOneElement())
-                    {
-                        foreach (var targetNode in eventArgs.LogEvent.AssociatedNodes)
-                        {
-                            var nodeState = new DSEDiagnosticLibrary.NodeStateChange(nodeChangeState,
-                                                                                        eventArgs.LogEvent.EventTime,
-                                                                                        eventArgs.LogEvent.EventTimeLocal,
-                                                                                        eventArgs.LogEvent.Node,
-                                                                                        eventDuration);
-                            targetNode.AssociateItem(nodeState);
-                        }
-                    }
-                    else
-                    {
-                        var nodeState = new DSEDiagnosticLibrary.NodeStateChange(nodeChangeState,
-                                                                                    eventArgs.LogEvent.EventTime,
-                                                                                    eventArgs.LogEvent.EventTimeLocal,
-                                                                                    duration: eventDuration);
-                        eventArgs.LogEvent.Node.AssociateItem(nodeState);
-                    }
-                }
-                else if (eventArgs.LogEvent.SubClass.EndsWith(" DOWN", StringComparison.OrdinalIgnoreCase))
-                {
-                    if (eventArgs.LogEvent.AssociatedNodes != null && eventArgs.LogEvent.AssociatedNodes.HasAtLeastOneElement())
-                    {
-                        foreach (var targetNode in eventArgs.LogEvent.AssociatedNodes)
-                        {
-                            var nodeState = new DSEDiagnosticLibrary.NodeStateChange(NodeStateChange.DetectedStates.Down,
-                                                                                        eventArgs.LogEvent.EventTime,
-                                                                                        eventArgs.LogEvent.EventTimeLocal,
-                                                                                        eventArgs.LogEvent.Node,
-                                                                                        eventArgs.LogEvent.Duration);
-                            targetNode.AssociateItem(nodeState);
-                        }
-                    }
-                }
-                else if (eventArgs.LogEvent.SubClass.EndsWith(" UP", StringComparison.OrdinalIgnoreCase))
-                {
-                    if (eventArgs.LogEvent.AssociatedNodes != null && eventArgs.LogEvent.AssociatedNodes.HasAtLeastOneElement())
-                    {
-                        foreach (var targetNode in eventArgs.LogEvent.AssociatedNodes)
-                        {
-                            var nodeState = new DSEDiagnosticLibrary.NodeStateChange(NodeStateChange.DetectedStates.Up,
-                                                                                        eventArgs.LogEvent.EventTime,
-                                                                                        eventArgs.LogEvent.EventTimeLocal,
-                                                                                        eventArgs.LogEvent.Node,
-                                                                                        eventArgs.LogEvent.Duration);
-                            targetNode.AssociateItem(nodeState);
-                        }
-                    }
-                }
-                else if (eventArgs.LogEvent.SubClass.EndsWith(" now part of the cluster", StringComparison.OrdinalIgnoreCase))
-                {
-                    if (eventArgs.LogEvent.AssociatedNodes != null && eventArgs.LogEvent.AssociatedNodes.HasAtLeastOneElement())
-                    {
-                        foreach (var targetNode in eventArgs.LogEvent.AssociatedNodes)
-                        {
-                            var nodeState = new DSEDiagnosticLibrary.NodeStateChange(NodeStateChange.DetectedStates.Added,
-                                                                                        eventArgs.LogEvent.EventTime,
-                                                                                        eventArgs.LogEvent.EventTimeLocal,
-                                                                                        eventArgs.LogEvent.Node,
-                                                                                        eventArgs.LogEvent.Duration);
-                            targetNode.AssociateItem(nodeState);
-                        }
-                    }
-                }
-                else if (eventArgs.LogEvent.SubClass.StartsWith("Unable to start ", StringComparison.OrdinalIgnoreCase))
-                {
-                    var nodeState = new DSEDiagnosticLibrary.NodeStateChange(NodeStateChange.DetectedStates.UnableToStart,
-                                                                                        eventArgs.LogEvent.EventTime,
-                                                                                        eventArgs.LogEvent.EventTimeLocal);
-                    eventArgs.LogEvent.Node.AssociateItem(nodeState);                       
-                }
-                else if (eventArgs.LogEvent.SubClass.StartsWith("NewHostId ", StringComparison.OrdinalIgnoreCase))
-                {
-                    var nodeState = new DSEDiagnosticLibrary.NodeStateChange(NodeStateChange.DetectedStates.Added,
-                                                                                        eventArgs.LogEvent.EventTime,
-                                                                                        eventArgs.LogEvent.EventTimeLocal);
-                    eventArgs.LogEvent.Node.AssociateItem(nodeState);
-                }
-            }
-            else if ((eventArgs.LogEvent.Class & EventClasses.TimeOut) == EventClasses.TimeOut
-                        && (eventArgs.LogEvent.Class & EventClasses.Row) == EventClasses.Row)
-            {
-                if (eventArgs.LogEvent.AssociatedNodes != null)
-                {
-                    foreach (var targetNode in eventArgs.LogEvent.AssociatedNodes)
-                    {
-                        var nodeState = new DSEDiagnosticLibrary.NodeStateChange(NodeStateChange.DetectedStates.NotResponding,
-                                                                                    eventArgs.LogEvent.EventTime,
-                                                                                    eventArgs.LogEvent.EventTimeLocal,
-                                                                                    eventArgs.LogEvent.Node,
-                                                                                    eventArgs.LogEvent.Duration);
-                        targetNode.AssociateItem(nodeState);
-                    }
-                }
-            }
-            else if ((eventArgs.LogEvent.Class & (EventClasses.NodeDetection | EventClasses.Unavailable))
-                        == (EventClasses.NodeDetection | EventClasses.Unavailable))
-            {
-                if (eventArgs.LogEvent.AssociatedNodes != null)
-                {
-                    foreach (var targetNode in eventArgs.LogEvent.AssociatedNodes)
-                    {
-                        var nodeState = new DSEDiagnosticLibrary.NodeStateChange(NodeStateChange.DetectedStates.NotResponding,
-                                                                                    eventArgs.LogEvent.EventTime,
-                                                                                    eventArgs.LogEvent.EventTimeLocal,
-                                                                                    eventArgs.LogEvent.Node,
-                                                                                    eventArgs.LogEvent.Duration);
-                        targetNode.AssociateItem(nodeState);
-                    }
-                }
-            }
-            else if ((eventArgs.LogEvent.Class & EventClasses.Shard) == EventClasses.Shard
-                        && (eventArgs.LogEvent.Class & EventClasses.NodeDetection) == EventClasses.NodeDetection
-                        && eventArgs.LogEvent.SubClass.EndsWith(" dead", StringComparison.OrdinalIgnoreCase))
-            {
-                if (eventArgs.LogEvent.AssociatedNodes != null)
-                {
-                    foreach (var targetNode in eventArgs.LogEvent.AssociatedNodes)
-                    {
-                        var nodeState = new DSEDiagnosticLibrary.NodeStateChange(NodeStateChange.DetectedStates.Dead,
-                                                                                    eventArgs.LogEvent.EventTime,
-                                                                                    eventArgs.LogEvent.EventTimeLocal,
-                                                                                    eventArgs.LogEvent.Node,
-                                                                                    eventArgs.LogEvent.Duration);
-                        targetNode.AssociateItem(nodeState);
-                    }
-                }
-            }
-            else if ((eventArgs.LogEvent.Class & (EventClasses.NodeDetection | EventClasses.Drops))
-                                == (EventClasses.NodeDetection | EventClasses.Drops)
-                        && !string.IsNullOrEmpty(eventArgs.LogEvent.SubClass)
-                        && eventArgs.LogEvent.SubClass.StartsWith("Assassinating"))
-            {
-                if (eventArgs.LogEvent.AssociatedNodes != null)
-                {
-                    foreach (var targetNode in eventArgs.LogEvent.AssociatedNodes)
-                    {
-                        var nodeState = new DSEDiagnosticLibrary.NodeStateChange(NodeStateChange.DetectedStates.Removed,
-                                                                                    eventArgs.LogEvent.EventTime,
-                                                                                    eventArgs.LogEvent.EventTimeLocal,
-                                                                                    eventArgs.LogEvent.Node,
-                                                                                    eventArgs.LogEvent.Duration);
-                        targetNode.AssociateItem(nodeState);
-                    }
-                }
-            }
-            else if ((eventArgs.LogEvent.Class & EventClasses.NodeDetection) == EventClasses.NodeDetection
-                        && (eventArgs.LogEvent.Class & EventClasses.Shard) == EventClasses.Shard
-                        && eventArgs.LogEvent.SubClass == "Ownership Changed")
-            {
-                var nodeState = new DSEDiagnosticLibrary.NodeStateChange(NodeStateChange.DetectedStates.TokenOwnershipChanged,
-                                                                            eventArgs.LogEvent.EventTime,
-                                                                            eventArgs.LogEvent.EventTimeLocal);
-                eventArgs.LogEvent.Node.AssociateItem(nodeState);                
-            }
-            else if ((eventArgs.LogEvent.Class & EventClasses.Repair) == EventClasses.Repair)
+            if ((eventArgs.LogEvent.Class & EventClasses.Repair) == EventClasses.Repair)
             {
                 if((eventArgs.LogEvent.Type & EventTypes.SessionEnd) == EventTypes.SessionEnd
                         && eventArgs.LogEvent.LogProperties.TryGetValue("status", out object status)
@@ -843,6 +639,31 @@ namespace DSEDiagnosticAnalytics
                 {
                     eventArgs.LogEvent.Node.DSE.RepairServiceHasRan = true;
                 }                    
+            }
+
+            if ((eventArgs.LogEvent.Class & EventClasses.Exception) == EventClasses.Exception
+                    && !string.IsNullOrEmpty(eventArgs.LogEvent.Exception)
+                    && NetworkExceptionMatchRegEx.IsMatch(eventArgs.LogEvent.Exception))
+            {
+               if(eventArgs.LogEvent.AssociatedNodes != null && eventArgs.LogEvent.AssociatedNodes.HasAtLeastOneElement())
+                {
+                    foreach(var node in eventArgs.LogEvent.AssociatedNodes)
+                    {
+                        var nodeState = new NodeStateChange(NodeStateChange.DetectedStates.NetworkEvent,
+                                                                eventArgs.LogEvent.EventTime,
+                                                                eventArgs.LogEvent.EventTimeLocal,
+                                                                eventArgs.LogEvent.Node);
+                        node.AssociateItem(nodeState);
+                    }
+                }
+                else
+                {
+                    var nodeState = new NodeStateChange(NodeStateChange.DetectedStates.NetworkEvent,
+                                                                eventArgs.LogEvent.EventTime,
+                                                                eventArgs.LogEvent.EventTimeLocal);
+                    eventArgs.LogEvent.Node.AssociateItem(nodeState);
+                }
+
             }
         }
 

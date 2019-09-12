@@ -59,6 +59,8 @@ namespace DSEDiagnosticToDataTable
                            .AllowDBNull();
             dtDCInfo.Columns.Add("Status Dead", typeof(long))
                            .AllowDBNull();
+            dtDCInfo.Columns.Add("Network Events", typeof(long))
+                           .AllowDBNull();
             dtDCInfo.Columns.Add("Status Other", typeof(long))
                            .AllowDBNull();
 
@@ -445,6 +447,7 @@ namespace DSEDiagnosticToDataTable
                                 NbrLngPauses = n.StateChanges.Count(s => (s.State & NodeStateChange.DetectedStates.LongPuase) == NodeStateChange.DetectedStates.LongPuase),
                                 NbrNotResponding = n.StateChanges.Count(s => (s.State & NodeStateChange.DetectedStates.NotResponding) == NodeStateChange.DetectedStates.NotResponding),
                                 NbrDead = n.StateChanges.Count(s => (s.State & NodeStateChange.DetectedStates.Dead) == NodeStateChange.DetectedStates.Dead),
+                                NbrNetwork = n.StateChanges.Count(s => (s.State & NodeStateChange.DetectedStates.NetworkEvent) == NodeStateChange.DetectedStates.NetworkEvent),
                                 NbrOther = n.StateChanges
                                             .Where(s => NodeStateChange.DetectedStates.OtherStates.HasFlag(s.State))
                                             .DuplicatesRemoved(s => s.State)
@@ -470,6 +473,10 @@ namespace DSEDiagnosticToDataTable
                             var nbrDead = dcStates.DefaultIfEmpty().Sum(s => s.NbrDead);
                             if (nbrDead > 0)
                                 dataRow.SetField("Status Dead", nbrDead);
+
+                            var nbrNetwork = dcStates.DefaultIfEmpty().Sum(s => s.NbrNetwork);
+                            if (nbrNetwork > 0)
+                                dataRow.SetField("Network Events", nbrNetwork);
 
                             var nbrOther = dcStates.DefaultIfEmpty().Sum(s => s.NbrOther);
                             if (nbrOther > 0)

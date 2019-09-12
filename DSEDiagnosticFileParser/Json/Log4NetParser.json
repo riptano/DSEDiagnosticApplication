@@ -649,6 +649,8 @@ Additinal group names and mappings:
       "EventType": "SingleInstance",
       "EventClass": "HintHandOff, NodeDetection, Change",
       "AnalyticsGroup": "HintHandOffStats",
+      "NodeTransitionState": "Down",
+      "NodeTransitionStateOnlyAssocNodes": true,
       "SubClass": "'Dropped Hints due to Peer Node Down'",
       "Product": "Cassandra",
       "Examples": [
@@ -656,7 +658,7 @@ Additinal group names and mappings:
       ]
     },
     {
-      "Description": "Node Down or Joined Cluster",
+      "Description": "Node Down",
       "TagId": 4.0,
       "MatchVersion": null,
       "LevelMatch": {
@@ -673,13 +675,12 @@ Additinal group names and mappings:
       "FileLineMatch": null,
       "MessageMatch": {
         "RegExStrings": [
-          "^(InetAddress|Node)\\s.+\\s(down|cluster)"
+          "^(InetAddress|Node)\\s.+\\sdown"
         ]
       },
       "ParseMessage": {
         "RegExStrings": [
-          "^InetAddress\\s+/?\\s*(?$<NODE>)\\s+\\w+\\s+\\w+\\s+(?<action>DOWN)$",
-          "^Node\\s+/?\\s*(?$<NODE>)\\s+is\\s+(?<action>now part of the cluster)$"
+          "^InetAddress\\s+/?\\s*(?$<NODE>)\\s+\\w+\\s+\\w+\\s+(?<action>DOWN)$"
         ]
       },
       "ParseThreadId": null,
@@ -689,9 +690,11 @@ Additinal group names and mappings:
       "Product": "Cassandra",
       "SessionKey": "EventClass + NODE",
       "SessionKeyAction": "Add",
+      "NodeTransitionState": "Down",
+      "NodeTransitionStateOnlyAssocNodes": true,
       "Examples": [
         "=> INFO  [GossipTasks:1] 2017-02-12 02:13:59,976  Gossiper.java:1008 - InetAddress /10.1.37.0 is now DOWN",
-        "=> INFO  [GossipStage:1] 2017-02-12 02:13:59,976  Gossiper.java:1029 - Node /10.1.37.0 is now part of the cluster",
+        "INFO  [GossipStage:1] 2017-02-12 02:13:59,976  Gossiper.java:1029 - Node /10.1.37.0 is now part of the cluster",
         "INFO  [SharedPool-Worker-1] 2017-02-12 02:14:00,978  Gossiper.java:993 - InetAddress /10.1.37.0 is now UP"
       ]
     },
@@ -728,10 +731,53 @@ Additinal group names and mappings:
       "SubClass": "'Peer Node UP'",
       "Product": "Cassandra",
       "SessionKey": "EventClass + NODE",
+      "NodeTransitionState": "Up",
+      "NodeTransitionStateOnlyAssocNodes": true,
       "Examples": [
         "INFO  [GossipTasks:1] 2017-02-12 02:13:59,976  Gossiper.java:1008 - InetAddress /10.1.37.0 is now DOWN",
         "INFO  [GossipStage:1] 2017-02-12 02:13:59,976  Gossiper.java:1029 - Node /10.1.37.0 is now part of the cluster",
         "=> INFO  [SharedPool-Worker-1] 2017-02-12 02:14:00,978  Gossiper.java:993 - InetAddress /10.1.37.0 is now UP"
+      ]
+    },
+    {
+      "Description": "Joined Cluster",
+      "TagId": 4.2,
+      "MatchVersion": null,
+      "LevelMatch": {
+        "RegExStrings": [
+          "INFO"
+        ]
+      },
+      "ThreadIdMatch": null,
+      "FileNameMatch": {
+        "RegExStrings": [
+          "^Gossiper.java$"
+        ]
+      },
+      "FileLineMatch": null,
+      "MessageMatch": {
+        "RegExStrings": [
+          "^(InetAddress|Node)\\s.+\\scluster"
+        ]
+      },
+      "ParseMessage": {
+        "RegExStrings": [
+          "^Node\\s+/?\\s*(?$<NODE>)\\s+is\\s+(?<action>now part of the cluster)$"
+        ]
+      },
+      "ParseThreadId": null,
+      "EventType": "SessionBegin",
+      "EventClass": "NodeDetection, Change",
+      "SubClass": "'Peer Node ' + action",
+      "Product": "Cassandra",
+      "SessionKey": "EventClass + NODE",
+      "SessionKeyAction": "Add",
+      "NodeTransitionState": "Added",
+      "NodeTransitionStateOnlyAssocNodes": true,
+      "Examples": [
+        "INFO  [GossipTasks:1] 2017-02-12 02:13:59,976  Gossiper.java:1008 - InetAddress /10.1.37.0 is now DOWN",
+        "=> INFO  [GossipStage:1] 2017-02-12 02:13:59,976  Gossiper.java:1029 - Node /10.1.37.0 is now part of the cluster",
+        "INFO  [SharedPool-Worker-1] 2017-02-12 02:14:00,978  Gossiper.java:993 - InetAddress /10.1.37.0 is now UP"
       ]
     },
     {
@@ -767,6 +813,7 @@ Additinal group names and mappings:
       "Product": "Cassandra",
       "SessionKey": "EventClass + 'Shutdown'",
       "SessionKeyAction": "Add",
+      "NodeTransitionState": "Shutdown",
       "Examples": [
         "=> INFO  [Daemon shutdown] 2017-05-01 15:20:06,377  DseDaemon.java:542 - DSE shutdown complete.",
         "INFO  [main] 2017-05-16 13:39:58,892  DseDaemon.java:827 - DSE startup complete."
@@ -806,6 +853,8 @@ Additinal group names and mappings:
       "Product": "Cassandra",
       "SessionKey": "EventClass + 'Shutdown'",
       "SessionKeyAction": "ReadRemove",
+      "NodeTransitionState": "Started",
+      "NodeTransitionStateSession": "Restarted",
       "Examples": [
         "INFO  [Daemon shutdown] 2017-05-01 15:20:06,377  DseDaemon.java:542 - DSE shutdown complete.",
         "=> INFO  [main] 2017-05-16 13:39:58,892  DseDaemon.java:827 - DSE startup complete."
@@ -845,6 +894,7 @@ Additinal group names and mappings:
       "Product": "Cassandra",
       "SessionKey": "EventClass + 'Shutdown'",
       "SessionKeyAction": "ReadRemove",
+      "NodeTransitionState": "UnableToStart",
       "Examples": [
         "INFO  [Daemon shutdown] 2017-05-01 15:20:06,377  DseDaemon.java:542 - DSE shutdown complete.",
         "=> INFO  [main] 2017-05-16 13:39:58,892  DseDaemon.java:8469 - Unable to start DSE server."
@@ -917,6 +967,7 @@ Additinal group names and mappings:
       "SubClass": "'not marking peer nodes down due to pause'",
       "Product": "Cassandra",
       "AnalyticsGroup": "GCPauseStats",
+      "NodeTransitionState": "GCPause",
       "SessionKey": null,
       "Examples": [
         "=> WARN  [GossipTasks:1] 2018-02-06 14:42:58,283  FailureDetector.java:258 - Not marking nodes down due to local pause of 71168044088 > 5000000000"
@@ -1173,8 +1224,7 @@ Additinal group names and mappings:
       "ParseMessage": {
         "RegExStrings": [
           "^updating shards[a-z ]+/?\\s*(?$<NODE>)\\s+\\w+\\s\\w+\\sstatus=(?<action>\\w+)\\,?(?<token>\\s?\\-?[0-9]+\\,?)*",
-          "^updating shards[a-z ]+/?\\s*(?$<NODE>)\\s+\\w+\\s\\w+\\s(?<action>schema)=?(?$<DDLSCHEMAID>)?$",
-          "^updating shards[a-z ]+/?\\s*(?$<NODE>)\\s+\\w+\\s(?<action>dead)$"
+          "^updating shards[a-z ]+/?\\s*(?$<NODE>)\\s+\\w+\\s\\w+\\s(?<action>schema)=?(?$<DDLSCHEMAID>)?$"
         ]
       },
       "ParseThreadId": null,
@@ -1189,7 +1239,7 @@ Additinal group names and mappings:
       "Examples": [
         "=>INFO  [SharedPool-Worker-1] 2018-01-07 22:53:49,522  ShardRouter.java:605 - Updating shards state due to endpoint /10.0.0.2 changing state STATUS=NORMAL,-1051573540106914992",
         "=>INFO  [GossipStage:1] 2018-01-07 22:56:01,123  ShardRouter.java:645 - Updating shards state due to endpoint /10.0.0.2 changing state SCHEMA=541fdec0-47c9-33fd-b79c-4a37acd21019",
-        "=>INFO  [GossipStage:1] 2018-01-07 22:56:02,345  ShardRouter.java:645 - Updating shards state due to endpoint /10.0.0.2 being dead",
+        "INFO  [GossipStage:1] 2018-01-07 22:56:02,345  ShardRouter.java:645 - Updating shards state due to endpoint /10.0.0.2 being dead",
         "INFO  [GossipStage:1] 2018-01-07 22:53:49,525  StorageService.java:1790 - Nodes /10.0.0.2 and /10.0.0.1 have the same token -1051573540106914992.  /10.0.0.2 is the new owner",
         "WARN  [GossipStage:1] 2018-01-07 22:53:49,905  TokenMetadata.java:196 - Token -1051573540106914992 changing ownership from /10.0.0.1 to /10.0.0.2",
         "NFO  [GossipStage:1] 2018-01-07 22:53:49,918  TokenMetadata.java:414 - Updating topology for /10.0.0.2"
@@ -1270,6 +1320,8 @@ Additinal group names and mappings:
       "Product": "Cassandra",
       "SessionKey": "'shardEvent' + NODE + token",
       "SessionKeyAction": "Read",
+      "NodeTransitionState": "TokenOwnershipChanged",
+      "NodeTransitionStateOnlySourceNode": true,
       "Examples": [
         "INFO  [SharedPool-Worker-1] 2018-01-07 22:53:49,522  ShardRouter.java:605 - Updating shards state due to endpoint /10.0.0.2 changing state STATUS=NORMAL,-1051573540106914992",
         "INFO  [GossipStage:1] 2018-01-07 22:56:01,123  ShardRouter.java:645 - Updating shards state due to endpoint /10.0.0.2 changing state SCHEMA=541fdec0-47c9-33fd-b79c-4a37acd21019",
@@ -1319,6 +1371,48 @@ Additinal group names and mappings:
         "INFO  [GossipStage:1] 2018-01-07 22:53:49,525  StorageService.java:1790 - Nodes /10.0.0.2 and /10.0.0.1 have the same token -1051573540106914992.  /10.0.0.2 is the new owner",
         "WARN  [GossipStage:1] 2018-01-07 22:53:49,905  TokenMetadata.java:196 - Token 887656048495882619 changing ownership from /10.0.0.1 to /10.0.0.2",
         "=>INFO  [GossipStage:1] 2018-01-07 22:53:49,918  TokenMetadata.java:414 - Updating topology for /10.0.0.2"
+      ]
+    },
+    {
+      "Description": "Sharding Dead",
+      "TagId": 8.4,
+      "MatchVersion": null,
+      "LevelMatch": {
+        "RegExStrings": [
+          "INFO"
+        ]
+      },
+      "FileNameMatch": {
+        "RegExStrings": [
+          "^ShardRouter.java$",
+          "^Router.java$"
+        ]
+      },
+      "MessageMatch": {
+        "RegExStrings": [
+          "^Updating shards\\s"
+        ]
+      },
+      "ParseMessage": {
+        "RegExStrings": [
+          "^updating shards[a-z ]+/?\\s*(?$<NODE>)\\s+\\w+\\s(?<action>dead)$"
+        ]
+      },
+      "ParseThreadId": null,
+      "EventType": "SingleInstance",
+      "EventClass": "Detection, Node, Shard",
+      "SubClass": "'Updating ' + action",
+      "Product": "Cassandra",
+      "SessionKey": "'shardEvent' + NODE + token",
+      "NodeTransitionState": "Dead",
+      "NodeTransitionStateOnlyAssocNodes": true,
+      "Examples": [
+        "INFO  [SharedPool-Worker-1] 2018-01-07 22:53:49,522  ShardRouter.java:605 - Updating shards state due to endpoint /10.0.0.2 changing state STATUS=NORMAL,-1051573540106914992",
+        "INFO  [GossipStage:1] 2018-01-07 22:56:01,123  ShardRouter.java:645 - Updating shards state due to endpoint /10.0.0.2 changing state SCHEMA=541fdec0-47c9-33fd-b79c-4a37acd21019",
+        "=>INFO  [GossipStage:1] 2018-01-07 22:56:02,345  ShardRouter.java:645 - Updating shards state due to endpoint /10.0.0.2 being dead",
+        "INFO  [GossipStage:1] 2018-01-07 22:53:49,525  StorageService.java:1790 - Nodes /10.0.0.2 and /10.0.0.1 have the same token -1051573540106914992.  /10.0.0.2 is the new owner",
+        "WARN  [GossipStage:1] 2018-01-07 22:53:49,905  TokenMetadata.java:196 - Token -1051573540106914992 changing ownership from /10.0.0.1 to /10.0.0.2",
+        "NFO  [GossipStage:1] 2018-01-07 22:53:49,918  TokenMetadata.java:414 - Updating topology for /10.0.0.2"
       ]
     },
     {
@@ -2212,6 +2306,8 @@ Additinal group names and mappings:
       "SubClass": "'Assassinating Peer Node Completed'",
       "Product": "Cassandra",
       "SessionKey": "'Assassinating' + NODE",
+      "NodeTransitionState": "Removed",
+      "NodeTransitionStateOnlyAssocNodes": true,
       "Examples": [
         "WARN  [RMI TCP Connection(8492)-127.0.0.1] 2018-06-05 18:28:38,725  Gossiper.java:589 - Assassinating /172.20.98.4 via gossip",
         "INFO  [RMI TCP Connection(8492)-127.0.0.1] 2018-06-05 18:28:38,725  Gossiper.java:599 - Sleeping for 30000ms to ensure /172.20.98.4 does not change",
@@ -2249,6 +2345,8 @@ Additinal group names and mappings:
       "AnalyticsGroup": null,
       "SubClass": "'Node Detected Down'",
       "Product": "Cassandra",
+      "NodeTransitionState": "Down",
+      "NodeTransitionStateOnlyAssocNodes": true,
       "Examples": [
         "WARN  [main] 2018-07-09 19:01:39,780  DseDaemon.java:796 - The following nodes seems to be down: [/173.37.133.207, /173.37.133.206]. Some Cassandra operations may fail with UnavailableException."
       ]
@@ -2390,6 +2488,7 @@ Additinal group names and mappings:
       "AnalyticsGroup": null,
       "SubClass": "'Shutdown Silent'",
       "Product": "Cassandra",
+      "NodeTransitionState": "Shutdown",
       "Examples": [
         "WARN  [StorageServiceShutdownHook] 2018-07-23 21:50:14,726  Gossiper.java:1538 - No local state, state is in silent shutdown, or node hasn't joined, not announcing shutdown"
       ]
@@ -2425,6 +2524,7 @@ Additinal group names and mappings:
       "AnalyticsGroup": null,
       "SubClass": "exception",
       "Product": "Cassandra",
+      "NodeTransitionState": "NotResponding",
       "Examples": [
         "WARN  [pool-15-thread-1] 2018-08-28 10:24:15,178  LeaderManagerWatcher.java:521 - Local query timed out; is this node under heavy load/starting up?  - org.apache.cassandra.exceptions.ReadTimeoutException: Operation timed out - received only 0 responses."
       ]
@@ -2638,6 +2738,8 @@ Additinal group names and mappings:
       "SubClass": "'Nodes detected down'",
       "Product": "Cassandra",
       "IgnoreEvent": false,
+      "NodeTransitionState": "Down",
+      "NodeTransitionStateOnlyAssocNodes": true,
       "Examples": [
         "WARN  [main] 2018-08-23 01:01:52,616  DseDaemon.java:796 - The following nodes seems to be down: [/192.168.36.108]. Some Cassandra operations may fail with UnavailableException."
       ]
@@ -2725,7 +2827,7 @@ Additinal group names and mappings:
       "TagId": 45.0,
       "MatchVersion": null,
       "LevelMatch": {
-        "RegExStrings": [         
+        "RegExStrings": [
           "WARN"
         ]
       },
@@ -2752,6 +2854,8 @@ Additinal group names and mappings:
       "SubClass": null,
       "Product": "Cassandra",
       "IgnoreEvent": false,
+      "NodeTransitionState": "NotResponding",
+      "NodeTransitionStateOnlyAssocNodes": true,
       "Examples": [
         "WARN  [dsefs-netty-worker-1] 2019-09-03 16:00:18,939  LocationService.scala:420 - Gossip to 10.242.5.230:5599 failed: Timeout waiting for response from 10.242.5.230:5599"
       ]
@@ -2790,6 +2894,8 @@ Additinal group names and mappings:
       "Product": "Cassandra",
       "IgnoreEvent": false,
       "BrekOnDebug": false,
+      "NodeTransitionState": "Down",
+      "NodeTransitionStateOnlyAssocNodes": true,
       "Examples": [
         "=> ERROR [dsefs-netty-worker-1] 2018-10-10 06:04:23,249  LocationService.scala:492 - Gossip to 10.95.19.55:5599 failed. Node will be marked as unavailable.",
         "=> WARN  [dsefs-netty-worker-1] 2019-09-03 16:00:18,939  LocationService.scala:499 - Gossip to 10.242.5.230:5599 failed. Node will be marked as unavailable."
@@ -2828,6 +2934,7 @@ Additinal group names and mappings:
       "SubClass": "'Dropped ' + action + ' Messages'",
       "Product": "Cassandra",
       "IgnoreEvent": false,
+      "NodeTransitionState": "NotResponding",
       "Examples": [
         "INFO  [ScheduledTasks:1] 2018-10-09 17:30:12,394  DroppedMessages.java:104 - MUTATION messages were dropped in last 5000 ms: 6 internal and 21 cross node. Mean internal dropped latency: 3718 ms and Mean cross-node dropped latency: 4317 ms",
         "INFO  [ScheduledTasks:1] 2018-10-09 17:30:12,394  DroppedMessages.java:104 - READ messages were dropped in last 5000 ms: 71 internal and 79 cross node. Mean internal dropped latency: 5624 ms and Mean cross-node dropped latency: 5528 ms",
@@ -3029,6 +3136,8 @@ Additinal group names and mappings:
       "SubClass": null,
       "Product": "Cassandra",
       "IgnoreEvent": false,
+      "NodeTransitionStateOnlyAssocNodes": true,
+      "NodeTransitionState": "NetworkEvent",
       "Examples": [
         "ERROR [RemoteMessageServer query worker - 47] 2019-03-02 12:10:59,766  MessageServer.java:319 - Cannot send response to null due to closed channel!"
       ]
@@ -3173,6 +3282,8 @@ Additinal group names and mappings:
       "SubClass": null,
       "Product": "Cassandra",
       "IgnoreEvent": false,
+      "NodeTransitionState": "NotResponding",
+      "NodeTransitionStateOnlyAssocNodes": true,
       "Examples": [
         "ERROR [SharedPool-Worker-2] 2019-03-02 09:53:00,053  RowResponseHandler.java:206 - Row retrieval response timeout of 10000, missing responses from nodes: [10.2.144.141]"
       ]
@@ -3866,6 +3977,7 @@ Additinal group names and mappings:
       "Product": "Cassandra",
       "AnalyticsGroup": null,
       "IgnoreEvent": false,
+      "NodeTransitionState": "Added",
       "Examples": [
         "WARN  [main] 2018-12-03 18:21:24,975  SystemKeyspace.java:1385 - No host ID found, created 8a436404-ed7e-4b92-aeca-dfbbfaa0bc5e (Note: This should happen exactly once per node)."
       ]

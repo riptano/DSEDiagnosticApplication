@@ -112,5 +112,14 @@ namespace DSEDiagnosticAnalytics.Properties {
                 return ((string)(this["AttributeThresholds"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("(NativeIoException)|((Closed)?ChannelException)|(TimeoutException)")]
+        public string NetworkExceptinMatchRegEx {
+            get {
+                return ((string)(this["NetworkExceptinMatchRegEx"]));
+            }
+        }
     }
 }

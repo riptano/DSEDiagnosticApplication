@@ -1291,7 +1291,9 @@ namespace DSEDiagnosticFileParser
             var sessionParentAction = matchItem.Item5.SessionParentAction;
             bool orphanedSession = false;
             string analyticsGroup = matchItem.Item5.AnalyticsGroup;
-
+            var nodeTransState = matchItem.Item5.NodeTransitionState;
+            var nodeTransStateSession = matchItem.Item5.NodeTransitionStateSession;
+           
             if ((eventType & EventTypes.ExceptionElement) == EventTypes.ExceptionElement
                     && logProperties.TryGetValue("error", out object errorObj)
                     && errorObj != null)
@@ -1659,7 +1661,7 @@ namespace DSEDiagnosticFileParser
                         if (string.IsNullOrEmpty(analyticsGroup))
                         {
                             analyticsGroup = sessionEvent.AnalyticsGroup;
-                        }
+                        }                        
                     }
 
                     {                        
@@ -1695,6 +1697,11 @@ namespace DSEDiagnosticFileParser
 
                     }
                 }
+
+                if(nodeTransStateSession.HasValue)
+                {
+                    nodeTransState = nodeTransStateSession;
+                }
             }
 
             if(sessionEvent != null
@@ -1712,6 +1719,16 @@ namespace DSEDiagnosticFileParser
                     primaryDDL = Cluster.TryGetTableIndexViewbyString(lateDDLresolution.Value.DDLSSTableName, this.Cluster, this.DataCenter, primaryKS.Name);
                 }
                 lateDDLresolution = null;
+            }
+
+            if(nodeTransState.HasValue)
+            {
+                if(matchItem.Item5.NodeTransitionStateOnlyAssocNodes
+                        && (assocatedNodes == null
+                                || assocatedNodes.IsEmpty()))
+                {
+                    nodeTransState = null;
+                }
             }
 
             #endregion
@@ -1774,6 +1791,7 @@ namespace DSEDiagnosticFileParser
                                                         sessionId,
                                                         matchItem.Item5.Product,
                                                         analyticsGroup: analyticsGroup,
+                                                        nodeTransitionState: nodeTransState,
                                                         tempEvent: !matchItem.Item5.AssociateEventToNode);
                 }
                 else if ((eventType & EventTypes.SessionItem) != EventTypes.SessionItem && !duration.NaN)
@@ -1801,6 +1819,7 @@ namespace DSEDiagnosticFileParser
                                                         sessionId,
                                                         matchItem.Item5.Product,
                                                         analyticsGroup: analyticsGroup,
+                                                        nodeTransitionState: nodeTransState,
                                                         tempEvent: !matchItem.Item5.AssociateEventToNode);
                 }
                 else if ((eventType & EventTypes.SessionDefinedByDuration) == EventTypes.SessionDefinedByDuration && (!duration.NaN || eventDurationTime.HasValue))
@@ -1828,6 +1847,7 @@ namespace DSEDiagnosticFileParser
                                                         sessionId,
                                                         matchItem.Item5.Product,
                                                         analyticsGroup: analyticsGroup,
+                                                        nodeTransitionState: nodeTransState,
                                                         tempEvent: !matchItem.Item5.AssociateEventToNode);
                 }
                 else
@@ -1855,6 +1875,7 @@ namespace DSEDiagnosticFileParser
                                                         sessionId,
                                                         matchItem.Item5.Product,
                                                         analyticsGroup: analyticsGroup,
+                                                        nodeTransitionState: nodeTransState,
                                                         tempEvent: !matchItem.Item5.AssociateEventToNode);
                 }
             }
@@ -1885,6 +1906,7 @@ namespace DSEDiagnosticFileParser
                                                         sessionId,
                                                         matchItem.Item5.Product,
                                                         analyticsGroup: analyticsGroup,
+                                                        nodeTransitionState: nodeTransState,
                                                         tempEvent: !matchItem.Item5.AssociateEventToNode);
 
                     if (logEvent.ParentEvents.Count() > 1)
@@ -1925,6 +1947,7 @@ namespace DSEDiagnosticFileParser
                                                         sessionId,
                                                         matchItem.Item5.Product,
                                                         analyticsGroup: analyticsGroup,
+                                                        nodeTransitionState: nodeTransState,
                                                         tempEvent: !matchItem.Item5.AssociateEventToNode);
                 }
             }
