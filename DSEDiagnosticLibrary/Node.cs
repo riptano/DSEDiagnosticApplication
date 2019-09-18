@@ -646,11 +646,12 @@ namespace DSEDiagnosticLibrary
             if(duration.HasValue)
             {
                 if (duration.Value.TotalMilliseconds >= 0d)
+                {
                     this.Duration = duration;
+                    if (this.Duration.Value > LibrarySettings.NodeDetectedLongPuaseThreshold) this.State |= DetectedStates.LongPause;
+                }
                 else
-                    this.Duration = TimeSpan.Zero;
-
-                if (this.Duration.Value > LibrarySettings.NodeDetectedLongPuaseThreshold) this.State |= DetectedStates.LongPuase;
+                    this.Duration = null;                
             }
         }
 
@@ -666,7 +667,7 @@ namespace DSEDiagnosticLibrary
             Started = 0x0020 | Up,
             Restarted = 0x0100 | Started,
             GCPause = 0x0040 | NotResponding,
-            LongPuase = 0x0080,
+            LongPause = 0x0080,
             Added = 0x0200,
             Removed = 0x0400,
             TokenOwnershipChanged = 0x0800,
@@ -697,7 +698,7 @@ namespace DSEDiagnosticLibrary
                     return 5;
                 case DetectedStates.GCPause:
                     return 4;
-                case DetectedStates.LongPuase:
+                case DetectedStates.LongPause:
                     break;
                 case DetectedStates.Added:
                     return 7;
@@ -1567,6 +1568,14 @@ namespace DSEDiagnosticLibrary
         {
             if (eventItems.NodeTransitionState.HasValue)
             {
+                TimeSpan? duration = ((eventItems.Type & EventTypes.SingleInstance) == EventTypes.SingleInstance
+                                                && (eventItems.Type & EventTypes.SessionBegin) != EventTypes.SessionBegin)
+                                            || (eventItems.Type & EventTypes.AggregateData) == EventTypes.AggregateData
+                                            || (eventItems.Type & EventTypes.ExceptionElement) == EventTypes.ExceptionElement
+                                            || (eventItems.Type & EventTypes.SessionEnd) == EventTypes.SessionEnd
+                                            || (eventItems.Class & EventClasses.Orphaned) == EventClasses.Orphaned
+                                        ? eventItems.Duration
+                                        : (TimeSpan?)null;
                 if (eventItems.AssociatedNodes != null && eventItems.AssociatedNodes.HasAtLeastOneElement())
                 {
                     foreach (var targetNode in eventItems.AssociatedNodes)
@@ -1575,7 +1584,7 @@ namespace DSEDiagnosticLibrary
                                                                                     eventItems.EventTime,
                                                                                     eventItems.EventTimeLocal,
                                                                                     eventItems.Node,
-                                                                                    eventItems.Duration);
+                                                                                    duration);
                         targetNode.AssociateItem(nodeState);
                     }
                 }
@@ -1585,7 +1594,7 @@ namespace DSEDiagnosticLibrary
                                                                                 eventItems.EventTime,
                                                                                 eventItems.EventTimeLocal,
                                                                                 null,
-                                                                                eventItems.Duration);
+                                                                                duration);
                     this.AssociateItem(nodeState);
                 }
             }

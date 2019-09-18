@@ -1791,5 +1791,27 @@ namespace DSEDiagtnosticToExcel.Properties {
                 return ((string)(this["CondFmtMachineDCUnknown"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute(@"Dead -- The has been marked Dead by C*
+NotResponding -- Peer nodes have detected that this node is not responding
+Down -- Peer nodes now considered this node as Down
+Up -- This node is now responding
+Shutdown -- This node has been shut down          
+Started -- This node has been started (no corresponding shutdown)
+Restarted -- This node has been restarted (shutdown -> started)
+GCPause -- This node had a GC pause
+LongPause -- This node was not responding for a long period of time (default is over 4 hours). 
+Added -- Node was Addes to thic DC
+Removed -- Node was removed from this DC
+TokenOwnershipChanged -- Token ownershp has changed from one node to another (sharding occurred)
+UnableToStart -- Node was unable to start
+NetworkEvent -- Some type of possible network event occurred (e.g., reset/aborted/unexpectly closed connection, etc.)")]
+        public string CmtNodeStsteEvent {
+            get {
+                return ((string)(this["CmtNodeStsteEvent"]));
+            }
+        }
     }
 }

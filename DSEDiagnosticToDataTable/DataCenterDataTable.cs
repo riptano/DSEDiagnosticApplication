@@ -444,7 +444,7 @@ namespace DSEDiagnosticToDataTable
                                 NbrStarts = n.StateChanges.Count(s => (s.State & NodeStateChange.DetectedStates.Started) == NodeStateChange.DetectedStates.Started
                                                                         && s.State != NodeStateChange.DetectedStates.Restarted),
                                 NbrRestarts = n.StateChanges.Count(s => s.State == NodeStateChange.DetectedStates.Restarted),
-                                NbrLngPauses = n.StateChanges.Count(s => (s.State & NodeStateChange.DetectedStates.LongPuase) == NodeStateChange.DetectedStates.LongPuase),
+                                NbrLngPauses = n.StateChanges.Count(s => (s.State & NodeStateChange.DetectedStates.LongPause) == NodeStateChange.DetectedStates.LongPause),
                                 NbrNotResponding = n.StateChanges.Count(s => (s.State & NodeStateChange.DetectedStates.NotResponding) == NodeStateChange.DetectedStates.NotResponding),
                                 NbrDead = n.StateChanges.Count(s => (s.State & NodeStateChange.DetectedStates.Dead) == NodeStateChange.DetectedStates.Dead),
                                 NbrNetwork = n.StateChanges.Count(s => (s.State & NodeStateChange.DetectedStates.NetworkEvent) == NodeStateChange.DetectedStates.NetworkEvent),

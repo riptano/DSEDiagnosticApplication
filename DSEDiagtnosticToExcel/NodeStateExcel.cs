@@ -69,7 +69,10 @@ namespace DSEDiagtnosticToExcel
 
                                                                  //this.DataTable.GetColumn(DT.ColumnNames.DataCenter);
                                                                  //this.DataTable.GetColumn(DT.ColumnNames.NodeIPAddress);                                                                                                                                 
-                                                                 //this.DataTable.GetColumn(DT.NodeStateDataTable.Columns.State);
+                                                                 this.DataTable.GetColumn(DT.NodeStateDataTable.Columns.State)
+                                                                    .SetComment(Properties.Settings.Default.CmtNodeStsteEvent);
+                                                                 this.DataTable.GetColumn(DT.NodeStateDataTable.Columns.SourceNode)
+                                                                    .SetComment("Node reporting the event/state");
 
                                                                  this.DataTable.GetColumn(DT.NodeStateDataTable.Columns.SortOrder)
                                                                     .HideColumn();
