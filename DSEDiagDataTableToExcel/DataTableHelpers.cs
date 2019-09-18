@@ -654,6 +654,7 @@ namespace DataTableToExcel
                             var hdrComment = (string)dataColumn.ExtendedProperties["Comment"];
 
                             workSheet.Cells[wsHeaderRow, dataColumn.Ordinal + 1].AddComment(hdrComment, "RHA");
+                            workSheet.Cells[wsHeaderRow, dataColumn.Ordinal + 1].Comment.AutoFit = true;
                         }
                         else if (key.StartsWith("HeaderText"))
                         {

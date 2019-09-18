@@ -128,8 +128,8 @@ namespace DSEDiagtnosticToExcel
                                                                                         .SetNumericFormat("#,###,###,##0")
                                                                                         .TotalColumn(),
                                                                          this.DataTable.GetColumn("Long Down Pause")
-                                                                                        .SetCaption("Long")
-                                                                                        .SetComment("Number of occurrences where the amount of time between shutdown and restart exceed threshold")
+                                                                                        .SetCaption("Long Duration")
+                                                                                        .SetComment("Number of occurrences where the amount of time between events exceed a threshold (default is 4 hours)")
                                                                                         .SetNumericFormat("#,###,###,##0")
                                                                                         .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonNodeNbrStatusDown)
                                                                                         .TotalColumn(),                                                                               
