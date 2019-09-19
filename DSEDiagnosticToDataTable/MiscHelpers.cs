@@ -247,5 +247,35 @@ namespace DSEDiagnosticToDataTable
 
             return copiedColumns;
         }
+
+        private static ILogEvent[] EventsReadOnlyCache = new ILogEvent[0];
+        internal static IEnumerable<ILogEvent> GetAllEventsReadOnly(this Cluster cluster,
+                                                                        bool useCache = true,
+                                                                        DSEDiagnosticLibrary.LogCassandraEvent.ElementCreationTypes elementCreationTypes = DSEDiagnosticLibrary.LogCassandraEvent.ElementCreationTypes.DCNodeKSDDLTypeClassOnly)
+        {
+            if(useCache)
+            {
+                if(EventsReadOnlyCache.Length == 0)
+                {
+                    lock (EventsReadOnlyCache)
+                    {
+                        if (EventsReadOnlyCache.Length == 0)
+                            EventsReadOnlyCache = cluster.Nodes
+                                                        .SelectMany(d => ((DSEDiagnosticLibrary.Node)d).LogEventsRead(elementCreationTypes, false)
+                                                                            .ToArray()
+                                                                            .Select(v => v.Value))
+                                                        .ToArray();
+                    }
+                }
+
+                return EventsReadOnlyCache;
+            }
+
+            return cluster.Nodes
+                    .SelectMany(d => ((DSEDiagnosticLibrary.Node)d).LogEventsRead(elementCreationTypes, false)
+                                        .ToArray()
+                                        .Select(v => v.Value))
+                    .ToArray();
+        }
     }
 }

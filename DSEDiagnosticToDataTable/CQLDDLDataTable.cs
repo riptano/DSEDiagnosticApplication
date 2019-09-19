@@ -106,8 +106,7 @@ namespace DSEDiagnosticToDataTable
 
                 Logger.Instance.InfoFormat("Loading CQL DDL Information for Cluster \"{0}\"", this.Cluster.Name);
 
-                var logEvtsCollection = (from logEvCache in this.Cluster.Nodes.SelectMany(d => ((DSEDiagnosticLibrary.Node)d).LogEventsRead(DSEDiagnosticLibrary.LogCassandraEvent.ElementCreationTypes.DCNodeKSDDLTypeClassOnly, false))
-                                         let logEvt = logEvCache.Value
+                var logEvtsCollection = (from logEvt in this.Cluster.GetAllEventsReadOnly()                                         
                                          where logEvt.TableViewIndex != null
                                                     && (logEvt.Class.HasFlag(DSEDiagnosticLibrary.EventClasses.Compaction)
                                                             || logEvt.Class.HasFlag(DSEDiagnosticLibrary.EventClasses.Flush)

@@ -50,6 +50,7 @@ namespace DSEDiagnosticConsoleApplication
                                                         TaskContinuationOptions.OnlyOnFaulted);
             analysisTasks.ContinueWith(task => CanceledFaultProcessing(null),
                                                         TaskContinuationOptions.OnlyOnCanceled);
+
             return tasks;
         }
     }
