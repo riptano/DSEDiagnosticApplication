@@ -17,87 +17,87 @@ using IMMLogValue = Common.Patterns.Collections.MemoryMapped.IMMValue<DSEDiagnos
 namespace DSEDiagnosticLibrary
 {
     [JsonObject(MemberSerialization.OptOut)]
-	public sealed class NodeIdentifier : IEquatable<NodeIdentifier>, IEquatable<IPAddress>, IEquatable<string>, IComparable<NodeIdentifier>
+    public sealed class NodeIdentifier : IEquatable<NodeIdentifier>, IEquatable<IPAddress>, IEquatable<string>, IComparable<NodeIdentifier>
     {
-		private NodeIdentifier()
-		{
-			this._addresses = new System.Collections.Concurrent.ConcurrentBag<IPAddress>();
+        private NodeIdentifier()
+        {
+            this._addresses = new System.Collections.Concurrent.ConcurrentBag<IPAddress>();
             this._hostnames = new CTS.List<string>();
-		}
-		public NodeIdentifier(IPAddress ipAddress)
+        }
+        public NodeIdentifier(IPAddress ipAddress)
             : this()
-		{
+        {
             if (ipAddress != null) this._addresses.Add(ipAddress);
         }
-		public NodeIdentifier(string hostName) 
+        public NodeIdentifier(string hostName)
             : this()
-		{
-			this.HostName = hostName?.Trim();
+        {
+            this.HostName = hostName?.Trim();
             if (this.HostName == string.Empty) this.HostName = null;
             if (this.HostName != null) this._hostnames.Add(this.HostName);
         }
 
-		#region Methods
-		public IPAddress AddIPAddress(IPAddress ipAddress)
-		{
-			if(ipAddress != null
-				&& !this._addresses.Contains(ipAddress))
-			{
-				this._addresses.Add(ipAddress);
-			}
-			return ipAddress;
-		}
+        #region Methods
+        public IPAddress AddIPAddress(IPAddress ipAddress)
+        {
+            if (ipAddress != null
+                && !this._addresses.Contains(ipAddress))
+            {
+                this._addresses.Add(ipAddress);
+            }
+            return ipAddress;
+        }
 
-		/// <summary>
-		/// Adds the IPAdresses from nodeIdentifier into this instance.
-		/// </summary>
-		/// <param name="nodeIdentifier"></param>
-		/// <returns>
-		/// Returns the first IPAddress of the addresses in nodeIdentifier that are not within the addresses in this instance.
-		/// If null no addresses were found to be different between the instances or nodeIdentifier is null.
-		/// </returns>
-		public IPAddress AddIPAddress(NodeIdentifier nodeIdentifier)
-		{
-			if (nodeIdentifier != null)
-			{
-				var differences = nodeIdentifier._addresses.Complement(this._addresses);
+        /// <summary>
+        /// Adds the IPAdresses from nodeIdentifier into this instance.
+        /// </summary>
+        /// <param name="nodeIdentifier"></param>
+        /// <returns>
+        /// Returns the first IPAddress of the addresses in nodeIdentifier that are not within the addresses in this instance.
+        /// If null no addresses were found to be different between the instances or nodeIdentifier is null.
+        /// </returns>
+        public IPAddress AddIPAddress(NodeIdentifier nodeIdentifier)
+        {
+            if (nodeIdentifier != null)
+            {
+                var differences = nodeIdentifier._addresses.Complement(this._addresses);
 
-				differences.ForEach(a => this._addresses.Add(a));
+                differences.ForEach(a => this._addresses.Add(a));
 
-				return differences.FirstOrDefault();
-			}
+                return differences.FirstOrDefault();
+            }
 
-			return null;
-		}
+            return null;
+        }
 
-		public IPAddress AddIPAddress(string strIPAddress)
-		{
+        public IPAddress AddIPAddress(string strIPAddress)
+        {
             strIPAddress = strIPAddress?.Trim();
-			if (!string.IsNullOrEmpty(strIPAddress))
-			{				
-				if(IPAddress.TryParse(strIPAddress, out IPAddress ipAddress))
-				{
-					return this.AddIPAddress(ipAddress);
-				}
-			}
+            if (!string.IsNullOrEmpty(strIPAddress))
+            {
+                if (IPAddress.TryParse(strIPAddress, out IPAddress ipAddress))
+                {
+                    return this.AddIPAddress(ipAddress);
+                }
+            }
 
-			return null;
-		}
+            return null;
+        }
 
-		public static readonly Regex IPAddressRegEx = new Regex(LibrarySettings.IPAdressRegEx,
-													                RegexOptions.Compiled);
+        public static readonly Regex IPAddressRegEx = new Regex(LibrarySettings.IPAdressRegEx,
+                                                                    RegexOptions.Compiled);
 
-		public IPAddress SetIPAddressOrHostName(string strIPAddressOrHostName, bool tryParseAsIPAddress = true)
-		{
-			IPAddress ipAddress = null;
+        public IPAddress SetIPAddressOrHostName(string strIPAddressOrHostName, bool tryParseAsIPAddress = true)
+        {
+            IPAddress ipAddress = null;
 
             strIPAddressOrHostName = strIPAddressOrHostName?.Trim();
 
             if (ValidNodeIdName(strIPAddressOrHostName))
-			{
+            {
                 if (tryParseAsIPAddress && IPAddress.TryParse(strIPAddressOrHostName, out ipAddress))
                 {
-                    this.AddIPAddress(ipAddress);                    
+                    this.AddIPAddress(ipAddress);
                 }
                 else
                 {
@@ -114,11 +114,11 @@ namespace DSEDiagnosticLibrary
 
                             if (otherParts > hostParts)
                             {
-                                if(this.HostName == this._hostnames.UnSafe[hostPos])
+                                if (this.HostName == this._hostnames.UnSafe[hostPos])
                                 {
                                     this.HostName = strIPAddressOrHostName;
                                 }
-                                this._hostnames.UnSafe[hostPos] = strIPAddressOrHostName;                                
+                                this._hostnames.UnSafe[hostPos] = strIPAddressOrHostName;
                             }
                         }
                         else
@@ -144,12 +144,12 @@ namespace DSEDiagnosticLibrary
                     {
                         if (isLocked) this._hostnames.UnLock();
                     }
-                    
-                }
-			}
 
-			return ipAddress;
-		}
+                }
+            }
+
+            return ipAddress;
+        }
 
         /// <summary>
         /// Returns Nodes IP4 address first, Host Name second, and IP6 address only if other two not defined.
@@ -168,11 +168,11 @@ namespace DSEDiagnosticLibrary
                 else
                 {
                     nodeAddress = this._addresses.FirstOrDefault(a => a.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
-                                    ?? this._addresses.FirstOrDefault();                    
+                                    ?? this._addresses.FirstOrDefault();
                 }
             }
 
-            if(nodeAddress == null)
+            if (nodeAddress == null)
             {
                 return this.HostName;
             }
@@ -180,7 +180,7 @@ namespace DSEDiagnosticLibrary
             {
                 return nodeAddress.ToString();
             }
-            else if(!string.IsNullOrEmpty(this.HostName))
+            else if (!string.IsNullOrEmpty(this.HostName))
             {
                 return this.HostName;
             }
@@ -222,7 +222,7 @@ namespace DSEDiagnosticLibrary
                 return false;
             }
 
-            return true ;
+            return true;
         }
 
         public static bool GlobalIP6Address(string possibleNodeName)
@@ -334,7 +334,7 @@ namespace DSEDiagnosticLibrary
         /// Thrown is the Id string is not valid
         /// </exception>
         public static NodeIdentifier Create(string strIPAddressOrHostName, bool tryParseAsIPAddress = true)
-        {            
+        {
             if (NodeIdentifier.ValidNodeIdName(strIPAddressOrHostName))
             {
                 var instance = new NodeIdentifier();
@@ -375,12 +375,12 @@ namespace DSEDiagnosticLibrary
             }
         }
         private Common.Patterns.Collections.ThreadSafe.List<string> _hostnames { get; set; }
-       
+
         public string HostName { get; private set; }
         [JsonIgnore]
         public IEnumerable<string> HostNames { get { return this._hostnames; } }
 
-        [JsonProperty(PropertyName= "Addresses")]
+        [JsonProperty(PropertyName = "Addresses")]
         private IEnumerable<string> datamemberAddresses
         {
             get { return this._addresses?.Select(a => a.ToString()); }
@@ -398,13 +398,13 @@ namespace DSEDiagnosticLibrary
         public bool HostNameExists(string checkHostName)
         {
             if (this._hostnames.Any(n => HostNameEqual(n, checkHostName))) return true;
-            
+
             return false;
         }
 
         #region IEquatable
         public bool Equals(NodeIdentifier other)
-		{
+        {
             if (ReferenceEquals(other, null)) return false;
 
             if (ReferenceEquals(this, other)) return true;
@@ -412,32 +412,32 @@ namespace DSEDiagnosticLibrary
             //Prefer IP Address
             if (this._addresses.HasAtLeastOneElement() && other._addresses.HasAtLeastOneElement())
             {
-                if (this._addresses.Contains(other._addresses)) return true;                
+                if (this._addresses.Contains(other._addresses)) return true;
             }
 
             if (this._hostnames.Any(other._hostnames, (x, y) => HostNameEqual(x, y))) return true;
 
-			return false;
-		}
+            return false;
+        }
 
-		public bool Equals(IPAddress other)
-		{
-			if (this._addresses != null
-					&& other != null)
-			{
-				return this._addresses.Contains(other);
-			}
+        public bool Equals(IPAddress other)
+        {
+            if (this._addresses != null
+                    && other != null)
+            {
+                return this._addresses.Contains(other);
+            }
 
-			return false;
-		}
+            return false;
+        }
 
-		public bool Equals(string other)
-		{
+        public bool Equals(string other)
+        {
             other = other?.Trim();
 
             if (string.IsNullOrEmpty(other)) return false;
 
-            if(other[0] == '/')
+            if (other[0] == '/')
             {
                 other = other.Substring(1);
             }
@@ -445,7 +445,7 @@ namespace DSEDiagnosticLibrary
             if (this._hostnames.Any(n => HostNameEqual(n, other))) return true;
 
             if (this._addresses.HasAtLeastOneElement())
-            {                
+            {
                 if (IPAddress.TryParse(other, out IPAddress address))
                 {
                     return this.Equals(address);
@@ -453,8 +453,8 @@ namespace DSEDiagnosticLibrary
             }
 
             return false;
-		}
-      
+        }
+
         /// <summary>
         /// Returns false if either or all argument(s) is/are null or string.empty
         /// </summary>
@@ -489,19 +489,19 @@ namespace DSEDiagnosticLibrary
             return false;
         }
 
-		public override bool Equals(object obj)
-		{
-			if(obj is NodeIdentifier)
-			{ return this.Equals((NodeIdentifier)obj); }
+        public override bool Equals(object obj)
+        {
+            if (obj is NodeIdentifier)
+            { return this.Equals((NodeIdentifier)obj); }
 
-			if (obj is IPAddress)
-			{ return this.Equals((IPAddress)obj); }
+            if (obj is IPAddress)
+            { return this.Equals((IPAddress)obj); }
 
-			if (obj is string)
-			{ return this.Equals((string)obj); }
+            if (obj is string)
+            { return this.Equals((string)obj); }
 
-			return false;
-		}
+            return false;
+        }
 
         #endregion
 
@@ -529,8 +529,8 @@ namespace DSEDiagnosticLibrary
                         newId._hostnames.Add(this._hostnames.First());
                         newId.HostName = newId._hostnames.First();
                     }
-                    if(this._addresses.HasAtLeastOneElement())
-                        newId._addresses.Add(this._addresses.First());                    
+                    if (this._addresses.HasAtLeastOneElement())
+                        newId._addresses.Add(this._addresses.First());
                 }
                 else
                 {
@@ -540,21 +540,21 @@ namespace DSEDiagnosticLibrary
                     newId._hashCode = this._hashCode;
                 }
             }
-           
+
             return newId;
         }
 
         public override string ToString()
-		{
-			return this.ToString("NodeIdentifier");
-		}
+        {
+            return this.ToString("NodeIdentifier");
+        }
 
-		public string ToString(string className)
-		{
+        public string ToString(string className)
+        {
             string nodeAddress = null;
 
-			if (this._addresses != null)
-			{
+            if (this._addresses != null)
+            {
                 if (this._addresses.Count == 1)
                 {
                     nodeAddress = this._addresses.First().ToString();
@@ -563,11 +563,11 @@ namespace DSEDiagnosticLibrary
                 {
                     nodeAddress = string.Join(", ", this._addresses);
                 }
-			}
+            }
 
             if (string.IsNullOrEmpty(this.HostName))
             {
-                if(!string.IsNullOrEmpty(nodeAddress))
+                if (!string.IsNullOrEmpty(nodeAddress))
                 {
                     return string.Format("{0}{{{1}}}", className, nodeAddress);
                 }
@@ -580,20 +580,20 @@ namespace DSEDiagnosticLibrary
             }
 
             return base.ToString();
-		}
+        }
 
-        [JsonProperty(PropertyName="HashCode")]
+        [JsonProperty(PropertyName = "HashCode")]
         private int _hashCode = 0;
-		public override int GetHashCode()
-		{
+        public override int GetHashCode()
+        {
             if (this._hashCode != 0) return this._hashCode;
 
             if (this._addresses != null && this._addresses.HasAtLeastOneElement())
                 return this._hashCode = this._addresses.First().GetHashCode();
-            
-			return string.IsNullOrEmpty(this.HostName) ? 0 : this.HostName.GetHashCode();
-		}
-        
+
+            return string.IsNullOrEmpty(this.HostName) ? 0 : this.HostName.GetHashCode();
+        }
+
         public object ToDump()
         {
             return new { Host = this.HostName, IPAddresses = string.Join(",", this.Addresses.Select(i => i.ToString())) };
@@ -613,7 +613,7 @@ namespace DSEDiagnosticLibrary
             }
 
             public int GetHashCode(NodeIdentifier obj)
-            {               
+            {
                 return obj == null ? 0 : obj.GetHashCode();
             }
         }
@@ -621,7 +621,7 @@ namespace DSEDiagnosticLibrary
         public int CompareTo(NodeIdentifier other)
         {
             if (other == null) return 1;
-            
+
             if (this.Equals(other)) return 0;
 
             return this.NodeName().CompareTo(other.NodeName());
@@ -643,7 +643,7 @@ namespace DSEDiagnosticLibrary
             this.EventTimeLocal = eventTimeLocal;
             this.DetectedByNode = detectedByNode;
 
-            if(duration.HasValue)
+            if (duration.HasValue)
             {
                 if (duration.Value.TotalMilliseconds >= 0d)
                 {
@@ -651,7 +651,7 @@ namespace DSEDiagnosticLibrary
                     if (this.Duration.Value > LibrarySettings.NodeDetectedLongPuaseThreshold) this.State |= DetectedStates.LongPause;
                 }
                 else
-                    this.Duration = null;                
+                    this.Duration = null;
             }
         }
 
@@ -663,7 +663,7 @@ namespace DSEDiagnosticLibrary
             NotResponding = 0x0002,
             Down = 0x0004,
             Up = 0x0008,
-            Shutdown = 0x0010 | Down,            
+            Shutdown = 0x0010 | Down,
             Started = 0x0020 | Up,
             Restarted = 0x0100 | Started,
             GCPause = 0x0040 | NotResponding,
@@ -683,11 +683,11 @@ namespace DSEDiagnosticLibrary
                 case DetectedStates.None:
                     break;
                 case DetectedStates.Dead:
-                    return 3;                    
+                    return 3;
                 case DetectedStates.NotResponding:
                     return 2;
                 case DetectedStates.Down:
-                    return 1;                    
+                    return 1;
                 case DetectedStates.Up:
                     return 7;
                 case DetectedStates.Shutdown:
@@ -719,13 +719,13 @@ namespace DSEDiagnosticLibrary
         {
             if (other == null) return 1;
 
-            if(this.State == other.State
+            if (this.State == other.State
                 && this.EventTime == other.EventTime)
             {
                 var sortOrder = this.SortOrder();
                 var otherSortOrder = other.SortOrder();
 
-                if(sortOrder == otherSortOrder)
+                if (sortOrder == otherSortOrder)
                 {
                     if (this.DetectedByNode == other.DetectedByNode)
                         return 0;
@@ -774,7 +774,7 @@ namespace DSEDiagnosticLibrary
 
         public override bool Equals(object obj)
         {
-            if(obj is NodeStateChange n)
+            if (obj is NodeStateChange n)
             {
                 return this.Equals(n);
             }
@@ -805,29 +805,29 @@ namespace DSEDiagnosticLibrary
     }
 
     [JsonObject(MemberSerialization.OptOut)]
-	public sealed class MachineInfo
-	{
+    public sealed class MachineInfo
+    {
         [JsonObject(MemberSerialization.OptOut)]
         public sealed class CPUInfo
-		{
-			public string Architecture;
+        {
+            public string Architecture;
             public uint? Cores;
-		}
+        }
 
         [JsonObject(MemberSerialization.OptOut)]
         public sealed class CPULoadInfo
-		{
+        {
             public UnitOfMeasure Average;
             public UnitOfMeasure Idle;
             public UnitOfMeasure System;
             public UnitOfMeasure User;
             public UnitOfMeasure IOWait;
             public UnitOfMeasure StealTime;
-		}
+        }
 
         [JsonObject(MemberSerialization.OptOut)]
         public sealed class MemoryInfo
-		{
+        {
             public UnitOfMeasure PhysicalMemory;
             public UnitOfMeasure Available;
             public UnitOfMeasure Cache;
@@ -835,19 +835,19 @@ namespace DSEDiagnosticLibrary
             public UnitOfMeasure Shared;
             public UnitOfMeasure Free;
             public UnitOfMeasure Used;
-		}
+        }
 
         [JsonObject(MemberSerialization.OptOut)]
         public sealed class JavaInfo
-		{
+        {
             [JsonObject(MemberSerialization.OptOut)]
             public struct MemoryInfo
-			{
+            {
                 public UnitOfMeasure Committed;
                 public UnitOfMeasure Initial;
                 public UnitOfMeasure Maximum;
                 public UnitOfMeasure Used;
-			}
+            }
 
             public string Vendor;
             public int? Model;
@@ -856,11 +856,11 @@ namespace DSEDiagnosticLibrary
             public string GCType;
             public MemoryInfo NonHeapMemory;
             public MemoryInfo HeapMemory;
-		}
+        }
 
         [JsonObject(MemberSerialization.OptOut)]
         public sealed class NTPInfo
-		{
+        {
             [JsonConverter(typeof(IPAddressJsonConverter))]
             public IPAddress NTPServer;
             public int? Stratum;
@@ -872,7 +872,7 @@ namespace DSEDiagnosticLibrary
             public UnitOfMeasure Precision;
             public UnitOfMeasure Frequency;
             public UnitOfMeasure Tolerance;
-		}
+        }
 
         [JsonObject(MemberSerialization.OptOut)]
         public sealed class DeviceInfo
@@ -920,7 +920,7 @@ namespace DSEDiagnosticLibrary
                     if (string.IsNullOrEmpty(this._timezoneName))
                     {
                         if (Node.DefaultTimeZones != null && Node.DefaultTimeZones.Length > 0)
-                        {                            
+                        {
                             this.ExplictTimeZone = Node.DefaultTimeZones.FindDefaultTimeZone(this._assocatedNode.Id.NodeName());
                         }
 
@@ -937,7 +937,7 @@ namespace DSEDiagnosticLibrary
                     }
                 }
                 return this._explictTimeZone;
-            }            
+            }
         }
 
         /// <summary>
@@ -998,18 +998,18 @@ namespace DSEDiagnosticLibrary
         public JavaInfo Java;
         public DeviceInfo Devices;
         public NTPInfo NTP;
-	}
+    }
 
     [JsonObject(MemberSerialization.OptOut)]
     public sealed class DSEInfo
-	{
+    {
         public static DateTimeOffset? NodeToolCaptureTimestamp = null;
 
         [Flags]
-		public enum InstanceTypes
-		{
+        public enum InstanceTypes
+        {
 
-			Unkown = 0,
+            Unkown = 0,
             Cassandra = 0x0001,
             Search = 0x0002,
             Analytics = 0x0004,
@@ -1034,17 +1034,17 @@ namespace DSEDiagnosticLibrary
             SearchAnalytics_SM = Search | Analytics | SM
         }
 
-		public enum DSEStatuses
-		{
+        public enum DSEStatuses
+        {
             Unknown = 0,
             Up,
             Down
-		}
+        }
 
         [JsonObject(MemberSerialization.OptOut)]
         public sealed class VersionInfo
-		{
-			public Version DSE;
+        {
+            public Version DSE;
             public Version Cassandra;
             public Version Search;
             public Version Analytics;
@@ -1058,7 +1058,7 @@ namespace DSEDiagnosticLibrary
 
                 var parts = version.Split('.');
 
-                if(parts.Length > 4)
+                if (parts.Length > 4)
                 {
                     parts = new string[] { parts[0], parts[1], parts[2], parts[3] };
                 }
@@ -1073,17 +1073,17 @@ namespace DSEDiagnosticLibrary
 
                 try
                 {
-                    schemaVersion = new Guid(version);    
+                    schemaVersion = new Guid(version);
                 }
                 catch
                 {
                     return null;
                 }
-              
+
                 return schemaVersion;
             }
         }
-        
+
         [JsonObject(MemberSerialization.OptOut)]
         public sealed class DirectoryLocations
         {
@@ -1097,11 +1097,11 @@ namespace DSEDiagnosticLibrary
 
         [JsonObject(MemberSerialization.OptOut)]
         public sealed class DeviceLocations
-        {            
-            public IEnumerable<string> Others; 
-            public IEnumerable<string> Data; 
-            public string CommitLog; 
-            public string SavedCache; 
+        {
+            public IEnumerable<string> Others;
+            public IEnumerable<string> Data;
+            public string CommitLog;
+            public string SavedCache;
         }
 
         public DSEInfo()
@@ -1175,16 +1175,16 @@ namespace DSEDiagnosticLibrary
         public long KeyCount;
         public long SSTableCount;
 
-        [JsonProperty(PropertyName="TokenRanges")]
+        [JsonProperty(PropertyName = "TokenRanges")]
         private readonly List<TokenRangeInfo> _tokenRanges = new List<TokenRangeInfo>();
         [JsonIgnore]
         public IEnumerable<TokenRangeInfo> TokenRanges { get { return this._tokenRanges; } }
-        
+
         public TokenRangeInfo AddTokenPair(string start, string end, string tokenLoad)
         {
             var range = TokenRangeInfo.CreateTokenRange(start, end, tokenLoad);
 
-            if(this._tokenRanges.Any(r => r.IsWithinRange(range)))
+            if (this._tokenRanges.Any(r => r.IsWithinRange(range)))
             {
                 throw new ArgumentException(string.Format("Range {0} is within Current Token Ranges for this node.", range), "start,end,load");
             }
@@ -1192,24 +1192,24 @@ namespace DSEDiagnosticLibrary
             this._tokenRanges.Add(range);
 
             return range;
-        }        
+        }
     }
 
     [JsonObject(MemberSerialization.OptOut)]
     public sealed class AnalyticsInfo
-    {       
+    {
         public AnalyticsInfo()
         {
             this.RunningTotalProperties = new Dictionary<string, object>();
         }
 
-        public IDictionary<string,object> RunningTotalProperties
+        public IDictionary<string, object> RunningTotalProperties
         {
             get;
         }
 
     }
-
+    
     [JsonObject(MemberSerialization.OptOut)]
     public sealed class LogFileInfo
     {
@@ -1293,9 +1293,20 @@ namespace DSEDiagnosticLibrary
 
         AnalyticsInfo Analytics { get; }
 
-		IEnumerable<IMMLogValue> LogEvents { get; }
+        /// <summary>
+        /// If true event memory is mapped to virtual memory (false indicates event memory is in physical memory)
+        /// </summary>
+        bool IsMemoryMapped { get; }
+
+        
+        IEnumerable<IMMLogValue> LogEvents { get; }
         IEnumerable<IMMLogValue> LogEventsCache(LogCassandraEvent.ElementCreationTypes creationType, bool presistCache = false, bool safeRead = true);
         IEnumerable<IMMLogValue> LogEventsRead(LogCassandraEvent.ElementCreationTypes creationType, bool safeRead = true);
+
+        void BeginBatchUpdate();
+        bool EndBatchUpdate();
+
+        bool WaitBatchUpdateCompletion(System.Threading.CancellationToken? cancelToken = null);
 
         INode AssociateItem(IMMLogValue eventItems);
         IMMLogValue AssociateItem(ILogEvent eventItems);
@@ -1537,21 +1548,98 @@ namespace DSEDiagnosticLibrary
         private readonly CMM.List<LogCassandraEvent,ILogEvent> _eventsCMM;
         private readonly  CTS.List<IMMLogValue> _eventsCTS;
 
+        /// <summary>
+        /// If true event memory is mapped to virtual memory (false indicates event memory is in physical memory)
+        /// </summary>
+        [JsonIgnore]
+        public bool IsMemoryMapped
+        {   
+            get { return this._eventsCMM != null; }
+        }
+
         [JsonIgnore]
         public IEnumerable<IMMLogValue> LogEvents { get { return this._eventsCMM?.ToEnumerable() ?? (IEnumerable<IMMLogValue>) this._eventsCTS; } }
 
         public IEnumerable<IMMLogValue> LogEventsCache(LogCassandraEvent.ElementCreationTypes creationType, bool presistCache = false, bool safeRead = true)
         {
-            if(this._eventsCMM == null) return safeRead ? (IEnumerable<IMMLogValue>)this._eventsCTS : (IEnumerable<IMMLogValue>)this._eventsCTS.UnSafe;
+            if (this._eventsCMM == null)
+            {
+                if (safeRead)
+                {
+                    return (IEnumerable<IMMLogValue>)this._eventsCTS;
+                }
+                else
+                {
+                    this.WaitBatchUpdateCompletion();
+                    return (IEnumerable<IMMLogValue>)this._eventsCTS.UnSafe;
+                }
+            }
 
             return this._eventsCMM.ToEnumerableCached((Common.Patterns.Collections.MemoryMapperElementCreationTypes)creationType, presistCache);
         }
 
         public IEnumerable<IMMLogValue> LogEventsRead(LogCassandraEvent.ElementCreationTypes creationType, bool safeRead = true)
         {
-            if (this._eventsCMM == null) return safeRead ? (IEnumerable<IMMLogValue>)this._eventsCTS : (IEnumerable<IMMLogValue>)this._eventsCTS.UnSafe;
+            if (this._eventsCMM == null)
+            {
+                if (safeRead)
+                    return (IEnumerable<IMMLogValue>)this._eventsCTS;
+                else
+                {
+                    this.WaitBatchUpdateCompletion();
+                    return (IEnumerable<IMMLogValue>)this._eventsCTS.UnSafe;
+                }
+            }
 
             return this._eventsCMM.ToEnumerable((Common.Patterns.Collections.MemoryMapperElementCreationTypes)creationType);
+        }
+
+        private System.Threading.ManualResetEvent batchUpdateSignalEventRead { get; } = new System.Threading.ManualResetEvent(true);
+        private Int32 batchEntryCnt = 0;
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="cancelToken"></param>
+        /// <returns></returns>
+        public void BeginBatchUpdate()
+        {            
+            lock(this.batchUpdateSignalEventRead)
+            {
+                var refCnt = System.Threading.Interlocked.Increment(ref this.batchEntryCnt);
+
+                if (refCnt == 1)
+                {
+                    this.batchUpdateSignalEventRead.Reset();                                        
+                }
+            }           
+        }
+        public bool EndBatchUpdate()
+        {            
+            lock (this.batchUpdateSignalEventRead)
+            {
+                var refCnt = System.Threading.Interlocked.Decrement(ref this.batchEntryCnt);
+
+                if (refCnt <= 0)
+                {
+                    this.batchEntryCnt = 0;
+                    this.batchUpdateSignalEventRead.Set();
+                    return true;
+                }                
+            }
+
+            return false;
+        }
+        public bool WaitBatchUpdateCompletion(System.Threading.CancellationToken? cancelToken = null)
+        {
+            if(cancelToken.HasValue)
+            {
+                int handlePos = System.Threading.WaitHandle.WaitAny(new System.Threading.WaitHandle[] { this.batchUpdateSignalEventRead, cancelToken.Value.WaitHandle });
+                cancelToken.Value.ThrowIfCancellationRequested();
+                return true;
+            }
+
+            return this.batchUpdateSignalEventRead.WaitOne();
         }
 
         public INode AssociateItem(IMMLogValue eventItems)
@@ -1670,7 +1758,14 @@ namespace DSEDiagnosticLibrary
         private CTS.List<NodeStateChange> _stateChanges = new CTS.List<NodeStateChange>();
 
         [JsonIgnore]
-        public IEnumerable<NodeStateChange> StateChanges { get { return this._stateChanges.UnSafe; } }
+        public IEnumerable<NodeStateChange> StateChanges
+        {
+                get {
+                        this.WaitBatchUpdateCompletion();
+      
+                        return this._stateChanges.UnSafe;
+                    }
+        }
 
         public INode AssociateItem(NodeStateChange stateChange)
         {

@@ -326,7 +326,7 @@ namespace DSEDiagnosticToDataTable
                                                                             .Sum(),                                                    
                                           NbrCompStorageWarnings = grpNbrCompSpaceWarnings.Count()
                                       }).ToArray();
-                var logEvtsCollection = (from logEvt in this.Cluster.GetAllEventsReadOnly()
+                var logEvtsCollection = (from logEvt in this.Cluster.GetAllEventsReadOnly(DSEDiagnosticLibrary.LogCassandraEvent.ElementCreationTypes.DCNodeKSDDLTypeClassOnly)
                                          group logEvt by logEvt.DataCenter into dcGrp
                                          let logDCEvts = dcGrp.Where(dcItem => dcItem.Class.HasFlag(EventClasses.Compaction)
                                                                                  || dcItem.Class.HasFlag(EventClasses.Flush)

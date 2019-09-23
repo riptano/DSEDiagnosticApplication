@@ -176,7 +176,7 @@ namespace DSEDiagnosticToDataTable
 
                 Logger.Instance.InfoFormat("Loading Keyspace Information for Cluster \"{0}\"", this.Cluster.Name);
                 
-                var logEvtsCollection = (from logEvt in this.Cluster.GetAllEventsReadOnly()
+                var logEvtsCollection = (from logEvt in this.Cluster.GetAllEventsReadOnly(DSEDiagnosticLibrary.LogCassandraEvent.ElementCreationTypes.DCNodeKSDDLTypeClassOnly)
                                          where logEvt.Keyspace != null
                                                     && (logEvt.Class.HasFlag(DSEDiagnosticLibrary.EventClasses.Compaction)
                                                             || logEvt.Class.HasFlag(DSEDiagnosticLibrary.EventClasses.Flush)

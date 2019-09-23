@@ -55,7 +55,7 @@ namespace DSEDiagnosticConsoleApplication
                 }
 
                 var loadDataTables = new DSEDiagnosticToDataTable.IDataTable[]
-                {                    
+                {                   
                 };
 
                 var loadDataTablesWaitLogAnalysis = new DSEDiagnosticToDataTable.IDataTable[]

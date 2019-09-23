@@ -167,6 +167,7 @@ namespace DSEDiagnosticFileParser
                 this.Path = fileInstance.File;
                 this.Node = fileInstance.Node;
                 this.OrphanedSessionEvents = fileInstance._orphanedSessionEvents;
+                this.CancellationToken = fileInstance.CancellationToken;
             }
 
             public readonly IEnumerable<LogCassandraEvent> OrphanedSessionEvents;
@@ -186,6 +187,8 @@ namespace DSEDiagnosticFileParser
 
             #endregion
 
+            public System.Threading.CancellationToken CancellationToken { get; set; }
+
             [JsonIgnore]
             public Task<IEnumerable<IMMLogValue>> ResultsTask { get; private set; }
 
@@ -197,11 +200,19 @@ namespace DSEDiagnosticFileParser
                                         var logEvts = eventList.Where(e => !e.TempEvent);
                                         var mmEvents = new List<IMMLogValue>();
 
-                                        logEvts.ForEach(e =>
+                                        node.BeginBatchUpdate();
+                                        try
                                         {
-                                            mmEvents.Add(node.AssociateItem(e));
-                                        });
-
+                                            logEvts.ForEach(e =>
+                                            {
+                                                this.CancellationToken.ThrowIfCancellationRequested();
+                                                mmEvents.Add(node.AssociateItem(e));
+                                            });
+                                        }
+                                        finally
+                                        {
+                                            node.EndBatchUpdate();
+                                        }
                                         eventList.Clear();
                                         return (IEnumerable<IMMLogValue>) mmEvents;
                                     });

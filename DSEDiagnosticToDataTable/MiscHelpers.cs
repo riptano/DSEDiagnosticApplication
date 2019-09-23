@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Data;
 using DSEDiagnosticLibrary;
+using CTS = Common.Patterns.Collections.ThreadSafe;
 
 namespace DSEDiagnosticToDataTable
 {
@@ -248,31 +249,55 @@ namespace DSEDiagnosticToDataTable
             return copiedColumns;
         }
 
+        private static int? EventsReadOnlyCacheType = null;
+        private readonly static CTS.Dictionary<DSEDiagnosticLibrary.LogCassandraEvent.ElementCreationTypes, ILogEvent[]> EventsReadOnlyCacheMM = new CTS.Dictionary<DSEDiagnosticLibrary.LogCassandraEvent.ElementCreationTypes, ILogEvent[]>();
         private static ILogEvent[] EventsReadOnlyCache = new ILogEvent[0];
+
         internal static IEnumerable<ILogEvent> GetAllEventsReadOnly(this Cluster cluster,
-                                                                        bool useCache = true,
-                                                                        DSEDiagnosticLibrary.LogCassandraEvent.ElementCreationTypes elementCreationTypes = DSEDiagnosticLibrary.LogCassandraEvent.ElementCreationTypes.DCNodeKSDDLTypeClassOnly)
+                                                                        DSEDiagnosticLibrary.LogCassandraEvent.ElementCreationTypes elementCreationType,
+                                                                        bool useCache = true)
         {
             if(useCache)
             {
-                if(EventsReadOnlyCache.Length == 0)
+                
+                if(!EventsReadOnlyCacheType.HasValue)
                 {
-                    lock (EventsReadOnlyCache)
+                    lock (EventsReadOnlyCacheMM)
                     {
-                        if (EventsReadOnlyCache.Length == 0)
-                            EventsReadOnlyCache = cluster.Nodes
-                                                        .SelectMany(d => ((DSEDiagnosticLibrary.Node)d).LogEventsRead(elementCreationTypes, false)
+                        if (!EventsReadOnlyCacheType.HasValue)
+                        {
+                            bool usingEventMemoryMap = cluster.Nodes.All(n => n.IsMemoryMapped);
+
+                            if (usingEventMemoryMap)
+                                EventsReadOnlyCacheType = 0;
+                            else
+                            {
+                                EventsReadOnlyCacheType = 1;
+                                EventsReadOnlyCache = cluster.Nodes
+                                                        .SelectMany(d => ((DSEDiagnosticLibrary.Node)d).LogEventsRead(elementCreationType, false)
                                                                             .ToArray()
                                                                             .Select(v => v.Value))
                                                         .ToArray();
+                            }
+                        }
                     }
+                }
+
+                if (EventsReadOnlyCacheType.Value == 0)
+                {
+                    return EventsReadOnlyCacheMM.GetOrAdd(elementCreationType, creationType =>
+                        cluster.Nodes
+                                .SelectMany(d => ((DSEDiagnosticLibrary.Node)d).LogEventsRead(creationType, false)
+                                                    .ToArray()
+                                                    .Select(v => v.Value))
+                                .ToArray());
                 }
 
                 return EventsReadOnlyCache;
             }
 
             return cluster.Nodes
-                    .SelectMany(d => ((DSEDiagnosticLibrary.Node)d).LogEventsRead(elementCreationTypes, false)
+                    .SelectMany(d => ((DSEDiagnosticLibrary.Node)d).LogEventsRead(elementCreationType, false)
                                         .ToArray()
                                         .Select(v => v.Value))
                     .ToArray();

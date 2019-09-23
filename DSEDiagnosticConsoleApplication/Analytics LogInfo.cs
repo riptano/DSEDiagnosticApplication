@@ -20,7 +20,19 @@ namespace DSEDiagnosticConsoleApplication
                 var cluster = DSEDiagnosticLibrary.Cluster.GetCurrentOrMaster();
                 var analyticInstance = new DSEDiagnosticAnalytics.LogFileStats(cluster, cancellationSource.Token);
 
-                return analyticInstance.ComputeStats();
+                var logStats = analyticInstance.ComputeStats();
+                var diagLogTasks = diagParserTask.Result
+                                            .Where(tsk => tsk is DSEDiagnosticFileParser.file_cassandra_log4net)
+                                            .Cast<DSEDiagnosticFileParser.file_cassandra_log4net>()
+                                            .Select(tsk => tsk.Result)
+                                            .Cast<DSEDiagnosticFileParser.file_cassandra_log4net.LogResults>()
+                                            .Select(result => result.ResultsTask)
+                                            .Where(result => result != null)
+                                            .ToArray();
+
+                System.Threading.Tasks.Task.WaitAll(diagLogTasks);
+
+                return logStats;
             },
                                         null,
                                         cancellationSource.Token,
