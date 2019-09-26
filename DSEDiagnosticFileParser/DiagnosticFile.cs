@@ -16,7 +16,7 @@ using Newtonsoft.Json;
 namespace DSEDiagnosticFileParser
 {
     [JsonObject(MemberSerialization.OptOut)]
-    public abstract class DiagnosticFile
+    public abstract class DiagnosticFile : IDiagnosticProcess
     {
 		public enum CatagoryTypes
 		{
@@ -293,12 +293,14 @@ namespace DSEDiagnosticFileParser
         public bool Canceled { get; protected set; }
         [JsonIgnore]
         public Task<DiagnosticFile> Task { get; protected set; }
+        [JsonIgnore]
+        public Task DiagnosticTask { get { return this.Task; } }
 
         [JsonIgnore]
         public TaskScheduler TaskScheduler { get; protected set; }
 
         public IResult Result { get { return this.GetResult(); } }
-
+        public object Tag { get; set; }
         #endregion
 
         #region static

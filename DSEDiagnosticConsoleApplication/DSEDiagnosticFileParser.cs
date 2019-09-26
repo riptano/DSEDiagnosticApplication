@@ -36,6 +36,17 @@ namespace DSEDiagnosticConsoleApplication
             return agentDirs;
         }
 
+        static void CassandraLogEventHandler(DSEDiagnosticFileParser.file_cassandra_log4net sender,
+                                                DSEDiagnosticFileParser.file_cassandra_log4net.LogProcessingCreationArgs eventArgs)
+        {
+            var logEvtAnalytics = new DSEDiagnosticAnalytics.CassandraLogEvent(sender);
+
+            sender.OnLogEvent += logEvtAnalytics.LogEventCallBack;
+            sender.Tag = logEvtAnalytics;
+
+            Logger.Instance.InfoFormat("Registering CassandraLogEvent Analytics to LogFile {0}", sender.ShortFilePath);
+        }
+
         static Task<IEnumerable<DSEDiagnosticFileParser.DiagnosticFile>> ProcessDSEDiagnosticFileParser(System.Threading.CancellationTokenSource cancellationSource)
         {
             string defaultCluster = null;
@@ -104,8 +115,8 @@ namespace DSEDiagnosticConsoleApplication
             }
 
             DSEDiagnosticFileParser.LibrarySettings.IgnoreWarningsErrosInKeySpaces = ParserSettings.IgnoreKeySpaces;
-            DSEDiagnosticFileParser.file_cassandra_log4net.OnLogProcessingCreation += DSEDiagnosticAnalytics.CassandraLogEvent.LogEventCreationCallBack;
-
+            DSEDiagnosticFileParser.file_cassandra_log4net.OnLogProcessingCreation += CassandraLogEventHandler;
+            
             var diagParserTask = DSEDiagnosticFileParser.DiagnosticFile.ProcessFile(ParserSettings.DiagnosticPath,
                                                                                      clusterName: ParserSettings.ClusterName ?? defaultCluster,
                                                                                      clusterHashCode: ParserSettings.ClusterHashCode,
@@ -127,7 +138,11 @@ namespace DSEDiagnosticConsoleApplication
                     }
                 }
             });
-            diagParserTask.ContinueWith(task => DSEDiagnosticAnalytics.CassandraLogEvent.CleanUp(),
+            diagParserTask.ContinueWith(task =>
+                {
+                    DSEDiagnosticFileParser.file_cassandra_log4net.OnLogProcessingCreation -= CassandraLogEventHandler;
+                    DSEDiagnosticAnalytics.CassandraLogEvent.CleanUp();
+                },
                                             TaskContinuationOptions.OnlyOnRanToCompletion);
             diagParserTask.Then(ignore => { ConsoleTasksReadFiles.Terminate(); ConsoleLogReadFiles.Terminate(); ConsoleDeCompressFiles.Terminate(); });
 

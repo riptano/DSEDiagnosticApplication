@@ -14,29 +14,44 @@ using CTS = Common.Patterns.Collections.ThreadSafe;
 
 namespace DSEDiagnosticAnalytics
 {
+    public interface ICassandraLogEventCallBack
+    {
+        #region Properties
+
+        /// <summary>
+        /// Actual Log4 parsed message
+        /// </summary>
+        ILogMessage LogMessage { get; }
+
+        /// <summary>
+        /// The generated Log Event based on the LogMessage.
+        /// </summary>
+        LogCassandraEvent LogEvent { get; }
+
+        IEnumerable<LogCassandraEvent> OrphanedLogEvents { get; }
+
+        IList<LogCassandraEvent> LogEvents { get; }
+
+        /// <summary>
+        /// If true the event is associated to the node (default). If false it is not (log event is ignored).
+        /// </summary>
+        bool AllowNodeAssocation { get; set; }
+
+        #endregion //end of Properties
+
+    }
+
+   
     public sealed class CassandraLogEvent : AnalyzeData, IDisposable
     {
         static readonly IEnumerable<int> EmptyReconciliationRefs = Enumerable.Empty<int>();
 
-        public CassandraLogEvent(DSEDiagnosticFileParser.file_cassandra_log4net associatedEventParser)
+        public CassandraLogEvent(IDiagnosticProcess associatedEventParser)
             : base(associatedEventParser.Node, associatedEventParser.CancellationToken)
         {
             
         }
-
-        public static void LogEventCreationCallBack(DSEDiagnosticFileParser.file_cassandra_log4net sender, DSEDiagnosticFileParser.file_cassandra_log4net.LogProcessingCreationArgs eventArgs)
-        {
-            var logEvtAnalytics = new CassandraLogEvent(sender);
-
-            sender.OnLogEvent += logEvtAnalytics.LogEventCallBack;
-            sender.Tag = logEvtAnalytics;
-
-            if(Logger.Instance.IsDebugEnabled)
-            {
-                Logger.Instance.DebugFormat("Registering CassandraLogEvent Analytics to LogFile {0}", sender.ShortFilePath);
-            }           
-        }
-
+       
         #region Stats
 
         /// <summary>
@@ -260,10 +275,8 @@ namespace DSEDiagnosticAnalytics
 
         #region Members
 
-        public DSEDiagnosticFileParser.file_cassandra_log4net EventParser { get; }
-
-        public IFilePath LogFilePath { get { return this.EventParser?.File; } }
-
+        public IDiagnosticProcess EventParser { get; }
+        
         public static CTS.Dictionary<Tuple<INode,EventClasses,int,int>, AggregatedStats> AggregatedStats = new CTS.Dictionary<Tuple<INode, EventClasses,int,int>, AggregatedStats>();
 
         public static CTS.Dictionary<INode, Tuple<GCStat,GCStat>> GCStats = new CTS.Dictionary<INode, Tuple<GCStat, GCStat>>();
@@ -382,7 +395,7 @@ namespace DSEDiagnosticAnalytics
 
         static readonly int LogAggNodeStatMbrLimitTake = (int)(Properties.Settings.Default.LogAggregationNodeStatMbrLimit * Properties.Settings.Default.LogAggregationNodeStatMbrLimitTakeNItemsPercent);
 
-        public void LogEventCallBack(DSEDiagnosticFileParser.file_cassandra_log4net sender, DSEDiagnosticFileParser.file_cassandra_log4net.LogEventArgs eventArgs)
+        public void LogEventCallBack(IDiagnosticProcess sender, ICassandraLogEventCallBack eventArgs)
         {
             if (eventArgs.LogEvent == null) return;
 
@@ -631,8 +644,9 @@ namespace DSEDiagnosticAnalytics
 
             if ((eventArgs.LogEvent.Class & EventClasses.Repair) == EventClasses.Repair)
             {
+                object status = null;
                 if((eventArgs.LogEvent.Type & EventTypes.SessionEnd) == EventTypes.SessionEnd
-                        && eventArgs.LogEvent.LogProperties.TryGetValue("status", out object status)
+                        && eventArgs.LogEvent.LogProperties.TryGetValue("status", out status)
                         && status != null
                         && status is string
                         && ((string)status).StartsWith("success"))
@@ -717,12 +731,7 @@ namespace DSEDiagnosticAnalytics
 	            {
 		
 		            if(disposing)
-		            {
-			            // Dispose all managed resources.
-			            if(this.EventParser != null && !this.EventParser.Disposed)
-                        {
-                            this.EventParser.OnLogEvent -= this.LogEventCallBack;
-                        }
+		            {			           
 		            }
 
 		            //Dispose of all unmanaged resources

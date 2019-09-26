@@ -93,6 +93,7 @@
     <Compile Include="DDL.cs" />
     <Compile Include="Event.cs" />
     <Compile Include="GlobalSuppressions.cs" />
+    <Compile Include="IDiagnosticProcess.cs" />
     <Compile Include="IProperties.cs" />
     <Compile Include="IResult.cs" />
     <Compile Include="JsonConverter.cs" />

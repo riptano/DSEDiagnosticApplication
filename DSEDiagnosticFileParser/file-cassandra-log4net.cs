@@ -298,14 +298,12 @@ namespace DSEDiagnosticFileParser
         {
             get;
             set;
-        } = LibrarySettings.LogIgnoreParsingErrors;
-
-        public object Tag { get; set; }
+        } = LibrarySettings.LogIgnoreParsingErrors;        
 
         #region Event Handlers/Class
 
         [System.Diagnostics.DebuggerNonUserCode]
-        public sealed class LogEventArgs : System.EventArgs
+        public sealed class LogEventArgs : System.EventArgs, DSEDiagnosticAnalytics.ICassandraLogEventCallBack
         {
             #region Properties
 
