@@ -1760,6 +1760,8 @@ namespace DSEDiagnosticFileParser
                                                                                         bool onlyMatch = false)
         {
             Tuple<Regex, Match, Regex, Match, CLogLineTypeParser> returnValue = null;
+            List<CLogLineTypeParser> parsingFailed = null;
+
             //var parallelOptions = new ParallelOptions();
             //parallelOptions.CancellationToken = cancellationToken;
 
@@ -1794,16 +1796,27 @@ namespace DSEDiagnosticFileParser
                                                                                                     parserItem);
                         //loopState.Stop();
                         //return;
+                        parsingFailed = null;
                         break;
                     }
                     else
                     {
-                        Logger.Instance.WarnFormat("Parsing of Log line \"{0}\" was matched but parsing failed for \"{1}\". Log Line parsing for this line will be skipped.",
-                                                     logEvent.ToString(),
-                                                     parserItem.ToShortString());                        
+                        if (parsingFailed == null)
+                            parsingFailed = new List<CLogLineTypeParser>();
+                        parsingFailed.Add(parserItem);                                                
                     }
                 }               
             }//);
+
+            if(parsingFailed != null)
+            {
+                foreach (var failedItem in parsingFailed)
+                {
+                    Logger.Instance.WarnFormat("Parsing of Log line \"{0}\" was matched but parsing failed for \"{1}\". Log Line parsing for this line will be skipped.",
+                                                    logEvent.ToString(),
+                                                    failedItem.ToShortString());
+                }
+            }
 
             return returnValue;
         }

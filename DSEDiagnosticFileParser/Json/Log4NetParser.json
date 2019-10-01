@@ -2071,7 +2071,7 @@ Additinal group names and mappings:
       },
       "ParseMessage": {
         "RegExStrings": [
-          "^Trying\\sto\\sload\\sresource\\s(?<tag>(?<solrconfigfile>[^ ]+))\\sfor\\score\\s(?$<DDLITEMNAME>)\\sby\\squerying\\sfrom\\slocal\\snode\\swith\\sCL\\s(?<consistencylevel>[^ ]+)"
+          "^Trying\\sto\\sload\\sresource\\s(?<tag>(?<solrconfigfile>[^ ]+))\\sfor\\score\\s(?$<DDLITEMNAME>)\\sby\\squerying\\sfrom\\slocal\\snode\\swith\\sCL\\s(?<consistencylevel>[^ ]+)"          
         ]
       },
       "ParseThreadId": null,
@@ -2084,6 +2084,7 @@ Additinal group names and mappings:
       "SessionKeyAction": "Add",
       "Examples": [
         "=> INFO  [http-10.13.110.134-8983-1] 2018-05-18 14:35:18,860  SolrCoreResourceManager.java:703 - Trying to load resource solrconfig.xml.bak for core connext_portal.book_of_business_summary_by_agentpartyid by querying from local node with CL QUORUM",
+        "INFO  [SecondaryIndexManagement:1] 2019-09-10 03:48:09,736  SolrCoreResourceManager.java:728 - Trying to load resource dse-search.properties for core pvhd_cvx_graph.acd_audits by looking for legacy resources...",
         "INFO  [http-10.13.110.134-8983-1] 2018-05-18 14:35:18,876  SolrCoreResourceManager.java:718 - Successfully loaded resource solrconfig.xml.bak for core connext_portal.book_of_business_summary_by_agentpartyid by querying from local node.",
         "INFO  [http-10.13.110.134-8983-1] 2018-05-18 14:35:18,877  SolrCoreResourceManager.java:757 - Successfully loaded resource solrconfig.xml.bak for core connext_portal.book_of_business_summary_by_agentpartyid"
       ]
@@ -2127,6 +2128,42 @@ Additinal group names and mappings:
         "INFO  [http-10.13.110.134-8983-1] 2018-05-18 14:35:18,876  SolrCoreResourceManager.java:718 - Successfully loaded resource solrconfig.xml.bak for core connext_portal.book_of_business_summary_by_agentpartyid by querying from local node.",
         "=> INFO  [http-10.13.110.134-8983-1] 2018-05-18 14:35:18,877  SolrCoreResourceManager.java:757 - Successfully loaded resource solrconfig.xml.bak for core connext_portal.book_of_business_summary_by_agentpartyid",
         "=> INFO  [RemoteMessageServer query worker - 4] 2018-10-10 19:15:29,263  SolrCoreResourceManager.java:758 - Successfully loaded resource solrconfig.xml for core newsptn11.sptn_person by querying from local node."
+      ]
+    },
+    {
+      "Description": "Solr Resouce loading (load resouce)",
+      "TagId": 26.01,
+      "MatchVersion": null,
+      "LevelMatch": {
+        "RegExStrings": [
+          "INFO"
+        ]
+      },
+      "ThreadIdMatch": null,
+      "FileNameMatch": {
+        "RegExStrings": [
+          "^SolrCoreResourceManager.java$"
+        ]
+      },
+      "FileLineMatch": null,
+      "MessageMatch": {
+        "RegExStrings": [
+          "^Trying\\sto\\sload\\sresource\\s"
+        ]
+      },
+      "ParseMessage": {
+        "RegExStrings": [
+          "^Trying\\sto\\sload\\sresource\\s(?<tag>(?<solrconfigfile>[^ ]+))\\sfor\\score\\s(?$<DDLITEMNAME>)\\sby\\slooking\\sfor\\s(?<action>.+)"
+        ]
+      },
+      "ParseThreadId": null,
+      "EventType": "SingleInstance",
+      "EventClass": "Solr, Config",
+      "SubClass": "'Load Resource ' + action",
+      "AssociateEventToNode": false,
+      "Product": "Search",     
+      "Examples": [
+        "=> INFO  [SecondaryIndexManagement:1] 2019-09-10 03:48:09,736  SolrCoreResourceManager.java:728 - Trying to load resource dse-search.properties for core pvhd_cvx_graph.acd_audits by looking for legacy resources..."
       ]
     },
     {
@@ -3084,7 +3121,7 @@ Additinal group names and mappings:
       },
       "ParseMessage": {
         "RegExStrings": [
-          "^Expired\\s+(?<expireddocs>[0-9,]+)\\s+(?<item>\\w+)\\s+\\w+\\s+(?<expireddocsduration_MS>[0-9,.]+\\s*\\w+)\\s+\\w+\\s+core\\s+(?$<DDLITEMNAME>)"
+          "^Expired\\s+(?<expireddocs>[0-9,]+)\\s+(?<item>\\w+)\\s+(?:in\\s+(?<expireddocsduration_MS>[0-9,.]+\\s*\\w+)\\s+)?for\\s+core\\s+(?$<DDLITEMNAME>)"
         ]
       },
       "ParseThreadId": null,
@@ -3101,7 +3138,8 @@ Additinal group names and mappings:
       "Examples": [
         "INFO  [Solr TTL scheduler-0] 2019-03-02 10:04:10,587  AbstractSolrSecondaryIndex.java:1760 - Found 107 rows with expired columns in 1 milliseconds for core click_list_search.most_recent_sub_orders",
         "INFO  [Solr TTL scheduler-0] 2019-03-02 10:04:10,588  AbstractSolrSecondaryIndex.java:1272 - Executing soft commit on index click_list_search.most_recent_sub_orders",
-        "=> INFO  [Solr TTL scheduler-0] 2019-03-02 10:04:10,596  AbstractSolrSecondaryIndex.java:1797 - Expired 107 documents in 8 milliseconds for core click_list_search.most_recent_sub_orders"
+        "=> INFO  [Solr TTL scheduler-0] 2019-03-02 10:04:10,596  AbstractSolrSecondaryIndex.java:1797 - Expired 107 documents in 8 milliseconds for core click_list_search.most_recent_sub_orders",
+        "=> INFO  [Solr TTL scheduler-0] 2019-03-02 10:04:10,596  AbstractSolrSecondaryIndex.java:1797 - Expired 0 documents for core click_list_search.most_recent_sub_orders"
       ]
     },
     {

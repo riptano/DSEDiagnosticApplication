@@ -178,6 +178,10 @@
       "LinkedTagId": 26.0
     },
     {
+      "Description": "Solr Resouce loading (load resouce)",
+      "LinkedTagId": 26.01
+    },
+    {
       "Description": "Solr Resouce loading (completed)",
       "LinkedTagId": 26.1,
       "SessionBeginLinkedTagId": 26.0
