@@ -598,5 +598,32 @@ namespace DSEDiagnosticLibrary.Properties {
                 return ((decimal)(this["DCDQSysDebugLogAvgStateFactor"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0.15")]
+        public decimal DCNodeReadThresholdPct {
+            get {
+                return ((decimal)(this["DCNodeReadThresholdPct"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0.15")]
+        public decimal DCNodeWriteThresholdPct {
+            get {
+                return ((decimal)(this["DCNodeWriteThresholdPct"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("8801")]
+        public ulong UpTimeLogSimilarAttrChar {
+            get {
+                return ((ulong)(this["UpTimeLogSimilarAttrChar"]));
+            }
+        }
     }
 }

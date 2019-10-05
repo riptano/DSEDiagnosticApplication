@@ -251,5 +251,14 @@
     <Setting Name="DCDQSysDebugLogAvgStateFactor" Type="System.Decimal" Scope="Application">
       <Value Profile="(Default)">-0.5</Value>
     </Setting>
+    <Setting Name="DCNodeReadThresholdPct" Type="System.Decimal" Scope="Application">
+      <Value Profile="(Default)">0.15</Value>
+    </Setting>
+    <Setting Name="DCNodeWriteThresholdPct" Type="System.Decimal" Scope="Application">
+      <Value Profile="(Default)">0.15</Value>
+    </Setting>
+    <Setting Name="UpTimeLogSimilarAttrChar" Type="System.UInt64" Scope="Application">
+      <Value Profile="(Default)">8801</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

@@ -133,7 +133,7 @@ namespace DSEDiagnosticToDataTable.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("3.25")]
+        [global::System.Configuration.DefaultSettingValueAttribute("4.25")]
         public decimal DCDQDivideFactor {
             get {
                 return ((decimal)(this["DCDQDivideFactor"]));

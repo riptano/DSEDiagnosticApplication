@@ -252,6 +252,7 @@ namespace DSEDiagnosticToDataTable
         private static int? EventsReadOnlyCacheType = null;
         private readonly static CTS.Dictionary<DSEDiagnosticLibrary.LogCassandraEvent.ElementCreationTypes, ILogEvent[]> EventsReadOnlyCacheMM = new CTS.Dictionary<DSEDiagnosticLibrary.LogCassandraEvent.ElementCreationTypes, ILogEvent[]>();
         private static ILogEvent[] EventsReadOnlyCache = new ILogEvent[0];
+        private static readonly object SyncLock = new object();
 
         internal static IEnumerable<ILogEvent> GetAllEventsReadOnly(this Cluster cluster,
                                                                         DSEDiagnosticLibrary.LogCassandraEvent.ElementCreationTypes elementCreationType,
@@ -262,7 +263,7 @@ namespace DSEDiagnosticToDataTable
                 
                 if(!EventsReadOnlyCacheType.HasValue)
                 {
-                    lock (EventsReadOnlyCacheMM)
+                    lock (SyncLock)
                     {
                         if (!EventsReadOnlyCacheType.HasValue)
                         {
@@ -271,13 +272,13 @@ namespace DSEDiagnosticToDataTable
                             if (usingEventMemoryMap)
                                 EventsReadOnlyCacheType = 0;
                             else
-                            {
-                                EventsReadOnlyCacheType = 1;
+                            {                                
                                 EventsReadOnlyCache = cluster.Nodes
                                                         .SelectMany(d => ((DSEDiagnosticLibrary.Node)d).LogEventsRead(elementCreationType, false)
                                                                             .ToArray()
                                                                             .Select(v => v.Value))
                                                         .ToArray();
+                                EventsReadOnlyCacheType = 1;
                             }
                         }
                     }

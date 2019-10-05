@@ -174,8 +174,8 @@ namespace DSEDiagnosticToDataTable
                     .SetFieldToDecimal("Idle", node.Machine.CPULoad.Idle, convertFromPercent: true)
                     .SetFieldToDecimal("System", node.Machine.CPULoad.System, convertFromPercent: true)
                     .SetFieldToDecimal("User", node.Machine.CPULoad.User, convertFromPercent: true)
-                    .SetFieldToDecimal("IOWait", node.Machine.CPULoad.User, convertFromPercent: true)
-                    .SetFieldToDecimal("StealTime", node.Machine.CPULoad.User, convertFromPercent: true);
+                    .SetFieldToDecimal("IOWait", node.Machine.CPULoad.IOWait, convertFromPercent: true)
+                    .SetFieldToDecimal("StealTime", node.Machine.CPULoad.StealTime, convertFromPercent: true);
             //Memory
             dataRow.SetFieldToInt("Available", node.Machine.Memory.Available, DSEDiagnosticLibrary.UnitOfMeasure.Types.MiB)
                     .SetFieldToInt("Cache", node.Machine.Memory.Cache, DSEDiagnosticLibrary.UnitOfMeasure.Types.MiB)

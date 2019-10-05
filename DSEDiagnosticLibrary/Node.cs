@@ -1374,7 +1374,10 @@ namespace DSEDiagnosticLibrary
         /// False to indicate node&apos;s value is NaN
         /// </returns>
         int? NodeSystemDebugLogState();
-        bool NodeDCAvgStateWithinThrehold();
+        bool NodeDCAvgStateWithinThreshold();
+        int? NodeDCReadCntWithinThreshold();
+        int? NodeDCWriteCntWithinThreshold();
+        decimal DataQualityFactor();
     }
 
     [JsonObject(MemberSerialization.OptOut)]
@@ -1895,7 +1898,9 @@ namespace DSEDiagnosticLibrary
                 return null;
             }
 
-            if (Math.Abs((this.DSE.LogDebugDuration.Value - this.DSE.LogSystemDuration.Value).TotalHours) > Properties.Settings.Default.ThresholdAvgHrs.TotalHours)
+            if (Math.Abs((this.DSE.LogDebugDuration.Value - this.DSE.LogSystemDuration.Value).TotalHours) > Properties.Settings.Default.ThresholdAvgHrs.TotalHours
+                    || this.DSE.LogDebugDuration.Value < Properties.Settings.Default.ThresholdAvgHrs
+                    || this.DSE.LogSystemDuration < Properties.Settings.Default.ThresholdAvgHrs)
             {
                 if (this.DSE.LogDebugDuration.Value < this.DSE.LogSystemDuration.Value)
                 {
@@ -1911,7 +1916,7 @@ namespace DSEDiagnosticLibrary
         }
 
 
-        public bool NodeDCAvgStateWithinThrehold()
+        public bool NodeDCAvgStateWithinThreshold()
         {
             if(!this.DSE.Uptime.NaN
                 && this.DSE.LogSystemDuration.HasValue
@@ -1923,6 +1928,60 @@ namespace DSEDiagnosticLibrary
             return false;
         }
 
+        public int? NodeDCReadCntWithinThreshold()
+        {
+            if (this.DSE.NodeToolDateRange == null && this.DSE.WriteCount == 0 && this.DSE.ReadCount == 0)
+                return null;
+
+            var dcAvg = this.DataCenter.ReadCountAvg;
+            var dcThreshold = dcAvg * LibrarySettings.DCNodeReadThresholdPct;
+
+            if (this.DSE.ReadCount < dcAvg - dcThreshold)
+                return -1;
+
+            if (this.DSE.ReadCount > dcAvg + dcThreshold)
+                return 1;
+
+            return 0;
+        }
+        public int? NodeDCWriteCntWithinThreshold()
+        {
+            if (this.DSE.NodeToolDateRange == null && this.DSE.WriteCount == 0 && this.DSE.ReadCount == 0)
+                return null;
+
+            var dcAvg = this.DataCenter.WriteCountAvg;
+            var dcThreshold = dcAvg * LibrarySettings.DCNodeWriteThresholdPct;
+
+            if (this.DSE.WriteCount < dcAvg - dcThreshold)
+                return -1;
+
+            if (this.DSE.WriteCount > dcAvg + dcThreshold)
+                return 1;
+
+            return 0;
+        }
+
+        public decimal DataQualityFactor()
+        {
+            decimal negFactor = Properties.Settings.Default.DCDQNegativeNumeratorFactor / (decimal)this.DataCenter.Nodes.Count();
+
+            return (this.NodeUpTimeDCAvgState().HasValue ? (this.NodeUpTimeDCAvgState().Value == 0 ? 1m : negFactor) : 0m)
+                                            + (this.NodeSystemLogDCAvgState().HasValue ? (this.NodeSystemLogDCAvgState().Value == 0 ? 1m : negFactor) : 0m)
+                                            + (this.NodeDebugLogDCAvgState().HasValue ? (this.NodeDebugLogDCAvgState().Value == 0 ? 1m : negFactor) : 1m)
+                                            + (this.NodeSystemDebugLogState().HasValue ? (this.NodeSystemDebugLogState().Value == 0 ? 1m : Properties.Settings.Default.DCDQSysDebugLogAvgStateFactor + negFactor) : 1m)
+                                            + (this.NodeDCAvgStateWithinThreshold() ? 1m : Properties.Settings.Default.DCDQNodeSysLogAvgStateFactor + negFactor)
+                                            + (this.Configurations.IsEmpty() ? 0m : 1m)
+                                            + (this.DSE.Versions?.DSE == null ? 0m : 1m)
+                                            + (this.DSE.Devices?.CommitLog == null && (this.DSE.Devices.Data?.IsEmpty() ?? true) ? 0m : 1m)
+                                            + (this.Machine?.Java?.HeapMemory.Committed.NaN ?? true ? 0m : 1m)
+                                            + (this.Machine?.Memory?.Available.NaN ?? true ? 0m : 1m)
+                                            + (this.DSE.WriteCount > 0 || this.DSE.ReadCount > 0 || this.DSE.SSTableCount > 0 ? 1m : Properties.Settings.Default.DCDQNoCountsFactor)
+                                            + (this.NodeDCReadCntWithinThreshold().HasValue && this.NodeDCReadCntWithinThreshold() == 0 ? .5m : 0.25m)
+                                            + (this.NodeDCWriteCntWithinThreshold().HasValue && this.NodeDCWriteCntWithinThreshold() == 0 ? .5m : 0.25m);
+        }
+
+        public const decimal DataQualityMaxFactor = 12;
+
         public string NodeName(bool forceAttrs = false)
         {
             var nodeName = this.Id.NodeName();
@@ -1933,6 +1992,8 @@ namespace DSEDiagnosticLibrary
                 var upTimeState = this.NodeUpTimeDCAvgState();
                 var systemState = this.NodeSystemLogDCAvgState();
                 var debugState = this.NodeDebugLogDCAvgState();
+                var readState = this.NodeDCReadCntWithinThreshold();
+                var writeState = this.NodeDCWriteCntWithinThreshold();
 
                 if (upTimeState.HasValue)
                 {
@@ -1997,9 +2058,52 @@ namespace DSEDiagnosticLibrary
                 //if (!hasAttr)
                 //    strAttr = strAttr.TrimEnd((char)Properties.Settings.Default.PHAttrChar, (char)Properties.Settings.Default.MidAttrChar);
 
-                if (!this.NodeDCAvgStateWithinThrehold())
+                if (this.NodeDCAvgStateWithinThreshold())
+                {
+                    strAttr += (char)Properties.Settings.Default.UpTimeLogSimilarAttrChar;
+                }
+                else
                 {
                     strAttr += (char)Properties.Settings.Default.UpTimeLogMismatchAttrChar;
+                }
+
+                if (readState.HasValue)
+                {
+                    if (readState.Value == -1)
+                    {
+                        strAttr += (char)Properties.Settings.Default.LowAttrChar;
+                    }
+                    else if (readState.Value == 1)
+                    {
+                        strAttr += (char)Properties.Settings.Default.HighAttrChar;
+                    }
+                    else
+                    {
+                        strAttr += (char)Properties.Settings.Default.MidAttrChar;
+                    }
+                }
+                else
+                {
+                    strAttr += (char)Properties.Settings.Default.PHAttrChar;
+                }
+                if (writeState.HasValue)
+                {
+                    if (writeState.Value == -1)
+                    {
+                        strAttr += (char)Properties.Settings.Default.LowAttrChar;
+                    }
+                    else if (writeState.Value == 1)
+                    {
+                        strAttr += (char)Properties.Settings.Default.HighAttrChar;
+                    }
+                    else
+                    {
+                        strAttr += (char)Properties.Settings.Default.MidAttrChar;
+                    }
+                }
+                else
+                {
+                    strAttr += (char)Properties.Settings.Default.PHAttrChar;
                 }
 
                 if ((this.DSE.InstanceType & DSEInfo.InstanceTypes.Search) == DSEInfo.InstanceTypes.Search)

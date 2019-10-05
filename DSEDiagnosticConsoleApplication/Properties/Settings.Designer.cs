@@ -71,7 +71,7 @@ namespace DSEDiagnosticConsoleApplication.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute(".\\dseHealthAssessment4BTemplate.xlsm")]
+        [global::System.Configuration.DefaultSettingValueAttribute(".\\dseHealthAssessment4CTemplate.xlsm")]
         public string ExcelFileTemplatePath {
             get {
                 return ((string)(this["ExcelFileTemplatePath"]));

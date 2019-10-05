@@ -44,7 +44,10 @@ namespace DSEDiagnosticLibrary
         public static bool LogEventsAreMemoryMapped = Properties.Settings.Default.LogEventsAreMemoryMapped;
         public static bool EnableAttrSymbols = Properties.Settings.Default.EnableAttrSymbols;
         public static TimeSpan NodeDetectedLongPuaseThreshold = Properties.Settings.Default.NodeDetectedLongPuaseThreshold;
-        
+        public static decimal DCNodeReadThresholdPct = Properties.Settings.Default.DCNodeReadThresholdPct;
+        public static decimal DCNodeWriteThresholdPct = Properties.Settings.Default.DCNodeWriteThresholdPct;
+
+
         public static DateTimeOffset? NodeToolCaptureTimestamp
         {
             get { return DSEDiagnosticLibrary.DSEInfo.NodeToolCaptureTimestamp; }

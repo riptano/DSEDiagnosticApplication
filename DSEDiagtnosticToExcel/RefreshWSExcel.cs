@@ -47,17 +47,22 @@ namespace DSEDiagtnosticToExcel
                         wsInstance.Cells[row++, Properties.Settings.Default.RefreshWSAttrColumn].Value = string.Format("{0} -- {1}", item.Item1, item.Item2);
                     }
                     row++;
-                    wsInstance.Cells[row++, Properties.Settings.Default.RefreshWSAttrColumn].Value = "Nodes can have symbols appended to the end of the name where the first position is the attribute for Uptime, System Log, and Debug log.";
-                    wsInstance.Cells[row++, Properties.Settings.Default.RefreshWSAttrColumn].Value = string.Format("Node Example: 10.0.0.1 {0}{1}{2}{3}{4} -- 1) Evaluated Uptime, 2) Low System Log Durations, 3) Debug Log Duration within Range, 4) Node Uptime and Log duration do not match, 5) Search Node",
+                    wsInstance.Cells[row++, Properties.Settings.Default.RefreshWSAttrColumn].Value = "Nodes can have symbols appended to the end of the name (IP-Address) where each position is a DC attribute for the following positions: 1) Node Uptime indicator, 2) System Log indicator, 3) Debug log indicator, 4) If Node Uptime matches System duration indicator, 5) Read Count indicator, 6) Write Count indicator, and 7) DSE work load type (optional, if not present Cassandra workload)";
+                    wsInstance.Cells[row++, Properties.Settings.Default.RefreshWSAttrColumn].Value = string.Format("Node Example: 10.0.0.1 {0}{1}{2}{3}{4}{5}{6} -- 1) Evaluated Uptime for DC, 2) Low System Log Durations for DC, 3) Debug Log Duration typical for DC, 4) Node Uptime and Log duration do not match, 5) Read Counts are typical for DC, 6) Write Counts are below DC Threshold, 7) Search Node",
                                                                                                                     symbols[0].Item1,
                                                                                                                     symbols[1].Item1,
                                                                                                                     symbols[2].Item1,
                                                                                                                     symbols[11].Item1,
+                                                                                                                    symbols[2].Item1,
+                                                                                                                    symbols[0].Item1,
                                                                                                                     symbols[4].Item1);
-                    wsInstance.Cells[row++, Properties.Settings.Default.RefreshWSAttrColumn].Value = string.Format("Node Example: 10.0.0.2 {0}{1}{2}{3} -- 1) Uptime within Range, 2) System Log Durations witin Range, 3) No Debug Logs, 4) Analytics Node",
+                    wsInstance.Cells[row++, Properties.Settings.Default.RefreshWSAttrColumn].Value = string.Format("Node Example: 10.0.0.2 {0}{1}{2}{3}{4}{5}{6} -- 1) Uptime within Range for DC, 2) System Log Durations witin Range for DC, 3) No Debug Logs, 4) Node Uptime and System Log duration similar 4) Read Counts typical for DC, 5) Write Counts typical for DC, 6) Analytics Node",
                                                                                                                    symbols[2].Item1,
                                                                                                                    symbols[2].Item1,
                                                                                                                    symbols[3].Item1,
+                                                                                                                   symbols[2].Item1,
+                                                                                                                   symbols[2].Item1,
+                                                                                                                   symbols[2].Item1,
                                                                                                                    symbols[5].Item1);
                     wsInstance.Cells[row++, Properties.Settings.Default.RefreshWSAttrColumn].Value = string.Format("Table Example: TableName-1 {0}{1} -- 1) Has solr index, 2) Has a Materalized View",
                                                                                                                    symbols[4].Item1,
