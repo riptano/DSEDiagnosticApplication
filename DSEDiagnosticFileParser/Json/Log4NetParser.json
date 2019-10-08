@@ -2071,7 +2071,7 @@ Additinal group names and mappings:
       },
       "ParseMessage": {
         "RegExStrings": [
-          "^Trying\\sto\\sload\\sresource\\s(?<tag>(?<solrconfigfile>[^ ]+))\\sfor\\score\\s(?$<DDLITEMNAME>)\\sby\\squerying\\sfrom\\slocal\\snode\\swith\\sCL\\s(?<consistencylevel>[^ ]+)"          
+          "^Trying\\sto\\sload\\sresource\\s(?<tag>(?<solrconfigfile>[^ ]+))\\sfor\\score\\s(?$<DDLITEMNAME>)\\sby\\squerying\\sfrom\\slocal\\snode\\swith\\sCL\\s(?<consistencylevel>[^ ]+)"
         ]
       },
       "ParseThreadId": null,
@@ -2161,7 +2161,7 @@ Additinal group names and mappings:
       "EventClass": "Solr, Config",
       "SubClass": "'Load Resource ' + action",
       "AssociateEventToNode": false,
-      "Product": "Search",     
+      "Product": "Search",
       "Examples": [
         "=> INFO  [SecondaryIndexManagement:1] 2019-09-10 03:48:09,736  SolrCoreResourceManager.java:728 - Trying to load resource dse-search.properties for core pvhd_cvx_graph.acd_audits by looking for legacy resources..."
       ]
@@ -3910,6 +3910,92 @@ Additinal group names and mappings:
       ]
     },
     {
+      "Description": "Session Repairs (Failed)",
+      "TagId": 54.9,
+      "MatchVersion": null,
+      "LevelMatch": {
+        "RegExStrings": [
+          "ERROR"
+        ]
+      },
+      "ThreadIdMatch": null,
+      "FileNameMatch": {
+        "RegExStrings": [
+          "^Validator.java$"
+        ]
+      },
+      "FileLineMatch": null,
+      "MessageMatch": {
+        "RegExStrings": [
+          "^Failed\\screating"
+        ]
+      },
+      "ParseMessage": {
+        "RegExStrings": [
+          "^Failed\\screating\\s\\w+\\s?(?<type>merkle\\stree)\\sfor\\s\\[repair\\s+#(?<ID>[0-9a-f\\\\-]+)\\son\\s(?$<TABLEVIEWNAME>),?\\s+\\[?(?:(?<TOKENRANGE>\\([0-9\\-]+\\s*,\\s*[0-9\\\\-]+\\])+,?\\s*)+\\s*\\]?\\]?,\\s(?$<NODE>)"
+        ]
+      },
+      "ParseThreadId": null,
+      "EventType": "SessionException,ExceptionInstance",
+      "EventClass": "NodeDetection,Repair,Session,Error",
+      "SubClass": null,
+      "AssociateEventToNode": true,
+      "LogPropertySessionMerge": false,
+      "PropertyInherentOption": "PrimaryKS,DDLInstances,TokenRanges,SubClass,OptionsProp,Merge",
+      "AnalyticsGroup": null,
+      "Product": "Cassandra",
+      "SessionKey": "ID",
+      "SessionKeyAction": "Read",
+      "SessionLookup": null,
+      "SessionLookupAction": "Default",
+      "Examples": [
+        "ERROR [ValidationExecutor:381] 2019-10-01 10:51:22,983  Validator.java:268 - Failed creating a merkle tree for [repair #dcf9ec21-e46f-11e9-b085-438382b8d6f3 on latest_payments/payment_transactions_by_transactiondate, [(-6348507178695773948,-6222467464214784637]]], /10.157.151.16 (see log for details)"
+      ]
+    },
+    {
+      "Description": "Session Repairs (node dead)",
+      "TagId": 54.31,
+      "MatchVersion": null,
+      "LevelMatch": {
+        "RegExStrings": [
+          "WARN"
+        ]
+      },
+      "ThreadIdMatch": null,
+      "FileNameMatch": {
+        "RegExStrings": [
+          "^RepairSession.java$"
+        ]
+      },
+      "FileLineMatch": null,
+      "MessageMatch": {
+        "RegExStrings": [
+          "^\\[repair\\s+#[0-9a-f-]+\\]\\s+Endpoint\\s*/?[^ ]+\\sdied"
+        ]
+      },
+      "ParseMessage": {
+        "RegExStrings": [
+          "^\\[repair\\s+#(?<ID>[0-9a-f\\\\-]+)\\]\\s+Endpoint\\s+(?$<NODE>)\\s+died"
+        ]
+      },
+      "ParseThreadId": null,
+      "EventType": "SessionItem",
+      "EventClass": "NodeDetection,Repair,Session",
+      "SubClass": null,
+      "AssociateEventToNode": true,
+      "LogPropertySessionMerge": false,
+      "PropertyInherentOption": "PrimaryKS,DDLInstances,TokenRanges,SubClass,OptionsProp,Merge",
+      "AnalyticsGroup": null,
+      "Product": "Cassandra",
+      "SessionKey": "ID",
+      "SessionKeyAction": "Read",
+      "SessionLookup": null,
+      "SessionLookupAction": "Default",
+      "Examples": [
+        "WARN  [GossipTasks:1] 2019-10-01 10:52:05,385  RepairSession.java:353 - [repair #dcf9ec21-e46f-11e9-b085-438382b8d6f3] Endpoint /10.157.152.22 died, will fail all the active tasks of this node."
+      ]
+    },
+    {
       "Description": "Range Rebuild",
       "TagId": 55.0,
       "MatchVersion": null,
@@ -4018,6 +4104,80 @@ Additinal group names and mappings:
       "NodeTransitionState": "Added",
       "Examples": [
         "WARN  [main] 2018-12-03 18:21:24,975  SystemKeyspace.java:1385 - No host ID found, created 8a436404-ed7e-4b92-aeca-dfbbfaa0bc5e (Note: This should happen exactly once per node)."
+      ]
+    },
+    {
+      "Description": "Possible Network Issue",
+      "TagId": 58.0,
+      "MatchVersion": null,
+      "LevelMatch": {
+        "RegExStrings": [
+          "WARN"
+        ]
+      },
+      "FileNameMatch": {
+        "RegExStrings": [
+          "^Gossiper.java$"
+        ]
+      },
+      "FileLineMatch": null,
+      "MessageMatch": {
+        "RegExStrings": [
+          "^Resetting\\sconnection\\spool"
+        ]
+      },
+      "ParseMessage": {
+        "RegExStrings": [
+          "^Resetting\\sconnection\\spool\\s\\w+\\s(?$<NODEITEMS>),?\\s\\w+\\s\\w+\\sfailed\\s(?<type>\\w+)\\sattempts:?\\s(?<attemps>[0-9,]+)?"
+        ]
+      },
+      "ParseThreadId": null,
+      "EventType": "SingleInstance",
+      "EventClass": "NodeDetection,Network",
+      "SubClass": "'Failed ' + type",
+      "Product": "Cassandra",
+      "AnalyticsGroup": null,
+      "IgnoreEvent": false,
+      "NodeTransitionState": "NetworkEvent",
+      "Examples": [
+        "WARN  [InternalResponseStage:809] 2019-10-01 09:19:11,748  Gossiper.java:1169 - Resetting connection pool to /10.65.72.8, too many failed echo attempts: 11.  This usually indicates a network issue."
+      ]
+    },
+    {
+      "Description": "Possible Network Issue (self)",
+      "TagId": 59.0,
+      "MatchVersion": null,
+      "LevelMatch": {
+        "RegExStrings": [
+          "WARN"
+        ]
+      },
+      "FileNameMatch": {
+        "RegExStrings": [
+          "^Gossiper.java$"
+        ]
+      },
+      "FileLineMatch": null,
+      "MessageMatch": {
+        "RegExStrings": [
+          "^Pending\\s\\w+\\sdid\\snot\\sreach"
+        ]
+      },
+      "ParseMessage": {
+        "RegExStrings": [
+          "^Pending\\s(?<type>\\w+)\\sdid\\snot\\sreach\\s(?<attempts>[0-9,]+)\\safter\\s(?<tries>[0-9\\-,]+)\\stries,?\\sforcing.?\\s(?<outstanding>[0-9\\-]+)\\soutstanding"
+        ]
+      },
+      "ParseThreadId": null,
+      "EventType": "SingleInstance",
+      "EventClass": "NodeDetection,Network",
+      "SubClass": "'Pending ' + type",
+      "Product": "Cassandra",
+      "AnalyticsGroup": null,
+      "IgnoreEvent": false,
+      "NodeTransitionState": "NetworkEvent",
+      "Examples": [
+        "WARN  [main] 2019-10-01 12:53:48,668  Gossiper.java:2104 - Pending echos did not reach 0 after -1 tries, forcing. 8 outstanding echos"
       ]
     }
   ]

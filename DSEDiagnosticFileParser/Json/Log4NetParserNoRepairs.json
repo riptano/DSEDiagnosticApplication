@@ -317,6 +317,14 @@
     {
       "Description": "New HostId",
       "LinkedTagId": 57.0
+    },
+    {
+      "Description": "Possible Network Issue",
+      "LinkedTagId": 58.0
+    },
+    {
+      "Description": "Possible Network Issue (self)",
+      "LinkedTagId": 59.0
     }
   ]
 }

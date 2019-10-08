@@ -2398,7 +2398,7 @@ namespace DSEDiagnosticFileParser
                                 {
                                     names.AddRange(primaryKS == null ? solrDDLNames : solrDDLNames.Select(s => s.Contains('.') ? s : localPrimaryKS.Name + '.' + s));
                                 }
-                                if (sstableFilePaths != null)
+                                if (sstableDDLInstance != null)
                                 {
                                     names.AddRange(sstableDDLInstance.Select(d => localPrimaryKS == null ? d.Name : d.FullName));
                                 }
@@ -2645,7 +2645,9 @@ namespace DSEDiagnosticFileParser
                         {          
                             var errorNodeAggStat = this.FindAggregatedStatsInstance(EventTypes.AggregateDataTool,
                                                                                     EventClasses.Node | EventClasses.DataModel);
-                            if (!errorNodeAggStat.Data.TryGetValue(AggregatedStats.ErrorCItemNotFnd, out object existingValue))                            
+                            object existingValue;
+
+                            if (!errorNodeAggStat.Data.TryGetValue(AggregatedStats.ErrorCItemNotFnd, out existingValue))                            
                             {
                                 errorNodeAggStat.AssociateItem(AggregatedStats.ErrorCItemNotFnd, existingValue = new List<string>());
                             }
@@ -2692,8 +2694,8 @@ namespace DSEDiagnosticFileParser
                             else
                             {
                                 errorNodeAggStat.AssociateItem(AggregatedStats.ErrorKSNotFnd,
-                                                                string.Format("Primary Keyspace \"{0}\" could not be found",
-                                                                                keyspaceName));
+                                                                new List<string>()
+                                                                { errValue });
                             }
                         }                        
                     }

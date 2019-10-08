@@ -301,7 +301,15 @@
     },
     {
       "Description": "Session Repairs (Error)",
-      "LinkedTagId": 54.6
+      "LinkedTagId": 54.8
+    },
+    {
+      "Description": "Session Repairs (Failed)",
+      "LinkedTagId": 54.9
+    },
+    {
+      "Description": "Session Repairs (node dead)",
+      "LinkedTagId": 54.31
     },
     {
       "Description": "Range Rebuild",
@@ -314,6 +322,14 @@
     {
       "Description": "New HostId",
       "LinkedTagId": 57.0
+    },
+    {
+      "Description": "Possible Network Issue",
+      "LinkedTagId": 58.0
+    },
+    {
+      "Description": "Possible Network Issue (self)",
+      "LinkedTagId": 59.0
     }
   ]
     }

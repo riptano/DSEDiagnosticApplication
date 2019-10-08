@@ -457,8 +457,8 @@ namespace DSEDiagnosticConsoleApplication
             ConsoleTasksReadFiles = new ConsoleDisplay("File Tasks Completed: {0} Working: {1} Task: {2}");
             ConsoleDeCompressFiles = new ConsoleDisplay("Decompression Completed: {0} Working: {1} Task: {2}");
             ConsoleLogReadFiles = new ConsoleDisplay("Log Completed: {0}  Working: {1} Task: {2}");
-            ConsoleAnalyze = new ConsoleDisplay("Analyze Processing: {0}  Working: {1} Task: {2}");
-            ConsoleParsingDataTable = new ConsoleDisplay("DataTable Processing: {0}  Working: {1} Task: {2}");
+            ConsoleAnalyze = new ConsoleDisplay("Analyze Processed: {0}  Working: {1} Task: {2}");
+            ConsoleParsingDataTable = new ConsoleDisplay("DataTable Processed: {0}  Working: {1} Task: {2}");
             ConsoleExcelWorkSheet = new ConsoleDisplay("Excel WorkSheet: {0}  Working: {1} Task: {2}");
             ConsoleExcelWorkbook = new ConsoleDisplay("Excel WorkBook: {0}  Working: {1} Task: {2}");
             ConsoleWarnings = new ConsoleDisplay("Warnings: {0} Last: {2}", 2, false);
