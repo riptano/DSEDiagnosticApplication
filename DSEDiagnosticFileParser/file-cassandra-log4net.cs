@@ -94,7 +94,7 @@ namespace DSEDiagnosticFileParser
 
             if ((this.DebugLogProcessing & DebugLogProcessingTypes.Auto) != 0)
             {
-                if (targetDSEVersion != null && targetDSEVersion.Major < 5)
+                if (LogFileInfo.DebugLogFileRequired(targetDSEVersion, this.Node?.DSE.Versions?.Cassandra))
                 {
                     this.DebugLogProcessing = DebugLogProcessingTypes.Disabled;
                 }
@@ -2167,6 +2167,16 @@ namespace DSEDiagnosticFileParser
                 else if (primaryKS == null && !string.IsNullOrEmpty(keyspaceName))
                 {
                     primaryKS = this._dcKeyspaces.FirstOrDefault(ki => ki.Equals(keyspaceName));
+
+                    if(primaryKS == null)
+                    {
+                       primaryKS = Cluster.MasterCluster
+                                        .GetKeyspaces(keyspaceName)
+                                        .FirstOrDefault(k => k.EverywhereStrategy
+                                                                || k.LocalStrategy
+                                                                || this.DataCenter == null
+                                                                || k.Replications.Any(r => r.DataCenter.Name == this.DataCenter.Name));
+                    }
                 }
 
                 if (tableviewName != null)

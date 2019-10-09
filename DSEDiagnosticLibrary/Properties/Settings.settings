@@ -260,5 +260,17 @@
     <Setting Name="UpTimeLogSimilarAttrChar" Type="System.UInt64" Scope="Application">
       <Value Profile="(Default)">8801</Value>
     </Setting>
+    <Setting Name="DebugLogFileRequiredDSEVersion" Type="System.Int32" Scope="Application">
+      <Value Profile="(Default)">5</Value>
+    </Setting>
+    <Setting Name="DebugLogFileRequiredCVersion" Type="System.Int32" Scope="Application">
+      <Value Profile="(Default)">3</Value>
+    </Setting>
+    <Setting Name="NodeDQNegativeMissingSystemLogs" Type="System.Decimal" Scope="Application">
+      <Value Profile="(Default)">-2</Value>
+    </Setting>
+    <Setting Name="NodeDQNegativeMissingDebugLogs" Type="System.Decimal" Scope="Application">
+      <Value Profile="(Default)">-1</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

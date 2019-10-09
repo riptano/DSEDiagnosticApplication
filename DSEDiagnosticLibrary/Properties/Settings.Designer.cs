@@ -625,5 +625,41 @@ namespace DSEDiagnosticLibrary.Properties {
                 return ((ulong)(this["UpTimeLogSimilarAttrChar"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("5")]
+        public int DebugLogFileRequiredDSEVersion {
+            get {
+                return ((int)(this["DebugLogFileRequiredDSEVersion"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("3")]
+        public int DebugLogFileRequiredCVersion {
+            get {
+                return ((int)(this["DebugLogFileRequiredCVersion"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("-2")]
+        public decimal NodeDQNegativeMissingSystemLogs {
+            get {
+                return ((decimal)(this["NodeDQNegativeMissingSystemLogs"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("-1")]
+        public decimal NodeDQNegativeMissingDebugLogs {
+            get {
+                return ((decimal)(this["NodeDQNegativeMissingDebugLogs"]));
+            }
+        }
     }
 }

@@ -1218,6 +1218,13 @@ namespace DSEDiagnosticLibrary
             return logFile.Name.IndexOf(Properties.Settings.Default.DebugLogFileName, StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
+        public static bool DebugLogFileRequired(Version dseVersion, Version cassandraVersion)
+        {
+            return dseVersion == null
+                    ? (cassandraVersion == null ? false : cassandraVersion.Major >= Properties.Settings.Default.DebugLogFileRequiredCVersion)
+                    : dseVersion.Major >= Properties.Settings.Default.DebugLogFileRequiredDSEVersion; 
+        }
+
         public LogFileInfo(IFilePath logFile,
                             DateTimeOffsetRange logfileDateRange,
                             int logItems,
@@ -1893,11 +1900,11 @@ namespace DSEDiagnosticLibrary
         /// </returns>
         public int? NodeSystemDebugLogState()
         {
-            if (!this.DSE.LogDebugDuration.HasValue || !this.DSE.LogSystemDuration.HasValue)
-            {
+            if (!this.DSE.LogSystemDuration.HasValue || !this.DSE.LogDebugDuration.HasValue)
+            {              
                 return null;
             }
-
+            
             if (Math.Abs((this.DSE.LogDebugDuration.Value - this.DSE.LogSystemDuration.Value).TotalHours) > Properties.Settings.Default.ThresholdAvgHrs.TotalHours
                     || this.DSE.LogDebugDuration.Value < Properties.Settings.Default.ThresholdAvgHrs
                     || this.DSE.LogSystemDuration < Properties.Settings.Default.ThresholdAvgHrs)
@@ -1964,14 +1971,25 @@ namespace DSEDiagnosticLibrary
         public decimal DataQualityFactor()
         {
             decimal negFactor = Properties.Settings.Default.DCDQNegativeNumeratorFactor / (decimal)this.DataCenter.Nodes.Count();
+            var debugRequired = LogFileInfo.DebugLogFileRequired(this.DSE.Versions?.DSE, this.DSE.Versions?.Cassandra);
 
             return (this.NodeUpTimeDCAvgState().HasValue ? (this.NodeUpTimeDCAvgState().Value == 0 ? 1m : negFactor) : 0m)
-                                            + (this.NodeSystemLogDCAvgState().HasValue ? (this.NodeSystemLogDCAvgState().Value == 0 ? 1m : negFactor) : 0m)
-                                            + (this.NodeDebugLogDCAvgState().HasValue ? (this.NodeDebugLogDCAvgState().Value == 0 ? 1m : negFactor) : 1m)
-                                            + (this.NodeSystemDebugLogState().HasValue ? (this.NodeSystemDebugLogState().Value == 0 ? 1m : Properties.Settings.Default.DCDQSysDebugLogAvgStateFactor + negFactor) : 1m)
+                                            + (this.NodeSystemLogDCAvgState().HasValue
+                                                    ? (this.NodeSystemLogDCAvgState().Value == 0 ? 1m : negFactor)
+                                                    : Properties.Settings.Default.NodeDQNegativeMissingSystemLogs + negFactor)
+                                            + (debugRequired
+                                                    ? (this.NodeDebugLogDCAvgState().HasValue
+                                                        ? (this.NodeDebugLogDCAvgState().Value == 0 ? 1m : negFactor)
+                                                        : Properties.Settings.Default.NodeDQNegativeMissingDebugLogs + negFactor)
+                                                    : 1m)
+                                            + (debugRequired
+                                                    ? (this.NodeSystemDebugLogState().HasValue
+                                                            ? (this.NodeSystemDebugLogState().Value == 0 ? 1m : Properties.Settings.Default.DCDQSysDebugLogAvgStateFactor + negFactor)
+                                                            : 0m)
+                                                    : 1m)
                                             + (this.NodeDCAvgStateWithinThreshold() ? 1m : Properties.Settings.Default.DCDQNodeSysLogAvgStateFactor + negFactor)
                                             + (this.Configurations.IsEmpty() ? 0m : 1m)
-                                            + (this.DSE.Versions?.DSE == null ? 0m : 1m)
+                                            + (this.DSE.Versions?.DSE == null && this.DSE.Versions?.Cassandra == null ? 0m : 1m)
                                             + (this.DSE.Devices?.CommitLog == null && (this.DSE.Devices.Data?.IsEmpty() ?? true) ? 0m : 1m)
                                             + (this.Machine?.Java?.HeapMemory.Committed.NaN ?? true ? 0m : 1m)
                                             + (this.Machine?.Memory?.Available.NaN ?? true ? 0m : 1m)

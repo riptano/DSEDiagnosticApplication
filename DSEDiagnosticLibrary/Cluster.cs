@@ -885,6 +885,15 @@ namespace DSEDiagnosticLibrary
                                             ? cluster.GetKeyspaces(dc)
                                             : cluster.GetKeyspaces(dc).Where(ks => ks.Equals(defaultKSName)));
 
+                    if(ksInstances.IsEmpty())
+                    {
+                        ksInstances = Cluster.MasterCluster
+                                               .GetKeyspaces(defaultKSName)
+                                               .Where(k => k.EverywhereStrategy
+                                                            || k.LocalStrategy
+                                                            || k.Replications.Any(r => r.DataCenter.Name == dc.Name));
+                    }
+
                     var tableviewInstances = ksInstances.Select(k => (IDDLStmt)k.TryGetTable(kstblTuple.Item2)
                                                                 ?? (IDDLStmt)k.TryGetView(kstblTuple.Item2)
                                                                 ?? (IDDLStmt)k.TryGetIndex(kstblTuple.Item2))
@@ -915,6 +924,15 @@ namespace DSEDiagnosticLibrary
                             : (defaultKSName == null
                                     ? cluster.GetKeyspaces(dc)
                                     : cluster.GetKeyspaces(dc).Where(ks => ks.Equals(defaultKSName)));
+
+            if (ksInstances.IsEmpty())
+            {
+                ksInstances = Cluster.MasterCluster
+                                       .GetKeyspaces(defaultKSName)
+                                       .Where(k => k.EverywhereStrategy
+                                                    || k.LocalStrategy
+                                                    || k.Replications.Any(r => r.DataCenter.Name == dc.Name));
+            }
 
             return ksInstances.Select(k => ((IDDLStmt)k.TryGetTable(parsedName.Item2)
                                                 ?? (IDDLStmt)k.TryGetView(parsedName.Item2))
