@@ -1935,6 +1935,19 @@ namespace DSEDiagnosticLibrary
             return false;
         }
 
+        public decimal NodeDCAvgStateFactor()
+        {
+            if (!this.DSE.Uptime.NaN
+                && this.DSE.LogSystemDuration.HasValue)
+            {
+                var diff = (decimal) (this.DSE.LogSystemDuration.Value - this.DSE.Uptime.ConvertToTimeSpan()).TotalHours;
+
+                return diff < 0m ? Math.Abs(diff) / (decimal)Properties.Settings.Default.ThresholdUpTimeLogHrs.TotalHours : 1m;
+            }
+
+            return 1m;
+        }
+
         public int? NodeDCReadCntWithinThreshold()
         {
             if (this.DSE.NodeToolDateRange == null && this.DSE.WriteCount == 0 && this.DSE.ReadCount == 0)
@@ -1973,7 +1986,7 @@ namespace DSEDiagnosticLibrary
             decimal negFactor = Properties.Settings.Default.DCDQNegativeNumeratorFactor / (decimal)this.DataCenter.Nodes.Count();
             var debugRequired = LogFileInfo.DebugLogFileRequired(this.DSE.Versions?.DSE, this.DSE.Versions?.Cassandra);
 
-            return (this.NodeUpTimeDCAvgState().HasValue ? (this.NodeUpTimeDCAvgState().Value == 0 ? 1m : negFactor) : 0m)
+            var dqFactor = (this.NodeUpTimeDCAvgState().HasValue ? (this.NodeUpTimeDCAvgState().Value == 0 ? 1m : negFactor) : 0m)
                                             + (this.NodeSystemLogDCAvgState().HasValue
                                                     ? (this.NodeSystemLogDCAvgState().Value == 0 ? 1m : negFactor)
                                                     : Properties.Settings.Default.NodeDQNegativeMissingSystemLogs + negFactor)
@@ -1987,7 +2000,9 @@ namespace DSEDiagnosticLibrary
                                                             ? (this.NodeSystemDebugLogState().Value == 0 ? 1m : Properties.Settings.Default.DCDQSysDebugLogAvgStateFactor + negFactor)
                                                             : 0m)
                                                     : 1m)
-                                            + (this.NodeDCAvgStateWithinThreshold() ? 1m : Properties.Settings.Default.DCDQNodeSysLogAvgStateFactor + negFactor)
+                                            + (this.NodeDCAvgStateWithinThreshold()
+                                                ? 1m
+                                                : (Properties.Settings.Default.DCDQNodeSysLogAvgStateFactor + negFactor) * this.NodeDCAvgStateFactor())                                                    
                                             + (this.Configurations.IsEmpty() ? 0m : 1m)
                                             + (this.DSE.Versions?.DSE == null && this.DSE.Versions?.Cassandra == null ? 0m : 1m)
                                             + (this.DSE.Devices?.CommitLog == null && (this.DSE.Devices.Data?.IsEmpty() ?? true) ? 0m : 1m)
@@ -1996,6 +2011,8 @@ namespace DSEDiagnosticLibrary
                                             + (this.DSE.WriteCount > 0 || this.DSE.ReadCount > 0 || this.DSE.SSTableCount > 0 ? 1m : Properties.Settings.Default.DCDQNoCountsFactor)
                                             + (this.NodeDCReadCntWithinThreshold().HasValue && this.NodeDCReadCntWithinThreshold() == 0 ? .5m : 0.25m)
                                             + (this.NodeDCWriteCntWithinThreshold().HasValue && this.NodeDCWriteCntWithinThreshold() == 0 ? .5m : 0.25m);
+
+            return dqFactor < 0 ? 0 : dqFactor;
         }
 
         public const decimal DataQualityMaxFactor = 12;
