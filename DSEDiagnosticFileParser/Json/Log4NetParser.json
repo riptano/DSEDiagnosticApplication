@@ -998,14 +998,14 @@ Additinal group names and mappings:
       },
       "ParseMessage": {
         "RegExStrings": [
-          "^Flushing\\s+SecondaryIndex\\s+(?<IndexClass>[^ (,{]+)\\s*\\{\\s*(?<KEYITEM>columnDefs)\\s*=\\s*\\[\\s*(?:ColumnDefinition\\s*\\{\\s*(?:(?:(?<ITEM1>indexName)\\s*\\=\\s*(?<SOLRINDEXNAME>(?<ITEM2>[^},{]+))|(?<ITEM1>[^={]+)\\s*\\=\\s*(?<ITEM2>[^},{]+))(?:\\,|\\})\\s*)+\\s*\\,?\\s*)+",
-          "^Submitting\\sindex\\sbuild\\s\\w+\\s(?$<SOLRINDEXNAMES>)\\sfor\\sdata\\s\\w+$<!SOLRSSTABLEPATHS>"
+          "^(?<type>Flushing\\s+SecondaryIndex\\s+)(?<IndexClass>[^ (,{]+)\\s*\\{\\s*(?<KEYITEM>columnDefs)\\s*=\\s*\\[\\s*(?:ColumnDefinition\\s*\\{\\s*(?:(?:(?<ITEM1>indexName)\\s*\\=\\s*(?<SOLRINDEXNAME>(?<ITEM2>[^},{]+))|(?<ITEM1>[^={]+)\\s*\\=\\s*(?<ITEM2>[^},{]+))(?:\\,|\\})\\s*)+\\s*\\,?\\s*)+",
+          "^Submitting\\s(?<type>index\\sbuild)\\s\\w+\\s(?$<SOLRINDEXNAMES>)\\sfor\\sdata\\s\\w+$<!SOLRSSTABLEPATHS>"
         ]
       },
       "ParseThreadId": null,
       "EventType": "SessionBegin",
       "EventClass": "SolrHardCommit",
-      "SubClass": "IndexClass",
+      "SubClass": "type + IndexClass",
       "AssociateEventToNode": false,
       "Product": "Search",
       "SessionKey": "ThreadId",
