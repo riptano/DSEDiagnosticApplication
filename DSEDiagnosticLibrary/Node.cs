@@ -1985,6 +1985,10 @@ namespace DSEDiagnosticLibrary
         {
             decimal negFactor = Properties.Settings.Default.DCDQNegativeNumeratorFactor / (decimal)this.DataCenter.Nodes.Count();
             var debugRequired = LogFileInfo.DebugLogFileRequired(this.DSE.Versions?.DSE, this.DSE.Versions?.Cassandra);
+            var nbrStarts = this.StateChanges.Count(i => i.DetectedByNode == null
+                                                            && (i.State == NodeStateChange.DetectedStates.Added
+                                                                || i.State.HasFlag(NodeStateChange.DetectedStates.Started)));
+            var nbrTokenOwership = this.StateChanges.Count(i => i.State.HasFlag(NodeStateChange.DetectedStates.TokenOwnershipChanged));
 
             var dqFactor = (this.NodeUpTimeDCAvgState().HasValue ? (this.NodeUpTimeDCAvgState().Value == 0 ? 1m : negFactor) : 0m)
                                             + (this.NodeSystemLogDCAvgState().HasValue
@@ -2010,7 +2014,9 @@ namespace DSEDiagnosticLibrary
                                             + (this.Machine?.Memory?.Available.NaN ?? true ? 0m : 1m)
                                             + (this.DSE.WriteCount > 0 || this.DSE.ReadCount > 0 || this.DSE.SSTableCount > 0 ? 1m : Properties.Settings.Default.DCDQNoCountsFactor)
                                             + (this.NodeDCReadCntWithinThreshold().HasValue && this.NodeDCReadCntWithinThreshold() == 0 ? .5m : 0.25m)
-                                            + (this.NodeDCWriteCntWithinThreshold().HasValue && this.NodeDCWriteCntWithinThreshold() == 0 ? .5m : 0.25m);
+                                            + (this.NodeDCWriteCntWithinThreshold().HasValue && this.NodeDCWriteCntWithinThreshold() == 0 ? .5m : 0.25m)
+                                            + (nbrStarts * Properties.Settings.Default.NodeDQNegativeStarts)
+                                            + (nbrTokenOwership * Properties.Settings.Default.NodeDQNegativeTokenChanges);
 
             return dqFactor < 0 ? 0 : dqFactor;
         }

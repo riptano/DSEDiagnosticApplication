@@ -661,5 +661,23 @@ namespace DSEDiagnosticLibrary.Properties {
                 return ((decimal)(this["NodeDQNegativeMissingDebugLogs"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("-0.1")]
+        public decimal NodeDQNegativeStarts {
+            get {
+                return ((decimal)(this["NodeDQNegativeStarts"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("-0.25")]
+        public decimal NodeDQNegativeTokenChanges {
+            get {
+                return ((decimal)(this["NodeDQNegativeTokenChanges"]));
+            }
+        }
     }
 }

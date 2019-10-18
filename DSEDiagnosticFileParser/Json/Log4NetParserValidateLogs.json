@@ -50,6 +50,10 @@
       "LinkedTagId": 8.4
     },
     {
+      "Description": "Sharding Action",
+      "LinkedTagId": 8.41
+    },
+    {
       "Description": "Create table or view",
       "LinkedTagId": 9.0
     },

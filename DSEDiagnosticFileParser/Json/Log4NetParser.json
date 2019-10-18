@@ -152,8 +152,8 @@ Additinal group names and mappings:
       },
       "ParseMessage": {
         "RegExStrings": [
-          "^Compacted\\s(?<sstables>\\d+)\\ssstables\\s+to\\s*\\[(?$<SSTABLEPATHS>)\\]\\.\\s+(?<size_bytes>[0-9.,]+\\s+[a-z]+)\\s+to\\s+(?<newsize__size>[0-9.,]+(\\s*[a-z]+)?)\\s\\([0-9a-z\\ %~,.]+\\)+\\sin\\s+(?$<DURATION>\\s*[a-z/]+)\\s*\\=\\s*(?<iorate_rate>[0-9.,]+\\s*[a-z/]+)\\.\\s+(?<totalpartions>[0-9,]+)\\s+total\\s+partitions\\s+merged\\s+to\\s+(?<mergedpartitions>[0-9,]+)\\.\\s+Partition\\s+merge\\s+counts\\s+were\\s+\\{(?<mergecounts>[0-9:\\ ,]*)\\s*\\}$",
-          "^Compacted\\s+\\((?<ID>[a-f0-9\\-]+)\\)\\s+(?<sstables>\\d+)\\ssstables\\s+to\\s*\\[(?$<SSTABLEPATHS>)\\](?:\\s+to\\s+level\\s*=\\s*(?<level>\\d+))?\\.\\s+(?<size_bytes>[0-9.,]+\\s*[a-z]+)\\s+to\\s+(?<newsize__size>[0-9.,]+(\\s*[a-z]+)?)\\s\\([0-9a-z\\ %~,.]+\\)+\\sin\\s+$<!DURATIONwUOM>(?:\\s*=\\s*(?<iorate_rate>[0-9,.]+\\s*[a-z/]+))?\\.\\s*(?:Read\\sThroughput\\s+\\=\\s+(?<readrate_rate>[0-9.,]+\\s*[a-z/]+),\\s+Write\\sThroughput\\s+\\=\\s+(?<iorate_rate>[0-9.,]+\\s*[a-z/]+),\\s+Row\\sThroughput\\s+\\=\\s+~?(?<rowsrate_operation>[0-9,]+)\\s*[a-z/]+\\.\\s+)?(?<totalpartions>[0-9,]+)\\s+total\\s+partitions\\s+merged\\s+to\\s+(?<mergedpartitions>[0-9,]+)\\.\\s+Partition\\s+merge\\s+counts\\s+were\\s+\\{(?<mergecounts>[0-9:\\ ,]*)\\s*\\}$"
+          "^Compacted\\s(?<sstables>\\d+)\\ssstables\\s+to\\s*\\[(?$<SSTABLEPATHS>)\\]\\.\\s+(?<size_bytes>[0-9.,]+\\s+[a-z]+)\\s+to\\s+(?<newsize__size>[0-9.,]+(\\s*[a-z]+)?)\\s\\([0-9a-z\\ %~,.]+\\)+\\sin\\s+(?$<DURATION>\\s*[a-z/]+)\\s*\\=\\s*(?<iorate_rate>[0-9.,]+\\s*[a-z/]+)\\.\\s+(?<totalpartitions>[0-9,]+)\\s+total\\s+partitions\\s+merged\\s+to\\s+(?<mergedpartitions>[0-9,]+)\\.\\s+Partition\\s+merge\\s+counts\\s+were\\s+\\{(?<mergecounts>[0-9:\\ ,]*)\\s*\\}$",
+          "^Compacted\\s+\\((?<ID>[a-f0-9\\-]+)\\)\\s+(?<sstables>\\d+)\\ssstables\\s+to\\s*\\[(?$<SSTABLEPATHS>)\\](?:\\s+to\\s+level\\s*=\\s*(?<level>\\d+))?\\.\\s+(?<size_bytes>[0-9.,]+\\s*[a-z]+)\\s+to\\s+(?<newsize__size>[0-9.,]+(\\s*[a-z]+)?)\\s\\([0-9a-z\\ %~,.]+\\)+\\sin\\s+$<!DURATIONwUOM>(?:\\s*=\\s*(?<iorate_rate>[0-9,.]+\\s*[a-z/]+))?\\.\\s*(?:Read\\sThroughput\\s+\\=\\s+(?<readrate_rate>[0-9.,]+\\s*[a-z/]+),\\s+Write\\sThroughput\\s+\\=\\s+(?<iorate_rate>[0-9.,]+\\s*[a-z/]+),\\s+Row\\sThroughput\\s+\\=\\s+~?(?<rowsrate_operation>[0-9,]+)\\s*[a-z/]+\\.\\s+)?(?<totalpartitions>[0-9,]+)\\s+total\\s+partitions\\s+merged\\s+to\\s+(?<mergedpartitions>[0-9,]+)\\.\\s+Partition\\s+merge\\s+counts\\s+were\\s+\\{(?<mergecounts>[0-9:\\ ,]*)\\s*\\}$"
         ]
       },
       "ParseThreadId": null,
@@ -1395,7 +1395,7 @@ Additinal group names and mappings:
       },
       "ParseMessage": {
         "RegExStrings": [
-          "^updating shards[a-z ]+/?\\s*(?$<NODE>)\\s+\\w+\\s(?<action>dead)$"
+          "^updating shards[a-z ]+/?\\s*(?$<NODE>)\\s+\\w+\\s(?<action>dead)\\.?$"
         ]
       },
       "ParseThreadId": null,
@@ -1403,13 +1403,55 @@ Additinal group names and mappings:
       "EventClass": "Detection, Node, Shard",
       "SubClass": "'Updating ' + action",
       "Product": "Cassandra",
-      "SessionKey": "'shardEvent' + NODE + token",
+      "SessionKey": "'shardEvent' + NODE",
       "NodeTransitionState": "Dead",
       "NodeTransitionStateOnlyAssocNodes": true,
       "Examples": [
         "INFO  [SharedPool-Worker-1] 2018-01-07 22:53:49,522  ShardRouter.java:605 - Updating shards state due to endpoint /10.0.0.2 changing state STATUS=NORMAL,-1051573540106914992",
         "INFO  [GossipStage:1] 2018-01-07 22:56:01,123  ShardRouter.java:645 - Updating shards state due to endpoint /10.0.0.2 changing state SCHEMA=541fdec0-47c9-33fd-b79c-4a37acd21019",
         "=>INFO  [GossipStage:1] 2018-01-07 22:56:02,345  ShardRouter.java:645 - Updating shards state due to endpoint /10.0.0.2 being dead",
+        "=>INFO  [GossipStage:1] 2019-10-03 19:21:59,726  Router.java:300 - Updating shards state due to endpoint /10.65.72.8 being removed.",
+        "INFO  [GossipStage:1] 2018-01-07 22:53:49,525  StorageService.java:1790 - Nodes /10.0.0.2 and /10.0.0.1 have the same token -1051573540106914992.  /10.0.0.2 is the new owner",
+        "WARN  [GossipStage:1] 2018-01-07 22:53:49,905  TokenMetadata.java:196 - Token -1051573540106914992 changing ownership from /10.0.0.1 to /10.0.0.2",
+        "NFO  [GossipStage:1] 2018-01-07 22:53:49,918  TokenMetadata.java:414 - Updating topology for /10.0.0.2"
+      ]
+    },
+    {
+      "Description": "Sharding Action",
+      "TagId": 8.41,
+      "MatchVersion": null,
+      "LevelMatch": {
+        "RegExStrings": [
+          "INFO"
+        ]
+      },
+      "FileNameMatch": {
+        "RegExStrings": [
+          "^ShardRouter.java$",
+          "^Router.java$"
+        ]
+      },
+      "MessageMatch": {
+        "RegExStrings": [
+          "^Updating shards\\s"
+        ]
+      },
+      "ParseMessage": {
+        "RegExStrings": [
+          "^updating shards[a-z ]+/?\\s*(?$<NODE>)\\s+\\w+\\s(?<action>\\w+)\\.?$"
+        ]
+      },
+      "ParseThreadId": null,
+      "EventType": "SingleInstance",
+      "EventClass": "Detection, Node, Shard",
+      "SubClass": "'Updating ' + action",
+      "Product": "Cassandra",
+      "SessionKey": "'shardEvent' + NODE",     
+      "Examples": [
+        "INFO  [SharedPool-Worker-1] 2018-01-07 22:53:49,522  ShardRouter.java:605 - Updating shards state due to endpoint /10.0.0.2 changing state STATUS=NORMAL,-1051573540106914992",
+        "INFO  [GossipStage:1] 2018-01-07 22:56:01,123  ShardRouter.java:645 - Updating shards state due to endpoint /10.0.0.2 changing state SCHEMA=541fdec0-47c9-33fd-b79c-4a37acd21019",
+        "=>INFO  [GossipStage:1] 2018-01-07 22:56:02,345  ShardRouter.java:645 - Updating shards state due to endpoint /10.0.0.2 being dead",
+        "=>INFO  [GossipStage:1] 2019-10-03 19:21:59,726  Router.java:300 - Updating shards state due to endpoint /10.65.72.8 being removed.",
         "INFO  [GossipStage:1] 2018-01-07 22:53:49,525  StorageService.java:1790 - Nodes /10.0.0.2 and /10.0.0.1 have the same token -1051573540106914992.  /10.0.0.2 is the new owner",
         "WARN  [GossipStage:1] 2018-01-07 22:53:49,905  TokenMetadata.java:196 - Token -1051573540106914992 changing ownership from /10.0.0.1 to /10.0.0.2",
         "NFO  [GossipStage:1] 2018-01-07 22:53:49,918  TokenMetadata.java:414 - Updating topology for /10.0.0.2"

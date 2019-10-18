@@ -272,5 +272,11 @@
     <Setting Name="NodeDQNegativeMissingDebugLogs" Type="System.Decimal" Scope="Application">
       <Value Profile="(Default)">-1</Value>
     </Setting>
+    <Setting Name="NodeDQNegativeStarts" Type="System.Decimal" Scope="Application">
+      <Value Profile="(Default)">-0.1</Value>
+    </Setting>
+    <Setting Name="NodeDQNegativeTokenChanges" Type="System.Decimal" Scope="Application">
+      <Value Profile="(Default)">-0.25</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
