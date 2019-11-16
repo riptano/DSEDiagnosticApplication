@@ -1,0 +1,44 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\datastax.snk</AssemblyOriginatorKeyFile>
+    <Version>2.22.0</Version>
+    <Company>Datastax</Company>
+    <Authors>Richard Andersen</Authors>
+    <AssemblyVersion>2.22.0.*</AssemblyVersion>
+    <FileVersion>2.22.0</FileVersion>
+    <Product>DataStax Enterprise Health Check Tool</Product>
+    <Deterministic>false</Deterministic>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <RepositoryUrl>https://github.com/richardandersen/DSEDiagnosticApplication.git</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/richardandersen/DSEDiagnosticApplication.git</PackageProjectUrl>
+    <PackageLicenseUrl>http://www.datastax.com/terms/datastax-dse-driver-license-terms</PackageLicenseUrl>
+    <Copyright>Copyright © by DataStax</Copyright>
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>
+      $(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb
+    </AllowedOutputExtensionsInPackageBuildOutputFolder>
+  </PropertyGroup>
+
+  <Target Name="PostBuild" AfterTargets="Pack">
+    <Exec ContinueOnError="True" Command="nuget delete &quot;$(PackageId)&quot; $(Version) -source &quot;$(SolutionDir)..\NuGetRepo\$(ConfigurationName)&quot; -NonInteractive" />
+    <Exec Command="nuget add &quot;$(TargetDir)..\$(TargetName).$(Version).nupkg&quot; -source &quot;$(SolutionDir)..\NuGetRepo\$(ConfigurationName)&quot;" />
+  </Target>
+
+  <ItemGroup>
+    <Compile Include="..\DSEDiagnosticParamsSettings\Helpers.cs" Link="Helpers.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Common.JSON" Version="5.22.0" />
+    <PackageReference Include="Common.Path" Version="5.22.0" />
+    <PackageReference Include="Common.Patterns.Collections" Version="5.22.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DSEDiagnosticLogger.Core\DSEDiagnosticLogger.Core.csproj" />
+  </ItemGroup>
+
+</Project>

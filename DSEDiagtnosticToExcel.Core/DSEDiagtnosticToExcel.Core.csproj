@@ -1,0 +1,82 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\datastax.snk</AssemblyOriginatorKeyFile>
+    <Version>2.22.0</Version>
+    <Company>Datastax</Company>
+    <Authors>Richard Andersen</Authors>
+    <AssemblyVersion>2.22.0.*</AssemblyVersion>
+    <FileVersion>2.22.0</FileVersion>
+    <Product>DataStax Enterprise Health Check Tool</Product>
+    <Deterministic>false</Deterministic>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <RepositoryUrl>https://github.com/richardandersen/DSEDiagnosticApplication.git</RepositoryUrl>
+    <PackageProjectUrl>htt\Propertiesps://github.com/richardandersen/DSEDiagnosticApplication.git</PackageProjectUrl>
+    <PackageLicenseUrl>http://www.datastax.com/terms/datastax-dse-driver-license-terms</PackageLicenseUrl>
+    <Copyright>Copyright © by DataStax</Copyright>
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>
+      $(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb
+    </AllowedOutputExtensionsInPackageBuildOutputFolder>
+  </PropertyGroup>
+
+  <Target Name="PostBuild" AfterTargets="Pack">
+    <Exec ContinueOnError="True" Command="nuget delete &quot;$(PackageId)&quot; $(Version) -source &quot;$(SolutionDir)..\NuGetRepo\$(ConfigurationName)&quot; -NonInteractive" />
+    <Exec Command="nuget add &quot;$(TargetDir)..\$(TargetName).$(Version).nupkg&quot; -source &quot;$(SolutionDir)..\NuGetRepo\$(ConfigurationName)&quot;" />
+  </Target>
+
+  <ItemGroup>
+    <Compile Include="..\DSEDiagtnosticToExcel\AggregatedStatsExcel.cs" Link="AggregatedStatsExcel.cs" />
+    <Compile Include="..\DSEDiagtnosticToExcel\ApplicationInfoExcel.cs" Link="ApplicationInfoExcel.cs" />
+    <Compile Include="..\DSEDiagtnosticToExcel\CFStatsExcel.cs" Link="CFStatsExcel.cs" />
+    <Compile Include="..\DSEDiagtnosticToExcel\CommonPartitionKeyExcel.cs" Link="CommonPartitionKeyExcel.cs" />
+    <Compile Include="..\DSEDiagtnosticToExcel\ConfigExcel.cs" Link="ConfigExcel.cs" />
+    <Compile Include="..\DSEDiagtnosticToExcel\CQLDLLDTExcel.cs" Link="CQLDLLDTExcel.cs" />
+    <Compile Include="..\DSEDiagtnosticToExcel\DataCenterExcel.cs" Link="DataCenterExcel.cs" />
+    <Compile Include="..\DSEDiagtnosticToExcel\DSEDevicesExcel.cs" Link="DSEDevicesExcel.cs" />
+    <Compile Include="..\DSEDiagtnosticToExcel\IExcel.cs" Link="IExcel.cs" />
+    <Compile Include="..\DSEDiagtnosticToExcel\KeyspaceDTExcel.cs" Link="KeyspaceDTExcel.cs" />
+    <Compile Include="..\DSEDiagtnosticToExcel\LCSLevelsExcel.cs" Link="LCSLevelsExcel.cs" />
+    <Compile Include="..\DSEDiagtnosticToExcel\LibrarySettings.cs" Link="LibrarySettings.cs" />
+    <Compile Include="..\DSEDiagtnosticToExcel\LoadDataSet.cs" Link="LoadDataSet.cs" />
+    <Compile Include="..\DSEDiagtnosticToExcel\LoadToExcel.cs" Link="LoadToExcel.cs" />
+    <Compile Include="..\DSEDiagtnosticToExcel\LogAggregationExcel.cs" Link="LogAggregationExcel.cs" />
+    <Compile Include="..\DSEDiagtnosticToExcel\Logger.cs" Link="Logger.cs" />
+    <Compile Include="..\DSEDiagtnosticToExcel\LogInformationExcel.cs" Link="LogInformationExcel.cs" />
+    <Compile Include="..\DSEDiagtnosticToExcel\MachineExcel.cs" Link="MachineExcel.cs" />
+    <Compile Include="..\DSEDiagtnosticToExcel\MultiInstanceExcel.cs" Link="MultiInstanceExcel.cs" />
+    <Compile Include="..\DSEDiagtnosticToExcel\NodeConfigChangesExcel.cs" Link="NodeConfigChangesExcel.cs" />
+    <Compile Include="..\DSEDiagtnosticToExcel\NodeExcel.cs" Link="NodeExcel.cs" />
+    <Compile Include="..\DSEDiagtnosticToExcel\NodeStateExcel.cs" Link="NodeStateExcel.cs" />
+    <Compile Include="..\DSEDiagtnosticToExcel\Properties\Settings.Designer.cs" Link="Properties\Settings.Designer.cs" />
+    <Compile Include="..\DSEDiagtnosticToExcel\RefreshWSExcel.cs" Link="RefreshWSExcel.cs" />
+    <Compile Include="..\DSEDiagtnosticToExcel\Result.cs" Link="Result.cs" />
+    <Compile Include="..\DSEDiagtnosticToExcel\Settings.cs" Link="Settings.cs" />
+    <Compile Include="..\DSEDiagtnosticToExcel\TaggedItemsExcel.cs" Link="TaggedItemsExcel.cs" />
+    <Compile Include="..\DSEDiagtnosticToExcel\TokenRangeExcel.cs" Link="TokenRangeExcel.cs" />
+    <Compile Include="..\DSEDiagtnosticToExcel\TPStatsExcel.cs" Link="TPStatsExcel.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="EPPlus" Version="4.5.3.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DSEDiagDataTableToExcel.Core\DSEDiagDataTableToExcel.Core.csproj" />
+    <ProjectReference Include="..\DSEDiagnosticLibrary.Core\DSEDiagnosticLibrary.Core.csproj" />
+    <ProjectReference Include="..\DSEDiagnosticLogger.Core\DSEDiagnosticLogger.Core.csproj" />
+    <ProjectReference Include="..\DSEDiagnosticParamsSettings.Core\DSEDiagnosticParamsSettings.Core.csproj" />
+    <ProjectReference Include="..\DSEDiagnosticToDataTable.Core\DSEDiagnosticToDataTable.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\DSEDiagtnosticToExcel\app.config" Link="app.config" />
+    <None Include="..\DSEDiagtnosticToExcel\Properties\Settings.settings" Link="Properties\Settings.settings" />
+  </ItemGroup>
+
+</Project>

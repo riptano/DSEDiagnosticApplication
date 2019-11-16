@@ -1,0 +1,76 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\datastax.snk</AssemblyOriginatorKeyFile>
+    <Version>2.22.0</Version>
+    <Company>Datastax</Company>
+    <Authors>Richard Andersen</Authors>
+    <AssemblyVersion>2.22.0.*</AssemblyVersion>
+    <FileVersion>2.22.0</FileVersion>
+    <Product>DataStax Enterprise Health Check Tool</Product>
+    <Deterministic>false</Deterministic>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <RepositoryUrl>https://github.com/richardandersen/DSEDiagnosticApplication.git</RepositoryUrl>
+    <PackageProjectUrl>htt\Propertiesps://github.com/richardandersen/DSEDiagnosticApplication.git</PackageProjectUrl>
+    <PackageLicenseUrl>http://www.datastax.com/terms/datastax-dse-driver-license-terms</PackageLicenseUrl>
+    <Copyright>Copyright © by DataStax</Copyright>
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>
+      $(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb
+    </AllowedOutputExtensionsInPackageBuildOutputFolder>
+  </PropertyGroup>
+
+  <Target Name="PostBuild" AfterTargets="Pack">
+    <Exec ContinueOnError="True" Command="nuget delete &quot;$(PackageId)&quot; $(Version) -source &quot;$(SolutionDir)..\NuGetRepo\$(ConfigurationName)&quot; -NonInteractive" />
+    <Exec Command="nuget add &quot;$(TargetDir)..\$(TargetName).$(Version).nupkg&quot; -source &quot;$(SolutionDir)..\NuGetRepo\$(ConfigurationName)&quot;" />
+  </Target>
+
+  <ItemGroup>
+    <Compile Include="..\DSEDiagnosticToDataTable\AggregatedStatsDataTable.cs" Link="AggregatedStatsDataTable.cs" />
+    <Compile Include="..\DSEDiagnosticToDataTable\CFStatsDataTable.cs" Link="CFStatsDataTable.cs" />
+    <Compile Include="..\DSEDiagnosticToDataTable\ColumnNames.cs" Link="ColumnNames.cs" />
+    <Compile Include="..\DSEDiagnosticToDataTable\CommonPartitionKeyDataTable.cs" Link="CommonPartitionKeyDataTable.cs" />
+    <Compile Include="..\DSEDiagnosticToDataTable\ConfigDataTable.cs" Link="ConfigDataTable.cs" />
+    <Compile Include="..\DSEDiagnosticToDataTable\CQLDDLDataTable.cs" Link="CQLDDLDataTable.cs" />
+    <Compile Include="..\DSEDiagnosticToDataTable\DataCenterDataTable.cs" Link="DataCenterDataTable.cs" />
+    <Compile Include="..\DSEDiagnosticToDataTable\DataTableLoad.cs" Link="DataTableLoad.cs" />
+    <Compile Include="..\DSEDiagnosticToDataTable\DSEDevicesDataTable.cs" Link="DSEDevicesDataTable.cs" />
+    <Compile Include="..\DSEDiagnosticToDataTable\IDataTable.cs" Link="IDataTable.cs" />
+    <Compile Include="..\DSEDiagnosticToDataTable\KeyspaceDataTable.cs" Link="KeyspaceDataTable.cs" />
+    <Compile Include="..\DSEDiagnosticToDataTable\LogAggregationDataTable.cs" Link="LogAggregationDataTable.cs" />
+    <Compile Include="..\DSEDiagnosticToDataTable\LogInformationDataTable.cs" Link="LogInformationDataTable.cs" />
+    <Compile Include="..\DSEDiagnosticToDataTable\MachineDataTable.cs" Link="MachineDataTable.cs" />
+    <Compile Include="..\DSEDiagnosticToDataTable\MiscHelpers.cs" Link="MiscHelpers.cs" />
+    <Compile Include="..\DSEDiagnosticToDataTable\MultiInstanceDataTable.cs" Link="MultiInstanceDataTable.cs" />
+    <Compile Include="..\DSEDiagnosticToDataTable\NodeConfigChanges.cs" Link="NodeConfigChanges.cs" />
+    <Compile Include="..\DSEDiagnosticToDataTable\NodeDataTable.cs" Link="NodeDataTable.cs" />
+    <Compile Include="..\DSEDiagnosticToDataTable\NodeStateDataTable.cs" Link="NodeStateDataTable.cs" />
+    <Compile Include="..\DSEDiagnosticToDataTable\Properties\Settings.Designer.cs" Link="Properties\Settings.Designer.cs" />
+    <Compile Include="..\DSEDiagnosticToDataTable\TaggedItemsDataTable.cs" Link="TaggedItemsDataTable.cs" />
+    <Compile Include="..\DSEDiagnosticToDataTable\TokenRangesDataTable.cs" Link="TokenRangesDataTable.cs" />
+    <Compile Include="..\DSEDiagnosticToDataTable\TPStatsDataTable.cs" Link="TPStatsDataTable.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\DSEDiagnosticToDataTable\app.config" Link="app.config" />
+    <None Include="..\DSEDiagnosticToDataTable\Properties\Settings.settings" Link="Properties\Settings.settings" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DSEDiagnosticAnalytics.Core\DSEDiagnosticAnalytics.Core.csproj" />
+    <ProjectReference Include="..\DSEDiagnosticLibrary.Core\DSEDiagnosticLibrary.Core.csproj" />
+    <ProjectReference Include="..\DSEDiagnosticLogger.Core\DSEDiagnosticLogger.Core.csproj" />
+    <ProjectReference Include="..\DSEDiagnosticParamsSettings.Core\DSEDiagnosticParamsSettings.Core.csproj" />
+    <ProjectReference Include="..\DSEDiagnosticTaskSchedulers.Core\DSEDiagnosticTaskSchedulers.Core.csproj" />
+  </ItemGroup>
+
+</Project>

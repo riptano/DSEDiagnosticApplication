@@ -1,0 +1,41 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\datastax.snk</AssemblyOriginatorKeyFile>
+    <Version>2.22.0</Version>
+    <Company>Datastax</Company>
+    <Authors>Richard Andersen</Authors>
+    <AssemblyVersion>2.22.0.*</AssemblyVersion>
+    <FileVersion>2.22.0</FileVersion>
+    <Product>DataStax Enterprise Health Check Tool</Product>
+    <Deterministic>false</Deterministic>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <RepositoryUrl>https://github.com/richardandersen/DSEDiagnosticApplication.git</RepositoryUrl>
+    <PackageProjectUrl>htt\Propertiesps://github.com/richardandersen/DSEDiagnosticApplication.git</PackageProjectUrl>
+    <PackageLicenseUrl>http://www.datastax.com/terms/datastax-dse-driver-license-terms</PackageLicenseUrl>
+    <Copyright>Copyright © by DataStax</Copyright>
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>
+      $(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb
+    </AllowedOutputExtensionsInPackageBuildOutputFolder>
+  </PropertyGroup>
+
+  <Target Name="PostBuild" AfterTargets="Pack">
+    <Exec ContinueOnError="True" Command="nuget delete &quot;$(PackageId)&quot; $(Version) -source &quot;$(SolutionDir)..\NuGetRepo\$(ConfigurationName)&quot; -NonInteractive" />
+    <Exec Command="nuget add &quot;$(TargetDir)..\$(TargetName).$(Version).nupkg&quot; -source &quot;$(SolutionDir)..\NuGetRepo\$(ConfigurationName)&quot;" />
+  </Target>
+
+  <ItemGroup>
+    <Compile Include="..\DSEDiagnosticTaskSchedulers\CurrentThreadTaskScheduler.cs" Link="CurrentThreadTaskScheduler.cs" />
+    <Compile Include="..\DSEDiagnosticTaskSchedulers\LazyExtensions.cs" Link="LazyExtensions.cs" />
+    <Compile Include="..\DSEDiagnosticTaskSchedulers\LimitedConcurrencyLevelTaskScheduler.cs" Link="LimitedConcurrencyLevelTaskScheduler.cs" />
+    <Compile Include="..\DSEDiagnosticTaskSchedulers\OrderedTaskScheduler.cs" Link="OrderedTaskScheduler.cs" />
+    <Compile Include="..\DSEDiagnosticTaskSchedulers\QueuedTaskScheduler.cs" Link="QueuedTaskScheduler.cs" />
+    <Compile Include="..\DSEDiagnosticTaskSchedulers\RoundRobinSchedulerGroup.cs" Link="RoundRobinSchedulerGroup.cs" />
+    <Compile Include="..\DSEDiagnosticTaskSchedulers\ThreadPerTaskScheduler.cs" Link="ThreadPerTaskScheduler.cs" />
+    <Compile Include="..\DSEDiagnosticTaskSchedulers\WorkStealingQueue.cs" Link="WorkStealingQueue.cs" />
+    <Compile Include="..\DSEDiagnosticTaskSchedulers\WorkStealingTaskScheduler.cs" Link="WorkStealingTaskScheduler.cs" />
+  </ItemGroup>
+
+</Project>

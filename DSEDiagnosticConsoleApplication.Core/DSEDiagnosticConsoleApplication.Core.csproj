@@ -1,0 +1,76 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\datastax.snk</AssemblyOriginatorKeyFile>
+    <Version>2.22.0</Version>
+    <Company>Datastax</Company>
+    <Authors>Richard Andersen</Authors>
+    <AssemblyVersion>2.22.0.*</AssemblyVersion>
+    <FileVersion>2.22.0</FileVersion>
+    <Product>DataStax Enterprise Health Check Tool</Product>
+    <Deterministic>false</Deterministic>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <RepositoryUrl>https://github.com/richardandersen/DSEDiagnosticApplication.git</RepositoryUrl>
+    <PackageProjectUrl>htt\Propertiesps://github.com/richardandersen/DSEDiagnosticApplication.git</PackageProjectUrl>
+    <PackageLicenseUrl>http://www.datastax.com/terms/datastax-dse-driver-license-terms</PackageLicenseUrl>
+    <Copyright>Copyright © by DataStax</Copyright>
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>
+      $(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb
+    </AllowedOutputExtensionsInPackageBuildOutputFolder>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
+  <Target Name="PostBuild" AfterTargets="Pack">
+    <Exec ContinueOnError="True" Command="nuget delete &quot;$(PackageId)&quot; $(Version) -source &quot;$(SolutionDir)..\NuGetRepo\$(ConfigurationName)&quot; -NonInteractive" />
+    <Exec Command="nuget add &quot;$(TargetDir)..\$(TargetName).$(Version).nupkg&quot; -source &quot;$(SolutionDir)..\NuGetRepo\$(ConfigurationName)&quot;" />
+  </Target>
+
+  <ItemGroup>
+    <Compile Include="..\DSEDiagnosticConsoleApplication\Analytics LogInfo.cs" Link="Analytics LogInfo.cs" />
+    <Compile Include="..\DSEDiagnosticConsoleApplication\ConsoleArguments.cs" Link="ConsoleArguments.cs" />
+    <Compile Include="..\DSEDiagnosticConsoleApplication\ConsoleDisplay.cs" Link="ConsoleDisplay.cs" />
+    <Compile Include="..\DSEDiagnosticConsoleApplication\DSEDiagnosticFileParser.cs" Link="DSEDiagnosticFileParser.cs" />
+    <Compile Include="..\DSEDiagnosticConsoleApplication\GCMonitor.cs" Link="GCMonitor.cs" />
+    <Compile Include="..\DSEDiagnosticConsoleApplication\LoadDataTables.cs" Link="LoadDataTables.cs" />
+    <Compile Include="..\DSEDiagnosticConsoleApplication\LoadExcelWorkbook.cs" Link="LoadExcelWorkbook.cs" />
+    <Compile Include="..\DSEDiagnosticConsoleApplication\Logger.cs" Link="Logger.cs" />
+    <Compile Include="..\DSEDiagnosticConsoleApplication\ParserSettings.cs" Link="ParserSettings.cs" />
+    <Compile Include="..\DSEDiagnosticConsoleApplication\Profiles.cs" Link="Profiles.cs" />
+    <Compile Include="..\DSEDiagnosticConsoleApplication\Program.cs" Link="Program.cs" />
+    <Compile Include="..\DSEDiagnosticConsoleApplication\Properties\Settings.Designer.cs" Link="Properties\Settings.Designer.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="..\DSEDiagnosticConsoleApplication\JSON\DSEDiagConsoleApp-OpsCtr-ProcessFileMappings.json" Link="Json\DSEDiagConsoleApp-OpsCtr-ProcessFileMappings.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommandLineArgumentsParser" Version="3.0.20" />
+    <PackageReference Include="Common.Console" Version="5.22.0" />
+    <PackageReference Include="log4net" Version="2.0.8" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Json\" />
+    <Folder Include="Properties\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\DSEDiagnosticConsoleApplication\App.config" Link="App.config" />
+    <None Include="..\DSEDiagnosticConsoleApplication\Properties\Settings.settings" Link="Properties\Settings.settings" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DSEDiagDataTableToExcel.Core\DSEDiagDataTableToExcel.Core.csproj" />
+    <ProjectReference Include="..\DSEDiagnosticAnalytics.Core\DSEDiagnosticAnalytics.Core.csproj" />
+    <ProjectReference Include="..\DSEDiagnosticFileParser.Core\DSEDiagnosticFileParser.Core.csproj" />
+    <ProjectReference Include="..\DSEDiagnosticLogger.Core\DSEDiagnosticLogger.Core.csproj" />
+    <ProjectReference Include="..\DSEDiagnosticParamsSettings.Core\DSEDiagnosticParamsSettings.Core.csproj" />
+    <ProjectReference Include="..\DSEDiagnosticTaskSchedulers.Core\DSEDiagnosticTaskSchedulers.Core.csproj" />
+    <ProjectReference Include="..\DSEDiagnosticToDataTable.Core\DSEDiagnosticToDataTable.Core.csproj" />
+    <ProjectReference Include="..\DSEDiagtnosticToExcel.Core\DSEDiagtnosticToExcel.Core.csproj" />
+  </ItemGroup>
+
+</Project>

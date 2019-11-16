@@ -1,0 +1,107 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\datastax.snk</AssemblyOriginatorKeyFile>
+    <Version>2.22.0</Version>
+    <Company>Datastax</Company>
+    <Authors>Richard Andersen</Authors>
+    <AssemblyVersion>2.22.0.*</AssemblyVersion>
+    <FileVersion>2.22.0</FileVersion>
+    <Product>DataStax Enterprise Health Check Tool</Product>
+    <Deterministic>false</Deterministic>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <RepositoryUrl>https://github.com/richardandersen/DSEDiagnosticApplication.git</RepositoryUrl>
+    <PackageProjectUrl>htt\Propertiesps://github.com/richardandersen/DSEDiagnosticApplication.git</PackageProjectUrl>
+    <PackageLicenseUrl>http://www.datastax.com/terms/datastax-dse-driver-license-terms</PackageLicenseUrl>
+    <Copyright>Copyright © by DataStax</Copyright>
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>
+      $(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb
+    </AllowedOutputExtensionsInPackageBuildOutputFolder>
+  </PropertyGroup>
+
+  <Target Name="PostBuild" AfterTargets="Pack">
+    <Exec ContinueOnError="True" Command="nuget delete &quot;$(PackageId)&quot; $(Version) -source &quot;$(SolutionDir)..\NuGetRepo\$(ConfigurationName)&quot; -NonInteractive" />
+    <Exec Command="nuget add &quot;$(TargetDir)..\$(TargetName).$(Version).nupkg&quot; -source &quot;$(SolutionDir)..\NuGetRepo\$(ConfigurationName)&quot;" />
+  </Target>
+
+  <ItemGroup>
+    <Compile Include="..\DSEDiagnosticLibrary\AggregatedStats.cs" Link="AggregatedStats.cs" />
+    <Compile Include="..\DSEDiagnosticLibrary\Cluster.cs" Link="Cluster.cs" />
+    <Compile Include="..\DSEDiagnosticLibrary\Configuration.cs" Link="Configuration.cs" />
+    <Compile Include="..\DSEDiagnosticLibrary\CQLFunction.cs" Link="CQLFunction.cs" />
+    <Compile Include="..\DSEDiagnosticLibrary\CQLIndex.cs" Link="CQLIndex.cs" />
+    <Compile Include="..\DSEDiagnosticLibrary\CQLMaterializedView.cs" Link="CQLMaterializedView.cs" />
+    <Compile Include="..\DSEDiagnosticLibrary\CQLTable.cs" Link="CQLTable.cs" />
+    <Compile Include="..\DSEDiagnosticLibrary\CQLTrigger.cs" Link="CQLTrigger.cs" />
+    <Compile Include="..\DSEDiagnosticLibrary\CQLUserDefinedType.cs" Link="CQLUserDefinedType.cs" />
+    <Compile Include="..\DSEDiagnosticLibrary\DataCenter.cs" Link="DataCenter.cs" />
+    <Compile Include="..\DSEDiagnosticLibrary\DDL.cs" Link="DDL.cs" />
+    <Compile Include="..\DSEDiagnosticLibrary\Event.cs" Link="Event.cs" />
+    <Compile Include="..\DSEDiagnosticLibrary\GlobalSuppressions.cs" Link="GlobalSuppressions.cs" />
+    <Compile Include="..\DSEDiagnosticLibrary\IDiagnosticProcess.cs" Link="IDiagnosticProcess.cs" />
+    <Compile Include="..\DSEDiagnosticLibrary\IProperties.cs" Link="IProperties.cs" />
+    <Compile Include="..\DSEDiagnosticLibrary\IResult.cs" Link="IResult.cs" />
+    <Compile Include="..\DSEDiagnosticLibrary\JsonConverter.cs" Link="JsonConverter.cs" />
+    <Compile Include="..\DSEDiagnosticLibrary\Keyspace.cs" Link="Keyspace.cs" />
+    <Compile Include="..\DSEDiagnosticLibrary\LibrarySettings.cs" Link="LibrarySettings.cs" />
+    <Compile Include="..\DSEDiagnosticLibrary\LogCassandraEvent.cs" Link="LogCassandraEvent.cs" />
+    <Compile Include="..\DSEDiagnosticLibrary\LogEvent.cs" Link="LogEvent.cs" />
+    <Compile Include="..\DSEDiagnosticLibrary\LogMessage.cs" Link="LogMessage.cs" />
+    <Compile Include="..\DSEDiagnosticLibrary\MiscHelpers1.cs" Link="MiscHelpers1.cs" />
+    <Compile Include="..\DSEDiagnosticLibrary\Node.cs" Link="Node.cs" />
+    <Compile Include="..\DSEDiagnosticLibrary\Parsed.cs" Link="Parsed.cs" />
+    <Compile Include="..\DSEDiagnosticLibrary\Properties\Settings.Designer.cs" Link="Properties\Settings.Designer.cs" />
+    <Compile Include="..\DSEDiagnosticLibrary\StringHelpers.cs" Link="StringHelpers.cs" />
+    <Compile Include="..\DSEDiagnosticLibrary\TokenRangeInfo.cs" Link="TokenRangeInfo.cs" />
+    <Compile Include="..\DSEDiagnosticLibrary\UnitOfMeasure.cs" Link="UnitOfMeasure.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Common.Patterns.Tasks" Version="5.22.0" />
+    <PackageReference Include="Common.Patterns.TimeZoneInfo" Version="5.22.0" />
+    <PackageReference Include="Common.TimeZones" Version="5.22.0" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.6.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DSEDiagnosticLogger.Core\DSEDiagnosticLogger.Core.csproj" />
+    <ProjectReference Include="..\DSEDiagnosticParamsSettings.Core\DSEDiagnosticParamsSettings.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="IANATimeZone\" />
+    <Folder Include="Properties\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\DSEDiagnosticLibrary\app.config" Link="app.config" />
+    <None Include="..\DSEDiagnosticLibrary\Properties\Settings.settings" Link="Properties\Settings.settings" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="C:\Users\RichardAndersen\.nuget\packages\common.patterns.timezoneinfo\5.22.0\contentFiles\any\netcoreapp2.2\IANACountry.json" Link="IANATimeZone\IANACountry.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="C:\Users\RichardAndersen\.nuget\packages\common.patterns.timezoneinfo\5.22.0\contentFiles\any\netcoreapp2.2\IANADatabaase.json" Link="IANATimeZone\IANADatabaase.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="C:\Users\RichardAndersen\.nuget\packages\common.patterns.timezoneinfo\5.22.0\contentFiles\any\netcoreapp2.2\IANALeapSeconds.json" Link="IANATimeZone\IANALeapSeconds.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="C:\Users\RichardAndersen\.nuget\packages\common.patterns.timezoneinfo\5.22.0\contentFiles\any\netcoreapp2.2\IANALocCode.json" Link="IANATimeZone\IANALocCode.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="C:\Users\RichardAndersen\.nuget\packages\common.patterns.timezoneinfo\5.22.0\contentFiles\any\netcoreapp2.2\IANARule.json" Link="IANATimeZone\IANARule.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="C:\Users\RichardAndersen\.nuget\packages\common.patterns.timezoneinfo\5.22.0\contentFiles\any\netcoreapp2.2\IANAZone.json" Link="IANATimeZone\IANAZone.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="C:\Users\RichardAndersen\.nuget\packages\common.patterns.timezoneinfo\5.22.0\contentFiles\any\netcoreapp2.2\IANAZoneRule.json" Link="IANATimeZone\IANAZoneRule.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+</Project>

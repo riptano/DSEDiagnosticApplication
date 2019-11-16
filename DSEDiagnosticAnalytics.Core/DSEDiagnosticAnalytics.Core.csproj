@@ -1,0 +1,70 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\datastax.snk</AssemblyOriginatorKeyFile>
+    <Version>2.22.0</Version>
+    <Company>Datastax</Company>
+    <Authors>Richard Andersen</Authors>
+    <AssemblyVersion>2.22.0.*</AssemblyVersion>
+    <FileVersion>2.22.0</FileVersion>
+    <Product>DataStax Enterprise Health Check Tool</Product>
+    <Deterministic>false</Deterministic>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <RepositoryUrl>https://github.com/richardandersen/DSEDiagnosticApplication.git</RepositoryUrl>
+    <PackageProjectUrl>htt\Propertiesps://github.com/richardandersen/DSEDiagnosticApplication.git</PackageProjectUrl>
+    <PackageLicenseUrl>http://www.datastax.com/terms/datastax-dse-driver-license-terms</PackageLicenseUrl>
+    <Copyright>Copyright © by DataStax</Copyright>
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>
+      $(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb
+    </AllowedOutputExtensionsInPackageBuildOutputFolder>
+  </PropertyGroup>
+
+  <Target Name="PostBuild" AfterTargets="Pack">
+    <Exec ContinueOnError="True" Command="nuget delete &quot;$(PackageId)&quot; $(Version) -source &quot;$(SolutionDir)..\NuGetRepo\$(ConfigurationName)&quot; -NonInteractive" />
+    <Exec Command="nuget add &quot;$(TargetDir)..\$(TargetName).$(Version).nupkg&quot; -source &quot;$(SolutionDir)..\NuGetRepo\$(ConfigurationName)&quot;" />
+  </Target>
+
+  <ItemGroup>
+    <Compile Include="..\DSEDiagnosticAnalytics\AggregateGroups.cs" Link="AggregateGroups.cs" />
+    <Compile Include="..\DSEDiagnosticAnalytics\AnalyzeData.cs" Link="AnalyzeData.cs" />
+    <Compile Include="..\DSEDiagnosticAnalytics\AttributeThreshold.cs" Link="AttributeThreshold.cs" />
+    <Compile Include="..\DSEDiagnosticAnalytics\CassandraLogEvent.cs" Link="CassandraLogEvent.cs" />
+    <Compile Include="..\DSEDiagnosticAnalytics\DataModelDCPK.cs" Link="DataModelDCPK.cs" />
+    <Compile Include="..\DSEDiagnosticAnalytics\GCStat.cs" Link="GCStat.cs" />
+    <Compile Include="..\DSEDiagnosticAnalytics\IAnalytics.cs" Link="IAnalytics.cs" />
+    <Compile Include="..\DSEDiagnosticAnalytics\LibrarySettings.cs" Link="LibrarySettings.cs" />
+    <Compile Include="..\DSEDiagnosticAnalytics\LogFileStats.cs" Link="LogFileStats.cs" />
+    <Compile Include="..\DSEDiagnosticAnalytics\Logger.cs" Link="Logger.cs" />
+    <Compile Include="..\DSEDiagnosticAnalytics\Properties\Settings.Designer.cs" Link="Properties\Settings.Designer.cs" />
+    <Compile Include="..\DSEDiagnosticAnalytics\Properties\StatPropertyNames.Designer.cs" Link="Properties\StatPropertyNames.Designer.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="..\DSEDiagnosticAnalytics\Json\AggregateGroups.json" Link="Json\AggregateGroups.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\DSEDiagnosticAnalytics\Json\AttributeThresholds.json" Link="Json\AttributeThresholds.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DSEDiagnosticLibrary.Core\DSEDiagnosticLibrary.Core.csproj" />
+    <ProjectReference Include="..\DSEDiagnosticLogger.Core\DSEDiagnosticLogger.Core.csproj" />
+    <ProjectReference Include="..\DSEDiagnosticParamsSettings.Core\DSEDiagnosticParamsSettings.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Json\" />
+    <Folder Include="Properties\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\DSEDiagnosticAnalytics\app.config" Link="app.config" />
+    <None Include="..\DSEDiagnosticAnalytics\Properties\Settings.settings" Link="Properties\Settings.settings" />
+    <None Include="..\DSEDiagnosticAnalytics\Properties\StatPropertyNames.settings" Link="Properties\StatPropertyNames.settings" />
+  </ItemGroup>
+
+</Project>

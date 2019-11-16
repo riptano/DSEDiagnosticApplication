@@ -1,0 +1,159 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\DSEDiagnosticFileParserTests\CLogLineTypeParser_Test.cs" Link="CLogLineTypeParser_Test.cs" />
+    <Compile Include="..\DSEDiagnosticFileParserTests\cql_ddlTests.cs" Link="cql_ddlTests.cs" />
+    <Compile Include="..\DSEDiagnosticFileParserTests\file_cassandra_log4netTests.cs" Link="file_cassandra_log4netTests.cs" />
+    <Compile Include="..\DSEDiagnosticFileParserTests\file_dsetool_ringTests.cs" Link="file_dsetool_ringTests.cs" />
+    <Compile Include="..\DSEDiagnosticFileParserTests\file_nodetool_tpstats.cs" Link="file_nodetool_tpstats.cs" />
+    <Compile Include="..\DSEDiagnosticFileParserTests\file_system_hostsTests.cs" Link="file_system_hostsTests.cs" />
+    <Compile Include="..\DSEDiagnosticFileParserTests\file_yamlTests.cs" Link="file_yamlTests.cs" />
+    <Compile Include="..\DSEDiagnosticFileParserTests\GlobalSuppressions.cs" Link="GlobalSuppressions.cs" />
+    <Compile Include="..\DSEDiagnosticFileParserTests\LogParsingTest_GCStatusLogger_Graph.cs" Link="LogParsingTest_GCStatusLogger_Graph.cs" />
+    <Compile Include="..\DSEDiagnosticFileParserTests\Properties\Settings.Designer.cs" Link="Properties\Settings.Designer.cs" />
+    <Compile Include="..\DSEDiagnosticFileParserTests\RegExLexiconTests.cs" Link="RegExLexiconTests.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="..\DSEDiagnosticFileParserTests\JSon\solr_index_size.json" Link="Json\solr_index_size.json" />
+    <Content Include="..\DSEDiagnosticFileParserTests\JSon\solr_index_size_empty.json" Link="Json\solr_index_size_empty.json" />
+    <Content Include="..\DSEDiagnosticFileParserTests\ResultFiles\cassandrayaml.json" Link="ResultFiles\cassandrayaml.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\DSEDiagnosticFileParserTests\ResultFiles\dseyaml.json" Link="ResultFiles\dseyaml.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\DSEDiagnosticFileParserTests\ResultFiles\nodeConfigyaml.json" Link="ResultFiles\nodeConfigyaml.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.0" />
+    <PackageReference Include="MSTest.TestAdapter" Version="1.3.2" />
+    <PackageReference Include="MSTest.TestFramework" Version="1.3.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DSEDiagnosticFileParser.Core\DSEDiagnosticFileParser.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="DDL\" />
+    <Folder Include="Files\" />
+    <Folder Include="Json\" />
+    <Folder Include="Logfiles\" />
+    <Folder Include="ResultFiles\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\DSEDiagnosticFileParserTests\app.config" Link="app.config" />
+    <None Include="..\DSEDiagnosticFileParserTests\DDL\describe_schema" Link="DDL\describe_schema">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\DSEDiagnosticFileParserTests\DDL\graph_ddl.cql" Link="DDL\graph_ddl.cql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\DSEDiagnosticFileParserTests\DDL\Simple_DDL" Link="DDL\Simple_DDL">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\DSEDiagnosticFileParserTests\Files\cassandra.yaml" Link="Files\cassandra.yaml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\DSEDiagnosticFileParserTests\Files\dse.yaml" Link="Files\dse.yaml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\DSEDiagnosticFileParserTests\Files\DSE4-tpstats" Link="Files\DSE4-tpstats">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\DSEDiagnosticFileParserTests\Files\DSE5-Graph-dsering" Link="Files\DSE5-Graph-dsering">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\DSEDiagnosticFileParserTests\Files\DSE5-ring" Link="Files\DSE5-ring">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\DSEDiagnosticFileParserTests\Files\DSE5-ring1" Link="Files\DSE5-ring1">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\DSEDiagnosticFileParserTests\Files\DSE5-tpstats" Link="Files\DSE5-tpstats">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\DSEDiagnosticFileParserTests\Files\DSE6-tpstats" Link="Files\DSE6-tpstats">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\DSEDiagnosticFileParserTests\Files\hosts" Link="Files\hosts">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\DSEDiagnosticFileParserTests\LogFiles\CompactionFlush.log" Link="Logfiles\CompactionFlush.log">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\DSEDiagnosticFileParserTests\LogFiles\CompactionSingle.log" Link="Logfiles\CompactionSingle.log">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\DSEDiagnosticFileParserTests\LogFiles\Debug1.log" Link="Logfiles\Debug1.log">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\DSEDiagnosticFileParserTests\LogFiles\ExceptionSimple.log" Link="Logfiles\ExceptionSimple.log">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\DSEDiagnosticFileParserTests\LogFiles\FullLog50.log" Link="Logfiles\FullLog50.log">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\DSEDiagnosticFileParserTests\LogFiles\FullTest.log" Link="Logfiles\FullTest.log">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\DSEDiagnosticFileParserTests\LogFiles\GC.log" Link="Logfiles\GC.log">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\DSEDiagnosticFileParserTests\LogFiles\GCStatusLogger.log" Link="Logfiles\GCStatusLogger.log">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\DSEDiagnosticFileParserTests\LogFiles\Log1-After.log" Link="Logfiles\Log1-After.log">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\DSEDiagnosticFileParserTests\LogFiles\Log1-Before.log" Link="Logfiles\Log1-Before.log">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\DSEDiagnosticFileParserTests\LogFiles\Log1-OL-After.log" Link="Logfiles\Log1-OL-After.log">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\DSEDiagnosticFileParserTests\LogFiles\Log1-OL-Before.log" Link="Logfiles\Log1-OL-Before.log">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\DSEDiagnosticFileParserTests\LogFiles\Log1-Same.log" Link="Logfiles\Log1-Same.log">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\DSEDiagnosticFileParserTests\LogFiles\Log1-Within.log" Link="Logfiles\Log1-Within.log">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\DSEDiagnosticFileParserTests\LogFiles\Log1.log" Link="Logfiles\Log1.log">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\DSEDiagnosticFileParserTests\LogFiles\Log2.log" Link="Logfiles\Log2.log">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\DSEDiagnosticFileParserTests\LogFiles\NodeConfig.log" Link="Logfiles\NodeConfig.log">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\DSEDiagnosticFileParserTests\LogFiles\PoolGC.log" Link="Logfiles\PoolGC.log">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\DSEDiagnosticFileParserTests\LogFiles\SchemaChangesShardingEvts.log" Link="Logfiles\SchemaChangesShardingEvts.log">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\DSEDiagnosticFileParserTests\LogFiles\SolrHardCommit.log" Link="Logfiles\SolrHardCommit.log">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\DSEDiagnosticFileParserTests\LogFiles\UnHandledLogEvents.log" Link="Logfiles\UnHandledLogEvents.log">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\DSEDiagnosticFileParserTests\Properties\Settings.settings" Link="Properties\Settings.settings" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,158 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\datastax.snk</AssemblyOriginatorKeyFile>
+    <Version>2.22.0</Version>
+    <Company>Datastax</Company>
+    <Authors>Richard Andersen</Authors>
+    <AssemblyVersion>2.22.0.*</AssemblyVersion>
+    <FileVersion>2.22.0</FileVersion>
+    <Product>DataStax Enterprise Health Check Tool</Product>
+    <Deterministic>false</Deterministic>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <RepositoryUrl>https://github.com/richardandersen/DSEDiagnosticApplication.git</RepositoryUrl>
+    <PackageProjectUrl>htt\Propertiesps://github.com/richardandersen/DSEDiagnosticApplication.git</PackageProjectUrl>
+    <PackageLicenseUrl>http://www.datastax.com/terms/datastax-dse-driver-license-terms</PackageLicenseUrl>
+    <Copyright>Copyright © by DataStax</Copyright>
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>
+      $(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb
+    </AllowedOutputExtensionsInPackageBuildOutputFolder>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>TRACE</DefineConstants>
+    <DebugType>portable</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+
+  <Target Name="PostBuild" AfterTargets="Pack">
+    <Exec ContinueOnError="True" Command="nuget delete &quot;$(PackageId)&quot; $(Version) -source &quot;$(SolutionDir)..\NuGetRepo\$(ConfigurationName)&quot; -NonInteractive" />
+    <Exec Command="nuget add &quot;$(TargetDir)..\$(TargetName).$(Version).nupkg&quot; -source &quot;$(SolutionDir)..\NuGetRepo\$(ConfigurationName)&quot;" />
+  </Target>
+
+  <ItemGroup>
+    <Compile Include="..\DSEDiagnosticFileParser\CLogLineTypeParser.cs" Link="CLogLineTypeParser.cs" />
+    <Compile Include="..\DSEDiagnosticFileParser\cql-ddl.cs" Link="cql-ddl.cs" />
+    <Compile Include="..\DSEDiagnosticFileParser\DiagnosticFile.cs" Link="DiagnosticFile.cs" />
+    <Compile Include="..\DSEDiagnosticFileParser\ExceptionEventArgs.cs" Link="ExceptionEventArgs.cs" />
+    <Compile Include="..\DSEDiagnosticFileParser\file-agent_version.cs" Link="file-agent_version.cs" />
+    <Compile Include="..\DSEDiagnosticFileParser\file-cassandra-log4net-ReadTimeRange.cs" Link="file-cassandra-log4net-ReadTimeRange.cs" />
+    <Compile Include="..\DSEDiagnosticFileParser\file-cassandra-log4net.cs" Link="file-cassandra-log4net.cs" />
+    <Compile Include="..\DSEDiagnosticFileParser\file-cassandra-rackdc-properties.cs" Link="file-cassandra-rackdc-properties.cs" />
+    <Compile Include="..\DSEDiagnosticFileParser\file-cassandra-topology.cs" Link="file-cassandra-topology.cs" />
+    <Compile Include="..\DSEDiagnosticFileParser\file-create-folder-structure.cs" Link="file-create-folder-structure.cs" />
+    <Compile Include="..\DSEDiagnosticFileParser\file-dsetool-ring.cs" Link="file-dsetool-ring.cs" />
+    <Compile Include="..\DSEDiagnosticFileParser\file-load_avg.cs" Link="file-load_avg.cs" />
+    <Compile Include="..\DSEDiagnosticFileParser\file-nodemapping.cs" Link="file-nodemapping.cs" />
+    <Compile Include="..\DSEDiagnosticFileParser\file-nodetool-cfstats.cs" Link="file-nodetool-cfstats.cs" />
+    <Compile Include="..\DSEDiagnosticFileParser\file-nodetool-describecluster.cs" Link="file-nodetool-describecluster.cs" />
+    <Compile Include="..\DSEDiagnosticFileParser\file-nodetool-info.cs" Link="file-nodetool-info.cs" />
+    <Compile Include="..\DSEDiagnosticFileParser\file-nodetool-proxyhistograms.cs" Link="file-nodetool-proxyhistograms.cs" />
+    <Compile Include="..\DSEDiagnosticFileParser\file-nodetool-ring.cs" Link="file-nodetool-ring.cs" />
+    <Compile Include="..\DSEDiagnosticFileParser\file-nodetool-status.cs" Link="file-nodetool-status.cs" />
+    <Compile Include="..\DSEDiagnosticFileParser\file-nodetool-tpstats.cs" Link="file-nodetool-tpstats.cs" />
+    <Compile Include="..\DSEDiagnosticFileParser\file-nodetool-version.cs" Link="file-nodetool-version.cs" />
+    <Compile Include="..\DSEDiagnosticFileParser\file-ntpstat.cs" Link="file-ntpstat.cs" />
+    <Compile Include="..\DSEDiagnosticFileParser\file-ntptime.cs" Link="file-ntptime.cs" />
+    <Compile Include="..\DSEDiagnosticFileParser\file-return-collection.cs" Link="file-return-collection.cs" />
+    <Compile Include="..\DSEDiagnosticFileParser\file-system-hosts.cs" Link="file-system-hosts.cs" />
+    <Compile Include="..\DSEDiagnosticFileParser\file-unzip.cs" Link="file-unzip.cs" />
+    <Compile Include="..\DSEDiagnosticFileParser\file-yaml.cs" Link="file-yaml.cs" />
+    <Compile Include="..\DSEDiagnosticFileParser\FileMapper.cs" Link="FileMapper.cs" />
+    <Compile Include="..\DSEDiagnosticFileParser\file_DSE_env.cs" Link="file_DSE_env.cs" />
+    <Compile Include="..\DSEDiagnosticFileParser\GlobalSuppressions.cs" Link="GlobalSuppressions.cs" />
+    <Compile Include="..\DSEDiagnosticFileParser\jason-cpu.cs" Link="jason-cpu.cs" />
+    <Compile Include="..\DSEDiagnosticFileParser\json-disk-space.cs" Link="json-disk-space.cs" />
+    <Compile Include="..\DSEDiagnosticFileParser\json-java_heap.cs" Link="json-java_heap.cs" />
+    <Compile Include="..\DSEDiagnosticFileParser\json-java_system_properties.cs" Link="json-java_system_properties.cs" />
+    <Compile Include="..\DSEDiagnosticFileParser\json-location.cs" Link="json-location.cs" />
+    <Compile Include="..\DSEDiagnosticFileParser\json-machine-info.cs" Link="json-machine-info.cs" />
+    <Compile Include="..\DSEDiagnosticFileParser\json-memory.cs" Link="json-memory.cs" />
+    <Compile Include="..\DSEDiagnosticFileParser\json-node_info.cs" Link="json-node_info.cs" />
+    <Compile Include="..\DSEDiagnosticFileParser\json-os-info.cs" Link="json-os-info.cs" />
+    <Compile Include="..\DSEDiagnosticFileParser\json-repair_service.cs" Link="json-repair_service.cs" />
+    <Compile Include="..\DSEDiagnosticFileParser\json-solr_index_size.cs" Link="json-solr_index_size.cs" />
+    <Compile Include="..\DSEDiagnosticFileParser\LibrarySettings.cs" Link="LibrarySettings.cs" />
+    <Compile Include="..\DSEDiagnosticFileParser\MiscHelpers.cs" Link="MiscHelpers.cs" />
+    <Compile Include="..\DSEDiagnosticFileParser\ProcessJsonFile.cs" Link="ProcessJsonFile.cs" />
+    <Compile Include="..\DSEDiagnosticFileParser\ProgressionEventArgs.cs" Link="ProgressionEventArgs.cs" />
+    <Compile Include="..\DSEDiagnosticFileParser\Properties\Settings.Designer.cs" Link="Properties\Settings.Designer.cs" />
+    <Compile Include="..\DSEDiagnosticFileParser\Properties\StatPropertyNames.Designer.cs" Link="Properties\StatPropertyNames.Designer.cs" />
+    <Compile Include="..\DSEDiagnosticFileParser\RegExLexicon.cs" Link="RegExLexicon.cs" />
+    <Compile Include="..\DSEDiagnosticFileParser\RegExParseString.cs" Link="RegExParseString.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="..\DSEDiagnosticFileParser\Json\DiagnosticFileRegExAssocations.json" Link="Json\DiagnosticFileRegExAssocations.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\DSEDiagnosticFileParser\Json\file-create-folder-structure-Mappings.json" Link="Json\file-create-folder-structure-Mappings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\DSEDiagnosticFileParser\Json\Log4NetParser-schema.json" Link="Json\Log4NetParser-schema.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\DSEDiagnosticFileParser\Json\Log4NetParser.json" Link="Json\Log4NetParser.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\DSEDiagnosticFileParser\Json\Log4NetParserLogsNoFlushComp.json" Link="Json\Log4NetParserLogsNoFlushComp.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\DSEDiagnosticFileParser\Json\Log4NetParserLogsNoFlushCompGC.json" Link="Json\Log4NetParserLogsNoFlushCompGC.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\DSEDiagnosticFileParser\Json\Log4NetParserNoRepairs.json" Link="Json\Log4NetParserNoRepairs.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\DSEDiagnosticFileParser\Json\Log4NetParserValidateLogs.json" Link="Json\Log4NetParserValidateLogs.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\DSEDiagnosticFileParser\Json\ProcessFileMappings-CreateOpsCenterCopy.json" Link="Json\ProcessFileMappings-CreateOpsCenterCopy.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\DSEDiagnosticFileParser\Json\ProcessFileMappings.json" Link="Json\ProcessFileMappings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\DSEDiagnosticFileParser\Json\ProcessFileMappingsNoDebugLogs.json" Link="Json\ProcessFileMappingsNoDebugLogs.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\DSEDiagnosticFileParser\Json\ProcessFileMappingsNoLogs.json" Link="Json\ProcessFileMappingsNoLogs.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\DSEDiagnosticFileParser\Json\ProcessFileMappingsValidate.json" Link="Json\ProcessFileMappingsValidate.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\DSEDiagnosticFileParser\Json\Unzip-ProcessFileMappings.json" Link="Json\Unzip-ProcessFileMappings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DSEDiagnosticAnalytics.Core\DSEDiagnosticAnalytics.Core.csproj" />
+    <ProjectReference Include="..\DSEDiagnosticCQLSchema.Core\DSEDiagnosticCQLSchema.Core.csproj" />
+    <ProjectReference Include="..\DSEDiagnosticLibrary.Core\DSEDiagnosticLibrary.Core.csproj" />
+    <ProjectReference Include="..\DSEDiagnosticLog4NetParser.Core\DSEDiagnosticLog4NetParser.Core.csproj" />
+    <ProjectReference Include="..\DSEDiagnosticLogger.Core\DSEDiagnosticLogger.Core.csproj" />
+    <ProjectReference Include="..\DSEDiagnosticParamsSettings.Core\DSEDiagnosticParamsSettings.Core.csproj" />
+    <ProjectReference Include="..\DSEDiagnosticTaskSchedulers.Core\DSEDiagnosticTaskSchedulers.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Json\" />
+    <Folder Include="Properties\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\DSEDiagnosticFileParser\app.config" Link="app.config" />
+    <None Include="..\DSEDiagnosticFileParser\Properties\Settings.settings" Link="Properties\Settings.settings" />
+    <None Include="..\DSEDiagnosticFileParser\Properties\StatPropertyNames.settings" Link="Properties\StatPropertyNames.settings" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ICSharpCode.SharpZLib" Version="0.86.5" />
+    <PackageReference Include="System.CodeDom" Version="4.6.0" />
+  </ItemGroup>
+
+</Project>
