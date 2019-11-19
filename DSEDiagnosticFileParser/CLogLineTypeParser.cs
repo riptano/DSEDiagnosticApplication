@@ -1345,11 +1345,12 @@ namespace DSEDiagnosticFileParser
                                                                                                     (!SessionKeywords.Contains(i)).ToString().ToLower(),
                                                                                                     cacheIdx);
                                     });
-                cacheInfo.KeyMethodInfo = MiscHelpers.CompileMethod(GenerateMethodName(logLineParser.Product,
-                                                                                        logLineParser.EventClass,
-                                                                                        logLineParser.EventType,
-                                                                                        logLineParser.CacheInfoVarName(cacheIdx),
-                                                                                        true),
+                cacheInfo.KeyMethodInfo = MiscHelpers.CompileMethod(logLineParser.Description+logLineParser.TagId.ToString(),
+                                                                                GenerateMethodName(logLineParser.Product,
+                                                                                                    logLineParser.EventClass,
+                                                                                                    logLineParser.EventType,
+                                                                                                    logLineParser.CacheInfoVarName(cacheIdx),
+                                                                                                    true),
                                                                                     typeof(string),
                                                                                     new Tuple<Type, string>[]
                                                                                     {
@@ -1392,11 +1393,12 @@ namespace DSEDiagnosticFileParser
             else if (propValue[0] == '{')
             {
                 cacheInfo.KeyMethodInfoIsMethod = false;
-                cacheInfo.KeyMethodInfo = MiscHelpers.CompileMethod(GenerateMethodName(logLineParser.Product,
-                                                                                        logLineParser.EventClass,
-                                                                                        logLineParser.EventType,
-                                                                                        logLineParser.CacheInfoVarName(cacheIdx),
-                                                                                        false),
+                cacheInfo.KeyMethodInfo = MiscHelpers.CompileMethod(logLineParser.Description + logLineParser.TagId.ToString(),
+                                                                                    GenerateMethodName(logLineParser.Product,
+                                                                                                        logLineParser.EventClass,
+                                                                                                        logLineParser.EventType,
+                                                                                                        logLineParser.CacheInfoVarName(cacheIdx),
+                                                                                                        false),
                                                                                     typeof(string),
                                                                                     new Tuple<Type, string>[]
                                                                                     {

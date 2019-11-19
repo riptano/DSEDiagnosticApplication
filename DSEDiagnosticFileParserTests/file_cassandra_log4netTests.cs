@@ -96,7 +96,7 @@ namespace DSEDiagnosticFileParser.Tests
 
             Assert.IsNotNull(result);
             Assert.AreEqual(this._node1, result.Node);
-            Assert.AreEqual(6, result.Results.Count());
+            Assert.AreEqual(3, result.Results.Count());
             Assert.AreEqual(0, result.OrphanedSessionEvents.Count());
             
             var logeventResults = result.Results.Cast<DSEDiagnosticLibrary.LogCassandraEvent>();

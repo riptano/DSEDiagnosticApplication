@@ -4,8 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+#if NET40
 using System.CodeDom.Compiler;
 using Microsoft.CSharp;
+#else
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using System.Runtime.Loader;
+#endif
 using Common;
 using Common.Patterns.Threading;
 using Newtonsoft.Json.Linq;
@@ -13,6 +19,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Net;
 using DSEDiagnosticLogger;
+using System.IO;
 
 namespace DSEDiagnosticFileParser
 {
@@ -175,7 +182,7 @@ namespace DSEDiagnosticFileParser
 
             if (extractType == "zip")
             {
-                #region zip
+#region zip
                 try
                 {
                     var zip = new ICSharpCode.SharpZipLib.Zip.FastZip()
@@ -191,11 +198,11 @@ namespace DSEDiagnosticFileParser
                                                 ex);
                     bResult = false;
                 }
-                #endregion
+#endregion
             }
             else if (extractType == "gz" || extractType == "tar.gz" || extractType == "tgz")
             {
-                #region gz
+#region gz
                 try
                 {
                     using (var stream = filePath.OpenRead())
@@ -241,11 +248,11 @@ namespace DSEDiagnosticFileParser
                         bResult = false;
                     }
                 }
-                #endregion
+#endregion
             }
             else if (extractType == "tar")
             {
-                #region tar
+#region tar
                 try
                 {
                     using (var stream = filePath.OpenRead())
@@ -286,11 +293,11 @@ namespace DSEDiagnosticFileParser
                         bResult = false;
                     }
                 }
-                #endregion
+#endregion
             }
             else if(extractType == "bzip2")
             {
-                #region bzip2
+#region bzip2
                 
                 var fileName = filePath.FileNameWithoutExtension;
 
@@ -328,11 +335,11 @@ namespace DSEDiagnosticFileParser
                     }
 
                 }
-                #endregion
+#endregion
             }
             else if (extractType == "msgz")
             {
-                #region .net framework gz version
+#region .net framework gz version
                 
                 var fileName = filePath.FileNameWithoutExtension;
 
@@ -373,7 +380,7 @@ namespace DSEDiagnosticFileParser
                         bResult = false;
                     }
                 }
-                #endregion
+#endregion
             }
             else
             {
@@ -517,7 +524,7 @@ namespace DSEDiagnosticFileParser
 
         private static Dictionary<int, Assembly> CompiledSources = new Dictionary<int, Assembly>();
 
-        public static Assembly CompileSource(string sourceCode, IEnumerable<Assembly> addedAssemblies = null)
+        public static Assembly CompileSource(string name, string sourceCode, IEnumerable<Assembly> addedAssemblies = null)
         {
             sourceCode = sourceCode?.Trim();
 
@@ -531,6 +538,7 @@ namespace DSEDiagnosticFileParser
                 return compiledAssembly;
             }
 
+#if NET40
             CodeDomProvider cpd = new CSharpCodeProvider();
             CompilerParameters cp = new CompilerParameters();
 
@@ -571,7 +579,7 @@ namespace DSEDiagnosticFileParser
             cp.GenerateExecutable = false;
             cp.GenerateInMemory = true;
             cp.CompilerOptions = "/optimize";
-            cp.IncludeDebugInformation = false;
+            cp.IncludeDebugInformation = false;           
 
             // Invoke compilation.
             CompilerResults cr = cpd.CompileAssemblyFromSource(cp, sourceCode);
@@ -593,13 +601,105 @@ namespace DSEDiagnosticFileParser
                                                                 errorStr));
             }
 
-            compiledAssembly = cr.CompiledAssembly;
-            CompiledSources.Add(sourceCode.GetHashCode(), compiledAssembly);
+            compiledAssembly = cr.CompiledAssembly;            
+#else
+            var dotnetCoreDirectory = System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory();
 
+            var compilation = CSharpCompilation.Create(name)
+                .WithOptions(new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary))
+                .AddReferences(
+                    MetadataReference.CreateFromFile(typeof(object).GetTypeInfo().Assembly.Location),
+                    MetadataReference.CreateFromFile(Assembly.GetExecutingAssembly().Location),
+                    MetadataReference.CreateFromFile(typeof(DSEDiagnosticFileParser.MiscHelpers).Assembly.Location),
+                    MetadataReference.CreateFromFile(typeof(DSEDiagnosticLibrary.MiscHelpers).Assembly.Location),
+                    MetadataReference.CreateFromFile(typeof(DSEDiagnosticLogger.Logger).Assembly.Location),
+                    MetadataReference.CreateFromFile(typeof(DSEDiagnosticLog4NetParser.LogMessage).Assembly.Location),
+                    MetadataReference.CreateFromFile(System.IO.Path.Combine(dotnetCoreDirectory, "mscorlib.dll")),
+                    MetadataReference.CreateFromFile(System.IO.Path.Combine(dotnetCoreDirectory, "netstandard.dll")),
+                    MetadataReference.CreateFromFile(System.IO.Path.Combine(dotnetCoreDirectory, "System.Runtime.dll")));
+
+            if (LibrarySettings.CodeDomAssemblies != null)
+            {
+                foreach (var assemblyName in LibrarySettings.CodeDomAssemblies)
+                {
+                    if (assemblyName.Length > 1 && assemblyName[0] == '-') continue;
+
+                    var file = Common.ConfigHelper.Parse(assemblyName);
+
+                    if (string.IsNullOrEmpty(file))
+                    {
+                        Logger.Instance.WarnFormat("Dynamic Compiling Assembly Loading Failure for \"{0}\"", assemblyName);
+                        System.Diagnostics.Debug.WriteLine(string.Format("Dynamic Compiling Assembly Loading Failure for \"{0}\"", assemblyName), "Warning");
+                    }
+                    else
+                    {
+                        compilation.AddReferences(MetadataReference.CreateFromFile(file));
+                    }
+                }
+            }
+
+            if (addedAssemblies != null)
+            {
+                foreach (var assembly in addedAssemblies.DuplicatesRemoved(a => a.Location))
+                {
+                    compilation.AddReferences(MetadataReference.CreateFromFile(assembly.Location));
+                }
+            }
+
+            compilation = compilation.AddSyntaxTrees(CSharpSyntaxTree.ParseText(sourceCode));
+
+            var diagMsgs = compilation.GetDiagnostics();
+
+            if (diagMsgs.HasAtLeastOneElement())
+            {
+                var hasErrors = diagMsgs.Any(m => m.Severity == DiagnosticSeverity.Error);
+
+                if (hasErrors)
+                {
+                    Logger.Instance.ErrorFormat("Dynamic Compiling Error for body \"{0}\".", sourceCode);
+                    var errorStr = new StringBuilder();
+
+                    foreach (var error in diagMsgs)
+                    {
+                        Logger.Instance.Error(error.ToString());
+
+                        errorStr.Append('\t');
+                        errorStr.AppendLine(error.ToString());
+                    }
+
+                    throw new ApplicationException(string.Format("Dynamic Compiling Error for {0}{1}{0}with Errors:{0}{2}",
+                                                                    Environment.NewLine,
+                                                                    sourceCode,
+                                                                    errorStr));
+                }
+#if DEBUG
+                Logger.Instance.WarnFormat("Dynamic Compiling Warnings for body \"{0}\".", sourceCode);
+                foreach (var error in diagMsgs)
+                {
+                    Logger.Instance.Warn(error.ToString());                    
+                }
+#endif
+            }
+
+            using (var memoryStream = new MemoryStream())
+            {
+                var emitResult = compilation.Emit(memoryStream);
+                if (emitResult.Success)
+                {
+                    memoryStream.Seek(0, SeekOrigin.Begin);
+
+                    var context = AssemblyLoadContext.Default;
+                    var assembly = context.LoadFromStream(memoryStream);
+
+                    compiledAssembly = assembly;
+                }
+            }
+#endif
+            CompiledSources.Add(sourceCode.GetHashCode(), compiledAssembly);
             return compiledAssembly;
         }
 
-        public static MethodInfo CompileMethod(string methodName, Type returnType, IEnumerable<Tuple<Type, string>> arguments, string body, string defaultStaticClassName = null)
+        public static MethodInfo CompileMethod(string assemblyName, string methodName, Type returnType, IEnumerable<Tuple<Type, string>> arguments, string body, string defaultStaticClassName = null)
         {
             var className = string.IsNullOrEmpty(defaultStaticClassName) ? methodName + "_class" : defaultStaticClassName;
             methodName = methodName.Trim();
@@ -626,7 +726,7 @@ namespace DSEDiagnosticFileParser
                 typeAssemblies.Add(returnType.Assembly);
             }
 
-            var ca = CompileSource(methodBody, typeAssemblies);
+            var ca = CompileSource(assemblyName+className, methodBody, typeAssemblies);
             var t = ca.GetType(className);
 
             return t.GetMethod(methodName, arguments?.Select(a => a.Item1).ToArray() ?? new Type[0]);
@@ -684,7 +784,7 @@ namespace DSEDiagnosticFileParser
             return setHostName != null && setHostName.Item1;
         }
         
-        #region JSON
+#region JSON
 
         public static Dictionary<string, JObject> TryGetValues(this JObject jsonObj)
         {
@@ -1060,7 +1160,7 @@ namespace DSEDiagnosticFileParser
 
             return false;
         }
-        #endregion
+#endregion
 
     }
 }
