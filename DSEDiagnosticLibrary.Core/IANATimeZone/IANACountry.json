@@ -1,0 +1,1745 @@
+{
+  "AD": {
+    "Name": "Andorra",
+    "ISO3166": {
+      "Code": "AD"
+    },
+    "Identity": 857
+  },
+  "AE": {
+    "Name": "United Arab Emirates",
+    "ISO3166": {
+      "Code": "AE"
+    },
+    "Identity": 858
+  },
+  "AF": {
+    "Name": "Afghanistan",
+    "ISO3166": {
+      "Code": "AF"
+    },
+    "Identity": 859
+  },
+  "AG": {
+    "Name": "Antigua & Barbuda",
+    "ISO3166": {
+      "Code": "AG"
+    },
+    "Identity": 860
+  },
+  "AI": {
+    "Name": "Anguilla",
+    "ISO3166": {
+      "Code": "AI"
+    },
+    "Identity": 861
+  },
+  "AL": {
+    "Name": "Albania",
+    "ISO3166": {
+      "Code": "AL"
+    },
+    "Identity": 862
+  },
+  "AM": {
+    "Name": "Armenia",
+    "ISO3166": {
+      "Code": "AM"
+    },
+    "Identity": 863
+  },
+  "AO": {
+    "Name": "Angola",
+    "ISO3166": {
+      "Code": "AO"
+    },
+    "Identity": 864
+  },
+  "AQ": {
+    "Name": "Antarctica",
+    "ISO3166": {
+      "Code": "AQ"
+    },
+    "Identity": 865
+  },
+  "AR": {
+    "Name": "Argentina",
+    "ISO3166": {
+      "Code": "AR"
+    },
+    "Identity": 866
+  },
+  "AS": {
+    "Name": "Samoa (American)",
+    "ISO3166": {
+      "Code": "AS"
+    },
+    "Identity": 867
+  },
+  "AT": {
+    "Name": "Austria",
+    "ISO3166": {
+      "Code": "AT"
+    },
+    "Identity": 868
+  },
+  "AU": {
+    "Name": "Australia",
+    "ISO3166": {
+      "Code": "AU"
+    },
+    "Identity": 869
+  },
+  "AW": {
+    "Name": "Aruba",
+    "ISO3166": {
+      "Code": "AW"
+    },
+    "Identity": 870
+  },
+  "AX": {
+    "Name": "Åland Islands",
+    "ISO3166": {
+      "Code": "AX"
+    },
+    "Identity": 871
+  },
+  "AZ": {
+    "Name": "Azerbaijan",
+    "ISO3166": {
+      "Code": "AZ"
+    },
+    "Identity": 872
+  },
+  "BA": {
+    "Name": "Bosnia & Herzegovina",
+    "ISO3166": {
+      "Code": "BA"
+    },
+    "Identity": 873
+  },
+  "BB": {
+    "Name": "Barbados",
+    "ISO3166": {
+      "Code": "BB"
+    },
+    "Identity": 874
+  },
+  "BD": {
+    "Name": "Bangladesh",
+    "ISO3166": {
+      "Code": "BD"
+    },
+    "Identity": 875
+  },
+  "BE": {
+    "Name": "Belgium",
+    "ISO3166": {
+      "Code": "BE"
+    },
+    "Identity": 876
+  },
+  "BF": {
+    "Name": "Burkina Faso",
+    "ISO3166": {
+      "Code": "BF"
+    },
+    "Identity": 877
+  },
+  "BG": {
+    "Name": "Bulgaria",
+    "ISO3166": {
+      "Code": "BG"
+    },
+    "Identity": 878
+  },
+  "BH": {
+    "Name": "Bahrain",
+    "ISO3166": {
+      "Code": "BH"
+    },
+    "Identity": 879
+  },
+  "BI": {
+    "Name": "Burundi",
+    "ISO3166": {
+      "Code": "BI"
+    },
+    "Identity": 880
+  },
+  "BJ": {
+    "Name": "Benin",
+    "ISO3166": {
+      "Code": "BJ"
+    },
+    "Identity": 881
+  },
+  "BL": {
+    "Name": "St Barthelemy",
+    "ISO3166": {
+      "Code": "BL"
+    },
+    "Identity": 882
+  },
+  "BM": {
+    "Name": "Bermuda",
+    "ISO3166": {
+      "Code": "BM"
+    },
+    "Identity": 883
+  },
+  "BN": {
+    "Name": "Brunei",
+    "ISO3166": {
+      "Code": "BN"
+    },
+    "Identity": 884
+  },
+  "BO": {
+    "Name": "Bolivia",
+    "ISO3166": {
+      "Code": "BO"
+    },
+    "Identity": 885
+  },
+  "BQ": {
+    "Name": "Caribbean NL",
+    "ISO3166": {
+      "Code": "BQ"
+    },
+    "Identity": 886
+  },
+  "BR": {
+    "Name": "Brazil",
+    "ISO3166": {
+      "Code": "BR"
+    },
+    "Identity": 887
+  },
+  "BS": {
+    "Name": "Bahamas",
+    "ISO3166": {
+      "Code": "BS"
+    },
+    "Identity": 888
+  },
+  "BT": {
+    "Name": "Bhutan",
+    "ISO3166": {
+      "Code": "BT"
+    },
+    "Identity": 889
+  },
+  "BW": {
+    "Name": "Botswana",
+    "ISO3166": {
+      "Code": "BW"
+    },
+    "Identity": 891
+  },
+  "BY": {
+    "Name": "Belarus",
+    "ISO3166": {
+      "Code": "BY"
+    },
+    "Identity": 892
+  },
+  "BZ": {
+    "Name": "Belize",
+    "ISO3166": {
+      "Code": "BZ"
+    },
+    "Identity": 893
+  },
+  "CA": {
+    "Name": "Canada",
+    "ISO3166": {
+      "Code": "CA"
+    },
+    "Identity": 894
+  },
+  "CC": {
+    "Name": "Cocos (Keeling) Islands",
+    "ISO3166": {
+      "Code": "CC"
+    },
+    "Identity": 895
+  },
+  "CD": {
+    "Name": "Congo (Dem. Rep.)",
+    "ISO3166": {
+      "Code": "CD"
+    },
+    "Identity": 896
+  },
+  "CF": {
+    "Name": "Central African Rep.",
+    "ISO3166": {
+      "Code": "CF"
+    },
+    "Identity": 897
+  },
+  "CG": {
+    "Name": "Congo (Rep.)",
+    "ISO3166": {
+      "Code": "CG"
+    },
+    "Identity": 898
+  },
+  "CH": {
+    "Name": "Switzerland",
+    "ISO3166": {
+      "Code": "CH"
+    },
+    "Identity": 899
+  },
+  "CI": {
+    "Name": "Côte d'Ivoire",
+    "ISO3166": {
+      "Code": "CI"
+    },
+    "Identity": 900
+  },
+  "CK": {
+    "Name": "Cook Islands",
+    "ISO3166": {
+      "Code": "CK"
+    },
+    "Identity": 901
+  },
+  "CL": {
+    "Name": "Chile",
+    "ISO3166": {
+      "Code": "CL"
+    },
+    "Identity": 902
+  },
+  "CM": {
+    "Name": "Cameroon",
+    "ISO3166": {
+      "Code": "CM"
+    },
+    "Identity": 903
+  },
+  "CN": {
+    "Name": "China",
+    "ISO3166": {
+      "Code": "CN"
+    },
+    "Identity": 904
+  },
+  "CO": {
+    "Name": "Colombia",
+    "ISO3166": {
+      "Code": "CO"
+    },
+    "Identity": 905
+  },
+  "CR": {
+    "Name": "Costa Rica",
+    "ISO3166": {
+      "Code": "CR"
+    },
+    "Identity": 906
+  },
+  "CU": {
+    "Name": "Cuba",
+    "ISO3166": {
+      "Code": "CU"
+    },
+    "Identity": 907
+  },
+  "CV": {
+    "Name": "Cape Verde",
+    "ISO3166": {
+      "Code": "CV"
+    },
+    "Identity": 908
+  },
+  "CW": {
+    "Name": "Curaçao",
+    "ISO3166": {
+      "Code": "CW"
+    },
+    "Identity": 909
+  },
+  "CX": {
+    "Name": "Christmas Island",
+    "ISO3166": {
+      "Code": "CX"
+    },
+    "Identity": 910
+  },
+  "CY": {
+    "Name": "Cyprus",
+    "ISO3166": {
+      "Code": "CY"
+    },
+    "Identity": 911
+  },
+  "CZ": {
+    "Name": "Czech Republic",
+    "ISO3166": {
+      "Code": "CZ"
+    },
+    "Identity": 912
+  },
+  "DE": {
+    "Name": "Germany",
+    "ISO3166": {
+      "Code": "DE"
+    },
+    "Identity": 913
+  },
+  "DJ": {
+    "Name": "Djibouti",
+    "ISO3166": {
+      "Code": "DJ"
+    },
+    "Identity": 914
+  },
+  "DK": {
+    "Name": "Denmark",
+    "ISO3166": {
+      "Code": "DK"
+    },
+    "Identity": 915
+  },
+  "DM": {
+    "Name": "Dominica",
+    "ISO3166": {
+      "Code": "DM"
+    },
+    "Identity": 916
+  },
+  "DO": {
+    "Name": "Dominican Republic",
+    "ISO3166": {
+      "Code": "DO"
+    },
+    "Identity": 917
+  },
+  "DZ": {
+    "Name": "Algeria",
+    "ISO3166": {
+      "Code": "DZ"
+    },
+    "Identity": 918
+  },
+  "EC": {
+    "Name": "Ecuador",
+    "ISO3166": {
+      "Code": "EC"
+    },
+    "Identity": 919
+  },
+  "EE": {
+    "Name": "Estonia",
+    "ISO3166": {
+      "Code": "EE"
+    },
+    "Identity": 920
+  },
+  "EG": {
+    "Name": "Egypt",
+    "ISO3166": {
+      "Code": "EG"
+    },
+    "Identity": 921
+  },
+  "EH": {
+    "Name": "Western Sahara",
+    "ISO3166": {
+      "Code": "EH"
+    },
+    "Identity": 922
+  },
+  "ER": {
+    "Name": "Eritrea",
+    "ISO3166": {
+      "Code": "ER"
+    },
+    "Identity": 923
+  },
+  "ES": {
+    "Name": "Spain",
+    "ISO3166": {
+      "Code": "ES"
+    },
+    "Identity": 924
+  },
+  "ET": {
+    "Name": "Ethiopia",
+    "ISO3166": {
+      "Code": "ET"
+    },
+    "Identity": 925
+  },
+  "FI": {
+    "Name": "Finland",
+    "ISO3166": {
+      "Code": "FI"
+    },
+    "Identity": 926
+  },
+  "FJ": {
+    "Name": "Fiji",
+    "ISO3166": {
+      "Code": "FJ"
+    },
+    "Identity": 927
+  },
+  "FK": {
+    "Name": "Falkland Islands",
+    "ISO3166": {
+      "Code": "FK"
+    },
+    "Identity": 928
+  },
+  "FM": {
+    "Name": "Micronesia",
+    "ISO3166": {
+      "Code": "FM"
+    },
+    "Identity": 929
+  },
+  "FO": {
+    "Name": "Faroe Islands",
+    "ISO3166": {
+      "Code": "FO"
+    },
+    "Identity": 930
+  },
+  "FR": {
+    "Name": "France",
+    "ISO3166": {
+      "Code": "FR"
+    },
+    "Identity": 931
+  },
+  "GA": {
+    "Name": "Gabon",
+    "ISO3166": {
+      "Code": "GA"
+    },
+    "Identity": 932
+  },
+  "GB": {
+    "Name": "Britain (UK)",
+    "ISO3166": {
+      "Code": "GB"
+    },
+    "Identity": 933
+  },
+  "GD": {
+    "Name": "Grenada",
+    "ISO3166": {
+      "Code": "GD"
+    },
+    "Identity": 934
+  },
+  "GE": {
+    "Name": "Georgia",
+    "ISO3166": {
+      "Code": "GE"
+    },
+    "Identity": 935
+  },
+  "GF": {
+    "Name": "French Guiana",
+    "ISO3166": {
+      "Code": "GF"
+    },
+    "Identity": 936
+  },
+  "GG": {
+    "Name": "Guernsey",
+    "ISO3166": {
+      "Code": "GG"
+    },
+    "Identity": 937
+  },
+  "GH": {
+    "Name": "Ghana",
+    "ISO3166": {
+      "Code": "GH"
+    },
+    "Identity": 938
+  },
+  "GI": {
+    "Name": "Gibraltar",
+    "ISO3166": {
+      "Code": "GI"
+    },
+    "Identity": 939
+  },
+  "GL": {
+    "Name": "Greenland",
+    "ISO3166": {
+      "Code": "GL"
+    },
+    "Identity": 940
+  },
+  "GM": {
+    "Name": "Gambia",
+    "ISO3166": {
+      "Code": "GM"
+    },
+    "Identity": 941
+  },
+  "GN": {
+    "Name": "Guinea",
+    "ISO3166": {
+      "Code": "GN"
+    },
+    "Identity": 942
+  },
+  "GP": {
+    "Name": "Guadeloupe",
+    "ISO3166": {
+      "Code": "GP"
+    },
+    "Identity": 943
+  },
+  "GQ": {
+    "Name": "Equatorial Guinea",
+    "ISO3166": {
+      "Code": "GQ"
+    },
+    "Identity": 944
+  },
+  "GR": {
+    "Name": "Greece",
+    "ISO3166": {
+      "Code": "GR"
+    },
+    "Identity": 945
+  },
+  "GS": {
+    "Name": "South Georgia & the South Sandwich Islands",
+    "ISO3166": {
+      "Code": "GS"
+    },
+    "Identity": 946
+  },
+  "GT": {
+    "Name": "Guatemala",
+    "ISO3166": {
+      "Code": "GT"
+    },
+    "Identity": 947
+  },
+  "GU": {
+    "Name": "Guam",
+    "ISO3166": {
+      "Code": "GU"
+    },
+    "Identity": 948
+  },
+  "GW": {
+    "Name": "Guinea-Bissau",
+    "ISO3166": {
+      "Code": "GW"
+    },
+    "Identity": 949
+  },
+  "GY": {
+    "Name": "Guyana",
+    "ISO3166": {
+      "Code": "GY"
+    },
+    "Identity": 950
+  },
+  "HK": {
+    "Name": "Hong Kong",
+    "ISO3166": {
+      "Code": "HK"
+    },
+    "Identity": 951
+  },
+  "HN": {
+    "Name": "Honduras",
+    "ISO3166": {
+      "Code": "HN"
+    },
+    "Identity": 953
+  },
+  "HR": {
+    "Name": "Croatia",
+    "ISO3166": {
+      "Code": "HR"
+    },
+    "Identity": 954
+  },
+  "HT": {
+    "Name": "Haiti",
+    "ISO3166": {
+      "Code": "HT"
+    },
+    "Identity": 955
+  },
+  "HU": {
+    "Name": "Hungary",
+    "ISO3166": {
+      "Code": "HU"
+    },
+    "Identity": 956
+  },
+  "ID": {
+    "Name": "Indonesia",
+    "ISO3166": {
+      "Code": "ID"
+    },
+    "Identity": 957
+  },
+  "IE": {
+    "Name": "Ireland",
+    "ISO3166": {
+      "Code": "IE"
+    },
+    "Identity": 958
+  },
+  "IL": {
+    "Name": "Israel",
+    "ISO3166": {
+      "Code": "IL"
+    },
+    "Identity": 959
+  },
+  "IM": {
+    "Name": "Isle of Man",
+    "ISO3166": {
+      "Code": "IM"
+    },
+    "Identity": 960
+  },
+  "IN": {
+    "Name": "India",
+    "ISO3166": {
+      "Code": "IN"
+    },
+    "Identity": 961
+  },
+  "IO": {
+    "Name": "British Indian Ocean Territory",
+    "ISO3166": {
+      "Code": "IO"
+    },
+    "Identity": 962
+  },
+  "IQ": {
+    "Name": "Iraq",
+    "ISO3166": {
+      "Code": "IQ"
+    },
+    "Identity": 963
+  },
+  "IR": {
+    "Name": "Iran",
+    "ISO3166": {
+      "Code": "IR"
+    },
+    "Identity": 964
+  },
+  "IS": {
+    "Name": "Iceland",
+    "ISO3166": {
+      "Code": "IS"
+    },
+    "Identity": 965
+  },
+  "IT": {
+    "Name": "Italy",
+    "ISO3166": {
+      "Code": "IT"
+    },
+    "Identity": 966
+  },
+  "JE": {
+    "Name": "Jersey",
+    "ISO3166": {
+      "Code": "JE"
+    },
+    "Identity": 967
+  },
+  "JM": {
+    "Name": "Jamaica",
+    "ISO3166": {
+      "Code": "JM"
+    },
+    "Identity": 968
+  },
+  "JO": {
+    "Name": "Jordan",
+    "ISO3166": {
+      "Code": "JO"
+    },
+    "Identity": 969
+  },
+  "JP": {
+    "Name": "Japan",
+    "ISO3166": {
+      "Code": "JP"
+    },
+    "Identity": 970
+  },
+  "KE": {
+    "Name": "Kenya",
+    "ISO3166": {
+      "Code": "KE"
+    },
+    "Identity": 971
+  },
+  "KG": {
+    "Name": "Kyrgyzstan",
+    "ISO3166": {
+      "Code": "KG"
+    },
+    "Identity": 972
+  },
+  "KH": {
+    "Name": "Cambodia",
+    "ISO3166": {
+      "Code": "KH"
+    },
+    "Identity": 973
+  },
+  "KI": {
+    "Name": "Kiribati",
+    "ISO3166": {
+      "Code": "KI"
+    },
+    "Identity": 974
+  },
+  "KM": {
+    "Name": "Comoros",
+    "ISO3166": {
+      "Code": "KM"
+    },
+    "Identity": 975
+  },
+  "KN": {
+    "Name": "St Kitts & Nevis",
+    "ISO3166": {
+      "Code": "KN"
+    },
+    "Identity": 976
+  },
+  "KP": {
+    "Name": "Korea (North)",
+    "ISO3166": {
+      "Code": "KP"
+    },
+    "Identity": 977
+  },
+  "KR": {
+    "Name": "Korea (South)",
+    "ISO3166": {
+      "Code": "KR"
+    },
+    "Identity": 978
+  },
+  "KW": {
+    "Name": "Kuwait",
+    "ISO3166": {
+      "Code": "KW"
+    },
+    "Identity": 979
+  },
+  "KY": {
+    "Name": "Cayman Islands",
+    "ISO3166": {
+      "Code": "KY"
+    },
+    "Identity": 980
+  },
+  "KZ": {
+    "Name": "Kazakhstan",
+    "ISO3166": {
+      "Code": "KZ"
+    },
+    "Identity": 981
+  },
+  "LA": {
+    "Name": "Laos",
+    "ISO3166": {
+      "Code": "LA"
+    },
+    "Identity": 982
+  },
+  "LB": {
+    "Name": "Lebanon",
+    "ISO3166": {
+      "Code": "LB"
+    },
+    "Identity": 983
+  },
+  "LC": {
+    "Name": "St Lucia",
+    "ISO3166": {
+      "Code": "LC"
+    },
+    "Identity": 984
+  },
+  "LI": {
+    "Name": "Liechtenstein",
+    "ISO3166": {
+      "Code": "LI"
+    },
+    "Identity": 985
+  },
+  "LK": {
+    "Name": "Sri Lanka",
+    "ISO3166": {
+      "Code": "LK"
+    },
+    "Identity": 986
+  },
+  "LR": {
+    "Name": "Liberia",
+    "ISO3166": {
+      "Code": "LR"
+    },
+    "Identity": 987
+  },
+  "LS": {
+    "Name": "Lesotho",
+    "ISO3166": {
+      "Code": "LS"
+    },
+    "Identity": 988
+  },
+  "LT": {
+    "Name": "Lithuania",
+    "ISO3166": {
+      "Code": "LT"
+    },
+    "Identity": 989
+  },
+  "LU": {
+    "Name": "Luxembourg",
+    "ISO3166": {
+      "Code": "LU"
+    },
+    "Identity": 990
+  },
+  "LV": {
+    "Name": "Latvia",
+    "ISO3166": {
+      "Code": "LV"
+    },
+    "Identity": 991
+  },
+  "LY": {
+    "Name": "Libya",
+    "ISO3166": {
+      "Code": "LY"
+    },
+    "Identity": 992
+  },
+  "MA": {
+    "Name": "Morocco",
+    "ISO3166": {
+      "Code": "MA"
+    },
+    "Identity": 993
+  },
+  "MC": {
+    "Name": "Monaco",
+    "ISO3166": {
+      "Code": "MC"
+    },
+    "Identity": 994
+  },
+  "MD": {
+    "Name": "Moldova",
+    "ISO3166": {
+      "Code": "MD"
+    },
+    "Identity": 995
+  },
+  "ME": {
+    "Name": "Montenegro",
+    "ISO3166": {
+      "Code": "ME"
+    },
+    "Identity": 996
+  },
+  "MF": {
+    "Name": "St Martin (French)",
+    "ISO3166": {
+      "Code": "MF"
+    },
+    "Identity": 997
+  },
+  "MG": {
+    "Name": "Madagascar",
+    "ISO3166": {
+      "Code": "MG"
+    },
+    "Identity": 998
+  },
+  "MH": {
+    "Name": "Marshall Islands",
+    "ISO3166": {
+      "Code": "MH"
+    },
+    "Identity": 999
+  },
+  "MK": {
+    "Name": "North Macedonia",
+    "ISO3166": {
+      "Code": "MK"
+    },
+    "Identity": 1000
+  },
+  "ML": {
+    "Name": "Mali",
+    "ISO3166": {
+      "Code": "ML"
+    },
+    "Identity": 1001
+  },
+  "MM": {
+    "Name": "Myanmar (Burma)",
+    "ISO3166": {
+      "Code": "MM"
+    },
+    "Identity": 1002
+  },
+  "MN": {
+    "Name": "Mongolia",
+    "ISO3166": {
+      "Code": "MN"
+    },
+    "Identity": 1003
+  },
+  "MO": {
+    "Name": "Macau",
+    "ISO3166": {
+      "Code": "MO"
+    },
+    "Identity": 1004
+  },
+  "MP": {
+    "Name": "Northern Mariana Islands",
+    "ISO3166": {
+      "Code": "MP"
+    },
+    "Identity": 1005
+  },
+  "MQ": {
+    "Name": "Martinique",
+    "ISO3166": {
+      "Code": "MQ"
+    },
+    "Identity": 1006
+  },
+  "MR": {
+    "Name": "Mauritania",
+    "ISO3166": {
+      "Code": "MR"
+    },
+    "Identity": 1007
+  },
+  "MS": {
+    "Name": "Montserrat",
+    "ISO3166": {
+      "Code": "MS"
+    },
+    "Identity": 1008
+  },
+  "MT": {
+    "Name": "Malta",
+    "ISO3166": {
+      "Code": "MT"
+    },
+    "Identity": 1009
+  },
+  "MU": {
+    "Name": "Mauritius",
+    "ISO3166": {
+      "Code": "MU"
+    },
+    "Identity": 1010
+  },
+  "MV": {
+    "Name": "Maldives",
+    "ISO3166": {
+      "Code": "MV"
+    },
+    "Identity": 1011
+  },
+  "MW": {
+    "Name": "Malawi",
+    "ISO3166": {
+      "Code": "MW"
+    },
+    "Identity": 1012
+  },
+  "MX": {
+    "Name": "Mexico",
+    "ISO3166": {
+      "Code": "MX"
+    },
+    "Identity": 1013
+  },
+  "MY": {
+    "Name": "Malaysia",
+    "ISO3166": {
+      "Code": "MY"
+    },
+    "Identity": 1014
+  },
+  "MZ": {
+    "Name": "Mozambique",
+    "ISO3166": {
+      "Code": "MZ"
+    },
+    "Identity": 1015
+  },
+  "NA": {
+    "Name": "Namibia",
+    "ISO3166": {
+      "Code": "NA"
+    },
+    "Identity": 1016
+  },
+  "NC": {
+    "Name": "New Caledonia",
+    "ISO3166": {
+      "Code": "NC"
+    },
+    "Identity": 1017
+  },
+  "NE": {
+    "Name": "Niger",
+    "ISO3166": {
+      "Code": "NE"
+    },
+    "Identity": 1018
+  },
+  "NF": {
+    "Name": "Norfolk Island",
+    "ISO3166": {
+      "Code": "NF"
+    },
+    "Identity": 1019
+  },
+  "NG": {
+    "Name": "Nigeria",
+    "ISO3166": {
+      "Code": "NG"
+    },
+    "Identity": 1020
+  },
+  "NI": {
+    "Name": "Nicaragua",
+    "ISO3166": {
+      "Code": "NI"
+    },
+    "Identity": 1021
+  },
+  "NL": {
+    "Name": "Netherlands",
+    "ISO3166": {
+      "Code": "NL"
+    },
+    "Identity": 1022
+  },
+  "NO": {
+    "Name": "Norway",
+    "ISO3166": {
+      "Code": "NO"
+    },
+    "Identity": 1023
+  },
+  "NP": {
+    "Name": "Nepal",
+    "ISO3166": {
+      "Code": "NP"
+    },
+    "Identity": 1024
+  },
+  "NR": {
+    "Name": "Nauru",
+    "ISO3166": {
+      "Code": "NR"
+    },
+    "Identity": 1025
+  },
+  "NU": {
+    "Name": "Niue",
+    "ISO3166": {
+      "Code": "NU"
+    },
+    "Identity": 1026
+  },
+  "NZ": {
+    "Name": "New Zealand",
+    "ISO3166": {
+      "Code": "NZ"
+    },
+    "Identity": 1027
+  },
+  "OM": {
+    "Name": "Oman",
+    "ISO3166": {
+      "Code": "OM"
+    },
+    "Identity": 1028
+  },
+  "PA": {
+    "Name": "Panama",
+    "ISO3166": {
+      "Code": "PA"
+    },
+    "Identity": 1029
+  },
+  "PE": {
+    "Name": "Peru",
+    "ISO3166": {
+      "Code": "PE"
+    },
+    "Identity": 1030
+  },
+  "PF": {
+    "Name": "French Polynesia",
+    "ISO3166": {
+      "Code": "PF"
+    },
+    "Identity": 1031
+  },
+  "PG": {
+    "Name": "Papua New Guinea",
+    "ISO3166": {
+      "Code": "PG"
+    },
+    "Identity": 1032
+  },
+  "PH": {
+    "Name": "Philippines",
+    "ISO3166": {
+      "Code": "PH"
+    },
+    "Identity": 1033
+  },
+  "PK": {
+    "Name": "Pakistan",
+    "ISO3166": {
+      "Code": "PK"
+    },
+    "Identity": 1034
+  },
+  "PL": {
+    "Name": "Poland",
+    "ISO3166": {
+      "Code": "PL"
+    },
+    "Identity": 1035
+  },
+  "PM": {
+    "Name": "St Pierre & Miquelon",
+    "ISO3166": {
+      "Code": "PM"
+    },
+    "Identity": 1036
+  },
+  "PN": {
+    "Name": "Pitcairn",
+    "ISO3166": {
+      "Code": "PN"
+    },
+    "Identity": 1037
+  },
+  "PR": {
+    "Name": "Puerto Rico",
+    "ISO3166": {
+      "Code": "PR"
+    },
+    "Identity": 1038
+  },
+  "PS": {
+    "Name": "Palestine",
+    "ISO3166": {
+      "Code": "PS"
+    },
+    "Identity": 1039
+  },
+  "PT": {
+    "Name": "Portugal",
+    "ISO3166": {
+      "Code": "PT"
+    },
+    "Identity": 1040
+  },
+  "PW": {
+    "Name": "Palau",
+    "ISO3166": {
+      "Code": "PW"
+    },
+    "Identity": 1041
+  },
+  "PY": {
+    "Name": "Paraguay",
+    "ISO3166": {
+      "Code": "PY"
+    },
+    "Identity": 1042
+  },
+  "QA": {
+    "Name": "Qatar",
+    "ISO3166": {
+      "Code": "QA"
+    },
+    "Identity": 1043
+  },
+  "RE": {
+    "Name": "Réunion",
+    "ISO3166": {
+      "Code": "RE"
+    },
+    "Identity": 1044
+  },
+  "RO": {
+    "Name": "Romania",
+    "ISO3166": {
+      "Code": "RO"
+    },
+    "Identity": 1045
+  },
+  "RS": {
+    "Name": "Serbia",
+    "ISO3166": {
+      "Code": "RS"
+    },
+    "Identity": 1046
+  },
+  "RU": {
+    "Name": "Russia",
+    "ISO3166": {
+      "Code": "RU"
+    },
+    "Identity": 1047
+  },
+  "UA": {
+    "Name": "Ukraine",
+    "ISO3166": {
+      "Code": "UA"
+    },
+    "Identity": 1086
+  },
+  "RW": {
+    "Name": "Rwanda",
+    "ISO3166": {
+      "Code": "RW"
+    },
+    "Identity": 1048
+  },
+  "SA": {
+    "Name": "Saudi Arabia",
+    "ISO3166": {
+      "Code": "SA"
+    },
+    "Identity": 1049
+  },
+  "SB": {
+    "Name": "Solomon Islands",
+    "ISO3166": {
+      "Code": "SB"
+    },
+    "Identity": 1050
+  },
+  "SC": {
+    "Name": "Seychelles",
+    "ISO3166": {
+      "Code": "SC"
+    },
+    "Identity": 1051
+  },
+  "SD": {
+    "Name": "Sudan",
+    "ISO3166": {
+      "Code": "SD"
+    },
+    "Identity": 1052
+  },
+  "SE": {
+    "Name": "Sweden",
+    "ISO3166": {
+      "Code": "SE"
+    },
+    "Identity": 1053
+  },
+  "SG": {
+    "Name": "Singapore",
+    "ISO3166": {
+      "Code": "SG"
+    },
+    "Identity": 1054
+  },
+  "SH": {
+    "Name": "St Helena",
+    "ISO3166": {
+      "Code": "SH"
+    },
+    "Identity": 1055
+  },
+  "SI": {
+    "Name": "Slovenia",
+    "ISO3166": {
+      "Code": "SI"
+    },
+    "Identity": 1056
+  },
+  "SJ": {
+    "Name": "Svalbard & Jan Mayen",
+    "ISO3166": {
+      "Code": "SJ"
+    },
+    "Identity": 1057
+  },
+  "SK": {
+    "Name": "Slovakia",
+    "ISO3166": {
+      "Code": "SK"
+    },
+    "Identity": 1058
+  },
+  "SL": {
+    "Name": "Sierra Leone",
+    "ISO3166": {
+      "Code": "SL"
+    },
+    "Identity": 1059
+  },
+  "SM": {
+    "Name": "San Marino",
+    "ISO3166": {
+      "Code": "SM"
+    },
+    "Identity": 1060
+  },
+  "SN": {
+    "Name": "Senegal",
+    "ISO3166": {
+      "Code": "SN"
+    },
+    "Identity": 1061
+  },
+  "SO": {
+    "Name": "Somalia",
+    "ISO3166": {
+      "Code": "SO"
+    },
+    "Identity": 1062
+  },
+  "SR": {
+    "Name": "Suriname",
+    "ISO3166": {
+      "Code": "SR"
+    },
+    "Identity": 1063
+  },
+  "SS": {
+    "Name": "South Sudan",
+    "ISO3166": {
+      "Code": "SS"
+    },
+    "Identity": 1064
+  },
+  "ST": {
+    "Name": "Sao Tome & Principe",
+    "ISO3166": {
+      "Code": "ST"
+    },
+    "Identity": 1065
+  },
+  "SV": {
+    "Name": "El Salvador",
+    "ISO3166": {
+      "Code": "SV"
+    },
+    "Identity": 1066
+  },
+  "SX": {
+    "Name": "St Maarten (Dutch)",
+    "ISO3166": {
+      "Code": "SX"
+    },
+    "Identity": 1067
+  },
+  "SY": {
+    "Name": "Syria",
+    "ISO3166": {
+      "Code": "SY"
+    },
+    "Identity": 1068
+  },
+  "SZ": {
+    "Name": "Eswatini (Swaziland)",
+    "ISO3166": {
+      "Code": "SZ"
+    },
+    "Identity": 1069
+  },
+  "TC": {
+    "Name": "Turks & Caicos Is",
+    "ISO3166": {
+      "Code": "TC"
+    },
+    "Identity": 1070
+  },
+  "TD": {
+    "Name": "Chad",
+    "ISO3166": {
+      "Code": "TD"
+    },
+    "Identity": 1071
+  },
+  "TF": {
+    "Name": "French Southern & Antarctic Lands",
+    "ISO3166": {
+      "Code": "TF"
+    },
+    "Identity": 1072
+  },
+  "TG": {
+    "Name": "Togo",
+    "ISO3166": {
+      "Code": "TG"
+    },
+    "Identity": 1073
+  },
+  "TH": {
+    "Name": "Thailand",
+    "ISO3166": {
+      "Code": "TH"
+    },
+    "Identity": 1074
+  },
+  "TJ": {
+    "Name": "Tajikistan",
+    "ISO3166": {
+      "Code": "TJ"
+    },
+    "Identity": 1075
+  },
+  "TK": {
+    "Name": "Tokelau",
+    "ISO3166": {
+      "Code": "TK"
+    },
+    "Identity": 1076
+  },
+  "TL": {
+    "Name": "East Timor",
+    "ISO3166": {
+      "Code": "TL"
+    },
+    "Identity": 1077
+  },
+  "TM": {
+    "Name": "Turkmenistan",
+    "ISO3166": {
+      "Code": "TM"
+    },
+    "Identity": 1078
+  },
+  "TN": {
+    "Name": "Tunisia",
+    "ISO3166": {
+      "Code": "TN"
+    },
+    "Identity": 1079
+  },
+  "TO": {
+    "Name": "Tonga",
+    "ISO3166": {
+      "Code": "TO"
+    },
+    "Identity": 1080
+  },
+  "TR": {
+    "Name": "Turkey",
+    "ISO3166": {
+      "Code": "TR"
+    },
+    "Identity": 1081
+  },
+  "TT": {
+    "Name": "Trinidad & Tobago",
+    "ISO3166": {
+      "Code": "TT"
+    },
+    "Identity": 1082
+  },
+  "TV": {
+    "Name": "Tuvalu",
+    "ISO3166": {
+      "Code": "TV"
+    },
+    "Identity": 1083
+  },
+  "TW": {
+    "Name": "Taiwan",
+    "ISO3166": {
+      "Code": "TW"
+    },
+    "Identity": 1084
+  },
+  "TZ": {
+    "Name": "Tanzania",
+    "ISO3166": {
+      "Code": "TZ"
+    },
+    "Identity": 1085
+  },
+  "UG": {
+    "Name": "Uganda",
+    "ISO3166": {
+      "Code": "UG"
+    },
+    "Identity": 1087
+  },
+  "UM": {
+    "Name": "US minor outlying islands",
+    "ISO3166": {
+      "Code": "UM"
+    },
+    "Identity": 1088
+  },
+  "US": {
+    "Name": "United States",
+    "ISO3166": {
+      "Code": "US"
+    },
+    "Identity": 1089
+  },
+  "UY": {
+    "Name": "Uruguay",
+    "ISO3166": {
+      "Code": "UY"
+    },
+    "Identity": 1090
+  },
+  "UZ": {
+    "Name": "Uzbekistan",
+    "ISO3166": {
+      "Code": "UZ"
+    },
+    "Identity": 1091
+  },
+  "VA": {
+    "Name": "Vatican City",
+    "ISO3166": {
+      "Code": "VA"
+    },
+    "Identity": 1092
+  },
+  "VC": {
+    "Name": "St Vincent",
+    "ISO3166": {
+      "Code": "VC"
+    },
+    "Identity": 1093
+  },
+  "VE": {
+    "Name": "Venezuela",
+    "ISO3166": {
+      "Code": "VE"
+    },
+    "Identity": 1094
+  },
+  "VG": {
+    "Name": "Virgin Islands (UK)",
+    "ISO3166": {
+      "Code": "VG"
+    },
+    "Identity": 1095
+  },
+  "VI": {
+    "Name": "Virgin Islands (US)",
+    "ISO3166": {
+      "Code": "VI"
+    },
+    "Identity": 1096
+  },
+  "VN": {
+    "Name": "Vietnam",
+    "ISO3166": {
+      "Code": "VN"
+    },
+    "Identity": 1097
+  },
+  "VU": {
+    "Name": "Vanuatu",
+    "ISO3166": {
+      "Code": "VU"
+    },
+    "Identity": 1098
+  },
+  "WF": {
+    "Name": "Wallis & Futuna",
+    "ISO3166": {
+      "Code": "WF"
+    },
+    "Identity": 1099
+  },
+  "WS": {
+    "Name": "Samoa (western)",
+    "ISO3166": {
+      "Code": "WS"
+    },
+    "Identity": 1100
+  },
+  "YE": {
+    "Name": "Yemen",
+    "ISO3166": {
+      "Code": "YE"
+    },
+    "Identity": 1101
+  },
+  "YT": {
+    "Name": "Mayotte",
+    "ISO3166": {
+      "Code": "YT"
+    },
+    "Identity": 1102
+  },
+  "ZA": {
+    "Name": "South Africa",
+    "ISO3166": {
+      "Code": "ZA"
+    },
+    "Identity": 1103
+  },
+  "ZM": {
+    "Name": "Zambia",
+    "ISO3166": {
+      "Code": "ZM"
+    },
+    "Identity": 1104
+  },
+  "ZW": {
+    "Name": "Zimbabwe",
+    "ISO3166": {
+      "Code": "ZW"
+    },
+    "Identity": 1105
+  },
+  "BV": {
+    "Name": "Bouvet Island",
+    "ISO3166": {
+      "Code": "BV"
+    },
+    "Identity": 890
+  },
+  "HM": {
+    "Name": "Heard Island & McDonald Islands",
+    "ISO3166": {
+      "Code": "HM"
+    },
+    "Identity": 952
+  }
+}

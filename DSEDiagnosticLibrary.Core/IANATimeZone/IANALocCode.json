@@ -1,0 +1,2157 @@
+{
+  "CI ABJ": {
+    "LOCode": "CI ABJ",
+    "ISO3166Code": "CI",
+    "Identity": 1
+  },
+  "GH ACC": {
+    "LOCode": "GH ACC",
+    "ISO3166Code": "GH",
+    "Identity": 2
+  },
+  "ET ADD": {
+    "LOCode": "ET ADD",
+    "ISO3166Code": "ET",
+    "Identity": 3
+  },
+  "DZ ALG": {
+    "LOCode": "DZ ALG",
+    "ISO3166Code": "DZ",
+    "Identity": 4
+  },
+  "ER ASM": {
+    "LOCode": "ER ASM",
+    "ISO3166Code": "ER",
+    "Identity": 5
+  },
+  "ML BKO": {
+    "LOCode": "ML BKO",
+    "ISO3166Code": "ML",
+    "Identity": 6
+  },
+  "CF BGF": {
+    "LOCode": "CF BGF",
+    "ISO3166Code": "CF",
+    "Identity": 7
+  },
+  "GM BJL": {
+    "LOCode": "GM BJL",
+    "ISO3166Code": "GM",
+    "Identity": 8
+  },
+  "GW OXB": {
+    "LOCode": "GW OXB",
+    "ISO3166Code": "GW",
+    "Identity": 9
+  },
+  "MW BLZ": {
+    "LOCode": "MW BLZ",
+    "ISO3166Code": "MW",
+    "Identity": 10
+  },
+  "CG BZV": {
+    "LOCode": "CG BZV",
+    "ISO3166Code": "CG",
+    "Identity": 11
+  },
+  "BI BJM": {
+    "LOCode": "BI BJM",
+    "ISO3166Code": "BI",
+    "Identity": 12
+  },
+  "EG CAI": {
+    "LOCode": "EG CAI",
+    "ISO3166Code": "EG",
+    "Identity": 13
+  },
+  "MA CAS": {
+    "LOCode": "MA CAS",
+    "ISO3166Code": "MA",
+    "Identity": 14
+  },
+  "ES CEU": {
+    "LOCode": "ES CEU",
+    "ISO3166Code": "ES",
+    "Identity": 15
+  },
+  "GN CKY": {
+    "LOCode": "GN CKY",
+    "ISO3166Code": "GN",
+    "Identity": 16
+  },
+  "SN DKR": {
+    "LOCode": "SN DKR",
+    "ISO3166Code": "SN",
+    "Identity": 17
+  },
+  "TZ DAR": {
+    "LOCode": "TZ DAR",
+    "ISO3166Code": "TZ",
+    "Identity": 18
+  },
+  "DJ JIB": {
+    "LOCode": "DJ JIB",
+    "ISO3166Code": "DJ",
+    "Identity": 19
+  },
+  "CM DLA": {
+    "LOCode": "CM DLA",
+    "ISO3166Code": "CM",
+    "Identity": 20
+  },
+  "EH EAI": {
+    "LOCode": "EH EAI",
+    "ISO3166Code": "EH",
+    "Identity": 21
+  },
+  "SL FNA": {
+    "LOCode": "SL FNA",
+    "ISO3166Code": "SL",
+    "Identity": 22
+  },
+  "BW GBE": {
+    "LOCode": "BW GBE",
+    "ISO3166Code": "BW",
+    "Identity": 23
+  },
+  "ZW HRE": {
+    "LOCode": "ZW HRE",
+    "ISO3166Code": "ZW",
+    "Identity": 24
+  },
+  "ZA JNB": {
+    "LOCode": "ZA JNB",
+    "ISO3166Code": "ZA",
+    "Identity": 25
+  },
+  "SS JUB": {
+    "LOCode": "SS JUB",
+    "ISO3166Code": "SS",
+    "Identity": 26
+  },
+  "UG KLA": {
+    "LOCode": "UG KLA",
+    "ISO3166Code": "UG",
+    "Identity": 27
+  },
+  "SD KRT": {
+    "LOCode": "SD KRT",
+    "ISO3166Code": "SD",
+    "Identity": 28
+  },
+  "RW KGL": {
+    "LOCode": "RW KGL",
+    "ISO3166Code": "RW",
+    "Identity": 29
+  },
+  "CD FIH": {
+    "LOCode": "CD FIH",
+    "ISO3166Code": "CD",
+    "Identity": 30
+  },
+  "NG LOS": {
+    "LOCode": "NG LOS",
+    "ISO3166Code": "NG",
+    "Identity": 31
+  },
+  "GA LBV": {
+    "LOCode": "GA LBV",
+    "ISO3166Code": "GA",
+    "Identity": 32
+  },
+  "TG LFW": {
+    "LOCode": "TG LFW",
+    "ISO3166Code": "TG",
+    "Identity": 33
+  },
+  "AO LAD": {
+    "LOCode": "AO LAD",
+    "ISO3166Code": "AO",
+    "Identity": 34
+  },
+  "CD FBM": {
+    "LOCode": "CD FBM",
+    "ISO3166Code": "CD",
+    "Identity": 35
+  },
+  "ZM LUN": {
+    "LOCode": "ZM LUN",
+    "ISO3166Code": "ZM",
+    "Identity": 36
+  },
+  "GQ SSG": {
+    "LOCode": "GQ SSG",
+    "ISO3166Code": "GQ",
+    "Identity": 37
+  },
+  "MZ MPM": {
+    "LOCode": "MZ MPM",
+    "ISO3166Code": "MZ",
+    "Identity": 38
+  },
+  "LS MSU": {
+    "LOCode": "LS MSU",
+    "ISO3166Code": "LS",
+    "Identity": 39
+  },
+  "SZ QMN": {
+    "LOCode": "SZ QMN",
+    "ISO3166Code": "SZ",
+    "Identity": 40
+  },
+  "SO MGQ": {
+    "LOCode": "SO MGQ",
+    "ISO3166Code": "SO",
+    "Identity": 41
+  },
+  "LR MLW": {
+    "LOCode": "LR MLW",
+    "ISO3166Code": "LR",
+    "Identity": 42
+  },
+  "KE NBO": {
+    "LOCode": "KE NBO",
+    "ISO3166Code": "KE",
+    "Identity": 43
+  },
+  "TD NDJ": {
+    "LOCode": "TD NDJ",
+    "ISO3166Code": "TD",
+    "Identity": 44
+  },
+  "NE NIM": {
+    "LOCode": "NE NIM",
+    "ISO3166Code": "NE",
+    "Identity": 45
+  },
+  "MR NKC": {
+    "LOCode": "MR NKC",
+    "ISO3166Code": "MR",
+    "Identity": 46
+  },
+  "BF OUA": {
+    "LOCode": "BF OUA",
+    "ISO3166Code": "BF",
+    "Identity": 47
+  },
+  "BJ PTN": {
+    "LOCode": "BJ PTN",
+    "ISO3166Code": "BJ",
+    "Identity": 48
+  },
+  "ST TMS": {
+    "LOCode": "ST TMS",
+    "ISO3166Code": "ST",
+    "Identity": 49
+  },
+  "ML TOM": {
+    "LOCode": "ML TOM",
+    "ISO3166Code": "ML",
+    "Identity": 50
+  },
+  "LY TIP": {
+    "LOCode": "LY TIP",
+    "ISO3166Code": "LY",
+    "Identity": 51
+  },
+  "TN TUN": {
+    "LOCode": "TN TUN",
+    "ISO3166Code": "TN",
+    "Identity": 52
+  },
+  "NA WDH": {
+    "LOCode": "NA WDH",
+    "ISO3166Code": "NA",
+    "Identity": 53
+  },
+  "US AXK": {
+    "LOCode": "US AXK",
+    "ISO3166Code": "US",
+    "Identity": 54
+  },
+  "US ANC": {
+    "LOCode": "US ANC",
+    "ISO3166Code": "US",
+    "Identity": 55
+  },
+  "AI AXA": {
+    "LOCode": "AI AXA",
+    "ISO3166Code": "AI",
+    "Identity": 56
+  },
+  "AG ANU": {
+    "LOCode": "AG ANU",
+    "ISO3166Code": "AG",
+    "Identity": 57
+  },
+  "BR AUX": {
+    "LOCode": "BR AUX",
+    "ISO3166Code": "BR",
+    "Identity": 58
+  },
+  "AR BUE": {
+    "LOCode": "AR BUE",
+    "ISO3166Code": "AR",
+    "Identity": 59
+  },
+  "AR CTC": {
+    "LOCode": "AR CTC",
+    "ISO3166Code": "AR",
+    "Identity": 60
+  },
+  "AR CRD": {
+    "LOCode": "AR CRD",
+    "ISO3166Code": "AR",
+    "Identity": 61
+  },
+  "AR COR": {
+    "LOCode": "AR COR",
+    "ISO3166Code": "AR",
+    "Identity": 62
+  },
+  "AR JUJ": {
+    "LOCode": "AR JUJ",
+    "ISO3166Code": "AR",
+    "Identity": 63
+  },
+  "AR IRJ": {
+    "LOCode": "AR IRJ",
+    "ISO3166Code": "AR",
+    "Identity": 64
+  },
+  "AR MDZ": {
+    "LOCode": "AR MDZ",
+    "ISO3166Code": "AR",
+    "Identity": 65
+  },
+  "AR RGL": {
+    "LOCode": "AR RGL",
+    "ISO3166Code": "AR",
+    "Identity": 66
+  },
+  "AR SLA": {
+    "LOCode": "AR SLA",
+    "ISO3166Code": "AR",
+    "Identity": 67
+  },
+  "AR UAQ": {
+    "LOCode": "AR UAQ",
+    "ISO3166Code": "AR",
+    "Identity": 68
+  },
+  "AR LUQ": {
+    "LOCode": "AR LUQ",
+    "ISO3166Code": "AR",
+    "Identity": 69
+  },
+  "AR TUC": {
+    "LOCode": "AR TUC",
+    "ISO3166Code": "AR",
+    "Identity": 70
+  },
+  "AR USH": {
+    "LOCode": "AR USH",
+    "ISO3166Code": "AR",
+    "Identity": 71
+  },
+  "AW AUA": {
+    "LOCode": "AW AUA",
+    "ISO3166Code": "AW",
+    "Identity": 72
+  },
+  "PY ASU": {
+    "LOCode": "PY ASU",
+    "ISO3166Code": "PY",
+    "Identity": 73
+  },
+  "CA YIB": {
+    "LOCode": "CA YIB",
+    "ISO3166Code": "CA",
+    "Identity": 74
+  },
+  "US AKB": {
+    "LOCode": "US AKB",
+    "ISO3166Code": "US",
+    "Identity": 75
+  },
+  "BR SSA": {
+    "LOCode": "BR SSA",
+    "ISO3166Code": "BR",
+    "Identity": 76
+  },
+  "MX PVR": {
+    "LOCode": "MX PVR",
+    "ISO3166Code": "MX",
+    "Identity": 77
+  },
+  "BB BGI": {
+    "LOCode": "BB BGI",
+    "ISO3166Code": "BB",
+    "Identity": 78
+  },
+  "BR BEL": {
+    "LOCode": "BR BEL",
+    "ISO3166Code": "BR",
+    "Identity": 79
+  },
+  "BZ BZE": {
+    "LOCode": "BZ BZE",
+    "ISO3166Code": "BZ",
+    "Identity": 80
+  },
+  "CA YBX": {
+    "LOCode": "CA YBX",
+    "ISO3166Code": "CA",
+    "Identity": 81
+  },
+  "BR BVB": {
+    "LOCode": "BR BVB",
+    "ISO3166Code": "BR",
+    "Identity": 82
+  },
+  "CO BOG": {
+    "LOCode": "CO BOG",
+    "ISO3166Code": "CO",
+    "Identity": 83
+  },
+  "US BOI": {
+    "LOCode": "US BOI",
+    "ISO3166Code": "US",
+    "Identity": 84
+  },
+  "CA YCB": {
+    "LOCode": "CA YCB",
+    "ISO3166Code": "CA",
+    "Identity": 85
+  },
+  "BR CGR": {
+    "LOCode": "BR CGR",
+    "ISO3166Code": "BR",
+    "Identity": 86
+  },
+  "MX CUN": {
+    "LOCode": "MX CUN",
+    "ISO3166Code": "MX",
+    "Identity": 87
+  },
+  "VE CCS": {
+    "LOCode": "VE CCS",
+    "ISO3166Code": "VE",
+    "Identity": 88
+  },
+  "GF CAY": {
+    "LOCode": "GF CAY",
+    "ISO3166Code": "GF",
+    "Identity": 89
+  },
+  "KY GEC": {
+    "LOCode": "KY GEC",
+    "ISO3166Code": "KY",
+    "Identity": 90
+  },
+  "US CHI": {
+    "LOCode": "US CHI",
+    "ISO3166Code": "US",
+    "Identity": 91
+  },
+  "MX CUU": {
+    "LOCode": "MX CUU",
+    "ISO3166Code": "MX",
+    "Identity": 92
+  },
+  "CA YZS": {
+    "LOCode": "CA YZS",
+    "ISO3166Code": "CA",
+    "Identity": 93
+  },
+  "CR SJO": {
+    "LOCode": "CR SJO",
+    "ISO3166Code": "CR",
+    "Identity": 94
+  },
+  "CA CFQ": {
+    "LOCode": "CA CFQ",
+    "ISO3166Code": "CA",
+    "Identity": 95
+  },
+  "BR CGB": {
+    "LOCode": "BR CGB",
+    "ISO3166Code": "BR",
+    "Identity": 96
+  },
+  "CW CUR": {
+    "LOCode": "CW CUR",
+    "ISO3166Code": "CW",
+    "Identity": 97
+  },
+  "CA YDQ": {
+    "LOCode": "CA YDQ",
+    "ISO3166Code": "CA",
+    "Identity": 98
+  },
+  "US DEN": {
+    "LOCode": "US DEN",
+    "ISO3166Code": "US",
+    "Identity": 99
+  },
+  "US DET": {
+    "LOCode": "US DET",
+    "ISO3166Code": "US",
+    "Identity": 100
+  },
+  "DM DOM": {
+    "LOCode": "DM DOM",
+    "ISO3166Code": "DM",
+    "Identity": 101
+  },
+  "CA EDM": {
+    "LOCode": "CA EDM",
+    "ISO3166Code": "CA",
+    "Identity": 102
+  },
+  "BR ERN": {
+    "LOCode": "BR ERN",
+    "ISO3166Code": "BR",
+    "Identity": 103
+  },
+  "SV ELS": {
+    "LOCode": "SV ELS",
+    "ISO3166Code": "SV",
+    "Identity": 104
+  },
+  "MX ESE": {
+    "LOCode": "MX ESE",
+    "ISO3166Code": "MX",
+    "Identity": 105
+  },
+  "US FWA": {
+    "LOCode": "US FWA",
+    "ISO3166Code": "US",
+    "Identity": 106
+  },
+  "BR FOR": {
+    "LOCode": "BR FOR",
+    "ISO3166Code": "BR",
+    "Identity": 107
+  },
+  "CA GLB": {
+    "LOCode": "CA GLB",
+    "ISO3166Code": "CA",
+    "Identity": 108
+  },
+  "GL GOH": {
+    "LOCode": "GL GOH",
+    "ISO3166Code": "GL",
+    "Identity": 109
+  },
+  "CA GOO": {
+    "LOCode": "CA GOO",
+    "ISO3166Code": "CA",
+    "Identity": 110
+  },
+  "TC GDT": {
+    "LOCode": "TC GDT",
+    "ISO3166Code": "TC",
+    "Identity": 111
+  },
+  "GD GND": {
+    "LOCode": "GD GND",
+    "ISO3166Code": "GD",
+    "Identity": 112
+  },
+  "GP PTP": {
+    "LOCode": "GP PTP",
+    "ISO3166Code": "GP",
+    "Identity": 113
+  },
+  "GT GUA": {
+    "LOCode": "GT GUA",
+    "ISO3166Code": "GT",
+    "Identity": 114
+  },
+  "EC GYE": {
+    "LOCode": "EC GYE",
+    "ISO3166Code": "EC",
+    "Identity": 115
+  },
+  "GY GEO": {
+    "LOCode": "GY GEO",
+    "ISO3166Code": "GY",
+    "Identity": 116
+  },
+  "CA HAL": {
+    "LOCode": "CA HAL",
+    "ISO3166Code": "CA",
+    "Identity": 117
+  },
+  "CU HAV": {
+    "LOCode": "CU HAV",
+    "ISO3166Code": "CU",
+    "Identity": 118
+  },
+  "MX HMO": {
+    "LOCode": "MX HMO",
+    "ISO3166Code": "MX",
+    "Identity": 119
+  },
+  "US IND": {
+    "LOCode": "US IND",
+    "ISO3166Code": "US",
+    "Identity": 120
+  },
+  "US KNX": {
+    "LOCode": "US KNX",
+    "ISO3166Code": "US",
+    "Identity": 121
+  },
+  "US AEG": {
+    "LOCode": "US AEG",
+    "ISO3166Code": "US",
+    "Identity": 122
+  },
+  "US PB8": {
+    "LOCode": "US PB8",
+    "ISO3166Code": "US",
+    "Identity": 123
+  },
+  "US TEL": {
+    "LOCode": "US TEL",
+    "ISO3166Code": "US",
+    "Identity": 124
+  },
+  "US OEA": {
+    "LOCode": "US OEA",
+    "ISO3166Code": "US",
+    "Identity": 125
+  },
+  "US WLZ": {
+    "LOCode": "US WLZ",
+    "ISO3166Code": "US",
+    "Identity": 126
+  },
+  "CA YEV": {
+    "LOCode": "CA YEV",
+    "ISO3166Code": "CA",
+    "Identity": 127
+  },
+  "CA IQL": {
+    "LOCode": "CA IQL",
+    "ISO3166Code": "CA",
+    "Identity": 128
+  },
+  "JM KIN": {
+    "LOCode": "JM KIN",
+    "ISO3166Code": "JM",
+    "Identity": 129
+  },
+  "US JNU": {
+    "LOCode": "US JNU",
+    "ISO3166Code": "US",
+    "Identity": 130
+  },
+  "US LUI": {
+    "LOCode": "US LUI",
+    "ISO3166Code": "US",
+    "Identity": 131
+  },
+  "US MOC": {
+    "LOCode": "US MOC",
+    "ISO3166Code": "US",
+    "Identity": 132
+  },
+  "BQ KRA": {
+    "LOCode": "BQ KRA",
+    "ISO3166Code": "BQ",
+    "Identity": 133
+  },
+  "BO LPB": {
+    "LOCode": "BO LPB",
+    "ISO3166Code": "BO",
+    "Identity": 134
+  },
+  "PE LIM": {
+    "LOCode": "PE LIM",
+    "ISO3166Code": "PE",
+    "Identity": 135
+  },
+  "US LAX": {
+    "LOCode": "US LAX",
+    "ISO3166Code": "US",
+    "Identity": 136
+  },
+  "BR MCZ": {
+    "LOCode": "BR MCZ",
+    "ISO3166Code": "BR",
+    "Identity": 137
+  },
+  "NI MGA": {
+    "LOCode": "NI MGA",
+    "ISO3166Code": "NI",
+    "Identity": 138
+  },
+  "BR MAO": {
+    "LOCode": "BR MAO",
+    "ISO3166Code": "BR",
+    "Identity": 139
+  },
+  "MF MAR": {
+    "LOCode": "MF MAR",
+    "ISO3166Code": "MF",
+    "Identity": 140
+  },
+  "MQ FDF": {
+    "LOCode": "MQ FDF",
+    "ISO3166Code": "MQ",
+    "Identity": 141
+  },
+  "MX MAM": {
+    "LOCode": "MX MAM",
+    "ISO3166Code": "MX",
+    "Identity": 142
+  },
+  "MX MZT": {
+    "LOCode": "MX MZT",
+    "ISO3166Code": "MX",
+    "Identity": 143
+  },
+  "US MNM": {
+    "LOCode": "US MNM",
+    "ISO3166Code": "US",
+    "Identity": 144
+  },
+  "MX MID": {
+    "LOCode": "MX MID",
+    "ISO3166Code": "MX",
+    "Identity": 145
+  },
+  "US MTM": {
+    "LOCode": "US MTM",
+    "ISO3166Code": "US",
+    "Identity": 146
+  },
+  "MX MEX": {
+    "LOCode": "MX MEX",
+    "ISO3166Code": "MX",
+    "Identity": 147
+  },
+  "PM MQC": {
+    "LOCode": "PM MQC",
+    "ISO3166Code": "PM",
+    "Identity": 148
+  },
+  "CA MNT": {
+    "LOCode": "CA MNT",
+    "ISO3166Code": "CA",
+    "Identity": 149
+  },
+  "MX MTY": {
+    "LOCode": "MX MTY",
+    "ISO3166Code": "MX",
+    "Identity": 150
+  },
+  "UY MVD": {
+    "LOCode": "UY MVD",
+    "ISO3166Code": "UY",
+    "Identity": 151
+  },
+  "CA MTR": {
+    "LOCode": "CA MTR",
+    "ISO3166Code": "CA",
+    "Identity": 152
+  },
+  "MS MNI": {
+    "LOCode": "MS MNI",
+    "ISO3166Code": "MS",
+    "Identity": 153
+  },
+  "BS NAS": {
+    "LOCode": "BS NAS",
+    "ISO3166Code": "BS",
+    "Identity": 154
+  },
+  "US NYC": {
+    "LOCode": "US NYC",
+    "ISO3166Code": "US",
+    "Identity": 155
+  },
+  "CA NPG": {
+    "LOCode": "CA NPG",
+    "ISO3166Code": "CA",
+    "Identity": 156
+  },
+  "US OME": {
+    "LOCode": "US OME",
+    "ISO3166Code": "US",
+    "Identity": 157
+  },
+  "BR FEN": {
+    "LOCode": "BR FEN",
+    "ISO3166Code": "BR",
+    "Identity": 158
+  },
+  "US XUL": {
+    "LOCode": "US XUL",
+    "ISO3166Code": "US",
+    "Identity": 159
+  },
+  "US ZT8": {
+    "LOCode": "US ZT8",
+    "ISO3166Code": "US",
+    "Identity": 160
+  },
+  "US NQY": {
+    "LOCode": "US NQY",
+    "ISO3166Code": "US",
+    "Identity": 161
+  },
+  "MX OJI": {
+    "LOCode": "MX OJI",
+    "ISO3166Code": "MX",
+    "Identity": 162
+  },
+  "PA PTY": {
+    "LOCode": "PA PTY",
+    "ISO3166Code": "PA",
+    "Identity": 163
+  },
+  "CA PNT": {
+    "LOCode": "CA PNT",
+    "ISO3166Code": "CA",
+    "Identity": 164
+  },
+  "SR PBM": {
+    "LOCode": "SR PBM",
+    "ISO3166Code": "SR",
+    "Identity": 165
+  },
+  "US PHX": {
+    "LOCode": "US PHX",
+    "ISO3166Code": "US",
+    "Identity": 166
+  },
+  "HT PAP": {
+    "LOCode": "HT PAP",
+    "ISO3166Code": "HT",
+    "Identity": 167
+  },
+  "TT POS": {
+    "LOCode": "TT POS",
+    "ISO3166Code": "TT",
+    "Identity": 168
+  },
+  "BR RBR": {
+    "LOCode": "BR RBR",
+    "ISO3166Code": "BR",
+    "Identity": 169
+  },
+  "BR PVH": {
+    "LOCode": "BR PVH",
+    "ISO3166Code": "BR",
+    "Identity": 170
+  },
+  "PR SJU": {
+    "LOCode": "PR SJU",
+    "ISO3166Code": "PR",
+    "Identity": 171
+  },
+  "CA FFS": {
+    "LOCode": "CA FFS",
+    "ISO3166Code": "CA",
+    "Identity": 172
+  },
+  "CA RIT": {
+    "LOCode": "CA RIT",
+    "ISO3166Code": "CA",
+    "Identity": 173
+  },
+  "BR REC": {
+    "LOCode": "BR REC",
+    "ISO3166Code": "BR",
+    "Identity": 174
+  },
+  "CA REG": {
+    "LOCode": "CA REG",
+    "ISO3166Code": "CA",
+    "Identity": 175
+  },
+  "CA REB": {
+    "LOCode": "CA REB",
+    "ISO3166Code": "CA",
+    "Identity": 176
+  },
+  "AR ROS": {
+    "LOCode": "AR ROS",
+    "ISO3166Code": "AR",
+    "Identity": 177
+  },
+  "BR STM": {
+    "LOCode": "BR STM",
+    "ISO3166Code": "BR",
+    "Identity": 178
+  },
+  "CL SCL": {
+    "LOCode": "CL SCL",
+    "ISO3166Code": "CL",
+    "Identity": 179
+  },
+  "DO SDQ": {
+    "LOCode": "DO SDQ",
+    "ISO3166Code": "DO",
+    "Identity": 180
+  },
+  "BR SAO": {
+    "LOCode": "BR SAO",
+    "ISO3166Code": "BR",
+    "Identity": 181
+  },
+  "GL OBY": {
+    "LOCode": "GL OBY",
+    "ISO3166Code": "GL",
+    "Identity": 182
+  },
+  "US SIT": {
+    "LOCode": "US SIT",
+    "ISO3166Code": "US",
+    "Identity": 183
+  },
+  "BL SBH": {
+    "LOCode": "BL SBH",
+    "ISO3166Code": "BL",
+    "Identity": 184
+  },
+  "CA SJF": {
+    "LOCode": "CA SJF",
+    "ISO3166Code": "CA",
+    "Identity": 185
+  },
+  "KN SKB": {
+    "LOCode": "KN SKB",
+    "ISO3166Code": "KN",
+    "Identity": 186
+  },
+  "LC CAS": {
+    "LOCode": "LC CAS",
+    "ISO3166Code": "LC",
+    "Identity": 187
+  },
+  "VI CHA": {
+    "LOCode": "VI CHA",
+    "ISO3166Code": "VI",
+    "Identity": 188
+  },
+  "VC SVD": {
+    "LOCode": "VC SVD",
+    "ISO3166Code": "VC",
+    "Identity": 189
+  },
+  "CA YYN": {
+    "LOCode": "CA YYN",
+    "ISO3166Code": "CA",
+    "Identity": 190
+  },
+  "HN TGU": {
+    "LOCode": "HN TGU",
+    "ISO3166Code": "HN",
+    "Identity": 191
+  },
+  "GL THU": {
+    "LOCode": "GL THU",
+    "ISO3166Code": "GL",
+    "Identity": 192
+  },
+  "CA THU": {
+    "LOCode": "CA THU",
+    "ISO3166Code": "CA",
+    "Identity": 193
+  },
+  "MX TIJ": {
+    "LOCode": "MX TIJ",
+    "ISO3166Code": "MX",
+    "Identity": 194
+  },
+  "CA TOR": {
+    "LOCode": "CA TOR",
+    "ISO3166Code": "CA",
+    "Identity": 195
+  },
+  "VG TOV": {
+    "LOCode": "VG TOV",
+    "ISO3166Code": "VG",
+    "Identity": 196
+  },
+  "CA VAN": {
+    "LOCode": "CA VAN",
+    "ISO3166Code": "CA",
+    "Identity": 197
+  },
+  "CA YXY": {
+    "LOCode": "CA YXY",
+    "ISO3166Code": "CA",
+    "Identity": 198
+  },
+  "CA WNP": {
+    "LOCode": "CA WNP",
+    "ISO3166Code": "CA",
+    "Identity": 199
+  },
+  "US YAK": {
+    "LOCode": "US YAK",
+    "ISO3166Code": "US",
+    "Identity": 200
+  },
+  "CA YZF": {
+    "LOCode": "CA YZF",
+    "ISO3166Code": "CA",
+    "Identity": 201
+  },
+  "AQ CAS": {
+    "LOCode": "AQ CAS",
+    "ISO3166Code": "AQ",
+    "Identity": 202
+  },
+  "AQ DAV": {
+    "LOCode": "AQ DAV",
+    "ISO3166Code": "AQ",
+    "Identity": 203
+  },
+  "AQ DDU": {
+    "LOCode": "AQ DDU",
+    "ISO3166Code": "AQ",
+    "Identity": 204
+  },
+  "AU MQI": {
+    "LOCode": "AU MQI",
+    "ISO3166Code": "AU",
+    "Identity": 205
+  },
+  "AQ MAW": {
+    "LOCode": "AQ MAW",
+    "ISO3166Code": "AQ",
+    "Identity": 206
+  },
+  "AQ MCM": {
+    "LOCode": "AQ MCM",
+    "ISO3166Code": "AQ",
+    "Identity": 207
+  },
+  "AQ PLM": {
+    "LOCode": "AQ PLM",
+    "ISO3166Code": "AQ",
+    "Identity": 208
+  },
+  "AQ ROT": {
+    "LOCode": "AQ ROT",
+    "ISO3166Code": "AQ",
+    "Identity": 209
+  },
+  "AQ AMS": {
+    "LOCode": "AQ AMS",
+    "ISO3166Code": "AQ",
+    "Identity": 210
+  },
+  "AQ SYW": {
+    "LOCode": "AQ SYW",
+    "ISO3166Code": "AQ",
+    "Identity": 211
+  },
+  "AQ VOS": {
+    "LOCode": "AQ VOS",
+    "ISO3166Code": "AQ",
+    "Identity": 212
+  },
+  "SJ LYR": {
+    "LOCode": "SJ LYR",
+    "ISO3166Code": "SJ",
+    "Identity": 213
+  },
+  "YE ADE": {
+    "LOCode": "YE ADE",
+    "ISO3166Code": "YE",
+    "Identity": 214
+  },
+  "KZ ALA": {
+    "LOCode": "KZ ALA",
+    "ISO3166Code": "KZ",
+    "Identity": 215
+  },
+  "JO AMM": {
+    "LOCode": "JO AMM",
+    "ISO3166Code": "JO",
+    "Identity": 216
+  },
+  "RU DYR": {
+    "LOCode": "RU DYR",
+    "ISO3166Code": "RU",
+    "Identity": 217
+  },
+  "KZ AAU": {
+    "LOCode": "KZ AAU",
+    "ISO3166Code": "KZ",
+    "Identity": 218
+  },
+  "KZ AKX": {
+    "LOCode": "KZ AKX",
+    "ISO3166Code": "KZ",
+    "Identity": 219
+  },
+  "TM ASB": {
+    "LOCode": "TM ASB",
+    "ISO3166Code": "TM",
+    "Identity": 220
+  },
+  "IQ BGW": {
+    "LOCode": "IQ BGW",
+    "ISO3166Code": "IQ",
+    "Identity": 221
+  },
+  "BH BAH": {
+    "LOCode": "BH BAH",
+    "ISO3166Code": "BH",
+    "Identity": 222
+  },
+  "AZ BAK": {
+    "LOCode": "AZ BAK",
+    "ISO3166Code": "AZ",
+    "Identity": 223
+  },
+  "TH BKK": {
+    "LOCode": "TH BKK",
+    "ISO3166Code": "TH",
+    "Identity": 224
+  },
+  "LB BEY": {
+    "LOCode": "LB BEY",
+    "ISO3166Code": "LB",
+    "Identity": 225
+  },
+  "KG FRU": {
+    "LOCode": "KG FRU",
+    "ISO3166Code": "KG",
+    "Identity": 226
+  },
+  "BN BWN": {
+    "LOCode": "BN BWN",
+    "ISO3166Code": "BN",
+    "Identity": 227
+  },
+  "IN CCU": {
+    "LOCode": "IN CCU",
+    "ISO3166Code": "IN",
+    "Identity": 228
+  },
+  "MN COQ": {
+    "LOCode": "MN COQ",
+    "ISO3166Code": "MN",
+    "Identity": 229
+  },
+  "CN CKG": {
+    "LOCode": "CN CKG",
+    "ISO3166Code": "CN",
+    "Identity": 230
+  },
+  "LK CMB": {
+    "LOCode": "LK CMB",
+    "ISO3166Code": "LK",
+    "Identity": 231
+  },
+  "BD DAC": {
+    "LOCode": "BD DAC",
+    "ISO3166Code": "BD",
+    "Identity": 232
+  },
+  "SY DAM": {
+    "LOCode": "SY DAM",
+    "ISO3166Code": "SY",
+    "Identity": 233
+  },
+  "TL DIL": {
+    "LOCode": "TL DIL",
+    "ISO3166Code": "TL",
+    "Identity": 234
+  },
+  "AE DXB": {
+    "LOCode": "AE DXB",
+    "ISO3166Code": "AE",
+    "Identity": 235
+  },
+  "TJ DYU": {
+    "LOCode": "TJ DYU",
+    "ISO3166Code": "TJ",
+    "Identity": 236
+  },
+  "PS GZA": {
+    "LOCode": "PS GZA",
+    "ISO3166Code": "PS",
+    "Identity": 237
+  },
+  "CN HRB": {
+    "LOCode": "CN HRB",
+    "ISO3166Code": "CN",
+    "Identity": 238
+  },
+  "VN SGN": {
+    "LOCode": "VN SGN",
+    "ISO3166Code": "VN",
+    "Identity": 239
+  },
+  "HK HKG": {
+    "LOCode": "HK HKG",
+    "ISO3166Code": "HK",
+    "Identity": 240
+  },
+  "MN HVD": {
+    "LOCode": "MN HVD",
+    "ISO3166Code": "MN",
+    "Identity": 241
+  },
+  "RU IKT": {
+    "LOCode": "RU IKT",
+    "ISO3166Code": "RU",
+    "Identity": 242
+  },
+  "TR IST": {
+    "LOCode": "TR IST",
+    "ISO3166Code": "TR",
+    "Identity": 243
+  },
+  "ID JKT": {
+    "LOCode": "ID JKT",
+    "ISO3166Code": "ID",
+    "Identity": 244
+  },
+  "ID DJJ": {
+    "LOCode": "ID DJJ",
+    "ISO3166Code": "ID",
+    "Identity": 245
+  },
+  "AF KBL": {
+    "LOCode": "AF KBL",
+    "ISO3166Code": "AF",
+    "Identity": 246
+  },
+  "RU PKC": {
+    "LOCode": "RU PKC",
+    "ISO3166Code": "RU",
+    "Identity": 247
+  },
+  "PK KHI": {
+    "LOCode": "PK KHI",
+    "ISO3166Code": "PK",
+    "Identity": 248
+  },
+  "CN KHG": {
+    "LOCode": "CN KHG",
+    "ISO3166Code": "CN",
+    "Identity": 249
+  },
+  "NP KTM": {
+    "LOCode": "NP KTM",
+    "ISO3166Code": "NP",
+    "Identity": 250
+  },
+  "RU KRA": {
+    "LOCode": "RU KRA",
+    "ISO3166Code": "RU",
+    "Identity": 251
+  },
+  "MY KUL": {
+    "LOCode": "MY KUL",
+    "ISO3166Code": "MY",
+    "Identity": 252
+  },
+  "MY KCH": {
+    "LOCode": "MY KCH",
+    "ISO3166Code": "MY",
+    "Identity": 253
+  },
+  "KW KWI": {
+    "LOCode": "KW KWI",
+    "ISO3166Code": "KW",
+    "Identity": 254
+  },
+  "MO MFM": {
+    "LOCode": "MO MFM",
+    "ISO3166Code": "MO",
+    "Identity": 255
+  },
+  "RU GDX": {
+    "LOCode": "RU GDX",
+    "ISO3166Code": "RU",
+    "Identity": 256
+  },
+  "ID MAK": {
+    "LOCode": "ID MAK",
+    "ISO3166Code": "ID",
+    "Identity": 257
+  },
+  "PH MNL": {
+    "LOCode": "PH MNL",
+    "ISO3166Code": "PH",
+    "Identity": 258
+  },
+  "OM MCT": {
+    "LOCode": "OM MCT",
+    "ISO3166Code": "OM",
+    "Identity": 259
+  },
+  "CY NIC": {
+    "LOCode": "CY NIC",
+    "ISO3166Code": "CY",
+    "Identity": 260
+  },
+  "RU NOZ": {
+    "LOCode": "RU NOZ",
+    "ISO3166Code": "RU",
+    "Identity": 261
+  },
+  "RU OVB": {
+    "LOCode": "RU OVB",
+    "ISO3166Code": "RU",
+    "Identity": 262
+  },
+  "RU OMS": {
+    "LOCode": "RU OMS",
+    "ISO3166Code": "RU",
+    "Identity": 263
+  },
+  "KZ AST": {
+    "LOCode": "KZ AST",
+    "ISO3166Code": "KZ",
+    "Identity": 264
+  },
+  "KH PNH": {
+    "LOCode": "KH PNH",
+    "ISO3166Code": "KH",
+    "Identity": 265
+  },
+  "ID PNK": {
+    "LOCode": "ID PNK",
+    "ISO3166Code": "ID",
+    "Identity": 266
+  },
+  "KP FNJ": {
+    "LOCode": "KP FNJ",
+    "ISO3166Code": "KP",
+    "Identity": 267
+  },
+  "QA DOH": {
+    "LOCode": "QA DOH",
+    "ISO3166Code": "QA",
+    "Identity": 268
+  },
+  "KZ KZO": {
+    "LOCode": "KZ KZO",
+    "ISO3166Code": "KZ",
+    "Identity": 269
+  },
+  "MM RGN": {
+    "LOCode": "MM RGN",
+    "ISO3166Code": "MM",
+    "Identity": 270
+  },
+  "SA RUH": {
+    "LOCode": "SA RUH",
+    "ISO3166Code": "SA",
+    "Identity": 271
+  },
+  "RU UUS": {
+    "LOCode": "RU UUS",
+    "ISO3166Code": "RU",
+    "Identity": 272
+  },
+  "UZ SKD": {
+    "LOCode": "UZ SKD",
+    "ISO3166Code": "UZ",
+    "Identity": 273
+  },
+  "KR SEL": {
+    "LOCode": "KR SEL",
+    "ISO3166Code": "KR",
+    "Identity": 274
+  },
+  "CN SHA": {
+    "LOCode": "CN SHA",
+    "ISO3166Code": "CN",
+    "Identity": 275
+  },
+  "SG SIN": {
+    "LOCode": "SG SIN",
+    "ISO3166Code": "SG",
+    "Identity": 276
+  },
+  "TW TPE": {
+    "LOCode": "TW TPE",
+    "ISO3166Code": "TW",
+    "Identity": 277
+  },
+  "UZ TAS": {
+    "LOCode": "UZ TAS",
+    "ISO3166Code": "UZ",
+    "Identity": 278
+  },
+  "GE TBS": {
+    "LOCode": "GE TBS",
+    "ISO3166Code": "GE",
+    "Identity": 279
+  },
+  "IR THR": {
+    "LOCode": "IR THR",
+    "ISO3166Code": "IR",
+    "Identity": 280
+  },
+  "IL HOL": {
+    "LOCode": "IL HOL",
+    "ISO3166Code": "IL",
+    "Identity": 281
+  },
+  "BT THI": {
+    "LOCode": "BT THI",
+    "ISO3166Code": "BT",
+    "Identity": 282
+  },
+  "JP TYO": {
+    "LOCode": "JP TYO",
+    "ISO3166Code": "JP",
+    "Identity": 283
+  },
+  "ID UPG": {
+    "LOCode": "ID UPG",
+    "ISO3166Code": "ID",
+    "Identity": 284
+  },
+  "MN ULN": {
+    "LOCode": "MN ULN",
+    "ISO3166Code": "MN",
+    "Identity": 285
+  },
+  "CN URC": {
+    "LOCode": "CN URC",
+    "ISO3166Code": "CN",
+    "Identity": 286
+  },
+  "LA VTE": {
+    "LOCode": "LA VTE",
+    "ISO3166Code": "LA",
+    "Identity": 287
+  },
+  "RU VVO": {
+    "LOCode": "RU VVO",
+    "ISO3166Code": "RU",
+    "Identity": 288
+  },
+  "RU YKS": {
+    "LOCode": "RU YKS",
+    "ISO3166Code": "RU",
+    "Identity": 289
+  },
+  "RU YEK": {
+    "LOCode": "RU YEK",
+    "ISO3166Code": "RU",
+    "Identity": 290
+  },
+  "AM EVN": {
+    "LOCode": "AM EVN",
+    "ISO3166Code": "AM",
+    "Identity": 291
+  },
+  "PT PDL": {
+    "LOCode": "PT PDL",
+    "ISO3166Code": "PT",
+    "Identity": 292
+  },
+  "BM BDA": {
+    "LOCode": "BM BDA",
+    "ISO3166Code": "BM",
+    "Identity": 293
+  },
+  "ES PBB": {
+    "LOCode": "ES PBB",
+    "ISO3166Code": "ES",
+    "Identity": 294
+  },
+  "CV RAI": {
+    "LOCode": "CV RAI",
+    "ISO3166Code": "CV",
+    "Identity": 295
+  },
+  "FO TOR": {
+    "LOCode": "FO TOR",
+    "ISO3166Code": "FO",
+    "Identity": 296
+  },
+  "NO OSL": {
+    "LOCode": "NO OSL",
+    "ISO3166Code": "NO",
+    "Identity": 297
+  },
+  "PT FNC": {
+    "LOCode": "PT FNC",
+    "ISO3166Code": "PT",
+    "Identity": 298
+  },
+  "IS REY": {
+    "LOCode": "IS REY",
+    "ISO3166Code": "IS",
+    "Identity": 299
+  },
+  "GS GRV": {
+    "LOCode": "GS GRV",
+    "ISO3166Code": "GS",
+    "Identity": 300
+  },
+  "SH SHN": {
+    "LOCode": "SH SHN",
+    "ISO3166Code": "SH",
+    "Identity": 301
+  },
+  "FK PSY": {
+    "LOCode": "FK PSY",
+    "ISO3166Code": "FK",
+    "Identity": 302
+  },
+  "AU CBR": {
+    "LOCode": "AU CBR",
+    "ISO3166Code": "AU",
+    "Identity": 303
+  },
+  "AU ADL": {
+    "LOCode": "AU ADL",
+    "ISO3166Code": "AU",
+    "Identity": 304
+  },
+  "AU BNE": {
+    "LOCode": "AU BNE",
+    "ISO3166Code": "AU",
+    "Identity": 305
+  },
+  "AU BHQ": {
+    "LOCode": "AU BHQ",
+    "ISO3166Code": "AU",
+    "Identity": 306
+  },
+  "AU DRW": {
+    "LOCode": "AU DRW",
+    "ISO3166Code": "AU",
+    "Identity": 307
+  },
+  "AU EUC": {
+    "LOCode": "AU EUC",
+    "ISO3166Code": "AU",
+    "Identity": 308
+  },
+  "AU HBA": {
+    "LOCode": "AU HBA",
+    "ISO3166Code": "AU",
+    "Identity": 309
+  },
+  "AU LDH": {
+    "LOCode": "AU LDH",
+    "ISO3166Code": "AU",
+    "Identity": 310
+  },
+  "AU LDC": {
+    "LOCode": "AU LDC",
+    "ISO3166Code": "AU",
+    "Identity": 311
+  },
+  "AU MEL": {
+    "LOCode": "AU MEL",
+    "ISO3166Code": "AU",
+    "Identity": 312
+  },
+  "AU SYD": {
+    "LOCode": "AU SYD",
+    "ISO3166Code": "AU",
+    "Identity": 313
+  },
+  "AU PER": {
+    "LOCode": "AU PER",
+    "ISO3166Code": "AU",
+    "Identity": 314
+  },
+  "AU VCD": {
+    "LOCode": "AU VCD",
+    "ISO3166Code": "AU",
+    "Identity": 315
+  },
+  "BR RIO": {
+    "LOCode": "BR RIO",
+    "ISO3166Code": "BR",
+    "Identity": 316
+  },
+  "CA CAL": {
+    "LOCode": "CA CAL",
+    "ISO3166Code": "CA",
+    "Identity": 317
+  },
+  "CA SJB": {
+    "LOCode": "CA SJB",
+    "ISO3166Code": "CA",
+    "Identity": 318
+  },
+  "CA FSK": {
+    "LOCode": "CA FSK",
+    "ISO3166Code": "CA",
+    "Identity": 319
+  },
+  "CL IPC": {
+    "LOCode": "CL IPC",
+    "ISO3166Code": "CL",
+    "Identity": 320
+  },
+  "CU SCU": {
+    "LOCode": "CU SCU",
+    "ISO3166Code": "CU",
+    "Identity": 321
+  },
+  "IE DUB": {
+    "LOCode": "IE DUB",
+    "ISO3166Code": "IE",
+    "Identity": 322
+  },
+  "NL AMS": {
+    "LOCode": "NL AMS",
+    "ISO3166Code": "NL",
+    "Identity": 323
+  },
+  "AD ALV": {
+    "LOCode": "AD ALV",
+    "ISO3166Code": "AD",
+    "Identity": 324
+  },
+  "GR ATH": {
+    "LOCode": "GR ATH",
+    "ISO3166Code": "GR",
+    "Identity": 325
+  },
+  "GB BEL": {
+    "LOCode": "GB BEL",
+    "ISO3166Code": "GB",
+    "Identity": 326
+  },
+  "RS BEG": {
+    "LOCode": "RS BEG",
+    "ISO3166Code": "RS",
+    "Identity": 327
+  },
+  "DE BER": {
+    "LOCode": "DE BER",
+    "ISO3166Code": "DE",
+    "Identity": 328
+  },
+  "SK BTS": {
+    "LOCode": "SK BTS",
+    "ISO3166Code": "SK",
+    "Identity": 329
+  },
+  "BE BRU": {
+    "LOCode": "BE BRU",
+    "ISO3166Code": "BE",
+    "Identity": 330
+  },
+  "RO BUH": {
+    "LOCode": "RO BUH",
+    "ISO3166Code": "RO",
+    "Identity": 331
+  },
+  "HU BUD": {
+    "LOCode": "HU BUD",
+    "ISO3166Code": "HU",
+    "Identity": 332
+  },
+  "MD KIV": {
+    "LOCode": "MD KIV",
+    "ISO3166Code": "MD",
+    "Identity": 333
+  },
+  "DK CPH": {
+    "LOCode": "DK CPH",
+    "ISO3166Code": "DK",
+    "Identity": 334
+  },
+  "GI GIB": {
+    "LOCode": "GI GIB",
+    "ISO3166Code": "GI",
+    "Identity": 335
+  },
+  "GG GCI": {
+    "LOCode": "GG GCI",
+    "ISO3166Code": "GG",
+    "Identity": 336
+  },
+  "FI HEL": {
+    "LOCode": "FI HEL",
+    "ISO3166Code": "FI",
+    "Identity": 337
+  },
+  "IM DGS": {
+    "LOCode": "IM DGS",
+    "ISO3166Code": "IM",
+    "Identity": 338
+  },
+  "JE STH": {
+    "LOCode": "JE STH",
+    "ISO3166Code": "JE",
+    "Identity": 339
+  },
+  "RU KGD": {
+    "LOCode": "RU KGD",
+    "ISO3166Code": "RU",
+    "Identity": 340
+  },
+  "UA IEV": {
+    "LOCode": "UA IEV",
+    "ISO3166Code": "UA",
+    "Identity": 341
+  },
+  "PT LIS": {
+    "LOCode": "PT LIS",
+    "ISO3166Code": "PT",
+    "Identity": 342
+  },
+  "SI LJU": {
+    "LOCode": "SI LJU",
+    "ISO3166Code": "SI",
+    "Identity": 343
+  },
+  "GB LON": {
+    "LOCode": "GB LON",
+    "ISO3166Code": "GB",
+    "Identity": 344
+  },
+  "LU LUX": {
+    "LOCode": "LU LUX",
+    "ISO3166Code": "LU",
+    "Identity": 345
+  },
+  "ES MAD": {
+    "LOCode": "ES MAD",
+    "ISO3166Code": "ES",
+    "Identity": 346
+  },
+  "MT MLA": {
+    "LOCode": "MT MLA",
+    "ISO3166Code": "MT",
+    "Identity": 347
+  },
+  "AX MHQ": {
+    "LOCode": "AX MHQ",
+    "ISO3166Code": "AX",
+    "Identity": 348
+  },
+  "BY MSQ": {
+    "LOCode": "BY MSQ",
+    "ISO3166Code": "BY",
+    "Identity": 349
+  },
+  "MC MON": {
+    "LOCode": "MC MON",
+    "ISO3166Code": "MC",
+    "Identity": 350
+  },
+  "RU MOW": {
+    "LOCode": "RU MOW",
+    "ISO3166Code": "RU",
+    "Identity": 351
+  },
+  "FR PAR": {
+    "LOCode": "FR PAR",
+    "ISO3166Code": "FR",
+    "Identity": 352
+  },
+  "ME TGD": {
+    "LOCode": "ME TGD",
+    "ISO3166Code": "ME",
+    "Identity": 353
+  },
+  "CZ PRG": {
+    "LOCode": "CZ PRG",
+    "ISO3166Code": "CZ",
+    "Identity": 354
+  },
+  "LV RIX": {
+    "LOCode": "LV RIX",
+    "ISO3166Code": "LV",
+    "Identity": 355
+  },
+  "IT ROM": {
+    "LOCode": "IT ROM",
+    "ISO3166Code": "IT",
+    "Identity": 356
+  },
+  "RU KUF": {
+    "LOCode": "RU KUF",
+    "ISO3166Code": "RU",
+    "Identity": 357
+  },
+  "SM SAI": {
+    "LOCode": "SM SAI",
+    "ISO3166Code": "SM",
+    "Identity": 358
+  },
+  "BA SJJ": {
+    "LOCode": "BA SJJ",
+    "ISO3166Code": "BA",
+    "Identity": 359
+  },
+  "MK SKP": {
+    "LOCode": "MK SKP",
+    "ISO3166Code": "MK",
+    "Identity": 360
+  },
+  "BG SOF": {
+    "LOCode": "BG SOF",
+    "ISO3166Code": "BG",
+    "Identity": 361
+  },
+  "SE STO": {
+    "LOCode": "SE STO",
+    "ISO3166Code": "SE",
+    "Identity": 362
+  },
+  "EE TLL": {
+    "LOCode": "EE TLL",
+    "ISO3166Code": "EE",
+    "Identity": 363
+  },
+  "AL TIA": {
+    "LOCode": "AL TIA",
+    "ISO3166Code": "AL",
+    "Identity": 364
+  },
+  "MD TIR": {
+    "LOCode": "MD TIR",
+    "ISO3166Code": "MD",
+    "Identity": 365
+  },
+  "UA UZH": {
+    "LOCode": "UA UZH",
+    "ISO3166Code": "UA",
+    "Identity": 366
+  },
+  "LI VDZ": {
+    "LOCode": "LI VDZ",
+    "ISO3166Code": "LI",
+    "Identity": 367
+  },
+  "VA VAT": {
+    "LOCode": "VA VAT",
+    "ISO3166Code": "VA",
+    "Identity": 368
+  },
+  "AT VIE": {
+    "LOCode": "AT VIE",
+    "ISO3166Code": "AT",
+    "Identity": 369
+  },
+  "LT VNO": {
+    "LOCode": "LT VNO",
+    "ISO3166Code": "LT",
+    "Identity": 370
+  },
+  "RU VOG": {
+    "LOCode": "RU VOG",
+    "ISO3166Code": "RU",
+    "Identity": 371
+  },
+  "PL WRS": {
+    "LOCode": "PL WRS",
+    "ISO3166Code": "PL",
+    "Identity": 372
+  },
+  "HR ZAG": {
+    "LOCode": "HR ZAG",
+    "ISO3166Code": "HR",
+    "Identity": 373
+  },
+  "UA OZH": {
+    "LOCode": "UA OZH",
+    "ISO3166Code": "UA",
+    "Identity": 374
+  },
+  "CH ZRH": {
+    "LOCode": "CH ZRH",
+    "ISO3166Code": "CH",
+    "Identity": 375
+  },
+  "MG TNR": {
+    "LOCode": "MG TNR",
+    "ISO3166Code": "MG",
+    "Identity": 376
+  },
+  "IO DGA": {
+    "LOCode": "IO DGA",
+    "ISO3166Code": "IO",
+    "Identity": 377
+  },
+  "CX XCH": {
+    "LOCode": "CX XCH",
+    "ISO3166Code": "CX",
+    "Identity": 378
+  },
+  "CC CCK": {
+    "LOCode": "CC CCK",
+    "ISO3166Code": "CC",
+    "Identity": 379
+  },
+  "KM YVA": {
+    "LOCode": "KM YVA",
+    "ISO3166Code": "KM",
+    "Identity": 380
+  },
+  "SC MAW": {
+    "LOCode": "SC MAW",
+    "ISO3166Code": "SC",
+    "Identity": 381
+  },
+  "MV MLE": {
+    "LOCode": "MV MLE",
+    "ISO3166Code": "MV",
+    "Identity": 382
+  },
+  "MU PLU": {
+    "LOCode": "MU PLU",
+    "ISO3166Code": "MU",
+    "Identity": 383
+  },
+  "YT MAM": {
+    "LOCode": "YT MAM",
+    "ISO3166Code": "YT",
+    "Identity": 384
+  },
+  "RE REU": {
+    "LOCode": "RE REU",
+    "ISO3166Code": "RE",
+    "Identity": 385
+  },
+  "IL TLV": {
+    "LOCode": "IL TLV",
+    "ISO3166Code": "IL",
+    "Identity": 386
+  },
+  "MH KWA": {
+    "LOCode": "MH KWA",
+    "ISO3166Code": "MH",
+    "Identity": 387
+  },
+  "NZ WLG": {
+    "LOCode": "NZ WLG",
+    "ISO3166Code": "NZ",
+    "Identity": 388
+  },
+  "NZ AKL": {
+    "LOCode": "NZ AKL",
+    "ISO3166Code": "NZ",
+    "Identity": 389
+  },
+  "US HB8": {
+    "LOCode": "US HB8",
+    "ISO3166Code": "US",
+    "Identity": 390
+  },
+  "CN BJS": {
+    "LOCode": "CN BJS",
+    "ISO3166Code": "CN",
+    "Identity": 391
+  },
+  "WS APW": {
+    "LOCode": "WS APW",
+    "ISO3166Code": "WS",
+    "Identity": 392
+  },
+  "NZ CHT": {
+    "LOCode": "NZ CHT",
+    "ISO3166Code": "NZ",
+    "Identity": 393
+  },
+  "FM TKK": {
+    "LOCode": "FM TKK",
+    "ISO3166Code": "FM",
+    "Identity": 394
+  },
+  "VU VLI": {
+    "LOCode": "VU VLI",
+    "ISO3166Code": "VU",
+    "Identity": 395
+  },
+  "KI EBI": {
+    "LOCode": "KI EBI",
+    "ISO3166Code": "KI",
+    "Identity": 396
+  },
+  "TK FKO": {
+    "LOCode": "TK FKO",
+    "ISO3166Code": "TK",
+    "Identity": 397
+  },
+  "FJ SUV": {
+    "LOCode": "FJ SUV",
+    "ISO3166Code": "FJ",
+    "Identity": 398
+  },
+  "TV FUN": {
+    "LOCode": "TV FUN",
+    "ISO3166Code": "TV",
+    "Identity": 399
+  },
+  "EC GPS": {
+    "LOCode": "EC GPS",
+    "ISO3166Code": "EC",
+    "Identity": 400
+  },
+  "PF GMR": {
+    "LOCode": "PF GMR",
+    "ISO3166Code": "PF",
+    "Identity": 401
+  },
+  "SB GSI": {
+    "LOCode": "SB GSI",
+    "ISO3166Code": "SB",
+    "Identity": 402
+  },
+  "GU GUM": {
+    "LOCode": "GU GUM",
+    "ISO3166Code": "GU",
+    "Identity": 403
+  },
+  "US HNL": {
+    "LOCode": "US HNL",
+    "ISO3166Code": "US",
+    "Identity": 404
+  },
+  "UM JON": {
+    "LOCode": "UM JON",
+    "ISO3166Code": "UM",
+    "Identity": 405
+  },
+  "KI CXI": {
+    "LOCode": "KI CXI",
+    "ISO3166Code": "KI",
+    "Identity": 406
+  },
+  "FM KSA": {
+    "LOCode": "FM KSA",
+    "ISO3166Code": "FM",
+    "Identity": 407
+  },
+  "MH MAJ": {
+    "LOCode": "MH MAJ",
+    "ISO3166Code": "MH",
+    "Identity": 408
+  },
+  "PF TAI": {
+    "LOCode": "PF TAI",
+    "ISO3166Code": "PF",
+    "Identity": 409
+  },
+  "UM MDY": {
+    "LOCode": "UM MDY",
+    "ISO3166Code": "UM",
+    "Identity": 410
+  },
+  "NR INU": {
+    "LOCode": "NR INU",
+    "ISO3166Code": "NR",
+    "Identity": 411
+  },
+  "NU IUE": {
+    "LOCode": "NU IUE",
+    "ISO3166Code": "NU",
+    "Identity": 412
+  },
+  "NF NLK": {
+    "LOCode": "NF NLK",
+    "ISO3166Code": "NF",
+    "Identity": 413
+  },
+  "NC NOU": {
+    "LOCode": "NC NOU",
+    "ISO3166Code": "NC",
+    "Identity": 414
+  },
+  "AS PPG": {
+    "LOCode": "AS PPG",
+    "ISO3166Code": "AS",
+    "Identity": 415
+  },
+  "PW ROR": {
+    "LOCode": "PW ROR",
+    "ISO3166Code": "PW",
+    "Identity": 416
+  },
+  "PN PCN": {
+    "LOCode": "PN PCN",
+    "ISO3166Code": "PN",
+    "Identity": 417
+  },
+  "FM PNI": {
+    "LOCode": "FM PNI",
+    "ISO3166Code": "FM",
+    "Identity": 418
+  },
+  "PG POM": {
+    "LOCode": "PG POM",
+    "ISO3166Code": "PG",
+    "Identity": 419
+  },
+  "CK RAR": {
+    "LOCode": "CK RAR",
+    "ISO3166Code": "CK",
+    "Identity": 420
+  },
+  "MP SPN": {
+    "LOCode": "MP SPN",
+    "ISO3166Code": "MP",
+    "Identity": 421
+  },
+  "PF FAA": {
+    "LOCode": "PF FAA",
+    "ISO3166Code": "PF",
+    "Identity": 422
+  },
+  "KI TRW": {
+    "LOCode": "KI TRW",
+    "ISO3166Code": "KI",
+    "Identity": 423
+  },
+  "TO TBU": {
+    "LOCode": "TO TBU",
+    "ISO3166Code": "TO",
+    "Identity": 424
+  },
+  "UM AWK": {
+    "LOCode": "UM AWK",
+    "ISO3166Code": "UM",
+    "Identity": 425
+  },
+  "WF MAU": {
+    "LOCode": "WF MAU",
+    "ISO3166Code": "WF",
+    "Identity": 426
+  },
+  "FM YAP": {
+    "LOCode": "FM YAP",
+    "ISO3166Code": "FM",
+    "Identity": 427
+  },
+  "PL WAW": {
+    "LOCode": "PL WAW",
+    "ISO3166Code": "PL",
+    "Identity": 428
+  },
+  "KR SSN": {
+    "LOCode": "KR SSN",
+    "ISO3166Code": "KR",
+    "Identity": 429
+  },
+  "US UAA": {
+    "LOCode": "US UAA",
+    "ISO3166Code": "US",
+    "Identity": 430
+  },
+  "US IGX": {
+    "LOCode": "US IGX",
+    "ISO3166Code": "US",
+    "Identity": 431
+  }
+}

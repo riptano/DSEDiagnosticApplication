@@ -1,0 +1,164 @@
+[
+  {
+    "IntroductionDate": "1972-06-30T00:00:00",
+    "AddLeapSecond": true,
+    "DateTimeType": 83,
+    "Identity": 1
+  },
+  {
+    "IntroductionDate": "1972-12-31T00:00:00",
+    "AddLeapSecond": true,
+    "DateTimeType": 83,
+    "Identity": 2
+  },
+  {
+    "IntroductionDate": "1973-12-31T00:00:00",
+    "AddLeapSecond": true,
+    "DateTimeType": 83,
+    "Identity": 3
+  },
+  {
+    "IntroductionDate": "1974-12-31T00:00:00",
+    "AddLeapSecond": true,
+    "DateTimeType": 83,
+    "Identity": 4
+  },
+  {
+    "IntroductionDate": "1975-12-31T00:00:00",
+    "AddLeapSecond": true,
+    "DateTimeType": 83,
+    "Identity": 5
+  },
+  {
+    "IntroductionDate": "1976-12-31T00:00:00",
+    "AddLeapSecond": true,
+    "DateTimeType": 83,
+    "Identity": 6
+  },
+  {
+    "IntroductionDate": "1977-12-31T00:00:00",
+    "AddLeapSecond": true,
+    "DateTimeType": 83,
+    "Identity": 7
+  },
+  {
+    "IntroductionDate": "1978-12-31T00:00:00",
+    "AddLeapSecond": true,
+    "DateTimeType": 83,
+    "Identity": 8
+  },
+  {
+    "IntroductionDate": "1979-12-31T00:00:00",
+    "AddLeapSecond": true,
+    "DateTimeType": 83,
+    "Identity": 9
+  },
+  {
+    "IntroductionDate": "1981-06-30T00:00:00",
+    "AddLeapSecond": true,
+    "DateTimeType": 83,
+    "Identity": 10
+  },
+  {
+    "IntroductionDate": "1982-06-30T00:00:00",
+    "AddLeapSecond": true,
+    "DateTimeType": 83,
+    "Identity": 11
+  },
+  {
+    "IntroductionDate": "1983-06-30T00:00:00",
+    "AddLeapSecond": true,
+    "DateTimeType": 83,
+    "Identity": 12
+  },
+  {
+    "IntroductionDate": "1985-06-30T00:00:00",
+    "AddLeapSecond": true,
+    "DateTimeType": 83,
+    "Identity": 13
+  },
+  {
+    "IntroductionDate": "1987-12-31T00:00:00",
+    "AddLeapSecond": true,
+    "DateTimeType": 83,
+    "Identity": 14
+  },
+  {
+    "IntroductionDate": "1989-12-31T00:00:00",
+    "AddLeapSecond": true,
+    "DateTimeType": 83,
+    "Identity": 15
+  },
+  {
+    "IntroductionDate": "1990-12-31T00:00:00",
+    "AddLeapSecond": true,
+    "DateTimeType": 83,
+    "Identity": 16
+  },
+  {
+    "IntroductionDate": "1992-06-30T00:00:00",
+    "AddLeapSecond": true,
+    "DateTimeType": 83,
+    "Identity": 17
+  },
+  {
+    "IntroductionDate": "1993-06-30T00:00:00",
+    "AddLeapSecond": true,
+    "DateTimeType": 83,
+    "Identity": 18
+  },
+  {
+    "IntroductionDate": "1994-06-30T00:00:00",
+    "AddLeapSecond": true,
+    "DateTimeType": 83,
+    "Identity": 19
+  },
+  {
+    "IntroductionDate": "1995-12-31T00:00:00",
+    "AddLeapSecond": true,
+    "DateTimeType": 83,
+    "Identity": 20
+  },
+  {
+    "IntroductionDate": "1997-06-30T00:00:00",
+    "AddLeapSecond": true,
+    "DateTimeType": 83,
+    "Identity": 21
+  },
+  {
+    "IntroductionDate": "1998-12-31T00:00:00",
+    "AddLeapSecond": true,
+    "DateTimeType": 83,
+    "Identity": 22
+  },
+  {
+    "IntroductionDate": "2005-12-31T00:00:00",
+    "AddLeapSecond": true,
+    "DateTimeType": 83,
+    "Identity": 23
+  },
+  {
+    "IntroductionDate": "2008-12-31T00:00:00",
+    "AddLeapSecond": true,
+    "DateTimeType": 83,
+    "Identity": 24
+  },
+  {
+    "IntroductionDate": "2012-06-30T00:00:00",
+    "AddLeapSecond": true,
+    "DateTimeType": 83,
+    "Identity": 25
+  },
+  {
+    "IntroductionDate": "2015-06-30T00:00:00",
+    "AddLeapSecond": true,
+    "DateTimeType": 83,
+    "Identity": 26
+  },
+  {
+    "IntroductionDate": "2016-12-31T00:00:00",
+    "AddLeapSecond": true,
+    "DateTimeType": 83,
+    "Identity": 27
+  }
+]

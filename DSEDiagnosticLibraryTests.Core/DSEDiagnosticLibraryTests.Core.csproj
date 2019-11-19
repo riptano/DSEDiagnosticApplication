@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
@@ -14,6 +14,16 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="..\DSEDiagnosticLibrary.Core\IANATimeZone\IANACountry.json" Link="IANATimeZone\IANACountry.json" />
+    <Content Include="..\DSEDiagnosticLibrary.Core\IANATimeZone\IANADatabaase.json" Link="IANATimeZone\IANADatabaase.json" />
+    <Content Include="..\DSEDiagnosticLibrary.Core\IANATimeZone\IANALeapSeconds.json" Link="IANATimeZone\IANALeapSeconds.json" />
+    <Content Include="..\DSEDiagnosticLibrary.Core\IANATimeZone\IANALocCode.json" Link="IANATimeZone\IANALocCode.json" />
+    <Content Include="..\DSEDiagnosticLibrary.Core\IANATimeZone\IANARule.json" Link="IANATimeZone\IANARule.json" />
+    <Content Include="..\DSEDiagnosticLibrary.Core\IANATimeZone\IANAZone.json" Link="IANATimeZone\IANAZone.json" />
+    <Content Include="..\DSEDiagnosticLibrary.Core\IANATimeZone\IANAZoneRule.json" Link="IANATimeZone\IANAZoneRule.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Common.Patterns.TimeZoneInfo" Version="5.22.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.4.0" />
     <PackageReference Include="MSTest.TestAdapter" Version="2.0.0" />
@@ -24,29 +34,7 @@
     <ProjectReference Include="..\DSEDiagnosticLibrary.Core\DSEDiagnosticLibrary.Core.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Content Update="C:\Users\RichardAndersen\.nuget\packages\common.patterns.timezoneinfo\5.22.0\contentFiles\any\netcoreapp2.2\IANACountry.json" Link="IANATimeZone\IANACountry.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Update="C:\Users\RichardAndersen\.nuget\packages\common.patterns.timezoneinfo\5.22.0\contentFiles\any\netcoreapp2.2\IANADatabaase.json" Link="IANATimeZone\IANADatabaase.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Update="C:\Users\RichardAndersen\.nuget\packages\common.patterns.timezoneinfo\5.22.0\contentFiles\any\netcoreapp2.2\IANALeapSeconds.json" Link="IANATimeZone\IANALeapSeconds.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Update="C:\Users\RichardAndersen\.nuget\packages\common.patterns.timezoneinfo\5.22.0\contentFiles\any\netcoreapp2.2\IANALocCode.json" Link="IANATimeZone\IANALocCode.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Update="C:\Users\RichardAndersen\.nuget\packages\common.patterns.timezoneinfo\5.22.0\contentFiles\any\netcoreapp2.2\IANARule.json" Link="IANATimeZone\IANARule.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Update="C:\Users\RichardAndersen\.nuget\packages\common.patterns.timezoneinfo\5.22.0\contentFiles\any\netcoreapp2.2\IANAZone.json" Link="IANATimeZone\IANAZone.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Update="C:\Users\RichardAndersen\.nuget\packages\common.patterns.timezoneinfo\5.22.0\contentFiles\any\netcoreapp2.2\IANAZoneRule.json" Link="IANATimeZone\IANAZoneRule.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
+  
 
   <ItemGroup>
     <Folder Include="IANATimeZone\" />

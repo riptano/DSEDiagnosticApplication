@@ -32,6 +32,27 @@
     <Content Include="..\DSEDiagnosticFileParserTests\ResultFiles\nodeConfigyaml.json" Link="ResultFiles\nodeConfigyaml.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="..\DSEDiagnosticLibrary.Core\IANATimeZone\IANACountry.json" Link="IANATimeZone\IANACountry.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\DSEDiagnosticLibrary.Core\IANATimeZone\IANADatabaase.json" Link="IANATimeZone\IANADatabaase.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\DSEDiagnosticLibrary.Core\IANATimeZone\IANALeapSeconds.json" Link="IANATimeZone\IANALeapSeconds.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\DSEDiagnosticLibrary.Core\IANATimeZone\IANALocCode.json" Link="IANATimeZone\IANALocCode.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\DSEDiagnosticLibrary.Core\IANATimeZone\IANARule.json" Link="IANATimeZone\IANARule.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\DSEDiagnosticLibrary.Core\IANATimeZone\IANAZone.json" Link="IANATimeZone\IANAZone.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\DSEDiagnosticLibrary.Core\IANATimeZone\IANAZoneRule.json" Link="IANATimeZone\IANAZoneRule.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
@@ -49,6 +70,7 @@
     <Folder Include="Files\" />
     <Folder Include="Json\" />
     <Folder Include="Logfiles\" />
+    <Folder Include="IANATimeZone\" />
     <Folder Include="ResultFiles\" />
   </ItemGroup>
 
