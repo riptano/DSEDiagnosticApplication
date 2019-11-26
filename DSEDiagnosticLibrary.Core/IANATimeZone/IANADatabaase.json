@@ -1,1 +1,1 @@
-{"ContainsBackwardCompatibleTZNames":true,"ContainsHistoricalTimeZones":false,"IANAVersion":"2019c","IANASourcerURI":"ftp://ftp.iana.org/tz/","IANAReleaseDate":"2019-09-11","IANASource":"https://www.iana.org/time-zones"}
+{"ContainsBackwardCompatibleTZNames":true,"ContainsHistoricalTimeZones":false,"IANASourceURI":"ftp://ftp.iana.org/tz/tzcode-latest.tar.gz","IANASource":"IANA","IANAVersion":"2019c","IANAReleaseDate":"2019-09-11T00:00:00","LastUpdateTimestamp":"2019-11-21T15:55:48.0539337-07:00"}
