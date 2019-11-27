@@ -108,8 +108,8 @@ namespace DSEDiagnosticFileParser.Tests
                 if(beginEvent == null)
                 {
                     beginEvent = logEvent;
-                    Assert.IsTrue(logEvent.Type.HasFlag(DSEDiagnosticLibrary.EventTypes.SessionBegin));
-                    Assert.AreEqual(4, logEvent.SSTables.Count());
+                    Assert.IsTrue(logEvent.Type.HasFlag(DSEDiagnosticLibrary.EventTypes.SessionEnd));
+                    Assert.AreEqual(1, logEvent.SSTables.Count());
                     Assert.AreEqual(0, logEvent.ParentEvents.Count());
                 }
                 else

@@ -543,10 +543,14 @@ namespace DSEDiagnosticLibrary
                 this.Type = (EventTypes)readView.GetIntValue();
                 this.Class = (EventClasses)readView.GetLongValue();
                 this.SessionTieOutId = readView.GetStringValue();
-                this.ParentEvents = readView.GetEnumerableValue<int>()
-                                                .Select(e => new Common.Patterns.Collections.MemoryMapped.List<LogCassandraEvent, ILogEvent>.MMValue(readView.MemoryMapper,
-                                                                                                                                                        readView.MemoryMapper.Elements
-                                                                                                                                                                                .Find(f => f.ElementHashCode == e)));
+
+                var parentMMElements = readView.GetEnumerableValue<int>()
+                                                .Select(e => readView.MemoryMapper.Elements.Find(f => f.ElementHashCode == e))
+                                                .Where(e => e != null);
+
+                this.ParentEvents = parentMMElements
+                                        .Select(e => new Common.Patterns.Collections.MemoryMapped.List<LogCassandraEvent, ILogEvent>
+                                                                .MMValue(readView.MemoryMapper, e));
             }
 
             if (creationType == ElementCreationTypes.AggregationPeriodOnly
