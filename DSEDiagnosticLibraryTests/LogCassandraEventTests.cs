@@ -127,7 +127,7 @@ namespace DSEDiagnosticLibrary.Tests
             properties.Add("Items", new List<object>() { new System.Net.IPEndPoint(this._node1.Id.Addresses.First(), 1024), this._node1.Id.Addresses.First() });
             properties.Add("SSTable", ssTables.First());
 
-            var logEvent = new LogCassandraEvent(Common.Path.PathUtils.BuildFilePath(@"c:\logfile.log"),
+            var logEvent = new LogCassandraEvent(Common.Path.PathUtils.BuildFilePath(@"[MyDocuments]\logfile.log"),
                                                     this._node1,
                                                     0,
                                                     EventClasses.Error,
@@ -183,7 +183,7 @@ namespace DSEDiagnosticLibrary.Tests
 
             tokenRanges.Add(new TokenRangeLong(0, -100, new UnitOfMeasure("10 MB")));
 
-            logEvent = new LogCassandraEvent(Common.Path.PathUtils.BuildFilePath(@"c:\logfile.log"),
+            logEvent = new LogCassandraEvent(Common.Path.PathUtils.BuildFilePath(@"[MyDocuments]\logfile.log"),
                                                     this._node1,
                                                     0,
                                                     EventClasses.Error,

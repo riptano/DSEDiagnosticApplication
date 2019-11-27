@@ -18,7 +18,7 @@ namespace DSEDiagnosticLog4NetParser.Tests
         public void AddMessageTest()
         {
             var l = "%-5level [%thread] %date{ISO8601} %F:%L - %msg%n";
-            var filePath = Common.Path.PathUtils.BuildFilePath(@"c:\test\test.log");
+            var filePath = Common.Path.PathUtils.BuildFilePath(@"[MyDocuments]\test\test.log");
             var logLines = new string[]
             {
     @"INFO  [Repair#26067:1] 2016-12-07 15:02:05,817  RepairJob.java:172 - [repair #bc579ef0-bc85-11e6-a73a-73d4260c7cfe] Requesting merkle trees for accountnumbertoprivateaccountidreadmodel (to [/10.14.149.10, /10.14.149.8, /10.14.149.182, /10.14.148.51, /10.14.149.19, /10.14.148.34])",
