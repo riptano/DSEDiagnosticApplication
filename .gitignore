@@ -252,3 +252,4 @@ paket-files/
 *.sln.iml
 Common Patterns
 *.jfm
+DSEDiagnosticConsoleApplication.Core/Properties/launchSettings.json
