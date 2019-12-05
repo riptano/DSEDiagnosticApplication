@@ -84,6 +84,9 @@
     <None Include="..\DSEDiagnosticConsoleApplication\Properties\Settings.settings" Link="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
     </None>
+    <None Include="..\dseHealthAssessment4CTemplate.xlsm" Link="dseHealthAssessment4CTemplate.xlsm">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
