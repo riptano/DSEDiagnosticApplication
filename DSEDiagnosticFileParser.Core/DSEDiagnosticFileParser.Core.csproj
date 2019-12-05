@@ -78,7 +78,6 @@
     <Compile Include="..\DSEDiagnosticFileParser\ProcessJsonFile.cs" Link="ProcessJsonFile.cs" />
     <Compile Include="..\DSEDiagnosticFileParser\ProgressionEventArgs.cs" Link="ProgressionEventArgs.cs" />
     <Compile Include="..\DSEDiagnosticFileParser\Properties\Settings.Designer.cs" Link="Properties\Settings.Designer.cs" />
-    <Compile Include="..\DSEDiagnosticFileParser\Properties\StatPropertyNames.Designer.cs" Link="Properties\StatPropertyNames.Designer.cs" />
     <Compile Include="..\DSEDiagnosticFileParser\RegExLexicon.cs" Link="RegExLexicon.cs" />
     <Compile Include="..\DSEDiagnosticFileParser\RegExParseString.cs" Link="RegExParseString.cs" />
   </ItemGroup>
@@ -145,9 +144,6 @@
 
   <ItemGroup>   
     <None Include="..\DSEDiagnosticFileParser\Properties\Settings.settings" Link="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-    </None>
-    <None Include="..\DSEDiagnosticFileParser\Properties\StatPropertyNames.settings" Link="Properties\StatPropertyNames.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
     </None>
   </ItemGroup>

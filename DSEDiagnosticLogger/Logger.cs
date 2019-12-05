@@ -10,8 +10,8 @@ namespace DSEDiagnosticLogger
 {
     public sealed class Logger : IDisposable
     {
-        private static readonly Logger LazyInstance = new Logger();
-        private static log4net.ILog LazyLog4NetInstance = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly Lazy<Logger> LazyInstance = new Lazy<Logger>(() => new Logger());
+        private log4net.ILog LazyLog4NetInstance = null;
 
         public struct Log4NetInfo
         {
@@ -23,16 +23,18 @@ namespace DSEDiagnosticLogger
         }
 
         internal Logger()
-        {}
+        {
+            this.LazyLog4NetInstance = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        }
 
         #region Public Properties
 
-        public static Logger Instance { get { return LazyInstance; } }
+        public static Logger Instance { get { return LazyInstance.Value; } }
 
         public log4net.ILog Log4NetInstance
         {
-            get { return LazyLog4NetInstance; }
-            set { LazyLog4NetInstance = value; }
+            get { return this.LazyLog4NetInstance; }
+            set { this.LazyLog4NetInstance = value; }
         }
 
         #endregion

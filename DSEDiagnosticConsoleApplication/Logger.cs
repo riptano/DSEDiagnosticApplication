@@ -20,7 +20,22 @@ namespace DSEDiagnosticConsoleApplication
         {
             //log4net.Config.XmlConfigurator.Configure();
             var logRepository = LogManager.GetRepository(System.Reflection.Assembly.GetEntryAssembly());
-            log4net.Config.XmlConfigurator.Configure(logRepository, new System.IO.FileInfo("log4net.config"));
+            var log4netConfigFile = Common.Path.PathUtils.BuildPath("log4net.config", Common.Functions.Instance.ApplicationRunTimeDir);
+
+            if (log4netConfigFile.Exist())
+            {
+                log4net.Config.XmlConfigurator.Configure(logRepository,
+                                                            ((Common.File.BaseFile)log4netConfigFile).FileInfo());
+            }
+            else
+            {
+                var appConfigFile = new System.IO.FileInfo(System.Reflection.Assembly.GetEntryAssembly().Location + ".config");
+
+                if(appConfigFile.Exists)
+                    log4net.Config.XmlConfigurator.Configure(logRepository,
+                                                                appConfigFile);
+            }
+
             Instance = DSEDiagnosticLogger.Logger.Instance;
             Instance.Log4NetInstance = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         }

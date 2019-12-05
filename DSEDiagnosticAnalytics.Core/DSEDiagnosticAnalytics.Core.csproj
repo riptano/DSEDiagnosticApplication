@@ -37,7 +37,6 @@
     <Compile Include="..\DSEDiagnosticAnalytics\LogFileStats.cs" Link="LogFileStats.cs" />
     <Compile Include="..\DSEDiagnosticAnalytics\Logger.cs" Link="Logger.cs" />
     <Compile Include="..\DSEDiagnosticAnalytics\Properties\Settings.Designer.cs" Link="Properties\Settings.Designer.cs" />
-    <Compile Include="..\DSEDiagnosticAnalytics\Properties\StatPropertyNames.Designer.cs" Link="Properties\StatPropertyNames.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -60,13 +59,25 @@
     <Folder Include="Properties\" />
   </ItemGroup>
 
-  <ItemGroup>    
-    <None Include="..\DSEDiagnosticAnalytics\Properties\Settings.settings" Link="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-    </None>
-    <None Include="..\DSEDiagnosticAnalytics\Properties\StatPropertyNames.settings" Link="Properties\StatPropertyNames.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-    </None>
+  <ItemGroup>
+    <Reference Include="System">
+      <HintPath>System</HintPath>
+    </Reference>
   </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\Settings.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>  
 
 </Project>
