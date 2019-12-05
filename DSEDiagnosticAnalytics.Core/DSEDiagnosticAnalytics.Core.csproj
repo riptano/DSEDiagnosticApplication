@@ -14,7 +14,6 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <RepositoryUrl>https://github.com/richardandersen/DSEDiagnosticApplication.git</RepositoryUrl>
     <PackageProjectUrl>htt\Propertiesps://github.com/richardandersen/DSEDiagnosticApplication.git</PackageProjectUrl>
-    <PackageLicenseUrl>http://www.datastax.com/terms/datastax-dse-driver-license-terms</PackageLicenseUrl>
     <Copyright>Copyright © by DataStax</Copyright>
     <AllowedOutputExtensionsInPackageBuildOutputFolder>
       $(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb
@@ -22,7 +21,7 @@
   </PropertyGroup>
 
   <Target Name="PostBuild" AfterTargets="Pack">
-    <Exec ContinueOnError="True" Command="nuget delete &quot;$(PackageId)&quot; $(Version) -source &quot;$(SolutionDir)..\NuGetRepo\$(ConfigurationName)&quot; -NonInteractive" />
+    <Exec IgnoreStandardErrorWarningFormat="true" ContinueOnError="True" Command="nuget delete &quot;$(PackageId)&quot; $(Version) -source &quot;$(SolutionDir)..\NuGetRepo\$(ConfigurationName)&quot; -NonInteractive" />
     <Exec Command="nuget add &quot;$(TargetDir)..\$(TargetName).$(Version).nupkg&quot; -source &quot;$(SolutionDir)..\NuGetRepo\$(ConfigurationName)&quot;" />
   </Target>
 
@@ -38,7 +37,6 @@
     <Compile Include="..\DSEDiagnosticAnalytics\LogFileStats.cs" Link="LogFileStats.cs" />
     <Compile Include="..\DSEDiagnosticAnalytics\Logger.cs" Link="Logger.cs" />
     <Compile Include="..\DSEDiagnosticAnalytics\Properties\Settings.Designer.cs" Link="Properties\Settings.Designer.cs" />
-    <Compile Include="..\DSEDiagnosticAnalytics\Properties\StatPropertyNames.Designer.cs" Link="Properties\StatPropertyNames.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -62,9 +60,24 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\DSEDiagnosticAnalytics\app.config" Link="app.config" />
-    <None Include="..\DSEDiagnosticAnalytics\Properties\Settings.settings" Link="Properties\Settings.settings" />
-    <None Include="..\DSEDiagnosticAnalytics\Properties\StatPropertyNames.settings" Link="Properties\StatPropertyNames.settings" />
+    <Reference Include="System">
+      <HintPath>System</HintPath>
+    </Reference>
   </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\Settings.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>  
 
 </Project>

@@ -14,7 +14,6 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <RepositoryUrl>https://github.com/richardandersen/DSEDiagnosticApplication.git</RepositoryUrl>
     <PackageProjectUrl>htt\Propertiesps://github.com/richardandersen/DSEDiagnosticApplication.git</PackageProjectUrl>
-    <PackageLicenseUrl>http://www.datastax.com/terms/datastax-dse-driver-license-terms</PackageLicenseUrl>
     <Copyright>Copyright © by DataStax</Copyright>
     <AllowedOutputExtensionsInPackageBuildOutputFolder>
       $(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb
@@ -28,7 +27,7 @@
   </PropertyGroup>
 
   <Target Name="PostBuild" AfterTargets="Pack">
-    <Exec ContinueOnError="True" Command="nuget delete &quot;$(PackageId)&quot; $(Version) -source &quot;$(SolutionDir)..\NuGetRepo\$(ConfigurationName)&quot; -NonInteractive" />
+    <Exec IgnoreStandardErrorWarningFormat="true" ContinueOnError="True" Command="nuget delete &quot;$(PackageId)&quot; $(Version) -source &quot;$(SolutionDir)..\NuGetRepo\$(ConfigurationName)&quot; -NonInteractive" />
     <Exec Command="nuget add &quot;$(TargetDir)..\$(TargetName).$(Version).nupkg&quot; -source &quot;$(SolutionDir)..\NuGetRepo\$(ConfigurationName)&quot;" />
   </Target>
 
@@ -79,7 +78,6 @@
     <Compile Include="..\DSEDiagnosticFileParser\ProcessJsonFile.cs" Link="ProcessJsonFile.cs" />
     <Compile Include="..\DSEDiagnosticFileParser\ProgressionEventArgs.cs" Link="ProgressionEventArgs.cs" />
     <Compile Include="..\DSEDiagnosticFileParser\Properties\Settings.Designer.cs" Link="Properties\Settings.Designer.cs" />
-    <Compile Include="..\DSEDiagnosticFileParser\Properties\StatPropertyNames.Designer.cs" Link="Properties\StatPropertyNames.Designer.cs" />
     <Compile Include="..\DSEDiagnosticFileParser\RegExLexicon.cs" Link="RegExLexicon.cs" />
     <Compile Include="..\DSEDiagnosticFileParser\RegExParseString.cs" Link="RegExParseString.cs" />
   </ItemGroup>
@@ -144,10 +142,10 @@
     <Folder Include="Properties\" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Include="..\DSEDiagnosticFileParser\app.config" Link="app.config" />
-    <None Include="..\DSEDiagnosticFileParser\Properties\Settings.settings" Link="Properties\Settings.settings" />
-    <None Include="..\DSEDiagnosticFileParser\Properties\StatPropertyNames.settings" Link="Properties\StatPropertyNames.settings" />
+  <ItemGroup>   
+    <None Include="..\DSEDiagnosticFileParser\Properties\Settings.settings" Link="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
