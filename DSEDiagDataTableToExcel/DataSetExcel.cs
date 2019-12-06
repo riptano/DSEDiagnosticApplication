@@ -1463,7 +1463,7 @@ namespace DataTableToExcel
             {
                 if (autoFitRanges == null || autoFitRanges.Length == 0)
                 {
-                    workSheet.Cells.AutoFitColumns();
+                    AutoFitColumn(workSheet.Cells);
                 }
                 else
                 {
@@ -1471,7 +1471,7 @@ namespace DataTableToExcel
                     {
                         try
                         {
-                            range.AutoFitColumns();
+                            AutoFitColumn(range);
                         }
                         catch (OverflowException)
                         {}                        
@@ -1491,6 +1491,75 @@ namespace DataTableToExcel
             {
                 workSheet.ApplyColumnAttribs(dataTable);
             }
+        }
+
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        static public void AutoFitColumn(this ExcelRange autoFitRange)
+        {
+        #if NET40
+            autoFitRange.AutoFitColumns();
+        #else
+            if (Common.Functions.IsRunningOnWindows)
+            {
+                autoFitRange.AutoFitColumns();
+                return;
+            }
+
+            int maxLength = 0;
+            
+            foreach(var cell in autoFitRange)
+            {
+                maxLength = Math.Max(DetermineCellValueLength(cell), maxLength);                
+            }
+
+            if (maxLength > 0)
+            {
+                var ws = autoFitRange.Worksheet;
+                var newColWidth = (double)((decimal)maxLength * Properties.Settings.Default.AutoFitColumnFactor);
+
+                if (newColWidth >= ws.DefaultColWidth)
+                {
+                    for (int currCol = autoFitRange.Start.Column, endCol = autoFitRange.End.Column; currCol < endCol; ++endCol)
+                    {
+                        ws.Column(currCol).Width = newColWidth;
+                    }
+                }
+            }
+        #endif
+        }
+
+        static int DetermineCellValueLength(ExcelRangeBase cell)
+        {
+            if (!cell.Merge)
+            {
+                try
+                {
+                    return cell.Text?.Length ?? 0;
+                }
+                catch (System.ArithmeticException)
+                {
+                    try
+                    {
+                        if(cell.Value is TimeSpan ts)
+                        {
+                            return ts.ToString().Length;
+                        }
+                        else if (cell.Value is DateTime dt)
+                        {
+                            return dt.ToString().Length;
+                        }
+                        else if (cell.Value is DateTimeOffset dto)
+                        {
+                            return dto.ToString().Length;
+                        }
+                    }
+                    catch
+                    { }
+                }
+                catch (System.ArgumentOutOfRangeException)
+                { }
+            }
+            return 0;
         }
 
         static public ExcelRange[] ExcelRange(this ExcelWorksheet workSheet, params DataColumn[] dcRanges)

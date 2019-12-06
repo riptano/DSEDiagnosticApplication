@@ -61,7 +61,7 @@
     <PackageReference Include="Common.Patterns.Tasks" Version="5.22.0" />
     <PackageReference Include="Common.Patterns.TimeZoneInfo" Version="5.22.0" />
     <PackageReference Include="Common.TimeZones" Version="5.22.0" />
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.6.0" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.7.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -78,6 +78,30 @@
     <None Include="..\DSEDiagnosticLibrary\Properties\Settings.settings" Link="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="C:\Users\RichardAndersen\.nuget\packages\common.patterns.timezoneinfo\5.22.0\contentFiles\any\netcoreapp2.2\IANACountry.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="C:\Users\RichardAndersen\.nuget\packages\common.patterns.timezoneinfo\5.22.0\contentFiles\any\netcoreapp2.2\IANADatabaase.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="C:\Users\RichardAndersen\.nuget\packages\common.patterns.timezoneinfo\5.22.0\contentFiles\any\netcoreapp2.2\IANALeapSeconds.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="C:\Users\RichardAndersen\.nuget\packages\common.patterns.timezoneinfo\5.22.0\contentFiles\any\netcoreapp2.2\IANALocCode.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="C:\Users\RichardAndersen\.nuget\packages\common.patterns.timezoneinfo\5.22.0\contentFiles\any\netcoreapp2.2\IANARule.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="C:\Users\RichardAndersen\.nuget\packages\common.patterns.timezoneinfo\5.22.0\contentFiles\any\netcoreapp2.2\IANAZone.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="C:\Users\RichardAndersen\.nuget\packages\common.patterns.timezoneinfo\5.22.0\contentFiles\any\netcoreapp2.2\IANAZoneRule.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
