@@ -1560,7 +1560,7 @@ namespace DSEDiagtnosticToExcel
                                                                  newWSName += splitNbr.Value.ToString("000");
                                                              }
 
-                                                             workSheet.CreateExcelTable(this.DataTable, newWSName);                                                            
+                                                             workSheet.CreateExcelTable(sourceDataTable, newWSName);                                                            
                                                          },
                                                          -1,
                                                         -1,

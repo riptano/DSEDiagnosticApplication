@@ -12,7 +12,10 @@
       <Value Profile="(Default)">(?:{\s*\d+\s*})|(?&lt;DCNameInd&gt;{(?&lt;DCName&gt;[a-z0-9_\-|+! ]+)})</Value>
     </Setting>
     <Setting Name="AutoFitColumnFactor" Type="System.Decimal" Scope="Application">
-      <Value Profile="(Default)">0.86</Value>
+      <Value Profile="(Default)">0.87</Value>
+    </Setting>
+    <Setting Name="AutoFitColumnMaxRows" Type="System.Int32" Scope="Application">
+      <Value Profile="(Default)">500</Value>
     </Setting>
   </Settings>
 </SettingsFile>
