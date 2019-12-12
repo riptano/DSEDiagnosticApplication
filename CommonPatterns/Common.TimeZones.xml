@@ -1,0 +1,444 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Common.TimeZones</name>
+    </assembly>
+    <members>
+        <member name="P:Common.TimeZones.Linq">
+            <summary>
+            Returns a LINQ object that can be used in a LINQ &quot;in&quot; keyword.
+            </summary>
+            <example>
+            <code>
+                var zones = from IZone zoneItem in Common.Patterns.TimeZoneInfo.TimeZoneDatabase.Linq
+                                where zoneItem.LOCODE == "RU MOW"
+                            select zoneItem;        
+            </code>
+                Returns a collection of zones that are associated with Moscow.
+                
+                Note that you must define the object type (in this example, IZone) you wish to &quot;retrieve&quot; from the Time Zone Database.
+            </example>
+        </member>
+        <member name="M:Common.TimeZones.Convert(System.DateTime,System.String,System.String,Common.Patterns.TimeZoneInfo.ZoneNameTypes,Common.Patterns.TimeZoneInfo.ZoneNameTypes)">
+            <summary>
+            Converts the from (source) date/time to a date/time offset based on the given time zone information.
+            </summary>
+            <param name="fromTZDateTime">Date/Time that will be converted.</param>
+            <param name="fromTimeZone">The time zone that the Date/Time is in. If null the local time zone is used.</param>
+            <param name="toTimeZone">The time zone that will be used to convert the given date/time</param>
+            <param name="fromTimeZoneType">The source time zone name type. Default is the default naming conversion for TimeZoneInfo.</param>
+            <param name="toTimeZoneType">The target time zone name type. Default is the default naming conversion for TimeZoneInfo.</param>
+            <returns>Returns the converted date/time offset that represents the target (to) time zone.</returns>
+            <exception cref="T:System.ArgumentOutOfRangeException">Thrown if the source or the target time zones and not found.</exception>
+        </member>
+        <member name="M:Common.TimeZones.Convert(System.DateTime,System.String,Common.Patterns.TimeZoneInfo.ZoneNameTypes)">
+            <summary>
+            Converts the date/time from the Local Time Zone (as defined by System.TimeZoneInfo.Local property) to a date/time offset based on the given time zone information.
+            </summary>
+            <param name="localTZDateTime">Date/Time that will be converted using the local time zone</param>
+            <param name="toTimeZone">The time zone that will be used to convert the given date/time</param>
+            <param name="toTimeZoneType">The target time zone name type. Default is the default naming conversion for TimeZoneInfo.</param>
+            <returns>Returns the converted date/time offset that represents the target (to) time zone.</returns>
+            <remarks>
+            To convert the given date/time to a UTC Offset (DateTimeOffset) use the ConvertToOffset method.
+            </remarks>
+            <exception cref="T:System.ArgumentOutOfRangeException">Thrown if the target time zone is not found.</exception>
+        </member>
+        <member name="M:Common.TimeZones.Convert(System.DateTimeOffset,System.String,Common.Patterns.TimeZoneInfo.ZoneNameTypes)">
+            <summary>
+            Converts the from (source) date/time offset to a new date/time offset based on the given time zone information.
+            </summary>
+            <param name="fromTZDateTimeOffSet">Date/Time offset that will be converted</param>
+            <param name="toTimeZone">The time zone that will be used to convert the given date/time offset</param>
+            <param name="toTimeZoneType">The target time zone name type. Default is the default naming conversion for TimeZoneInfo.</param>
+            <returns>Returns the converted date/time offset that represents the target (to) time zone.</returns>
+            <exception cref="T:System.ArgumentOutOfRangeException">Thrown if the target time zone is not found.</exception>
+        </member>
+        <member name="M:Common.TimeZones.Convert(System.DateTimeOffset)">
+            <summary>
+            Converts the from (source) date/time offset to a new date/time offset based on the local time zone.
+            </summary>
+            <param name="fromTZDateTimeOffSet">Date/Time offset that will be converted</param>       
+            <returns>Returns the converted date/time offset that represents the local time zone.</returns>       
+        </member>
+        <member name="M:Common.TimeZones.Convert(System.DateTimeOffset,System.Int64)">
+            <summary>
+            Converts the from (source) date/time offset to a new date/time offset based on the given time zone information.
+            </summary>
+            <param name="fromTZDateTimeOffSet">Date/Time offset that will be converted</param>
+            <param name="toTimeZoneId">The time zone id that represents the time zone that will be used to convert the given date/time offset</param>        
+            <returns>Returns the converted date/time offset that represents the target (to) time zone.</returns>
+            <exception cref="T:System.ArgumentOutOfRangeException">Thrown if the target time zone is not found.</exception>
+        </member>
+        <member name="M:Common.TimeZones.Convert(System.DateTimeOffset,Common.Patterns.TimeZoneInfo.IZone)">
+            <summary>
+            Converts the from (source) date/time offset to a new date/time offset based on the given time zone information.
+            </summary>
+            <param name="fromTZDateTimeOffSet">Date/Time offset that will be converted</param>
+            <param name="toTimeZoneInstance">The time zone instance that represents the time zone that will be used to convert the given date/time offset</param>        
+            <returns>Returns the converted date/time offset that represents the target (to) time zone.</returns>
+            <exception cref="T:System.ArgumentNullException">Thrown if the time zone instance is null.</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">Thrown if the target time zone is not found.</exception>
+        </member>
+        <member name="M:Common.TimeZones.Convert(System.DateTime,System.Int64,System.Int64)">
+            <summary>
+            Converts the from (source) date/time to a date/time offset based on the given time zone information.
+            </summary>
+            <param name="fromTZDateTime">Date/Time that will be converted.</param>
+            <param name="fromTimeZoneId">The time zone source id that represents the time zone that the Date/Time is in.</param>
+            <param name="toTimeZoneId">The time zone target id that represents the time zone that will be used to convert the given date/time</param>
+            <returns>Returns the converted date/time offset that represents the target (to) time zone.</returns>
+            <exception cref="T:System.ArgumentOutOfRangeException">Thrown if the source or the target time zones and not found.</exception>
+        </member>
+        <member name="M:Common.TimeZones.Convert(System.DateTime,Common.Patterns.TimeZoneInfo.IZone,Common.Patterns.TimeZoneInfo.IZone)">
+            <summary>
+            Converts the from (source) date/time to a date/time offset based on the given time zone information.
+            </summary>
+            <param name="fromTZDateTime">Date/Time that will be converted.</param>
+            <param name="fromTimeZoneInstance">The time zone source instance that represents the time zone that the Date/Time is in.</param>
+            <param name="toTimeZoneInstance">The time zone target instance that represents the time zone that will be used to convert the given date/time</param>
+            <returns>Returns the converted date/time offset that represents the target (to) time zone.</returns>
+            <exception cref="T:System.ArgumentNullException">Thrown if either the target or source time zone instance are null.</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">Thrown if the target or source time zones are not found.</exception>
+        </member>
+        <member name="M:Common.TimeZones.ConvertToOffset(System.DateTime)">
+            <summary>
+            This method will take a Date/Time convert it to a DateTimeOffset based on the Local Time Zone!
+            </summary>
+            <param name="datetimeInTimeZone">The date/time that will be converted to an offset based on the local time zone.</param>                
+            <returns>a converted date/time to the proper offset based on its' time zone.</returns>        
+        </member>
+        <member name="M:Common.TimeZones.ConvertToOffset(System.DateTime,System.String,Common.Patterns.TimeZoneInfo.ZoneNameTypes)">
+            <summary>
+            This method will take a Date/Time in the given TimeZone and convert it to a DateTimeOffset!
+            </summary>
+            <param name="datetimeInTimeZone">The date/time that will be converted to an offset based on the given time zone.</param>
+            <param name="datetimeTimeZone">The time zone the date/time is in</param>
+            <param name="timeZoneType">The time zone name type</param>
+            <returns>a converted date/time to the proper offset based on its' time zone.</returns>
+            <exception cref="T:System.ArgumentOutOfRangeException">Thrown when time zone based on time zone name type is not found</exception>
+        </member>
+        <member name="M:Common.TimeZones.ConvertToOffset(System.DateTime,System.Int64)">
+            <summary>
+            This method will take a Date/Time in the given TimeZone and convert it to a DateTimeOffset!
+            </summary>
+            <param name="datetimeInTimeZone">The date/time that will be converted to an offset based on the given time zone.</param>
+            <param name="datetimeTimeZoneId">The time zone id that represents the time zone the date/time is in</param>
+            <returns>a converted date/time to the proper offset based on its' time zone.</returns>
+            <exception cref="T:System.ArgumentOutOfRangeException">Thrown when time zone id is not found</exception>
+        </member>
+        <member name="M:Common.TimeZones.ConvertToOffset(System.DateTime,Common.Patterns.TimeZoneInfo.IZone)">
+            <summary>
+            This method will take a Date/Time in the given TimeZone and convert it to a DateTimeOffset!
+            </summary>
+            <param name="datetimeInTimeZone">The date/time that will be converted to an offset based on the given time zone.</param>
+            <param name="datetimeTimeZoneInstance">The time zone row that repersents the time zone the date/time is in</param>
+            <returns>a converted date/time to the proper offset based on its' time zone.</returns>
+            <exception cref="T:System.ArgumentNullException">Thrown when time zone row is null</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">Thrown if the target time zone is not found.</exception>
+        </member>
+        <member name="M:Common.TimeZones.OffSet(System.String,System.String,System.Nullable{System.DateTime},Common.Patterns.TimeZoneInfo.ZoneNameTypes,Common.Patterns.TimeZoneInfo.ZoneNameTypes)">
+            <summary>
+            Returns the Offset between the target and to time zones
+            </summary>
+            <param name="fromTimeZone">The from time zone</param>
+            <param name="toTimeZone">The to time zone</param>
+            <param name="basedOnDate">If null (default), the current date is used. Otherwise the given Date is used to determine the offset.</param>
+            <param name="fromTimeZoneType">The time zone name type</param>
+            <param name="toTimeZoneType">The time zone name type</param>        
+            <returns>
+            The difference between the From and To Time Zones.        
+            </returns>
+            <exception cref="T:System.ArgumentOutOfRangeException">This is thrown when either one of the Time Zone are NOT found!</exception>
+        </member>
+        <member name="M:Common.TimeZones.OffSet(System.Int64,System.Int64,System.Nullable{System.DateTime})">
+            <summary>
+            Returns the Offset between the target and to time zones
+            </summary>
+            <param name="fromTimeZoneId">The from time zone Id</param>
+            <param name="toTimeZoneId">The to time zone Id</param>
+            <param name="basedOnDate">If null (default), the current date is used. Otherwise the given Date is used to determine the offset.</param>
+            <returns>
+            The difference between the From and To Time Zones.      
+            </returns>
+            <exception cref="T:System.ArgumentOutOfRangeException">This is thrown when either one of the Time Zone Ids are NOT found!</exception>
+        </member>
+        <member name="M:Common.TimeZones.OffSet(Common.Patterns.TimeZoneInfo.IZone,Common.Patterns.TimeZoneInfo.IZone,System.Nullable{System.DateTime})">
+            <summary>
+            Returns the Offset between the target and to time zones. 
+            </summary>
+            <param name="fromTimeZoneInstance">The from time zone instance</param>
+            <param name="toTimeZoneInstance">The to time zone instance</param>
+            <param name="basedOnDate">If null (default), the current date is used. Otherwise the given Date is used to determine the offset.</param>
+            <returns>
+            The difference between the From and To Time Zones.
+            
+            Note the following:
+                If fromTimeZoneInstance and toTimeZoneInstance are null, a null is returned
+                If fromTimeZoneinstance is null and toTimeZoneInstance is NOT null, the toTimeZoneInstance's time zone offset is returned
+                If fromTimeZoneinstance is NOT null and toTimeZoneInstance is null, TimeSpan.Zero is returned
+            </returns>
+        </member>
+        <member name="M:Common.TimeZones.OffSet(System.String,System.Nullable{System.DateTime},Common.Patterns.TimeZoneInfo.ZoneNameTypes)">
+            <summary>
+            Returns the Time Zone's Offset from UTC.
+            </summary>
+            <param name="timeZone">The from time zone Id</param>        
+            <param name="basedOnDate">If null (default), the current date is used. Otherwise the given Date is used to determine the offset.</param>
+            <param name="timeZoneType">The time zone name type</param>           
+            <returns>
+            The Time Zone's Offset from UTC or null to indicate that timeZone was NOT found. 
+            </returns>        
+        </member>
+        <member name="M:Common.TimeZones.OffSet(System.Int64,System.Nullable{System.DateTime})">
+            <summary>
+            Returns the Time Zone's Offset from UTC.
+            </summary>
+            <param name="timeZoneId">The from time zone Id</param>        
+            <param name="basedOnDate">If null (default), the current date is used. Otherwise the given Date is used to determine the offset.</param>
+            <returns>
+            The Time Zone's Offset from UTC or null to indicate that timeZone was NOT found.  
+            </returns>
+        </member>
+        <member name="M:Common.TimeZones.OffSet(Common.Patterns.TimeZoneInfo.IZone,System.Nullable{System.DateTime})">
+            <summary>
+            Returns the Time Zone's Offset from UTC.
+            </summary>
+            <param name="timeZoneInstance">The from time zone instance</param>        
+            <param name="basedOnDate">If null (default), the current date is used. Otherwise the given Date is used to determine the offset.</param>
+            <returns>
+            The Time Zone's Offset from UTC or null to indicate that timeZoneInstance was null.  
+            </returns>
+        </member>
+        <member name="M:Common.TimeZones.ConvertFromUTC(System.DateTime)">
+            <summary>
+            Converts the given UTC date/time into a local date time.
+            </summary>
+            <param name="utcDateTime">UTC Date Time that will be converted</param>
+            <returns>Local Date Time</returns>
+        </member>
+        <member name="M:Common.TimeZones.ConvertFromUTC(System.DateTime,System.Int64)">
+            <summary>
+            Converts the given UTC date/time into the Time Zone Given.
+            </summary>
+            <param name="utcDateTime">UTC Date Time that will be converted</param>
+            <param name="toTimeZoneId">The Time Zone Id that is used to convert the UTC date/time</param>
+            <returns>Date Time based in the given Time Zone</returns>
+        </member>
+        <member name="M:Common.TimeZones.ConvertFromUTC(System.DateTime,Common.Patterns.TimeZoneInfo.IZone)">
+            <summary>
+            Converts the given UTC date/time into the Time Zone Given.
+            </summary>
+            <param name="utcDateTime">UTC Date Time that will be converted</param>
+            <param name="toTimeZoneInstance">The Time Zone Id that is used to convert the UTC date/time</param>
+            <returns>Date Time based in the given Time Zone</returns>
+        </member>
+        <member name="M:Common.TimeZones.ConvertFromUTC(System.DateTime,System.String,Common.Patterns.TimeZoneInfo.ZoneNameTypes)">
+            <summary>
+            Converts the given UTC date/time into the Time Zone Given.
+            </summary>
+            <param name="utcDateTime">UTC Date Time that will be converted</param>
+            <param name="toTimeZone">The Time Zone that is used to convert the UTC date/time</param>
+            <param name="toTimeZoneType">The time zone type (</param>
+            <returns>Date Time based in the given Time Zone</returns>
+        </member>
+        <member name="M:Common.TimeZones.GetTimeZoneRules(System.String,System.Int32,System.Boolean,Common.Patterns.TimeZoneInfo.ZoneNameTypes)">
+            <summary>
+            Returns an array of Time Zone Rules which includes enforcement dates based on the year range. 
+            </summary>
+            <param name="forTimeZone">if null or string.empty the local time zone is used</param>
+            <param name="forYear"></param>
+            <param name="includeStartOfYearRule"></param>       
+            <param name="forTimeZoneType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Common.TimeZones.GetTimeZoneRules(System.String,System.Int32,System.Int32,System.Boolean,Common.Patterns.TimeZoneInfo.ZoneNameTypes)">
+            <summary>
+            Returns an array of Time Zone Rules which includes enforcement dates based on the year range. 
+            </summary>
+            <param name="forTimeZone">if null or string.empty the local time zone is used</param>
+            <param name="fromYear"></param>
+            <param name="toYear"></param>
+            <param name="includeStartOfYearRule"></param>       
+            <param name="forTimeZoneType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Common.TimeZones.GetTimeZoneRules(System.Int64,System.Int32,System.Boolean)">
+            <summary>
+            Returns an array of Time Zone Rules which includes enforcement dates based on the year range. 
+            </summary>
+            <param name="forTimeZoneId"></param>
+            <param name="forYear"></param>
+            <param name="includeStartOfYearRule"></param>        
+            <returns></returns>
+        </member>
+        <member name="M:Common.TimeZones.GetTimeZoneRules(System.Int64,System.Int32,System.Int32,System.Boolean)">
+            <summary>
+            Returns an array of Time Zone Rules which includes enforcement dates based on the year range. 
+            </summary>
+            <param name="forTimeZoneId"></param>
+            <param name="fromYear"></param>
+            <param name="toYear"></param>
+            <param name="includeStartOfYearRule"></param>        
+            <returns></returns>
+        </member>
+        <member name="M:Common.TimeZones.GetTimeZoneRules(Common.Patterns.TimeZoneInfo.IZone,System.Int32,System.Boolean)">
+            <summary>
+            Returns an array of Time Zone Rules which includes enforcement dates based on the year. 
+            </summary>
+            <param name="forTimeZoneInstance">if null the local time zone is used.</param>
+            <param name="forYear"></param>
+            <param name="includeStartOfYearRule"></param>       
+            <returns></returns>
+        </member>
+        <member name="M:Common.TimeZones.GetTimeZoneRules(Common.Patterns.TimeZoneInfo.IZone,System.Int32,System.Int32,System.Boolean)">
+            <summary>
+            Returns an array of Time Zone Rules which includes enforcement dates based on the year range. 
+            </summary>
+            <param name="forTimeZoneInstance">if null the local time zone is used.</param>
+            <param name="fromYear"></param>
+            <param name="toYear"></param>
+            <param name="includeStartOfYearRule"></param>        
+            <returns></returns>
+        </member>
+        <member name="P:Common.TimeZones.LocalTimeZoneCurrentUTCOffset">
+            <summary>
+            Returns the Local Time Zone's current UTC Offset.
+            </summary>
+            <remarks>
+            This is a cached value! To update call the UpdateLocalTimeZoneCurrentValues method.
+            </remarks>
+        </member>
+        <member name="P:Common.TimeZones.LocalTimeZoneCurrentIsDayLightSavingTime">
+            <summary>
+            Returns the state of the Local Time Zone's current Day Light Saving value.
+            </summary>
+            <remarks>
+            This is a cached value! To update call the UpdateLocalTimeZoneCurrentValues method.
+            </remarks>
+        </member>
+        <member name="P:Common.TimeZones.LocalTimeZoneCurrentRange">
+            <summary>
+            Returns the Local Time Zone's beginning time (inclusive) and the ending time of the current zone (exclusive) expressed in local time.
+            </summary>
+            <remarks>
+            This is a cached value! To update call the UpdateLocalTimeZoneCurrentCachedValues method.
+            </remarks>
+        </member>
+        <member name="P:Common.TimeZones.LocalTimeZoneCurrentRangeInUTC">
+            <summary>
+            Returns the Local Time Zone's beginning time (inclusive) and the ending time of the current zone (exclusive) expressed as UTC (not local time)
+            </summary>
+            <remarks>
+            This is a cached value! To update call the UpdateLocalTimeZoneCurrentCachedValues method.
+            </remarks>
+        </member>
+        <member name="P:Common.TimeZones.LocalTimeZoneAllowsDST">
+            <summary>
+            If true, the local timezone changes time between Standard and Day-Light-Saving time. 
+            </summary>
+        </member>
+        <member name="M:Common.TimeZones.UpdateLocalTimeZoneCurrentCachedValues">
+            <summary>
+            Updates the Local Time Zone's current cached Values (UTC Offset, Is Day Light Saving Time, Time Zone Range).
+            </summary>
+            <remarks>
+            Note that if the machine's time zone changes, this will NOT update the cached local time zone!
+            </remarks>
+        </member>
+        <member name="F:Common.TimeZones.UTCTimeZoneId">
+            <summary>
+            UTC Time Zone Id which corresponds to Etc/UTC
+            </summary>
+        </member>
+        <member name="P:Common.TimeZones.UTCTimeZone">
+            <summary>
+            Gets the UTC time zone which corresponds to Etc/UTC
+            </summary>
+        </member>
+        <member name="P:Common.TimeZones.LocalTimeZoneId">
+            <summary>
+            Gets the time zone of the current computer which corresponds to the System.TimeZoneInfo.Local property.
+            
+            If the current time zone cannot be determined long.MinValue is returned.
+            </summary>
+            <remarks>
+            Note that this value is cached and if the computer's time zone changes this value would NOT be changed (it will still point to the old time zone)!
+            </remarks>
+        </member>
+        <member name="P:Common.TimeZones.LocalTimeZone">
+            <summary>
+            Gets the time zone of the current computer which corresponds to the System.TimeZoneInfo.Local property.       
+            </summary>
+            <remarks>
+            Note that this value is cached and if the computer's time zone changes this value would NOT be changed (it will still point to the old time zone)!
+            To obtain an non-cached version use GetCurrentTimeZone method.
+            </remarks>
+        </member>
+        <member name="M:Common.TimeZones.GetLocalTimeZone">
+            <summary>
+            Gets the time zone of the current computer which corresponds to the System.TimeZoneInfo.Local property.
+            
+            This is the non-cached version. For the best performance use the CurrentTimeZone Property.
+            </summary>
+            <remarks>
+            Note that this value is NOT cached and if the computer's time zone changes this value would return the most current Time Zone!
+            </remarks>
+        </member>
+        <member name="M:Common.TimeZones.Find(System.String,Common.Patterns.TimeZoneInfo.ZoneNameTypes)">
+            <summary>
+            Finds the associated Time Zone based on the name and time zone name type.
+            </summary>
+            <param name="findTimeZone">The Time Zone Name</param>
+            <param name="timeZoneType">Time Zone Name type. Default is the default naming conversion for TimeZoneInfo.</param>
+            <returns>Returns the Time Zone Instance or null to indicate that the Time Zone Name does not exist.</returns>
+        </member>
+        <member name="M:Common.TimeZones.Find(System.Int64)">
+            <summary>
+            Finds the associated Time Zone based on the Time Zone Id.
+            </summary>
+            <param name="findTimeZone">The Time Zone Id</param>       
+            <returns>Returns the Time Zone Instance or null to indicate that the Time Zone Id does not exist.</returns>
+        </member>
+        <member name="M:Common.TimeZones.FindByRegion(System.String)">
+            <summary>
+            Finds a Zone based on the Region Name.
+            </summary>
+            <param name="findTimeZoneBasedOnRegion">The Region Name used to find the time zones</param>
+            <returns>null or the associated time zone</returns>
+            <example>
+                FindByRegion("Chicago");    
+                FindByRegion("New_York");
+            </example>
+        </member>
+        <member name="M:Common.TimeZones.FindMultipleByRegion(System.String)">
+            <summary>
+            Finds a collection of Zones based on the Region Name.
+            </summary>
+            <param name="findTimeZoneBasedOnRegion">The Region Name used to find a collection of time zones</param>
+            <returns>An empty array or an array of found time zones</returns>
+            <example>
+                FindByRegion("Chicago");
+                FindByRegion("America");
+                FindByRegion("New_York");
+            </example>
+        </member>
+        <member name="M:Common.TimeZones.FindByLOCODE(System.String)">
+            <summary>
+            Returns the &quot;Best&quot; Time Zone for this Location Code (LOCODE)
+            </summary>
+            <param name="findTimeZoneByLoCode">The UN Location Code (LOCODE)</param>
+            <returns>The associated Time Zone or null</returns>
+            <remarks>
+            Not all LOCODEs are mapped to a Time Zone. Only the primary LOCODE is mapped to the associated time zone.
+            </remarks>
+        </member>
+        <member name="M:Common.TimeZones.FindMultipleByLOCODE(System.String)">
+            <summary>
+            Returns the associated Time Zones based on the Location Code (LOCODE).
+            </summary>
+            <param name="findTimeZoneByLoCode">The UN Location Code (LOCODE)</param>
+            <returns>An array of associates Time Zones or an Empty Array when there are no associations</returns>
+        </member>
+    </members>
+</doc>

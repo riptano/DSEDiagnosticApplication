@@ -1,0 +1,390 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Common.Path</name>
+    </assembly>
+    <members>
+        <member name="M:Common.Path.BasePath.CompareTo(Common.IPath)">
+            <summary>
+            Compares two IPaths and determines their order based on if they are a Directory or File
+            </summary>
+            <param name="other">An object to compare with this object.</param>
+            <returns>
+            An integer that indicates the relative order of the objects being compared. The return value has the following meanings:
+                Object type             Value           Meaning
+                                        0               They are the same
+                Both are Directories    -1              <paramref name="other"/> is the parent of the target object
+                Both are Directories    1               <paramref name="other"/> is the child of the target object
+                
+                Both are Files          -1              If they both are within the same directory
+                                                            Target File Name is less then <paramref name="other"/>'s File Name
+                Both are Files          1               If they both are within the same directory
+                                                            Target File Name is greater then <paramref name="other"/>'s File Name
+                Both are Files          -1              If they are not within the same directory
+                                                            Target's Directory is a Child of <paramref name="other"/>'s Directory
+                Both are Files          1               If they are not within the same directory
+                                                            Target's Directory is a Parent of <paramref name="other"/>'s Directory                     
+                Not the Same            1               <paramref name="other"/> is a Directory (Target is a File)
+                Not the Same            -1              Target is a Directory (<paramref name="other"/> is a File)        
+            </returns>
+        </member>
+        <member name="M:Common.Path.BasePath.Clone(System.String)">
+            <summary>
+            If the source object is a File:
+                Clones the source object but replaces the file name portion of the path. Note that the file name can contain both the name and extension. In this case the complete File Name is replaced.
+                If the file extension is not provided only the name is changed (the file extension is NOT changed).
+                
+            If the source object is a Directory:
+                Creates a File Object under the given Directory based on the given "fileName". An Extension can be provided.
+            </summary>
+            <param name="fileName">File Name with File Extension (optionally if source object is a file)</param>
+            <returns>returns changed File Path</returns>
+        </member>
+        <member name="M:Common.Path.BasePath.IsAncestor(Common.IPath,System.Boolean)">
+            <summary>
+            Determines whether the target path is an Ancestor of the path given as an argument.
+            Examples:
+                Target Path                Argument Path        Result
+                c:\a\b\c\d  Is Ancestor of c:\a\b\c\d\e     ==> True
+                c:\a\b\c\d  Is Ancestor of c:\a\b\c\d       ==> True
+                c:\a\b\c\d  Is Ancestor of c:\a\b           ==> False
+                c:\a\b\c\d  Is Ancestor of ..\b\c\d\e       ==> True
+                c:\a\b\c\d  Is Ancestor of ..\..\b\c\d\e    ==> False
+                c:\a\b\c\d  Is Ancestor of .\b\c\d\e        ==> True
+                ..\a\b\c    Is Ancestor of ..\a\b\c\d       ==> True
+                .\a\b\c\    Is Ancestor of ..\a\b\c\d       ==> False
+                
+            Note that Target and "ancestorPath" can be files. If files are given the FileName is NOT used in the comparison.
+            </summary>
+            <param name="ancestorPath">The path that will be used to determine if the target path is an Ancestor to this path</param>
+            <param name="ignoreDriveHost">if set to <c>true</c> the Drive/Host name in both/either path will be ignored.</param>
+            <returns>
+            	<c>true</c> if the Target path is an ancestor; otherwise, <c>false</c>.
+            </returns>
+        </member>
+        <member name="T:Common.Path.PathEventArgs">
+            <summary>
+            Parent Class of all Path Related Event Arguments
+            </summary>
+        </member>
+        <member name="M:Common.Path.PathUtils.Parse(System.String,System.String,System.String,System.String,System.Boolean,System.Boolean,System.Boolean,System.Boolean)">
+            <summary>
+            This static method will create a File or Directory path based on the parsePath argument.
+            If defaultFileName or defaultFileExtension are not null or Empty a File Path, if possible, will be created!
+            </summary>
+            <param name="parsePath">The path that will be parsed based on the default argurments</param>
+            <param name="defaultDirectory">If no directory is given in parsePath this directory will be used</param>
+            <param name="defaultFileName">If only a directory is given assume this will be the file name. Note that this can be just the file name or file name with extension.</param>
+            <param name="defaultFileExtension">File Extension of the File only added if alwaysAddDefaultFileExtensionIfPresent or if the file name has NO periods in the Name</param>
+            <param name="parseInlineParams">Will expand parsePath, defaultDirectory, defaultFilename, and defaultFileExtension for inline params if true. If false those arguements will NOT be reviewed for inline params</param>
+            <param name="assumeLastNodeInParsePathIsFileNameUnlessDefaultGiven">If true the last node in parsePath will be assumed as the file name only when defaultFileName is null</param>
+            <param name="alwaysAddDefaultFileExtensionIfPresent">If true and defaultFileExtension is present, the extension will always be appended to the final path. Use this in cases where the filename contains periods (cannot determine file extension)</param>
+            <param name="mergeDefaultDirectoryAndParsePathIfRelativePathFound">If true and either argument (parsePath or defaultDirectory) is a Relative Path, those Paths will be merged so that the Absolute Path will be the base and the Relative will be applied. In the case both are Relative, the parsePath will base (primary) path. If both are Absolute, this argument is ignored!</param>
+            <returns></returns>
+        </member>
+        <member name="P:Common.File.BaseFile.FileNameFormat">
+            <summary>
+            Gets or sets the file name format.
+            The file name format string follows the same syntax as defined by the string.format function.
+            To include file related information include the following in the format string:
+                {[FileName]} -- File name including extension
+                {[Name]} -- File Name without extension
+                {[Extension}] -- File extension with dot
+                {[NewFileName]} -- If used within a File Name Replace function the new file name argument
+                {[NewFile]} -- If used within a File Name Replace function the new name of an File Name argument
+                [{NewExtension}] -- If used within a File Name Replace function the new name of an File Name Extension argument
+                Note that if a "New" argument is not present (given) the current file value is used
+            </summary>
+            <value>The file name format.</value>
+        </member>
+        <member name="M:Common.File.BaseFile.ReplaceFileName(System.String,System.Object[])">
+            <summary>
+            Replaces the name of the file. The new fileName can contain the extension (e.g, myFile.txt).
+            If the extension is not present the file's current extension is used.
+            </summary>
+            <param name="fileName">New File Name and optionally the file extension</param>
+            <param name="fileFormatArgs"></param>
+            <returns>returns changed File Path</returns>
+        </member>
+        <member name="M:Common.File.BaseFile.OpenText">
+            <summary>
+            Opens an existing UTF-8 encoded text file for reading.
+            </summary>
+            <returns>Returns System.IO.StreamReader</returns>
+            <remarks>
+            This method is equivalent to the System.IO.StreamReader(String) constructor overload.
+            </remarks>
+            <seealso cref="M:Common.File.BaseFile.StreamReader(System.Boolean)"/>
+            <seealso cref="M:System.IO.File.OpenText(System.String)"/>
+        </member>
+        <member name="M:Common.File.BaseFile.OpenTextWriter">
+            <summary>
+            Opens an existing file or creates a new file for text writing.
+            </summary>
+            <returns>
+            Returns System.IO.StreamWriter
+            </returns>
+            <remarks>
+            This method is equivalent to the FileStream(String, FileMode, FileAccess, FileShare) constructor overload 
+            with file mode set to OpenOrCreate, the access set to Write, and the share mode set to None.
+            
+            The OpenTextWriter method opens a file if one already exists for the file path, or creates a new file if one does not exist.
+            For an existing file, it does not append the new text to the existing text. Instead, it overwrites the existing characters with the new characters.
+            If you overwrite a longer string (such as &quot;This is a test of the OpenWrite method&#8221;) with a shorter string (such as &#8220;Second run&#8221;), the file will contain a mix of the strings(&#8220;Second runtest of the OpenWrite method&#8221;).
+            </remarks>
+            <seealso cref="M:Common.File.BaseFile.StreamWriter(System.Boolean)"/>
+        </member>
+        <member name="M:Common.File.BaseFile.Truncate">
+            <summary>
+            Truncates the file to zero bytes
+            </summary>
+            <returns>
+            True if the file is truncated
+            </returns>
+        </member>
+        <member name="M:Common.File.BaseFile.Truncate(System.Int32,System.Boolean)">
+            <summary>
+            Truncates the beginning bytes of the file leaving the remaining bytes. 
+            </summary>
+            <param name="remainingBytes">
+            The number of remaining bytes in the file from the end.
+            </param>
+            <param name="onlyWhenExceeded">
+            If true (default), the file is only truncated when the file length exceed remainingBytes.
+            If false, the file is always truncated.
+            </param>
+            <returns>True if the file is truncated</returns>
+        </member>
+        <member name="P:Common.IPath.PathResolved">
+            <summary>
+            Parses the Path String resolving any inline parameters. 
+            Parameters are identified by starting '[' and ending ']' character.
+            For Example: 
+                        c:\mydir\[LoggedInUser]\myfile.txt
+                        [MyDocuments]\mydoc.doc    
+            
+            Possible Parameters are:
+                LoggedInUser -- The user name of the logged in User (without domain)
+                LocalHostName -- The name of this Local Host (without domain)
+                LocalHostIPAddress -- The IP address (x.x.x.x) of the local host
+                ProcessId -- The process ID of this process
+                ApplicationName -or- AppName -- The name of the Application that is running this assembly
+                ApplicationVersion -or- AppVersion -or- AppVer -- the Application version (v.v.v.v) that is running this assembly
+                DeploymentVersion -or- DeploymentVer -or- DeployVer -- The Deployment Version of the Deployment Package. If there is no Deployment Package (version) the Application's Version is used
+                DeploymentLocation -or- DeployLocation -or- DeploymentLoc -or- DeployLoc -- The Directory Location of where the Deployment Package is being deployed
+                ApplicationUserProfile -or- AppUserProfile -- Defined as "[MyDocuments]\[ApplicationName]"
+                ApplicationVersionName -or- ApplicationVerName -or- AppVersionName -or- AppVerName -- "[ApplicationName]_[DeploymentVersion]"
+                CompanyName -- The name of the Company as defined in by the Application execution property.
+                CurrentDir -or- CurrentDirectory -or- CurrDir -- The Current Working Directory which can be different from where the Application started.
+                WorkingDirectory -or- WorkingDir -or- WorkDir -- The same as Current Directory
+                StartUpDirectory -or- StartUpDir -- The directory where the Process/Application started in
+                MachineName -- The NetBIOS name of this local computer
+                OperatingSystemVersion -or- OSVersion -- The name of the current OS Version (e.g., "Microsoft Windows NT 6.0.6002 Service Pack 2")
+                OSPlatformId -- The OS platform ID as defined by Microsoft (see System.Environment.OSVersion.Platform)
+                DomainName -- The name of the Domain the users belongs to. If the user does not belong to a domain the computer's Name is used. 
+                UserName -- The display name of the logged in user.
+                
+                $"EnvironmentVariableName" -- A name of an Environmental Variable (e.g.,  PATH, HOMEDRIVE, etc.)
+                
+                "EnvironmentSpecialFolderName" -- an argument name that represents the System.Environment.SpecialFolder Enumeration defined by .Net (http://msdn.microsoft.com/library/en-us/shellcc/platform/Shell/reference/enums/csidl.asp)
+                    Below the possible Values:
+                    
+                    ApplicationData         -- The directory that serves as a common repository for application-specific data for the current roaming user.
+                    CommonApplicationData   -- The directory that serves as a common repository for application-specific data that is used by all users.
+                    LocalApplicationData    -- The directory that serves as a common repository for application-specific data that is used by the current, non-roaming user.
+                    Cookies                 -- The directory that serves as a common repository for Internet cookies.
+                    Desktop                 -- The logical Desktop rather than the physical file system location.
+                    Favorites               -- The directory that serves as a common repository for the user's favorite items.
+                    History                 -- The directory that serves as a common repository for Internet history items.
+                    InternetCache           -- The directory that serves as a common repository for temporary Internet files.
+                    Programs                -- The directory that contains the user's program groups.
+                    MyComputer              -- The "My Computer" folder
+                    MyMusic                 -- The "My Music" folder.
+                    MyPictures              -- The "My Pictures" folder.
+                    Recent                  -- The directory that contains the user's most recently used documents.
+                    SendTo                  -- The directory that contains the Send To menu items.
+                    StartMenu               -- The directory that contains the Start menu items.
+                    Startup                 -- The directory that corresponds to the user's Startup program group.
+                    System                  -- The System directory.
+                    Templates               -- The directory that serves as a common repository for document templates.
+                    DesktopDirectory        -- The directory used to physically store file objects on the desktop.
+                    Personal                -- The directory that serves as a common repository for documents.
+                    MyDocuments             -- The "My Documents" folder.
+                    ProgramFiles            -- The program files directory
+                    CommonProgramFiles      -- The directory for components that are shared across applications.
+            
+                Search("DirList" , "FileList") -- A "special" function that will take the "FileList" and search for one
+                                                    or more files in the "DirList".
+                                                    For Example: Search(c:\[MyDocuments];c:\docs;\\networkhost\docs , myFile.doc;company.doc)
+                                                        Search the "c:\[MyDocuments]", "c:\docs", and "\\networkhost\docs" directories for 
+                                                        either one of the following files "myFile.doc" or "Company.doc". If found the absolute path of the file (including filename)
+                                                        is returned.
+                SearchNewest("DirList" , "FileList") -- Same as above but only returns the newest file found.
+                
+            </summary>
+            <value>The path string that was parsed and resolved.</value>
+        </member>
+        <member name="P:Common.IPath.SuppressEventing">
+            <summary>
+            Gets or sets a value indicating whether Eventing will fire event delegates.
+            Warning: Suppressing Paths associated with SyncPath object will cause sync issues between the Absolute and Relative paths...
+            </summary>
+            <value><c>true</c> Suppresses Eventing; otherwise, <c>false</c> Normal Eventing</value>
+        </member>
+        <member name="P:Common.IPath.HasInLineParameters">
+            <summary>
+            Gets a value indicating whether this instance has in line parameters that in which the Path
+                can be resolved via PathResolved Property or via the ResolvePath method.
+            <seealso cref="P:Common.IPath.PathResolved"/>
+            </summary>
+            <value>
+            	<c>true</c> if this instance has in line parameters; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="M:Common.IPath.ReplaceName(System.String,System.Object[])">
+            <summary>
+            Replaces the name (file name or directory name) based on the formatString argument.
+            Note that the first argument ("{0}") in the format arguments will be the current name.
+            </summary>
+            <param name="formatString">The format string e.g., "MyNewName-{0}"; if the current name is "pathname" the output will be "MyNewName-pathname"</param>
+            <param name="args">The additional arguments passed to the format string. Note that the first format argument ("{0}") will be the current name</param>
+            <returns>the IPath being updated</returns>
+        </member>
+        <member name="M:Common.IPath.MakeEmpty">
+            <summary>
+            Clears the Path string to string.Empty (IsEmpty returns true)
+            </summary>
+            <returns>
+            False indicates that the path is already empty. 
+            </returns>
+            <seealso cref="P:Common.IPath.IsEmpty"/>
+        </member>
+        <member name="M:Common.IPath.ResolvePath">
+            <summary>
+            Parses and Resolves the path for inline parameters and replaces the Path with the resolved Path.
+            <seealso cref="P:Common.IPath.PathResolved"/>
+            </summary>
+            <returns>this path object</returns>
+        </member>
+        <member name="M:Common.IPath.IsAncestor(Common.IPath,System.Boolean)">
+            <summary>
+            Determines whether the target path is an Ancestor of the path given as an argument.
+            Examples:
+                Target Path                Argument Path        Result
+                c:\a\b\c\d  Is Ancestor of c:\a\b\c\d\e     ==> True
+                c:\a\b\c\d  Is Ancestor of c:\a\b\c\d       ==> True
+                c:\a\b\c\d  Is Ancestor of c:\a\b           ==> False
+                c:\a\b\c\d  Is Ancestor of ..\b\c\d\e       ==> True
+                c:\a\b\c\d  Is Ancestor of ..\..\b\c\d\e    ==> False
+                c:\a\b\c\d  Is Ancestor of .\b\c\d\e        ==> True
+                ..\a\b\c    Is Ancestor of ..\a\b\c\d       ==> True
+                .\a\b\c\    Is Ancestor of ..\a\b\c\d       ==> False
+                
+            Note that Target and "ancestorPath" can be files. If files are given the FileName is NOT used in the comparison.
+            </summary>
+            <param name="withinThisPath">The path that will be used to determine if the target path is an Ancestor to this path</param>
+            <param name="ignoreDriveHost">if set to <c>true</c> the Drive/Host name in both/either path will be ignored.</param>
+            <returns>
+            	<c>true</c> if the Target path is an ancestor; otherwise, <c>false</c>.
+            </returns>
+        </member>
+        <member name="M:Common.IPath.MatchesWildCardPattern(System.String)">
+            <summary>
+            Determines if the target path matches any of the given wildCardPatterns. 
+            </summary>
+            <param name="wildCardPattern">A wild card pattern string or a list of wild card patterns separated by a &quot;;&quot;</param>
+            <returns>True if it matches the wildCardPattern.</returns>
+            <remarks>The path is always resolved before being checked.</remarks>
+        </member>
+        <member name="M:Common.IPath.MatchesWildCardPattern(System.Collections.Generic.IEnumerable{System.String})">
+            <summary>
+            Determines if the target path matches any of the given wildCardPatterns. 
+            </summary>
+            <param name="wildCardPatterns">A collection of wild card patterns to match</param>
+            <returns>True if it matches the wildCardPattern.</returns>
+            <remarks>The path is always resolved before being checked.</remarks>
+        </member>
+        <member name="M:Common.IPath.MatchesWildCardPattern(System.String[])">
+            <summary>
+            Determines if the target path matches any of the given wildCardPatterns. 
+            </summary>
+            <param name="wildCardPatterns">A collection of wild card patterns to match</param>
+            <returns>True if it matches the wildCardPattern.</returns>
+            <remarks>The path is always resolved before being checked.</remarks>
+        </member>
+        <member name="M:Common.IPath.HasWildCardPattern(System.Boolean)">
+            <summary>
+            Determines if the target path contains any wild card patterns. 
+            </summary>
+            <param name="resolvedPath">If true (default) the path is first resolved before being checked.</param>
+            <returns>True to indicate that it does have wild card patterns.</returns>
+        </member>
+        <member name="M:Common.IPath.GetWildCardMatches">
+            <summary>
+            Returns a list of Files/Directories based on the target's path/file wild card pattern. 
+            
+            If the target's path/file does not contain any wild card patterns, the target is checked to determine if it exists
+            	and if so, the target is returned as a list.
+            </summary>
+            <returns>A list of files/directories that match the wild card pattern or an empty list if nothing matches</returns>
+            <remarks>
+            The path is always resolved before being checked. If the path is a Relative Path, it will be converted to a Absolute Path using
+            	a base directory provided by method DetermineRelativeBaseDirectory.  To allow a custom base/reference directory use method
+            	IRelativePath.GetWildCardMatches method where a base/reference absolute directory can be provided.
+            </remarks>
+        </member>
+        <member name="P:Common.IFilePath.FileNameFormat">
+            <summary>
+            Gets or sets the file name format.
+            The file name format string follows the same syntax as defined by the string.format function.
+            To include file related information include the following in the format string:
+                {[FileName]} -- File name including extension
+                {[Name]} -- File Name without extension
+                {[Extension}] -- File extension with dot
+                {[NewFileName]} -- If used within a File Name Replace function the new file name argument
+                {[NewFile]} -- If used within a File Name Replace function the new name of an File Name argument
+                [{NewExtension}] -- If used within a File Name Replace function the new name of an File Name Extension argument
+                Note that if a "New" argument is not present (given) the current file value is used
+            </summary>
+            <value>The file name format.</value>
+        </member>
+        <member name="M:Common.IFilePath.Truncate">
+            <summary>
+            Truncates the file to zero bytes
+            </summary>
+            <returns>
+            True if the file is truncated
+            </returns>
+        </member>
+        <member name="M:Common.IFilePath.Truncate(System.Int32,System.Boolean)">
+            <summary>
+            Truncates the beginning bytes of the file. 
+            </summary>
+            <param name="truncateStartingBytes">
+            The number of bytes to truncate from the front of the file.
+            </param>
+            <param name="onlyWhenExceeded">
+            If true (default), the file is only truncated when the file length exceed truncateStartingBytes.
+            If false, the file is always truncated.
+            </param>
+            <returns></returns>
+        </member>
+        <member name="M:Common.IRelativePath.GetWildCardMatches(Common.IDirectoryPathAbsolute,System.Boolean)">
+            <summary>
+            Returns a list of Files/Directories based on the target's path/file wild card pattern. 
+            
+            If the target's path/file does not contain any wild card patterns, the target is checked to determine if it exists
+            	and if so, the target is returned as a list.
+            </summary>
+            <param name="referenceDir">The base/reference directory used to create an absolute path.</param>
+            <param name="returnAsAbsolutePath">
+            If true (default), the returned list will be absolute paths.
+            If false, the return list will be relative paths based on the referenceDir. 
+            </param>
+            <returns>A list of files/directories that match the wild card pattern or an empty list if nothing matches</returns>
+            <remarks>
+            The path is always resolved before being checked and the target will be converted to an absolute path based on referenceDir.
+            </remarks>
+        </member>
+    </members>
+</doc>

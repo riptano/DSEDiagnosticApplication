@@ -1,0 +1,140 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Common.Patterns.QueueProcessor</name>
+    </assembly>
+    <members>
+        <member name="P:Common.Patterns.QueueTimerProcessor`1.TimerMessage.Time">
+            <summary>
+            Time placed on the Timer Queue
+            </summary>
+        </member>
+        <member name="P:Common.Patterns.QueueTimerProcessor`1.TimerMessage.MessageDeQueued">
+            <summary>
+            If true the message will be dequeued or already was dequeued from the timer queue
+            If false the message will remain on the timer queue
+            The default is false!
+            </summary>
+        </member>
+        <member name="M:Common.Patterns.QueueTimerProcessor`1.TimerMessage.Dequeue">
+            <summary>
+            If executed the message will be dequeued from the Timer Queue and MessageDeQueued will be true.
+            If the message already has been dequeued this request will be ignored.
+            </summary>
+            <exception cref="T:System.InvalidOperationException">Is thrown when Dequeuing is NOT allowed. See AllowDequeuing Property</exception>            
+        </member>
+        <member name="M:Common.Patterns.QueueTimerProcessor`1.TimerMessage.CancelDequeue">
+            <summary>
+            Cancels a DeQueue request
+            </summary>
+            <exception cref="T:System.InvalidOperationException">Is thrown when Canceling a Dequeue is NOT allowed. See AllowDequeuing Property</exception>
+        </member>
+        <member name="P:Common.Patterns.QueueTimerProcessor`1.TimerMessage.AllowDequeuing">
+            <summary>
+            If true you are allowed to Dequeue the message.
+            </summary>
+        </member>
+        <member name="P:Common.Patterns.QueueTimerProcessor`1.TimerMessageExpired.MessageEnqueued">
+            <summary>
+            Returns true to indicate that the message will be re-enqueued into the Timer Queue with a New Timestamp
+            or the message is currently still in the Timer Queue.
+            </summary>
+        </member>
+        <member name="M:Common.Patterns.QueueTimerProcessor`1.TimerMessageExpired.Enqueue">
+            <summary>
+            Enqueues the message back into the Timer Queue with a New Timestamp
+            </summary>
+            <exception cref="T:System.InvalidOperationException">Is thrown when Enqueuing is NOT allowed. See AllowEnqueuing Property</exception>            			
+        </member>
+        <member name="M:Common.Patterns.QueueTimerProcessor`1.TimerMessageExpired.CancelEnqueue">
+            <summary>
+            Cancels the Enqueue Request
+            </summary>
+            <exception cref="T:System.InvalidOperationException">Is thrown when canceling a Enqueue request is NOT allowed. See AllowEnqueuing Property</exception>           
+        </member>
+        <member name="P:Common.Patterns.QueueTimerProcessor`1.TimerMessageExpired.AllowEnqueuing">
+            <summary>
+            If true the consumer can call the Enqueue method without error.
+            </summary>
+        </member>
+        <member name="T:Common.Patterns.QueueTimerProcessor`1.EventProcessingTypes">
+            <summary>
+            A set of Flags to determine when the OnProcessMessageEvent is called!
+            
+            NoProcessing -- OnProcessMessageEvent NOT called
+            ProcessAfterOnPlaceTimer -- OnProcessMessageEvent is executed After OnPlaceTimeMessageOnQueueEvent
+            ProcessBeforeOnPlaceTimer (Default) -- OnProcessMessageEvent is executed Before OnPlaceTimeMessageOnQueueEvent
+            IfPlacedOnTimerQueueSkipProcessing -- ORed with ProcessAfterOnPlaceTimer and if the item is placed on the Timer Queue (via OnPlaceTimeMessageOnQueueEvent event), the OnProcessMessageEvent event is suppressed.
+            </summary>
+        </member>
+        <member name="P:Common.Patterns.QueueTimerProcessor`1.MessageExpireTimer">
+            <summary>
+            Number of Seconds before a Message becomes Expired (Stale).
+            When this occurs the OnTimerMessageExpiredEvent is fired.
+            </summary>
+        </member>
+        <member name="P:Common.Patterns.QueueTimerProcessor`1.AllowTimingOfMessages">
+            <summary>
+            If true all messages can be enqueued on the timer queue from the
+            Processor Queue (via the Enqueue method; this option is ignored when EnqueueInToTimer method is called)
+            depending on a boolean value returned from the OnPlaceTimeMessageOnQueueEvent (If this event is not defined, the default is to place it on the timer queue).
+            </summary>
+        </member>
+        <member name="P:Common.Patterns.QueueTimerProcessor`1.EventProcessing">
+            <summary>
+            Flags used to determine how the OnProcessMessageEvent is fired.
+            </summary>
+        </member>
+        <member name="M:Common.Patterns.QueueTimerProcessor`1.EnqueueInToTimer(`0)">
+            <summary>
+            If called directly the item it directly placed on the Timer Queue bypassing the Queue Processor Queue (when the Enqueue method is called)
+            Note that the value of AllowTimingOfMessages property is ignored when using this method!
+            </summary>
+            <param name="messageToSend">Item to place on the Timer Queue</param>
+            <returns>True for successful</returns>
+        </member>
+        <member name="P:Common.Patterns.QueueTimerProcessor`1.TimerMessageExpiredEventArgs.TimeOutValue">
+            <summary>
+            Number of Seconds the Message has been expired
+            </summary>
+        </member>
+        <member name="E:Common.Patterns.QueueTimerProcessor`1.OnTimerMessageExpiredEvent">
+            <summary>
+            Fires when the message becomes stale (time frame expired based on when it was placed on the timer queue).
+            Warning: The message is dequeued from the timer and can be enqueued with a new timestamp if Enqueue method of the TimerMessageEventArgs class 
+            is called!
+            </summary>
+        </member>
+        <member name="E:Common.Patterns.QueueTimerProcessor`1.OnProcessTimeMessageEvent">
+            <summary>
+            Fires when the message is placed on the Timer Queue. At that time the consumer of the event can decide if
+            they wish to remove the message on the timer queue (via the Dequeue method of the TimerMessageEventArgs class) or
+            keep the message on the queue (which is the default). If kept on the Timer Queue the message is then checked to determine if it
+            has expired (stale). Note that the message MAY have already been expired when this event is called.
+            </summary>
+        </member>
+        <member name="E:Common.Patterns.QueueTimerProcessor`1.OnProcessTimeLockMessageEvent">
+            <summary>
+            Same as OnProcessTimeMessageEvent, except that the message is Locked (via monitor).
+            </summary>
+        </member>
+        <member name="E:Common.Patterns.QueueTimerProcessor`1.OnPlaceTimeMessageOnQueueEvent">
+            <summary>
+            This event is only called if the Enqueue method is used to place the message onto the Processor Queue (not called when EnqueueInToTimer is used).
+            
+            This event is invoked when the message is removed from the Processor Queue and is used to determine if the message should be placed on the Timer Queue
+            via the queueMessageToTimerQueue out argument.
+            
+            HACK: Note that the Dequeue method of the TimerMessageEventArgs class can be called to indicate that the OnProcessMessageEvent should be suppressed (only valid for ProcessAfterOnPlaceTimer option)!
+            </summary>
+        </member>
+        <member name="M:Common.Patterns.QueueTimerProcessor`1.InvokeExpiredTimerEvent(Common.Patterns.QueueTimerProcessor{`0}.TimerMessage,System.Int32)">
+            <summary>
+            
+            </summary>
+            <param name="staleMessage"></param>
+            <param name="timespanSeconds"></param>
+            <returns>Returns true to indicate that the message should be re-enqueued</returns>
+        </member>
+    </members>
+</doc>
