@@ -27,9 +27,38 @@ namespace DSEDiagnosticToDataTable
             this.SessionId = sessionId;
         }
 
+        public DataTableLoad(DSEDiagnosticLibrary.Cluster cluster,
+                                CancellationTokenSource cancellationSource,
+                                IDataTable referenceDT,
+                                IAsyncResult referenceWaitHandler = null,
+                                Guid? sessionId = null)
+        {
+            this.Cluster = cluster;
+            this.Table = this.CreateInitializationTable();
+
+            if (cancellationSource == null)
+            {
+                this.CancellationToken = new CancellationToken();
+            }
+            else
+            {
+                this.CancellationToken = cancellationSource.Token;
+            }
+            this.ReferenceDataTable = referenceDT;
+            this.ReferenceDataTableWaitHandler = referenceWaitHandler;
+            this.SessionId = sessionId;
+        }
+
+
         public Guid? SessionId { get; }
         public DSEDiagnosticLibrary.Cluster Cluster { get; }
+
+        public IDataTable ReferenceDataTable { get; set; }
+
+        public IAsyncResult ReferenceDataTableWaitHandler { get; set; }
+
         public DataTable Table { get; }
+        
         public CancellationToken CancellationToken { get; }
 
         public override string ToString()
@@ -37,14 +66,16 @@ namespace DSEDiagnosticToDataTable
             return string.Format("{0}<Rows={1}>", this.Table?.TableName ?? "null", this.Table?.Rows.Count ?? 0);
         }
 
-        abstract public DataTable CreateInitializationTable();
-
+        abstract public DataTable CreateInitializationTable();       
+        
         /// <summary>
-        ///
+        /// Loads data table with information from the cluster instance
         /// </summary>
-        /// <returns></returns>
+        /// <remarks>
+        /// Note that if a DataSet is actually returned, this will return null and LoadDataSet is required to be called! 
+        /// </remarks>
+        /// <returns>Loaded data table or null</returns>
         /// <exception cref="Exception">Should re-thrown any exception except for OperationCanceledException</exception>
-        abstract public DataTable LoadTable();
-
-        }
+        abstract public DataTable LoadTable();        
+    }
 }
