@@ -197,10 +197,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\SharpZipLib\src\ICSharpCode.SharpZLib.csproj">
-      <Project>{0e7413ff-eb9e-4714-acf2-be3a6a7b2ffd}</Project>
-      <Name>ICSharpCode.SharpZLib</Name>
-    </ProjectReference>
     <ProjectReference Include="..\DSEDiagnosticAnalytics\DSEDiagnosticAnalytics.csproj">
       <Project>{17a460cf-1048-4851-844a-987a4a3762f8}</Project>
       <Name>DSEDiagnosticAnalytics</Name>
@@ -228,6 +224,10 @@
     <ProjectReference Include="..\DSEDiagnosticTaskSchedulers\DSEDiagnosticTaskSchedulers.csproj">
       <Project>{9a2c0e86-0475-4a74-b653-88ad1644e1c0}</Project>
       <Name>DSEDiagnosticTaskSchedulers</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SharpZipLib\src\ICSharpCode.SharpZLib.csproj">
+      <Project>{0e7413ff-eb9e-4714-acf2-be3a6a7b2ffd}</Project>
+      <Name>ICSharpCode.SharpZLib</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />
