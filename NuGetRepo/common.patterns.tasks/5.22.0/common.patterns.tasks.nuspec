@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>Common.Patterns.Tasks</id>
+    <version>5.22.0</version>
+    <authors>Richard Andersen</authors>
+    <owners>Richard Andersen</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <licenseUrl>https://github.com/richardandersen/CommonPatterns/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/richardandersen/CommonPatterns.git</projectUrl>
+    <description>Package Description</description>
+    <copyright>2009 Andersen &amp; Associates, LLC</copyright>
+    <repository url="https://github.com/richardandersen/CommonPatterns/tree/master/Core/Common.Patterns.Tasks" />
+    <dependencies>
+      <group targetFramework=".NETCoreApp2.2" />
+    </dependencies>
+  </metadata>
+</package>
