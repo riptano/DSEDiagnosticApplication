@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Common.Patterns.Shared</name>
+    </assembly>
+    <members>
+        <member name="P:Common.Patterns.Shared.IDisposableProperty.IsDisposed">
+            <summary>
+            True if the Object has been disposed
+            </summary>
+        </member>
+        <member name="E:Common.Patterns.Shared.IDisposableEvent.Disposed">
+            <summary>
+            Should be called the the Dispose Method to indicate that the object was Disposed
+            </summary>
+        </member>
+        <member name="E:Common.Patterns.Shared.IDisposableEvent`1.Disposed">
+            <summary>
+            Should be called the the Dispose Method to indicate that the object was Disposed
+            </summary>
+        </member>
+    </members>
+</doc>

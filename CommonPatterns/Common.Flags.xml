@@ -1,0 +1,448 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Common.Flags</name>
+    </assembly>
+    <members>
+        <member name="T:Common.Linq.ExpressionUtil">
+            <summary>
+            General purpose Expression utilities
+            </summary>
+        </member>
+        <member name="M:Common.Linq.ExpressionUtil.CreateExpression``2(System.Func{System.Linq.Expressions.Expression,System.Linq.Expressions.UnaryExpression})">
+            <summary>
+            Create a function delegate representing a unary operation
+            </summary>
+            <typeparam name="TArg1">The parameter type</typeparam>
+            <typeparam name="TResult">The return type</typeparam>
+            <param name="body">Body factory</param>
+            <returns>Compiled function delegate</returns>
+        </member>
+        <member name="M:Common.Linq.ExpressionUtil.CreateExpression``3(System.Func{System.Linq.Expressions.Expression,System.Linq.Expressions.Expression,System.Linq.Expressions.BinaryExpression})">
+            <summary>
+            Create a function delegate representing a binary operation
+            </summary>
+            <typeparam name="TArg1">The first parameter type</typeparam>
+            <typeparam name="TArg2">The second parameter type</typeparam>
+            <typeparam name="TResult">The return type</typeparam>
+            <param name="body">Body factory</param>
+            <returns>Compiled function delegate</returns>
+        </member>
+        <member name="M:Common.Linq.ExpressionUtil.CreateExpression``3(System.Func{System.Linq.Expressions.Expression,System.Linq.Expressions.Expression,System.Linq.Expressions.BinaryExpression},System.Boolean)">
+            <summary>
+            Create a function delegate representing a binary operation
+            </summary>
+            <param name="castArgsToResultOnFailure">
+            If no matching operation is possible, attempt to convert
+            TArg1 and TArg2 to TResult for a match? For example, there is no
+            "decimal operator /(decimal, int)", but by converting TArg2 (int) to
+            TResult (decimal) a match is found.
+            </param>
+            <typeparam name="TArg1">The first parameter type</typeparam>
+            <typeparam name="TArg2">The second parameter type</typeparam>
+            <typeparam name="TResult">The return type</typeparam>
+            <param name="body">Body factory</param>
+            <returns>Compiled function delegate</returns>
+        </member>
+        <member name="M:Common.Generics.Flags.HasFlag``1(``0,``0)">
+            <summary>
+            Returns true if testFlag part of value
+            </summary>
+        </member>
+        <member name="M:Common.Generics.Flags.OperatorSubtract``1(``0,``0)">
+            <summary>
+            Removes rV from Lv
+            </summary>
+        </member>
+        <member name="M:Common.Generics.Flags.OperatorAdd``1(``0,``0)">
+            <summary>
+            Adds rV to lv
+            </summary>
+        </member>
+        <member name="M:Common.Generics.Flags.OperatorOr``1(``0,``0)">
+            <summary>
+            Ors (|) the flags together
+            </summary>
+        </member>
+        <member name="M:Common.Generics.Flags.OperatorAnd``1(``0,``0)">
+            <summary>
+            Ands the flags together
+            </summary>
+        </member>
+        <member name="M:Common.Generics.Flags.OperatorXor``1(``0,``0)">
+            <summary>
+            Xors (^) the flags together
+            </summary>
+        </member>
+        <member name="M:Common.Generics.Flags.OperatorEqual``1(``0,``0)">
+            <summary>
+            Compares (==) the flags or rV is a part of Lv
+            </summary>
+        </member>
+        <member name="M:Common.Generics.Flags.OperatorNotEqual``1(``0,``0)">
+            <summary>
+            Not Equal (!=) ensures that rV is not equal to or a part of lV
+            </summary>
+        </member>
+        <member name="M:Common.Generics.Flags.ParseAsEnum``1(System.String,System.Boolean)">
+            <summary>
+            Parses the string into a Enum Type of T
+            </summary>
+        </member>
+        <member name="M:Common.Generics.Flags.Parse``1(System.String)">
+            <summary>
+            Parses the string into a Enum Type of T
+            </summary>
+        </member>
+        <member name="M:Common.Generics.Flags.TryParseAsEnum``1(System.String,System.Boolean)">
+            <summary>
+            Parses the string into a Enum Type of T
+            </summary>
+        </member>
+        <member name="M:Common.Generics.Flags.GetValues``1">
+            <summary>
+            Returns a list of Enum values of T
+            </summary>
+        </member>
+        <member name="T:Common.Generics.Operator">
+            <summary>
+            The Operator class provides easy access to the standard operators
+            (addition, etc) for generic types, using type inference to simplify
+            usage.
+            </summary>
+            <seealso cref="T:Common.Generics.Operator`1"/>
+            <seealso cref="T:Common.Generics.Operator`2"/>
+        </member>
+        <member name="M:Common.Generics.Operator.HasValue``1(``0)">
+            <summary>
+            Indicates if the supplied value is non-null,
+            for reference-types or Nullable&lt;T&gt;
+            </summary>
+            <returns>True for non-null values, else false</returns>
+        </member>
+        <member name="M:Common.Generics.Operator.AddIfNotNull``1(``0@,``0)">
+            <summary>
+            Increments the accumulator only
+            if the value is non-null. If the accumulator
+            is null, then the accumulator is given the new
+            value; otherwise the accumulator and value
+            are added.
+            </summary>
+            <param name="accumulator">The current total to be incremented (can be null)</param>
+            <param name="value">The value to be tested and added to the accumulator</param>
+            <returns>True if the value is non-null, else false - i.e.
+            "has the accumulator been updated?"</returns>
+        </member>
+        <member name="M:Common.Generics.Operator.Negate``1(``0)">
+            <summary>
+            Evaluates unary negation (-) for the given type; this will throw
+            an InvalidOperationException if the type T does not provide this operator, or for
+            Nullable&lt;TInner&gt; if TInner does not provide this operator.
+            </summary>
+        </member>
+        <member name="M:Common.Generics.Operator.Not``1(``0)">
+            <summary>
+            Evaluates bitwise not (~) for the given type; this will throw
+            an InvalidOperationException if the type T does not provide this operator, or for
+            Nullable&lt;TInner&gt; if TInner does not provide this operator.
+            </summary>
+        </member>
+        <member name="M:Common.Generics.Operator.Or``1(``0,``0)">
+            <summary>
+            Evaluates bitwise or (|) for the given type; this will throw
+            an InvalidOperationException if the type T does not provide this operator, or for
+            Nullable&lt;TInner&gt; if TInner does not provide this operator.
+            </summary>
+        </member>
+        <member name="M:Common.Generics.Operator.And``1(``0,``0)">
+            <summary>
+            Evaluates bitwise and (&amp;) for the given type; this will throw
+            an InvalidOperationException if the type T does not provide this operator, or for
+            Nullable&lt;TInner&gt; if TInner does not provide this operator.
+            </summary>
+        </member>
+        <member name="M:Common.Generics.Operator.Xor``1(``0,``0)">
+            <summary>
+            Evaluates bitwise xor (^) for the given type; this will throw
+            an InvalidOperationException if the type T does not provide this operator, or for
+            Nullable&lt;TInner&gt; if TInner does not provide this operator.
+            </summary>
+        </member>
+        <member name="M:Common.Generics.Operator.Convert``2(``0)">
+            <summary>
+            Performs a conversion between the given types; this will throw
+            an InvalidOperationException if the type T does not provide a suitable cast, or for
+            Nullable&lt;TInner&gt; if TInner does not provide this cast.
+            </summary>
+        </member>
+        <member name="M:Common.Generics.Operator.Add``1(``0,``0)">
+            <summary>
+            Evaluates binary addition (+) for the given type; this will throw
+            an InvalidOperationException if the type T does not provide this operator, or for
+            Nullable&lt;TInner&gt; if TInner does not provide this operator.
+            </summary>        
+        </member>
+        <member name="M:Common.Generics.Operator.AddAlternative``2(``0,``1)">
+            <summary>
+            Evaluates binary addition (+) for the given type(s); this will throw
+            an InvalidOperationException if the type T does not provide this operator, or for
+            Nullable&lt;TInner&gt; if TInner does not provide this operator.
+            </summary>
+        </member>
+        <member name="M:Common.Generics.Operator.Subtract``1(``0,``0)">
+            <summary>
+            Evaluates binary subtraction (-) for the given type; this will throw
+            an InvalidOperationException if the type T does not provide this operator, or for
+            Nullable&lt;TInner&gt; if TInner does not provide this operator.
+            </summary>
+        </member>
+        <member name="M:Common.Generics.Operator.SubtractAlternative``2(``0,``1)">
+            <summary>
+            Evaluates binary subtraction(-) for the given type(s); this will throw
+            an InvalidOperationException if the type T does not provide this operator, or for
+            Nullable&lt;TInner&gt; if TInner does not provide this operator.
+            </summary>
+        </member>
+        <member name="M:Common.Generics.Operator.Multiply``1(``0,``0)">
+            <summary>
+            Evaluates binary multiplication (*) for the given type; this will throw
+            an InvalidOperationException if the type T does not provide this operator, or for
+            Nullable&lt;TInner&gt; if TInner does not provide this operator.
+            </summary>
+        </member>
+        <member name="M:Common.Generics.Operator.MultiplyAlternative``2(``0,``1)">
+            <summary>
+            Evaluates binary multiplication (*) for the given type(s); this will throw
+            an InvalidOperationException if the type T does not provide this operator, or for
+            Nullable&lt;TInner&gt; if TInner does not provide this operator.
+            </summary>
+        </member>
+        <member name="M:Common.Generics.Operator.Divide``1(``0,``0)">
+            <summary>
+            Evaluates binary division (/) for the given type; this will throw
+            an InvalidOperationException if the type T does not provide this operator, or for
+            Nullable&lt;TInner&gt; if TInner does not provide this operator.
+            </summary>
+        </member>
+        <member name="M:Common.Generics.Operator.DivideAlternative``2(``0,``1)">
+            <summary>
+            Evaluates binary division (/) for the given type(s); this will throw
+            an InvalidOperationException if the type T does not provide this operator, or for
+            Nullable&lt;TInner&gt; if TInner does not provide this operator.
+            </summary>
+        </member>
+        <member name="M:Common.Generics.Operator.Equal``1(``0,``0)">
+            <summary>
+            Evaluates binary equality (==) for the given type; this will throw
+            an InvalidOperationException if the type T does not provide this operator, or for
+            Nullable&lt;TInner&gt; if TInner does not provide this operator.
+            </summary>
+        </member>
+        <member name="M:Common.Generics.Operator.NotEqual``1(``0,``0)">
+            <summary>
+            Evaluates binary inequality (!=) for the given type; this will throw
+            an InvalidOperationException if the type T does not provide this operator, or for
+            Nullable&lt;TInner&gt; if TInner does not provide this operator.
+            </summary>
+        </member>
+        <member name="M:Common.Generics.Operator.GreaterThan``1(``0,``0)">
+            <summary>
+            Evaluates binary greater-than (&gt;) for the given type; this will throw
+            an InvalidOperationException if the type T does not provide this operator, or for
+            Nullable&lt;TInner&gt; if TInner does not provide this operator.
+            </summary>
+        </member>
+        <member name="M:Common.Generics.Operator.LessThan``1(``0,``0)">
+            <summary>
+            Evaluates binary less-than (&lt;) for the given type; this will throw
+            an InvalidOperationException if the type T does not provide this operator, or for
+            Nullable&lt;TInner&gt; if TInner does not provide this operator.
+            </summary>
+        </member>
+        <member name="M:Common.Generics.Operator.GreaterThanOrEqual``1(``0,``0)">
+            <summary>
+            Evaluates binary greater-than-on-eqauls (&gt;=) for the given type; this will throw
+            an InvalidOperationException if the type T does not provide this operator, or for
+            Nullable&lt;TInner&gt; if TInner does not provide this operator.
+            </summary>
+        </member>
+        <member name="M:Common.Generics.Operator.LessThanOrEqual``1(``0,``0)">
+            <summary>
+            Evaluates binary less-than-or-equal (&lt;=) for the given type; this will throw
+            an InvalidOperationException if the type T does not provide this operator, or for
+            Nullable&lt;TInner&gt; if TInner does not provide this operator.
+            </summary>
+        </member>
+        <member name="M:Common.Generics.Operator.DivideInt32``1(``0,System.Int32)">
+            <summary>
+            Evaluates integer division (/) for the given type; this will throw
+            an InvalidOperationException if the type T does not provide this operator, or for
+            Nullable&lt;TInner&gt; if TInner does not provide this operator.
+            </summary><remarks>
+            This operation is particularly useful for computing averages and
+            similar aggregates.
+            </remarks>
+        </member>
+        <member name="T:Common.Generics.Operator`2">
+            <summary>
+            Provides standard operators (such as addition) that operate over operands of
+            different types. For operators, the return type is assumed to match the first
+            operand.
+            </summary>
+            <seealso cref="T:Common.Generics.Operator`1"/>
+            <seealso cref="T:Common.Generics.Operator"/>
+        </member>
+        <member name="P:Common.Generics.Operator`2.Convert">
+            <summary>
+            Returns a delegate to convert a value between two types; this delegate will throw
+            an InvalidOperationException if the type T does not provide a suitable cast, or for
+            Nullable&lt;TInner&gt; if TInner does not provide this cast.
+            </summary>
+        </member>
+        <member name="P:Common.Generics.Operator`2.Add">
+            <summary>
+            Returns a delegate to evaluate binary addition (+) for the given types; this delegate will throw
+            an InvalidOperationException if the type T does not provide this operator, or for
+            Nullable&lt;TInner&gt; if TInner does not provide this operator.
+            </summary>
+        </member>
+        <member name="P:Common.Generics.Operator`2.Subtract">
+            <summary>
+            Returns a delegate to evaluate binary subtraction (-) for the given types; this delegate will throw
+            an InvalidOperationException if the type T does not provide this operator, or for
+            Nullable&lt;TInner&gt; if TInner does not provide this operator.
+            </summary>
+        </member>
+        <member name="P:Common.Generics.Operator`2.Multiply">
+            <summary>
+            Returns a delegate to evaluate binary multiplication (*) for the given types; this delegate will throw
+            an InvalidOperationException if the type T does not provide this operator, or for
+            Nullable&lt;TInner&gt; if TInner does not provide this operator.
+            </summary>
+        </member>
+        <member name="P:Common.Generics.Operator`2.Divide">
+            <summary>
+            Returns a delegate to evaluate binary division (/) for the given types; this delegate will throw
+            an InvalidOperationException if the type T does not provide this operator, or for
+            Nullable&lt;TInner&gt; if TInner does not provide this operator.
+            </summary>
+        </member>
+        <member name="T:Common.Generics.Operator`1">
+            <summary>
+            Provides standard operators (such as addition) over a single type
+            </summary>
+            <seealso cref="T:Common.Generics.Operator"/>
+            <seealso cref="T:Common.Generics.Operator`2"/>
+        </member>
+        <member name="P:Common.Generics.Operator`1.Zero">
+            <summary>
+            Returns the zero value for value-types (even full Nullable&lt;TInner&gt;) - or null for reference types
+            </summary>
+        </member>
+        <member name="P:Common.Generics.Operator`1.Negate">
+            <summary>
+            Returns a delegate to evaluate unary negation (-) for the given type; this delegate will throw
+            an InvalidOperationException if the type T does not provide this operator, or for
+            Nullable&lt;TInner&gt; if TInner does not provide this operator.
+            </summary>
+        </member>
+        <member name="P:Common.Generics.Operator`1.Not">
+            <summary>
+            Returns a delegate to evaluate bitwise not (~) for the given type; this delegate will throw
+            an InvalidOperationException if the type T does not provide this operator, or for
+            Nullable&lt;TInner&gt; if TInner does not provide this operator.
+            </summary>
+        </member>
+        <member name="P:Common.Generics.Operator`1.Or">
+            <summary>
+            Returns a delegate to evaluate bitwise or (|) for the given type; this delegate will throw
+            an InvalidOperationException if the type T does not provide this operator, or for
+            Nullable&lt;TInner&gt; if TInner does not provide this operator.
+            </summary>
+        </member>
+        <member name="P:Common.Generics.Operator`1.And">
+            <summary>
+            Returns a delegate to evaluate bitwise and (&amp;) for the given type; this delegate will throw
+            an InvalidOperationException if the type T does not provide this operator, or for
+            Nullable&lt;TInner&gt; if TInner does not provide this operator.
+            </summary>
+        </member>
+        <member name="P:Common.Generics.Operator`1.Xor">
+            <summary>
+            Returns a delegate to evaluate bitwise xor (^) for the given type; this delegate will throw
+            an InvalidOperationException if the type T does not provide this operator, or for
+            Nullable&lt;TInner&gt; if TInner does not provide this operator.
+            </summary>
+        </member>
+        <member name="P:Common.Generics.Operator`1.Add">
+            <summary>
+            Returns a delegate to evaluate binary addition (+) for the given type; this delegate will throw
+            an InvalidOperationException if the type T does not provide this operator, or for
+            Nullable&lt;TInner&gt; if TInner does not provide this operator.
+            </summary>
+        </member>
+        <member name="P:Common.Generics.Operator`1.Subtract">
+            <summary>
+            Returns a delegate to evaluate binary subtraction (-) for the given type; this delegate will throw
+            an InvalidOperationException if the type T does not provide this operator, or for
+            Nullable&lt;TInner&gt; if TInner does not provide this operator.
+            </summary>
+        </member>
+        <member name="P:Common.Generics.Operator`1.Multiply">
+            <summary>
+            Returns a delegate to evaluate binary multiplication (*) for the given type; this delegate will throw
+            an InvalidOperationException if the type T does not provide this operator, or for
+            Nullable&lt;TInner&gt; if TInner does not provide this operator.
+            </summary>
+        </member>
+        <member name="P:Common.Generics.Operator`1.Divide">
+            <summary>
+            Returns a delegate to evaluate binary division (/) for the given type; this delegate will throw
+            an InvalidOperationException if the type T does not provide this operator, or for
+            Nullable&lt;TInner&gt; if TInner does not provide this operator.
+            </summary>
+        </member>
+        <member name="P:Common.Generics.Operator`1.Equal">
+            <summary>
+            Returns a delegate to evaluate binary equality (==) for the given type; this delegate will throw
+            an InvalidOperationException if the type T does not provide this operator, or for
+            Nullable&lt;TInner&gt; if TInner does not provide this operator.
+            </summary>
+        </member>
+        <member name="P:Common.Generics.Operator`1.NotEqual">
+            <summary>
+            Returns a delegate to evaluate binary inequality (!=) for the given type; this delegate will throw
+            an InvalidOperationException if the type T does not provide this operator, or for
+            Nullable&lt;TInner&gt; if TInner does not provide this operator.
+            </summary>
+        </member>
+        <member name="P:Common.Generics.Operator`1.GreaterThan">
+            <summary>
+            Returns a delegate to evaluate binary greater-then (&gt;) for the given type; this delegate will throw
+            an InvalidOperationException if the type T does not provide this operator, or for
+            Nullable&lt;TInner&gt; if TInner does not provide this operator.
+            </summary>
+        </member>
+        <member name="P:Common.Generics.Operator`1.LessThan">
+            <summary>
+            Returns a delegate to evaluate binary less-than (&lt;) for the given type; this delegate will throw
+            an InvalidOperationException if the type T does not provide this operator, or for
+            Nullable&lt;TInner&gt; if TInner does not provide this operator.
+            </summary>
+        </member>
+        <member name="P:Common.Generics.Operator`1.GreaterThanOrEqual">
+            <summary>
+            Returns a delegate to evaluate binary greater-than-or-equal (&gt;=) for the given type; this delegate will throw
+            an InvalidOperationException if the type T does not provide this operator, or for
+            Nullable&lt;TInner&gt; if TInner does not provide this operator.
+            </summary>
+        </member>
+        <member name="P:Common.Generics.Operator`1.LessThanOrEqual">
+            <summary>
+            Returns a delegate to evaluate binary less-than-or-equal (&lt;=) for the given type; this delegate will throw
+            an InvalidOperationException if the type T does not provide this operator, or for
+            Nullable&lt;TInner&gt; if TInner does not provide this operator.
+            </summary>
+        </member>
+    </members>
+</doc>

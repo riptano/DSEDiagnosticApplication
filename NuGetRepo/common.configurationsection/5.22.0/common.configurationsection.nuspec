@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <id>Common.ConfigurationSection</id>
+    <version>5.22.0</version>
+    <authors>Richard Andersen</authors>
+    <owners>Richard Andersen</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <licenseUrl>https://github.com/richardandersen/CommonPatterns/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/richardandersen/CommonPatterns.git</projectUrl>
+    <description>Package Description</description>
+    <copyright>2009 Andersen &amp; Associates, LLC</copyright>
+    <repository url="https://github.com/richardandersen/CommonPatterns/tree/master/Core/Common.ConfigurationSection" />
+    <dependencies>
+      <group targetFramework=".NETCoreApp2.2">
+        <dependency id="Microsoft.Extensions.PlatformAbstractions" version="1.1.0" exclude="Build,Analyzers" />
+        <dependency id="System.Configuration.ConfigurationManager" version="4.6.0" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
+  </metadata>
+</package>

@@ -1,0 +1,82 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Common.Patterns.Singleton</name>
+    </assembly>
+    <members>
+        <member name="T:Common.Patterns.Singleton.Allocator`1">
+            <summary>
+            The allocator is the object that is able to create the real instance of the Singleton and the one that handles the creation policy.
+            </summary>
+            <remarks>
+            Allocators are special objects that must have default parameterless constructors and the assembly that contains them must have private reflection security permissions.<br/>
+            For more information about Allocator Policies and Generic Singletons please refer to the "Modern C++ Design: Generic Programming and Design Patterns Applied" from Andrei Alexandrescu.
+            </remarks>
+        </member>
+        <member name="M:Common.Patterns.Singleton.Allocator`1.#ctor">
+            <summary>
+            The parameterless protected Constructor.
+            </summary>
+        </member>
+        <member name="P:Common.Patterns.Singleton.Allocator`1.Instance">
+            <summary>
+            The property returns the only instance of the Singleton Object in question.
+            </summary>
+            <remarks>This property implementation must enforce the Single Object property of Singletons throwing an exception.</remarks>
+        </member>
+        <member name="M:Common.Patterns.Singleton.Allocator`1.Dispose">
+            <summary>
+            The implementation of the IDisposable interface.
+            </summary>
+        </member>
+        <member name="M:Common.Patterns.Singleton.FrameworkLazyAllocator`2.#ctor">
+            <summary>
+            The constructor of the LazyAllocator
+            </summary>
+        </member>
+        <member name="P:Common.Patterns.Singleton.FrameworkLazyAllocator`2.Instance">
+            <summary>
+            The instance property creates the singleton object upon the first request.
+            </summary>
+            <remarks>The allocator ensure the thread safety using a lock and it enforces the Singleton uniqueness property.</remarks>
+        </member>
+        <member name="P:Common.Patterns.Singleton.FrameworkStaticAllocator`2.Instance">
+            <summary>
+            The static allocator Instance property returns the instance created on class loading.
+            </summary>
+            <remarks>This means that the singleton is instantiated at the moment in which a class has a reference to that type even if it never calls the Instance method.</remarks>
+        </member>
+        <member name="M:Common.Patterns.Singleton.LazyAllocator`1.#ctor">
+            <summary>
+            The constructor of the LazyAllocator
+            </summary>
+        </member>
+        <member name="P:Common.Patterns.Singleton.LazyAllocator`1.Instance">
+            <summary>
+            The instance property creates the singleton object upon the first request.
+            </summary>
+            <remarks>The allocator ensure the thread safety using a lock and it enforces the Singleton uniqueness property.</remarks>
+        </member>
+        <member name="M:Common.Patterns.Singleton.Singleton`2.CreateReference">
+            <summary>
+            Used to make a reference to the Singleton, since the compiler will toss-away any unreferenced code...
+            </summary>
+        </member>
+        <member name="M:Common.Patterns.Singleton.Singleton`2.#cctor">
+            <summary>
+            The protected parameterless constructor used to not allow the creation of multiple Singleton classes. This property must be enforced by the singleton users.
+            </summary>
+        </member>
+        <member name="M:Common.Patterns.Singleton.Singleton`2.Dispose">
+            <summary>
+            The standard Dispose pattern.
+            </summary>
+        </member>
+        <member name="P:Common.Patterns.Singleton.StaticAllocator`1.Instance">
+            <summary>
+            The static allocator Instance property returns the instance created on class loading.
+            </summary>
+            <remarks>This means that the singleton is instantiated at the moment in which a class has a reference to that type even if it never calls the Instance method.</remarks>
+        </member>
+    </members>
+</doc>

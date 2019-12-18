@@ -1,0 +1,283 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Common.Patterns.Tasks</name>
+    </assembly>
+    <members>
+        <member name="M:Common.Patterns.Tasks.AggregateExceptionExtensions.Handle(System.AggregateException,System.Func{System.Exception,System.Boolean},System.Boolean)">
+            <summary>Invokes a handler on each Exception contained by this AggregateException.</summary> 
+            <param name="aggregateException">The AggregateException.</param> 
+            <param name="predicate"> 
+            The predicate to execute for each exception. The predicate accepts as an argument the Exception 
+            to be processed and returns a Boolean to indicate whether the exception was handled. 
+            </param> 
+            <param name="leaveStructureIntact"> 
+            Whether the rethrown AggregateException should maintain the same hierarchy as the original. 
+            </param> 
+        </member>
+        <member name="M:Common.Patterns.Tasks.CancellationTokenExtensions.CancelAndThrow(System.Threading.CancellationTokenSource)">
+            <summary>Cancels a CancellationTokenSource and throws a corresponding OperationCanceledException.</summary> 
+            <param name="source">The source to be canceled.</param> 
+        </member>
+        <member name="M:Common.Patterns.Tasks.CancellationTokenExtensions.CreateLinkedSource(System.Threading.CancellationToken)">
+            <summary> 
+            Creates a CancellationTokenSource that will be canceled when the specified token has cancellation requested. 
+            </summary> 
+            <param name="token">The token.</param> 
+            <returns>The created CancellationTokenSource.</returns> 
+        </member>
+        <member name="M:Common.Patterns.Tasks.CompletionExtensions.SetFromTask``1(System.Threading.Tasks.TaskCompletionSource{``0},System.Threading.Tasks.Task)">
+            <summary>Transfers the result of a Task to the TaskCompletionSource.</summary>
+            <typeparam name="TResult">Specifies the type of the result.</typeparam>
+            <param name="resultSetter">The TaskCompletionSource.</param>
+            <param name="task">The task whose completion results should be transfered.</param>
+        </member>
+        <member name="M:Common.Patterns.Tasks.CompletionExtensions.SetFromTask``1(System.Threading.Tasks.TaskCompletionSource{``0},System.Threading.Tasks.Task{``0})">
+            <summary>Transfers the result of a Task to the TaskCompletionSource.</summary>
+            <typeparam name="TResult">Specifies the type of the result.</typeparam>
+            <param name="resultSetter">The TaskCompletionSource.</param>
+            <param name="task">The task whose completion results should be transfered.</param>
+        </member>
+        <member name="M:Common.Patterns.Tasks.CompletionExtensions.TrySetFromTask``1(System.Threading.Tasks.TaskCompletionSource{``0},System.Threading.Tasks.Task)">
+            <summary>Attempts to transfer the result of a Task to the TaskCompletionSource.</summary>
+            <typeparam name="TResult">Specifies the type of the result.</typeparam>
+            <param name="resultSetter">The TaskCompletionSource.</param>
+            <param name="task">The task whose completion results should be transfered.</param>
+            <returns>Whether the transfer could be completed.</returns>
+        </member>
+        <member name="M:Common.Patterns.Tasks.CompletionExtensions.TrySetFromTask``1(System.Threading.Tasks.TaskCompletionSource{``0},System.Threading.Tasks.Task{``0})">
+            <summary>Attempts to transfer the result of a Task to the TaskCompletionSource.</summary>
+            <typeparam name="TResult">Specifies the type of the result.</typeparam>
+            <param name="resultSetter">The TaskCompletionSource.</param>
+            <param name="task">The task whose completion results should be transfered.</param>
+            <returns>Whether the transfer could be completed.</returns>
+        </member>
+        <member name="T:Common.Patterns.Tasks.LinqExtensions.OneElementGrouping`2">
+            <summary>Represents a grouping of one element.</summary> 
+            <typeparam name="TKey">The type of the key for the element.</typeparam> 
+            <typeparam name="TElement">The type of the element.</typeparam> 
+        </member>
+        <member name="T:Common.Patterns.Tasks.ParallelLinqOptions">
+            <summary>Provides a grouping for common Parallel LINQ options.</summary> 
+        </member>
+        <member name="P:Common.Patterns.Tasks.ParallelLinqOptions.ExecutionMode">
+            <summary>Gets or sets the execution mode.</summary> 
+        </member>
+        <member name="P:Common.Patterns.Tasks.ParallelLinqOptions.MergeOptions">
+            <summary>Gets or sets the merge options.</summary> 
+        </member>
+        <member name="P:Common.Patterns.Tasks.ParallelLinqOptions.Ordered">
+            <summary>Gets or sets whether the query should retain ordering.</summary> 
+        </member>
+        <member name="M:Common.Patterns.Tasks.PLinqExtensions.ShallowClone(System.Threading.Tasks.ParallelOptions)">
+            <summary>Copies a ParallelOptions instance to a shallow clone.</summary> 
+            <param name="options">The options to be cloned.</param> 
+            <returns>The shallow clone.</returns> 
+        </member>
+        <member name="T:Common.Patterns.Tasks.PLinqExtensions.DescendingDefaultComparer`1">
+            <summary>A comparer that comparers using the inverse of the default comparer.</summary> 
+            <typeparam name="T">Specifies the type being compared.</typeparam> 
+        </member>
+        <member name="M:Common.Patterns.Tasks.PLinqExtensions.MapReduce``4(System.Linq.ParallelQuery{``0},System.Func{``0,``1},System.Func{``1,``2},System.Func{System.Linq.IGrouping{``2,``1},``3})">
+            <summary>Implements a map-reduce operation.</summary> 
+            <typeparam name="TSource">Specifies the type of the source elements.</typeparam> 
+            <typeparam name="TMapped">Specifies the type of the mapped elements.</typeparam> 
+            <typeparam name="TKey">Specifies the type of the element keys.</typeparam> 
+            <typeparam name="TResult">Specifies the type of the results.</typeparam> 
+            <param name="source">The source elements.</param> 
+            <param name="map">A function used to get the target data from a source element.</param> 
+            <param name="keySelector">A function used to get a key from the target data.</param> 
+            <param name="reduce">A function used to reduce a group of elements.</param> 
+            <returns>The result elements of the reductions.</returns> 
+        </member>
+        <member name="M:Common.Patterns.Tasks.PLinqExtensions.MapReduce``4(System.Linq.ParallelQuery{``0},System.Func{``0,System.Collections.Generic.IEnumerable{``1}},System.Func{``1,``2},System.Func{System.Linq.IGrouping{``2,``1},System.Collections.Generic.IEnumerable{``3}})">
+            <summary>Implements a map-reduce operation.</summary> 
+            <typeparam name="TSource">Specifies the type of the source elements.</typeparam> 
+            <typeparam name="TMapped">Specifies the type of the mapped elements.</typeparam> 
+            <typeparam name="TKey">Specifies the type of the element keys.</typeparam> 
+            <typeparam name="TResult">Specifies the type of the results.</typeparam> 
+            <param name="source">The source elements.</param> 
+            <param name="map">A function used to get an enumerable of target data from a source element.</param> 
+            <param name="keySelector">A function used to get a key from target data.</param> 
+            <param name="reduce">A function used to reduce a group of elements to an enumerable of results.</param> 
+            <returns>The result elements of the reductions.</returns> 
+        </member>
+        <member name="M:Common.Patterns.Tasks.PLinqExtensions.OutputToProducerConsumerCollection``1(System.Linq.ParallelQuery{``0},System.Collections.Concurrent.IProducerConsumerCollection{``0})">
+            <summary>Runs the query and outputs its results into the target collection.</summary> 
+            <typeparam name="TSource">Specifies the type of elements output from the query.</typeparam> 
+            <param name="source">The source query.</param> 
+            <param name="target">The target collection.</param> 
+        </member>
+        <member name="M:Common.Patterns.Tasks.PLinqExtensions.AsParallel``1(System.Collections.Generic.IEnumerable{``0},Common.Patterns.Tasks.ParallelLinqOptions)">
+            <summary>This is the method to opt into Parallel LINQ.</summary> 
+            <typeparam name="TSource">Specifies the type of elements provided to the query.</typeparam> 
+            <param name="source">The source query.</param> 
+            <param name="parallelOptions">The options to use for query processing.</param> 
+            <returns>The source as a ParallelQuery to bind to ParallelEnumerable extension methods.</returns> 
+        </member>
+        <member name="M:Common.Patterns.Tasks.TaskExtensions.ContinueWith(System.Threading.Tasks.Task,System.Action{System.Threading.Tasks.Task},System.Threading.Tasks.TaskFactory)">
+            <summary>Creates a continuation task using the specified TaskFactory.</summary> 
+            <param name="task">The antecedent Task.</param> 
+            <param name="continuationAction">The continuation action.</param> 
+            <param name="factory">The TaskFactory.</param> 
+            <returns>A continuation task.</returns> 
+        </member>
+        <member name="M:Common.Patterns.Tasks.TaskExtensions.ContinueWith``1(System.Threading.Tasks.Task,System.Func{System.Threading.Tasks.Task,``0},System.Threading.Tasks.TaskFactory)">
+            <summary>Creates a continuation task using the specified TaskFactory.</summary> 
+            <param name="task">The antecedent Task.</param> 
+            <param name="continuationFunction">The continuation function.</param> 
+            <param name="factory">The TaskFactory.</param> 
+            <returns>A continuation task.</returns> 
+        </member>
+        <member name="M:Common.Patterns.Tasks.TaskExtensions.ContinueWith``1(System.Threading.Tasks.Task{``0},System.Action{System.Threading.Tasks.Task{``0}},System.Threading.Tasks.TaskFactory{``0})">
+            <summary>Creates a continuation task using the specified TaskFactory.</summary> 
+            <param name="task">The antecedent Task.</param> 
+            <param name="continuationAction">The continuation action.</param> 
+            <param name="factory">The TaskFactory.</param> 
+            <returns>A continuation task.</returns> 
+        </member>
+        <member name="M:Common.Patterns.Tasks.TaskExtensions.ContinueWith``2(System.Threading.Tasks.Task{``0},System.Func{System.Threading.Tasks.Task{``0},``1},System.Threading.Tasks.TaskFactory{``0})">
+            <summary>Creates a continuation task using the specified TaskFactory.</summary> 
+            <param name="task">The antecedent Task.</param> 
+            <param name="continuationFunction">The continuation function.</param> 
+            <param name="factory">The TaskFactory.</param> 
+            <returns>A continuation task.</returns> 
+        </member>
+        <member name="M:Common.Patterns.Tasks.TaskExtensions.ToAsync(System.Threading.Tasks.Task,System.AsyncCallback,System.Object)">
+            <summary> 
+            Creates a Task that represents the completion of another Task, and  
+            that schedules an AsyncCallback to run upon completion. 
+            </summary> 
+            <param name="task">The antecedent Task.</param> 
+            <param name="callback">The AsyncCallback to run.</param> 
+            <param name="state">The object state to use with the AsyncCallback.</param> 
+            <returns>The new task.</returns> 
+        </member>
+        <member name="M:Common.Patterns.Tasks.TaskExtensions.ToAsync``1(System.Threading.Tasks.Task{``0},System.AsyncCallback,System.Object)">
+            <summary> 
+            Creates a Task that represents the completion of another Task, and  
+            that schedules an AsyncCallback to run upon completion. 
+            </summary> 
+            <param name="task">The antecedent Task.</param> 
+            <param name="callback">The AsyncCallback to run.</param> 
+            <param name="state">The object state to use with the AsyncCallback.</param> 
+            <returns>The new task.</returns> 
+        </member>
+        <member name="M:Common.Patterns.Tasks.TaskExtensions.IgnoreExceptions(System.Threading.Tasks.Task)">
+            <summary>Suppresses default exception handling of a Task that would otherwise reraise the exception on the finalizer thread.</summary> 
+            <param name="task">The Task to be monitored.</param> 
+            <returns>The original Task.</returns> 
+        </member>
+        <member name="M:Common.Patterns.Tasks.TaskExtensions.IgnoreExceptions``1(System.Threading.Tasks.Task{``0})">
+            <summary>Suppresses default exception handling of a Task that would otherwise reraise the exception on the finalizer thread.</summary> 
+            <param name="task">The Task to be monitored.</param> 
+            <returns>The original Task.</returns> 
+        </member>
+        <member name="M:Common.Patterns.Tasks.TaskExtensions.FailFastOnException(System.Threading.Tasks.Task)">
+            <summary>Fails immediately when an exception is encountered.</summary> 
+            <param name="task">The Task to be monitored.</param> 
+            <returns>The original Task.</returns> 
+        </member>
+        <member name="M:Common.Patterns.Tasks.TaskExtensions.FailFastOnException``1(System.Threading.Tasks.Task{``0})">
+            <summary>Fails immediately when an exception is encountered.</summary> 
+            <param name="task">The Task to be monitored.</param> 
+            <returns>The original Task.</returns> 
+        </member>
+        <member name="M:Common.Patterns.Tasks.TaskExtensions.PropagateExceptions(System.Threading.Tasks.Task)">
+            <summary>Propagates any exceptions that occurred on the specified task.</summary> 
+            <param name="task">The Task whose exceptions are to be propagated.</param> 
+        </member>
+        <member name="M:Common.Patterns.Tasks.TaskExtensions.PropagateExceptions(System.Threading.Tasks.Task[])">
+            <summary>Propagates any exceptions that occurred on the specified tasks.</summary> 
+            <param name="tasks">The Tassk whose exceptions are to be propagated.</param> 
+        </member>
+        <member name="M:Common.Patterns.Tasks.TaskExtensions.ToObservable``1(System.Threading.Tasks.Task{``0})">
+            <summary>Creates an IObservable that represents the completion of a Task.</summary> 
+            <typeparam name="TResult">Specifies the type of data returned by the Task.</typeparam> 
+            <param name="task">The Task to be represented as an IObservable.</param> 
+            <returns>An IObservable that represents the completion of the Task.</returns> 
+        </member>
+        <member name="T:Common.Patterns.Tasks.TaskExtensions.TaskObservable`1">
+            <summary>An implementation of IObservable that wraps a Task.</summary> 
+            <typeparam name="TResult">The type of data returned by the task.</typeparam> 
+        </member>
+        <member name="T:Common.Patterns.Tasks.TaskExtensions.CancelOnDispose">
+            <summary>Translate a call to IDisposable.Dispose to a CancellationTokenSource.Cancel.</summary> 
+        </member>
+        <member name="M:Common.Patterns.Tasks.TaskExtensions.WithTimeout(System.Threading.Tasks.Task,System.TimeSpan)">
+            <summary>Creates a new Task that mirrors the supplied task but that will be canceled after the specified timeout.</summary> 
+            <param name="task">The task.</param> 
+            <param name="timeout">The timeout.</param> 
+            <returns>The new Task that may time out.</returns> 
+        </member>
+        <member name="M:Common.Patterns.Tasks.TaskExtensions.WithTimeout``1(System.Threading.Tasks.Task{``0},System.TimeSpan)">
+            <summary>Creates a new Task that mirrors the supplied task but that will be canceled after the specified timeout.</summary> 
+            <typeparam name="TResult">Specifies the type of data contained in the task.</typeparam> 
+            <param name="task">The task.</param> 
+            <param name="timeout">The timeout.</param> 
+            <returns>The new Task that may time out.</returns> 
+        </member>
+        <member name="M:Common.Patterns.Tasks.TaskExtensions.AttachToParent(System.Threading.Tasks.Task)">
+            <summary> 
+            Ensures that a parent task can't transition into a completed state 
+            until the specified task has also completed, even if it's not 
+            already a child task. 
+            </summary> 
+            <param name="task">The task to attach to the current task as a child.</param> 
+        </member>
+        <member name="M:Common.Patterns.Tasks.TaskExtensions.WaitForCompletionStatus(System.Threading.Tasks.Task)">
+            <summary>Waits for the task to complete execution, returning the task's final status.</summary> 
+            <param name="task">The task for which to wait.</param> 
+            <returns>The completion status of the task.</returns> 
+            <remarks>Unlike Wait, this method will not throw an exception if the task ends in the Faulted or Canceled state.</remarks> 
+        </member>
+        <member name="M:Common.Patterns.Tasks.TaskExtensions.Then(System.Threading.Tasks.Task,System.Action)">
+            <summary>Creates a task that represents the completion of a follow-up action when a task completes.</summary> 
+            <param name="task">The task.</param> 
+            <param name="next">The action to run when the task completes.</param> 
+            <returns>The task that represents the completion of both the task and the action.</returns> 
+        </member>
+        <member name="M:Common.Patterns.Tasks.TaskExtensions.Then``1(System.Threading.Tasks.Task,System.Func{``0})">
+            <summary>Creates a task that represents the completion of a follow-up function when a task completes.</summary> 
+            <param name="task">The task.</param> 
+            <param name="next">The function to run when the task completes.</param> 
+            <returns>The task that represents the completion of both the task and the function.</returns> 
+        </member>
+        <member name="M:Common.Patterns.Tasks.TaskExtensions.Then``1(System.Threading.Tasks.Task{``0},System.Action{``0})">
+            <summary>Creates a task that represents the completion of a follow-up action when a task completes.</summary> 
+            <param name="task">The task.</param> 
+            <param name="next">The action to run when the task completes.</param> 
+            <returns>The task that represents the completion of both the task and the action.</returns> 
+        </member>
+        <member name="M:Common.Patterns.Tasks.TaskExtensions.Then``2(System.Threading.Tasks.Task{``0},System.Func{``0,``1})">
+            <summary>Creates a task that represents the completion of a follow-up function when a task completes.</summary> 
+            <param name="task">The task.</param> 
+            <param name="next">The function to run when the task completes.</param> 
+            <returns>The task that represents the completion of both the task and the function.</returns> 
+        </member>
+        <member name="M:Common.Patterns.Tasks.TaskExtensions.Then(System.Threading.Tasks.Task,System.Func{System.Threading.Tasks.Task})">
+            <summary>Creates a task that represents the completion of a second task when a first task completes.</summary> 
+            <param name="task">The first task.</param> 
+            <param name="next">The function that produces the second task.</param> 
+            <returns>The task that represents the completion of both the first and second task.</returns> 
+        </member>
+        <member name="M:Common.Patterns.Tasks.TaskExtensions.Then``1(System.Threading.Tasks.Task{``0},System.Func{``0,System.Threading.Tasks.Task})">
+            <summary>Creates a task that represents the completion of a second task when a first task completes.</summary> 
+            <param name="task">The first task.</param> 
+            <param name="next">The function that produces the second task based on the result of the first task.</param> 
+            <returns>The task that represents the completion of both the first and second task.</returns> 
+        </member>
+        <member name="M:Common.Patterns.Tasks.TaskExtensions.Then``1(System.Threading.Tasks.Task,System.Func{System.Threading.Tasks.Task{``0}})">
+            <summary>Creates a task that represents the completion of a second task when a first task completes.</summary> 
+            <param name="task">The first task.</param> 
+            <param name="next">The function that produces the second task.</param> 
+            <returns>The task that represents the completion of both the first and second task.</returns> 
+        </member>
+        <member name="M:Common.Patterns.Tasks.TaskExtensions.Then``2(System.Threading.Tasks.Task{``0},System.Func{``0,System.Threading.Tasks.Task{``1}})">
+            <summary>Creates a task that represents the completion of a second task when a first task completes.</summary> 
+            <param name="task">The first task.</param> 
+            <param name="next">The function that produces the second task based on the result of the first.</param> 
+            <returns>The task that represents the completion of both the first and second task.</returns> 
+        </member>
+    </members>
+</doc>

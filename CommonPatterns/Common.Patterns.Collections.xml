@@ -1,0 +1,1724 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Common.Patterns.Collections</name>
+    </assembly>
+    <members>
+        <member name="T:Common.Patterns.Collections.LockFree.Queue`1">
+            <summary>
+            A lock free lightweight Queue container that has limited features.
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="T:Common.Patterns.Collections.LockFree.Stack`1">
+            <summary>
+            A Lock Free lightweight stack container that has limited features. 
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="P:Common.Patterns.Collections.MemoryMapped.IMMValue`1.Value">
+            <summary>
+            If the value is cached the cached value is used other a fully new instance is created.
+            </summary>
+        </member>
+        <member name="P:Common.Patterns.Collections.MemoryMapped.IMMValue`1.IsMemoryMapped">
+            <summary>
+            True if this instance is actually a memory mapped, otherwise it ia an actual instance in physical memory.
+            </summary>
+        </member>
+        <member name="P:Common.Patterns.Collections.MemoryMapped.IMMValue`1.CreationType">
+            <summary>
+            The creation type used for the last instance created or null to indicate no elements created.
+            This can be used to determine how the cached value was created.
+            </summary>
+            <seealso cref="P:Common.Patterns.Collections.MemoryMapped.IMMValue`1.IsCached"/>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapped.IMMValue`1.GetValue(Common.Patterns.Collections.MemoryMapperElementCreationTypes,System.Boolean)">
+             <summary>
+            
+             </summary>
+             <param name="creationType">
+             Determines how the instance is populated from the memory map. The default is to populate all fields in the instance from the memory map.
+             </param>
+             <param name="useCachedValue">
+             If true the cached value is used and creation types match. If no value cached, a new instance is created based on creation type.
+             If false (default), a new instance is created based on creation type.
+             </param>
+             <returns></returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapped.IMMValue`1.GetValue(System.Action{`0},System.Boolean)">
+            <summary>
+            This will not cache the value if not already cached.
+            </summary>
+            <param name="action"></param>
+            <param name="useCachedValue">
+            If true the cached value is used. If no value cached, a new instance is created based on creation type.
+            If false (default), a new instance is created based on creation type.
+            </param>
+            <returns></returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapped.IMMValue`1.GetValue(Common.Patterns.Collections.MemoryMapperElementCreationTypes,System.Action{`0},System.Boolean)">
+            <summary>
+            This will not cache the value if not already cached.
+            </summary>
+            <param name="creationType">
+            Determines how the instance is populated from the memory map.
+            </param>
+            <param name="action"></param>
+            <param name="useCachedValue">
+            If true the cached value is used and creation types match. If no value cached, a new instance is created based on creation type.
+            If false (default), a new instance is created based on creation type.
+            </param>
+            <returns></returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapped.IMMValue`1.GetValue(System.Func{`0,System.Boolean},System.Boolean)">
+            <summary>
+            This can cache the value if the returned value is true otherwise the value is not cached.
+            </summary>
+            <param name="action"></param>
+            <param name="useCachedValue">
+            If true the cached value is used. If no value cached, a new instance is created based on creation type.
+            If false (default), a new instance is created based on creation type.
+            </param>
+            <returns></returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapped.IMMValue`1.GetValue(Common.Patterns.Collections.MemoryMapperElementCreationTypes,System.Func{`0,System.Boolean},System.Boolean)">
+            <summary>
+            This can cache the value if the returned value is true otherwise the value is not cached.
+            </summary>
+            <param name="creationType">
+            Determines how the instance is populated from the memory map
+            </param>
+            <param name="action"></param>
+            <param name="useCachedValue">
+            If true the cached value is used and creation types match. If no value cached, a new instance is created based on creation type.
+            If false (default), a new instance is created based on creation type.
+            </param>
+            <returns></returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapped.IMMValue`1.SetCachedValue(`0,Common.Patterns.Collections.MemoryMapperElementCreationTypes)">
+            <summary>
+            Sets the cache. If an item is already cached, it is replaced with this value.
+            </summary>
+            <param name="value"></param>
+            <param name="creationType">The creation type on how this instance was created</param>
+            <returns></returns>
+        </member>
+        <member name="T:Common.Patterns.Collections.MemoryMapped.List`2">
+             <summary>
+             This list allow mapping of elements to a memory map object (i.e., disk) and each element must implement IMemoryMapperElement interface and a special constructor that takes MemoryMapper.ReadElement instance.
+            
+             This object should be disposed properly to release managed resources and should not be used for IPC.
+            
+             Note that objects returned from the list will not be the same object as added to the list. As such reference equal will fail between these objects!
+             Deletion of objects in the list are not actually removed, instead they are marked as deleted. It is not recommended to use any of the remove/delete actions.
+             Care must be taken when updating (really re-writing) any existing object in the list since the update may exceed the original size of the object in the memory map.
+             If updates are required on existing objects, it is suggest that an implicit call to MemoeyMapper.WriteElement.Commit be called in GetObjectData method with enough padding to allow for larger object sizes.
+             </summary>
+             <typeparam name="ValueT">
+             <typeparam name="ValueI"></typeparam>
+             A class that inherits from IMemoryMapperElement;
+             </typeparam>
+             <example>
+             <code>
+                 class MyElement : Common.Patterns.Collections.IMemoryMapperElement, IComparable&lt;MyElement&gt;
+                 {
+                     public MyElement() { }
+                     public MyElement(Common.Patterns.Collections.MemoryMapper.ReadElement readView, Common.Patterns.Collections.MemoryMapperElementCreationTypes creationType)
+                     {
+                         this.fldInt = readView.GetIntValue();
+                         this.fldString = readView.GetStringValue();
+                         this.fldStringNull = readView.GetStringValue();
+                         this.fldList = new List&lt;int&gt;(readView.GetEnumerableValue&lt;int&gt;());
+                         this._hashCode = readView.GetIntValue();
+                     }
+            
+                     public void GetObjectData(Common.Patterns.Collections.MemoryMapper.WriteElement writeView)
+                     {
+                         writeView.StoreValue(this.fldInt);
+                         writeView.StoreValue(this.fldString);
+                         writeView.StoreValue(element.fldStringNull);
+                         writeView.StoreValue&lt;int&gt;(this.fldList);
+                         writeView.StoreValue(this.GetHashCode());
+                     }
+            
+                     public int fldInt;
+                     public string fldString;
+                     public string fldStringNull = null;
+                     public List&lt;int&gt; fldList;
+            
+                     public int CompareTo(MyElement item)
+                     {
+                         return this.fldString.CompareTo(item.fldString);
+                     }
+            
+                     private int? _hashCode = null;
+                     //Define an overridden hash code value so that object that come out of the list will have the same hash code as the object actually added.
+                     public override int GetHashCode()
+                     {
+                         if(this._hashCode.HasValue) return this._hashCode.Value;
+                         return this._hashCode = base.GetHashCode();
+                     }
+                 }
+            
+                 void Main()
+                 {
+                     using(var mmList = new Common.Patterns.Collections.MemoryMapped.List&lt;MyElement&gt;())
+                     {
+                         mmList.Add(new MyElement() { fldInt = 1, fldString="abc", fldList=new List&lt;int&gt;() {1, 2, 3, 4, 5} });
+                     }
+                 }
+             </code>
+             </example>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapped.List`2.#ctor(Common.Patterns.Collections.MemoryMapper,System.Collections.Generic.IEnumerable{`1})">
+            <summary>
+            Creates a new memory map view from this list&apos;s memory map and assocates the given elements to this new view. These elements must already exist within this memory map.
+            This list is read-only!
+            </summary>
+            <param name="memoryMapper"></param>
+            <param name="existingElements"></param>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapped.List`2.#ctor(System.Collections.Generic.IEnumerable{Common.Patterns.Collections.MemoryMapped.IMMValue{`1}})">
+            <summary>
+            Creates a new memory map view from this list&apos;s memory map and assocates the given elements to this new view.
+            This list is read-only!
+            </summary>
+            <param name="elements"></param>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapped.List`2.#ctor(Common.Patterns.Collections.MemoryMapper,System.Collections.Generic.IEnumerable{Common.Patterns.Collections.MemoryMapper.MMElementInfo})">
+            <summary>
+            Creates a new memory map view from this list&apos;s memory map and assocates the given elements to this new view.
+            This list is read-only!
+            </summary>
+            <param name="memoryMapper"></param>
+            <param name="elements"></param>
+        </member>
+        <member name="P:Common.Patterns.Collections.MemoryMapped.List`2.MemoryMapperElements">
+            <summary>
+            Returns the memory mapper elements that represent the elements within this list.
+            </summary>
+        </member>
+        <member name="T:Common.Patterns.Collections.MemoryMapped.List`2.MMValue">
+            <summary>
+            Allow control on how to generate the associated object from the memory map based on creation type.
+            </summary>
+            <seealso cref="T:Common.Patterns.Collections.MemoryMapperElementCreationTypes"/>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapped.List`2.MMValue.#ctor(Common.Patterns.Collections.MemoryMapper,Common.Patterns.Collections.MemoryMapper.MMElementInfo,Common.Patterns.Collections.MemoryMapperElementCreationTypes)">
+            <summary>
+            Caches the associated value
+            </summary>
+            <param name="memoryMapper"></param>
+            <param name="elementInfo"></param>
+            <param name="creationType"></param>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapped.List`2.MMValue.op_Implicit(Common.Patterns.Collections.MemoryMapped.List{`0,`1}.MMValue)~`1">
+            <summary>
+            This will always create a full instance and will not use any cached values.
+            </summary>
+            <param name="value"></param>
+        </member>
+        <member name="P:Common.Patterns.Collections.MemoryMapped.List`2.MMValue.Value">
+            <summary>
+            If the value is cached the cached value is used other a fully new instance is created.
+            </summary>
+        </member>
+        <member name="P:Common.Patterns.Collections.MemoryMapped.List`2.MMValue.IsCached">
+            <summary>
+            Returns true if an instance has been cached.
+            </summary>
+            <seealso cref="P:Common.Patterns.Collections.MemoryMapped.List`2.MMValue.CreationType"/>
+        </member>
+        <member name="P:Common.Patterns.Collections.MemoryMapped.List`2.MMValue.IsMemoryMapped">
+            <summary>
+            True if this instance is actually a memory mapped, otherwise it ia an actual instance in physical memory.
+            </summary>
+        </member>
+        <member name="P:Common.Patterns.Collections.MemoryMapped.List`2.MMValue.CreationType">
+            <summary>
+            The creation type used for the last instance created or null to indicate no elements created.
+            This can be used to determine how the cached value was created.
+            </summary>
+            <seealso cref="P:Common.Patterns.Collections.MemoryMapped.List`2.MMValue.IsCached"/>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapped.List`2.MMValue.GetValue(Common.Patterns.Collections.MemoryMapperElementCreationTypes,System.Boolean)">
+             <summary>
+            
+             </summary>
+             <param name="creationType">
+             Determines how the instance is populated from the memory map. The default is to populate all fields in the instance from the memory map.
+             </param>
+             <param name="useCachedValue">
+             If true the cached value is used and creation types match. If no value cached, a new instance is created based on creation type.
+             If false (default), a new instance is created based on creation type.
+             </param>
+             <returns></returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapped.List`2.MMValue.GetValue(System.Action{`1},System.Boolean)">
+            <summary>
+            This will not cache the value if not already cached.
+            </summary>
+            <param name="action"></param>
+            <param name="useCachedValue">
+            If true the cached value is used. If no value cached, a new instance is created based on creation type.
+            If false (default), a new instance is created based on creation type.
+            </param>
+            <returns></returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapped.List`2.MMValue.GetValue(Common.Patterns.Collections.MemoryMapperElementCreationTypes,System.Action{`1},System.Boolean)">
+            <summary>
+            This will not cache the value if not already cached.
+            </summary>
+            <param name="creationType">
+            Determines how the instance is populated from the memory map.
+            </param>
+            <param name="action"></param>
+            <param name="useCachedValue">
+            If true the cached value is used and creation types match. If no value cached, a new instance is created based on creation type.
+            If false (default), a new instance is created based on creation type.
+            </param>
+            <returns></returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapped.List`2.MMValue.GetValue(System.Func{`1,System.Boolean},System.Boolean)">
+            <summary>
+            This can cache the value if the returned value is true otherwise the value is not cached.
+            </summary>
+            <param name="action"></param>
+            <param name="useCachedValue">
+            If true the cached value is used. If no value cached, a new instance is created based on creation type.
+            If false (default), a new instance is created based on creation type.
+            </param>
+            <returns></returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapped.List`2.MMValue.GetValue(Common.Patterns.Collections.MemoryMapperElementCreationTypes,System.Func{`1,System.Boolean},System.Boolean)">
+            <summary>
+            This can cache the value if the returned value is true otherwise the value is not cached.
+            </summary>
+            <param name="creationType">
+            Determines how the instance is populated from the memory map
+            </param>
+            <param name="action"></param>
+            <param name="useCachedValue">
+            If true the cached value is used and creation types match. If no value cached, a new instance is created based on creation type.
+            If false (default), a new instance is created based on creation type.
+            </param>
+            <returns></returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapped.List`2.MMValue.GetUpdateValue(System.Func{Common.Patterns.Collections.MemoryMapper.ReadElement,`0,System.Boolean})">
+             <summary>
+             Get an instance using a creation type of DoNotPopulate and calls action so that the instance can be populated.
+             </summary>
+             <param name="action">
+             First parameter is a memory mapper read element view used to obtain the values from the memory map. The read view will be in the state left by the constructor.
+             Second parameter is the unpopulated instance
+             Return value indicated to cache the instance or not. True indicated that the instance should be cached.
+             </param>
+             <returns>
+            
+             </returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapped.List`2.MMValue.GetUpdateValue(System.Action{Common.Patterns.Collections.MemoryMapper.ReadElement,`0})">
+             <summary>
+             Get an instance using a creation type of DoNotPopulate and calls action so that the instance can be populated.
+             </summary>
+             <param name="action">
+             First parameter is a memory mapper read element view used to obtain the values from the memory map. The read view will be in the state left by the constructor.
+             Second parameter is the unpopulated instance
+             </param>
+             <returns>
+            
+             </returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapped.List`2.MMValue.GetUpdateValue(System.Func{Common.Patterns.Collections.MemoryMapper.ReadElement,`0,`0})">
+            <summary>
+            Get an instance using a creation type of DoNotPopulate and calls action so that the instance can be populated and returned.
+            </summary>
+            <param name="action">
+            First parameter is a memory mapper read element view used to obtain the values from the memory map. The read view will be in the state left by the constructor.
+            Second parameter is the unpopulated instance
+            Returns the populated value.
+            </param>
+            <returns>
+            the returned value from action.
+            </returns>
+            <remarks>
+            To set the cache call SetCachedValue method.
+            </remarks>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapped.List`2.MMValue.SetCachedValue(`1,Common.Patterns.Collections.MemoryMapperElementCreationTypes)">
+            <summary>
+            Sets the cache. If an item is already cached, it is replaced with this value.
+            </summary>
+            <param name="value"></param>
+            <param name="creationType">
+            The creation type on how this instance was created
+            </param>
+            <returns></returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapped.List`2.MMValue.Reset">
+            <summary>
+            removes any cached values
+            </summary>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapped.List`2.DecrementEnumerableCached(Common.Patterns.Collections.MemoryMapperElementCreationTypes,System.Boolean)">
+            <summary>
+            
+            </summary>
+            <param name="creationType"></param>
+            <param name="clearCache"></param>
+            <returns>
+            Returns 0 if cache is cleared or is empty, -1 if it does not exists, or the number of current references.
+            </returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapped.List`2.GetMMEnumerator">
+            <summary>
+            Returns an enumerator that will NOT map all object into physical memory.
+            It is up to the consumer on how the object should be handled.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapped.List`2.GetEnumerator">
+            <summary>
+            Returns an enumerator that can retrieve the object, it is recommended to use GetMMEnumerator
+            </summary>
+            <returns></returns>
+            <seealso cref="M:Common.Patterns.Collections.MemoryMapped.List`2.GetMMEnumerator"/>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapped.List`2.IsDeleted(System.Int32)">
+            <summary>
+            Returns true if the element is marked deleted.
+            </summary>
+            <param name="checkIndex"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapped.List`2.FindMMValue(System.Int32)">
+            <summary>
+            Finds the MM value based on a hash code of an element.
+            </summary>
+            <param name="elementHashCode"></param>
+            <returns>
+            the MMValue or null indicating no element found.
+            </returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapped.List`2.FindMMValue(`1)">
+            <summary>
+            Finds the MM value based on a hash code of an element.
+            </summary>
+            <param name="elementValue"></param>
+            <returns>
+            the MMValue or null indicating no element found.
+            </returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapped.List`2.Move(Common.Patterns.Collections.MemoryMapped.List{`0,`1})">
+            <summary>
+            This will move elements from srcList (actually removing them) and append them to the end of this list
+            </summary>
+            <param name="srcList"></param>
+            <returns>
+            The element position within this list of the first element in scrList.
+            </returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapped.List`2.Append(Common.Patterns.Collections.MemoryMapped.List{`0,`1})">
+            <summary>
+            This will append the elements from srcList to the end of this list. These appended elements will be read-only in this list but can be modified or added in srcList.
+            Note that this list can modify the original elements or new elements added.
+            </summary>
+            <param name="srcList"></param>
+            <returns>
+            The element position within this list of the first element in scrList.
+            </returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapped.List`2.CopyTo(System.Array,System.Int32)">
+            <summary>
+            Copy the first set of elements up to the dimension of the array.
+            </summary>
+            <param name="array"></param>
+            <param name="index"></param>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapped.List`2.CopyTo(`0[],System.Int32)">
+            <summary>
+            Copy the first set of elements up to the dimension of the array.
+            </summary>
+            <param name="array"></param>
+            <param name="arrayIndex"></param>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapped.List`2.CopyTo(System.Int32,`0[],System.Int32)">
+            <summary>
+            Copies elements from fromIndex to array starting at arrayIndex up to the bounds of the array.
+            </summary>
+            <param name="fromIndex"></param>
+            <param name="array"></param>
+            <param name="arrayIndex"></param>
+            <remarks>
+            This will hold an read lock the memory map element collection.
+            </remarks>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapped.List`2.Remove(`0)">
+            <summary>
+             Warning: Not recommended to use!
+             Elements are not actually removed but are marked as deleted. If an element is marked deleted the default value is returned on accessors.
+            </summary>
+            <param name="item"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapped.List`2.RemoveAt(System.Int32)">
+            <summary>
+             Warning: Not recommended to use!
+             Elements are not actually removed but are marked as deleted. If an element is marked deleted the default value is returned on accessors.
+            </summary>
+            <param name="index"></param>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapped.List`2.ToArray">
+            <summary>
+            Copies all elements to an array!
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapped.List`2.TryTake(`0@)">
+            <summary>
+            This will remove the first item if it hasn't been marked deleted.
+            </summary>
+            <param name="item"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapped.List`1.#ctor(Common.Patterns.Collections.MemoryMapper,System.Collections.Generic.IEnumerable{`0})">
+            <summary>
+            Creates a new memory map view from this list&apos;s memory map and assocates the given elements to this new view. These elements must already exist within this memory map.
+            This list is read-only!
+            </summary>
+            <param name="memoryMapper"></param>
+            <param name="existingElements"></param>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapped.List`1.#ctor(System.Collections.Generic.IEnumerable{Common.Patterns.Collections.MemoryMapped.IMMValue{`0}})">
+            <summary>
+            Creates a new memory map view from this list&apos;s memory map and assocates the given elements to this new view.
+            This list is read-only!
+            </summary>
+            <param name="elements"></param>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapped.List`1.#ctor(Common.Patterns.Collections.MemoryMapper,System.Collections.Generic.IEnumerable{Common.Patterns.Collections.MemoryMapper.MMElementInfo})">
+            <summary>
+            Creates a new memory map view from this list&apos;s memory map and assocates the given elements to this new view.
+            This list is read-only!
+            </summary>
+            <param name="memoryMapper">
+            </param>
+            <param name="elements"></param>
+        </member>
+        <member name="T:Common.Patterns.Collections.MemoryMapped.MMValue`1">
+            <summary>
+            This is a placeholder of instances that are not yet been mapped into memory
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="P:Common.Patterns.Collections.MemoryMapped.MMValue`1.ElementInfo">
+            <summary>
+            Returns null since the instance is not mapped.
+            </summary>
+        </member>
+        <member name="T:Common.Patterns.Collections.MemoryMapperElementCreationTypes">
+             <summary>
+             A set of flags used to determine what fields will be populated upon instance creation during activation based on an activity.
+            
+             Additional flags can be used/added by consumers to create unique types based on different requirements. These flags can be passed into the instances&apos;s Memory Map constructor via the Common.Patterns.Collections.MemoryMapped.List.EnumValue class.
+             </summary>
+             <seealso cref="T:Common.Patterns.Collections.MemoryMapped.List`2.MMValue"/>
+        </member>
+        <member name="F:Common.Patterns.Collections.MemoryMapperElementCreationTypes.FullView">
+            <summary>
+            All fields should be read and populated from the memory map
+            </summary>
+        </member>
+        <member name="F:Common.Patterns.Collections.MemoryMapperElementCreationTypes.DoNotPopulate">
+            <summary>
+            Do not populate the instance during instantiation instead it is populated during the Common.Patterns.Collections.MemoryMapped.List.EnumValue.GetValue action body.
+            </summary>
+            <seealso cref="T:Common.Patterns.Collections.MemoryMapped.List`2.MMValue"/>
+            <seealso cref="M:Common.Patterns.Collections.MemoryMapped.List`2.MMValue.GetValue(System.Action{`1},System.Boolean)"/>
+        </member>
+        <member name="F:Common.Patterns.Collections.MemoryMapperElementCreationTypes.ComparableView">
+             <summary>
+             Only fields required to satisfy the IComparable.CompareTo method.
+            
+             Note that this type is passed to the constructor upon the use of the memory map list&apos;s Sort methods.
+             </summary>
+             <seealso cref="M:Common.Patterns.Collections.MemoryMapped.List`2.Sort"/>
+        </member>
+        <member name="F:Common.Patterns.Collections.MemoryMapperElementCreationTypes.GroupingView">
+            <summary>
+            Only fields required for grouping
+            </summary>
+        </member>
+        <member name="F:Common.Patterns.Collections.MemoryMapperElementCreationTypes.SearchView">
+            <summary>
+            Only fields required to identify an instance used for searches, finds, where, etc.
+            </summary>
+        </member>
+        <member name="T:Common.Patterns.Collections.IMemoryMapperElement">
+            <summary>
+            If defined an object can be mapped to a memory map
+                GetObjectData will allow mapping to a memory map object (write).
+                A constructor that takes a MemoryMapper.ReadElement object that will create a new instance and maps it to the fields.
+            </summary>
+        </member>
+        <member name="T:Common.Patterns.Collections.MemoryMapper">
+             <summary>
+             Creates an instance that allow for virtual paging and writing/reading of object data. It utilizes the memory mapped file and accessor views.
+             It is NOT process safe and should not used used for IPC.
+            
+             It must be disposed so that managed resources are freed.
+             </summary>
+        </member>
+        <member name="T:Common.Patterns.Collections.MemoryMapper.WriteElement">
+             <summary>
+             This will allow elements to be written in an atomic manner.
+            
+             Dispose must be called to free write locks/resources
+             </summary>
+        </member>
+        <member name="P:Common.Patterns.Collections.MemoryMapper.WriteElement.MMElementPosition">
+            <summary>
+            Possible position within the memory map when a commit occurs. This may or may not be the actual position.
+            </summary>
+        </member>
+        <member name="P:Common.Patterns.Collections.MemoryMapper.WriteElement.ElementInfo">
+            <summary>
+            The element info instance from the last commit. If no commit occurred, this will be null.
+            </summary>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.WriteElement.Reset">
+            <summary>
+            Resets writing to the Memory Mapper to the original position upon instance creation or last Commit. Locks are not freed.
+            </summary>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.WriteElement.Commit(System.Int32,System.Int32)">
+            <summary>
+            Adds element info to the elements list and resets current size to 0. ElementInfo property is updated and reset information is updated.
+            Locks are not freed.
+            </summary>
+            <param name="elementHashCode"></param>
+            <param name="paddingBytes">
+            If provided adds padding at the end of the object. This can be used in cases where the object being overwritten is larger than this object.
+            </param>
+            <returns></returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.WriteElement.NewPage(System.Int64)">
+            <summary>
+            Adds a new page starting at CurrentMMPosition
+            </summary>
+            <param name="usePageSize">
+            if less than or equal to 0, the default page size is used otherwise this page size is used.
+            </param>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.WriteElement.CreateReadElement">
+            <summary>
+            Creates a ReadElement instance based on the last committed write. If no commit has occurred null is returned.
+            </summary>
+            <returns>
+            A ReadElement instance based on the last commit or null (no commit taken).
+            </returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.WriteElement.Skip(System.Int32,System.Boolean)">
+            <summary>
+            Increments (decrements if nbrBytes negative) the current MM position by the nbrBytes.
+            </summary>
+            <param name="nbrBytes">
+            Number of byes to increment or decrement current MM position.
+            </param>
+            <param name="updateElementSize">
+            if true (default) the current element size is also incremented or decremented
+            False will not update the current size.
+            </param>
+            <returns>
+            The new current MM position.
+            </returns>
+            <remarks>
+            Care must be taken when skipping a position since this will effect read operations that can cause invalid values read back or position this element incorrectly upon commit.
+            </remarks>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.WriteElement.Pad(System.Int32)">
+            <summary>
+            Writes padding at the current MMposition. The MM position will advanced and the element size increased.
+            </summary>
+            <param name="nbrBytes">
+            number of bytes that will be written as pad
+            </param>
+            <returns></returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.WriteElement.Swap(System.Int64)">
+            <summary>
+             Swap current MM Position with swapPosition.
+            </summary>
+            <param name="swapPosition">
+            Sets the current MM Position to this new position.
+            </param>
+            <returns>
+            Old MM Position.
+            </returns>
+            <remarks>
+            Care must be taken when swapping a position since this will effect future write and read operations that can cause invalid write/reads and incorrectly position this element upon commit.
+            </remarks>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.WriteElement.StoreValue(System.Int64)">
+             <summary>
+            
+             </summary>
+             <param name="value">Value to store</param>
+             <returns>
+             returns the stored value
+             </returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.WriteElement.StoreValue(System.Func{System.Int64})">
+             <summary>
+            
+             </summary>
+             <param name="accessor">
+             Returns the value that will be stored
+             </param>
+             <returns>
+             Returns the stored value.
+             </returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.WriteElement.StoreValue(System.Func{System.Int64,System.Int64})">
+             <summary>
+            
+             </summary>
+             <param name="accessor">
+             passes in the current memory map position. Returns the value that will be stored
+             </param>
+             <returns>
+             Returns the stored value.
+             </returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.WriteElement.StoreValue(System.UInt64)">
+             <summary>
+            
+             </summary>
+             <param name="value">Value to store</param>
+             <returns>
+             returns the stored value
+             </returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.WriteElement.StoreValue(System.Func{System.UInt64})">
+             <summary>
+            
+             </summary>
+             <param name="accessor">
+             Returns the value that will be stored
+             </param>
+             <returns>
+             Returns the stored value.
+             </returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.WriteElement.StoreValue(System.Func{System.Int64,System.UInt64})">
+             <summary>
+            
+             </summary>
+             <param name="accessor">
+             passes in the current memory map position. Returns the value that will be stored
+             </param>
+             <returns>
+             Returns the stored value.
+             </returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.WriteElement.StoreValue(System.Int32)">
+             <summary>
+            
+             </summary>
+             <param name="value">Value to store</param>
+             <returns>
+             returns the stored value
+             </returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.WriteElement.StoreValue(System.Func{System.Int32})">
+             <summary>
+            
+             </summary>
+             <param name="accessor">
+             Returns the value that will be stored
+             </param>
+             <returns>
+             Returns the stored value.
+             </returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.WriteElement.StoreValue(System.Func{System.Int64,System.Int32})">
+             <summary>
+            
+             </summary>
+             <param name="accessor">
+             passes in the current memory map position. Returns the value that will be stored
+             </param>
+             <returns>
+             Returns the stored value.
+             </returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.WriteElement.StoreValue(System.UInt32)">
+             <summary>
+            
+             </summary>
+             <param name="value">Value to store</param>
+             <returns>
+             returns the stored value
+             </returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.WriteElement.StoreValue(System.Func{System.UInt32})">
+             <summary>
+            
+             </summary>
+             <param name="accessor">
+             Returns the value that will be stored
+             </param>
+             <returns>
+             Returns the stored value.
+             </returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.WriteElement.StoreValue(System.Func{System.Int64,System.UInt32})">
+             <summary>
+            
+             </summary>
+             <param name="accessor">
+             passes in the current memory map position. Returns the value that will be stored
+             </param>
+             <returns>
+             Returns the stored value.
+             </returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.WriteElement.StoreValue(System.Int16)">
+             <summary>
+            
+             </summary>
+             <param name="value">Value to store</param>
+             <returns>
+             returns the stored value
+             </returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.WriteElement.StoreValue(System.Func{System.Int16})">
+             <summary>
+            
+             </summary>
+             <param name="accessor">
+             Returns the value that will be stored
+             </param>
+             <returns>
+             Returns the stored value.
+             </returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.WriteElement.StoreValue(System.Func{System.Int64,System.Int16})">
+             <summary>
+            
+             </summary>
+             <param name="accessor">
+             passes in the current memory map position. Returns the value that will be stored
+             </param>
+             <returns>
+             Returns the stored value.
+             </returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.WriteElement.StoreValue(System.UInt16)">
+             <summary>
+            
+             </summary>
+             <param name="value">Value to store</param>
+             <returns>
+             returns the stored value
+             </returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.WriteElement.StoreValue(System.Func{System.UInt16})">
+             <summary>
+            
+             </summary>
+             <param name="accessor">
+             Returns the value that will be stored
+             </param>
+             <returns>
+             Returns the stored value.
+             </returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.WriteElement.StoreValue(System.Func{System.Int64,System.UInt16})">
+             <summary>
+            
+             </summary>
+             <param name="accessor">
+             passes in the current memory map position. Returns the value that will be stored
+             </param>
+             <returns>
+             Returns the stored value.
+             </returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.WriteElement.StoreValue(System.Single)">
+             <summary>
+            
+             </summary>
+             <param name="value">Value to store</param>
+             <returns>
+             returns the stored value
+             </returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.WriteElement.StoreValue(System.Func{System.Single})">
+             <summary>
+            
+             </summary>
+             <param name="accessor">
+             Returns the value that will be stored
+             </param>
+             <returns>
+             Returns the stored value.
+             </returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.WriteElement.StoreValue(System.Func{System.Int64,System.Single})">
+             <summary>
+            
+             </summary>
+             <param name="accessor">
+             passes in the current memory map position. Returns the value that will be stored
+             </param>
+             <returns>
+             Returns the stored value.
+             </returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.WriteElement.StoreValue(System.Double)">
+             <summary>
+            
+             </summary>
+             <param name="value">Value to store</param>
+             <returns>
+             returns the stored value
+             </returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.WriteElement.StoreValue(System.Func{System.Double})">
+             <summary>
+            
+             </summary>
+             <param name="accessor">
+             Returns the value that will be stored
+             </param>
+             <returns>
+             Returns the stored value.
+             </returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.WriteElement.StoreValue(System.Func{System.Int64,System.Double})">
+             <summary>
+            
+             </summary>
+             <param name="accessor">
+             passes in the current memory map position. Returns the value that will be stored
+             </param>
+             <returns>
+             Returns the stored value.
+             </returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.WriteElement.StoreValue(System.Decimal)">
+             <summary>
+            
+             </summary>
+             <param name="value">Value to store</param>
+             <returns>
+             returns the stored value
+             </returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.WriteElement.StoreValue(System.Func{System.Decimal})">
+             <summary>
+            
+             </summary>
+             <param name="accessor">
+             Returns the value that will be stored
+             </param>
+             <returns>
+             Returns the stored value.
+             </returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.WriteElement.StoreValue(System.Func{System.Int64,System.Decimal})">
+             <summary>
+            
+             </summary>
+             <param name="accessor">
+             passes in the current memory map position. Returns the value that will be stored
+             </param>
+             <returns>
+             Returns the stored value.
+             </returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.WriteElement.StoreValue(System.Byte)">
+             <summary>
+            
+             </summary>
+             <param name="value">Value to store</param>
+             <returns>
+             returns the stored value
+             </returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.WriteElement.StoreValue(System.Func{System.Byte})">
+             <summary>
+            
+             </summary>
+             <param name="accessor">
+             Returns the value that will be stored
+             </param>
+             <returns>
+             Returns the stored value.
+             </returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.WriteElement.StoreValue(System.Func{System.Int64,System.Byte})">
+             <summary>
+            
+             </summary>
+             <param name="accessor">
+             passes in the current memory map position. Returns the value that will be stored
+             </param>
+             <returns>
+             Returns the stored value.
+             </returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.WriteElement.StoreValue(System.SByte)">
+             <summary>
+            
+             </summary>
+             <param name="value">Value to store</param>
+             <returns>
+             returns the stored value
+             </returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.WriteElement.StoreValue(System.Func{System.SByte})">
+             <summary>
+            
+             </summary>
+             <param name="accessor">
+             Returns the value that will be stored
+             </param>
+             <returns>
+             Returns the stored value.
+             </returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.WriteElement.StoreValue(System.Func{System.Int64,System.SByte})">
+             <summary>
+            
+             </summary>
+             <param name="accessor">
+             passes in the current memory map position. Returns the value that will be stored
+             </param>
+             <returns>
+             Returns the stored value.
+             </returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.WriteElement.StoreValue(System.Char)">
+             <summary>
+            
+             </summary>
+             <param name="value">Value to store</param>
+             <returns>
+             returns the stored value
+             </returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.WriteElement.StoreValue(System.Func{System.Char})">
+             <summary>
+            
+             </summary>
+             <param name="accessor">
+             Returns the value that will be stored
+             </param>
+             <returns>
+             Returns the stored value.
+             </returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.WriteElement.StoreValue(System.Func{System.Int64,System.Char})">
+             <summary>
+            
+             </summary>
+             <param name="accessor">
+             passes in the current memory map position. Returns the value that will be stored
+             </param>
+             <returns>
+             Returns the stored value.
+             </returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.WriteElement.StoreValue(System.Boolean)">
+             <summary>
+            
+             </summary>
+             <param name="value">Value to store</param>
+             <returns>
+             returns the stored value
+             </returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.WriteElement.StoreValue(System.Func{System.Boolean})">
+             <summary>
+            
+             </summary>
+             <param name="accessor">
+             Returns the value that will be stored
+             </param>
+             <returns>
+             Returns the stored value.
+             </returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.WriteElement.StoreValue(System.Func{System.Int64,System.Boolean})">
+             <summary>
+            
+             </summary>
+             <param name="accessor">
+             passes in the current memory map position. Returns the value that will be stored
+             </param>
+             <returns>
+             Returns the stored value.
+             </returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.WriteElement.StoreValue(System.String)">
+             <summary>
+            
+             </summary>
+             <param name="value">Value to store</param>
+             <returns>
+             returns the stored value
+             </returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.WriteElement.StoreValue(System.Func{System.String})">
+             <summary>
+            
+             </summary>
+             <param name="accessor">
+             Returns the value that will be stored
+             </param>
+             <returns>
+             Returns the stored value.
+             </returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.WriteElement.StoreValue(System.Func{System.Int64,System.String})">
+             <summary>
+            
+             </summary>
+             <param name="accessor">
+             passes in the current memory map position. Returns the value that will be stored
+             </param>
+             <returns>
+             Returns the stored value.
+             </returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.WriteElement.StoreValue``1(``0)">
+             <summary>
+            
+             </summary>
+             <param name="value">Value to store</param>
+             <returns>
+             returns the stored value
+             </returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.WriteElement.StoreValue``1(System.Func{``0})">
+             <summary>
+            
+             </summary>
+             <param name="accessor">
+             Returns the value that will be stored
+             </param>
+             <returns>
+             Returns the stored value.
+             </returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.WriteElement.StoreValue``1(System.Func{System.Int64,``0})">
+             <summary>
+            
+             </summary>
+             <param name="accessor">
+             passes in the current memory map position. Returns the value that will be stored
+             </param>
+             <returns>
+             Returns the stored value.
+             </returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.WriteElement.StoreValue``1(System.Collections.Generic.IEnumerable{``0})">
+             <summary>
+            
+             </summary>
+             <param name="value">Value to store</param>
+             <returns>
+             returns the stored value
+             </returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.WriteElement.StoreValue``1(System.Func{System.Collections.Generic.IEnumerable{``0}})">
+             <summary>
+            
+             </summary>
+             <param name="accessor">
+             Returns the value that will be stored
+             </param>
+             <returns>
+             Returns the stored value.
+             </returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.WriteElement.StoreValue``1(System.Func{System.Int64,System.Collections.Generic.IEnumerable{``0}})">
+             <summary>
+            
+             </summary>
+             <param name="accessor">
+             passes in the current memory map position. Returns the value that will be stored
+             </param>
+             <returns>
+             Returns the stored value.
+             </returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.WriteElement.StoreValue(System.Collections.Generic.IEnumerable{System.String})">
+             <summary>
+            
+             </summary>
+             <param name="value">Value to store</param>
+             <returns>
+             returns the stored value
+             </returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.WriteElement.StoreValue(System.Func{System.Collections.Generic.IEnumerable{System.String}})">
+             <summary>
+            
+             </summary>
+             <param name="accessor">
+             Returns the value that will be stored
+             </param>
+             <returns>
+             Returns the stored value.
+             </returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.WriteElement.StoreValue(System.Func{System.Int64,System.Collections.Generic.IEnumerable{System.String}})">
+             <summary>
+            
+             </summary>
+             <param name="accessor">
+             passes in the current memory map position. Returns the value that will be stored
+             </param>
+             <returns>
+             Returns the stored value.
+             </returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.WriteElement.StoreValue``1(System.Nullable{``0})">
+             <summary>
+            
+             </summary>
+             <param name="value">Value to store</param>
+             <returns>
+             returns the stored value
+             </returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.WriteElement.StoreValue``1(System.Func{System.Nullable{``0}})">
+             <summary>
+            
+             </summary>
+             <param name="accessor">
+             Returns the value that will be stored
+             </param>
+             <returns>
+             Returns the stored value.
+             </returns>
+        </member>
+        <member name="T:Common.Patterns.Collections.MemoryMapper.ReadElement">
+             <summary>
+            
+             </summary>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.ReadElement.#ctor(Common.Patterns.Collections.MemoryMapper,Common.Patterns.Collections.MemoryMapper.MMElementInfo,System.Boolean)">
+             <summary>
+            
+             </summary>
+             <param name="memMapper"></param>
+             <param name="elementInfo"></param>
+             <param name="readDeletedElement"></param>
+             <exception cref="T:System.ObjectDisposedException">
+             Thrown if element has been marked as deleted and readDeletedElement is false (default)
+             </exception>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.ReadElement.#ctor(Common.Patterns.Collections.MemoryMapper,System.Int32,System.Boolean)">
+             <summary>
+            
+             </summary>
+             <param name="memMapper"></param>
+             <param name="elementPosition">Element position within the MM Elements collection</param>
+             <param name="readDeletedElement"></param>
+             <exception cref="T:System.ObjectDisposedException">
+             Thrown if element has been marked as deleted and readDeletedElement is false (default)
+             </exception>
+        </member>
+        <member name="P:Common.Patterns.Collections.MemoryMapper.ReadElement.MMElementPosition">
+            <summary>
+            Element position with in the memory map (0 at the beginning of the map)
+            </summary>
+        </member>
+        <member name="P:Common.Patterns.Collections.MemoryMapper.ReadElement.ElementPosition">
+            <summary>
+            Element position within the MM elements collection (i.e., OrderByPosition)
+            </summary>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.ReadElement.Reset">
+            <summary>
+            Resets reading from the Memory Mapper to the original position upon instance creation or last read next/previous action.
+            </summary>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.ReadElement.SetPosition(System.Int64)">
+            <summary>
+            Set the current MM Position to newPosition and resets current element size to 0;
+            </summary>
+            <param name="newPosition"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.ReadElement.GetLongValue">
+             <summary>
+            
+             </summary>
+             <returns>Returns the value from the memory map</returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.ReadElement.GetLongValue(System.Action{System.Int64})">
+             <summary>
+            
+             </summary>
+             <param name="setAccessor">
+             Value from the memory map is the first parameter of the action.
+             </param>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.ReadElement.GetULongValue">
+             <summary>
+            
+             </summary>
+             <returns>Returns the value from the memory map</returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.ReadElement.GetULongValue(System.Action{System.UInt64})">
+             <summary>
+            
+             </summary>
+             <param name="setAccessor">
+             Value from the memory map is the first parameter of the action.
+             </param>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.ReadElement.GetIntValue">
+             <summary>
+            
+             </summary>
+             <returns>Returns the value from the memory map</returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.ReadElement.GetIntValue(System.Action{System.Int32})">
+             <summary>
+            
+             </summary>
+             <param name="setAccessor">
+             Value from the memory map is the first parameter of the action.
+             </param>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.ReadElement.GetUIntValue">
+             <summary>
+            
+             </summary>
+             <returns>Returns the value from the memory map</returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.ReadElement.GetUIntValue(System.Action{System.UInt32})">
+             <summary>
+            
+             </summary>
+             <param name="setAccessor">
+             Value from the memory map is the first parameter of the action.
+             </param>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.ReadElement.GetShortValue">
+             <summary>
+            
+             </summary>
+             <returns>Returns the value from the memory map</returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.ReadElement.GetShortValue(System.Action{System.Int16})">
+             <summary>
+            
+             </summary>
+             <param name="setAccessor">
+             Value from the memory map is the first parameter of the action.
+             </param>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.ReadElement.GetUShortValue">
+             <summary>
+            
+             </summary>
+             <returns>Returns the value from the memory map</returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.ReadElement.GetUShortValue(System.Action{System.UInt16})">
+             <summary>
+            
+             </summary>
+             <param name="setAccessor">
+             Value from the memory map is the first parameter of the action.
+             </param>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.ReadElement.GetDecimalValue">
+             <summary>
+            
+             </summary>
+             <returns>Returns the value from the memory map</returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.ReadElement.GetDecimalValue(System.Action{System.Decimal})">
+             <summary>
+            
+             </summary>
+             <param name="setAccessor">
+             Value from the memory map is the first parameter of the action.
+             </param>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.ReadElement.GetFloatValue">
+             <summary>
+            
+             </summary>
+             <returns>Returns the value from the memory map</returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.ReadElement.GetFloatValue(System.Action{System.Single})">
+             <summary>
+            
+             </summary>
+             <param name="setAccessor">
+             Value from the memory map is the first parameter of the action.
+             </param>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.ReadElement.GetCharValue">
+             <summary>
+            
+             </summary>
+             <returns>Returns the value from the memory map</returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.ReadElement.GetCharValue(System.Action{System.Char})">
+             <summary>
+            
+             </summary>
+             <param name="setAccessor">
+             Value from the memory map is the first parameter of the action.
+             </param>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.ReadElement.GetByteValue">
+             <summary>
+            
+             </summary>
+             <returns>Returns the value from the memory map</returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.ReadElement.GetByteValue(System.Action{System.Byte})">
+             <summary>
+            
+             </summary>
+             <param name="setAccessor">
+             Value from the memory map is the first parameter of the action.
+             </param>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.ReadElement.GetSByteValue">
+             <summary>
+            
+             </summary>
+             <returns>Returns the value from the memory map</returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.ReadElement.GetSByteValue(System.Action{System.SByte})">
+             <summary>
+            
+             </summary>
+             <param name="setAccessor">
+             Value from the memory map is the first parameter of the action.
+             </param>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.ReadElement.GetBoolValue">
+             <summary>
+            
+             </summary>
+             <returns>Returns the value from the memory map</returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.ReadElement.GetBoolValue(System.Action{System.Boolean})">
+             <summary>
+            
+             </summary>
+             <param name="setAccessor">
+             Value from the memory map is the first parameter of the action.
+             </param>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.ReadElement.GetStructValue``1">
+             <summary>
+            
+             </summary>
+             <typeparam name="T"></typeparam>
+             <returns></returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.ReadElement.GetStructValue``1(System.Action{``0})">
+             <summary>
+            
+             </summary>
+             <typeparam name="T"></typeparam>
+             <param name="setAccessor"></param>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.ReadElement.GetEnumerableValue``1">
+             <summary>
+            
+             </summary>
+             <typeparam name="T"></typeparam>
+             <returns></returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.ReadElement.GetEnumerableValue``1(System.Action{``0[]})">
+             <summary>
+            
+             </summary>
+             <typeparam name="T"></typeparam>
+             <param name="setAccessor"></param>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.ReadElement.GetNullableValue``1">
+             <summary>
+            
+             </summary>
+             <typeparam name="T"></typeparam>
+             <returns></returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.ReadElement.GetNullableValue``1(System.Action{System.Nullable{``0}})">
+             <summary>
+            
+             </summary>
+             <typeparam name="T"></typeparam>
+             <param name="setAccessor"></param>
+        </member>
+        <member name="P:Common.Patterns.Collections.MemoryMapper.MMElementInfo.OrderByPosition">
+            <summary>
+            The position within the element collection. This must be updated if the position of this object is moved within the MM element collection!
+            </summary>
+        </member>
+        <member name="T:Common.Patterns.Collections.MemoryMapper.PageInfo">
+            <summary>
+            Represents a MM Page. This object must be disposed!
+            </summary>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.PageInfo.#ctor(System.String,Common.Patterns.Collections.MemoryMapper.PageInfo,System.Int64,System.Int64,System.Int64,System.Int32,System.Boolean,System.Boolean,System.Boolean)">
+            <summary>
+            Creates a new page sharing the memory mapped file and accessor view of the given page where the new page will have a new relative begin, ending, and last written positions.
+            </summary>
+            <param name="mmName"></param>
+            <param name="copyPage"></param>
+            <param name="newStartRelativePos"></param>
+            <param name="newLastRelativePos">
+            The last relative position within a page.
+            </param>
+            <param name="newLastRelativeWrittenPos">
+            The last position written within the page.
+            </param>
+            <param name="elementPos"></param>
+            <param name="createAsView"></param>
+            <param name="makeReadOnly"></param>
+            <param name="markAsClose"></param>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.PageInfo.#ctor(System.String,System.Int64,System.Int64,System.Int32)">
+            <summary>
+            Creates a new page with a new RW memory mapped file and RW accessor view
+            </summary>
+            <param name="mmName"></param>
+            <param name="beginRelativePos"></param>
+            <param name="pageSize"></param>
+            <param name="elementPos"></param>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.PageInfo.#ctor(Common.Patterns.Collections.MemoryMapper.PageInfo,System.Boolean,System.Int32)">
+            <summary>
+             Creates a new page based on the given page and optional have a new begin relative position if newRelativePosition >= 0.
+             This new page will share the memory mapped file but will have a new accessor view based on isReadOnly argument.
+            </summary>
+            <param name="pageInfo"></param>
+            <param name="isReadOnly"></param>
+            <param name="newRelativePosition"></param>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.PageInfo.#ctor(Common.Patterns.Collections.MemoryMapper.PageInfo,System.Int64,System.Int32,System.Boolean)">
+            <summary>
+             Creates a new page based on the given page where all relative positions are offset by relativePosOffSet;
+             This new page will share the memory mapped file but will have a new accessor view based on isReadOnly argument.
+            </summary>
+            <param name="pageInfo"></param>
+            <param name="relativePosOffSet"></param>
+            <param name="elementPos"></param>
+            <param name="isReadOnly"></param>
+        </member>
+        <member name="F:Common.Patterns.Collections.MemoryMapper.PageInfo.IsView">
+            <summary>
+            If true the memory mapped file is shared with other pages and this page has it own accessor view.
+            </summary>
+        </member>
+        <member name="F:Common.Patterns.Collections.MemoryMapper.PageInfo.BeginRelativePos">
+            <summary>
+            Starting relative position for this page
+            </summary>
+        </member>
+        <member name="F:Common.Patterns.Collections.MemoryMapper.PageInfo.LastRelativePos">
+            <summary>
+            Last relative position within this page
+            </summary>
+        </member>
+        <member name="P:Common.Patterns.Collections.MemoryMapper.PageInfo.LastWrittenRelativePos">
+            <summary>
+            Last relative position written on this page.
+            </summary>
+        </member>
+        <member name="P:Common.Patterns.Collections.MemoryMapper.PageInfo.CurrentSize">
+            <summary>
+            Amount of data written onto this page.
+            </summary>
+        </member>
+        <member name="F:Common.Patterns.Collections.MemoryMapper.PageInfo.Size">
+            <summary>
+            Maximum size of the page (page size)
+            </summary>
+        </member>
+        <member name="P:Common.Patterns.Collections.MemoryMapper.PageInfo.Closed">
+            <summary>
+            If closed (true), this page is no longer the active page and no new data can be written to it but existing data can be overwritten
+            </summary>
+        </member>
+        <member name="P:Common.Patterns.Collections.MemoryMapper.PageInfo.Deleted">
+            <summary>
+            If deleted (true), this page is not valid and data cannot be read or written to this page.
+            </summary>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.PageInfo.IsWithinPage(System.Int64)">
+            <summary>
+            Relative position is within the page. This is typically used by write operations since it used BeginRelativePos and LastRelativePos (LastWrittenRelativePos for Closed pages)
+            </summary>
+            <param name="relativePosition"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.PageInfo.IsWithinPageForRead(System.Int64)">
+            <summary>
+            Relative position is within the page. This is typically used by read operations since it used BeginRelativePos and LastWrittenRelativePos
+            </summary>
+            <param name="relativePosition"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.#ctor(System.Int64,System.String)">
+            <summary>
+            Creates a new memory map instance based on page size and name
+            </summary>
+            <param name="pageSize"></param>
+            <param name="name"></param>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.#ctor(Common.Patterns.Collections.MemoryMapper,System.Boolean)">
+            <summary>
+            Creates a copy of an existing memory map sharing both elements and pages.
+            </summary>
+            <param name="memoryMapper"></param>
+            <param name="isReadOnly"></param>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.#ctor(Common.Patterns.Collections.MemoryMapper,System.Int64,System.Int64,System.Boolean)">
+            <summary>
+            Creates a new memory map based on relative position and size from the memory map given. Elements and pages are not shared (copied).
+            </summary>
+            <param name="memoryMapper"></param>
+            <param name="relativeStartPos"></param>
+            <param name="size"></param>
+            <param name="isReadOnly"></param>
+            <remarks>
+            The memory mapped file is shared but a new accessor view is created.
+            </remarks>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.#ctor(Common.Patterns.Collections.MemoryMapper,Common.Patterns.Collections.MemoryMapper.MMElementInfo)">
+            <summary>
+            Creates a memory map only based on element information from the memory map given. Elements and pages are not shared (copied).
+            </summary>
+            <param name="memoryMapper"></param>
+            <param name="elementInfo"></param>
+            <remarks>
+            The memory mapped file is shared but a new accessor view is created.
+            </remarks>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.#ctor(Common.Patterns.Collections.MemoryMapper,System.Collections.Generic.IEnumerable{Common.Patterns.Collections.MemoryMapper.MMElementInfo},System.Boolean,System.Boolean)">
+            <summary>
+            Creates a memory mapper based on the elements given from the memory map given.
+            If sharedMemoryMap is true (default is false), the elements and pages are shared. Care should be given since features like ReadElement ReadNext, ReadPrevious, or Read may fail because of ordering within the collection.
+            If shareMemoryMap is false (default), the elements and pages are not shared (copied).
+            </summary>
+            <param name="memoryMapper"></param>
+            <param name="elements">
+            elements that map to this memory map
+            </param>
+            <param name="isReadOnly"></param>
+            <param name="shareMemoryMap">
+            if true, the actual elements and pages are shared between the memory maps. If any writes occur, both pages are updated. If an element changes it is also reflected in both.
+            if false (default), copies of elements and pages are made.
+            </param>
+            <remarks>
+            For shareMemoryMap is false (default), the memory mapped file is shared but a new accessor view is created.
+            To copy the elements to a new memory mapper, use the Copy method.
+            </remarks>
+            <seealso cref="M:Common.Patterns.Collections.MemoryMapper.Copy(Common.Patterns.Collections.MemoryMapper,Common.Patterns.Collections.MemoryMapper.MMElementInfo)"/>
+        </member>
+        <member name="P:Common.Patterns.Collections.MemoryMapper.SharedMemoryMap">
+            <summary>
+            If true, the memory mapped has shared pages between other memory maps
+            </summary>
+        </member>
+        <member name="P:Common.Patterns.Collections.MemoryMapper.CreateNewPageOnLargeWrites">
+            <summary>
+            When true (default), any writes that are larger than page size will result in a new page based on the write&apos;s size.
+            </summary>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.Clear">
+            <summary>
+            Clears all pages (disposing) and element maps
+            </summary>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.Flush">
+            <summary>
+            Flushes all pages to disk.
+            </summary>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.Append(Common.Patterns.Collections.MemoryMapper)">
+            <summary>
+            Appends the elements and pages from source to the end of this memory mapper. The pages will share the memory file but will has read-only memory accessor views.
+            </summary>
+            <param name="sourceMemoryMap"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.Move(Common.Patterns.Collections.MemoryMapper)">
+            <summary>
+            This will move elements and pages from source memory map to this memory map. This will result in no elements or pages left in the source. This will also eject any elements/pages marked as deleted.
+            </summary>
+            <param name="sourceMemoryMap"></param>
+            <returns>
+            The starting element position of the source elements within the target.
+            </returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.Copy(Common.Patterns.Collections.MemoryMapper,Common.Patterns.Collections.MemoryMapper.MMElementInfo)">
+            <summary>
+            Copies element&apos;s data from the source memory map to this memory map and add this element to this memory map.
+            If element is deleted or has a zero length it will be ignored.
+            </summary>
+            <param name="sourceMemoryMap"></param>
+            <param name="elementInfo"></param>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.ReadInt(System.Int64)">
+            <summary>
+            Read bytes is the size of Int32
+            </summary>
+            <param name="relativePosition"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.ReadString(System.Int64)">
+            <summary>
+            Returns a read string.
+            Note that the actual number of byes read will be the string length (0 for null or empty string) plus the size of an Int32.
+            </summary>
+            <param name="relativePosition"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.ReadEnumerable``1(System.Int64,``0[]@)">
+             <summary>
+            
+             </summary>
+             <typeparam name="T"></typeparam>
+             <param name="relativePosition"></param>
+             <param name="outBuffer"></param>
+             <returns>The number of bytes read</returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.ReadEnumerable(System.Int64,System.String[]@)">
+             <summary>
+            
+             </summary>
+             <param name="relativePosition"></param>
+             <param name="outBuffer"></param>
+             <returns>The number of bytes read</returns>
+        </member>
+        <member name="M:Common.Patterns.Collections.MemoryMapper.ReadNullable``1(System.Int64,System.Nullable{``0}@)">
+             <summary>
+            
+             </summary>
+             <typeparam name="T"></typeparam>
+             <param name="relativePosition"></param>
+             <param name="value"></param>
+             <returns>
+             The length of what was read.
+             </returns>
+        </member>
+    </members>
+</doc>

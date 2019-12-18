@@ -32,16 +32,16 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Common.JSON">
-      <HintPath>..\packages\CommonPatterns\Release\Common.JSON.dll</HintPath>
+      <HintPath>..\CommonPatterns\Common.JSON.dll</HintPath>
     </Reference>
     <Reference Include="Common.Functions">
-      <HintPath>..\packages\CommonPatterns\Release\Common.Functions.dll</HintPath>
+      <HintPath>..\CommonPatterns\Common.Functions.dll</HintPath>
     </Reference>
     <Reference Include="Common.Path">
-      <HintPath>..\packages\CommonPatterns\Release\Common.Path.dll</HintPath>
+      <HintPath>..\CommonPatterns\Common.Path.dll</HintPath>
     </Reference>
     <Reference Include="Common.Patterns.Collections">
-      <HintPath>..\packages\CommonPatterns\Release\Common.Patterns.Collections.dll</HintPath>
+      <HintPath>..\CommonPatterns\Common.Patterns.Collections.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>

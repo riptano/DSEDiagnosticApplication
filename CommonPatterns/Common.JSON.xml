@@ -1,0 +1,307 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Common.JSON</name>
+    </assembly>
+    <members>
+        <member name="M:Common.JSONExtensions.ToJSON``1(``0,System.Boolean)">
+            <summary>
+             Serializes the specified object to a JSON string.
+            </summary>
+            <typeparam name="T">Object that will be serialized</typeparam>
+            <param name="objectToJSON"> Object that will be serializated</param>
+            <param name="prettyPrint">If true, the string will be formatted with indents</param>
+            <returns>
+             A JSON string representation of the object.
+            </returns>
+            <seealso ref="http://www.newtonsoft.com/json/help/html/Introduction.htm"/>
+        </member>
+        <member name="M:Common.JSONExtensions.ToJSON``1(``0,Newtonsoft.Json.JsonSerializerSettings)">
+            <summary>
+             Serializes the specified object to a JSON string.
+            </summary>
+            <typeparam name="T">Object that will be serialized</typeparam>
+            <param name="objectToJSON"> Object that will be serializated</param>
+            <param name="settings">Serialization options</param>
+            <returns>
+             A JSON string representation of the object.
+            </returns>
+            <seealso ref="http://www.newtonsoft.com/json/help/html/Introduction.htm"/>
+        </member>
+        <member name="M:Common.JSONExtensions.FromJSON``1(System.String)">
+             <summary>
+             Deserializes the JSON to the specified .NET type.
+             </summary>
+             <typeparam name="T">
+             The type of the object to deserialize to. This can be a class, struct, etc. or a .net collection
+             </typeparam>
+             <param name="jsonString">
+             The JSON to deserialize.
+             </param>
+             <returns>
+             The deserialized object from the JSON string
+             </returns>
+             <example>
+             <code>
+             string json = @&quot;{&quot;&quot;key1&quot;&quot;:&quot;&quot;value1&quot;&quot;,&quot;&quot;key2&quot;&quot;:&quot;&quot;value2&quot;&quot;}&quot;;
+            
+             Dictionary&lt;string, string&gt; values = FromJSON&lt;Dictionary&lt;string, string&gt;&gt;(json);
+             </code>
+             </example>
+             <seealso ref="http://www.newtonsoft.com/json/help/html/Introduction.htm"/>
+        </member>
+        <member name="M:Common.JSONExtensions.FromJSON``1(System.String,Newtonsoft.Json.JsonSerializerSettings)">
+             <summary>
+             Deserializes the JSON to the specified .NET type.
+             </summary>
+             <typeparam name="T">
+             The type of the object to deserialize to. This can be a class, struct, etc. or a .net collection
+             </typeparam>
+             <param name="jsonString">
+             The JSON to deserialize.
+             </param>
+             <param name="settings">
+             deserialize options
+             </param>
+             <returns>
+             The deserialized object from the JSON string
+             </returns>
+             <example>
+             <code>
+             string json = @&quot;{&quot;&quot;key1&quot;&quot;:&quot;&quot;value1&quot;&quot;,&quot;&quot;key2&quot;&quot;:&quot;&quot;value2&quot;&quot;}&quot;;
+            
+             Dictionary&lt;string, string&gt; values = FromJSON&lt;Dictionary&lt;string, string&gt;&gt;(json);
+             </code>
+             </example>
+             <seealso ref="http://www.newtonsoft.com/json/help/html/Introduction.htm"/>
+        </member>
+        <member name="M:Common.JSONExtensions.FromJSONAnonymousType``1(System.String,``0)">
+            <summary>
+            Deserializes the JSON to the specified .NET type.
+            </summary>
+            <typeparam name="T">
+            The type of the object to deserialize to. This can be a class, struct, etc. or a .net collection
+            </typeparam>
+            <param name="jsonString">
+            The JSON to deserialize.
+            </param>
+            <param name="definitionOfAnonymousType">
+            An instance of an Anonymous Type
+            </param>
+            <returns>
+            The deserialized anonymous object from the JSON string
+            </returns>
+            <example>
+            <code>
+            var definition = new { Name = &quot;&quot; };
+            string json1 = @&quot;{&apos;Name&apos;:&apos;James&apos;}&quot;
+            var customer1 = FromJSONAnonymousType(json1, definition);
+            </code>
+            </example>
+            <seealso ref="http://www.newtonsoft.com/json/help/html/Introduction.htm"/>
+        </member>
+        <member name="M:Common.JSONExtensions.FromJSONAnonymousType``1(System.String,``0,Newtonsoft.Json.JsonSerializerSettings)">
+            <summary>
+            Deserializes the JSON to the specified .NET type.
+            </summary>
+            <typeparam name="T">
+            The type of the object to deserialize to. This can be a class, struct, etc. or a .net collection
+            </typeparam>
+            <param name="jsonString">
+            The JSON to deserialize.
+            </param>
+            <param name="definitionOfAnonymousType">
+            An instance of an Anonymous Type
+            </param>
+            <param name="settings">
+            deserialize options
+            </param>
+            <returns>
+            The deserialized anonymous object from the JSON string
+            </returns>
+            <seealso ref="http://www.newtonsoft.com/json/help/html/Introduction.htm"/>
+        </member>
+        <member name="M:Common.JSONExtensions.TryGetValues(Newtonsoft.Json.Linq.JObject)">
+            <summary>
+            Transforms a JObject into a dictionary where the key is a string and the value is a JObject.
+            </summary>
+            <param name="jsonObj"></param>
+            <returns>
+            Returns null if jsonObj is null, otherwise a dictionary of key strings and values of JObects.
+            </returns>
+        </member>
+        <member name="M:Common.JSONExtensions.TryGetValues``1(Newtonsoft.Json.Linq.JToken,System.String)">
+            <summary>
+            Returns the value based on key as a collection of values.
+            </summary>
+            <typeparam name="T">collection element type</typeparam>
+            <param name="jtoken">Jtoken instance</param>
+            <param name="key">Key used to retreive the assocated value</param>
+            <returns>
+            Returns null if jtoken is null or if the key does not exist, otherwise it returns the associated value as a collection.
+            </returns>
+        </member>
+        <member name="M:Common.JSONExtensions.TryGetValue(Newtonsoft.Json.Linq.JObject,System.String)">
+            <summary>
+            Returns the json value based on a key.
+            </summary>
+            <param name="jsonObj"></param>
+            <param name="key">Key used to retreive the assocated value</param>
+            <returns>
+            Returns null if jtoken is null or if the key does not exist, otherwise it returns the associated value.
+            </returns>
+        </member>
+        <member name="M:Common.JSONExtensions.TryGetValue``1(Newtonsoft.Json.Linq.JObject,System.String)">
+            <summary>
+            Returns the converted value based on key.
+            </summary>
+            <typeparam name="T">convert the json to this type</typeparam>
+            <param name="jsonObj">JObject instance</param>
+            <param name="key">Key used to retreive the assocated value</param>
+            <returns>
+            Returns null if jsonObj is null or if the key does not exist, otherwise it returns the associated value based on type T.
+            </returns>
+        </member>
+        <member name="M:Common.JSONExtensions.TryGetValue``1(Newtonsoft.Json.Linq.JToken,System.String)">
+            <summary>
+            Returns the converted value based on key.
+            </summary>
+            <typeparam name="T">convert the json to this type</typeparam>
+            <param name="jtoken">JToken instance</param>
+            <param name="key">Key used to retreive the assocated value</param>
+            <returns>
+            Returns null if jtoken is null or if the key does not exist, otherwise it returns the associated value based on type T.
+            </returns>
+        </member>
+        <member name="M:Common.JSONExtensions.TryGetValue``1(Newtonsoft.Json.Linq.JToken,System.String,``0@)">
+            <summary>
+            Returns the converted value based on key and updates the referenced updateField only if the key exists in json.
+            </summary>
+            <typeparam name="T">type of value being updated</typeparam>
+            <param name="jtoken">JToken instance</param>
+            <param name="key">Key used to retreive the assocated value</param>
+            <param name="updateField">the field that will be updated only if the json key exists</param>
+            <returns>
+            Returns null if jtoken is null or the key does not exists, otherwise the associated value.
+            </returns>
+        </member>
+        <member name="M:Common.JSONExtensions.TryGetValue``1(Newtonsoft.Json.Linq.JToken)">
+            <summary>
+            Returns the associated value of the JToken instance as the given type.
+            </summary>
+            <typeparam name="T">returns the json value as this type</typeparam>
+            <param name="jtoken">JToken instance</param>
+            <returns>
+            Returns null if jtoken is null or the associated json value as type T.
+            </returns>
+        </member>
+        <member name="M:Common.JSONExtensions.TryGetValue(Newtonsoft.Json.Linq.JToken,System.String)">
+            <summary>
+            Returns the json token value associated with key.
+            </summary>
+            <param name="jtoken">JToken instance</param>
+            <param name="key">Key used to retreive the assocated value</param>
+            <returns>
+            returns null if jtoken is null or if the key does not exists. Otherwise the associated value as a JToken.
+            </returns>
+        </member>
+        <member name="M:Common.JSONExtensions.TryGetValue``1(Newtonsoft.Json.Linq.JToken,System.Int32)">
+            <summary>
+            Returns the json value as type T from a JArray based on the position of index.
+            </summary>
+            <param name="jtoken">JToken instance</param>
+            <param name="index">index into the JArray</param>
+            <returns>
+            returns null if jtoken is null or the index is outside the bounds of the JArray. Otherwise the associated value is returned as type T.
+            </returns>
+        </member>
+        <member name="M:Common.JSONExtensions.NullSafeSet``2(Newtonsoft.Json.Linq.JToken,``0,System.Linq.Expressions.Expression{System.Func{``0,``1}})">
+            <summary>
+            Sets property (only if the json value exists) defined in outExpr with the converted json value.
+            </summary>
+            <typeparam name="TClass">property instance</typeparam>
+            <typeparam name="TProperty">property type</typeparam>
+            <param name="jtoken">JToken instance</param>
+            <param name="outObj">property instance, this value is passed to the outExp</param>
+            <param name="outExpr">defines the accessor of the property</param>
+            <example>
+            <code>
+            jsonObj.TryGetValue("10.14.150.121").TryGetValue("devices").TryGetValue("other").NullSafeSet(myInstance, i => i.field);
+            </code>
+            </example>
+        </member>
+        <member name="M:Common.JSONExtensions.NullSafeSet``2(Newtonsoft.Json.Linq.JToken,System.Int32,``0,System.Linq.Expressions.Expression{System.Func{``0,``1}})">
+            <summary>
+            Sets property (only if the json value exists) defined in outExpr with the converted json value based on the index into the JArray.
+            </summary>
+            <typeparam name="TClass">property instance</typeparam>
+            <typeparam name="TProperty">property type</typeparam>
+            <param name="jtoken">JToken instance</param>
+            <param name="index">The index into the JArray object</param>
+            <param name="outObj">property instance, this value is passed to the outExp</param>
+            <param name="outExpr">defines the accessor of the property</param>
+            <example>
+            <code>
+            jsonObj.TryGetValue("10.14.150.121").TryGetValue("devices").TryGetValue("other").NullSafeSet(1, myInstance, i => i.field);
+            </code>
+            </example>
+        </member>
+        <member name="M:Common.JSONExtensions.NullSafeSet``1(Newtonsoft.Json.Linq.JToken,System.Int32,System.Action{``0})">
+            <summary>
+            Calls the setOutput action where the argument is the json value based on type JValue. The action is only called if the index is within bounds of a JArray.
+            </summary>
+            <typeparam name="JValue">The type that the json value is converted to</typeparam>
+            <param name="jtoken">JToken instance</param>
+            <param name="index">the index into the JArray</param>
+            <param name="setOutput">the action is called only if the index is within the bounds of the JArray</param>
+        </member>
+        <member name="M:Common.JSONExtensions.NullSafeSet``1(Newtonsoft.Json.Linq.JToken,System.Action{``0})">
+            <summary>
+            Calls the setOutput action where the argument is the json value based on type JValue. The action is only called if the json value exists.
+            </summary>
+            <typeparam name="JValue">The type that the json value is converted to</typeparam>
+            <param name="jtoken">JToken instance</param>
+            <param name="setOutput">the action is called only if the json value is exists</param>
+        </member>
+        <member name="M:Common.JSONExtensions.EmptySafeSet``2(Newtonsoft.Json.Linq.JToken,System.Int32,``0,System.Linq.Expressions.Expression{System.Func{``0,``1}})">
+            <summary>
+            Sets the property to the converted json value based on TProperty only if jtoken is not null, the index is outside the bounds of the JArray, and the property&apos;s value is a C# value type or it is null.
+            </summary>
+            <typeparam name="TClass">property&apos;s instance type</typeparam>
+            <typeparam name="TProperty">property$apos;s type</typeparam>
+            <param name="jtoken">JToken instance</param>
+            <param name="index">Index into the JArray</param>
+            <param name="outObj">property&apos;s instance that is passed to outExpr</param>
+            <param name="outExpr">the setter of the property</param>
+            <example>
+            <code>
+            jsonObj.TryGetValue("10.14.150.121").TryGetValue("devices").TryGetValue("other").EmptySafeSet(1, myInstance, i => i.field);
+            </code>
+            </example>
+        </member>
+        <member name="M:Common.JSONExtensions.EmptySafeSet``2(Newtonsoft.Json.Linq.JToken,``0,System.Linq.Expressions.Expression{System.Func{``0,``1}})">
+            <summary>
+            Sets the property to the converted json value based on TProperty only if jtoken is not null, the json value exists, and the property&apos;s value is a C# value type or it is null.
+            </summary>
+            <typeparam name="TClass">property&apos;s instance type</typeparam>
+            <typeparam name="TProperty">property$apos;s type</typeparam>
+            <param name="jtoken">JToken instance</param>
+            <param name="outObj">property&apos;s instance that is passed to outExpr</param>
+            <param name="outExpr">the setter of the property</param>
+            <example>
+            <code>
+            jsonObj.TryGetValue("10.14.150.121").TryGetValue("devices").TryGetValue("other").EmptySafeSet(myInstance, i => i.field);
+            </code>
+            </example>
+        </member>
+        <member name="M:Common.JSONExtensions.ReadFileIntoJSON(System.String)">
+            <summary>
+            Reads text from a file and parses it into a json JObject.
+            </summary>
+            <param name="filePath">file path</param>
+            <returns>
+            if filepath is null, null is returned. Otherwise the file is read and parsed into a json JObject.
+            </returns>
+        </member>
+    </members>
+</doc>

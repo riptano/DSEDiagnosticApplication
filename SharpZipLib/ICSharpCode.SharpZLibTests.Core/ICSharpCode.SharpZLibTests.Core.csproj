@@ -1,0 +1,42 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\tests\Base\InflaterDeflaterTests.cs" Link="Base\InflaterDeflaterTests.cs" />
+    <Compile Include="..\tests\BZip2\Bzip2Tests.cs" Link="BZip2\Bzip2Tests.cs" />
+    <Compile Include="..\tests\Core\Core.cs" Link="Core\Core.cs" />
+    <Compile Include="..\tests\GZip\GZipTests.cs" Link="GZip\GZipTests.cs" />
+    <Compile Include="..\tests\Tar\TarTests.cs" Link="Tar\TarTests.cs" />
+    <Compile Include="..\tests\TestSupport\RingBuffer.cs" Link="TestSupport\RingBuffer.cs" />
+    <Compile Include="..\tests\TestSupport\Streams.cs" Link="TestSupport\Streams.cs" />
+    <Compile Include="..\tests\TestSupport\Utils.cs" Link="TestSupport\Utils.cs" />
+    <Compile Include="..\tests\TestSupport\ZipTesting.cs" Link="TestSupport\ZipTesting.cs" />
+    <Compile Include="..\tests\Zip\ZipTests.cs" Link="Zip\ZipTests.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="nunit" Version="3.12.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.15.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ICSharpCode.SharpZLib.Core\ICSharpCode.SharpZLib.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Base\" />
+    <Folder Include="BZip2\" />
+    <Folder Include="Core\" />
+    <Folder Include="GZip\" />
+    <Folder Include="Zip\" />
+    <Folder Include="TestSupport\" />
+    <Folder Include="Tar\" />
+  </ItemGroup>
+
+</Project>

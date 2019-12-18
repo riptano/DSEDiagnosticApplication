@@ -1,0 +1,455 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Common.Console</name>
+    </assembly>
+    <members>
+        <member name="T:Common.ConsoleWriter">
+            <summary>
+            Thread Safe class used to write to the Console. 
+            </summary>
+        </member>
+        <member name="M:Common.ConsoleWriter.SetTagToPosition(System.String,System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Resets the rewrite tag with the new position. If it does not exist it is created.
+            </summary>
+            <param name="tag"></param>
+            <param name="newLeftPosition"></param>
+            <param name="newTopPosition"></param>
+            <param name="lastMaxLineSize">
+            if less than -1 (default -2), the current value of Last Max Line Size remains the same.
+            if equal to -1, the Last Max Line Size is reset.
+            if greater than -1, that value is used as the Last Max Line Size.
+            </param>
+            <returns></returns>
+        </member>
+        <member name="M:Common.ConsoleWriter.SetTagToPosition(System.String,System.Boolean)">
+            <summary>
+            Set the rewrite tag to either the current console cursor position (useLastWritePosition = false) or set the tag to the current writer position.
+            </summary>
+            <param name="tag"></param>
+            <param name="useLastWritePosition">
+            if false, the current console cursor position is used.
+            if true (default), the current writer position is used.
+            </param>
+            <returns></returns>
+        </member>
+        <member name="M:Common.ConsoleWriter.ResetWriterToRightOfSpinner">
+            <summary>
+            Sets the writer cursor position just right of the current spinner position.
+            </summary>
+        </member>
+        <member name="M:Common.ConsoleWriter.RepositionCursor(System.Boolean)">
+            <summary>
+            This moves the cursor to either the last write position or to the spinner position based on the value of useWritePosition
+            </summary>
+            <param name="useWriterPosition">
+            If true (default) the last writer cursor position is used to move the cursor. If false, the spinner position is used to move the cursor.
+            </param>
+            <returns></returns>
+        </member>
+        <member name="M:Common.ConsoleWriter.SetSpinnerPositionToLeftOfWriter(System.Int32,System.Boolean)">
+            <summary>
+            Moves the spinner to left of the last write position. The write position is moved one space to the right.
+            </summary>
+            <param name="advanceWriterToRight">Move the writer the number of spaces to the right. Default is 1</param>
+            <param name="enableSpinner">
+            if true (default) and the spinner is not enabled the spinner is enabled.
+            </param>
+            <returns></returns>
+        </member>
+        <member name="M:Common.ConsoleWriter.IncrementVertical(System.Int32)">
+            <summary>
+            Moves the Writer&apos;s cursor Up or Down (Position up and Negative down)
+            </summary>
+            <param name="unitsUpDown">Positive units up or Negative units down</param>
+            <returns></returns>
+        </member>
+        <member name="M:Common.ConsoleWriter.IncrementHorizontal(System.Int32)">
+            <summary>
+            Moves the Writer&apos;s cursor Left of Right (Position to Right and Negative to Left)
+            </summary>
+            <param name="unitsLeftRight">Position to Right and Negative to Left</param>
+            <returns></returns>
+        </member>
+        <member name="M:Common.ConsoleWriter.AdjustScreenToFitHeight(System.Int32)">
+            <summary>
+            Adjusts the screen based on the initial console screen position and either the number of lines or the current write position.
+            </summary>
+            <param name="heightInLines">
+            The number of lines to adjust or -1 to use the current write position
+            </param>
+            <returns></returns>
+        </member>
+        <member name="M:Common.ConsoleWriter.AdjustScreenStartBlock(System.Boolean)">
+            <summary>
+            Marks the start of a console screen adjustments. The screen will be adjusted from this point to the call of the AdjustScreenToFitBasedOnStartBlock
+            </summary>
+            <param name="useWritePosition">
+            If ture (default), the current write position is used. 
+            If false, the current console cursor position is used.
+            </param>
+            <returns></returns>
+        </member>
+        <member name="M:Common.ConsoleWriter.AdjustScreenToFitBasedOnStartBlock(System.Boolean)">
+            <summary>
+            Adjusts the console screen from the start position to either the current write position or the console cursor position.
+            </summary>
+            <param name="useWritePostion">
+            if true (default), the current write position is used.
+            If false, the current console cursor position is used.
+            </param>
+            <returns></returns>
+        </member>
+        <member name="M:Common.ConsoleWriter.EnableSpinner(System.Boolean,System.Boolean)">
+            <summary>
+            Enables the Spinner. 
+            </summary>
+            <param name="advanceWriterLine">
+            If true (default) the cursor is position right below the spinner.
+            If false the writer cursor position is not altered. If useCurrentConsoleCursorPostion is false (default), the next write will overwrite the spinner position.
+            </param>
+            <param name="useCurrentConsoleCursorPostion">
+            If true the current console position it used for the placement of the spinner.
+            If false (default) the writer cursor position is used.
+            </param>
+        </member>
+        <member name="M:Common.ConsoleWriter.EnableSpinner(System.Int32,System.Int32,System.Boolean)">
+            <summary>
+            Enables the Spinner. 
+            </summary>
+            <param name="leftPosition">Left postion placemment of the spinner</param>
+            <param name="topPosition">Top position placement of the spinner</param>
+            <param name="advanceWriterLine">
+            If true (default) the cursor is position right below the spinner.
+            If false the writer cursor position is not altered. 
+            </param>
+        </member>
+        <member name="M:Common.ConsoleWriter.Turn(System.Int32,System.Boolean,System.Int32)">
+            <summary>
+            Turns the Spinner
+            </summary>
+            <param name="turns">Number of Turns (default is 1). If less than or equal to zero, no turns are appliced</param>
+            <param name="resetWriterPosition">
+            If True (default False) restores the cursor to the position of the last write position. This is typically not required since the Write methods will ensure the cursor is in the last write position.
+            </param>
+            <param name="turnDelayInMs">
+            If zero there is no delay.
+            If negative (default if -750), the delay is only applied when turns are greater than 1
+            If positive the delay is always applied regardless of the number of turns.
+            </param>
+            <returns>
+            False to indicate that the the spin was not executed. This may indicate that the spinner was not enabled or turns was zero.
+            </returns>
+        </member>
+        <member name="M:Common.ConsoleWriter.Turn(System.String,System.Int32,System.Int32)">
+            <summary>
+            Turns based on the saved tag position. If the tag does not exists, false is returned.
+            
+            This tag can be used with the ReWrite methods and enabling the Turn should NOT be performed.
+            </summary>
+            <param name="tag"></param>
+            <param name="turns">Number of Turns (default is 1). If less than or equal to zero, no turns are appliced</param>
+            <param name="turnDelayInMs">
+            If zero there is no delay.
+            If negative (default if -750), the delay is only applied when turns are greater than 1
+            If positive the delay is always applied regardless of the number of turns.
+            </param>
+            <returns>
+            False to indicate that the the spin was not executed. This may indicate that the spinner was not enabled or turns was zero.
+            </returns>
+            <remarks>
+            To create the tag use the ConsoleWrite.SetWriterPosition method
+            </remarks>
+        </member>
+        <member name="M:Common.ConsoleWriter.ClearLines(System.Boolean)">
+            <summary>
+            Clears the Console from the initialize of the class to the current writer line.
+            </summary>
+            <param name="useReWrite">
+            If false (default), standard write will occur. If true, the rewrite logic is used (overwrite line).
+            </param>
+        </member>
+        <member name="M:Common.ConsoleWriter.ClearLines(System.String)">
+            <summary>
+            Clears the line based on the saved tag cursor position. If the tag does not exists, this just returns.
+            </summary>
+            <param name="tag"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Common.ConsoleWriter.ClearScreen(System.Boolean)">
+            <summary>
+            Clears the Console Screen and buffer
+            </summary>
+            <param name="resetWritePosition">
+            if true (default), the writer position is reset to the top of the screen.
+            </param>
+            <returns></returns>
+        </member>
+        <member name="M:Common.ConsoleWriter.ReWriteAndTurn(System.String,System.Object[])">
+            <summary>
+            Combines ReWrite and Turn as one operation. Once written the last writer position is updated.
+            </summary>
+            <param name="formatStr"></param>
+            <param name="args"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Common.ConsoleWriter.ReWrite(System.String,System.Object[])">
+            <summary>
+            Writes over the last write position or rewritten from the last rewrite initial position. The last write position is updated from this write.
+            </summary>
+            <param name="formatStr"></param>
+            <param name="args"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Common.ConsoleWriter.ReWrite(System.String,System.String,System.Object[])">
+            <summary>
+            ReWrite restores the console position and performs the write based on the values saved when the tag was created (via SetWriterPosition).
+            
+            If the tag does not exists, false is returned.
+            </summary>
+            <param name="tag">Tag used to restore the saved cursor position</param>
+            <param name="formatStr"></param>
+            <param name="args"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Common.ConsoleWriter.ReWriteAdvance(System.String,System.Object[])">
+            <summary>
+            Writes over the last write position or rewritten from the last rewrite initial position. Once rewritten the cursor is advanced to the next line and the last write position is updated.
+            </summary>
+            <param name="formatStr"></param>
+            <param name="args"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Common.ConsoleWriter.Prompt(System.String,System.Object[])">
+            <summary>
+            This will display a prompt waiting for a response via Console.Read.
+            
+            Note that this will block any additional ConsoleWrite commands like Write, ReWrite, etc.
+            </summary>
+            <param name="formatStr"></param>
+            <param name="args"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Common.ConsoleWriter.PromptKey(System.String,System.Object[])">
+            <summary>
+            This will display a prompt waiting for a response via Console.ReadKey.
+            
+            Note that this will block any additional ConsoleWrite commands like Write, ReWrite, etc.
+            </summary>
+            <param name="formatStr"></param>
+            <param name="args"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Common.ConsoleWriter.PromptLine(System.String,System.Object[])">
+            <summary>
+            This will display a prompt waiting for a response via Console.ReadLine.
+            
+            Note that this will block any additional ConsoleWrite commands like Write, ReWrite, etc.
+            </summary>
+            <param name="formatStr"></param>
+            <param name="args"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Common.ConsoleWriter.ReserveRwWriteConsoleSpace(System.String,System.Int32,System.Boolean,System.Boolean,System.Boolean,System.Boolean,System.Boolean)">
+            <summary>
+            This is used to save or "crave out" an area on the screen for a tagged rewrite. 
+            
+            If the tag does not exists it is created.
+            </summary>
+            <param name="tag">The tag that will be saved</param>
+            <param name="maximumDisplayLength">The number of characters that will be used to save that area on the screen</param>
+            <param name="useLastWritePosition">
+            If true (default), the last ConsoleWriter.Write position will be used, if a write has occurred. Otherwise the console&apos;s current cursor position is used.
+            If false, console&apos;s current cursor position is used.
+            </param>
+            <param name="updateWritePosition">
+            if true (default), the ConsoleWriter&apos;s write position is updated.
+            </param>
+            <param name="insertNewLine">
+            If true (default), a new line is inserted so that the next write will be on a new line.
+            </param>
+            <param name="convertToNewLines">
+            If true (default), the maximum display length is converted to the number of lines based on the current console display. That value is used to reserve to console screen space.
+            If false, the total maximum display length is just used which includes any line wrap based on the current console display.
+            </param>
+            <param name="autoSizeConsoleWindow">
+            if true (default is false), the console window is resized (only expanded, if possible) based on the following logic:
+                if convertToNewLines is true -- Only the window&apos;s height will be expanded, if required.
+                if convertToNewLines is false -- the window&apos;s height and width will be expanded, if required.
+            </param>
+            <returns></returns>
+        </member>
+        <member name="M:Common.ConsoleWriter.ReserveRwWriteConsoleSpace(System.String,System.Int32,System.Int32,System.Boolean,System.Boolean,System.Boolean,System.Boolean)">
+            <summary>
+            This is used to save or "crave out" an area on the screen for a tagged rewrite. 
+            
+            If the tag does not exists it is created.
+            </summary>
+            <param name="tag">The tag that will be saved</param>
+            <param name="maximumNumberofLines">
+            The maximum number of lines expected for the rewrite to use.
+            </param>
+            <param name="maximumLineLength">
+            The maximum number of characters used by a line or -1 to just use maximum number of lines.
+            </param>
+            <param name="useLastWritePosition">
+            If true (default), the last ConsoleWriter.Write position will be used, if a write has occurred. Otherwise the console&apos;s current cursor position is used.
+            If false, console&apos;s current cursor position is used.
+            </param>
+            <param name="updateWritePosition">
+            if true (default), the ConsoleWriter&apos;s write position is updated.
+            </param>
+            <param name="insertNewLine">
+            If true (default), a new line is inserted so that the next write will be on a new line.
+            </param>
+            <param name="autoSizeConsoleWindow">
+            if true (default is false), the console window is resized (only expanded, if possible) based on the following logic:
+                if convertToNewLines is true -- Only the window&apos;s height will be expanded, if required.
+                if convertToNewLines is false -- the window&apos;s height and width will be expanded, if required.
+            </param>
+            <returns></returns>
+        </member>
+        <member name="M:Common.ConsoleWriterAsyc.WaitUntilQueueIsEmpty(System.Int32,System.Int32)">
+            <summary>
+            Waits until the queue is either empty, stopped, or suspended.
+            </summary>
+            <param name="timeoutInMs"> if non-negitive, the time out value in milliseconds</param>
+            <param name="waitTimeMs">the amount of time to wait between queue status checks.</param>
+            <returns>true to indicate the queue is empty (stopped) or false to indicate that the time out value was reached.</returns>
+        </member>
+        <member name="P:Common.ConsoleWriterAsyc.QueueThresholdTrigger">
+            <summary>
+            When threshold is reached the OnQueueThresholdEvent is fired.
+            </summary>
+        </member>
+        <member name="P:Common.ConsoleWriterAsyc.DefaultReadTimeOut">
+            <summary>
+            The default timeout value in milliseconds for Read/Prompt commands.
+            </summary>
+        </member>
+        <member name="M:Common.ConsoleWriterAsyc.ClearLines(System.Boolean)">
+            <summary>
+            Clears the Console from the initialize of the class to the current writer line.
+            </summary>
+            <param name="useReWrite">
+            If false (default), standard write will occur. If true, the rewrite logic is used (overwrite line).
+            </param>
+        </member>
+        <member name="M:Common.ConsoleWriterAsyc.Turn(System.Int32,System.Boolean,System.Int32)">
+            <summary>
+            Turns the Spinner
+            </summary>
+            <param name="turns">Number of Turns (default is 1). If less than or equal to zero, no turns are appliced</param>
+            <param name="resetWriterPosition">
+            If True (default False) restores the cursor to the position of the last write position. This is typically not required since the Write methods will ensure the cursor is in the last write position.
+            </param>
+            <param name="turnDelayInMs">
+            If zero there is no delay.
+            If negative (default if -750), the delay is only applied when turns are greater than 1
+            If positive the delay is always applied regardless of the number of turns.
+            </param>
+            <returns>
+            False to indicate that the the spin was not executed. This may indicate that the spinner was not enabled or turns was zero.
+            </returns>
+        </member>
+        <member name="M:Common.ConsoleWriterAsyc.ReWriteAndTurn(System.String,System.Object[])">
+            <summary>
+            Combines ReWrite and Turn as one operation. Once written the last writer position is updated.
+            </summary>
+            <param name="formatStr"></param>
+            <param name="args"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Common.ConsoleWriterAsyc.ReWrite(System.String,System.Object[])">
+            <summary>
+            Writes over the last write position or rewritten from the last rewrite initial position. The last write position is updated from this write.
+            </summary>
+            <param name="formatStr"></param>
+            <param name="args"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Common.ConsoleWriterAsyc.ReWriteAdvance(System.String,System.Object[])">
+            <summary>
+            Writes over the last write position or rewritten from the last rewrite initial position. Once rewritten the cursor is advanced to the next line and the last write position is updated.
+            </summary>
+            <param name="formatStr"></param>
+            <param name="args"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Common.ConsoleHelper.ReadArray``1(System.String,System.Nullable{System.ConsoleColor},System.Nullable{System.ConsoleColor},System.Char[])">
+            <summary>
+            Reads the input, converts to the type of T and returns an array of type T
+            </summary>
+            <typeparam name="T">input that will be converted to type T</typeparam>
+            <param name="msg">The message that is display before the prompt</param>
+            <param name="backgroundColor">Background Color</param>
+            <param name="foregroundColor">Foreground Color</param>
+            <param name="seperators">The seperator used between array items. Default is comma</param>
+            <returns>Returns an array of elements of type T</returns>
+        </member>
+        <member name="M:Common.ConsoleHelper.PrintToStream(System.String[0:,0:],System.IO.StreamWriter)">
+            <summary>
+            Prints the array values to the stream
+            </summary>
+            <param name="arrValues"></param>
+            <param name="writer"></param>
+        </member>
+        <member name="M:Common.ConsoleHelper.PrintToConsole(System.String[0:,0:],System.Nullable{System.ConsoleColor},System.Nullable{System.ConsoleColor})">
+            <summary>
+            Prints the array values to the console stream
+            </summary>
+            <param name="arrValues"></param>
+            <param name="backgroundColor"></param>
+            <param name="foregroundColor"></param>
+        </member>
+        <member name="T:Common.ConsoleMenu`1">
+            <summary>
+            List of menu items to be displayed and returns the chosen item. 
+            </summary>
+            <example>
+            <code>
+            	public enum MenuItemTypes
+                {
+                        Item1 = 1,
+                        Item2 = 2,
+                        Item3 = 3
+                 }
+                 
+            	var menu = new ConsoleMenu&lt;MenuItemTypes&gt;(Console.OpenStandardOutput(), Console.OpenStandardInput())
+            	{
+            		Header = "Please select a benchmark test type:"
+            	};
+            
+            	menu.ShowMenu();
+            
+            	Console.WriteLine();
+            	Console.WriteLine("You Selected: " + menu.SelectedMenuEntry.ToString());
+                Console.WriteLine();
+            </code>
+            </example>
+            <typeparam name="T">An enum where the values are used as the menu items</typeparam>
+        </member>
+        <member name="P:Common.ConsoleMenu`1.Header">
+            <summary>
+            The header that is displayed at the top of the menu selection. The default is &quot;Please choose an option:&quot;
+            </summary>
+        </member>
+        <member name="P:Common.ConsoleMenu`1.Delimiter">
+            <summary>
+            The delimiter used to separate the menu choice number and the menu text (enum name). The default is &quot;-&quot;
+            </summary>
+        </member>
+        <member name="M:Common.ConsoleMenu`1.#ctor">
+            <summary>
+            Uses the console&apos;s Output and Input streams.
+            </summary>
+        </member>
+        <member name="M:Common.ConsoleMenu`1.ShowMenu(System.Boolean)">
+            <summary>
+            Displays the Menu
+            </summary>
+            <param name="parseUnderlineToWhitespace"></param>
+        </member>
+    </members>
+</doc>

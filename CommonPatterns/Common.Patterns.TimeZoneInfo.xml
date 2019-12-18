@@ -1,0 +1,2020 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Common.Patterns.TimeZoneInfo</name>
+    </assembly>
+    <members>
+        <member name="P:Common.Patterns.TimeZoneInfo.Database.Country.Name">
+            <summary>
+            The Country's Name
+            </summary>
+            <example>United States</example> 
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.Database.Country.ISO3166">
+            <summary>
+            The Country's ISO 30166 Code
+            </summary>
+            <example>US</example>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.Database.CountryTimeZoneMappings.ParseTimeZoneCountryCodeLine(System.String)">
+             <summary>
+             Finds or creates a new object based on parsing the line for keyword information. Once found or created it is inserted into the proper collection.
+             Tabs or spaces are used as a delimiter between the fields.
+             Fields are order sensitive!
+            
+             Below is the a sample line to be parsed. Note that the items between the '[' and ']' are information... All fields are required. To represent a null field use '-'. 
+             
+             [country code]    [Coordinates] [Associated Time Zone]  [Comments] 
+             </summary>
+             <param name="line">Line that will be parsed and it should NOT need to be trimed!</param>            
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.Database.CountryTimeZoneMappings.ParseCountryISOCodeLine(System.String)">
+             <summary>
+             Finds or creates a new object based on parsing the line for keyword information. Once found or created it is inserted into the proper collection.
+             Tabs or spaces are used as a delimiter between the fields.
+             Fields are order sensitive!
+            
+             Below is the a sample line to be parsed. Note that the items between the '[' and ']' are information... All fields are required. To represent a null field use '-'. 
+             
+             [code]    [Country Name]
+             </summary>
+             <param name="line">Line that will be parsed and it should NOT need to be trimed!</param>      
+        </member>
+        <member name="T:Common.Patterns.TimeZoneInfo.Database.StatusTypes">
+            <summary>
+            The current status of the Time Zone Database...
+            </summary>   
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.Database.db4oDatabase.ContainsBackwardCompatibleTZNames">
+            <summary>
+            Determines if the IANA Backward Compatible Time Zones are included in this database.
+            If true, they are included.
+            If false, they are not included.
+            If null, the database is either being built or cannot determine the result.
+            </summary>
+            <remarks>
+            If true, the time zones are loaded from the IANA &quot;backward&quot; file. 
+            </remarks>
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.Database.db4oDatabase.ContainsHistoricalTimeZones">
+            <summary>
+            Determines if the IANA Historical Time Zones are included in this database.
+            If true, they are included.
+            If false, they are not included.
+            If null, the database is either being built or cannot determine the result.
+            </summary>
+            <remarks>
+            If true, the historical time zones are loaded from the IANA &quot;backzone&quot; file. 
+            </remarks>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.Database.Zone.TryGetCreate(Common.Patterns.TimeZoneInfo.IDatabase,System.String,System.String,System.String,System.Boolean,System.Boolean,System.Boolean)">
+             <summary>
+             Finds or creates a new object based on parsing the line for keyword information.
+             Tabs or spaces are used as a delimiter between the fields.
+             Fields are order sensitive!
+            
+             Below is the a sample line to be parsed. Note that the items between the '[' and ']' are information... All fields are required. To represent a null field use '-'. 
+             
+             Zone    [Name]    [FromYear]    [ToYear]|only|max   [Type]  [InMonth]   [OnDay]|[keywords] [AtTime] [Offset Timespan from UTC]   [AbbrFormat Letter]   
+             </summary>
+             <param name="databaseInstance">The OO database</param>
+             <param name="line">The Line being parsed and it should NOT need to be trimed!</param>
+             <param name="formatedName">The Zone's Display Name. The default is null.</param>
+             <param name="defaultZoneName">If the first field (Zone Keyword) and the second field ([Name]) are missing/empty this value becomes the Zone Name by default</param>
+             <param name="isBackwardCompatible">If true (false default), this zone is a backward compatible zone which indicates that it is NOT the most current.</param>
+             <param name="isHistoric">if true, the time zone rules are historical and are less reliable usually from pre-1970 era. Default is false.</param>
+             <param name="updateDatabase">If true (default) the database is updated with the new instance</param>
+             <returns>a found or newly created instance</returns>     
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.Database.Zone.FindZone(Common.Patterns.TimeZoneInfo.IDatabase,System.String,Common.Patterns.TimeZoneInfo.ZoneNameTypes,System.Boolean)">
+            <summary>
+            Tries to find a zone based on its' name. Name could be a IANA Time Zone name, a Windows' Time Zone Id, or a Display name.
+            </summary>
+            <param name="databaseInstance">The Time Zone Database</param>
+            <param name="name">The Time Zone name</param>
+            <param name="tzNameType">The Time Zone Name's Type (IANA, WindowsId, Formatted, etc.)</param>
+            <param name="returnFirstOccurrence"></param>
+            <returns>Returns the TimeZone or null to indicate that the Time Zone does not exists in the database.</returns>
+            <remarks>
+            When finding a Time Zone based on the Windows' Time Zone Id, care should be taken since the relationship between Time Zone and the Windows' ID can be many-to-many. This 
+            method will return this first found zone in this mapping. To get all possible Time Zones for a Windows' Id use the FindZones method.
+            </remarks>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.Database.Zone.FindZones(Common.Patterns.TimeZoneInfo.IDatabase,System.String,Common.Patterns.TimeZoneInfo.ZoneNameTypes,System.Boolean)">
+            <summary>
+            Returns an Array of IZones that match the search arguments.
+            </summary>
+            <param name="databaseInstance">The Time Zone Database</param>
+            <param name="searchTimeZoneName">A Time Zone Name, Windows' Time Zone Id, or a Formatted Name based on the tzNameType argument. If this argument is string.Empty all Zones are returned.</param>
+            <param name="tzNameType">The Type of Name being searched.</param>
+            <param name="containSearch">If true (default) the search is conducted by the containment comparison (the argument is "part of" the name).</param>       
+            <returns>Returns an array of zones that match the given argument. If nothing matches the arguments an empty array is returned.</returns>
+            <exception cref="T:System.ArgumentNullException">Is thrown when the searchTimeZoneName or databaseInstance are null.</exception>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.Database.Zone.FindZonesFromLOCODE(Common.Patterns.TimeZoneInfo.IDatabase,System.String)">
+            <summary>
+            Returns an Array of Zones associated to the Location Code (LOCODE)
+            </summary>
+            <param name="databaseInstance">The Time Zone Database</param>
+            <param name="loCode">The UN Location Code (LOCODE)</param>
+            <returns>An Array of associated Zones or an Empty Array</returns>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.Database.Zone.FindZoneFromLOCODE(Common.Patterns.TimeZoneInfo.IDatabase,System.String)">
+            <summary>
+            Returns the &quot;best&quot; Time Zone based on the Location Code (LOCODE). 
+            </summary>
+            <param name="databaseInstance">The Time Zone Database</param>
+            <param name="loCode">The UN Location Code (LOCODE)</param>
+            <returns>Returns the associated Time Zone or null</returns>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.Database.Zone.FindZoneBasedOnDateTimeOffset(Common.Patterns.TimeZoneInfo.IDatabase,System.DateTimeOffset)">
+            <summary>
+            Returns an Array of IZones based on the given UTC Offset.
+            </summary>
+            <param name="databaseInstance">The Time Zone Database</param>
+            <param name="findBasedOnDateTimeOffset">The UTC Offset used for the search</param>
+            <returns>Returns an array of zones based on the offset or an empty array if the search fails</returns>
+            <exception cref="T:System.ArgumentNullException">Is thrown if databaseInstance is null.</exception>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.Database.Zone.GetZoneNames(Common.Patterns.TimeZoneInfo.IDatabase,Common.Patterns.TimeZoneInfo.ZoneNameTypes,System.Boolean)">
+            <summary>
+            Returns all Time Zone names based on the name type.
+            </summary>
+            <param name="databaseInstance">The Time Zone Database</param>
+            <param name="tzNameType">The type of name to return</param>
+            <param name="ignoreAliases">If true (default) aliases are ignored (not returned)</param>
+            <returns>Returns an array of Names</returns>
+            <exception cref="T:System.ArgumentNullException">Is thrown if databaseInstance is null.</exception>
+            <exception cref="T:System.ArgumentException">Is thrown when tzNameType is not valid</exception>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.Database.Zone.GetZones(Common.Patterns.TimeZoneInfo.IDatabase,System.Boolean)">
+            <summary>
+            Returns All Zones
+            </summary>
+            <param name="databaseInstance">The TimeZone Database</param>
+            <param name="ignoreAliases">If true (default) aliases are ignored (not returned)</param>
+            <returns>Returns an array of Zones</returns>
+            <exception cref="T:System.ArgumentNullException">Is thrown if databaseInstance is null.</exception>        
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.Database.Zone.IsStaticUTCOffset">
+            <summary>
+            Returns true only when this Time Zone only has a static (non-changing) UTC Offset. 
+            
+            Example is Etc/GMT, Etc/UTC, etc.
+            </summary>
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.Database.Zone.SpansRegions">
+            <summary>
+            Returns true to indicate that this time zone spans multiple regionals within or outside of a country. 
+            
+            When this is true the LOCODE represents the primary city that falls within this time zone.
+            </summary>
+            <example>
+            US/Central (Central Time Zone in the US) -- This time zone spans several US States. The Primary City is Chicago.
+            Poland -- This time zone is for Poland (spans cities and regions within Poland). The Primary Cite is Warsaw
+            </example>
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.Database.Zone.FormattedName">
+            <summary>
+            Returns the more "Friendly" Name of the Time Zone. This name will
+            consist of the Time Zone's originating country separated by a '\' follow
+            by the City or IANA name.
+            Note that this can return null (indicating that the Time Zone does not have a Display Name). 
+            </summary>
+            <remarks>
+            If you require that a string is always returned, see DisplayName property.
+            </remarks>
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.Database.Zone.DisplayName">
+            <summary>
+            Always returns a string that represents the Time Zone's FormattedName (in the cases where FormattedName returns null, a string.Empty is returned).
+            </summary>
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.Database.Zone.UserTag">
+            <summary>
+            Sets or Returns a user defined object that can be associated with this Zone.
+            </summary>
+            <remarks>
+            This property can be serialized but should NOT be stored into a database.
+            </remarks>
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.Database.Zone.Id">
+            <summary>
+            Returns an Id that is always unique and can always be used as a reference for this Time Zone.
+            </summary>
+            <remarks>
+            This Id is tied to the Time Zone name and if the name changes this Id will also change. 
+            </remarks>
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.Database.Zone.HasDayLightSavingTimeRules">
+            <summary>
+            Returns true when this Time Zone has any Day Light Saving Time Rules.
+            </summary>
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.Database.Zone.IsProvidedForBackwardCompatibility">
+            <summary>
+            True only when this TimeZone is provided for Backward Compatibility!
+            </summary>
+            <remarks>
+            Care should be taken when using this Time Zone since it may not be current!
+            
+            If this timezone is an Alias (IsAlias is true), the LinkedToTimeZone property of ZoneAlias may contain the most current timezone definition. 
+            </remarks>
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.Database.Zone.IsHistoric">
+            <summary>
+            True only when this time zone is historical and are less reliable usually from pre-1970 era.
+            </summary>
+            <remarks>
+            Care should be taken when using this Time Zone since it may not be reliable.
+            </remarks>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.Database.Zone.DetermineUTCOffset(System.DateTime,System.Nullable{Common.Patterns.TimeZoneInfo.FindRuleResult}@,System.Boolean)">
+            <summary>
+            Returns the UTC Offset based on the given Date/Time. 
+            </summary>
+            <param name="dateTimeUsedToDetermineUTCOffset">The date used to determine the UTC Offset</param>
+            <param name="findRuleResult">
+            Returns the Time Zone's rule result that was applied for the given date/time.
+            Note that this can be null even if a UTC Offset was determined. In this case there were no rules and the Time Zone's default UTC was used.</param>        
+            <param name="dateTimeIsUTC">
+            If true (default false), dateTimeUsedToDetermineUTCOffset's value is a UTC date/time.
+            </param>
+            <returns>
+            Returns a UTC Offset or null to indicate one could not be determined.
+            Note that when UTC Offset is null appliedRule is null and enforcementDateTime will be DateTime.MinValue. 
+            </returns>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.Database.Zone.ConvertToUTCOffset(System.DateTime,System.Nullable{Common.Patterns.TimeZoneInfo.FindRuleResult}@,System.Boolean)">
+            <summary>
+            Converts the given date/time into a DateTimeOffset. 
+            </summary>
+            <param name="convertToUTCOffset">Date/Time to convert to an DateTimeOffset</param>
+            <param name="findRuleResult">The Time Zone rule associated with this conversion</param>       
+            <param name="dateTimeIsUTC"></param>
+            <returns>Returns a converted date/time or null to indicate that the Time Zone Rule could not be found or conversion could not be performed</returns>
+            <remarks>
+            Note that this method can return a UTC date/time (UTC offset of zero). This will occur if the UTC Offset has seconds (e.g., UTC-5:50:36).
+            </remarks>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.Database.ZoneAlias.TryGetCreate(Common.Patterns.TimeZoneInfo.IDatabase,System.String,System.Boolean,System.Boolean,System.Boolean)">
+             <summary>
+             Finds or creates a new object based on parsing the line for keyword information.
+             Tabs or spaces are used as a delimiter between the fields.
+             Fields are order sensitive!
+            
+             Below is the a sample line to be parsed. Note that the items between the '[' and ']' are information...
+             
+             Link    [TargetTimeZoneName]    [AliasName]
+             </summary>
+             <param name="databaseInstance">The OO database</param>
+             <param name="line">Line being parsed and it should NOT need to be trimed!</param>
+             <param name="isBackwardCompatible">If true (false default), this zone is a backward compatible zone which indicates that it is NOT the most current.</param>       
+             <param name="isHistoric">if true, the time zone rules are historical and are less reliable usually from pre-1970 era. Default is false.</param>
+             <param name="updateDatabase">If true (default) the database is updated with this new instance</param>
+             <returns>a found or newly created instance</returns>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.Database.ZoneAlias.FindAliasesLinkedToThisZone(Common.Patterns.TimeZoneInfo.IDatabase,System.String,System.Boolean)">
+            <summary>
+            Finds all Aliases that are linked to linkedToTimeZoneName. Note that this name must be an IANA name.
+            </summary>
+            <param name="databaseInstance">The TimeZone Database</param>
+            <param name="linkedToTimeZoneName">The IANA name or part of an IANA name if contains argument is true. If this is a string.Empty all Aliases are returned.</param>
+            <param name="contains">If true (default is false) the search is conducted by the containment comparison (the argument is "part of" the name).</param>  
+            <returns>an array of Aliases or an empty array to indicate that the search failed</returns>
+            <exception cref="T:System.ArgumentNullException">Is thrown if databaseInstance is null or linkedToTimeZoneName is null.</exception>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.Database.ZoneRule.UpdateTZRules(Common.Patterns.TimeZoneInfo.IDatabase,Common.Patterns.TimeZoneInfo.Database.Zone,Common.Patterns.TimeZoneInfo.Database.ZoneRule[],System.String,System.Boolean)">
+            <summary>
+            Updates All TZ Rule Information related to this ZoneRule.
+            </summary>
+            <param name="databaseInstance">The OO Database instance</param>
+            <param name="timeZone">Time Zone Instacne associated with this ZoneRule</param>
+            <param name="zoneRules">The Array of Assocated ZoneRule&apos;s. This array must be properly sorted!</param>
+            <param name="tzRuleName">the Time Zone Rule Name or null (default) which indicates the TZRuleName property will be used for the update</param>
+            <param name="updateDatebase">Updates the Database if true (the default)</param>
+            <remarks>
+            Warning: This ZoneRule Instance MUST have all properties like dates, sorting, ordering indexes, etc. initialized before calling this method. 
+            </remarks>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.Database.ZoneRule.UpdateTimeZone(Common.Patterns.TimeZoneInfo.IDatabase,System.String,System.Boolean)">
+            <summary>
+            Updates the TimeZone field based on the given timeZoneName or TimeZoneName property if timezoneName is null.
+            </summary>
+            <param name="databaseInstance">The OO Database instance</param>
+            <param name="timezoneName">the Time Zone Name or null (default) which indicates the TimeZoneName property will be used for the update</param>
+            <param name="updateDatabase">If true (default) updates the database.</param>
+            <returns>The Time Zone instance or null</returns>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.Database.ZoneRule.TryGetCreate(Common.Patterns.TimeZoneInfo.IDatabase,System.String,Common.Patterns.TimeZoneInfo.IZone,System.TimeSpan,System.String,System.String,System.DateTime,Common.Patterns.TimeZoneInfo.Database.TimeZoneSpan,System.Boolean,System.Boolean)">
+            <summary>
+            Tries to first Find the ZoneRule first and if not found it will create a new instance.
+            </summary>
+            <param name="databaseInstance">The database instance</param>
+            <param name="timeZoneName">The name of the Time Zone. It can be null and if timeZone instance is given that name is used.</param>
+            <param name="timeZone">The timeZone instance. It can be null and in which case the time zone name is used.</param>
+            <param name="utcOffset">The Time Zone's GMT offset</param>
+            <param name="tzRuleName">The associated Rule Name</param>
+            <param name="tzAbbrFormat">The Time Zone Abbreviated/Short name</param>
+            <param name="ruleGoodUntil">The date/time that this rule is good until</param>
+            <param name="ruleIANAUntilTime"></param>
+            <param name="updateDatabase">if true (default) the database is updated with this newly created instance.</param>
+            <param name="createUTCAdjustmentRulesOnFly">If true (default), if tzRuleName is a UTC Offset adjustment rule, it will be created (or found) and associated with the instance.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.Database.ZoneRule.FindZoneRules(Common.Patterns.TimeZoneInfo.IDatabase,System.String,System.String,System.Boolean,System.Boolean)">
+            <summary>
+            Returns an array of ZoneRules that match the given arguments.
+            </summary>
+            <param name="databaseInstance">The database instance</param>
+            <param name="timeZoneName">The Name of the timeZone that is associated with a ZoneRule or an empty string for all. This is the IANA Name.</param>
+            <param name="ruleName">The name of the rule associated with a ZoneRule or an empty string for all</param>
+            <param name="timeZoneNameContains">If true (default is false) the search is conducted by the containment comparison (the argument is "part of" the timeZoneName).</param>       
+            <param name="ruleNameContains">If true (default is false) the search is conducted by the containment comparison (the argument is "part of" the ruleName).</param>               
+            <returns>Returns an array of rules that matches the given argument or an empty array to indicate none</returns>
+            <exception cref="T:System.ArgumentNullException">This is thrown when database, timeZone or ruleName are null/empty</exception>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.Database.ZoneRule.FindZoneRule(Common.Patterns.TimeZoneInfo.IDatabase,System.String,System.TimeSpan,System.String,System.DateTime)">
+            <summary>
+            Finds a specific Rule based on the given arguments. It only should return one ZoneRule, but it is possible it can match more than one... 
+            </summary>
+            <param name="databaseInstance">OODB Database</param>
+            <param name="timeZoneName">The name of the timeZone associated with this ZoneRule</param>
+            <param name="utcOffset">The Time Zone's GMT Offset</param>
+            <param name="tzRuleName">The associated Time Zone Rule Name</param>        
+            <param name="ruleGoodUntil">The Date/Time this associated Time Zone Rule applies.</param>      
+            <returns>Returns a ZoneRule instance based on the given argument or an empty array to indicate none were found.</returns>
+            <exception cref="T:System.ArgumentNullException">Thrown when database is null.</exception>
+            <remarks>
+            This method should only return an empty array or one matching ZoneRule. It is possible that multiple rules can be returned, but this should indicate an data constraint error.
+            </remarks>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.Database.ZoneRule.FindZoneRules(Common.Patterns.TimeZoneInfo.IDatabase,Common.Patterns.TimeZoneInfo.IRule)">
+            <summary>
+            Finds all associated ZoneRules for the given rule instance.
+            </summary>
+            <param name="databaseInstance">The Time Zone Database</param>
+            <param name="rule">A Time Zone Rule Instance</param>
+            <returns>an array of associated ZoneRules for the given instance or an empty array if none are present.</returns>
+            <exception cref="T:System.ArgumentNullException">Thrown when database is null.</exception>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.Database.ZoneRule.FindZoneRules(Common.Patterns.TimeZoneInfo.IDatabase,Common.Patterns.TimeZoneInfo.IRule[])">
+            <summary>
+            Finds all associated ZoneRules for the given rule array.
+            </summary>
+            <param name="databaseInstance">The Time Zone Database</param>
+            <param name="rules">An array of Time Zone Rule Instance</param>
+            <returns>an array of associated ZoneRules for the given instance array or an empty array there are no matches.</returns>
+            <exception cref="T:System.ArgumentNullException">Thrown when database or rules arguments are null.</exception>
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.Database.ZoneRule.RuleGoodUntil">
+            <summary>
+            The date/time this rule is good for (exclusive, &lt;)
+            </summary>   
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.Database.ZoneRule.IANAUntilTime">
+            <summary>
+            This is the Time associated with the IANA File Zone&quot;s Until Date/Time (only Time portion). 
+            
+            This is for debugging purposes only!
+            </summary>
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.Database.ZoneRule.HasTZRules">
+            <summary>
+            Returns true to indicate that the TZRules are NOT NULL and the array length is greater then zero...
+            </summary>
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.Database.ZoneRule.IsTZRulesNull">
+            <summary>
+            Returns true then TZRules is NULL.
+            </summary>
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.Database.ZoneRule.TZStandardTimeDefaultAbbr">
+            <summary>
+            Returns This ZoneRule&apos;s Standard Time Default Abbreviation 
+            </summary>
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.Database.ZoneRule.EnforcementDate">
+            <summary>
+            A date range where the Min property is the starting date/time (inclusive, &gt;=) and the Max property is the ending date/time (exclusive, &lt;) for this ZoneRule.
+            </summary>
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.Database.ZoneRule.EnforcementUTCDate">
+            <summary>
+            A date range where the Min property is the starting date/time as UTC (inclusive, &gt;=) and the Max property is the ending date/time as UTC (exclusive, &lt;) for this ZoneRule.
+            </summary>
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.Database.ZoneRule.StartingRule">
+            <summary>
+            Returns the first rule for this ZoneRule based on the Apply Date.
+            </summary>
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.Database.ZoneRule.EndingRule">
+            <summary>
+            Returns the Ending Rule for this ZoneRule just BEFORE the RuleGoodUntil date.
+            </summary>
+            <remarks>
+            The Ending Rule can be Empty. When this occurs the associated time zone rule will be a static UTC offset that will not expire (Good Till Date is DateTime.Max).
+            If the Ending Rule is ApplyDateMax (Apply Date is DateTime.MaxValue), this indicates that the zone rule will not expire but has a repeating time zone change (e.g., DST to Std, Std to DST)
+            In this case the Enforcement Date Range property should contain the next occurrence and the Rule/ZoneRule properties should have the time zone rule.
+            </remarks>
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.Database.ZoneRule.PriorRule">
+            <summary>
+            This is the Prior Rule BEFORE the Apply Date (prior ZoneRule&apos;s RuleGoodUntil date).   
+            </summary>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.Database.ZoneRule.GetAbbreviationFormat(System.DateTime)">
+            <summary>
+            Returns the Time Zone Abbreviation format string for the zone.
+            </summary>
+            <returns>A formatted string associated with this time zone and rule or empty string to indicate no time zone abbreviation found.</returns>
+            <example>In Australia/Melbourne the format strings are
+            AEST or AEDT if in daylight savings</example>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.Database.ZoneRule.GetTimeZoneInformation(System.DateTime)">
+            <summary>
+            Returns Complete Time Zone Information ONLY based on this or prior ZoneRule(s)!
+            </summary>
+            <param name="dateTimeUsedToObtainInformation">The date/time used to determine TZ Information. This MUST be in local time.</param>        
+            <returns>The TZ information BASED ONLY on this or prior ZoneRule(s)!</returns>        
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.Database.ZoneRule.FindRule(System.DateTime,System.Boolean)">
+            <summary>
+            Returns the &quot;Best&quot; Rule based on the forDateTime. 
+            </summary>
+            <param name="forDateTime">Rule based on this date/time</param>          
+            <param name="datetimeIsUTC">If true (default is false), the forDateTime is UTC (not local time)</param>
+            <returns>
+            The FindRuleResult
+            </returns>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.Database.ZoneRule.SameTimeZoneRange(Common.Patterns.TimeZoneInfo.IZoneRule,Common.Patterns.TimeZoneInfo.IZoneRule,System.Boolean,System.Boolean)">
+            <summary>
+            Returns true when A and B have the same time zone range which indicates that there is NO local date/time change to indicate a change from DST to Std or change in Time Zone Name.
+            </summary>
+            <param name="zoneRuleA"></param>
+            <param name="zoneRuleB"></param> 
+            <param name="treatWithRulesToNoRulesAsDiffRange">
+            If true (default false) and if Rule Zone A has TZ Rules but Rule Zone B does not, this returns false. This is also true for the reverse (A does Not but B does).
+            </param>
+            <param name="treatDifferentDynamicNameTypesAsSameRange">
+            if true (default false) and if the zones have different dynamic time zone name format types (e.g., one uses %s and the other has /) it would be treated as the same range.
+            </param>
+            <returns></returns>
+            <example>
+                
+            LocalDate  LocalTime                    DST    UTCOffset   TimeZone    Event/details
+            
+            Sunday, October 1, 1916
+                        1:59:59 AM                  No      UTC+10h     ET
+                        2:00:00 AM → 3:00:00 AM     +1h     UTC+11h     ET          DST starts
+            Wednesday, January 31, 1917
+                        11:59:59 PM                 +1h     UTC+11h     ET
+                        Thursday, February 1, 1917
+                        12:00:00 Midnight           +1h     UTC+11h     EDT         New time zone abbreviation
+            Sunday, March 25, 1917
+                        1:59:59 AM                  +1h     UTC+11h     EDT
+                        2:00:00 AM → 1:00:00 AM     No      UTC+10h     EST         DST ends
+            &lt;Gap in time&gt;            
+            No changes in year 1960 - 1966          No      UTC+10h     EST
+            Sunday, October 1, 1967
+                        1:59:59 AM                  No      UTC+10h     EST
+                        2:00:00 AM → 3:00:00 AM     +1h     UTC+11h     EDT         DST starts
+                        
+            Sunday, March 31, 1968
+                        2:59:59 AM                  +1h     UTC+11h     EDT
+                        3:00:00 AM → 2:00:00 AM     No      UTC+10h     EST         DST ends
+                        
+            The IANA rules are:
+            Zone Antarctica/Macquarie       0	    -	    zzz	1911
+                                            10:00	-	    EST	1916 Oct 1 2:00
+                                            10:00	1:00	EST	1917 Feb
+                                            10:00	AusAQ	EST	1967
+                                            10:00	ATAQ	EST	2010 Apr 4 3:00
+                                            11:00	-	    MIST	# Macquarie Island Time
+            
+            Example 1) 1967-01-01 Midnight and 2010-04-04 3:00 AM there is a change in rules from AusAQ to ATAQ but this does NOT indicate a Time Zone Name change or DST/STD time change
+            so in this case SameTimeZoneRange should return true.
+            
+            Example 2) 1917-02-01 Midnight and 1967-01-01 Midnight there is a change from a static UTC Offset (Adjustment Rule) and a rule set (Time Zone Rules). 
+            In this case SameTimeZoneRange should return false.
+            
+            Example 3) 2010-04-04 3:00 AM to 9999-12-31 (MIST) returned value is false because of the change in UTC Offset and Zone Name!
+            Note that if the UTC Offset was the same (both 10:00), then the Time Zone name is looked at. In this case it still will return false since the names are different.
+            but if the ATAQ name was &quot;ES%sT&quot; than true is returned because the name is dynamic. In this case the caller will need to know the actual UTC offset, Time Zone Name, and DST 
+            information to determine if this zone rule is the same range.
+            
+            </example>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.Database.ZoneRule.CompareTZRuleUsingFromYearMonth(System.Int32,System.Int32)">
+            <summary>
+            Compares two IRules using the rule&apos;s index and the IRule&apos;s CompareFromYearMonth method.
+            </summary>
+            <param name="ruleIndexA">Rule Index A</param>
+            <param name="ruleIndexB">Rule Index B</param>
+            <returns>
+                Int.MinValue -- ZoneRule does not have any Rules or the indexes are both out of bounds
+                -1 -- Rule A is less then Rule B From Year and Month or Rule&apos;s B Index is out of bounds
+                0 -- Both rules&apos; have the same year and month
+                1 -- Rule B has a greater From Year and Month or Rule&apos;s A Index is out of bounds
+            </returns>
+            <remarks>
+            Note that when both indexes are out of bounds or ZoneRule does not have an array of Rules, Int.MinValue is returned.
+            
+            If Rule A&apos;s index is within bounds but Rule B&apos;s index is out of bound -1 is returned
+            If Rule A&apos;s index is out of bounds but Rule B&apos;s index is within bound 1 is returned
+            
+            </remarks>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.Database.ZoneRule.DetermineTimeZoneRulesBasedOnRuleGoodUntilDateTime(System.Collections.Generic.IEnumerable{Common.Patterns.TimeZoneInfo.IRule})">
+            <summary>
+            Returns a sub-set of the given tzRuleSet of those rules that match the ZoneRule criteria.
+            </summary>
+            <param name="tzRuleSet">A collection of Rules that will be selected based on the ZoneRule Criteria.</param>
+            <returns>Sub-set of rules or null to indicate none of them match the criteria.</returns>       
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.Database.ZoneRule.GetTZArrayIndex">
+            <summary>
+            Returns this instance's index within the associated Zone&apos;s ZoneRule Collection.
+            </summary>
+            <returns>An index into the Zone's ZoneRule collection</returns>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.Database.ZoneRule.GetRuleOrderIndex(Common.Patterns.TimeZoneInfo.IRule)">
+            <summary>
+            Returns the Ordering Index of the associated Rule. A Ordering Index is the position of this rule within this ZoneRule.
+            </summary>
+            <remarks>
+            This method can be used to determine if a rule &quot;belongs&quot; to this ZoneRule collection. 
+                    
+            </remarks>
+            <example>
+                # Rule	NAME	FROM	TO	TYPE	IN	ON	    AT	    SAVE	LETTER  OrderingIndex
+                Rule	NYC	    1920	only	-	Mar	lastSun	2:00	1:00	D       0
+                Rule	NYC	    1920	only	-	Oct	lastSun	2:00	0	    S       1
+                Rule	NYC	    1921	1966	-	Apr	lastSun	2:00	1:00	D       2
+                Rule	NYC	    1921	1954	-	Sep	lastSun	2:00	0	    S       3         
+                Rule	NYC	    1955	1966	-	Oct	lastSun	2:00	0	    S       4
+            </example>
+            <returns>The Ordering Index</returns>        
+            <seealso cref="M:Common.Patterns.TimeZoneInfo.IRule.GetOrderingIndex"/>
+            <exception cref="T:System.NullReferenceException">Thrown when associatedRule is null</exception>
+            <exception cref="T:System.IndexOutOfRangeException">
+            Thrown when the associatedRule is NOT within the collection boundaries of this ZoneRule's Rule collection.
+            </exception>
+            <exception cref="T:System.Collections.Generic.KeyNotFoundException">
+            This is thrown when the associatedIRule does not match this ZoneRule's Rule Name (came from a different ZoneRule Collection)
+            or the associated IRule does not belong to this ZoneRule's Rule Collection.
+            </exception>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.Database.ZoneRule.CalculateRuleOrderingIndex(Common.Patterns.TimeZoneInfo.IRule)">
+            <summary>
+            Same as GetRuleOrderIndex, except no checks are performed and if the associated rule is not found -1 is returned.        
+            </summary>
+            <param name="associatedIRule"></param>
+            <returns></returns>
+            <seealso cref="M:Common.Patterns.TimeZoneInfo.Database.ZoneRule.GetRuleOrderIndex(Common.Patterns.TimeZoneInfo.IRule)"/>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.Database.Rule.TryGetCreate(Common.Patterns.TimeZoneInfo.IDatabase,System.String,System.String,System.Boolean,System.Boolean,System.Boolean)">
+             <summary>
+             Finds or creates a new object based on parsing the line for keyword information.
+             Tabs or spaces are used as a delimiter between the fields.
+             Fields are order sensitive!
+            
+             Below is the a sample line to be parsed. Note that the items between the '[' and ']' are information... All fields are required. To represent a null field use '-'. 
+             
+             Rule    [Name]    [FromYear]    [ToYear]|only|max   [Type]  [InMonth]   [OnDay]|[keywords] [AtTime] [Offset Timespan from UTC]   [AbbrFormat Letter]   
+             </summary>
+             <param name="databaseInstance">The OO database</param>
+             <param name="line">Line being parsed and it should NOT need to be trimed!</param>
+             <param name="defaultRuleName">The default rule name</param>
+             <param name="isActive">if true (default) and if the Rule is created, it will be placed into active status</param>
+             <param name="alwaysUpdateExistingRule">if true (default) and if the Rule is found, the non-key fields are updated with this newly parsed information.</param>
+             <param name="updateDatabase">If true (default) the database will be updated with this newly created instance.</param>
+             <returns>a found or newly created instance</returns>       
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.Database.Rule.FindRules(Common.Patterns.TimeZoneInfo.IDatabase,System.String,System.Boolean)">
+            <summary>
+            Returns an array of rules that match this rule's name.
+            </summary>
+            <param name="databaseInstance">Database Instance</param>
+            <param name="ruleName">The name of the rule(s) or an string.Empty for all rules</param>
+            <param name="contains">If true (default is false) the search is conducted by the containment comparison (the argument is "part of" the ruleName).</param>       
+            <returns>Returns an array of rules that match the name or an empty array to indicate none where found</returns>
+            <exception cref="T:System.ArgumentNullException">This is thrown when database or ruleName are null</exception>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.Database.Rule.FindRule(Common.Patterns.TimeZoneInfo.IDatabase,System.String,System.TimeSpan,System.DateTime,System.DateTime,System.DateTime,Common.Patterns.TimeZoneInfo.IZoneRule)">
+            <summary>
+            Finds the exact rule based on the given Rule Name for the given date/time argument
+            </summary>
+            <param name="databaseInstance">The OODB instance</param>
+            <param name="ruleName">
+            The Name of the Rule that will be used for the search.
+            
+            If ruleName is null or empty, null is returned
+            </param>
+            <param name="currentUTCOffset">The UTC Offset used to properly find the associated rule. </param>
+            <param name="dateTimeUsedToFindRule">The date/time used to determine the correct rule.</param>	
+            <param name="minRange"></param>
+            <param name="maxRange"></param>
+            <param name="priorZoneRule"></param>
+            <returns>The found rule or null to indicate no rule matched for given date/time.</returns>
+            <exception cref="T:System.ArgumentNullException">This is thrown when database is null</exception>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.Database.Rule.FindRule(Common.Patterns.TimeZoneInfo.IDatabase,System.String,System.Int32,System.Int32,System.String,Common.Patterns.TimeZoneInfo.Database.TimeZoneSpan,System.Int32)">
+            <summary>
+            Finds a specific Rule based on the given arguments. It only should return one rule, but it is possible it can match more than one... 
+            </summary>
+            <param name="databaseInstance">OODB Database</param>
+            <param name="ruleName">The Name of the Rule</param>
+            <param name="ruleFromYear">The Rule is Applied only using this Start Year</param>
+            <param name="ruleInMonth">The Rule is Applied only using this month </param>
+            <param name="ruleOnDay">The Rule is Applied only using this Day</param>
+            <param name="ruleAtTime">The Rule is Applied only using this tiem</param>
+            <param name="ruleToYear">The Rule is Applied only using this Ending year</param>
+            <returns>Returns a Rule based on the given argument or an empty array to indicate one was not found.</returns>
+            <exception cref="T:System.ArgumentNullException">Thrown when database is null.</exception>
+            <remarks>
+            This method should only return an empty array or one matching rule. It is possible that multiple rules can be returned, but this should indicate an data constraint error.
+            </remarks>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.Database.Rule.FindRulesBasedOnDateOnly(Common.Patterns.TimeZoneInfo.IDatabase,System.DateTime)">
+            <summary>
+            Returns an array of IRules based on the date/time argument
+            </summary>
+            <param name="databaseInstance">The Time Zone Database</param>
+            <param name="findAnyRulesBasedOnDateOnly">Date/Time used for matching</param>
+            <returns>An array of associated rules based on the Date/Time or an empty array for none.</returns>
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.Database.Rule.IsRollingRuleType">
+            <summary>
+            If true the Rule can roll from year to year.
+            
+            Example:
+            
+            FROM	TO	    IN  ON      AT      SAVE	LETTER Rolling?
+            1948	only	Mar	14	    2:00	1:00	D       No -- Starts on March 14th of 1948 and Continues on to the next valid rule
+            1949	only	Jan	 1	    2:00	0	    S       No -- Starts on Jan 1st of 1948 and Continues on to the next valid rule
+            1950	1966	Apr	lastSun	2:00	1:00	D       Yes -- Each April from 1950 to 1966
+            1950	1961	Sep	lastSun	2:00	0	    S       Yes -- Each Sept from 1950 to 1961
+            1962	1966	Oct	lastSun	2:00	0	    S       Yes -- Each Oct from 1962 to 1966
+            1967	1967	Apr	lastSun	2:00	1:00    D       No -- Only in April of 1967
+                   
+            </summary>
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.Database.Rule.IsOnlyRuleType">
+            <summary>
+            If true the Rule is an &quot;ONLY&quot; type rule where the &quot;To Year&quot; has the ONLY keyword.
+            
+            When this occurs the rule is applied until the next valid rule!
+            Example:
+            
+            FROM	TO	    IN  ON      AT      SAVE	LETTER Only?
+            1948	only	Mar	14	    2:00	1:00	D       Yes -- Starts on March 14th of 1948 and Continues on to the next valid rule
+            1949	only	Jan	 1	    2:00	0	    S       Yes -- Starts on Jan 1st of 1948 and Continues on to the next valid rule
+            1950	1966	Apr	lastSun	2:00	1:00	D       No -- Each April from 1950 to 1966
+            1950	1961	Sep	lastSun	2:00	0	    S       No -- Each Sept from 1950 to 1961
+            1962	1966	Oct	lastSun	2:00	0	    S       No -- Each Oct from 1962 to 1966
+            1967	1967	Apr	lastSun	2:00	1:00    D       No -- Only in April of 1967
+                   
+            </summary>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.Database.Rule.CalculateEnforcementDate(System.Int32,System.Double,System.Double)">
+            <summary>
+            Calculates the date and time this rule can be enforced (applied)...
+            </summary>
+            <param name="forYear">Year used to calculate the enforcement date for this rule</param>				
+            <param name="utcOffSetInSecs">The total number of Seconds that represent the UTC that should be used in cases where the Rule's "At" time is in UTC. The default is zero.</param>
+            <param name="priorRuleAdjustmentInSecs">The prior Rule's Adjustment (TZAdjustment) in seconds</param>
+            <returns>
+            Returns the Enforcement Date or DateTime.MinValue to indicate no enforcement date
+            </returns>
+            <remarks>
+            This method will determine the TZ's "At" offset for standard time based on this rule's TZType.
+            </remarks>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.Database.Rule.CalculateEnforcementDate(System.Int32,System.TimeSpan,System.TimeSpan,System.Boolean)">
+            <summary>
+            Calculates the date and time this rule can be enforced (applied)...
+            </summary>
+            <param name="forYear">Year used to calculate the enforcement date for this rule</param>
+            <param name="currentUTCOffset">Current Timezone UTC Offset</param>
+            <param name="priorRuleAdjustment">The prior Rule's Adjustment</param>
+            <param name="forceCalculation"></param>
+            <returns>Returns the Enforcement Date or DateTime.MinValue to indicate no enforcement date</returns>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.Database.Rule.GetOrderingIndex">
+            <summary>
+            Returns the Ordering Index of this Rule. A Ordering Index is the position of this rule related to this rule's peers.
+            </summary>
+            <example>
+                # Rule	NAME	FROM	TO	TYPE	IN	ON	    AT	    SAVE	LETTER  OrderingIndex
+                Rule	NYC	    1920	only	-	Mar	lastSun	2:00	1:00	D       0
+                Rule	NYC	    1920	only	-	Oct	lastSun	2:00	0	    S       1
+                Rule	NYC	    1921	1966	-	Apr	lastSun	2:00	1:00	D       2
+                Rule	NYC	    1921	1954	-	Sep	lastSun	2:00	0	    S       3         
+                Rule	NYC	    1955	1966	-	Oct	lastSun	2:00	0	    S       4
+            </example>
+            <returns>The Ordering Index</returns>
+            <remarks>
+            Care must be taken when using this index relative to a ZoneRule's set of Rules. The indexing within a ZoneRule may be different than this 
+            index due to the fact that a ZoneRule may only have a subset of the complete Rule collection.
+            It is suggest to use the ZoneRule's GetRuleOrderIndex method to obtain the proper index within the ZoneRule collection.
+            </remarks>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.Database.Rule.CompareFromYearMonth(Common.Patterns.TimeZoneInfo.IRule)">
+            <summary>
+            Compares the rules' From Year and Month only.
+            </summary>
+            <param name="otherRule">The other rule to compare too</param>
+            <returns>
+                -1 -- target rule (this) is less then otherRule
+                0 -- Both rules' have the same year and month
+                1 -- otherRule has a greater year and month.
+            </returns>
+            <remarks>
+            The Name, OnDay or ToYear are NOT used for comparisons.
+            
+            If otherRule is null, 1 is returned.
+            </remarks>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.Database.Rule.CalculateEnforcementDate(System.Int32,System.TimeSpan,System.TimeSpan,System.DateTime@,System.Boolean)">
+            <summary>
+            Calculates the date and time this rule can be enforced (applied)...
+            </summary>
+            <param name="forYear">Year used to calculate the enforcement date for this rule</param>
+            <param name="currentUTCOffset">Current Timezone UTC Offset</param>       
+            <param name="priorRuleAdjustment">The prior Rule's Adjustment</param>
+            <param name="enforcementDate">If not DateTime.MinValue the calculated date when this rule will be enforced</param>    
+            <param name="forceCalculation">If true (default is false), the rule's for and to years are ignored and the enforcement date is calculated</param>
+            <returns>True to indicate an enforcement date calculated or false to indicate that the given year is outside the enforcement years</returns>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.Database.Rule.CalculateEnforcementDate(System.Int32,System.TimeSpan)">
+            <summary>
+            This just calculates the Enformcement Date (apply date) regardless of the rule&apos;s from and to years...
+            </summary>
+            <param name="forYear"></param>
+            <param name="currentUTCOffset"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.Database.Rule.CalculateEnforcementDate(System.DateTime,System.TimeSpan,System.TimeSpan,System.DateTime@,System.Boolean)">
+            <summary>
+            Calculates the date and time this rule can be enforced (applied)...
+            </summary>
+            <param name="forDate">The date and time used to calculate the enforcement date</param>
+            <param name="currentUTCOffset">Current Timezone UTC Offset</param>
+            <param name="priorRuleAdjustment">The prior Rule's Adjustment</param>
+            <param name="enforcementDate">If not DateTime.MinValue the calcuatated date when this rule will be enforced</param>
+            <param name="checkPriorYears">
+            if true (the default is false), the forDate's year is decreased to determine if this rule would match for a prior year. This is typically used
+            to match rule's which span multiple years with the same enforcement month.
+            This is done until the rule's fromYear becomes invalid.
+            </param>
+            <returns>True to indicate an enforcement date calculated or false to indicate that the given year is outside the enforcement years</returns>
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.Database.Rule.BestMatchResult.RuleApplyIndicator">
+            <summary>
+            If Result is True and Current is True then RuleApplyIndicator will have the following meanings:
+                0 -- Search Date matches the Rule
+                -1 -- Search Date matches the Rule for the Prior Year
+                1 -- Search DAte matches the Rule for Next Year
+                
+            If Result is True and Current is False then RuleApplyIndicator will have the following meanings:
+                0 -- The Rule can be applied to the current year
+                -1 -- The Rule can be applied to the prior year
+                1 -- The Rule can be applied to the next year
+                
+             If Result is False and Current is False, the search date does not match the rule.
+            </summary>
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.Database.Rule.BestMatchResult.ApplyDate">
+            <summary>
+            The Apply Date of the rule, only valid when Result is true and RuleApplyIndicator is zero.
+            </summary>
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.Database.Rule.BestMatchResult.NextYearApplyDate">
+            <summary>
+            Next Year&apos;s Apply Date. Only Valid when RuleApplyIndicator is 1 or RuleApplyIndicator is 0 only if next year date is valid
+            </summary>
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.Database.Rule.BestMatchResult.PreviousYearApplyDate">
+            <summary>
+            Next Year&apos;s Apply Date. Only Valid when RuleApplyIndicator is -1 or RuleApplyIndicator is 0 only if next year date is valid
+            </summary>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.Database.Rule.DetermineIfBestMatch(System.DateTime,System.TimeSpan,System.TimeSpan)">
+            <summary>
+            
+            </summary>
+            <param name="datetimeToDetermineBestMatch"></param>
+            <param name="currentUTCOffset"></param>
+            <param name="priorRuleAdjustment"></param>       
+            <returns></returns>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.Database.UTCOffsetAdjustmentRule.FindRule(Common.Patterns.TimeZoneInfo.IDatabase,System.String)">
+            <summary>
+            Return the Adjustment rule that match this rule's name.
+            </summary>
+            <param name="databaseInstance">Database Instance</param>
+            <param name="adjustmentRuleName">The name of the rule</param>
+            <returns>Returns the adjustment rule that match the name or null to indicate none</returns>
+            <exception cref="T:System.ArgumentNullException">This is thrown when database is null</exception>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.Database.UTCOffsetAdjustmentRule.DetermineIfBestMatch(System.DateTime,System.TimeSpan,System.TimeSpan)">
+            <summary>
+            
+            </summary>
+            <param name="datetimeToDetermineBestMatch"></param>
+            <param name="currentUTCOffset"></param>
+            <param name="priorRuleAdjustment"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.Database.UTCOffsetAdjustmentRule.CalculateEnforcementDate(System.Int32,System.TimeSpan,System.TimeSpan,System.DateTime@,System.Boolean)">
+            <summary>
+            Calculates the date and time this rule can be enforced (applied)...
+            This overloaded method always returns true and the enforcementDate is always Jan 1st of the forYear.
+            </summary>
+            <param name="forYear">Year used to calculate the enforcement date for this rule</param>
+            <param name="currentUTCOffset">Current Timezone UTC Offset</param>
+            <param name="priorRuleAdjustment">The prior Rule's Adjustment</param>
+            <param name="enforcementDate">If not DateTime.MinValue the calcuatated date when this rule will be enforced</param>    
+            <param name="forceCalculation">If true (default is false), the rule's for and to years are ignored and the enforcement date is calculated</param>
+            <returns>Always returns true</returns>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.Database.LeapSecond.TryGetCreate(Common.Patterns.TimeZoneInfo.IDatabase,System.String,System.Boolean)">
+             <summary>
+             Finds or creates a new object based on parsing the line for keyword information.
+             Tabs or spaces are used as a delimiter between the fields.
+             Fields are order sensitive!
+            
+             Below is the a sample line to be parsed. Note that the items between the '[' and ']' are information... All fields are required. To represent a null field use '-'. 
+             
+             Leap    [Year]  [Month] [Day]   [Time(HH:MM:SS)]    [COOR]  [R/S]  
+             </summary>
+             <param name="databaseInstance">The OO database</param>
+             <param name="line">Line being parsed and it should NOT need to be trimed!</param>
+             <param name="updateDatabase">if true (default), the database is updated with the newly created instance.</param>
+             <returns>a found or newly created instance</returns>       
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.Database.LeapSecond.FindLeapSecond(Common.Patterns.TimeZoneInfo.IDatabase,System.DateTime)">
+            <summary>
+            Returns an array of Leap Seconds that match the given arguments
+            </summary>
+            <param name="databaseInstance">Database Instance</param>
+            <param name="introductionDate">The Date used to Determine the Leap Seconds</param>
+            <returns>Returns an array of Leap Seconds that match the name or empty array to indicate none</returns>
+            <exception cref="T:System.ArgumentNullException">This is thrown when database is null</exception>
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.Database.LocationCode.Code">
+            <summary>
+            The UN LOCODE Value
+            </summary>
+            <example>US CHI</example> 
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.Database.WindowsIdZonePair.GetUpdateDB(Common.Patterns.TimeZoneInfo.IDatabase,Common.Patterns.TimeZoneInfo.IZone,System.Boolean)">
+            <summary>
+            Returns an array of Windows' Time Zone ids or null
+            </summary>
+            <param name="databaseInstance">The Time Zone Database</param>
+            <param name="timeZone">The associated Time Zone Instance</param>
+            <param name="updateDatabase">If true (default) the database is updated when a WindowsIdZonePair is NOT found in the database.</param>
+            <returns>an array of Windows' Time Zone ids or NULL</returns>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.Database.WindowsIdZonePair.FindPairs(Common.Patterns.TimeZoneInfo.IDatabase,System.String,Common.Patterns.TimeZoneInfo.ZoneNameTypes,System.Boolean)">
+            <summary>
+            Returns an array of Windows' a pair of Time Zone Id and its' associated Time Zone.
+            </summary>
+            <param name="databaseInstance">The Time Zone Database</param>
+            <param name="searchName">The Name that will be used to search for the associated pairs. If string.Empty all Pairs are returned.</param>
+            <param name="tzNameType">The Type of Name. The Default is WindowsId.</param>
+            <param name="containSearch">If true (default is false) the search is conducted by the containment comparison (the argument is "part of" the name).</param>               
+            <returns>A array of Paris or an empty array when nothing was found.</returns>
+            <exception cref="T:System.ArgumentNullException">Is thrown when databaseInstance or searchName is null</exception>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.Database.WindowsIdZonePair.FindPair(Common.Patterns.TimeZoneInfo.IDatabase,System.String,System.String,System.Boolean,System.Boolean)">
+            <summary>
+            Finds the Pair based on the Windows' Time Zone Id and the IANA Time Zone Name.
+            </summary>
+            <param name="databaseInstance">The Time Zone Database</param>
+            <param name="windowsTZId">The Windows' Zone Id</param>
+            <param name="timeZoneName">The IANA Time Zone Name</param>
+            <param name="windowsTZIdContains">If true (default is false) the search is conducted by the containment comparison (the argument is "part of" the Windows' ID).</param>    
+            <param name="timeZoneNameContains">If true (default is false) the search is conducted by the containment comparison (the argument is "part of" the Time Zone name).</param>    
+            <returns>the Pair or null to indicate that the pair was not found.</returns>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.Database.LocationCodeTimeZoneMappings.ParseTimeZoneLocationCodeLine(System.String)">
+             <summary>
+             Finds or creates a new object based on parsing the line for keyword information. Once found or created it is inserted into the proper collection.
+             Tabs or spaces are used as a delimiter between the fields.
+             Fields are order sensitive!
+            
+             Below is the a sample line to be parsed. Note that the items between the '[' and ']' are information... All fields are required. To represent a null field use '-'. 
+             
+             [LOCODE]    [IsRegionalTZ] [Associated Time Zone]  [Comments] 
+             
+             [LOCODE, SecondaryLOCODE]    [IsRegionalTZ] [Associated Time Zone]  [Comments] 
+             </summary>
+             <param name="line">Line that will be parsed and it should NOT need to be trimed!</param>            
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.Database.Helpers.CompareRuleDates(Common.Patterns.TimeZoneInfo.IRule,Common.Patterns.TimeZoneInfo.IRule,System.Int32,System.Int32,System.TimeSpan,System.TimeSpan,System.TimeSpan,System.TimeSpan)">
+            <summary>
+            Compares the IRules Date and Time based on the given year. 
+            </summary>
+            <param name="ruleA"></param>
+            <param name="ruleB"></param>
+            <param name="useThisYearForA"></param>
+            <param name="useThisYearForB"></param>
+            <param name="currentUTCOffsetRuleA"></param>
+            <param name="priorRuleAdjustmentRuleA"></param>
+            <param name="currentUTCOffsetRuleB"></param>
+            <param name="priorRuleAdjustmentRuleB"></param>       
+            <returns>
+            0 -- Both date and time are the same
+            1 -- RuleA&apos;s Date/Time is greater than RuleB
+            -1 -- RuleA&apos;s Date/Time is less than RuleB
+            </returns>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.Database.Helpers.ConvertToTimeSpan(System.String,Common.Patterns.TimeZoneInfo.Database.TimeConversionTypes@)">
+            <summary>
+            Converts a given time string into a timespan.
+            </summary>
+            <param name="time">A string representation of a time.
+            This may be just hours (hh), hours and minutes (hh:mm)
+            or hours, minutes and seconds (hh:mm:ss)</param>
+            <param name="conversionType">Returns the type of Time Span given</param>
+            <returns>A timespan representing the input value</returns>     
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.Database.Helpers.FindPriorRule(System.DateTime,System.Collections.Generic.IEnumerable{Common.Patterns.TimeZoneInfo.IRule},Common.Patterns.TimeZoneInfo.IZoneRule,Common.Patterns.TimeZoneInfo.IRule)">
+            <summary>
+            Warning: This method should only be called when DetermineApplyDateRule failed to select any rules for a search date!
+            </summary>
+            <param name="searchDateTime"></param>
+            <param name="ruleCollection"></param>
+            <param name="zoneRule"></param>
+            <param name="currentRule"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.Database.Helpers.FindNextRule(System.DateTime,System.Collections.Generic.IEnumerable{Common.Patterns.TimeZoneInfo.IRule},Common.Patterns.TimeZoneInfo.IZoneRule,System.TimeSpan,System.Boolean,Common.Patterns.TimeZoneInfo.IRule)">
+            <summary>
+            Warning: This method should only be called when DetermineApplyDateRule failed to select any rules for a search date!
+            </summary>
+            <param name="searchDateTime"></param>
+            <param name="ruleCollection"></param>
+            <param name="zoneRule"></param>
+            <param name="priorRuleAdjustment"></param>
+            <param name="ignoreOnlyRules"></param>
+            <param name="currentRule"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.Database.Helpers.FindRule(Common.Patterns.TimeZoneInfo.IZoneRule,System.DateTime,System.Boolean)">
+            <summary>
+            Finds a Rule within the ZoneRule based on the rule collection and date/time used to find the rule.
+            </summary>
+            <param name="associatedZoneRule"></param>      
+            <param name="dateTimeUsedToFindRule"></param>
+            <param name="datetimeIsUTC"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.Database.Helpers.GetLineField(System.Collections.Generic.List{System.String},System.Int32,System.Int32@,System.Boolean)">
+            <summary>
+            Returns the field from the lineFields list based on the currentFieldIndex and lineFieldOffset.
+            If the field value is null or empty (if advanceNextFieldIfEmpty is true) the lineFieldOffset is incremented and the next item is checked since the Time Zone file format standard does not allow empty field values.
+            
+            If the field value is a '-' (indicates default field value or a empty field), an empty string is returned. 
+            If the field value is a '#' all remaining field values are ignored and a null is returned.
+            </summary>
+            <param name="lineFields">a list of field values</param>
+            <param name="currentFieldIndex">current field index</param>
+            <param name="lineFieldOffSet">index offset</param>
+            <param name="advanceNextFieldIfEmpty">If true (default) and if the current field is null/empty the next field is checked. If false an Empty.String is returned</param>
+            <returns>Returns the field value, empty string when the value is '-', or null to indicate end of field list.</returns>
+            <remarks>
+            An empty string is never returned unless the field's value is a '-'!
+            </remarks>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.Database.Helpers.GetLineField(System.Collections.Generic.List{System.String},System.Int32,System.Boolean)">
+            <summary>
+            Returns the field from the lineFields list based on the currentFieldIndex.
+            If the field value is null or empty the next item is checked (if advanceNextFieldIfEmpty is true) since the Time Zone file format standard does not allow empty field values.
+            
+            If the field value is a '-' (indicates default field value or a empty field), an empty string is returned. 
+            If the field value is a '#' all remaining field values are ignored and a null is returned.
+            </summary>
+            <param name="lineFields">a list of field values</param>
+            <param name="currentFieldIndex">current field index</param>
+            <param name="advanceNextFieldIfEmpty">If true (default) and if the current field is null/empty the next field is checked. If false an Empty.String is returned</param>        
+            <returns>Returns the field value, empty string when the value is '-', or null to indicate end of field list.</returns>
+            <remarks>
+            An empty string is never returned unless the field's value is a '-'!
+            </remarks>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.Database.Helpers.PairedTZNameFormat(System.String,System.Boolean,System.String@)">
+            <summary>
+            Returns true when the TimeZone Name is in Std/DST Format. 
+            </summary>
+            <param name="tzName"></param>
+            <param name="isDST"></param>
+            <param name="selectedTZName">returns the selected tz name if in std/dst format otherwise the tzName is returned.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.Database.Helpers.IsTimeZoneFormatNameDifferentDynamicTypes(System.String,System.String)">
+            <summary>
+            This only returns true when C%sT and CST/CDT formats are compared. Otherwise false is returned!
+            </summary>
+            <param name="tzNameA"></param>
+            <param name="tzNameB"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.Database.Helpers.MatchTimeZoneAbbrName(System.String,System.String,System.String)">
+            <summary>
+            Returns true when the format pattern matches the name given. 
+            </summary>
+            <param name="tzFormatPatternName">
+            The Time Zone Pattern Name.
+            
+            e.g., AR%sT, C%sT
+            </param>
+            <param name="tzNameToMatch">
+            The Time Zone Name to Match
+            
+            e.g., ARST, CST, CDT, ARDT
+            </param>
+            <param name="expectedFormatCharPosString">
+            Can be null (default), to indicate that the &quot;%s&quot; position can be ignored (match any char in that position, but remaining string must still match).
+            If a string, the &quot;%s&quot; position must match this value at this position with the name given.
+            
+            See examples!
+            </param>
+            <returns>
+            True to indicate that the pattern matches the name; false otherwise.
+            </returns>
+            <example>
+                MatchTimeZoneName(&quot;AR%sT&quot;, &quot;ARDT&quot;, null) ==> true
+                MatchTimeZoneName(&quot;AR%sT&quot;, &quot;ART&quot;, null) ==> false
+                MatchTimeZoneName(&quot;AR%sT&quot;, &quot;AR#T&quot;, null) ==> true (since third argument is null, match any character)
+                MatchTimeZoneName(&quot;AR%sT&quot;, &quot;AR#T&quot;, &quot;D&quot;) ==> false
+                MatchTimeZoneName(&quot;AR%sT&quot;, &quot;AR#T&quot;, &quot;#&quot;) ==> true
+                MatchTimeZoneName(&quot;AR%sT&quot;, &quot;AR%sT&quot;, &quot;#&quot;) ==> false
+                
+                MatchTimeZoneName(&quot;ARST/ARDT&quot;, &quot;ARDT&quot;, null) ==> true (third argument ignroed in this case)
+                MatchTimeZoneName(&quot;ARST/ARDT&quot;, &quot;ARST&quot;, null) ==> true (third argument ignroed in this case)
+                MatchTimeZoneName(&quot;ARST/ARDT&quot;, &quot;ART&quot;, null) ==> false (third argument ignroed in this case)
+                MatchTimeZoneName(&quot;AR%sT/ARDT&quot;, &quot;ARST&quot;, null) ==> true (third argument ignroed in this case)
+            </example>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.Database.Helpers.DoesTimeZoneAbbrFormatNamesMatch(System.String,System.String)">
+            <summary>
+            Determines if the two Time Zone Abbreviated Names Match
+            </summary>
+            <param name="tzNameA"></param>
+            <param name="tzNameB"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Common.Patterns.TimeZoneInfo.Database.IANA">
+            <remarks>
+              Names (such as month names) must be in English and are case
+                   insensitive.  Abbreviations, if used, must be unambiguous in context.
+            
+                   A rule line has the form
+            
+                        Rule  NAME  FROM  TO    TYPE  IN   ON       AT    SAVE  LETTER/S
+            
+                   For example:
+            
+                        Rule  US    1967  1973  -     Apr  lastSun  2:00  1:00  D
+            
+                   The fields that make up a rule line are:
+            
+                   NAME    Gives the (arbitrary) name of the set of rules this rule is
+                           part of.
+            
+                   FROM    Gives the first year in which the rule applies.  Any integer
+                           year can be supplied; the Gregorian calendar is assumed.  The
+                           word minimum (or an abbreviation) means the minimum year
+                           representable as an integer.  The word maximum (or an
+                           abbreviation) means the maximum year representable as an
+                           integer.  Rules can describe times that are not representable
+                           as time values, with the unrepresentable times ignored; this
+                           allows rules to be portable among hosts with differing time
+                           value types.
+            
+                   TO      Gives the final year in which the rule applies.  In addition to
+                           minimum and maximum (as above), the word only (or an
+                           abbreviation) may be used to repeat the value of the FROM
+                           field.
+                           
+                            Note that &quot;only&quot; seems to cover the time span from the At date/time to the next valid TZ rule!
+                            For example review the US 1943 and 1945 rules
+            
+                   TYPE    Gives the type of year in which the rule applies.  If TYPE is -
+                           then the rule applies in all years between FROM and TO
+                           inclusive.  If TYPE is something else, then zic executes the
+                           command
+                                yearistype year type
+                           to check the type of a year: an exit status of zero is taken to
+                           mean that the year is of the given type; an exit status of one
+                           is taken to mean that the year is not of the given type.
+            
+                   IN      Names the month in which the rule takes effect.  Month names
+                           may be abbreviated.
+            
+                   ON      Gives the day on which the rule takes effect.  Recognized forms
+                           include:
+            
+                                5        the fifth of the month
+                                lastSun  the last Sunday in the month
+                                lastMon  the last Monday in the month
+                                Sun&gt;=8   first Sunday on or after the eighth
+                                Sun&lt;=25  last Sunday on or before the 25th
+            
+                           Names of days of the week may be abbreviated or spelled out in
+                           full.  Note that there must be no spaces within the ON field.
+            
+                   AT      Gives the time of day at which the rule takes effect.
+                           Recognized forms include:
+            
+                                2        time in hours
+                                2:00     time in hours and minutes
+                                15:00    24-hour format time (for times after noon)
+                                1:28:14  time in hours, minutes, and seconds
+                                -        equivalent to 0
+            
+                           where hour 0 is midnight at the start of the day, and hour 24
+                           is midnight at the end of the day.  Any of these forms may be
+                           followed by the letter w if the given time is local &quot;wall
+                           clock&quot; time, s if the given time is local &quot;standard&quot; time, or u
+                           (or g or z) if the given time is universal time; in the absence
+                           of an indicator, wall clock time is assumed.
+                           
+                            Note that if not &quot;wall clock&quot;, the time will be calcuated based on the prior rule&apos;s UTC Offset.
+            
+                   SAVE    Gives the amount of time to be added to local standard time
+                           when the rule is in effect.  This field has the same format as
+                           the AT field (although, of course, the w and s suffixes are not
+                           used).
+            
+                   LETTER/S
+                           Gives the &quot;variable part&quot; (for example, the &quot;S&quot; or &quot;D&quot; in &quot;EST&quot;
+                           or &quot;EDT&quot;) of time zone abbreviations to be used when this rule
+                           is in effect.  If this field is -, the variable part is null.
+            
+                   A zone line has the form
+            
+                        Zone  NAME                GMTOFF  RULES/SAVE  FORMAT  [UNTILYEAR [MONTH [DAY [TIME]]]]
+            
+                   For example:
+            
+                        Zone  Australia/Adelaide  9:30    Aus         CST     1971 Oct 31 2:00
+            
+                   The fields that make up a zone line are:
+            
+                   NAME  The name of the time zone.  This is the name used in creating the
+                         time conversion information file for the zone.
+            
+                   GMTOFF
+                         The amount of time to add to UTC to get standard time in this
+                         zone.  This field has the same format as the AT and SAVE fields
+                         of rule lines; begin the field with a minus sign if time must be
+                         subtracted from UTC.
+            
+                   RULES/SAVE
+                         The name of the rule(s) that apply in the time zone or,
+                         alternately, an amount of time to add to local standard time.  If
+                         this field is - then standard time always applies in the time
+                         zone.
+            
+                   FORMAT
+                         The format for time zone abbreviations in this time zone.  The
+                         pair of characters %s is used to show where the &quot;variable part&quot;
+                         of the time zone abbreviation goes.  Alternately, a slash (/)
+                         separates standard and daylight abbreviations.
+            
+                   UNTILYEAR [MONTH [DAY [TIME]]]
+                         The time at which the UTC offset or the rule(s) change for a
+                         location.  It is specified as a year, a month, a day, and a time
+                         of day.  If this is specified, the time zone information is
+                         generated from the given UTC offset and rule change until the
+                         time specified.  The month, day, and time of day have the same
+                         format as the IN, ON, and AT fields of a rule; trailing fields
+                         can be omitted, and default to the earliest possible value for
+                         the missing fields.
+            
+                         The next line must be a &quot;continuation&quot; line; this has the same
+                         form as a zone line except that the string &quot;Zone&quot; and the name
+                         are omitted, as the continuation line will place information
+                         starting at the time specified as the &quot;until&quot; information in the
+                         previous line in the file used by the previous line.
+                         Continuation lines may contain &quot;until&quot; information, just as zone
+                         lines do, indicating that the next line is a further
+                         continuation.
+            
+                   A link line has the form
+            
+                        Link  LINK-FROM        LINK-TO
+            
+                   For example:
+            
+                        Link  Europe/Istanbul  Asia/Istanbul
+            
+                   The LINK-FROM field should appear as the NAME field in some zone line;
+                   the LINK-TO field is used as an alternate name for that zone.
+            
+                   Except for continuation lines, lines may appear in any order in the
+                   input.
+            
+                   Lines in the file that describes leap seconds have the following form:
+            
+                        Leap  YEAR  MONTH  DAY  HH:MM:SS  CORR  R/S
+            
+                   For example:
+            
+                        Leap  1974  Dec    31   23:59:60  +     S
+            
+                   The YEAR, MONTH, DAY, and HH:MM:SS fields tell when the leap second
+                   happened.  The CORR field should be &quot;+&quot; if a second was added or &quot;-&quot; if
+                   a second was skipped.  The R/S field should be (an abbreviation of)
+                   &quot;Stationary&quot; if the leap second time given by the other fields should
+                   be interpreted as UTC or (an abbreviation of) &quot;Rolling&quot; if the leap
+                   second time given by the other fields should be interpreted as local
+                   wall clock time.
+            
+            EXTENDED EXAMPLE
+                   Here is an extended example of zic input, intended to illustrate many
+                   of its features.
+            
+                     # Rule  NAME  FROM  TO    TYPE  IN   ON       AT    SAVE  LETTER/S
+                     Rule    Swiss 1940  only  -     Nov  2        0:00  1:00  S
+                     Rule    Swiss 1940  only  -     Dec  31       0:00  0     -
+                     Rule    Swiss 1941  1942  -     May  Sun>=1   2:00  1:00  S
+                     Rule    Swiss 1941  1942  -     Oct  Sun>=1   0:00  0
+                     Rule    EU    1977  1980  -     Apr  Sun>=1   1:00u 1:00  S
+                     Rule    EU    1977  only  -     Sep  lastSun  1:00u 0     -
+                     Rule    EU    1978  only  -     Oct   1       1:00u 0     -
+                     Rule    EU    1979  1995  -     Sep  lastSun  1:00u 0     -
+                     Rule    EU    1981  max   -     Mar  lastSun  1:00u 1:00  S
+                     Rule    EU    1996  max   -     Oct  lastSun  1:00u 0     -
+            
+                     # Zone  NAME           GMTOFF   RULES       FORMAT  UNTIL
+                     Zone    Europe/Zurich  0:34:08  -           LMT     1848 Sep 12
+                                            0:29:44  -           BMT     1894 Jun
+                                            1:00     Swiss       CE%sT   1981
+                                            1:00     EU          CE%sT
+            
+                     Link    Europe/Zurich  Switzerland
+            
+                   In this example, the zone is named Europe/Zurich but it has an alias as
+                   Switzerland.  Zurich was 34 minutes and 8 seconds west of GMT until
+                   1848-09-12 at 00:00, when the offset changed to 29 minutes and 44
+                   seconds.  After 1894-06-01 at 00:00 Swiss daylight saving rules
+                   (defined with lines beginning with &quot;Rule Swiss&quot;) apply, and the GMT
+                   offset became one hour.  From 1981 to the present, EU daylight saving
+                   rules have applied, and the UTC offset has remained at one hour.
+            
+                   In 1940, daylight saving time applied from November 2 at 00:00 to
+                   December 31 at 00:00.  In 1941 and 1942, daylight saving time applied
+                   from the first Sunday in May at 02:00 to the first Sunday in October at
+                   00:00.  The pre-1981 EU daylight-saving rules have no effect here, but
+                   are included for completeness.  Since 1981, daylight saving has begun
+                   on the last Sunday in March at 01:00 UTC.  Until 1995 it ended the last
+                   Sunday in September at 01:00 UTC, but this changed to the last Sunday
+                   in October starting in 1996.
+            
+                   For purposes of display, &quot;LMT&quot; and &quot;BMT&quot; were initially used,
+                   respectively.  Since Swiss rules and later EU rules were applied, the
+                   display name for the timezone has been CET for standard time and CEST
+                   for daylight saving time.
+            
+            NOTES
+                   For areas with more than two types of local time, you may need to use
+                   local standard time in the AT field of the earliest transition time&apos;s
+                   rule to ensure that the earliest transition time recorded in the
+                   compiled file is correct.
+            
+                   If, for a particular zone, a clock advance caused by the start of
+                   daylight saving coincides with and is equal to a clock retreat caused
+                   by a change in UTC offset, zic produces a single transition to daylight
+                   saving at the new UTC offset (without any change in wall clock time).
+                   To get separate transitions use multiple zone continuation lines
+                   specifying transition instants using universal time.
+            
+            </remarks>
+            <summary>
+            Note that there are two hooks that can be used. They are UserDefinedParserHookList and UserDefineLoadFileHookList. For more information see their summaries.
+            
+            During processing the LoadedZoneList is updated to with the most current IZones processed so far. Note that they may not be completely initialized depending on processing step.
+            
+            Links:
+            http://www.iana.org/time-zones
+            http://69.36.11.139/tzdb/tz-how-to.html
+            http://www.timeanddate.com
+            </summary> 
+        </member>
+        <member name="F:Common.Patterns.TimeZoneInfo.Database.IANA.UserDefinedParserHookList">
+            <summary>
+            Delegates are called in order when LoadFile cannot determine the type of IANA object being parsed.
+            If a delegate handles the request true should be returned to indicate that the request was handled.
+            When this occurs no additional delegates are called. Note that lastZoneRead, lastRuleRead should be updated to their proper values or null if the request is handled.
+            If none of the delegates handled the request an ArgumentException is thrown to indicate that the line could not be parsed.
+            </summary>
+        </member>
+        <member name="F:Common.Patterns.TimeZoneInfo.Database.IANA.UserDefineLoadFileHookList">
+            <summary>
+            Each delegate is called in order to determine if the LoadFile's ianaTimeZoneFile matches the string value of the Key Item in the pair and if so the corresponding delegate is execute.
+            If this delegate returns true the request is handled and depending on the returnFromLoadFile argument of the delegate the LoadFile method may or may not exit.
+            If a delegate returns false and if returnFromLoadFile is false the next delegate is called. At any time the value of returnFromLoadFile is true the LoadFile method will exit with the returned value from the delegate.
+            If none of the delegates handled the request and returnFromLoadFile was always false, normal processing of LoadFile method will occur.
+            
+            Note that the Key property of the KeyValuePair can be a file name or a wild card file string. If this value is null, the associated delegate is always called.
+            </summary>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.Database.IANA.LoadFile(Common.Patterns.TimeZoneInfo.IDatabase,Common.IFilePath,System.Boolean,System.Boolean,System.Boolean)">
+            <summary>
+            Loads (Parses) an IANA Database File that will create Time Zones and associated objects.
+            </summary>
+            <param name="database">The OODB instance</param>
+            <param name="ianaTimeZoneFile">The IANA File</param>
+            <param name="associateReferenceObjectsAtThisTime">If true (default), all referenced associations with the loading objects are resolved. If false these references are NOT resolved and must be done so manually by calling the proper Update method.</param>
+            <param name="backwardCompatibleTZName">if true, the time zone names within this file are no longer used but are created for compatability with old releases of the IANA database. Default is false.</param>
+            <param name="historicTZRules">if true, the time zone rules are historical and are less reliable usually from pre-1970 era. Default is false.</param>
+            <returns>True to indicate the file was loaded</returns>
+            <remarks>
+                When associateReferenceObjectsAtThisTime is true it is assumed all loaded referencing files are loaded (i.e., Country, Rules, Zone-Country mappings, etc.).
+            </remarks>
+            <exception cref="T:System.ArgumentNullException">Is thrown when database or ianaTimeZoneFile arguments are null.</exception>
+            <exception cref="T:System.ArgumentException">Is thrown when an unknown keyword is encountered.</exception>
+            <exception cref="T:System.IO.FileLoadException">Is thrown when a parsing error or some other exception is encountered.</exception>
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.Database.IANA.DataVersion">
+            <summary>
+            IANA Data Version
+            </summary>
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.Database.IANA.DataReleaseDate">
+            <summary>
+            IANA Data Release Date
+            </summary>
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.Database.IANA.ContainsBackwardCompatibleTZNames">
+            <summary>
+            Determines if the IANA Backward Compatible Time Zones are included in this database.
+            If true, they are included.
+            If false, they are not included.
+            If null, the database is either being built or cannot determine the result.
+            </summary>
+            <remarks>
+            If true, the time zones are loaded from the IANA &quot;backward&quot; file.
+            
+            If the IANA database is opened, use the ContainsBackwardCompatibleTZNames property on the database.
+            </remarks>
+            <seealso cref="P:Common.Patterns.TimeZoneInfo.IDatabase.ContainsBackwardCompatibleTZNames"/>
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.Database.IANA.ContainsHistoricalTimeZones">
+            <summary>
+            Determines if the IANA Historical Time Zones are included in this database.
+            If true, they are included.
+            If false, they are not included.
+            If null, the database is either being built or cannot determine the result.
+            </summary>
+            <remarks>
+            If true, the historical time zones are loaded from the IANA &quot;backzone&quot; file. 
+            
+            If the IANA database is opened, use the ContainsHistoricalTimeZones property on the database.
+            </remarks>
+            <seealso cref="P:Common.Patterns.TimeZoneInfo.IDatabase.ContainsHistoricalTimeZones"/>
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.Database.IAutoIncrement.Identity">
+            <summary>
+            Returns an unique number that can Identify this current instance. This number can be used as sequence number of when the object was created
+            relative to other instances of the same type.
+            </summary>
+            <remarks>
+            This number is NOT guaranteed to be the same number, if the object is deleted and recreated.  
+            </remarks>
+            <example>
+                <code>
+                    var a = new MyClass();
+                    var b = new MyClass();
+                    var c = new MyClass();
+                    var o1 = new OtherClass();
+                    var o2 = new OtherClass();
+                    
+                    Console.WriteLine(a.Identity) ==> 101 //Prior Object was 100; When this instance was created it become the 101st object created for MyClass
+                    Console.WriteLine(b.Identity) ==> 102
+                    Console.WriteLine(c.Identity) ==> 103
+                    Console.WriteLine(o1.Identity) ==> 46 //Since this instance is from a different class, it will have a different sequence number (it could have been the same as for "a" (MyClass Instance), if there were 100 instance of this object created) 
+                    Console.WriteLine(o2.Identity) ==> 47
+                </code>
+            </example>
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.Database.ZoneRuleTmp.HasTZRules">
+            <summary>
+            Returns true to indicate that the TZRules are NOT NULL and the array length is greater then zero...
+            </summary>       
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.Database.ZoneRuleTmp.IsTZRulesNull">
+            <summary>
+            Returns true then TZRules is NULL.
+            </summary>       
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.Database.ZoneRuleTmp.TZStandardTimeDefaultAbbr">
+            <summary>
+            Returns This ZoneRule&apos;s Standard Time Default Abbreviation 
+            </summary>     
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.Database.ZoneRuleTmp.EnforcementDate">
+            <summary>
+            A date range where the Min property is the starting date/time (inclusive, &gt;=) and the Max property is the ending date/time (exclusive, &lt;) for this ZoneRule.
+            </summary>       
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.Database.ZoneRuleTmp.EnforcementUTCDate">
+            <summary>
+            A date range where the Min property is the starting date/time in UTC (inclusive, &gt;=) and the Max property is the ending date/time in UTC (exclusive, &lt;) for this ZoneRule.
+            </summary>       
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.Database.ZoneRuleTmp.StartingRule">
+            <summary>
+            Returns the first rule for this ZoneRule based on the Apply Date.
+            </summary>    
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.Database.ZoneRuleTmp.EndingRule">
+            <summary>
+            Returns the Ending Rule for this ZoneRule just BEFORE the RuleGoodUntil date.
+            </summary>
+            <remarks>
+            The Ending Rule can be Empty. When this occurs the associated time zone rule will be a static UTC offset that will not expire (Good Till Date is DateTime.Max).
+            If the Ending Rule is ApplyDateMax (Apply Date is DateTime.MaxValue), this indicates that the zone rule will not expire but has a repeating time zone change (e.g., DST to Std, Std to DST)
+            In this case the Enforcement Date Range property should contain the next occurrence and the Rule/ZoneRule properties should have the time zone rule.
+            </remarks>   
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.Database.ZoneRuleTmp.PriorDSTRule">
+            <summary>
+            This is the Prior Day Light Saving Rule just BEFORE the Apply Date (prior ZoneRule&apos;s RuleGoodUntil date).
+            </summary> 
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.Database.ZoneRuleTmp.PriorRule">
+            <summary>
+            This is the Prior Rule BEFORE the Apply Date (prior ZoneRule&apos;s RuleGoodUntil date).   
+            </summary>  
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.Database.ZoneRuleTmp.GetAbbreviationFormat(System.DateTime)">
+            <summary>
+            Returns the Time Zone Abbreviation format string for the zone.
+            </summary>
+            <returns>A formatted string associated with this time zone and rule or empty string to indicate no time zone abbreviation found.</returns>
+            <example>In Australia/Melbourne the format strings are
+            AEST or AEDT if in daylight savings</example>
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.FindRuleResult.EnforcementDate">
+            <summary>           
+            The returned value is dependent on the associatedZoneRule's value.
+            
+            When associatedZoneRule's value is null, this date/time range will only contain the possible best start (Min) date/time of the session or null (this occurs when a rule was NOT found).
+                Care must be taken when using the start date/time since it is only the best possible date/time!
+                
+            When associatedZoneRule's value is the associated ZoneRule (not null), this will always be a date/time range where the start (Min) will be the starting date/time for the rule (inclusive)
+                and end (Max) will always be the ending date/time of the rule (exclusive). If the rule could NOT be found (null returned) the ZoneRule's start/end (enforcement/GoodUntil) date/times are used.            
+            </summary>
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.FindRuleResult.LocalDateTime">
+            <summary>
+            The Converted to Local Date/Time from UTC or SearchDateTime value.
+            </summary>
+        </member>
+        <member name="T:Common.Patterns.TimeZoneInfo.IDatabase">
+            <summary>
+            Interface for all Time Zone Databases
+            </summary>
+            <remarks>
+                To access the default Time Zone Read-Only Database use the Query static class's Linq or Database properties.
+            </remarks>
+            <seealso cref="T:Common.Patterns.TimeZoneInfo.Query"/>
+        </member>
+        <member name="T:Common.Patterns.TimeZoneInfo.IDatabaseConsumer">
+            <summary>
+            Interface used for consumers of a Time Zone Database
+            </summary>
+        </member>
+        <member name="T:Common.Patterns.TimeZoneInfo.IRule">
+            <summary>
+            Basic Time Zone Rule used to determine the offset of the Time Zone's UTC Offset
+            </summary>
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.IRule.IsRollingRuleType">
+            <summary>
+            If true the Rule can roll from year to year.
+            
+            Example:
+            
+            FROM	TO	    IN  ON      AT      SAVE	LETTER Rolling?
+            1948	only	Mar	14	    2:00	1:00	D       No -- Starts on March 14th of 1948 and Continues on to the next valid rule
+            1949	only	Jan	 1	    2:00	0	    S       No -- Starts on Jan 1st of 1948 and Continues on to the next valid rule
+            1950	1966	Apr	lastSun	2:00	1:00	D       Yes -- Each April from 1950 to 1966
+            1950	1961	Sep	lastSun	2:00	0	    S       Yes -- Each Sept from 1950 to 1961
+            1962	1966	Oct	lastSun	2:00	0	    S       Yes -- Each Oct from 1962 to 1966
+            1967	1967	Apr	lastSun	2:00	1:00    D       No -- Only in April of 1967
+                   
+            </summary>
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.IRule.IsOnlyRuleType">
+            <summary>
+            If true the Rule is an &quot;ONLY&quot; type rule where the &quot;To Year&quot; has the ONLY keyword.
+            
+            When this occurs the rule is applied until the next valid rule!
+            Example:
+            
+            FROM	TO	    IN  ON      AT      SAVE	LETTER Only?
+            1948	only	Mar	14	    2:00	1:00	D       Yes -- Starts on March 14th of 1948 and Continues on to the next valid rule
+            1949	only	Jan	 1	    2:00	0	    S       Yes -- Starts on Jan 1st of 1948 and Continues on to the next valid rule
+            1950	1966	Apr	lastSun	2:00	1:00	D       No -- Each April from 1950 to 1966
+            1950	1961	Sep	lastSun	2:00	0	    S       No -- Each Sept from 1950 to 1961
+            1962	1966	Oct	lastSun	2:00	0	    S       No -- Each Oct from 1962 to 1966
+            1967	1967	Apr	lastSun	2:00	1:00    D       No -- Only in April of 1967
+                   
+            </summary>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.IRule.CalculateEnforcementDate(System.Int32,System.TimeSpan,System.TimeSpan,System.Boolean)">
+            <summary>
+            Calculates the date and time this rule can be enforced (applied)...
+            </summary>
+            <param name="forYear">Year used to calculate the enforcement date for this rule</param>
+            <param name="currentUTCOffset">Current Timezone UTC Offset</param>
+            <param name="priorRuleAdjustment">The prior Rule's Adjustment</param>
+            <param name="forceCalculation"></param>
+            <returns>Returns the Enforcement Date or DateTime.MinValue to indicate no enforcement date</returns>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.IRule.CalculateEnforcementDate(System.Int32,System.Double,System.Double)">
+            <summary>
+            Calculates the date and time this rule can be enforced (applied)...
+            </summary>
+            <param name="forYear">Year used to calculate the enforcement date for this rule</param>				
+            <param name="utcOffSetInSecs">The total number of Seconds that represent the UTC that should be used in cases where the Rule's "At" time is in UTC. The default is zero.</param>
+            <param name="priorRuleAdjustmentInSecs">The prior Rule's Adjustment (TZAdjustment) in seconds</param>
+            <returns>
+            Returns the Enforcement Date or DateTime.MinValue to indicate no enforcement date
+            </returns>
+            <remarks>
+            This method will determine the TZ's "At" offset for standard time based on this rule's TZType.
+            </remarks>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.IRule.GetOrderingIndex">
+            <summary>
+            Returns the Ordering Index of this Rule. A Ordering Index is the position of this rule related to this rule's peers.
+            </summary>
+            <example>
+                # Rule	NAME	FROM	TO	TYPE	IN	ON	    AT	    SAVE	LETTER  OrderingIndex
+                Rule	NYC	    1920	only	-	Mar	lastSun	2:00	1:00	D       0
+                Rule	NYC	    1920	only	-	Oct	lastSun	2:00	0	    S       1
+                Rule	NYC	    1921	1966	-	Apr	lastSun	2:00	1:00	D       2
+                Rule	NYC	    1921	1954	-	Sep	lastSun	2:00	0	    S       3         
+                Rule	NYC	    1955	1966	-	Oct	lastSun	2:00	0	    S       4
+            </example>
+            <returns>The Ordering Index</returns>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.IRule.CompareFromYearMonth(Common.Patterns.TimeZoneInfo.IRule)">
+            <summary>
+            Compares the rules' From Year and Month only.
+            </summary>
+            <param name="otherRule">The other rule to compare too</param>
+            <returns>
+                -1 -- target rule (this) is less then otherRule
+                0 -- Both rules' have the same year and month
+                1 -- otherRule has a greater year and month.
+            </returns>
+            <remarks>
+            The Name, OnDay or ToYear are NOT used for comparisons.
+            
+            If otherRule is null, 1 is returned.
+            </remarks>
+        </member>
+        <member name="T:Common.Patterns.TimeZoneInfo.IZone">
+            <summary>
+            Represents a Time Zone
+            </summary>
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.IZone.SpansRegions">
+            <summary>
+            Returns true to indicate that this time zone spans multiple regionals within or outside of a country. 
+            
+            When this is true the LOCODE represents the primary city that falls within this time zone.
+            </summary>
+            <example>
+            US/Central (Central Time Zone in the US) -- This time zone spans several US States. The Primary City is Chicago.
+            Poland -- This time zone is for Poland (spans cities and regions within Poland). The Primary Cite is Warsaw
+            </example>
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.IZone.FormattedName">
+            <summary>
+            Returns the more "Friendly" Name of the Time Zone. This name will
+            consist of the Time Zone's originating country separated by a '\' follow
+            by the City or IANA name.
+            Note that this can return null (indicating that the Time Zone does not have a Formatted Name). 
+            </summary>
+            <remarks>
+            If you require that a string is always returned, see DisplayName property.
+            </remarks>
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.IZone.DisplayName">
+            <summary>
+            Always returns a string that represents the Time Zone's FormattedName (in the cases where FormattedName returns null, a string.Empty is returned).
+            </summary>
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.IZone.Id">
+            <summary>
+            Returns an Id that is always unique and can always be used as a reference for this Time Zone.
+            </summary>
+            <remarks>
+            This Id is tied to the Time Zone name and if the name changes this Id will also change. 
+            </remarks>
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.IZone.IsStaticUTCOffset">
+            <summary>
+            Returns true only when this Time Zone only has a static (non-changing) UTC Offset. 
+            
+            Example is Etc/GMT, Etc/UTC, etc.
+            </summary>       
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.IZone.IsProvidedForBackwardCompatibility">
+            <summary>
+            True only when this TimeZone is provided for Backward Compatibility!
+            </summary>
+            <remarks>
+            Care should be taken when using this Time Zone since it may not be current and may be removed in future releases!
+            
+            If this timezone is an Alias (IsAlias is true), the LinkedToTimeZone property of ZoneAlias may contain the most current timezone definition. 
+            </remarks>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.IZone.DetermineUTCOffset(System.DateTime,System.Nullable{Common.Patterns.TimeZoneInfo.FindRuleResult}@,System.Boolean)">
+            <summary>
+            Returns the UTC Offset based on the given Date/Time. 
+            </summary>
+            <param name="dateTimeUsedToDetermineUTCOffset">The date used to determine the UTC Offset</param>
+            <param name="findRuleResult">
+            Returns the Time Zone's rule results that was applied for the given date/time.
+            Note that this can be null even if a UTC Offset was determined. In this case there were no rules and the Time Zone's default UTC was used.</param>        
+            <param name="dateTimeIsUTC">If true (default false), the dateTimeUsedToDetermineUTCOffset's value is a UTC date/time</param>
+            <returns>
+            Returns a UTC Offset or null to indicate one could not be determined.
+            Note that when UTC Offset is null appliedRule is null and ruleEnforcementDateTime will be DateTime.MinValue. 
+            </returns>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.IZone.ConvertToUTCOffset(System.DateTime,System.Nullable{Common.Patterns.TimeZoneInfo.FindRuleResult}@,System.Boolean)">
+            <summary>
+            Converts the given date/time into a DateTimeOffset. 
+            </summary>
+            <param name="convertToUTCOffset">Date/Time to convert to an DateTimeOffset</param>
+            <param name="findRuleResult">The Time Zone's find rule results</param>        
+            <param name="dateTimeIsUTC">If true (default false), convertToUTCOffset's value is a UTC date/time</param>
+            <returns>Returns a converted date/time or null to indicate that the Time Zone Rule could not be found or conversion could not be performed</returns>
+            <remarks>
+            Note that this method can return a UTC date/time (UTC offset of zero). This will occur if the UTC Offset has seconds (e.g., UTC-5:50:36).
+            </remarks>
+        </member>
+        <member name="T:Common.Patterns.TimeZoneInfo.ZoneNameTypes">
+            <summary>
+            The type of time zone name search format.
+            </summary>
+        </member>
+        <member name="F:Common.Patterns.TimeZoneInfo.ZoneNameTypes.Default">
+            <summary>
+            The default time zone name which is currently IANA&apos;s Time Zone Name
+            </summary>
+        </member>
+        <member name="F:Common.Patterns.TimeZoneInfo.ZoneNameTypes.IANATZName">
+            <summary>
+            Use the IANA Time Zone Name (e.g., America/Chicago)
+            </summary>
+        </member>
+        <member name="F:Common.Patterns.TimeZoneInfo.ZoneNameTypes.WindowsId">
+            <summary>
+            Windows Time Zone Name (e.g., Central Standard Time)
+            </summary>
+        </member>
+        <member name="F:Common.Patterns.TimeZoneInfo.ZoneNameTypes.FormattedName">
+            <summary>
+            Use a &quot;Friendly&quot; name like Chicago
+            </summary>
+        </member>
+        <member name="F:Common.Patterns.TimeZoneInfo.ZoneNameTypes.AbbreviatedName">
+            <summary>
+            The time zone&apos;s Abbreviated Name (e.g., EDT)
+            </summary>
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.IZoneRule.HasTZRules">
+            <summary>
+            Returns true to indicate that the TZRules are NOT NULL and the array length is greater then zero...
+            </summary>
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.IZoneRule.IsTZRulesNull">
+            <summary>
+            Returns true then TZRules is NULL.
+            </summary>
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.IZoneRule.StartingRule">
+            <summary>
+            Returns the first rule for this ZoneRule based on the Apply Date.
+            </summary>        
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.IZoneRule.EndingRule">
+            <summary>
+            Returns the Ending Rule for this ZoneRule just BEFORE the RuleGoodUntil date.
+            </summary>
+            <remarks>
+            The Ending Rule can be Empty. When this occurs the associated time zone rule will be a static UTC offset that will not expire (Good Till Date is DateTime.Max).
+            If the Ending Rule is ApplyDateMax (Apply Date is DateTime.MaxValue), this indicates that the zone rule will not expire but has a repeating time zone change (e.g., DST to Std, Std to DST)
+            In this case the Enforcement Date Range property should contain the next occurrence and the Rule/ZoneRule properties should have the time zone rule.
+            </remarks>      
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.IZoneRule.PriorRule">
+            <summary>
+            This is the Prior Rule BEFORE the Apply Date (prior ZoneRule&apos;s RuleGoodUntil date).   
+            </summary>       
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.IZoneRule.EnforcementDate">
+            <summary>
+            A date range where the Min property is the starting date/time (inclusive, &gt;=) and the Max property is the ending date/time (exclusive, &lt;) for this ZoneRule.
+            </summary>
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.IZoneRule.EnforcementUTCDate">
+            <summary>
+            A date range where the Min property is the starting date/time as UTC (inclusive, &gt;=) and the Max property is the ending date/time as UTC (exclusive, &lt;) for this ZoneRule.
+            </summary>
+        </member>
+        <member name="T:Common.Patterns.TimeZoneInfo.Properties.Resources">
+            <summary>
+              A strongly-typed resource class, for looking up localized strings, etc.
+            </summary>
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.Properties.Resources.ResourceManager">
+            <summary>
+              Returns the cached ResourceManager instance used by this class.
+            </summary>
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.Properties.Resources.Culture">
+            <summary>
+              Overrides the current thread's CurrentUICulture property for all
+              resource lookups using this strongly typed resource class.
+            </summary>
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.Properties.Resources.TimeZoneInfo">
+            <summary>
+              Looks up a localized resource of type System.Byte[].
+            </summary>
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.TimeZoneApplyRule.ApplyDate">
+            <summary>
+            The starting or applied date/time of when this rule will take affect. 
+            </summary>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.TimeZoneApplyRule.SameTimeZoneRange(Common.Patterns.TimeZoneInfo.TimeZoneApplyRule)">
+            <summary>
+            Returns true when each instances have the same time zone range which indicates that there is NO date/time change to indicate a change from DST to Std or change in Time Zone Name.
+            </summary>
+            <param name="compareTimeZone">Compare Instance</param>
+            <returns></returns>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.TimeZoneApplyRule.RemoveBorderingTimeZoneDuplicates(Common.Patterns.TimeZoneInfo.IZone,System.Collections.Generic.IEnumerable{Common.Patterns.TimeZoneInfo.TimeZoneApplyRule})">
+            <summary>
+            Remove bordering TimeZoneApplyRule instances based on OffSet, Day Light Saving Value, and Time Zone Abbreviate only!
+            </summary>
+            <param name="zoneInstance">The associated zone of these rules</param>
+            <param name="timezoneApplyRuleCollection">A collection of TimeZoneApplyRules</param>
+            <returns>Returns an array of TimeZoneApplyRules where bordering instances that are duplicates are removed.</returns>
+        </member>
+        <member name="T:Common.Patterns.TimeZoneInfo.TimeZoneApplyRuleComparer">
+            <summary>
+            Comparer Class used to Compare TimeZoneApplyRule's by means of the TimeZoneApplyRule's equal operator.
+            </summary>
+        </member>
+        <member name="T:Common.Patterns.TimeZoneInfo.DistinctTimeZoneApplyRuleComparer">
+            <summary>
+            Comparer Class used to Compare TimeZoneApplyRule's by means of the TimeZoneApplyRule's SameTimeZoneRange method.
+            </summary>
+            <remarks>
+            This comparer compares based on OffSet, Day Light Saving Value, and Time Zone Abbreviate only!
+            </remarks>
+        </member>
+        <member name="F:Common.Patterns.TimeZoneInfo.TimeZoneDatabase.UTCTimeZoneId">
+            <summary>
+            UTC Time Zone Id which corresponds to Etc/UTC
+            </summary>
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.TimeZoneDatabase.UTCTimeZone">
+            <summary>
+            Gets the UTC time zone which corresponds to Etc/UTC
+            </summary>
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.TimeZoneDatabase.LocalTimeZone">
+            <summary>
+            Gets the time zone of the current computer which corresponds to the System.TimeZoneInfo.Local property.       
+            </summary>
+            <remarks>
+            Note that this value is cached and if the computer's time zone changes this value would NOT be changed (it will still point to the old time zone)!
+            To obtain an non-cached version use GetCurrentTimeZone method.
+            </remarks>
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.TimeZoneDatabase.LocalTimeZoneId">
+            <summary>
+            Gets the time zone of the current computer which corresponds to the System.TimeZoneInfo.Local property.
+            
+            If the current time zone cannot be determined long.MinValue is returned.
+            </summary>
+            <remarks>
+            Note that this value is cached and if the computer's time zone changes this value would NOT be changed (it will still point to the old time zone)!
+            </remarks>
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.TimeZoneDatabase.Linq">
+            <summary>
+            Returns a LINQ object that can be used in a LINQ &quot;in&quot; keyword.
+            </summary>
+            <example>
+            <code>
+                var zones = from IZone zoneItem in Common.Patterns.TimeZoneInfo.TimeZoneDatabase.Linq
+                                where zoneItem.LOCODE == "RU MOW"
+                            select zoneItem;        
+            </code>
+                Returns a collection of zones that are associated with Moscow.
+                
+                Note that you must define the object type (in this example, IZone) you wish to &quot;retrieve&quot; from the Time Zone Database.
+            </example>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.TimeZoneDatabase.GetLocalTimeZone">
+            <summary>
+            Gets the time zone of the current computer which corresponds to the System.TimeZoneInfo.Local property.
+            
+            This is the non-cached version. For the best performance use the CurrentTimeZone Property.
+            </summary>
+            <remarks>
+            Note that this value is NOT cached and if the computer's time zone changes this value would return the most current Time Zone!
+            </remarks>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.TimeZoneDatabase.FindZone(System.String,Common.Patterns.TimeZoneInfo.ZoneNameTypes)">
+            <summary>
+            Finds the Zone based on the Zone's IANA Name, or based on the Zone's Windows' TimeZoneInfo Id.
+            </summary>
+            <param name="timeZoneName">The Time Zone's Name</param>
+            <param name="tzNameType">The type of Name used for the search. The default is IANA's Time Zone Name</param>        
+            <returns>Returns the Time Zone based on the Name or null to indicate that the time zone does not exist.</returns>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.TimeZoneDatabase.FindZone(System.Int64)">
+            <summary>
+            Finds the Time Zone based on the Time Zone's Id (not the Identity). 
+            </summary>
+            <remarks>The Time Zone's Id is NOT the Identity property.</remarks>
+            <param name="zoneId">The Time Zone's Id</param>
+            <returns>Returns the Time Zone based on the Id or null to indicate the zone does not exists</returns>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.TimeZoneDatabase.FindZoneBasedOnDateTimeOffset(System.DateTimeOffset)">
+            <summary>
+            Find the Time Zone(s) that match the given Date/Time Offset. 
+            </summary>
+            <param name="findBasedOnDateTimeOffset"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.TimeZoneDatabase.GetZoneNames(Common.Patterns.TimeZoneInfo.ZoneNameTypes,System.Boolean)">
+            <summary>
+            Returns an array of all zone names (except in the case ignoreAliases is true (default)) based on the name type.
+            </summary>
+            <param name="tzNameType">The type of names to return</param>
+            <param name="ignoreAliases">if true (default) only non-aliases time zone names are returned.</param>
+            <returns>An array of names based on the type</returns>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.TimeZoneDatabase.GetZones(System.Boolean)">
+            <summary>
+            Returns all Time Zone instances (except when ignoreAliases is true (default)).
+            </summary>
+            <param name="ignoreAliases">If true (default) only non-aliase zones returned.</param>
+            <returns>An array of Time Zone instances.</returns>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.TimeZoneDatabase.FindZones(System.String,Common.Patterns.TimeZoneInfo.ZoneNameTypes,System.Boolean)">
+            <summary>
+            Searches for the Time Zone instance(s) that match the arguments.
+            </summary>
+            <param name="searchTimeZoneName">The name to search for. This can be a partial name if containSearch is true (default).</param>
+            <param name="tzNameType">The Name Type</param>
+            <param name="containSearch">If true (default is false) the search is conducted by the containment comparison (the argument is "part of" the name).</param>        
+            <returns>An array of zone instance or an empty array indicating the search was not successful</returns>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.TimeZoneDatabase.FindZonesBasedOnLOCODE(System.String)">
+            <summary>
+            Returns the associated Time Zones based on the Location Code (LOCODE).
+            </summary>
+            <param name="locode">The UN Location Code (LOCODE)</param>
+            <returns>An array of associates Time Zones or an Empty Array when there are no associations</returns>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.TimeZoneDatabase.FindZoneBasedOnLOCODE(System.String)">
+            <summary>
+            Returns the &quot;Best&quot; Time Zone for this Location Code (LOCODE)
+            </summary>
+            <param name="locode">The UN Location Code (LOCODE)</param>
+            <returns>The associated Time Zone or null</returns>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.TimeZoneDatabase.FindAliasesLinkedToThisZone(System.String,System.Boolean)">
+            <summary>
+            Finds all Aliases that are linked to linkedToTimeZoneName. Note that this name must be an IANA name.
+            </summary>
+            <param name="linkedToTimeZoneName">The IANA name or part of an IANA name if contains argument is true. If this is a string.Empty all Aliases are returned.</param>
+            <param name="contains">If true (default is false) the search is conducted by the containment comparison (the argument is "part of" the IANA name).</param>
+            <returns>an array of Aliases or an empty array to indicate that the search failed</returns>
+            <exception cref="T:System.ArgumentNullException">Is thrown if databaseInstance is null or linkedToTimeZoneName is null.</exception>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.TimeZoneDatabase.FindZonesAssociatedWindowsId(System.String,System.Boolean)">
+            <summary>
+            Returns all zones associated with the given Windows' Time Zone Id.
+            </summary>
+            <param name="windowsTZId">Windows' Time Zone Id</param>
+            <param name="containSearch">If true (default is false) the search is conducted by the containment comparison (the argument is "part of" the widnows' id).</param>
+            <returns>Returns an Array of associated zones or empty array to indicate that the search was not successful</returns>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.TimeZoneDatabase.FindWindowIdsAssociatedToTimeZone(System.String,System.Boolean)">
+            <summary>
+            Returns all Windows' id(s) associated with the given IANA Time Zone Name.
+            </summary>
+            <param name="timeZoneName">IANA Time Zone Name</param>
+            <param name="containSearch">If true (default is false) the search is conducted by the containment comparison (the argument is "part of" the IANA Time Zone Name).</param>
+            <returns>Returns an Array of Windows' Id(s) associated this time zone or empty array to indicate that the search was not successful</returns>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.TimeZoneDatabase.FindWindowIdsAssociatedToTimeZone(Common.Patterns.TimeZoneInfo.IZone)">
+            <summary>
+            Returns all Windows' id(s) associated with the given Time Zone Instance.
+            </summary>
+            <param name="timeZone">Time Zone Instance</param>
+            <returns>Returns an Array of Windows' Id(s) associated this time zone or empty array to indicate that the search was not successful</returns>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.TimeZoneDatabase.GetAllSupportedWindowIds">
+            <summary>
+            Returns all Windows' ids supported by this system.
+            </summary>
+            <returns>Returns an Array of Windows' Ids</returns>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.TimeZoneDatabase.GetAllZonesAssociatedWindowsId">
+            <summary>
+            Returns all Time Zone instances that are associated with a Windows' Time Zone Id.
+            </summary>
+            <returns>An array of Time Zone instances associated with a Windows' Time Zone Id.</returns>
+        </member>
+        <member name="M:Common.Patterns.TimeZoneInfo.TimeZoneDatabase.TryFindCountry(System.String,Common.Patterns.TimeZoneInfo.ZoneNameTypes,System.Boolean)">
+            <summary>
+            Tries to find country based on search information. If containsSearch is true (default is false) and multiple zones are return from different countries; null is returned.
+            </summary>
+            <param name="searchName">The Time Zone name. It can be a IANA, Windows' Id, or a Display Name</param>
+            <param name="tzNameType">The Name Type</param>
+            <param name="containSearch">if true (default is false) the method will search based on part of the given name.</param>
+            <returns>The Country or null to indicate that the search was not successful or multiple time zones were retrieved from different countries.</returns>
+        </member>
+        <member name="T:Common.Patterns.TimeZoneInfo.Query">
+            <summary>
+            Helper class to access the Read-Only TimeZone Database for the purposes of querying. 
+            
+            There are two major properties they are:
+                Linq -- This property is used within LINQ queries. For more information see <see cref="P:Common.Patterns.TimeZoneInfo.Query.Linq"/>.
+                Database -- This property is used when a IDatabase object is required with any Time Zone Method. For more information see <see cref="P:Common.Patterns.TimeZoneInfo.Query.Database"/>.
+            </summary>
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.Query.Linq">
+            <summary>
+            Returns a LINQ object that can be used in a LINQ &quot;in&quot; keyword.
+            </summary>
+            <example>
+            <code>
+                var zones = from IZone zoneItem in Common.Patterns.TimeZoneInfo.Query.Linq
+                                where zoneItem.LOCODE == "RU MOW"
+                            select zoneItem;        
+            </code>
+                Returns a collection of zones that are associated with Moscow.
+                
+                Note that you must define the object type (in this example, IZone) you wish to &quot;retrieve&quot; from the Time Zone Database.
+            </example>
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.Query.LinqZones">
+            <summary>
+            Returns a LINQ object that represents a collection of Time Zones
+            </summary>
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.Query.LinqZoneRules">
+            <summary>
+            Returns a LINQ object that represents a collection of Time Zone Rules
+            </summary>
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.Query.LinqLocationCodes">
+            <summary>
+            Returns a LINQ object that represents a collection of Location Codes (LOCODEs)
+            </summary>
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.Query.LinqCountries">
+            <summary>
+            Returns a LINQ object that represents a collection of Countries
+            </summary>
+        </member>
+        <member name="P:Common.Patterns.TimeZoneInfo.Query.Database">
+            <summary>
+            Returns a Read-Only Time Zone Database object that can be used as an argument to some of the Time Zone methods
+            </summary>
+            <example>
+            <code>
+                Database.Zone.FindZone(Query.Database, &quot;Central Standard Time&quot;, ZoneNameTypes.WindowsId);
+                Database.Zone.FindZoneBasedOnDateTimeOffset(Query.Database, new DateTimeOffset(2012, 12, 31, 0, 0, 0, new TimeSpan(-6, 0 , 0)));
+            </code>
+            </example>
+        </member>
+    </members>
+</doc>

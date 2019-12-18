@@ -52,11 +52,22 @@ namespace DataTableToExcel.Properties {
 
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0.86")]
+        [global::System.Configuration.DefaultSettingValueAttribute("0.87")]
         public decimal AutoFitColumnFactor {
             get
             {
                 return ((decimal)(this["AutoFitColumnFactor"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("500")]
+        public int AutoFitColumnMaxRows
+        {
+            get
+            {
+                return ((int)(this["AutoFitColumnMaxRows"]));
             }
         }
     }

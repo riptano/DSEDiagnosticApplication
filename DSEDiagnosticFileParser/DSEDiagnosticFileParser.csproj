@@ -35,42 +35,42 @@
   <ItemGroup>
     <Reference Include="Common.Functions, Version=4.0.7.0, Culture=neutral, PublicKeyToken=75d1a63e21e859f1, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\CommonPatterns\Release\Common.Functions.dll</HintPath>
+      <HintPath>..\CommonPatterns\Common.Functions.dll</HintPath>
     </Reference>
     <Reference Include="Common.Path, Version=4.0.5.0, Culture=neutral, PublicKeyToken=75d1a63e21e859f1, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\CommonPatterns\Release\Common.Path.dll</HintPath>
+      <HintPath>..\CommonPatterns\Common.Path.dll</HintPath>
     </Reference>
     <Reference Include="Common.Patterns.Collections, Version=4.0.5.0, Culture=neutral, PublicKeyToken=75d1a63e21e859f1, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\CommonPatterns\Release\Common.Patterns.Collections.dll</HintPath>
+      <HintPath>..\CommonPatterns\Common.Patterns.Collections.dll</HintPath>
     </Reference>
     <Reference Include="Common.Patterns.QueueProcessor, Version=4.0.5.0, Culture=neutral, PublicKeyToken=75d1a63e21e859f1, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\CommonPatterns\Release\Common.Patterns.QueueProcessor.dll</HintPath>
+      <HintPath>..\CommonPatterns\Common.Patterns.QueueProcessor.dll</HintPath>
     </Reference>
     <Reference Include="Common.Patterns.Shared, Version=4.0.5.0, Culture=neutral, PublicKeyToken=75d1a63e21e859f1, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\CommonPatterns\Release\Common.Patterns.Shared.dll</HintPath>
+      <HintPath>..\CommonPatterns\Common.Patterns.Shared.dll</HintPath>
     </Reference>
     <Reference Include="Common.Patterns.Singleton, Version=4.0.5.0, Culture=neutral, PublicKeyToken=75d1a63e21e859f1, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\CommonPatterns\Release\Common.Patterns.Singleton.dll</HintPath>
+      <HintPath>..\CommonPatterns\Common.Patterns.Singleton.dll</HintPath>
     </Reference>
     <Reference Include="Common.Patterns.Tasks, Version=4.0.5.0, Culture=neutral, PublicKeyToken=75d1a63e21e859f1, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\CommonPatterns\Release\Common.Patterns.Tasks.dll</HintPath>
+      <HintPath>..\CommonPatterns\Common.Patterns.Tasks.dll</HintPath>
     </Reference>
     <Reference Include="Common.Patterns.Threading, Version=4.0.5.0, Culture=neutral, PublicKeyToken=75d1a63e21e859f1, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\CommonPatterns\Release\Common.Patterns.Threading.dll</HintPath>
+      <HintPath>..\CommonPatterns\Common.Patterns.Threading.dll</HintPath>
     </Reference>
     <Reference Include="Common.Patterns.TimeZoneInfo, Version=4.0.5.0, Culture=neutral, PublicKeyToken=75d1a63e21e859f1, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\CommonPatterns\Release\Common.Patterns.TimeZoneInfo.dll</HintPath>
+      <HintPath>..\CommonPatterns\Common.Patterns.TimeZoneInfo.dll</HintPath>
     </Reference>
     <Reference Include="Common.TimeZones">
-      <HintPath>..\packages\CommonPatterns\Release\Common.TimeZones.dll</HintPath>
+      <HintPath>..\CommonPatterns\Common.TimeZones.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -197,10 +197,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\SharpZipLib\src\ICSharpCode.SharpZLib.csproj">
-      <Project>{0e7413ff-eb9e-4714-acf2-be3a6a7b2ffd}</Project>
-      <Name>ICSharpCode.SharpZLib</Name>
-    </ProjectReference>
     <ProjectReference Include="..\DSEDiagnosticAnalytics\DSEDiagnosticAnalytics.csproj">
       <Project>{17a460cf-1048-4851-844a-987a4a3762f8}</Project>
       <Name>DSEDiagnosticAnalytics</Name>
@@ -228,6 +224,10 @@
     <ProjectReference Include="..\DSEDiagnosticTaskSchedulers\DSEDiagnosticTaskSchedulers.csproj">
       <Project>{9a2c0e86-0475-4a74-b653-88ad1644e1c0}</Project>
       <Name>DSEDiagnosticTaskSchedulers</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SharpZipLib\src\ICSharpCode.SharpZLib.csproj">
+      <Project>{0e7413ff-eb9e-4714-acf2-be3a6a7b2ffd}</Project>
+      <Name>ICSharpCode.SharpZLib</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />

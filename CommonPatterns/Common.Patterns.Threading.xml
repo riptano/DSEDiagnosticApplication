@@ -1,0 +1,1247 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Common.Patterns.Threading</name>
+    </assembly>
+    <members>
+        <member name="T:Common.Patterns.Threading.CountdownEvent">
+            <summary>
+            Represents a synchronization primitive that is signaled when its count reaches zero across processors
+            </summary>
+            <remarks>For a local processor version see System.Threading.CountdownEvent</remarks>
+            <seealso ref="https://msdn.microsoft.com/en-us/library/system.threading.countdownevent(v=vs.100).aspx"/>
+        </member>
+        <member name="M:Common.Patterns.Threading.CountdownEvent.#ctor(System.Int32,System.String)">
+            <summary>
+            Initializes a new instance of CountdownEvent class with the specified count.
+            </summary>
+            <param name="initialCount">The number of signals initially required to set the CountdownEvent.</param>
+            <param name="systemWideName">
+            The name of a system-wide synchronization event.
+            
+            System Wide Name can be prefixed with a namespace like Global\ or Local\ 
+            For more information see <see ref="https://msdn.microsoft.com/en-us/library/aa382954(VS.85).aspx"/>
+            </param>
+            <exception cref="T:System.ArgumentException">systemWideName is null or an empty string</exception>
+            <seealso ref="https://msdn.microsoft.com/en-us/library/aa382954(VS.85).aspx"/>
+        </member>
+        <member name="M:Common.Patterns.Threading.CountdownEvent.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of CountdownEvent class with the specified count.
+            </summary>
+            <param name="systemWideName">
+            The name of a system-wide synchronization event.
+            
+            System Wide Name can be prefixed with a namespace like Global\ or Local\ 
+            For more information see <see ref="https://msdn.microsoft.com/en-us/library/aa382954(VS.85).aspx"/>
+            </param>
+            <exception cref="T:System.ArgumentException">systemWideName is null or an empty string</exception>
+            <exception cref="T:System.InvalidOperationException">systemWideName was not found and could not be initlaized since an initialCount was not defined</exception>
+        </member>
+        <member name="P:Common.Patterns.Threading.CountdownEvent.SystemWideName">
+            <summary>
+            The name used to identify this event across processors.
+            </summary>
+        </member>
+        <member name="P:Common.Patterns.Threading.CountdownEvent.CurrentCount">
+            <summary>
+            Gets the cached number of remaining signals required to set the event.
+            </summary>
+            <remarks>
+            Warning: This is a cached value that is only updated when an event method is executed. 
+            To obtain the current count value call RefreshCurrentCount method.
+            </remarks>
+        </member>
+        <member name="P:Common.Patterns.Threading.CountdownEvent.InitialCount">
+            <summary>
+            Gets the numbers of signals initially required to set the event.
+            </summary>
+        </member>
+        <member name="P:Common.Patterns.Threading.CountdownEvent.WaitHandle">
+            <summary>
+            Gets a WaitHandle that is used to wait for the Current Count to change.
+            </summary>
+        </member>
+        <member name="P:Common.Patterns.Threading.CountdownEvent.IsSet">
+            <summary>
+            Determines whether the event is set.
+            </summary>
+        </member>
+        <member name="P:Common.Patterns.Threading.CountdownEvent.Initialized">
+            <summary>
+            If true the instance is initialized and not disposed.
+            </summary>
+        </member>
+        <member name="P:Common.Patterns.Threading.CountdownEvent.IsOwner">
+            <summary>
+            If true, this process is the initial creator of this event. 
+            </summary>
+        </member>
+        <member name="M:Common.Patterns.Threading.CountdownEvent.AddCount(System.Int32)">
+            <summary>
+            Increments the CountdownEvent's current count by a specified value.
+            </summary>
+            <param name="signalCount">The value by which to increase CurrentCount.</param>
+            <exception cref="T:System.ObjectDisposedException">The current instance has already been disposed.</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">signalCount is less than or equal to 0.</exception>
+            <exception cref="T:System.InvalidOperationException">The current instance is already set. -or- CurrentCount is equal to or greater than MaxValue after count is incremented by signalCount.</exception>
+        </member>
+        <member name="M:Common.Patterns.Threading.CountdownEvent.AddCount">
+            <summary>
+            Increments the CountdownEvent's current count by one.
+            </summary>
+            <exception cref="T:System.ObjectDisposedException">The current instance has already been disposed.</exception>
+            <exception cref="T:System.InvalidOperationException">The current instance is already set. -or- CurrentCount is equal to or greater than MaxValue after count is incremented by signalCount.</exception>		
+        </member>
+        <member name="M:Common.Patterns.Threading.CountdownEvent.Reset">
+            <summary>
+            Resets the CurrentCount to the value of InitialCount.
+            </summary>
+            <exception cref="T:System.ObjectDisposedException">The current instance has already been disposed.</exception>		
+        </member>
+        <member name="M:Common.Patterns.Threading.CountdownEvent.ResetOnSet">
+            <summary>
+            Resets the CurrentCount to the value of InitialCount only if the event is set (current value is zero).
+            </summary>
+            <returns>
+            returns true if the event is reset, otherwise false is returned.
+            </returns>
+        </member>
+        <member name="M:Common.Patterns.Threading.CountdownEvent.Signal(System.Int32)">
+            <summary>
+            Registers multiple signals with the CountdownEvent, decrementing the value of CurrentCount by the specified amount.
+            </summary>
+            <param name="signalCount">The number of signals to register.</param>
+            <returns>true if the signals caused the count to reach zero and the event was set; otherwise, false.</returns>
+            <exception cref="T:System.ObjectDisposedException">The current instance has already been disposed.</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">signalCount is less than 1.</exception>
+            <exception cref="T:System.InvalidOperationException">The current instance is already set. -or- CurrentCount is equal to or signalCount is greater than Current Count.</exception>		
+        </member>
+        <member name="M:Common.Patterns.Threading.CountdownEvent.Signal">
+            <summary>
+            Registers a signal with the CountdownEvent, decrementing the value of CurrentCount.
+            </summary>
+            <returns>true if the signal caused the count to reach zero and the event was set; otherwise, false.</returns>
+            <exception cref="T:System.ObjectDisposedException">The current instance has already been disposed.</exception>
+            <exception cref="T:System.InvalidOperationException">The current instance is already set.</exception>				
+        </member>
+        <member name="M:Common.Patterns.Threading.CountdownEvent.Set">
+            <summary>
+            Sets the current count to zero, thus setting the event (Waits become unblocked).  
+            </summary>
+            <exception cref="T:System.ObjectDisposedException">The current instance has already been disposed.</exception>		
+        </member>
+        <member name="M:Common.Patterns.Threading.CountdownEvent.TryAddCount(System.Int32)">
+            <summary>
+            Attempts to increment CurrentCount by a specified value.
+            </summary>
+            <param name="signalCount">The value by which to increase CurrentCount.</param>
+            <returns>true if the increment succeeded; otherwise, false. If CurrentCount is already at zero this will return false.</returns>
+            <exception cref="T:System.ObjectDisposedException">The current instance has already been disposed.</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">signalCount is less than or equal to 0.</exception>		
+        </member>
+        <member name="M:Common.Patterns.Threading.CountdownEvent.TryAddCount">
+            <summary>
+            Attempts to increment CurrentCount by one.
+            </summary>
+            <returns>true if the increment succeeded; otherwise, false. If CurrentCount is already at zero, this method will return false.</returns>
+            <exception cref="T:System.ObjectDisposedException">The current instance has already been disposed.</exception>		
+        </member>
+        <member name="M:Common.Patterns.Threading.CountdownEvent.Wait">
+            <summary>
+            Blocks the current thread until the CountdownEvent is set (current count is zero).
+            </summary>
+            <remarks>The caller of this method blocks indefinitely until the current instance is set. The caller will return immediately if the event is currently in a set state.</remarks>
+            <exception cref="T:System.ObjectDisposedException">The current instance has already been disposed.</exception>	
+        </member>
+        <member name="M:Common.Patterns.Threading.CountdownEvent.Wait(System.Int32)">
+            <summary>
+            Blocks the current thread until the CountdownEvent is set (current count is zero), using a 32-bit signed integer to measure the timeout.
+            </summary>
+            <param name="millisecondsTimeout">The number of milliseconds to wait, or Infinite(-1) to wait indefinitely.</param>
+            <returns>true if the CountdownEvent was set; otherwise, false.</returns>
+            <exception cref="T:System.ObjectDisposedException">The current instance has already been disposed.</exception>	
+            <exception cref="T:System.ArgumentOutOfRangeException">MillisecondsTimeout is a negative number other than -1, which represents an infinite time-out.</exception>
+        </member>
+        <member name="M:Common.Patterns.Threading.CountdownEvent.Wait(System.TimeSpan)">
+            <summary>
+            Blocks the current thread until the CountdownEvent is set (current count is zero), using a TimeSpan to measure the timeout.
+            </summary>
+            <param name="timeout">A TimeSpan that represents the number of milliseconds to wait, or a TimeSpan that represents -1 milliseconds to wait indefinitely.</param>
+            <returns>true if the CountdownEvent was set; otherwise, false.</returns>
+            <exception cref="T:System.ObjectDisposedException">The current instance has already been disposed.</exception>	
+            <exception cref="T:System.ArgumentOutOfRangeException">imeout is a negative number other than -1 milliseconds, which represents an infinite time-out -or- timeout is greater than MaxValue.</exception>		
+        </member>
+        <member name="M:Common.Patterns.Threading.CountdownEvent.RefreshCurrentCount">
+            <summary>
+            Forces an update of the current count by flushing the local cache. 
+            </summary>
+            <returns>Returns the current count value</returns>
+        </member>
+        <member name="M:Common.Patterns.Threading.CountdownEvent.Acquire">
+            <summary>
+            If the event is already set, Acquire just returns, otherwise it will decrement the count and wait (block) until the event is set. 
+            </summary>
+            <exception cref="T:System.ObjectDisposedException">The current instance has already been disposed.</exception>
+        </member>
+        <member name="M:Common.Patterns.Threading.CountdownEvent.Acquire(System.Int32)">
+            <summary>
+            If the event is already set, Acquire just returns, otherwise it will decrement the count and wait (block) until the event is set. 
+            </summary>
+            <returns>true if the CountdownEvent was set; otherwise, false.</returns>
+            <exception cref="T:System.ObjectDisposedException">The current instance has already been disposed.</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">MillisecondsTimeout is a negative number other than -1, which represents an infinite time-out.</exception>
+        </member>
+        <member name="M:Common.Patterns.Threading.CountdownEvent.Acquire(System.TimeSpan)">
+            <summary>
+            If the event is already set, Acquire just returns, otherwise it will decrement the count and wait (block) until the event is set. 
+            </summary>
+            <returns>true if the CountdownEvent was set; otherwise, false.</returns>
+            <exception cref="T:System.ObjectDisposedException">The current instance has already been disposed.</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">imeout is a negative number other than -1 milliseconds, which represents an infinite time-out -or- timeout is greater than MaxValue.</exception>		
+        </member>
+        <member name="M:Common.Patterns.Threading.LockFree.InitializeField``1(``0@,System.Func{``0},System.Func{``0,``0},``0)">
+             <summary>
+             Used to instantiate and initialize an object and set that object to a field in a lock-free manner only if the field&apos;s value is equal to the unInitializeValue.
+             </summary>
+             <typeparam name="T">The object being created and intialized</typeparam>
+             <param name="field">The field that will be examimed to determine if it will be assinged (updated)</param>
+             <param name="unInitializeValue">The value used to determine if the field will be assigned.
+             If the values are reference equal, the creation function is called. If not the field&apos;s value is returned.
+             The default is null.
+             </param>
+             <param name="creationFunction">
+             The function used to create an instance of T, assign this value to the field, and then call the initialization function (if one is defined).
+             Note: If this function returns the unInitializeValue the initialization function is NOT called and this value is returned.
+            
+             Warning; This function can be called from multpile threads (only once on a thread) but only one value will be assigned to the field.
+             </param>
+             <param name="initializationFunction">
+             The function (optional) that is called to complete the initialization of the field&apos;s value.
+            		This function is only called once but the field&apos;s value is NOT locked and can be changed/accessed from other threads!
+            
+             Note: The returned value from this function will NOT be used to set the field but is the value returned by InitializeField.
+             </param>
+             <returns>
+             The newly created instance from the creation function, the returned instance from the initialization function, or the original value of the field in the case where the unInitializedValue are not RefernceEqual.
+             </returns>
+             <remarks>
+             Since locks are not used, the creation function can be called multiple times from different threads but only one value will be assigned to the field.
+             The initialization function will only be called once but the field&apos;s value is NOT locked and can be changed/accessed from other threads!
+            
+             ReferenceEquals is used as the comparison operator to determine if the field has been updated by the creation function.
+             </remarks>
+             <example>
+             <code>
+            				public class Test
+             			{
+             				public Test()
+             				{}
+            
+             				public Test(string a)
+             				{
+             					this.A = a;
+             					this.AThreadId = System.Threading.Thread.CurrentThread.ManagedThreadId;
+             				}
+            
+             				public string A { get; private set; }
+             				public int AThreadId { get; private set; }
+            
+            					private string _b;
+             				public string B
+             				{
+             					get { return this._b; }
+             					set
+             					{
+             						this._b = value;
+             						this.BThreadId = System.Threading.Thread.CurrentThread.ManagedThreadId;
+             					}
+             				}
+             				public int BThreadId { get; private set; }
+             			}
+            
+             			void Main()
+             			{
+             				Test testField = null;
+            
+             				System.Threading.Tasks.Parallel.Invoke(() => Common.Patterns.Threading.LockFree.InitializeField(ref testField,
+             																													() => new Test(&quot;1&quot;),
+             																													(instanceOfTest) => { instanceOfTest.B = &quot;1&quot;; return instanceOfTest; }),
+             														() => Common.Patterns.Threading.LockFree.InitializeField(ref testField,
+             																													() => new Test(&quot;2&quot;),
+             																													(instanceOfTest) => { instanceOfTest.B = &quot;2&quot;; return instanceOfTest; }),
+             														() => Common.Patterns.Threading.LockFree.InitializeField(ref testField,
+             																													() => new Test(&quot;3&quot;),
+             																													(instanceOfTest) => { instanceOfTest.B = &quot;3&quot;; return instanceOfTest; }),
+             														() => Common.Patterns.Threading.LockFree.InitializeField(ref testField,
+             																													() => new Test(&quot;4&quot;),
+             																													(instanceOfTest) => { instanceOfTest.B = &quot;4&quot;; return instanceOfTest; }),
+             														() => testField.Dump(&quot;Field&apos;s Value&quot;);
+             														);
+            
+             				testField.Dump();
+             			}
+             </code>
+            		Value of the testField is:
+            			A			2
+            			AThreadId	15
+            			B			2
+            			BThreadId	15
+            
+            		&quot;Field&apos;s Value&quot; Possible values are: null, { A: 2, AThreadid: 15, B: null, BThreadId: 0 }, or { A: 2, AThreadid: 15, B: 2, BThreadId: 15 }
+            
+             </example>
+        </member>
+        <member name="M:Common.Patterns.Threading.LockFree.InitializeField``1(``0@,System.Func{``0,``0},``0)">
+             <summary>
+             Used to instantiate and initialize an object and set that object to a field in a lock-free manner only if the field&apos;s value is equal to the unInitializeValue.
+             </summary>
+             <typeparam name="T">The object being created and intialized</typeparam>
+             <param name="field">The field that will be examimed to determine if it will be assinged (updated)</param>
+             <param name="unInitializeValue">The value used to determine if the field will be assigned.
+             If the values are reference equal, the creation function is called. If not the field&apos;s value is returned.
+             The default is null.
+             </param>
+             <param name="initializationFunction">
+             The function (optional) that is called to complete the initialization of the field&apos;s value only if the field&apos;s value matches the unInitializeValue.
+            		This function is only called once but the field&apos;s value is NOT locked and can be changed/accessed from other threads!
+            
+             Note: The returned value from this function will NOT be used to set the field but is the value returned by InitializeField.
+             </param>
+             <returns>
+             The newly created instance from the creation function, the returned instance from the initialization function, or the original value of the field in the case where the unInitializedValue are not RefernceEqual.
+             </returns>
+             <remarks>
+             Since locks are not used, the creation function can be called multiple times from different threads but only one value will be assigned to the field.
+             The initialization function will only be called once but the field&apos;s value is NOT locked and can be changed/accessed from other threads!
+            
+             ReferenceEquals is used as the comparison operator to determine if the field has been updated by the creation function.
+             </remarks>
+             <example>
+             <code>
+            				public class Test
+             			{
+             				public Test()
+             				{
+             					this.A = "&quot;Set in the Constructor&quot;;
+             					this.AThreadId = System.Threading.Thread.CurrentThread.ManagedThreadId;
+             				}
+            
+             				public string A { get; private set; }
+             				public int AThreadId { get; private set; }
+            
+            					private string _b;
+             				public string B
+             				{
+             					get { return this._b; }
+             					set
+             					{
+             						this._b = value;
+             						this.BThreadId = System.Threading.Thread.CurrentThread.ManagedThreadId;
+             					}
+             				}
+             				public int BThreadId { get; private set; }
+             			}
+            
+             			void Main()
+             			{
+             				Test testField = null;
+            
+             				System.Threading.Tasks.Parallel.Invoke(() => Common.Patterns.Threading.LockFree.InitializeField(ref testField,
+             																													(instanceOfTest) => { instanceOfTest.B = &quot;1&quot;; return instanceOfTest; }),
+             														() => Common.Patterns.Threading.LockFree.InitializeField(ref testField,
+             																													(instanceOfTest) => { instanceOfTest.B = &quot;2&quot;; return instanceOfTest; }),
+             														() => Common.Patterns.Threading.LockFree.InitializeField(ref testField,
+             																													(instanceOfTest) => { instanceOfTest.B = &quot;3&quot;; return instanceOfTest; }),
+             														() => Common.Patterns.Threading.LockFree.InitializeField(ref testField,
+             																													(instanceOfTest) => { instanceOfTest.B = &quot;4&quot;; return instanceOfTest; }),
+             														() => testField.Dump(&quot;Field&apos;s Value&quot;);
+             														);
+            
+             				testField.Dump();
+             			}
+             </code>
+            		Value of the testField is:
+            			A			Set in the Constructor
+            			AThreadId	15
+            			B			2
+            			BThreadId	15
+            
+            		&quot;Field&apos;s Value&quot; Possible values are: null, { A: Set in the Constructor, AThreadid: 15, B: null, BThreadId: 0 }, or { A: Set in the Constructor, AThreadid: 15, B: 2, BThreadId: 15 }
+            
+             </example>
+        </member>
+        <member name="M:Common.Patterns.Threading.LockFree.InitializeField(System.String@,System.Func{System.String},System.Func{System.String,System.String},System.String)">
+             <summary>
+             Used to instantiate and initialize an object and set that object to a field in a lock-free manner only if the field&apos;s value is equal to the unInitializeValue.
+             </summary>
+             <param name="field">The field that will be examimed to determine if it will be assinged (updated)</param>
+             <param name="unInitializeValue">The value used to determine if the field will be assigned.
+             If the values are reference equal, the creation function is called. If not the field&apos;s value is returned.
+             The default is null.
+             </param>
+             <param name="creationFunction">
+             The function used to create an instance of T, assign this value to the field, and then call the initialization function (if one is defined).
+             Note: If this function returns the unInitializeValue the initialization function is NOT called and this value is returned.
+            
+             Warning; This function can be called from multpile threads (only once on a thread) but only one value will be assigned to the field.
+             </param>
+             <param name="initializationFunction">
+             The function (optional) that is called to complete the initialization of the field&apos;s value.
+            		This function is only called once but the field&apos;s value is NOT locked and can be changed/accessed from other threads!
+            
+             Note: The returned value from this function will NOT be used to set the field but is the value returned by InitializeField.
+             </param>
+             <returns>
+             The newly created instance from the creation function, the returned instance from the initialization function, or the original value of the field in the case where the unInitializedValue are not RefernceEqual.
+             </returns>
+             <remarks>
+             Since locks are not used, the creation function can be called multiple times from different threads but only one value will be assigned to the field.
+             The initialization function will only be called once but the field&apos;s value is NOT locked and can be changed/accessed from other threads!
+             </remarks>
+             <example>
+             <code>
+             			void Main()
+             			{
+             				string testField = null;
+            
+             				System.Threading.Tasks.Parallel.Invoke(() => Common.Patterns.Threading.LockFree.InitializeField(ref testField,
+             																													() => &quot;a&quot;,
+             																													(stringValue) => stringValue.ToUpper()),
+             														() => Common.Patterns.Threading.LockFree.InitializeField(ref testField,
+             																													() => &quot;b&quot;,
+             																													(stringValue) => stringValue.ToUpper()),
+             														() => Common.Patterns.Threading.LockFree.InitializeField(ref testField,
+             																													() => new Test(&quot;c&quot;),
+             																													(stringValue) => stringValue.ToUpper()),
+             														() => Common.Patterns.Threading.LockFree.InitializeField(ref testField,
+             																													() => new Test(&quot;d&quot;),
+             																													(stringValue) => stringValue.ToUpper())
+             														);
+            
+             				testField.Dump();
+             			}
+             </code>
+            		Value of the testField is: D
+            
+             </example>
+        </member>
+        <member name="M:Common.Patterns.Threading.LockFree.Update``1(``0@,System.Func{``0,``0,System.Int32,``0})">
+             <summary>
+             Updates the field in a LockFree manner using the SpinWait-Interlocked.CompareExchange pattern.
+             </summary>
+             <typeparam name="T">The type of Object being updated (must be a class)</typeparam>
+             <param name="field">the Field being updated</param>
+             <param name="updateFunction">A user defined function that must return a value of "T" that is used to update the field.
+             The arguments for the update function are:
+                The first is the current value of "field" (the field may have been updated by another thread, this will be the new value)
+                The second is the original value of "field" upon entry into this function (when the spin count is zero)
+                The third argument is the Iteration Count (0 upon initial entry)
+            
+             Warning: This function maybe entered numerous of times before the your update is applied!
+             </param>
+             <returns>The updated value</returns>
+             <remarks>
+             Warning: this will loop (spin) until it is able to update the field with the value returned from the update function.
+            
+             ReferenceEquals is used as the comparison operator to determine if the field has been updated by the update function.
+             </remarks>
+             <example>
+             <code>
+             public class Test
+             {
+             		public Test()
+             		{}
+            
+             		public Test(string a)
+             		{
+             			this.A = a;
+             			this.AThreadId = System.Threading.Thread.CurrentThread.ManagedThreadId;
+             		}
+            
+             		public string A { get; private set; }
+             		public int AThreadId { get; private set; }
+             		private string _b;
+            
+             		public string B
+             		{
+             			get { return this._b; }
+             			set
+             			{
+             				this._b = value;
+             				this.BThreadId = System.Threading.Thread.CurrentThread.ManagedThreadId;
+             			}
+             		}
+             		public int BThreadId { get; private set; }
+             }
+            
+             void Main()
+             {
+             		Test testField = new Test("Initial Value");
+            
+             		testField.B = "-1";
+            
+             		System.Threading.Tasks.Parallel.Invoke(() => Common.Patterns.Threading.LockFree.Update(ref testField,
+             																										(updatedInstance, orginalValue, spinCount) => { updatedInstance.Dump(&quot;1:UpdatedValue&quot;); orginalValue.Dump(&quot;1:OrginalValue&quot;); spinCount.Dump(&quot;1:Count&quot;); updatedInstance = new Test(&quot;1&quot;) { B = &quot;1&quot; }; return updatedInstance; }),
+             												() => Common.Patterns.Threading.LockFree.Update(ref testField,
+             																										(updatedInstance, orginalValue, spinCount) => { updatedInstance.Dump(&quot;2:UpdatedValue&quot;); orginalValue.Dump(&quot;2:OrginalValue&quot;); spinCount.Dump(&quot;2:Count&quot;); updatedInstance = new Test(&quot;2&quot;) { B = &quot;2&quot; }; return updatedInstance; }),
+             												() => Common.Patterns.Threading.LockFree.Update(ref testField,
+             																										(updatedInstance, orginalValue, spinCount) => { updatedInstance.Dump(&quot;3:UpdatedValue&quot;); orginalValue.Dump(&quot;3:OrginalValue&quot;); spinCount.Dump(&quot;3:Count&quot;); updatedInstance = new Test(&quot;3&quot;) { B = &quot;3&quot; };  return updatedInstance; }),
+             												() => Common.Patterns.Threading.LockFree.Update(ref testField,
+             																										(updatedInstance, orginalValue, spinCount) => { updatedInstance.Dump(&quot;4:UpdatedValue&quot;); orginalValue.Dump(&quot;4:OrginalValue&quot;); spinCount.Dump(&quot;4:Count&quot;); updatedInstance = new Test(&quot;4&quot;) { B = &quot;4&quot; };  return updatedInstance; }),
+             												() => testField.Dump(&quot;Field&apos;s Value&quot;)
+             											);
+            
+             		testField.Dump(&quot;Result&quot;);
+             }
+             </code>
+             Results:
+             1:UpdatedValue
+             Test
+             UserQuery+Test
+             A	Initial Value
+             AThreadId	20
+             B	-1
+             BThreadId	20
+            
+             2:UpdatedValue
+             Test
+             UserQuery+Test
+             A	Initial Value
+             AThreadId	20
+             B	-1
+             BThreadId	20
+            
+             2:OrginalValue
+             Test
+             UserQuery+Test
+             A	Initial Value
+             AThreadId	20
+             B	-1
+             BThreadId	20
+            
+             1:OrginalValue
+             Test
+             UserQuery+Test
+             A	Initial Value
+             AThreadId	20
+             B	-1
+             BThreadId	20
+            
+             2:Count 0
+            
+             1:Count 0
+            
+             1:UpdatedValue
+             Test
+             UserQuery+Test
+             A	2
+             AThreadId	30
+             B	2
+             BThreadId	30
+            
+             3:UpdatedValue
+             Test
+             UserQuery+Test
+             A	2
+             AThreadId	30
+             B	2
+             BThreadId	30
+            
+             1:OrginalValue
+             Test
+             UserQuery+Test
+             A	Initial Value
+             AThreadId	20
+             B	-1
+             BThreadId	20
+            
+             1:Count 1
+            
+             3:OrginalValue
+             Test
+             UserQuery+Test
+             A	2
+             AThreadId	30
+             B	2
+             BThreadId	30
+            
+             3:Count 0
+            
+             3:UpdatedValue
+             Test
+             UserQuery+Test
+             A	1
+             AThreadId	5
+             B	1
+             BThreadId	5
+            
+             Field's Value
+             Test
+             UserQuery+Test
+             A	1
+             AThreadId	5
+             B	1
+             BThreadId	5
+            
+             4:UpdatedValue
+             Test
+             UserQuery+Test
+             A	1
+             AThreadId	5
+             B	1
+             BThreadId	5
+            
+             3:OrginalValue
+             Test
+             UserQuery+Test
+             A	2
+             AThreadId	30
+             B	2
+             BThreadId	30
+            
+             3:Count 1
+            
+             4:OrginalValue
+             Test
+             UserQuery+Test
+             A	1
+             AThreadId	5
+             B	1
+             BThreadId	5
+            
+             4:Count 0
+            
+             4:UpdatedValue
+             Test
+             UserQuery+Test
+             A	3
+             AThreadId	30
+             B	3
+             BThreadId	30
+            
+             4:OrginalValue
+             Test
+             UserQuery+Test
+             A	1
+             AThreadId	5
+             B	1
+             BThreadId	5
+            
+             4:Count 1
+            
+             Result
+             Test
+             UserQuery+Test
+             A	4
+             AThreadId	29
+             B	4
+             BThreadId	29
+             </example>
+        </member>
+        <member name="M:Common.Patterns.Threading.LockFree.Update``1(``0@,``0)">
+             <summary>
+             Updates field in a LockFree manner using the SpinWait-Interlocked.CompareExchange pattern.
+             </summary>
+             <typeparam name="T">The type of Object being updated (must be a class)</typeparam>
+             <param name="field">the Field being updated</param>
+             <param name="updateValue">Updates field with this value</param>
+             <returns>The updated value</returns>
+             <remarks>
+             Warning: this will loop (spin) until it is able to update the field with your value!
+            
+             ReferenceEquals is used as the comparison operator to determine if the field has been updated.
+             </remarks>
+        </member>
+        <member name="M:Common.Patterns.Threading.LockFree.Update(System.String@,System.Func{System.String,System.String,System.Int32,System.String})">
+             <summary>
+             Updates the field in a LockFree manner using the SpinWait-Interlocked.CompareExchange pattern.
+             </summary>
+             <param name="field">the Field being updated</param>
+             <param name="updateFunction">A user defined function that must return a value of "string" that is used to update the field.
+             The arguments for the update function are:
+                The first is the current value of "field" (the field may have been updated by another thread, this will be the new value)
+                The second is the original value of "field" upon entry into this function (when the spin count is zero)
+                The third argument is the Iteration Count (0 upon initial entry)
+            
+             Warning: This function maybe entered numerous of times before the your update is applied!
+             </param>
+             <returns>The updated value</returns>
+             <remarks>
+             Warning: this will loop (spin) until it is able to update the field with the value returned from the update function.
+             </remarks>
+        </member>
+        <member name="M:Common.Patterns.Threading.LockFree.Update(System.String@,System.String)">
+            <summary>
+            Updates field in a LockFree manner using the SpinWait-Interlocked.CompareExchange pattern.
+            </summary>
+            <param name="field">the Field being updated</param>
+            <param name="updateValue">Updates field with this value</param>
+            <returns>The updated value</returns>
+            <remarks>
+            Warning: this will loop (spin) until it is able to update the field with your value!
+            </remarks>
+        </member>
+        <member name="M:Common.Patterns.Threading.LockFree.Exchange``1(``0@,``0)">
+             <summary>
+             Exchanges field in a LockFree manner using the SpinWait-Interlocked.CompareExchange pattern.
+             </summary>
+             <typeparam name="T">The type of Object being updated (must be a class)</typeparam>
+             <param name="field">the Field being updated</param>
+             <param name="updateValue">Updates field with this value</param>
+             <returns>Returns the original Value of field</returns>
+             <remarks>
+             Warning: this will loop (spin) until it is able to update the field with your value!
+            
+             ReferenceEquals is used as the comparison operator to determine if the field has been updated.
+             </remarks>
+        </member>
+        <member name="M:Common.Patterns.Threading.LockFree.Exchange(System.String@,System.String)">
+            <summary>
+            Exchanges field in a LockFree manner using the SpinWait-Interlocked.CompareExchange pattern.
+            </summary>
+            <param name="field">the Field being updated</param>
+            <param name="updateValue">Updates field with this value</param>
+            <returns>Returns the original Value of field</returns>
+            <remarks>
+            Warning: this will loop (spin) until it is able to update the field with your value!
+            </remarks>
+        </member>
+        <member name="M:Common.Patterns.Threading.LockFree.UpdateVolatile``1(``0@,``0)">
+            <summary>
+            Updates the field with the updateValue without using the exchange/compare pattern but instead uses a Memory Barrier.
+            </summary>
+            <typeparam name="T">The type of Object being updated (must be a class)</typeparam>
+            <param name="field">The Field being updated</param>
+            <param name="updateValue">Updates the field with this value</param>
+            <returns>Returns the Updated Value</returns>
+            <remarks>
+            Instead of using this function the System.Threading.Interlocked.Exchange pattern or the Common.Patterns.Update function are recommended.
+            </remarks>
+        </member>
+        <member name="M:Common.Patterns.Threading.LockFree.ExchangeVolatile``1(``0@,``0)">
+            <summary>
+            Exchanges the field&apos;s value with the updateValue using a Memory Barrier pattern.
+            </summary>
+            <typeparam name="T">The type of Object being updated (must be a class)</typeparam>
+            <param name="field">The Field being updated</param>
+            <param name="updateValue">Updates field with this value</param>
+            <returns>Returns the original Value of field</returns>
+            <remarks>
+            Instead of using this function the System.Threading.Interlocked.Exchange pattern or the Common.Patterns.Update function are recommended.
+            </remarks>
+        </member>
+        <member name="M:Common.Patterns.Threading.LockFree.Update(System.Int64@,System.Func{System.Int64,System.Int64,System.Int32,System.Int64})">
+             <summary>
+             Updates the field in a LockFree manner using the SpinWait-Interlocked.CompareExchange pattern.
+             </summary>
+             <param name="field">the Field being updated</param>
+             <param name="updateFunction">A user defined function that must return a value of long that is used to update the field.
+             The arguments for the update function are:
+                The first is the current value of "field" (the field may have been updated by another thread, this will be the new value)
+                The second is the original value of "field" upon entry into this function (when the spin count is zero)
+                The third argument is the Iteration Count (0 upon initial entry)
+            
+             Warning: This function maybe entered numerous of times before the your update is applied!
+             </param>
+             <returns>The updated value</returns>
+             <remarks>
+             Warning: this will loop (spin) until it is able to update the field with the value returned from the update function.
+             </remarks>
+        </member>
+        <member name="M:Common.Patterns.Threading.LockFree.Update(System.Int64@,System.Int64)">
+            <summary>
+            Updates the field in a LockFree manner using the SpinWait-Interlocked.CompareExchange pattern.
+            </summary>
+            <param name="field">the Field being updated</param>
+            <param name="updateValue">Updates field with this value</param>
+            <returns>The updated value</returns>
+            <remarks>
+            Warning: this will loop (spin) until it is able to update the field with your value!
+            </remarks>
+        </member>
+        <member name="M:Common.Patterns.Threading.LockFree.Exchange(System.Int64@,System.Int64)">
+            <summary>
+            Exchanges field in a LockFree manner using the SpinWait-Interlocked.CompareExchange pattern.
+            </summary>
+            <param name="field">the Field being updated</param>
+            <param name="updateValue">Updates field with this value</param>
+            <returns>Returns the original Value of field</returns>
+            <remarks>
+            Warning: this will loop (spin) until it is able to update the field with your value!
+            </remarks>
+        </member>
+        <member name="M:Common.Patterns.Threading.LockFree.Update(System.Double@,System.Func{System.Double,System.Double,System.Int32,System.Double})">
+             <summary>
+             Updates the field in a LockFree manner using the SpinWait-Interlocked.CompareExchange pattern.
+             </summary>
+             <param name="field">the Field being updated</param>
+             <param name="updateFunction">A user defined function that must return a value of double that is used to update the field.
+             The arguments for the update function are:
+                The first is the current value of "field" (the field may have been updated by another thread, this will be the new value)
+                The second is the original value of "field" upon entry into this function (when the spin count is zero)
+                The third argument is the Iteration Count (0 upon initial entry)
+            
+             Warning: This function maybe entered numerous of times before the your update is applied!
+             </param>
+             <returns>The updated value</returns>
+             <remarks>
+             Warning: this will loop (spin) until it is able to update the field with the value returned from the update function.
+             </remarks>
+        </member>
+        <member name="M:Common.Patterns.Threading.LockFree.Update(System.Double@,System.Double)">
+            <summary>
+            Updates the field in a LockFree manner using the SpinWait-Interlocked.CompareExchange pattern.
+            </summary>
+            <param name="field">the Field being updated</param>
+            <param name="updateValue">Updates field with this value</param>
+            <returns>The updated value</returns>
+            <remarks>
+            Warning: this will loop (spin) until it is able to update the field with your value!
+            </remarks>
+        </member>
+        <member name="M:Common.Patterns.Threading.LockFree.Exchange(System.Double@,System.Double)">
+            <summary>
+            Exchanges field in a LockFree manner using the SpinWait-Interlocked.CompareExchange pattern.
+            </summary>
+            <param name="field">the Field being updated</param>
+            <param name="updateValue">Updates field with this value</param>
+            <returns>Returns the original Value of field</returns>
+            <remarks>
+            Warning: this will loop (spin) until it is able to update the field with your value!
+            </remarks>
+        </member>
+        <member name="M:Common.Patterns.Threading.LockFree.Update(System.Single@,System.Func{System.Single,System.Single,System.Int32,System.Single})">
+             <summary>
+             Updates the field in a LockFree manner using the SpinWait-Interlocked.CompareExchange pattern.
+             </summary>
+             <param name="field">the Field being updated</param>
+             <param name="updateFunction">A user defined function that must return a value of float that is used to update the field.
+             The arguments for the update function are:
+                The first is the current value of "field" (the field may have been updated by another thread, this will be the new value)
+                The second is the original value of "field" upon entry into this function (when the spin count is zero)
+                The third argument is the Iteration Count (0 upon initial entry)
+            
+             Warning: This function maybe entered numerous of times before the your update is applied!
+             </param>
+             <returns>The updated value</returns>
+             <remarks>
+             Warning: this will loop (spin) until it is able to update the field with the value returned from the update function.
+             </remarks>
+        </member>
+        <member name="M:Common.Patterns.Threading.LockFree.Update(System.Single@,System.Single)">
+            <summary>
+            Updates the field in a LockFree manner using the SpinWait-Interlocked.CompareExchange pattern.
+            </summary>
+            <param name="field">the Field being updated</param>
+            <param name="updateValue">Updates field with this value</param>
+            <returns>The updated value</returns>
+            <remarks>
+            Warning: this will loop (spin) until it is able to update the field with your value!
+            </remarks>
+        </member>
+        <member name="M:Common.Patterns.Threading.LockFree.Exchange(System.Single@,System.Single)">
+            <summary>
+            Exchanges field in a LockFree manner using the SpinWait-Interlocked.CompareExchange pattern.
+            </summary>
+            <param name="field">the Field being updated</param>
+            <param name="updateValue">Updates field with this value</param>
+            <returns>Returns the original Value of field</returns>
+            <remarks>
+            Warning: this will loop (spin) until it is able to update the field with your value!
+            </remarks>
+        </member>
+        <member name="M:Common.Patterns.Threading.LockFree.Update(System.Int32@,System.Func{System.Int32,System.Int32,System.Int32,System.Int32})">
+             <summary>
+             Updates the field in a LockFree manner using the SpinWait-Interlocked.CompareExchange pattern.
+             </summary>
+             <param name="field">the Field being updated</param>
+             <param name="updateFunction">A user defined function that must return a value of int that is used to update the field.
+             The arguments for the update function are:
+                The first is the current value of "field" (the field may have been updated by another thread, this will be the new value)
+                The second is the original value of "field" upon entry into this function (when the spin count is zero)
+                The third argument is the Iteration Count (0 upon initial entry)
+            
+             Warning: This function maybe entered numerous of times before the your update is applied!
+             </param>
+             <returns>The updated value</returns>
+             <remarks>
+             Warning: this will loop (spin) until it is able to update the field with the value returned from the update function.
+             </remarks>
+        </member>
+        <member name="M:Common.Patterns.Threading.LockFree.Update(System.Int32@,System.Int32)">
+            <summary>
+            Updates the field in a LockFree manner using the SpinWait-Interlocked.CompareExchange pattern.
+            </summary>
+            <param name="field">the Field being updated</param>
+            <param name="updateValue">Updates field with this value</param>
+            <returns>The updated value</returns>
+            <remarks>
+            Warning: this will loop (spin) until it is able to update the field with your value!
+            </remarks>
+        </member>
+        <member name="M:Common.Patterns.Threading.LockFree.Exchange(System.Int32@,System.Int32)">
+            <summary>
+            Exchanges field in a LockFree manner using the SpinWait-Interlocked.CompareExchange pattern.
+            </summary>
+            <param name="field">the Field being updated</param>
+            <param name="updateValue">Updates field with this value</param>
+            <returns>Returns the original Value of field</returns>
+            <remarks>
+            Warning: this will loop (spin) until it is able to update the field with your value!
+            </remarks>
+        </member>
+        <member name="M:Common.Patterns.Threading.LockFree.Update(System.Object@,System.Func{System.Object,System.Object,System.Int32,System.Object})">
+             <summary>
+             Updates the field in a LockFree manner using the SpinWait-Interlocked.CompareExchange pattern.
+             </summary>
+             <param name="field">the Field being updated</param>
+             <param name="updateFunction">A user defined function that must return a value of "object" that is used to update the field.
+             The arguments for the update function are:
+                The first is the current value of "field" (the field may have been updated by another thread, this will be the new value)
+                The second is the original value of "field" upon entry into this function (when the spin count is zero)
+                The third argument is the Iteration Count (0 upon initial entry)
+            
+             Warning: This function maybe entered numerous of times before the your update is applied!
+             </param>
+             <returns>The updated value</returns>
+             <remarks>
+             Warning: this will loop (spin) until it is able to update the field with the value returned from the update function.
+             </remarks>
+        </member>
+        <member name="M:Common.Patterns.Threading.LockFree.Update(System.Object@,System.Object)">
+            <summary>
+            Updates the field in a LockFree manner using the SpinWait-Interlocked.CompareExchange pattern.
+            </summary>
+            <param name="field">the Field being updated</param>
+            <param name="updateValue">Updates field with this value</param>
+            <returns>The updated value</returns>
+            <remarks>
+            Warning: this will loop (spin) until it is able to update the field with your value!
+            </remarks>
+        </member>
+        <member name="M:Common.Patterns.Threading.LockFree.Exchange(System.Object@,System.Object)">
+            <summary>
+            Exchanges field in a LockFree manner using the SpinWait-Interlocked.CompareExchange pattern.
+            </summary>
+            <param name="field">the Field being updated</param>
+            <param name="updateValue">Updates field with this value</param>
+            <returns>Returns the original Value of field</returns>
+            <remarks>
+            Warning: this will loop (spin) until it is able to update the field with your value!
+            </remarks>
+        </member>
+        <member name="M:Common.Patterns.Threading.LockFree.Update(System.IntPtr@,System.Func{System.IntPtr,System.IntPtr,System.Int32,System.IntPtr})">
+             <summary>
+             Updates the field in a LockFree manner using the SpinWait-Interlocked.CompareExchange pattern.
+             </summary>
+             <param name="field">the Field being updated</param>
+             <param name="updateFunction">A user defined function that must return a value of IntPtr that is used to update the field.
+             The arguments for the update function are:
+                The first is the current value of "field" (the field may have been updated by another thread, this will be the new value)
+                The second is the original value of "field" upon entry into this function (when the spin count is zero)
+                The third argument is the Iteration Count (0 upon initial entry)
+            
+             Warning: This function maybe entered numerous of times before the your update is applied!
+             </param>
+             <returns>The updated value</returns>
+             <remarks>
+             Warning: this will loop (spin) until it is able to update the field with the value returned from the update function.
+             </remarks>
+        </member>
+        <member name="M:Common.Patterns.Threading.LockFree.Update(System.IntPtr@,System.IntPtr)">
+            <summary>
+            Updates the field in a LockFree manner using the SpinWait-Interlocked.CompareExchange pattern.
+            </summary>
+            <param name="field">the Field being updated</param>
+            <param name="updateValue">Updates field with this value</param>
+            <returns>The updated value</returns>
+            <remarks>
+            Warning: this will loop (spin) until it is able to update the field with your value!
+            </remarks>
+        </member>
+        <member name="M:Common.Patterns.Threading.LockFree.Exchange(System.IntPtr@,System.IntPtr)">
+            <summary>
+            Exchanges field in a LockFree manner using the SpinWait-Interlocked.CompareExchange pattern.
+            </summary>
+            <param name="field">the Field being updated</param>
+            <param name="updateValue">Updates field with this value</param>
+            <returns>Returns the original Value of field</returns>
+            <remarks>
+            Warning: this will loop (spin) until it is able to update the field with your value!
+            </remarks>
+        </member>
+        <member name="M:Common.Patterns.Threading.LockFree.Update(System.Boolean@,System.Func{System.Boolean,System.Boolean,System.Int32,System.Boolean})">
+             <summary>
+             Updates the field in a LockFree manner using Memory Barrier pattern.
+             </summary>
+             <param name="field">the Field being updated</param>
+             <param name="updateFunction">A user defined function that must return a value of bool that is used to update the field.
+             The arguments for the update function are:
+                The first is the current value of "field" (the field may have been updated by another thread, this will be the new value)
+                The second is the original value of "field" upon entry into this function (when the spin count is zero)
+                The third argument is the Iteration Count (Always 0)
+            
+             </param>
+             <returns>The updated value</returns>
+        </member>
+        <member name="M:Common.Patterns.Threading.LockFree.Update(System.Boolean@,System.Func{System.Boolean,System.Boolean,System.Boolean})">
+             <summary>
+             Updates the field in a LockFree manner using Memory Barrier pattern.
+             </summary>
+             <param name="field">the Field being updated</param>
+             <param name="updateFunction">A user defined function that must return a value of bool that is used to update the field.
+             The arguments for the update function are:
+                The first is the current value of "field" (the field may have been updated by another thread, this will be the new value)
+                The second is the original value of "field" upon entry into this function (when the spin count is zero)
+            
+             </param>
+             <returns>The updated value</returns>
+        </member>
+        <member name="M:Common.Patterns.Threading.LockFree.Update(System.Boolean@,System.Boolean)">
+            <summary>
+            Updates the field in a LockFree manner using Memory Barrier pattern.
+            </summary>
+            <param name="field">the Field being updated</param>
+            <param name="updateValue">Value used for the Update</param>
+            <returns>The updated value</returns>
+        </member>
+        <member name="M:Common.Patterns.Threading.LockFree.Exchange(System.Boolean@,System.Boolean)">
+            <summary>
+            Exchanges the field in a LockFree manner using Memory Barrier pattern.
+            </summary>
+            <param name="field">the Field being updated</param>
+            <param name="updateValue">The value used for the Exchange</param>
+            <returns>Returns the orginal value of the field</returns>
+        </member>
+        <member name="M:Common.Patterns.Threading.LockFree.SpinWait(System.Boolean@)">
+            <summary>
+            Blocks using a SpinWait until proceedCondition becomes true
+            </summary>
+            <param name="proceedCondition">The flag used to signal when the spin wait can exit</param>
+            <remarks>
+            Caution this uses CPU-intensive spinning for 10 iterations before yielding as defined by System.Threading.SpinWait class.
+            </remarks>
+        </member>
+        <member name="M:Common.Patterns.Threading.LockFree.SpinWait(System.Func{System.Boolean})">
+            <summary>
+            Blocks using a SpinWait until proceedCondition becomes true
+            </summary>
+            <param name="proceedConditionBody">a function that returns true to indicate the exit of the spin wait or false to continue waiting.</param>
+            <remarks>
+            Caution this uses CPU-intensive spinning for 10 iterations before yielding as defined by System.Threading.SpinWait class.
+            </remarks>
+        </member>
+        <member name="M:Common.Patterns.Threading.LockFree.SpinWait(System.Int32@,System.Int32)">
+            <summary>
+            Blocks using a SpinWait until proceedCondition becomes the unsetValue
+            </summary>
+            <param name="proceedCondition">The flag used to signal when the spin wait can exit</param>
+            <param name="unsetValue">The value used to indicate that the proceedConditionFlag is not signaled or unset</param>
+            <remarks>
+            Caution this uses CPU-intensive spinning for 10 iterations before yielding as defined by System.Threading.SpinWait class.
+            </remarks>
+        </member>
+        <member name="M:Common.Patterns.Threading.LockFree.SpinWait(System.Int32@,System.Boolean@,System.Int32,System.Int32)">
+            <summary>
+            Blocks using a SpinWait until proceedCondition becomes the unsetValue
+            </summary>
+            <param name="proceedCondition">The flag used to signal when the spin wait can exit</param>
+            <param name="canceled">returns a boolean indicating if the action has been canceled by reaching the maximum ReTries. True indicates that it has been canceled!</param>
+            <param name="unsetValue">The value used to indicate that the proceedConditionFlag is not signaled or unset</param>
+            <param name="maxSpinReTries">The maximum number of spins to wait before "timing out".
+            Note that when the maxSpinReTries is reached the function will exit the spin wait loop and determine if it can execute the update body.
+            If not it will retry, incrementing the nbrRetries count, and if it cannot proceed it will go back into a spin wait using the same maxSpinReTries counter
+            </param>
+        </member>
+        <member name="M:Common.Patterns.Threading.LockFree.SpinWait``1(System.Int32@,System.Boolean@,System.Func{System.Int32,System.Int32,``0},System.Int32,System.Int32,System.Int32,System.Int32)">
+             <summary>
+             Executes updateBody as an single operation when proceedConditionFlag is the unsetValue. If proceedConditionFlag is the setValue, updateBody is NOT executed until
+             the proceedConditionFlag has the unsetValue. During this time the function is in a SpinWait state.
+            
+             Once the proceedConditionFlag is in the unsetValue and before execution, this function will set the proceedConditionFlag to the setValue and
+             once execution is completed the proceedConditionFlag is reset to the unsetValue (all as an atomic operation).
+             </summary>
+             <typeparam name="T">Return type of the object from the updateBody</typeparam>
+             <param name="proceedConditionFlag">The flag used to signal if updateBody can be executed or it needs to wait</param>
+             <param name="updateBody">A function that takes two arguments and returns an object of type "T" that is returned from this function.
+            		The first argument is the current value of the proceedConditionFlag.
+            		The second argument is the current number of retries made
+             </param>
+             <param name="canceled">returns a boolean indicating if the action has been canceled by reaching the maximum ReTries. True indicates that it has been canceled!</param>
+             <param name="setValue">The value used to indicated that proceedConditionFlag is signaled or set</param>
+             <param name="unsetValue">The value used to indicate that the proceedConditionFlag is not signaled or unset</param>
+             <param name="maxSpinReTries">The maximum number of spins to wait before "timing out".
+             Note that when the maxSpinReTries is reached the function will exit the spin wait loop and determine if it can execute the update body.
+             If not it will retry, incrementing the nbrRetries count, and if it cannot proceed it will go back into a spin wait using the same maxSpinReTries counter
+             </param>
+             <param name="maxReTries">The maximum number of times to retry before canceling. When this maximum is reached the function will return the default value of "T" and cancel will be set to true.</param>
+             <returns>Returns the value of the updateBody or the default value upon canceled</returns>
+             <example>
+             <code>
+             void Main()
+             	{
+             		string status = &quot;None&quot;;
+             		int triggerValue = 1; //Default Set Value
+             		bool canceled = false;
+            
+             		System.Threading.Tasks.Parallel.Invoke(() => status = Common.Patterns.Threading.LockFree.SpinWait(ref triggerValue,
+             																											out canceled,
+             																											(currentTriggerValue, nbrRetries) => &quot;Update Function Retries: &quot; + nbrRetries.ToString()),
+             												() =>
+             													{
+             														status.Dump(&quot;Before Sleep&quot;);
+            
+             														System.Threading.Thread.Sleep(10);
+            
+             														status.Dump(&quot;After Sleep&quot;);
+            
+             														triggerValue = 0; //Default UnSet Value
+            
+             														status.Dump(&quot;After UnSet&quot;);
+             													}
+             												);
+            
+             		status.Dump(&quot;Result&quot;);
+             	}
+             </code>
+             Output:
+            
+             	Before Sleep
+             	None
+            
+             	After Sleep
+             	None
+            
+             	After UnSet
+             	None
+            
+             	Result
+             	Update Function Retries: 0
+             </example>
+        </member>
+        <member name="M:Common.Patterns.Threading.LockFree.SpinWait``1(System.Int32@,System.Boolean@,System.Func{System.Int32,System.Int32,``0},System.Func{System.Int32,System.Boolean,System.Boolean},System.Int32,System.Int32,System.Int32)">
+             <summary>
+             Executes updateBody as an single operation when proceedConditionFlag is the unsetValue. If proceedConditionFlag is the setValue, updateBody is NOT executed until
+             the proceedConditionFlag has the unsetValue. During this time the function is in a SpinWait state.
+            
+             Once the proceedConditionFlag is in the unsetValue and before execution, this function will set the proceedConditionFlag to the setValue and
+             once execution is completed the proceedConditionFlag is reset to the unsetValue (all as an atomic operation).
+             </summary>
+             <typeparam name="T">Return type of the object from the updateBody</typeparam>
+             <param name="proceedConditionFlag">The flag used to signal if updateBody can be executed or it needs to wait</param>
+             <param name="updateBody">A function that takes two arguments and returns an object of type "T" that is returned from this function.
+            		The first argument is the current value of the proceedConditionFlag.
+            		The second argument is the current number of recursive calls made</param>
+             <param name="retryBody">Executed if the updateBody cannot be executed either due to the maxSpinRetries and/or proceedConditionFlag not able to be set to the setValue.
+            		The first argument is the number of retries
+            		The second argument is a boolean indicating if the retry is the result of maxSpinReTries timeout.
+            
+             It should return true to continue and retry, false will indicated to cancel the request (canceled will be true).
+             </param>
+             <param name="canceled">returns a boolean indicating if the action has been canceled by the retryBody. True indicates that it has been canceled!</param>
+             <param name="setValue">The value used to indicated that proceedConditionFlag is signaled or set</param>
+             <param name="unsetValue">The value used to indicate that the proceedConditionFlag is not signaled or unset</param>
+             <param name="maxSpinReTries">The maximum number of spins to wait before "timing out".
+             Note that when the maxSpinReTries is reached the function will exit the spin wait loop and determine if it can execute the update body.
+             If not it will call the retryBody, incrementing the nbrRetries count, and the retryBody will determine if it should continue.
+             </param>
+             <returns>Returns the value of the updateBody or the default value upon canceled</returns>
+             <example>
+             <code>
+             void Main()
+             	{
+             		string status = &quot;None&quot;;
+             		int triggerValue = 1; //Default Set Value
+             		bool canceled = false;
+            
+             		System.Threading.Tasks.Parallel.Invoke(() => status = Common.Patterns.Threading.LockFree.SpinWait(ref triggerValue,
+             																											out canceled,
+             																											(currentTriggerValue, nbrRetries) => &quot;Update Function Retries: &quot; + nbrRetries.ToString(),
+             																											(nbrRetries, maxSpinTimeRetryTimeOut) => { nbrRetries.Dump(&quot;Waiting&quot;); return true;},
+             																											1,
+             																											0,
+             																											100), //Set Spin Retries to 100
+             												() =>
+             													{
+             														status.Dump(&quot;Before Sleep&quot;);
+            
+             														System.Threading.Thread.Sleep(10);
+            
+             														status.Dump(&quot;After Sleep&quot;);
+            
+             														triggerValue = 0; //Default UnSet Value
+            
+             														status.Dump(&quot;After UnSet&quot;);
+             													}
+             												);
+            
+             		status.Dump(&quot;Result&quot;);
+             	}
+             </code>
+             Output:
+            
+             	Before Sleep
+             	None
+            
+             	Waiting
+             	1
+            
+             	Waiting
+             	2
+            
+             	After Sleep
+             	None
+            
+             	After UnSet
+             	None
+            
+             	Result
+             	Update Function Retries: 2
+            
+             If maxSpinReTries was the default (Infinite), below are the results:
+            
+             	Before Sleep
+             	None
+            
+             	After Sleep
+             	None
+            
+             	After UnSet
+             	None
+            
+             	Result
+             	Update Function Retries: 0
+             </example>
+        </member>
+        <member name="T:Common.Patterns.Threading.WaitableThread">
+             <summary>
+             A thread object that is actually a WaitHandle so that WaitOne, WaitAny, etc will perform similar actions but with threads.
+             
+             In this manner a collection of threads can be synced upon completion with one of the Wait methods.
+             </summary>
+             <example>
+             <code>
+             using (WaitableThread enqueuerThread1 = new WaitableThread(new ThreadStart(enqueuer.Execute)))
+             using (WaitableThread enqueuerThread2 = new WaitableThread(new ThreadStart(enqueuer.Execute)))
+             using (WaitableThread dequeuerThread = new WaitableThread(new ThreadStart(dequeuer.Execute)))
+             {
+            
+                 WaitHandle[] handles = new WaitHandle[3];
+                 handles[0] = enqueuerThread1;
+                 handles[1] = enqueuerThread2;
+                 handles[2] = dequeuerThread;
+            
+                 Console.WriteLine("start the threads");
+                 enqueuerThread1.Start();
+                 enqueuerThread2.Start();
+                 dequeuerThread.Start();
+             
+                 int finisherIndex = WaitHandle.WaitAny(handles);
+             }
+             
+             </code>
+             </example>
+        </member>
+    </members>
+</doc>

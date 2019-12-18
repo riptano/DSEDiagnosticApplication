@@ -1454,11 +1454,6 @@ namespace DataTableToExcel
 
         static public void AutoFitColumn(this ExcelWorksheet workSheet, params ExcelRange[] autoFitRanges)
         {
-            AutoFitColumn(workSheet, null, autoFitRanges);
-        }
-
-        static public void AutoFitColumn(this ExcelWorksheet workSheet, DataTable dataTable, params ExcelRange[] autoFitRanges)
-        {
             try
             {
                 if (autoFitRanges == null || autoFitRanges.Length == 0)
@@ -1469,97 +1464,140 @@ namespace DataTableToExcel
                 {
                     foreach (var range in autoFitRanges)
                     {
-                        try
-                        {
-                            AutoFitColumn(range);
-                        }
-                        catch (OverflowException)
-                        {}                        
+                        AutoFitColumn(range);
                     }
+                }
+            }
+            catch (System.Exception ex)
+            {
+                Logger.Instance.Error(string.Format("Excel AutoFitColumns Exception Occurred in Worksheet \"{0}\". Worksheet was loaded/updated but NOT auto-formatted...", workSheet.Name), ex);
+            }
+        }        
+
+        public static string ToExcelColumnLetter(int i)
+        {
+            string column = string.Empty;
+
+            if (i / 26m > 1)
+            {
+                int letter = (int)i / 26;
+                column = ((char)(65 + letter - 1)).ToString();
+                i -= letter * 26;
+            }
+
+            column += ((char)(65 + i - 1)).ToString();
+
+            return column;
+        }
+
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        static public void AutoFitColumn(this ExcelRange autoFitRange)
+        {       
+            var worksheet = autoFitRange.Worksheet;
+
+            if (worksheet.Dimension == null) return;
+
+            var startRow = autoFitRange.Start.Row;
+            var wsEndRow = worksheet.Dimension.End.Row;
+            var wsEndCol = worksheet.Dimension.End.Column;
+            var endRow = Math.Min(autoFitRange.End.Row,wsEndRow);
+
+            if (endRow > Properties.Settings.Default.AutoFitColumnMaxRows)
+                endRow = Properties.Settings.Default.AutoFitColumnMaxRows;
+
+            for (int currCol = autoFitRange.Start.Column, endCol = Math.Min(autoFitRange.End.Column, wsEndCol); currCol < endCol; ++currCol)
+            {
+                DetermineSetColumnWidth(worksheet, worksheet.Column(currCol), currCol, startRow, endRow);
+            }        
+        }
+
+        static void DetermineSetColumnWidth(ExcelWorksheet workSheet, ExcelColumn column, int colIdx, int fromRow, int toRow)
+        {
+            if (column.Merged || column.Style.WrapText || column.Width == 0) return;
+                        
+            bool isHidden = column.Hidden;
+
+            if (Common.Functions.IsRunningOnWindows)
+            {
+                try
+                {
+                    column.AutoFit();
+
+                    if (isHidden) column.Hidden = true;
+                    return;
+                }
+                catch (System.ArithmeticException)
+                { }
+                catch (System.ArgumentOutOfRangeException)
+                { }
+            }
+
+            int maxLength = 0;
+            try
+            {
+                string sValue;
+                object oValue;
+                ExcelRangeBase cell;
+
+                for(int currRow = fromRow; currRow <= toRow; ++currRow)
+                {
+                    cell = workSheet.Cells[currRow, colIdx];
+
+                    if (cell == null) break;
+                    if (cell.Style.WrapText) continue;
+                    if (!string.IsNullOrEmpty(cell.Formula) || !string.IsNullOrEmpty(cell.FormulaR1C1)) continue;
+
+                    oValue = cell.Value;
+
+                    if (oValue == null)
+                    {                       
+                        continue;
+                    }
+
+                    if (cell.Style.Numberformat != null
+                            && !string.IsNullOrEmpty(cell.Style.Numberformat.Format)
+                            && cell.Style.Numberformat.Format != "General"
+                            && cell.Style.Numberformat.Format != "Text")
+                    {
+                        if (oValue is TimeSpan tsValue)
+                        {
+                            if (cell.Style.Numberformat.Format == "[>=32] 0.00 \"days\";[<1]  [hh]:mm;d hh:mm")
+                            {
+                                if (tsValue.Days >= 32)
+                                    sValue = tsValue.ToString(@"%d\.\0\0\ \d\a\y\s");
+                                else if (tsValue.Days < 1)
+                                    sValue = tsValue.ToString(@"hh\:mm");
+                                else 
+                                    sValue = tsValue.ToString(@"%d\ hh\:mm");
+                            }
+                            else
+                                sValue = tsValue.ToString();
+                        }
+                        else
+                            sValue = cell.Text;
+                    }
+                    else
+                    {
+                        sValue = oValue.ToString();
+                    }
+                    maxLength = Math.Max(sValue.Length, maxLength);                    
                 }
             }
             catch (System.ArithmeticException)
             { }
             catch (System.ArgumentOutOfRangeException)
             { }
-            catch (System.Exception ex)
-            {
-                Logger.Instance.Error(string.Format("Excel AutoFitColumns Exception Occurred in Worksheet \"{0}\". Worksheet was loaded/updated but NOT auto-formatted...", workSheet.Name), ex);
-            }
-
-            if (dataTable != null)
-            {
-                workSheet.ApplyColumnAttribs(dataTable);
-            }
-        }
-
-        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        static public void AutoFitColumn(this ExcelRange autoFitRange)
-        {
-        #if NET40
-            autoFitRange.AutoFitColumns();
-        #else
-            if (Common.Functions.IsRunningOnWindows)
-            {
-                autoFitRange.AutoFitColumns();
-                return;
-            }
-
-            int maxLength = 0;
-            
-            foreach(var cell in autoFitRange)
-            {
-                maxLength = Math.Max(DetermineCellValueLength(cell), maxLength);                
-            }
 
             if (maxLength > 0)
             {
-                var ws = autoFitRange.Worksheet;
                 var newColWidth = (double)((decimal)maxLength * Properties.Settings.Default.AutoFitColumnFactor);
 
-                if (newColWidth >= ws.DefaultColWidth)
+                if (newColWidth >= workSheet.DefaultColWidth)
                 {
-                    for (int currCol = autoFitRange.Start.Column, endCol = autoFitRange.End.Column; currCol < endCol; ++endCol)
-                    {
-                        ws.Column(currCol).Width = newColWidth;
-                    }
+                    column.Width = newColWidth;
                 }
             }
-        #endif
-        }
-
-        static int DetermineCellValueLength(ExcelRangeBase cell)
-        {
-            if (!cell.Merge)
-            {
-                try
-                {
-                    return cell.Text?.Length ?? 0;
-                }
-                catch (System.ArithmeticException)
-                {
-                    try
-                    {
-                        if(cell.Value is TimeSpan ts)
-                        {
-                            return ts.ToString().Length;
-                        }
-                        else if (cell.Value is DateTime dt)
-                        {
-                            return dt.ToString().Length;
-                        }
-                        else if (cell.Value is DateTimeOffset dto)
-                        {
-                            return dto.ToString().Length;
-                        }
-                    }
-                    catch
-                    { }
-                }
-                catch (System.ArgumentOutOfRangeException)
-                { }
-            }
-            return 0;
+            if (isHidden) column.Hidden = true;
         }
 
         static public ExcelRange[] ExcelRange(this ExcelWorksheet workSheet, params DataColumn[] dcRanges)
@@ -1590,7 +1628,8 @@ namespace DataTableToExcel
         }
 
         static public void AutoFitColumn(this ExcelWorksheet workSheet, DataTable dataTable = null)
-        {            
+        {
+
             if (dataTable != null)
             {
                 var colsWidths = new List<DataColumn>();
@@ -1605,7 +1644,7 @@ namespace DataTableToExcel
                     foreach (var item in dataColumn.ExtendedProperties.Keys)
                     {
                         if (item != null && item is string key)
-                        {                            
+                        {
                             if (key == "ColumnWidth")
                             {
                                 var colWidth = (int)dataColumn.ExtendedProperties["ColumnWidth"];
@@ -1615,13 +1654,13 @@ namespace DataTableToExcel
                             }
                             if (key == "ColumnHide")
                             {
-                               colsWidths.Add(dataColumn);
+                                colsWidths.Add(dataColumn);
                             }
-                        }                        
+                        }
                     }
                 }
 
-                if(colsWidths.HasAtLeastOneElement())
+                if (colsWidths.HasAtLeastOneElement())
                 {
                     var colRange = new List<DataColumn>();
                     DataColumn lstCol = null;
@@ -1629,7 +1668,7 @@ namespace DataTableToExcel
 
                     foreach (var tblCol in dtcols)
                     {
-                        if(colsWidths.Contains(tblCol))
+                        if (colsWidths.Contains(tblCol))
                         {
                             if (lstCol != null)
                             {
@@ -1641,25 +1680,23 @@ namespace DataTableToExcel
                         }
                         lstCol = tblCol;
 
-                        if(begRange)
+                        if (begRange)
                         {
                             colRange.Add(lstCol);
                             begRange = false;
                         }
                     }
 
-                    if(lstCol != null)
+                    if (lstCol != null)
                         colRange.Add(lstCol);
 
                     if (colRange.HasAtLeastOneElement())
                     {
-                        if(colRange.Count % 2 != 0)
+                        if (colRange.Count % 2 != 0)
                             colRange.Add(lstCol);
 
-                        workSheet.AutoFitColumn(dataTable, workSheet.ExcelRange(colRange.ToArray()));
+                        workSheet.AutoFitColumn(workSheet.ExcelRange(colRange.ToArray()));
                     }
-
-                    //workSheet.ApplyColumnAttribs(dataTable);
 
                     return;
                 }
@@ -1667,20 +1704,11 @@ namespace DataTableToExcel
 
             try
             {
-                workSheet.Cells.AutoFitColumns();                
-            }
-            catch (System.ArithmeticException)
-            { }
-            catch (System.ArgumentOutOfRangeException)
-            { }
+                AutoFitColumn(workSheet.Cells);               
+            }            
             catch (System.Exception ex)
             {
                 Logger.Instance.Error(string.Format("Excel AutoFitColumns Exception Occurred in Worksheet \"{0}\". Worksheet was loaded/updated but NOT auto-formatted...", workSheet.Name), ex);
-            }
-
-            if (dataTable != null)
-            {
-                workSheet.ApplyColumnAttribs(dataTable);
             }
         }
 

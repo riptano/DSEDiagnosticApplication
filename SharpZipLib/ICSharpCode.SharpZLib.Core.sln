@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.902
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ICSharpCode.SharpZLib.Core", "ICSharpCode.SharpZLib.Core\ICSharpCode.SharpZLib.Core.csproj", "{DC848D6B-2005-4BB3-A3E0-03143D7B8C89}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ICSharpCode.SharpZLibTests.Core", "ICSharpCode.SharpZLibTests.Core\ICSharpCode.SharpZLibTests.Core.csproj", "{2AE8393A-7B4B-46C4-B975-EDEFC915979A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DC848D6B-2005-4BB3-A3E0-03143D7B8C89}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DC848D6B-2005-4BB3-A3E0-03143D7B8C89}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DC848D6B-2005-4BB3-A3E0-03143D7B8C89}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DC848D6B-2005-4BB3-A3E0-03143D7B8C89}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2AE8393A-7B4B-46C4-B975-EDEFC915979A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2AE8393A-7B4B-46C4-B975-EDEFC915979A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2AE8393A-7B4B-46C4-B975-EDEFC915979A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2AE8393A-7B4B-46C4-B975-EDEFC915979A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C1E1992B-A4AD-44F7-9080-068B783D3139}
+	EndGlobalSection
+EndGlobal
