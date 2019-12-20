@@ -18,6 +18,8 @@
     <AllowedOutputExtensionsInPackageBuildOutputFolder>
       $(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb
     </AllowedOutputExtensionsInPackageBuildOutputFolder>
+    <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
+    <RuntimeIdentifiers>win10-x64;osx-x64</RuntimeIdentifiers>
   </PropertyGroup>
 
   <Target Name="PostBuild" AfterTargets="Pack">    

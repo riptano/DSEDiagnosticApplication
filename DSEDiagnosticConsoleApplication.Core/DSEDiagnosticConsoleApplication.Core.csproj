@@ -18,7 +18,9 @@
     <AllowedOutputExtensionsInPackageBuildOutputFolder>
       $(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb
     </AllowedOutputExtensionsInPackageBuildOutputFolder>
-    <OutputType>Exe</OutputType>      
+    <OutputType>Exe</OutputType>
+    <RuntimeIdentifiers>win10-x64;osx-x64</RuntimeIdentifiers>
+    <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
   </PropertyGroup>
 
   <Target Name="PostBuild" AfterTargets="Pack">
