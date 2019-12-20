@@ -12,8 +12,8 @@
     <Product>DataStax Enterprise Health Check Tool</Product>
     <Deterministic>false</Deterministic>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <RepositoryUrl>https://github.com/richardandersen/DSEDiagnosticApplication.git</RepositoryUrl>
-    <PackageProjectUrl>https://github.com/richardandersen/DSEDiagnosticApplication.git</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/riptano/DSEDiagnosticApplication.git</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/riptano/DSEDiagnosticApplication/tree/master/$(ProjectName)</PackageProjectUrl>
     <Copyright>Copyright © by DataStax</Copyright>
     <AllowedOutputExtensionsInPackageBuildOutputFolder>
       $(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb
@@ -22,9 +22,9 @@
     <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
   </PropertyGroup>
 
-  <Target Name="PostBuild" AfterTargets="Pack">
-    <Exec IgnoreStandardErrorWarningFormat="true" ContinueOnError="True" Command="nuget delete &quot;$(PackageId)&quot; $(Version) -source &quot;$(SolutionDir)..\NuGetRepo\$(ConfigurationName)&quot; -NonInteractive" />
-    <Exec Command="nuget add &quot;$(TargetDir)..\$(TargetName).$(Version).nupkg&quot; -source &quot;$(SolutionDir)..\NuGetRepo\$(ConfigurationName)&quot;" />
+  <Target Name="PostBuild" AfterTargets="Pack" Condition="$(Configuration) == 'Release'">
+    <Exec IgnoreStandardErrorWarningFormat="true" ContinueOnError="True" Command="nuget delete &quot;$(PackageId)&quot; $(Version) -source &quot;$(ProjectDir)..\NuGetRepo)&quot; -NonInteractive" />
+    <Exec Command="nuget add &quot;$(TargetDir)..\$(TargetName).$(Version).nupkg&quot; -source &quot;$(ProjectDir)..\NuGetRepo&quot;" />
   </Target>
 
   <ItemGroup>

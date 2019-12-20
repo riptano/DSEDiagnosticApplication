@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <id>DSEDiagnosticFileParser.Core</id>
+    <version>2.22.0</version>
+    <authors>Richard Andersen</authors>
+    <owners>Richard Andersen</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <projectUrl>https://github.com/riptano/DSEDiagnosticApplication/tree/master/</projectUrl>
+    <description>Package Description</description>
+    <copyright>Copyright © by DataStax</copyright>
+    <repository url="https://github.com/riptano/DSEDiagnosticApplication.git" />
+    <dependencies>
+      <group targetFramework=".NETCoreApp2.2">
+        <dependency id="DSEDiagnosticAnalytics.Core" version="2.22.0" exclude="Build,Analyzers" />
+        <dependency id="DSEDiagnosticCQLSchema.Core" version="2.22.0" exclude="Build,Analyzers" />
+        <dependency id="DSEDiagnosticLibrary.Core" version="2.22.0" exclude="Build,Analyzers" />
+        <dependency id="DSEDiagnosticLog4NetParser.Core" version="2.22.0" exclude="Build,Analyzers" />
+        <dependency id="DSEDiagnosticLogger.Core" version="2.22.0" exclude="Build,Analyzers" />
+        <dependency id="DSEDiagnosticParamsSettings.Core" version="2.22.0" exclude="Build,Analyzers" />
+        <dependency id="DSEDiagnosticTaskSchedulers.Core" version="2.22.0" exclude="Build,Analyzers" />
+        <dependency id="ICSharpCode.SharpZLib" version="0.86.5" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.CodeAnalysis.CSharp" version="3.4.0" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
+    <contentFiles>
+      <files include="any/netcoreapp2.2/DiagnosticFileRegExAssocations.json" buildAction="Content" />
+      <files include="any/netcoreapp2.2/file-create-folder-structure-Mappings.json" buildAction="Content" />
+      <files include="any/netcoreapp2.2/Log4NetParser-schema.json" buildAction="Content" />
+      <files include="any/netcoreapp2.2/Log4NetParser.json" buildAction="Content" />
+      <files include="any/netcoreapp2.2/Log4NetParserLogsNoFlushComp.json" buildAction="Content" />
+      <files include="any/netcoreapp2.2/Log4NetParserLogsNoFlushCompGC.json" buildAction="Content" />
+      <files include="any/netcoreapp2.2/Log4NetParserNoRepairs.json" buildAction="Content" />
+      <files include="any/netcoreapp2.2/Log4NetParserValidateLogs.json" buildAction="Content" />
+      <files include="any/netcoreapp2.2/ProcessFileMappings-CreateOpsCenterCopy.json" buildAction="Content" />
+      <files include="any/netcoreapp2.2/ProcessFileMappings.json" buildAction="Content" />
+      <files include="any/netcoreapp2.2/ProcessFileMappingsNoDebugLogs.json" buildAction="Content" />
+      <files include="any/netcoreapp2.2/ProcessFileMappingsNoLogs.json" buildAction="Content" />
+      <files include="any/netcoreapp2.2/ProcessFileMappingsValidate.json" buildAction="Content" />
+      <files include="any/netcoreapp2.2/Unzip-ProcessFileMappings.json" buildAction="Content" />
+    </contentFiles>
+  </metadata>
+</package>

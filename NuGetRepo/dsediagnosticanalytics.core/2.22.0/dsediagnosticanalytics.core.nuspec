@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <id>DSEDiagnosticAnalytics.Core</id>
+    <version>2.22.0</version>
+    <authors>Richard Andersen</authors>
+    <owners>Richard Andersen</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <projectUrl>https://github.com/riptano/DSEDiagnosticApplication/tree/master/</projectUrl>
+    <description>Package Description</description>
+    <copyright>Copyright © by DataStax</copyright>
+    <repository url="https://github.com/riptano/DSEDiagnosticApplication.git" />
+    <dependencies>
+      <group targetFramework=".NETCoreApp2.2">
+        <dependency id="DSEDiagnosticLibrary.Core" version="2.22.0" exclude="Build,Analyzers" />
+        <dependency id="DSEDiagnosticLogger.Core" version="2.22.0" exclude="Build,Analyzers" />
+        <dependency id="DSEDiagnosticParamsSettings.Core" version="2.22.0" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
+    <contentFiles>
+      <files include="any/netcoreapp2.2/AggregateGroups.json" buildAction="Content" />
+      <files include="any/netcoreapp2.2/AttributeThresholds.json" buildAction="Content" />
+    </contentFiles>
+  </metadata>
+</package>

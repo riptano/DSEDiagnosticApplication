@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <id>DSEDiagDataTableToExcel.Core</id>
+    <version>2.22.0</version>
+    <authors>Richard Andersen</authors>
+    <owners>Richard Andersen</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <projectUrl>https://github.com/riptano/DSEDiagnosticApplication/tree/master/</projectUrl>
+    <description>Package Description</description>
+    <copyright>Copyright © by DataStax</copyright>
+    <repository url="https://github.com/riptano/DSEDiagnosticApplication.git" />
+    <dependencies>
+      <group targetFramework=".NETCoreApp2.2">
+        <dependency id="Common.Functions" version="5.22.0" exclude="Build,Analyzers" />
+        <dependency id="Common.Path" version="5.22.0" exclude="Build,Analyzers" />
+        <dependency id="EPPlus" version="4.5.3.2" exclude="Build,Analyzers" />
+        <dependency id="Newtonsoft.Json" version="12.0.3" exclude="Build,Analyzers" />
+        <dependency id="System.Configuration.ConfigurationManager" version="4.7.0" exclude="Build,Analyzers" />
+        <dependency id="log4net" version="2.0.8" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
+  </metadata>
+</package>
