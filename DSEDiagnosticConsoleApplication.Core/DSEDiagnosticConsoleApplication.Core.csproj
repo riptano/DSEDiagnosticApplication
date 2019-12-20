@@ -13,12 +13,12 @@
     <Deterministic>false</Deterministic>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <RepositoryUrl>https://github.com/richardandersen/DSEDiagnosticApplication.git</RepositoryUrl>
-    <PackageProjectUrl>htt\Propertiesps://github.com/richardandersen/DSEDiagnosticApplication.git</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/richardandersen/DSEDiagnosticApplication.git</PackageProjectUrl>
     <Copyright>Copyright © by DataStax</Copyright>
     <AllowedOutputExtensionsInPackageBuildOutputFolder>
       $(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb
     </AllowedOutputExtensionsInPackageBuildOutputFolder>
-    <OutputType>Exe</OutputType>
+    <OutputType>Exe</OutputType>      
   </PropertyGroup>
 
   <Target Name="PostBuild" AfterTargets="Pack">
