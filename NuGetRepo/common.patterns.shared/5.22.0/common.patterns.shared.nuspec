@@ -6,11 +6,10 @@
     <authors>Richard Andersen</authors>
     <owners>Richard Andersen</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <licenseUrl>https://github.com/richardandersen/CommonPatterns/blob/master/LICENSE</licenseUrl>
-    <projectUrl>https://github.com/richardandersen/CommonPatterns.git</projectUrl>
+    <projectUrl>https://github.com/RichardAndersenACS/CommonPatterns/tree/master/NuGetRepo/Release/</projectUrl>
     <description>Package Description</description>
     <copyright>2009 Andersen &amp; Associates, LLC</copyright>
-    <repository url="https://github.com/richardandersen/CommonPatterns/tree/master/Core/Common.Patterns.Shared" />
+    <repository url="https://github.com/RichardAndersenACS/CommonPatterns.git" />
     <dependencies>
       <group targetFramework=".NETCoreApp2.2" />
     </dependencies>
