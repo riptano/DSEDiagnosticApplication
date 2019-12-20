@@ -1,4 +1,5 @@
-DSEDiagnosticConsoleApplication.exe -?
+Win: DSEDiagnosticConsoleApplication.exe -?
+OSX: ./DSEDiagnosticConsoleApplication.Core -?
 
 Arguments including Default Values:
 
@@ -77,3 +78,13 @@ Notes: If the customer provided rolled/archived logs (either system or debug), t
 	These additional logs need to be defined in a certain folder structure. Each set of logs need to be placed in a separate folder where that folder's name is the IP address of the node associated with the logs (e.g., "c:\MyCustomerName\CustClusterName-diagnostics-2019_01_21_16_30_46_UTC\AdditionalLogs\10.0.0.1\systemlog.3.228.zip")
 	If there are any compressed files under the OptCenter's diagnostic fold, the engine will automatically decompress these files.
 	The engine can also consume non-OpsCenter diagnostic files, please contact Richard Andersen on details
+
+This can be built using MS Visual Studio 2017 or Published.
+The solutions are:
+     DSEDiagnosticApplication.sln – Which builds .Net Framework 4.x for Winx64 Platform
+     DSEDiagnosticApplication.Core.sln – Which builds the .Net Core 2.x cross-platform version (MacOS, Linux, Win)
+                                         You will also new to point NuGet to a local repro for third party packages. This folder is under the solution's folder and is named "NuGetRepo"
+                                         To publish the application for OSX use the below command line:
+                                            dotnet publish-o <your publish folder> -framework netcoreapp2.2 --runtime osx-x64 --self-contained   -c Release-NoRepro
+
+Note that both solutions share the same source code so there is no difference in features/usage. There is a difference in performance, the Winx64 (.Net Framework 4.x) is much faster. I haven’t had time to optimize the .Net Core version… Also, there is a set of scripts that you can use that will allow the application to run with multiple uses. This script is located in the repo (HelathCheckBatFiles.zip). You will need the log4net config file located in the zip file for multiple user regardless of platform.
