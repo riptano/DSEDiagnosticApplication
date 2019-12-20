@@ -20,6 +20,7 @@
     </AllowedOutputExtensionsInPackageBuildOutputFolder>
     <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
     <RuntimeIdentifiers>win10-x64;osx-x64</RuntimeIdentifiers>
+    <Configurations>Debug;Release;osx-anycpu;Release-NoRepro</Configurations>
   </PropertyGroup>
 
   <Target Name="PostBuild" AfterTargets="Pack" Condition="$(Configuration) == 'Release'">    
