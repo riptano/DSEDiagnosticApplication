@@ -1,0 +1,1 @@
+dotnet publish ./DSEDiagnosticConsoleApplication.Core/ --framework netcoreapp2.2 --runtime osx-x64 --self-contained -o ./publish/DSEDiagnosticConsoleApplication.Core -c Release-NoRepro
