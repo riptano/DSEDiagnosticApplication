@@ -1,3 +1,4 @@
+For more information see https://datastax.jira.com/wiki/x/AQDaLQ
 Win: DSEDiagnosticConsoleApplication.exe -?
 OSX: ./DSEDiagnosticConsoleApplication.Core -?
 
@@ -79,7 +80,8 @@ Notes: If the customer provided rolled/archived logs (either system or debug), t
 	If there are any compressed files under the OptCenter's diagnostic fold, the engine will automatically decompress these files.
 	The engine can also consume non-OpsCenter diagnostic files, please contact Richard Andersen on details
 
-This can be built using MS Visual Studio 2017 or Published.
+This can be built using MS Visual Studio 2017 or Published. For MacOS and Linux build instructions see https://datastax.jira.com/wiki/spaces/CustomerOperations/pages/1005912168/Building+Health+Assessment+Console+Application.
+
 The solutions are:
      DSEDiagnosticApplication.sln – Which builds .Net Framework 4.x for Winx64 Platform
      DSEDiagnosticApplication.Core.sln – Which builds the .Net Core 2.x cross-platform version (MacOS, Linux, Win)
