@@ -1,4 +1,5 @@
 For more information see https://datastax.jira.com/wiki/x/AQDaLQ
+
 Win: DSEDiagnosticConsoleApplication.exe -?
 OSX: ./DSEDiagnosticConsoleApplication.Core -?
 
