@@ -138,7 +138,10 @@ namespace DSEDiagnosticConsoleApplication
                 loadAppInfo.ApplicationInfo.ApplicationLibrarySettings = Helpers.SettingValues(typeof(ParserSettings));
                 loadAppInfo.ApplicationInfo.ApplicationName = Common.Functions.Instance.ApplicationName;
                 loadAppInfo.ApplicationInfo.ApplicationStartEndTime = new DateTimeRange(RunDateTime, DateTime.Now);
-                loadAppInfo.ApplicationInfo.ApplicationVersion = Common.Functions.Instance.ApplicationVersion;
+                loadAppInfo.ApplicationInfo.ApplicationVersion = string.Format("{0} ({1}, {2})",
+                                                                                Common.Functions.Instance.ApplicationVersion,
+                                                                                ConsoleArguments.GetOSInfo(),
+                                                                                ConsoleArguments.GetFrameWorkInfo());
                 loadAppInfo.ApplicationInfo.DiagnosticDirectory = ParserSettings.DiagnosticPath.PathResolved;
                 loadAppInfo.ApplicationInfo.WorkingDir = Common.Functions.Instance.ApplicationRunTimeDir;
 

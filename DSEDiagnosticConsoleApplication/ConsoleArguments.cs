@@ -984,6 +984,24 @@ namespace DSEDiagnosticConsoleApplication
 
         }
 
+        public static string GetOSInfo()
+        {
+            return Common.Functions.IsRunningOnWindows
+                                    ? System.Runtime.InteropServices.RuntimeInformation.OSDescription
+                                    : (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX)
+                                            ? "OSX" : System.Runtime.InteropServices.RuntimeInformation.OSDescription);
+        }
+
+        public static string GetFrameWorkInfo()
+        {
+            return System.Reflection.Assembly.GetEntryAssembly()
+                    .GetCustomAttributes(typeof(System.Runtime.Versioning.TargetFrameworkAttribute), true)
+                    ?.Cast<System.Runtime.Versioning.TargetFrameworkAttribute>()
+                    .FirstOrDefault()
+                    ?.FrameworkName
+                    ?? System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription;
+        }
+
         public void ShowVersion()
         {
             var appLogFile = Logger.Instance.GetSetEnvVarLoggerFile(false);
@@ -997,6 +1015,9 @@ namespace DSEDiagnosticConsoleApplication
             Console.WriteLine("             Application: {0}", Common.Functions.Instance.ApplicationName);
             Console.WriteLine("                 Version: {0}", Common.Functions.Instance.ApplicationVersion);
             Console.WriteLine("               Timestamp: {0:yyyy-MM-dd HH\\:mm\\:ss}", System.IO.File.GetLastWriteTime(Common.Functions.Instance.ExeAssembly.Location));
+            Console.WriteLine("            OS/.Net Core: {0}, {1}",
+                                GetOSInfo(),
+                                GetFrameWorkInfo());
             Console.WriteLine("     Excel Template File: {0}", ParserSettings.ExcelFileTemplatePath?.PathResolved ?? "N/A");
             Console.WriteLine("Excel Template Timestamp: {0:yyyy-MM-dd HH\\:mm\\:ss}", ParserSettings.ExcelFileTemplatePath?.GetLastWriteTime());
             Console.WriteLine("        Application Path: {0}", Common.Functions.Instance.ApplicationRunTimeDir);

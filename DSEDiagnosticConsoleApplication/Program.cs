@@ -326,12 +326,16 @@ namespace DSEDiagnosticConsoleApplication
 
             Common.TimeZones.Convert(DateTime.Now, "UTC");
 
-            Logger.Instance.InfoFormat("Starting {0} ({1}) Version: {2} RunAs: {3} RunTime Dir: {4}",
+            Logger.Instance.InfoFormat("Starting {0} ({1}) Version: {2} RunAs: {3}",
                                             Common.Functions.Instance.ApplicationName,
                                             Common.Functions.Instance.AssemblyFullName,
                                             Common.Functions.Instance.ApplicationVersion,
-                                            Common.Functions.Instance.CurrentUserName,
+                                            Common.Functions.Instance.CurrentUserName);
+            Logger.Instance.InfoFormat("\t\tRunTime Dir: {0}",
                                             Common.Functions.Instance.ApplicationRunTimeDir);
+            Logger.Instance.InfoFormat("\t\tOS: {0} Framework: {1}",
+                                           ConsoleArguments.GetOSInfo(),
+                                           ConsoleArguments.GetFrameWorkInfo());
 
 #if DEBUG
             Logger.Instance.SetDebugLevel();
@@ -347,7 +351,7 @@ namespace DSEDiagnosticConsoleApplication
             DSEDiagnosticFileParser.DiagnosticFile.OnProgression += DiagnosticFile_OnProgression;
             Logger.Instance.OnLoggingEvent += Instance_OnLoggingEvent;            
 
-            #region Arguments
+#region Arguments
             {
                 var consoleArgs = new ConsoleArguments();
 
@@ -439,11 +443,11 @@ namespace DSEDiagnosticConsoleApplication
                     }
                 }
 
-                Logger.Instance.InfoFormat("Settings:\r\n\t{0}", DSEDiagnosticParamsSettings.Helpers.SettingValues(typeof(ParserSettings)));
+                Logger.Instance.InfoFormat("Settings:\r\n\t{0}", DSEDiagnosticParamsSettings.Helpers.SettingValues(typeof(ParserSettings)));                
             }
-            #endregion
+#endregion
 
-            #region Console Display Setup
+#region Console Display Setup
 
             ConsoleDisplay.Console.ClearScreen();
             ConsoleDisplay.Console.AdjustScreenStartBlock();
@@ -471,12 +475,12 @@ namespace DSEDiagnosticConsoleApplication
 
             ConsoleDisplay.Start();
 
-            #endregion
+#endregion
 
             GCMonitor.GetInstance().StartGCMonitoring();
             var logFilePath = Logger.Instance.GetSetEnvVarLoggerFile();
 
-            #endregion
+#endregion
 
             var cancellationSource = new System.Threading.CancellationTokenSource();
             var diagParserTask = ProcessDSEDiagnosticFileParser(cancellationSource);
@@ -484,16 +488,16 @@ namespace DSEDiagnosticConsoleApplication
             var loadAllDataTableTask = LoadDataTables(diagParserTask, aggInfoStatsTask, cancellationSource);
             var loadExcelWorkBookTask = LoadExcelWorkbook(diagParserTask, loadAllDataTableTask, cancellationSource);
 
-            #region Wait for Tasks to Complete
+#region Wait for Tasks to Complete
             {
                 var tasks = new List<Task>() { diagParserTask, loadAllDataTableTask, loadExcelWorkBookTask };
                 tasks.AddRange(aggInfoStatsTask);
 
                 System.Threading.Tasks.Task.WaitAll(tasks.ToArray(), cancellationSource.Token);
             }
-            #endregion
+#endregion
 
-            #region Termiate
+#region Termiate
 
             ConsoleDisplay.End();
 
@@ -507,12 +511,12 @@ namespace DSEDiagnosticConsoleApplication
             if (!ParserSettings.BatchMode && System.Diagnostics.Debugger.IsAttached)
                 Common.ConsoleHelper.Prompt("Press Return to Exit", ConsoleColor.Gray, ConsoleColor.DarkRed);
 
-            #endregion
+#endregion
 
             return 0;
         }
 
-        #region Canceled Processing
+#region Canceled Processing
         static public volatile bool AlreadyCanceled = false;
         static bool _AlreadyCanceled = false;
 
@@ -539,6 +543,6 @@ namespace DSEDiagnosticConsoleApplication
                 Environment.Exit(-1);
             }
         }
-        #endregion
+#endregion
     }
 }
