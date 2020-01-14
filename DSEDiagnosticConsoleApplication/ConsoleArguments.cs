@@ -986,20 +986,28 @@ namespace DSEDiagnosticConsoleApplication
 
         public static string GetOSInfo()
         {
+#if NET40
+            return System.Environment.OSVersion.VersionString;
+#else
             return Common.Functions.IsRunningOnWindows
                                     ? System.Runtime.InteropServices.RuntimeInformation.OSDescription
                                     : (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX)
                                             ? "OSX" : System.Runtime.InteropServices.RuntimeInformation.OSDescription);
+#endif
         }
 
         public static string GetFrameWorkInfo()
         {
+#if NET40
+            return "Net Framework 4.5";
+#else
             return System.Reflection.Assembly.GetEntryAssembly()
                     .GetCustomAttributes(typeof(System.Runtime.Versioning.TargetFrameworkAttribute), true)
                     ?.Cast<System.Runtime.Versioning.TargetFrameworkAttribute>()
                     .FirstOrDefault()
                     ?.FrameworkName
                     ?? System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription;
+#endif
         }
 
         public void ShowVersion()
