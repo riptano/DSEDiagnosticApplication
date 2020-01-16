@@ -4,11 +4,11 @@
     <TargetFramework>netcoreapp2.2</TargetFramework>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\datastax.snk</AssemblyOriginatorKeyFile>
-    <Version>2.22.0</Version>
+    <Version>2.22.1</Version>
     <Company>Datastax</Company>
     <Authors>Richard Andersen</Authors>
-    <AssemblyVersion>2.22.0.*</AssemblyVersion>
-    <FileVersion>2.22.0</FileVersion>
+    <AssemblyVersion>2.22.1.*</AssemblyVersion>
+    <FileVersion>2.22.1</FileVersion>
     <Product>DataStax Enterprise Health Check Tool</Product>
     <Deterministic>false</Deterministic>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>

@@ -49,10 +49,64 @@ namespace DataTableToExcel
 
     public sealed class ExcelPkgCache : IDisposable
     {
+
+        static ExcelPackage CreateExcelPackage(IFilePath excelFilePath, IFilePath excelTemplateFilePath = null)
+        {
+            bool retry = false;
+
+            if (excelTemplateFilePath != null)
+            {
+                try
+                {
+                    return new ExcelPackage(excelFilePath.FileInfo(), excelTemplateFilePath.FileInfo());
+                }
+                catch (OfficeOpenXml.Packaging.Ionic.Zip.BadReadException exception)
+                {
+                    Logger.Instance.Error(string.Format("An exception Occurred while Opening the Excel Template \"{0}\". This may indicate a permission, missing Excel Template file, or corruption issue(s)",
+                                            excelTemplateFilePath),
+                                            exception);
+                    Logger.Instance.Warn("Will try to create the Excel Workbook without using the Excel Template.Ccertain Excel formatting will not be presents and none of the Excel VB Macros will be defined.");
+                    retry = true;
+                }
+                catch (OfficeOpenXml.Packaging.Ionic.Zip.BadCrcException exception)
+                {
+                    Logger.Instance.Error(string.Format("An exception Occurred while Opening the Excel Template \"{0}\". This may indicate a corruption issue",
+                                            excelTemplateFilePath),
+                                            exception);
+                    Logger.Instance.Warn("Will try to create the Excel Workbook without using the Excel Template.Ccertain Excel formatting will not be presents and none of the Excel VB Macros will be defined.");
+                    retry = true;
+                }
+                catch (System.Exception exception)
+                {
+                    Logger.Instance.Error(string.Format("An exception Occurred while Opening the Excel Template \"{0}\". The Exception is \"{1}\" ({2})",
+                                            excelTemplateFilePath,
+                                            exception.GetType().FullName,
+                                            exception.Message),
+                                            exception);
+                    Logger.Instance.Warn("Will try to create the Excel Workbook without using the Excel Template.Ccertain Excel formatting will not be presents and none of the Excel VB Macros will be defined.");
+                    retry = true;
+                }
+            }
+
+            try
+            {
+                return new ExcelPackage(excelFilePath.FileInfo());
+            }
+            catch (System.Exception exception)
+            {
+                Logger.Instance.Error(string.Format("An exception Occurred while Creating the Excel Workbook \"{0}\"{2}. This may indicate a permissions issue with folder \"{1}\". Please ensure the application has read/write accesses to this directory.",
+                                                        excelFilePath,
+                                                        excelFilePath?.ParentDirectoryPath,
+                                                        retry ? " (Using Excel Template also failed, see prior log messages)" : string.Empty),
+                                                        exception);
+                throw;
+            }            
+        }
+
         public ExcelPkgCache(IFilePath excelFilePath, bool isCached, IFilePath excelTemplateFilePath = null)
         {
             this.ExcelFilePath = excelFilePath;
-            this.ExcelPackage = excelTemplateFilePath == null ? new ExcelPackage(excelFilePath.FileInfo()) : new ExcelPackage(excelFilePath.FileInfo(), excelTemplateFilePath.FileInfo());
+            this.ExcelPackage = CreateExcelPackage(excelFilePath, excelTemplateFilePath);
             this._refCnt = isCached ? 2 : 1;
             this.CachedValue = isCached;
         }
