@@ -151,6 +151,15 @@
   &lt;string&gt;ja&lt;/string&gt;
   &lt;string&gt;ic&lt;/string&gt;
   &lt;string&gt;bti&lt;/string&gt;
+  &lt;string&gt;mc&lt;/string&gt;
+  &lt;string&gt;aa&lt;/string&gt;
+  &lt;string&gt;md&lt;/string&gt;
+  &lt;string&gt;ac&lt;/string&gt;
+  &lt;string&gt;mb&lt;/string&gt;
+  &lt;string&gt;lb&lt;/string&gt;
+  &lt;string&gt;la&lt;/string&gt;
+  &lt;string&gt;k&lt;/string&gt;
+  &lt;string&gt;j&lt;/string&gt;
 &lt;/ArrayOfString&gt;</Value>
     </Setting>
     <Setting Name="SSTableColumnFamilyRegEx" Type="System.String" Scope="Application">

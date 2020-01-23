@@ -8,7 +8,7 @@ using Common.Patterns.Tasks;
 
 namespace DSEDiagnosticConsoleApplication
 {
-    partial class Program
+    public partial class Program
     {
         public static readonly DateTime RunDateTime = DateTime.Now;
         public static string CommandLineArgsString = null;
@@ -320,7 +320,7 @@ namespace DSEDiagnosticConsoleApplication
         }
         #endregion
 
-        static int Main(string[] args)
+        public static int Main(string[] args)
         {
             #region Setup Exception handling, Argument Parsering
 

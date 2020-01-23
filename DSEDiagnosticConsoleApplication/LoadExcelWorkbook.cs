@@ -11,9 +11,9 @@ namespace DSEDiagnosticConsoleApplication
 {
     partial class Program
     {
-        static Task<IFilePath> LoadExcelWorkbook (Task<IEnumerable<DSEDiagnosticFileParser.DiagnosticFile>> diagParserTask,
-                                                    Task<System.Data.DataSet> loadAllDataTableTask,
-                                                    System.Threading.CancellationTokenSource cancellationSource)
+        public static Task<IFilePath> LoadExcelWorkbook (Task<IEnumerable<DSEDiagnosticFileParser.DiagnosticFile>> diagParserTask,
+                                                            Task<System.Data.DataSet> loadAllDataTableTask,
+                                                            System.Threading.CancellationTokenSource cancellationSource)
         {
             if (ParserSettings.ExcelFilePath == null)
             {
@@ -114,9 +114,9 @@ namespace DSEDiagnosticConsoleApplication
             return excelUpdateAppInfo;
         }
 
-        static Task<IFilePath> UpdateExcelApplInfoWorksheet(Task<IEnumerable<DSEDiagnosticFileParser.DiagnosticFile>> diagParserTask,
-                                                            Task<IFilePath> excelTask,
-                                                            System.Threading.CancellationTokenSource cancellationSource)
+        public static Task<IFilePath> UpdateExcelApplInfoWorksheet(Task<IEnumerable<DSEDiagnosticFileParser.DiagnosticFile>> diagParserTask,
+                                                                    Task<IFilePath> excelTask,
+                                                                    System.Threading.CancellationTokenSource cancellationSource)
         {
             return Task.Factory.ContinueWhenAll(new Task[] { diagParserTask, excelTask }, tasks =>
             {

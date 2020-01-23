@@ -171,12 +171,40 @@ namespace DSEDiagnosticLibrary.Tests
             Assert.AreEqual(string.Empty, result.Item3);
             Assert.AreEqual("digitalasset_3_0_2", result.Item4);
 
+            result = DSEDiagnosticLibrary.StringHelpers.ParseSSTableFileIntoKSTableNames("/var/lib/cassandra/data/mc/digitalasset_3_0_2/mc-digitalasset_3_0_2.digitalasset_3_0_2_id-jb-1-Data.db");
+
+            Assert.AreEqual("mc", result.Item1);
+            Assert.AreEqual("digitalasset_3_0_2_id", result.Item2);
+            Assert.AreEqual(string.Empty, result.Item3);
+            Assert.AreEqual("digitalasset_3_0_2", result.Item4);
+
             result = DSEDiagnosticLibrary.StringHelpers.ParseSSTableFileIntoKSTableNames("/d3/data/system/batches-919a4bc57a333573b03e13fc3f68b465/mc-62-big-Data.db");
 
             Assert.AreEqual("system", result.Item1);
             Assert.AreEqual("batches", result.Item2);
             Assert.AreEqual("919a4bc57a333573b03e13fc3f68b465", result.Item3);
             Assert.AreEqual(null, result.Item4);
+
+            result = DSEDiagnosticLibrary.StringHelpers.ParseSSTableFileIntoKSTableNames("/d3/data/system/batches-919a4bc57a333573b03e13fc3f68b465/mb-62-big-Data.db");
+
+            Assert.AreEqual("system", result.Item1);
+            Assert.AreEqual("batches", result.Item2);
+            Assert.AreEqual("919a4bc57a333573b03e13fc3f68b465", result.Item3);
+            Assert.AreEqual(null, result.Item4);
+
+            result = DSEDiagnosticLibrary.StringHelpers.ParseSSTableFileIntoKSTableNames("/d3/data/aa/batches-919a4bc57a333573b03e13fc3f68b465/ac-62-big-Data.db");
+
+            Assert.AreEqual("aa", result.Item1);
+            Assert.AreEqual("batches", result.Item2);
+            Assert.AreEqual("919a4bc57a333573b03e13fc3f68b465", result.Item3);
+            Assert.AreEqual(null, result.Item4);
+
+            result = DSEDiagnosticLibrary.StringHelpers.ParseSSTableFileIntoKSTableNames("/d3/data/system/batches-919a4bc57a333573b03e13fc3f68b465/.myIDX/mb-62-big-Data.db");
+
+            Assert.AreEqual("system", result.Item1);
+            Assert.AreEqual("myIDX", result.Item2);
+            Assert.AreEqual("919a4bc57a333573b03e13fc3f68b465", result.Item3);
+            Assert.AreEqual("batches", result.Item4);
         }
     }
 }

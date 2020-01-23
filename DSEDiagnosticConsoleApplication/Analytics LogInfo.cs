@@ -10,7 +10,7 @@ namespace DSEDiagnosticConsoleApplication
 {
     partial class Program
     {
-        static Task<IEnumerable<DSEDiagnosticLibrary.IAggregatedStats>>[] ProcessAnalytics_LogInfo(Task<IEnumerable<DSEDiagnosticFileParser.DiagnosticFile>> diagParserTask, System.Threading.CancellationTokenSource cancellationSource)
+        public static Task<IEnumerable<DSEDiagnosticLibrary.IAggregatedStats>>[] ProcessAnalytics_LogInfo(Task<IEnumerable<DSEDiagnosticFileParser.DiagnosticFile>> diagParserTask, System.Threading.CancellationTokenSource cancellationSource)
         {
             Task<IEnumerable<DSEDiagnosticLibrary.IAggregatedStats>>[] tasks = new Task<IEnumerable<DSEDiagnosticLibrary.IAggregatedStats>>[2];
 

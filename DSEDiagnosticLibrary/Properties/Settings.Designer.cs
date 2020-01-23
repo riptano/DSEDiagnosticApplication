@@ -304,6 +304,15 @@ namespace DSEDiagnosticLibrary.Properties {
   <string>ja</string>
   <string>ic</string>
   <string>bti</string>
+  <string>mc</string>
+  <string>aa</string>
+  <string>md</string>
+  <string>ac</string>
+  <string>mb</string>
+  <string>lb</string>
+  <string>la</string>
+  <string>k</string>
+  <string>j</string>
 </ArrayOfString>")]
         public global::System.Collections.Specialized.StringCollection SSTableVersionMarkers {
             get {

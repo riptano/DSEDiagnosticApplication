@@ -439,17 +439,18 @@ namespace DSEDiagnosticLibrary
                                             : tblNameMatch.Groups[1].Value;
                     var cfUUID = tblNameMatch.Groups[2].Value;
                     string secondTblName = null;
+                    var lastNode = sstableFilePathParts.Last();
 
                     if (idxOffset == 1)
                     {
                         secondTblName = sstableFilePathParts[sstableFilePathParts.Length - 2].Substring(1);
                     }
-                    else if (sstableFilePathParts.Last().Length > ksName.Length + columnFamily.Length + 1
-                                && sstableFilePathParts.Last()[ksName.Length + columnFamily.Length + 1] == '.'
-                                && !sstableFilePathParts.Last().StartsWith("mc-")
-                                && !sstableFilePathParts.Last().StartsWith("aa-"))
+                    else if (lastNode.Length > ksName.Length + columnFamily.Length + 1
+                                && lastNode[ksName.Length + columnFamily.Length + 1] == '.'
+                                && ((LibrarySettings.SSTableVersionMarkers.Contains(ksName)
+                                        && LibrarySettings.SSTableVersionMarkers.Any(sstv => lastNode.Contains('-' + sstv + '-')))
+                                    || LibrarySettings.SSTableVersionMarkers.All(sstv => !lastNode.StartsWith(sstv + '-'))))
                     {
-                        var lastNode = sstableFilePathParts.Last();
                         int tmpPos = -1;
                         int startPos = ksName.Length + columnFamily.Length + 2;
 

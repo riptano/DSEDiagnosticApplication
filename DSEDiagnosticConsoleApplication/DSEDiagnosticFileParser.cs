@@ -47,7 +47,7 @@ namespace DSEDiagnosticConsoleApplication
             Logger.Instance.InfoFormat("Registering CassandraLogEvent Analytics to LogFile {0}", sender.ShortFilePath);
         }
 
-        static Task<IEnumerable<DSEDiagnosticFileParser.DiagnosticFile>> ProcessDSEDiagnosticFileParser(System.Threading.CancellationTokenSource cancellationSource)
+        public static Task<IEnumerable<DSEDiagnosticFileParser.DiagnosticFile>> ProcessDSEDiagnosticFileParser(System.Threading.CancellationTokenSource cancellationSource)
         {
             string defaultCluster = null;
 

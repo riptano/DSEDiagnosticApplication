@@ -10,10 +10,10 @@ namespace DSEDiagnosticConsoleApplication
 {
     partial class Program
     {
-        static Task<System.Data.DataSet> LoadDataTables(Task<IEnumerable<DSEDiagnosticFileParser.DiagnosticFile>> diagParserTask,
-                                                        Task<IEnumerable<DSEDiagnosticLibrary.IAggregatedStats>>[] aggStatsTask,
-                                                        System.Threading.CancellationTokenSource cancellationSource,
-                                                        Guid? sessionGuid = null)
+        public static Task<System.Data.DataSet> LoadDataTables(Task<IEnumerable<DSEDiagnosticFileParser.DiagnosticFile>> diagParserTask,
+                                                                Task<IEnumerable<DSEDiagnosticLibrary.IAggregatedStats>>[] aggStatsTask,
+                                                                System.Threading.CancellationTokenSource cancellationSource,
+                                                                Guid? sessionGuid = null)
         {
             var datatableTasks = new List<Task<System.Data.DataTable>>();
             var loadAllDataTableTask = Common.Patterns.Tasks.CompletionExtensions.CompletedTask<System.Data.DataSet>();
