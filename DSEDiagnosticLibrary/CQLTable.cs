@@ -32,7 +32,7 @@ namespace DSEDiagnosticLibrary
             this.Name = cqlType.Trim();
             this.Column = column;
             this.DDL = ddl.Trim();
-            this.CQLSubType = cqlSubType ?? Enumerable.Empty<CQLColumnType>();
+            this.CQLSubType = cqlSubType?.ToArray() ?? Enumerable.Empty<CQLColumnType>();
             this.IsUDT = this.HasUDT = isUDT;
 
             this.IsCollection = this.HasCollection = LibrarySettings.CQLCollectionTypes.Any(c => this.Name.ToLower() == c);
@@ -160,7 +160,7 @@ namespace DSEDiagnosticLibrary
                                     bool setBaseType = true)
         {
             return new CQLColumnType(this.Name,
-                                        this.CQLSubType.Select(t => t.Copy(assocColumn, setBaseType)),
+                                        this.CQLSubType?.ToArray().Select(t => t.Copy(assocColumn, setBaseType)),
                                         this.DDL,
                                         assocColumn,
                                         this.IsUDT,
@@ -470,7 +470,7 @@ namespace DSEDiagnosticLibrary
             if (columns == null || columns.IsEmpty()) throw new NullReferenceException("CQLFunctionColumn must have columns (cannot be null or a count of zero)");
 
             this.Function = function;
-            this.Columns = columns;
+            this.Columns = columns?.ToArray();
             this.DDL = ddl;
         }
 
@@ -622,10 +622,10 @@ namespace DSEDiagnosticLibrary
             this.LineNbr = lineNbr;
             this.Name = StringHelpers.RemoveQuotes(name.Trim());
             this.DDL = ddl;
-            this.Columns = columns;
-            this.PrimaryKeys = primaryKeys;
-            this.ClusteringKeys = clusteringKeys;
-            this.OrderByCols = orderByCols ?? Enumerable.Empty<CQLOrderByColumn>();
+            this.Columns = columns?.ToArray();
+            this.PrimaryKeys = primaryKeys?.ToArray();
+            this.ClusteringKeys = clusteringKeys?.ToArray();
+            this.OrderByCols = orderByCols?.ToArray() ?? Enumerable.Empty<CQLOrderByColumn>();
             this.Properties = properties ?? new Dictionary<string, object>(0);
             this.Items = this.Columns.Count();
             this.IsFlagged = LibrarySettings.TablesUsageFlag.Contains(this.FullName);

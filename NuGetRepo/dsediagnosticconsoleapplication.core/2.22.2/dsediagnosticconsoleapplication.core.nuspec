@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <id>DSEDiagnosticConsoleApplication.Core</id>
+    <version>2.22.2</version>
+    <authors>Richard Andersen</authors>
+    <owners>Richard Andersen</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <projectUrl>https://github.com/riptano/DSEDiagnosticApplication/tree/master/</projectUrl>
+    <description>Package Description</description>
+    <copyright>Copyright © by DataStax</copyright>
+    <repository url="https://github.com/riptano/DSEDiagnosticApplication.git" />
+    <dependencies>
+      <group targetFramework=".NETCoreApp2.2">
+        <dependency id="DSEDiagDataTableToExcel.Core" version="2.22.0" exclude="Build,Analyzers" />
+        <dependency id="DSEDiagnosticAnalytics.Core" version="2.22.0" exclude="Build,Analyzers" />
+        <dependency id="DSEDiagnosticFileParser.Core" version="2.22.0" exclude="Build,Analyzers" />
+        <dependency id="DSEDiagnosticLogger.Core" version="2.22.0" exclude="Build,Analyzers" />
+        <dependency id="DSEDiagnosticParamsSettings.Core" version="2.22.0" exclude="Build,Analyzers" />
+        <dependency id="DSEDiagnosticTaskSchedulers.Core" version="2.22.0" exclude="Build,Analyzers" />
+        <dependency id="DSEDiagnosticToDataTable.Core" version="2.22.0" exclude="Build,Analyzers" />
+        <dependency id="DSEDiagtnosticToExcel.Core" version="2.22.0" exclude="Build,Analyzers" />
+        <dependency id="CommandLineArgumentsParser" version="3.0.20" exclude="Build,Analyzers" />
+        <dependency id="Common.Console" version="5.22.1" exclude="Build,Analyzers" />
+        <dependency id="log4net" version="2.0.8" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
+    <contentFiles>
+      <files include="any/netcoreapp2.2/DSEDiagConsoleApp-OpsCtr-ProcessFileMappings.json" buildAction="Content" />
+      <files include="any/netcoreapp2.2/IANACountry.json" buildAction="Content" />
+      <files include="any/netcoreapp2.2/IANADatabaase.json" buildAction="Content" />
+      <files include="any/netcoreapp2.2/IANALeapSeconds.json" buildAction="Content" />
+      <files include="any/netcoreapp2.2/IANALocCode.json" buildAction="Content" />
+      <files include="any/netcoreapp2.2/IANARule.json" buildAction="Content" />
+      <files include="any/netcoreapp2.2/IANAZone.json" buildAction="Content" />
+      <files include="any/netcoreapp2.2/IANAZoneRule.json" buildAction="Content" />
+    </contentFiles>
+  </metadata>
+</package>
