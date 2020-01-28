@@ -169,5 +169,32 @@ namespace DSEDiagnosticConsoleApplication.Properties {
                 return ((global::System.Collections.Specialized.StringCollection)(this["WhiteListKeyspaceInWS"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Excel, Database")]
+        public string OutputTypes {
+            get {
+                return ((string)(this["OutputTypes"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string ConnectionString {
+            get {
+                return ((string)(this["ConnectionString"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("{0}-{1:yyMMddHHmmss}")]
+        public string DataBaseIdGeneratedStringFormat {
+            get {
+                return ((string)(this["DataBaseIdGeneratedStringFormat"]));
+            }
+        }
     }
 }

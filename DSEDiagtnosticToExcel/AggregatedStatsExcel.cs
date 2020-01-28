@@ -8,6 +8,7 @@ using Common;
 using OfficeOpenXml;
 using DataTableToExcel;
 using OfficeOpenXml.Table;
+using DT = DSEDiagnosticToDataTable;
 
 namespace DSEDiagtnosticToExcel
 {
@@ -73,40 +74,18 @@ namespace DSEDiagtnosticToExcel
                                                                  //{
                                                                  //    nbrloaded = this.LoadDefaultAttributes(workSheet);
                                                                  //}
+                                                                 
+                                                                 workSheet.UpdateWorksheet(this.DataTable, 1);
 
-                                                                 workSheet.AutoFitColumn(workSheet.Cells["A:N"]);
+                                                                 workSheet.AutoFitColumn(this.DataTable);
 
-                                                                 var table = workSheet.Tables.FirstOrDefault(t => t.Name == "AggregatedStatsTable");
-                                                                 var rowCnt = this.DataTable.Rows.Count;
-
-                                                                 if (rowCnt == 0)
+                                                                 var wsName = "AggregatedStatsTable";
+                                                                 if (splitNbr.HasValue && splitNbr.Value > 1)
                                                                  {
-                                                                     rowCnt = 1;
-                                                                 }
-                                                                 else
-                                                                 {
-                                                                     rowCnt = workSheet.Dimension.End.Row;
+                                                                     wsName += splitNbr.Value.ToString("000");
                                                                  }
 
-                                                                 if (table == null)
-                                                                 {
-                                                                     using (var tblRange = workSheet.Cells[string.Format("A1:N{0}",rowCnt + 2)])
-                                                                     {
-                                                                         table = workSheet.Tables.Add(tblRange, workSheet.Name == this.WorkSheetName ? "AggregatedStatsTable" : workSheet.Name + "Table");
-
-                                                                         table.ShowFilter = true;
-                                                                         table.ShowHeader = true;
-                                                                         table.TableStyle = OfficeOpenXml.Table.TableStyles.Light21;
-                                                                     }
-                                                                 }
-                                                                 else
-                                                                 {
-                                                                     var oldaddy = table.Address;
-                                                                     var newaddy = new ExcelAddressBase(oldaddy.Start.Row, oldaddy.Start.Column, rowCnt + 2, oldaddy.End.Column);
-
-                                                                     //Edit the raw XML by searching for all references to the old address
-                                                                     table.TableXml.InnerXml = table.TableXml.InnerXml.Replace(oldaddy.ToString(), newaddy.ToString());
-                                                                 }                                                                 
+                                                                 workSheet.CreateExcelTable(this.DataTable, wsName);                                                                                                                     
                                                              },
                                                              -1,
                                                             -1,

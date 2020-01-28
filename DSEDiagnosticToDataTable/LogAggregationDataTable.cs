@@ -159,7 +159,7 @@ namespace DSEDiagnosticToDataTable
             dtLog.Columns.Add(Columns.StorageStdDevp, typeof(decimal)).AllowDBNull = true;
             dtLog.Columns.Add(Columns.StorageTotal, typeof(decimal)).AllowDBNull = true;
             dtLog.Columns.Add(ColumnNames.ReconciliationRef, typeof(string)).AllowDBNull = true;
-
+            
             //dtLog.PrimaryKey = new System.Data.DataColumn[] { dtLog.Columns[ColumnNames.KeySpace], dtLog.Columns["Name"] };
 
             dtLog.DefaultView.ApplyDefaultSort = false;

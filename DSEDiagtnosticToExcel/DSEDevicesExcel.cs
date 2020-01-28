@@ -90,7 +90,8 @@ namespace DSEDiagtnosticToExcel
                                                                         this.DataTable.GetColumn("Other Utilization")
                                                                             .SetNumericFormat("0%")
                                                                     );
-                                                                                                                                 
+
+                                                                
                                                                  workSheet.UpdateWorksheet(this.DataTable, 2);
 
                                                                  workSheet.ExcelRange(2,

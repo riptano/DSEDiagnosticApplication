@@ -71,11 +71,19 @@ namespace DSEDiagtnosticToExcel
                                                                  //workBook.Cells["1:1"].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
                                                                  workSheet.View.FreezePanes(2, 1);
 
-                                                                 workSheet.Cells["C:C"].Style.Numberformat.Format = Properties.Settings.Default.ExcelDateTimeFormat;
-                                                                 workSheet.Cells["D:D"].Style.Numberformat.Format = Properties.Settings.Default.ExcelDateTimeFormat;
+                                                                 this.DataTable.GetColumn(DSEDiagnosticToDataTable.ColumnNames.LogLocalTimeStamp)
+                                                                    .SetNumericFormat(Properties.Settings.Default.ExcelDateTimeFormat);
+                                                                 this.DataTable.GetColumn(DSEDiagnosticToDataTable.ColumnNames.UTCTimeStamp)
+                                                                    .SetNumericFormat(Properties.Settings.Default.ExcelDateTimeFormat);
+                                                                 
+                                                                 workSheet.UpdateWorksheet(this.DataTable, 1);
 
-                                                                 workSheet.Cells["A1:I1"].AutoFilter = true;
-                                                                 workSheet.AutoFitColumn(workSheet.Cells["A:I"]);
+                                                                 workSheet.AutoFitColumn(this.DataTable);
+
+                                                                 workSheet.TranslaateToColumnRange(this.DataTable,
+                                                                                                    DSEDiagnosticToDataTable.ColumnNames.DataCenter,
+                                                                                                    "Current Value",
+                                                                                                    1, 1).AutoFilter = true;                                                                
                                                              },
                                                              -1,
                                                             -1,

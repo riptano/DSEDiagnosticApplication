@@ -1,0 +1,26 @@
+﻿CREATE TABLE [dbo].[LogInformation] (
+	[DiagnosticId]				  VARCHAR (115) NOT NULL,
+	[RowId]					   BIGINT NOT NULL,
+    [Node IPAddress]         VARCHAR (55) NOT NULL,
+    [Data Center]            VARCHAR (100) NOT NULL,
+    [Instance Type]          VARCHAR (50) NULL,
+    [Node's TimeZone]        VARCHAR (255) NULL,
+    [Time Zone Offset]       VARCHAR (255) NULL,
+    [IsDebugLog]             BIT           NULL,
+    [Start Range (Used)]     DATETIME      NULL,
+    [End Range (Used)]       DATETIME      NULL,
+    [Duration (Used)]        BIGINT        NULL,
+    [Start Range (Log File)] DATETIME      NULL,
+    [End Range (Log File)]   DATETIME      NULL,
+    [Duration (Log File)]    BIGINT        NULL,
+    [File Path]              VARCHAR (MAX) NULL,
+    [Events]                 BIGINT        NULL,
+    [File Size (MB)]         DECIMAL (18)  NULL,
+    [Gap Timespan]           BIGINT        NULL,
+    [OverLapping]            VARCHAR (100) NULL,
+    [Start Range (UTC)]      DATETIME      NULL,
+    [End Range (UTC)]        DATETIME      NULL,
+    [Detected Restart]       BIT           NULL, 
+    CONSTRAINT [PK_LogInformation] PRIMARY KEY ([DiagnosticId], [RowId])
+);
+

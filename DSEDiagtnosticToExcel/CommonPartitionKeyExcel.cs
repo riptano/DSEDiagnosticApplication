@@ -111,7 +111,7 @@ namespace DSEDiagtnosticToExcel
                                                                  this.DataTable.GetColumn(DT.CommonPartitionKeyDataTable.Columns.Factor)
                                                                    .SetNumericFormat("#,###,###,##0.00")
                                                                    .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor);
-
+                                                                 
                                                                  workSheet.UpdateWorksheet(this.DataTable, 1);
 
                                                                  workSheet.AutoFitColumn(this.DataTable);

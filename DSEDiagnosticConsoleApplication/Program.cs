@@ -23,6 +23,7 @@ namespace DSEDiagnosticConsoleApplication
         static public ConsoleDisplay ConsoleParsingDataTable = null;
         static public ConsoleDisplay ConsoleExcelWorkSheet = null;
         static public ConsoleDisplay ConsoleExcelWorkbook = null;
+        static public ConsoleDisplay ConsoleDatabase = null;
         static public ConsoleDisplay ConsoleWarnings = null;
         static public ConsoleDisplay ConsoleErrors = null;
         static public ConsoleDisplay ConsoleExceptions = null;
@@ -294,7 +295,7 @@ namespace DSEDiagnosticConsoleApplication
             LastLogLine = eventArgs.LogInfo;
         }
 
-        private static string DetermineExcelTargetFile(DSEDiagnosticLibrary.Cluster cluster)
+        private static string DetermineExcelTargetFile(DSEDiagnosticLibrary.Cluster cluster, bool shortVersion = false)
         {
            string processTF = string.Empty;
 
@@ -311,7 +312,7 @@ namespace DSEDiagnosticConsoleApplication
             }
 
             return string.Format(Properties.Settings.Default.ExcelFileNameGeneratedStringFormat,
-                                    ParserSettings.DiagnosticPath,
+                                    ParserSettings.DiagnosticPath?.ToString(),
                                     cluster == null ? "<clustername>" : (cluster.IsMaster ? "MasterCluster" : cluster.Name),
                                     RunDateTime,
                                     ParserSettings.Profile,
@@ -465,6 +466,7 @@ namespace DSEDiagnosticConsoleApplication
             ConsoleParsingDataTable = new ConsoleDisplay("DataTable Processed: {0}  Working: {1} Task: {2}");
             ConsoleExcelWorkSheet = new ConsoleDisplay("Excel WorkSheet: {0}  Working: {1} Task: {2}");
             ConsoleExcelWorkbook = new ConsoleDisplay("Excel WorkBook: {0}  Working: {1} Task: {2}");
+            ConsoleDatabase = new ConsoleDisplay("Database: {0}  Working: {1} Task: {2}");
             ConsoleWarnings = new ConsoleDisplay("Warnings: {0} Last: {2}", 2, false);
             ConsoleErrors = new ConsoleDisplay("Errors: {0} Last: {2}", 2, false);
             ConsoleExceptions = new ConsoleDisplay("Exceptions: {0} Last: {2}", 2, false);
@@ -486,18 +488,30 @@ namespace DSEDiagnosticConsoleApplication
             var diagParserTask = ProcessDSEDiagnosticFileParser(cancellationSource);
             var aggInfoStatsTask = ProcessAnalytics_LogInfo(diagParserTask, cancellationSource);
             var loadAllDataTableTask = LoadDataTables(diagParserTask, aggInfoStatsTask, cancellationSource);
-            var loadExcelWorkBookTask = LoadExcelWorkbook(diagParserTask, loadAllDataTableTask, cancellationSource);
+            var loadExcelWorkBookTask = ParserSettings.OutputArtifacts.HasFlag(ParserSettings.OutputTypes.Excel)
+                                            ? LoadExcelWorkbook(diagParserTask,
+                                                                    loadAllDataTableTask,
+                                                                    cancellationSource)
+                                            : CompletionExtensions.CompletedTask<IFilePath>();
+            var loadDatabaseTask = ParserSettings.OutputArtifacts.HasFlag(ParserSettings.OutputTypes.Database)
+                                        && !string.IsNullOrEmpty(ParserSettings.ConnectionString)
+                                            ? LoadDataBase(diagParserTask,
+                                                                loadAllDataTableTask,
+                                                                ParserSettings.DiagnosticId,
+                                                                ParserSettings.ConnectionString,
+                                                                cancellationSource)
+                                            : CompletionExtensions.CompletedTask();
 
-#region Wait for Tasks to Complete
+            #region Wait for Tasks to Complete
             {
-                var tasks = new List<Task>() { diagParserTask, loadAllDataTableTask, loadExcelWorkBookTask };
+                var tasks = new List<Task>() { diagParserTask, loadAllDataTableTask, loadExcelWorkBookTask, loadDatabaseTask };
                 tasks.AddRange(aggInfoStatsTask);
 
                 System.Threading.Tasks.Task.WaitAll(tasks.ToArray(), cancellationSource.Token);
             }
-#endregion
-
-#region Termiate
+            #endregion
+  
+            #region Termiate
 
             ConsoleDisplay.End();
 
@@ -543,6 +557,6 @@ namespace DSEDiagnosticConsoleApplication
                 Environment.Exit(-1);
             }
         }
-#endregion
+        #endregion        
     }
 }

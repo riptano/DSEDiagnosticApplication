@@ -49,7 +49,7 @@ namespace DSEDiagnosticToDataTable
             dtLogFile.Columns.Add("Start Range (UTC)", typeof(DateTime)).AllowDBNull = true;
             dtLogFile.Columns.Add("End Range (UTC)", typeof(DateTime)).AllowDBNull = true; //s
             dtLogFile.Columns.Add("Detected Restart", typeof(bool)).AllowDBNull = true; //t
-
+            
             dtLogFile.DefaultView.ApplyDefaultSort = false;
             dtLogFile.DefaultView.AllowDelete = false;
             dtLogFile.DefaultView.AllowEdit = false;

@@ -70,8 +70,18 @@ namespace DSEDiagtnosticToExcel
                                                                 workSheet.Cells["1:1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
                                                                 //workBook.Cells["1:1"].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
                                                                 workSheet.View.FreezePanes(2, 1);
-                                                                workSheet.Cells["A1:E1"].AutoFilter = true;
-                                                                workSheet.AutoFitColumn(workSheet.Cells["A:D"]);                                                                
+
+                                                                workSheet.UpdateWorksheet(this.DataTable, 1);
+
+                                                                workSheet.AutoFitColumn(workSheet.TranslaateToColumnRange(this.DataTable,
+                                                                                                                               DSEDiagnosticToDataTable.ColumnNames.DataCenter,
+                                                                                                                               "Property",
+                                                                                                                               1, 1));
+
+                                                                workSheet.TranslaateToColumnRange(this.DataTable,
+                                                                                                   DSEDiagnosticToDataTable.ColumnNames.DataCenter,
+                                                                                                   "Value",
+                                                                                                   1, 1).AutoFilter = true;
                                                             },
                                                             -1,
                                                            -1,

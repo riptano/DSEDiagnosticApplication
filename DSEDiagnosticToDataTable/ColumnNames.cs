@@ -18,6 +18,7 @@ namespace DSEDiagnosticToDataTable
         public const string LogLocalTimeStamp = "Log Local Timestamp";
         public const string LogLocalTZOffset = "Log Time Zone Offset";
         public const string UTCTimeStamp = "UTC Timestamp";
+        public const string PKHashCode = "HashCode";
     }
 
     public static class TableNames

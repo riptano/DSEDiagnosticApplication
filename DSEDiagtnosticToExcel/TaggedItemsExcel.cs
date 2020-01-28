@@ -1546,9 +1546,7 @@ namespace DSEDiagtnosticToExcel
                                                              sourceDataTable.GetColumn(DT.TaggedItemsDataTable.Columns.BaseTableWeightedFactorMax)
                                                                 .SetNumericFormat("#,###,###,##0.00")
                                                                 .SetConditionalFormat(Properties.Settings.Default.CondFmtJsonCommonKeyPartFactor);
-
-                                                             //sourceDataTable.GetColumn(DSEDiagnosticToDataTable.ColumnNames.ReconciliationRef);
-
+                                                             
                                                              workSheet.UpdateWorksheet(sourceDataTable, 1);
 
                                                              workSheet.AutoFitColumn(sourceDataTable);

@@ -162,7 +162,7 @@ namespace DSEDiagnosticToDataTable
             dtStats.Columns.Add(Columns.BaseTableWeightedFactorAvg, typeof(decimal)).AllowDBNull = true;
 
             dtStats.Columns.Add(ColumnNames.ReconciliationRef, typeof(object)).AllowDBNull = true;
-
+            
             dtStats.DefaultView.ApplyDefaultSort = false;
             dtStats.DefaultView.AllowDelete = false;
             dtStats.DefaultView.AllowEdit = false;

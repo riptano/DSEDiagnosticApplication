@@ -36,6 +36,14 @@ namespace DSEDiagnosticConsoleApplication
             NodeAgentDiagStruct = 3
         }
 
+        [Flags]
+        public enum OutputTypes
+        {
+            None = 0x0000,
+            Excel = 0x0001,
+            Database = 0x0002,
+            Default = Excel | Database
+        }
         #endregion
 
         #region Settings
@@ -225,6 +233,21 @@ namespace DSEDiagnosticConsoleApplication
             get;
             set;
         } = Properties.Settings.Default.TraceExceptions;
+
+        public static string ConnectionString
+        {
+            get;
+            set;
+        } = Properties.Settings.Default.ConnectionString;
+
+        public static string DiagnosticId
+        {
+            get;
+            set;
+        }
+
+
+        public static OutputTypes OutputArtifacts = (OutputTypes)Enum.Parse(typeof(OutputTypes), Properties.Settings.Default.OutputTypes);
 
         #endregion
     }

@@ -194,7 +194,7 @@ namespace DSEDiagtnosticToExcel
                                                                     .SetNumericFormat("#,###,###,##0.00####");
                                                                  this.DataTable.GetColumn(DT.ColumnNames.ReconciliationRef)
                                                                     .SetWidth(25);
-
+                                                                 
                                                                  workSheet.UpdateWorksheet(this.DataTable, 1);
 
                                                                  workSheet.AutoFitColumn(this.DataTable);

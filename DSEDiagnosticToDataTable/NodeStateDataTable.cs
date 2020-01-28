@@ -42,7 +42,7 @@ namespace DSEDiagnosticToDataTable
             dtNodeInfo.Columns.Add(Columns.State, typeof(string));
             dtNodeInfo.Columns.Add(Columns.Duration, typeof(TimeSpan)).AllowDBNull = true;
             dtNodeInfo.Columns.Add(Columns.SourceNode, typeof(string)).AllowDBNull = true;
-
+            
             dtNodeInfo.DefaultView.ApplyDefaultSort = false;
             dtNodeInfo.DefaultView.AllowDelete = false;
             dtNodeInfo.DefaultView.AllowEdit = false;

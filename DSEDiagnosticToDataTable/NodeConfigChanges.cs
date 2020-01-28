@@ -32,7 +32,7 @@ namespace DSEDiagnosticToDataTable
             dtConfig.Columns.Add("Property", typeof(string));
             dtConfig.Columns.Add("Value", typeof(string));
             dtConfig.Columns.Add("Current Value", typeof(string));
-
+            
             //dtConfig.PrimaryKey = new System.Data.DataColumn[] { dtConfig.Columns[ColumnNames.DataCenter], dtConfig.Columns[ColumnNames.NodeIPAddress], dtConfig.Columns["UTC Timestamp"], dtConfig.Columns["Type"], dtConfig.Columns["Property"] };
 
             dtConfig.DefaultView.ApplyDefaultSort = false;

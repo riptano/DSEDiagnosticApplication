@@ -108,6 +108,7 @@
     <Compile Include="ConsoleDisplay.cs" />
     <Compile Include="DSEDiagnosticFileParser.cs" />
     <Compile Include="GCMonitor.cs" />
+    <Compile Include="LoadDataBase.cs" />
     <Compile Include="LoadDataTables.cs" />
     <Compile Include="LoadExcelWorkbook.cs" />
     <Compile Include="Logger.cs" />
@@ -241,6 +242,10 @@
     <ProjectReference Include="..\DSEDiagnosticParamsSettings\DSEDiagnosticParamsSettings.csproj">
       <Project>{c5373095-4629-41ec-a11b-65d7b7a5761d}</Project>
       <Name>DSEDiagnosticParamsSettings</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DSEDiagnosticToDataSource\DSEDiagnosticToDataSource.csproj">
+      <Project>{a6a5f72e-5e14-4982-a4ad-f713d90b34e9}</Project>
+      <Name>DSEDiagnosticToDataSource</Name>
     </ProjectReference>
     <ProjectReference Include="..\DSEDiagnosticToDataTable\DSEDiagnosticToDataTable.csproj">
       <Project>{f4e842e1-39b7-4ea9-8820-d81d11d1522c}</Project>

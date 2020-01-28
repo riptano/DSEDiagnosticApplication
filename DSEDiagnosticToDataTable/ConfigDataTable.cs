@@ -28,7 +28,7 @@ namespace DSEDiagnosticToDataTable
             dtConfig.Columns.Add("Yaml Type", typeof(string));
             dtConfig.Columns.Add("Property", typeof(string));
             dtConfig.Columns.Add("Value", typeof(string));
-
+           
             //dtConfig.PrimaryKey = new System.Data.DataColumn[] { dtConfig.Columns[ColumnNames.DataCenter], dtConfig.Columns[ColumnNames.NodeIPAddress], dtConfig.Columns["Yaml Type"], dtConfig.Columns["Property"] };
 
             dtConfig.DefaultView.ApplyDefaultSort = false;

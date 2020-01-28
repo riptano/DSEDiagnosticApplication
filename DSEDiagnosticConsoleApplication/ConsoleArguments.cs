@@ -325,6 +325,27 @@ namespace DSEDiagnosticConsoleApplication
                 Description = "Enables Batch Mode, which basically disables prompts and enables Exception Tracing"
             });
 
+            this._cmdLineParser.Arguments.Add(new ValueArgument<ParserSettings.OutputTypes>("OutputArtifacts")
+            {
+                DefaultValue = ParserSettings.OutputArtifacts,
+                Optional = true,
+                Description = "Artifacts (output) that are produced. Values (flags) are: Excel and/or Database. Note: multiple entries accepted. If \"Database\" is choose, a connection string is required."
+            });
+
+            this._cmdLineParser.Arguments.Add(new ValueArgument<string>("ConnectionString")
+            {
+                DefaultValue = ParserSettings.ConnectionString,
+                Optional = true,
+                Description = "An ADO.Net connection string. OutputArtifacts must be set to \"Database\""
+            });
+
+            this._cmdLineParser.Arguments.Add(new ValueArgument<string>("DiagnosticId")
+            {
+                DefaultValue = ParserSettings.DiagnosticId,
+                Optional = true,
+                Description = "A ID that is used to be able to query in the database all associated data for this diagnostic session. If null, this run UDT and cluster name is used. "
+            });
+
             this._cmdLineParser.Arguments.Add(new SwitchArgument("TraceException", false)
             {
                 Description = ParserSettings.TraceExceptions ? "Disables exception tracing" : "Enables exception tracing where any exceptions are logged to a separate unique log file for this run"
@@ -466,6 +487,15 @@ namespace DSEDiagnosticConsoleApplication
                         break;
                     case "DiagFolderStruct":
                         ParserSettings.DiagFolderStruct = ((ValueArgument<ParserSettings.DiagFolderStructOptions>) item).Value;
+                        break;
+                    case "OutputArtifacts":
+                        ParserSettings.OutputArtifacts = ((ValueArgument<ParserSettings.OutputTypes>)item).Value;
+                        break;
+                    case "ConnectionString":
+                        ParserSettings.ConnectionString = ((ValueArgument<string>)item).Value;
+                        break;
+                    case "DiagnosticId":
+                        ParserSettings.DiagnosticId = ((ValueArgument<string>)item).Value;
                         break;
                     case "DiagCaptureTime":
                         ParserSettings.NodeToolCaptureTimestamp = ((ValueArgument<DateTimeOffset?>)item).Value;
