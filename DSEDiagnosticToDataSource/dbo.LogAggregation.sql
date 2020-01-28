@@ -7,7 +7,7 @@
     [Data Center]                 VARCHAR (100) NOT NULL,
     [Node IPAddress]              VARCHAR (55) NOT NULL,
     [Keyspace Name]               VARCHAR (255) NULL,
-    [Table Name]                  VARCHAR (255) NULL,
+    [Table Name]                  VARCHAR (MAX) NULL,
     [Class]                       VARCHAR (255) NOT NULL,
     [Related Info]                VARCHAR (MAX) NULL,
     [HasOrphanedEvents]           BIT           NULL,

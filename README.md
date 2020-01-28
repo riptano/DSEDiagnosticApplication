@@ -55,6 +55,9 @@ Arguments including Default Values:
 	--IgnoreLogTagEvent [Default Value "<none>", Multiple Allowed] A Log Event Tag Id that will cause that associated log event to be ignored during parsing. If an integral value (i.e., 10, no decimal) and a session event, all items in that session are ignored. Multiple arguments can be defined.
 		Example: 10 -- all session items associated to this id tag (e.g., 10.0, 10.1, 10.2, etc.); 10.1 -- only the item associated to the id of 10.1.	
 	--LogIgnoreParsingErrors If defined, all parsing errors related to logs will be ignored. Warning: If defined unexpected results may occur including abnormal termination of the application, exceptions, and/or invalid/missing log event generation.
+	--OutputArtifacts [Default Value "Rxcel, Database"], Artifacts (output) that are produced. Values (flags) are: Excel and/or Database. Note: multiple entries accepted. If "Database" is choose, a connection string is required.
+	--ConnectionString [Default Value null], An ADO.Net connection string that is used to connect to an data source (e.g., RDBMS).  OutputArtifacts must be set to "Database". For more information see https://docs.microsoft.com/en-us/dotnet/framework/data/adonet/connection-string-syntax
+	--DiagnosticId [Default Value null; generates the id based on cluster name and run timestamp], A ID that is used as part of the primary key when the output is a data source.  
 	-B, --Batch Enables Batch Mode, which basically disables prompts and enables Exception Tracing
 	--TraceException [Default is disabled] Enables or Disables exception tracing depending on the application config setting
 	--Debug Enables Debug Mode

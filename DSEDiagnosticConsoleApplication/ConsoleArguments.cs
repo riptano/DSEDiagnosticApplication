@@ -336,14 +336,14 @@ namespace DSEDiagnosticConsoleApplication
             {
                 DefaultValue = ParserSettings.ConnectionString,
                 Optional = true,
-                Description = "An ADO.Net connection string. OutputArtifacts must be set to \"Database\""
+                Description = "An ADO.Net connection string that is used to connect to an data source (e.g., RDBMS).  OutputArtifacts must be set to \"Database\". For more information see https://docs.microsoft.com/en-us/dotnet/framework/data/adonet/connection-string-syntax"
             });
 
             this._cmdLineParser.Arguments.Add(new ValueArgument<string>("DiagnosticId")
             {
                 DefaultValue = ParserSettings.DiagnosticId,
                 Optional = true,
-                Description = "A ID that is used to be able to query in the database all associated data for this diagnostic session. If null, this run UDT and cluster name is used. "
+                Description = "A ID that is used as part of the primary key when the output is a data source. If null it will generates the id based on cluster name and run time stamp"
             });
 
             this._cmdLineParser.Arguments.Add(new SwitchArgument("TraceException", false)
