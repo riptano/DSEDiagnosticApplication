@@ -71,7 +71,15 @@
     <Compile Include="NodeConfigChangesExcel.cs" />
     <Compile Include="DataCenterExcel.cs" />
     <Compile Include="NodeStateExcel.cs" />
+    <Compile Include="PFExcel.cs" />
+    <Compile Include="PFLargePartitionsExcel.cs" />
+    <Compile Include="PFReadLatencyExcel.cs" />
+    <Compile Include="PFSSTablesExcel.cs" />
+    <Compile Include="PFTombstonesExcel.cs" />
+    <Compile Include="PFWriteLatencyExcel.cs" />
     <Compile Include="RefreshWSExcel.cs" />
+    <Compile Include="TaggedDCExcel.cs" />
+    <Compile Include="TaggedDetailExcel.cs" />
     <Compile Include="TaggedItemsExcel.cs" />
     <Compile Include="TPStatsExcel.cs" />
     <Compile Include="CFStatsExcel.cs" />

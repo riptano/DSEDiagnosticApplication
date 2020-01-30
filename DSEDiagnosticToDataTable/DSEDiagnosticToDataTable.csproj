@@ -63,6 +63,7 @@
     <Compile Include="AggregatedStatsDataTable.cs" />
     <Compile Include="CommonPartitionKeyDataTable.cs" />
     <Compile Include="DSEDevicesDataTable.cs" />
+    <Compile Include="PFLargePartitionDataTable.cs" />
     <Compile Include="LogAggregationDataTable.cs" />
     <Compile Include="LogInformationDataTable.cs" />
     <Compile Include="MultiInstanceDataTable.cs" />
@@ -74,7 +75,12 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <Compile Include="PFReadLatencyDataTable.cs" />
+    <Compile Include="PFSSTablesDataTable.cs" />
     <Compile Include="TaggedItemsDataTable.cs" />
+    <Compile Include="TaggedDCDataTable.cs" />
+    <Compile Include="TaggedDetailDataTable.cs" />
+    <Compile Include="PFTombstonesDataTable.cs" />
     <Compile Include="TPStatsDataTable.cs" />
     <Compile Include="CFStatsDataTable.cs" />
     <Compile Include="ColumnNames.cs" />
@@ -88,6 +94,7 @@
     <Compile Include="IDataTable.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ConfigDataTable.cs" />
+    <Compile Include="PFWriteLatencyDataTable.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DSEDiagnosticAnalytics\DSEDiagnosticAnalytics.csproj">

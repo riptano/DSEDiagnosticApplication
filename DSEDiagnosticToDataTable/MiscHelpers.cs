@@ -196,16 +196,37 @@ namespace DSEDiagnosticToDataTable
             return dataRow;
         }
 
-        public static IEnumerable<DataColumn> AddColumnsToTable(this DataTable dataTable, IEnumerable<string> columnNames, Type dataType)
+        public static IEnumerable<DataColumn> AddColumnsToTable(this DataTable dataTable,
+                                                                    IEnumerable<string> columnNames,
+                                                                    Type dataType,
+                                                                    bool? setAllowDBNull = null,
+                                                                    IEnumerable<string> captions = null,
+                                                                    string subTableTag = null)
         {
             var columns = new List<DataColumn>(columnNames.Count());
             DataColumn dataColumn;
+            int captionIdx = 0;
 
             foreach (var name in columnNames)
             {
                 dataColumn = new DataColumn(name, dataType);
                 dataTable.Columns.Add(dataColumn);
                 columns.Add(dataColumn);
+
+                if (subTableTag != null)
+                {
+                    if (dataColumn.ExtendedProperties.ContainsKey("SubTableTag"))
+                    {
+                        dataColumn.ExtendedProperties["SubTableTag"] = ((string)dataColumn.ExtendedProperties["SubTableTag"]) + ',' + subTableTag;
+                    }
+                    else
+                        dataColumn.ExtendedProperties.Add("SubTableTag", subTableTag);                    
+                }
+
+                if (setAllowDBNull.HasValue)
+                    dataColumn.AllowDBNull = setAllowDBNull.Value;
+                if (captions != null)
+                    dataColumn.Caption = captions.ElementAt(captionIdx++);
             }
 
             return columns;

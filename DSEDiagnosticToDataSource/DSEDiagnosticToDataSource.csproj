@@ -57,14 +57,22 @@
     <Content Include="dbo.DSEDevices.sql" />
     <Content Include="dbo.DSENodeConfigChanges.sql" />
     <Content Include="dbo.Keyspaces.sql" />
+    <Content Include="dbo.Large_Partition_Wide_Rows.sql" />
     <Content Include="dbo.LogAggregation.sql" />
     <Content Include="dbo.LogInformation.sql" />
     <Content Include="dbo.MultiInstanceNodes.sql" />
     <Content Include="dbo.Nodes.sql" />
     <Content Include="dbo.NodeState.sql" />
+    <Content Include="dbo.PFDataCenter.sql" />
+    <Content Include="dbo.Read_Latency.sql" />
     <Content Include="dbo.Servers.sql" />
+    <Content Include="dbo.SSTables.sql" />
     <Content Include="dbo.TaggedItems.sql" />
+    <Content Include="dbo.TaggedTables.sql" />
+    <Content Include="dbo.TaggedTablesDetail.sql" />
     <Content Include="dbo.TokenRanges.sql" />
+    <Content Include="dbo.Tombstones.sql" />
+    <Content Include="dbo.Write_Latency.sql" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

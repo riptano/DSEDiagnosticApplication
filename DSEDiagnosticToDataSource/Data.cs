@@ -119,7 +119,7 @@ namespace DSEDiagnosticToDataSource
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 connection.Open();
-                
+
                 var loopOptions = new ParallelOptions()
                 {
                     CancellationToken = cancellationToken,
@@ -135,7 +135,7 @@ namespace DSEDiagnosticToDataSource
                 foreach (var dataTable in dataTables)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
-
+                    
                     if (uponStart != null) uponStart(dataTable);
 
                     BulkCopy(connection, dataTable, runInfo.DiagnosticId);
@@ -162,14 +162,15 @@ namespace DSEDiagnosticToDataSource
         {                    
             using (SqlBulkCopy bulkCopy = new SqlBulkCopy(connection))
             {                
-                bulkCopy.DestinationTableName = dataTable.TableName;
+                bulkCopy.DestinationTableName = string.Format("dbo.[{0}]", dataTable.TableName);
                 try
                 {
                     using (var reader = new DataReader(dataTable, diagnosticId))
                     {
                         foreach (DataColumn c in reader.GetSchemaTable().Columns)
                         {
-                            bulkCopy.ColumnMappings.Add(c.ColumnName, c.ColumnName);                            
+                            if(!c.ExtendedProperties.ContainsKey("SubTableTag")) //Need to skip Columns marked as DC since these need to go into the PFDataCenter Table
+                                bulkCopy.ColumnMappings.Add(c.ColumnName, string.Format("[{0}]", c.ColumnName));                            
                         }
 
                         bulkCopy.WriteToServer(reader);

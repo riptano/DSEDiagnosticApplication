@@ -14,8 +14,7 @@ namespace DSEDiagnosticToDataTable
         public DataTableLoad(DSEDiagnosticLibrary.Cluster cluster, CancellationTokenSource cancellationSource, Guid? sessionId = null)
         {
             this.Cluster = cluster;
-            this.Table = this.CreateInitializationTable();
-
+            
             if (cancellationSource == null)
             {
                 this.CancellationToken = new CancellationToken();
@@ -25,6 +24,8 @@ namespace DSEDiagnosticToDataTable
                 this.CancellationToken = cancellationSource.Token;
             }
             this.SessionId = sessionId;
+
+            this.Table = this.CreateInitializationTable();
         }
 
         public DataTableLoad(DSEDiagnosticLibrary.Cluster cluster,
@@ -34,8 +35,7 @@ namespace DSEDiagnosticToDataTable
                                 Guid? sessionId = null)
         {
             this.Cluster = cluster;
-            this.Table = this.CreateInitializationTable();
-
+            
             if (cancellationSource == null)
             {
                 this.CancellationToken = new CancellationToken();
@@ -47,8 +47,29 @@ namespace DSEDiagnosticToDataTable
             this.ReferenceDataTable = referenceDT;
             this.ReferenceDataTableWaitHandler = referenceWaitHandler;
             this.SessionId = sessionId;
+
+            this.Table = this.CreateInitializationTable();
         }
 
+        public DataTableLoad(DSEDiagnosticLibrary.Cluster cluster,
+                                CancellationTokenSource cancellationSource,
+                                DataTable sourceTable,
+                                Guid? sessionId = null)
+        {
+            this.Cluster = cluster;
+            
+            if (cancellationSource == null)
+            {
+                this.CancellationToken = new CancellationToken();
+            }
+            else
+            {
+                this.CancellationToken = cancellationSource.Token;
+            }
+            this.SessionId = sessionId;
+            this.SourceTable = sourceTable;
+            this.Table = this.CreateInitializationTable();
+        }
 
         public Guid? SessionId { get; }
         public DSEDiagnosticLibrary.Cluster Cluster { get; }
@@ -58,6 +79,7 @@ namespace DSEDiagnosticToDataTable
         public IAsyncResult ReferenceDataTableWaitHandler { get; set; }
 
         public DataTable Table { get; }
+        public DataTable SourceTable { get; }
         
         public CancellationToken CancellationToken { get; }
 

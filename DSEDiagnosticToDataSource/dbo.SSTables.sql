@@ -1,0 +1,25 @@
+﻿CREATE TABLE [dbo].[SSTables] (
+    [DiagnosticId]                   VARCHAR (115) NOT NULL,
+    [RowId]                          BIGINT        NOT NULL,
+	[Keyspace/Compaction/Type] VARCHAR (255) NULL,
+    [Table Name]               VARCHAR (255) NULL,
+    [SSTables Max]             BIGINT        NULL,
+    [SSTables Min]             BIGINT        NULL,
+    [SSTables Avg]             DECIMAL (18)  NULL,
+    [SSTable Percent]          DECIMAL (18)  NULL,
+    [Keys Percent]             DECIMAL (18)  NULL,
+    [Storage Percent]          DECIMAL (18)  NULL,
+    [Read Factor]              DECIMAL (18)  NULL,
+    [Read Percent]             DECIMAL (18)  NULL,
+    [Write Factor]             DECIMAL (18)  NULL,
+    [Write Percent]            DECIMAL (18)  NULL,
+    [Tombstone Ratio Factor]   DECIMAL (18)  NULL,
+    [Partition Size Factor]    DECIMAL (18)  NULL,
+    [Secondary Indexes]        INT           NULL,
+    [Materialized Views]       INT           NULL,
+    [Common Key]               VARCHAR (255) NULL,
+    [Common Key Factor]        DECIMAL (18)  NULL,
+    [Base Table Factor]        DECIMAL (18)  NULL, 
+    CONSTRAINT [PK_SSTables_PF] PRIMARY KEY ([DiagnosticId], [RowId])
+);
+

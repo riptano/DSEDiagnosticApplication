@@ -73,6 +73,12 @@ namespace DSEDiagnosticToDataSource
                     copyDC.Caption = column.Caption;
                     copyDC.DefaultValue = column.DefaultValue;
                     copyDC.MaxLength = column.MaxLength;
+                    copyDC.Prefix = column.Prefix;
+                    
+                    foreach (System.Collections.DictionaryEntry extKVP in column.ExtendedProperties)
+                    {
+                        copyDC.ExtendedProperties.Add(extKVP.Key, extKVP.Value);
+                    }
 
                     if (this._reader.PrimaryKey != null && this._reader.PrimaryKey.Contains(column))
                         primaryKeys.Add(copyDC);

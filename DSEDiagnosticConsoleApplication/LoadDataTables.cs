@@ -135,21 +135,139 @@ namespace DSEDiagnosticConsoleApplication
                                                         TaskScheduler.Default));
                 datatableTasks.Last().Then(result => ConsoleParsingDataTable.TaskEnd(result.TableName));
 
+                //Weighted Probability Factors
                 if (!ParserSettings.OldExcelWorksheets)
-                {
-                    datatableTasks.Add(datatableTasks.Last().ContinueWith((task, ignore) =>
-                                                        {
-                                                            var clusterInstance = DSEDiagnosticLibrary.Cluster.GetCurrentOrMaster();
-                                                            var dtLoadInstance = new DSEDiagnosticToDataTable.TaggedItemsDataTable(clusterInstance, task.Result, cancellationSource, ParserSettings.IgnoreKeySpaces.ToArray(), sessionGuid);
+                {                   
+                    var taggeditemsDTTask = datatableTasks.Last().ContinueWith((task, ignore) =>
+                                                                        {
+                                                                            var clusterInstance = DSEDiagnosticLibrary.Cluster.GetCurrentOrMaster();
+                                                                            var dtLoadInstance = new DSEDiagnosticToDataTable.TaggedItemsDataTable(clusterInstance, task.Result, cancellationSource, ParserSettings.IgnoreKeySpaces.ToArray(), sessionGuid);
 
-                                                            ConsoleParsingDataTable.Increment(dtLoadInstance.Table.TableName);
-                                                            return dtLoadInstance.LoadTable();
-                                                        },
-                                                       null,
-                                                       cancellationSource.Token,
-                                                       TaskContinuationOptions.OnlyOnRanToCompletion,
-                                                       TaskScheduler.Default));
-                    datatableTasks.Last().Then(result => ConsoleParsingDataTable.TaskEnd(result.TableName));                    
+                                                                            ConsoleParsingDataTable.Increment(dtLoadInstance.Table.TableName);
+                                                                            return dtLoadInstance.LoadTable();
+                                                                        },
+                                                                       null,
+                                                                       cancellationSource.Token,
+                                                                       TaskContinuationOptions.OnlyOnRanToCompletion,
+                                                                       TaskScheduler.Default);
+                    datatableTasks.Add(taggeditemsDTTask);
+                    taggeditemsDTTask.Then(result => ConsoleParsingDataTable.TaskEnd(result.TableName));
+
+                    var taggedDCDTTask = taggeditemsDTTask.ContinueWith((task, ignore) =>
+                                                                {
+                                                                    var clusterInstance = DSEDiagnosticLibrary.Cluster.GetCurrentOrMaster();
+                                                                    var dtLoadInstance = new DSEDiagnosticToDataTable.TaggedDCDataTable(clusterInstance,
+                                                                                                                                                task.Result,
+                                                                                                                                                cancellationSource,
+                                                                                                                                                sessionGuid);
+
+                                                                    ConsoleParsingDataTable.Increment(dtLoadInstance.Table.TableName);
+                                                                    return dtLoadInstance.LoadTable();
+                                                                },
+                                                              null,
+                                                              cancellationSource.Token,
+                                                              TaskContinuationOptions.OnlyOnRanToCompletion,
+                                                              TaskScheduler.Default);
+                    datatableTasks.Add(taggedDCDTTask);
+                    taggedDCDTTask.Then(result => ConsoleParsingDataTable.TaskEnd(result.TableName));
+
+                    datatableTasks.Add(taggeditemsDTTask.ContinueWith((task, ignore) =>
+                                                                {
+                                                                    var clusterInstance = DSEDiagnosticLibrary.Cluster.GetCurrentOrMaster();
+                                                                    var dtLoadInstance = new DSEDiagnosticToDataTable.TaggedDetailDataTable(clusterInstance,
+                                                                                                                                                    task.Result,
+                                                                                                                                                    cancellationSource,
+                                                                                                                                                    sessionGuid);
+
+                                                                    ConsoleParsingDataTable.Increment(dtLoadInstance.Table.TableName);
+                                                                    return dtLoadInstance.LoadTable();
+                                                                },
+                                                              null,
+                                                              cancellationSource.Token,
+                                                              TaskContinuationOptions.OnlyOnRanToCompletion,
+                                                              TaskScheduler.Default));
+                    datatableTasks.Last().Then(result => ConsoleParsingDataTable.TaskEnd(result.TableName));
+
+                    datatableTasks.Add(taggedDCDTTask.ContinueWith((task, ignore) =>
+                                                                    {
+                                                                        var clusterInstance = DSEDiagnosticLibrary.Cluster.GetCurrentOrMaster();
+                                                                        var dtLoadInstance = new DSEDiagnosticToDataTable.PFReadLatencyDataTable(clusterInstance,
+                                                                                                                                                        task.Result,
+                                                                                                                                                        cancellationSource,
+                                                                                                                                                        sessionGuid);
+
+                                                                        ConsoleParsingDataTable.Increment(dtLoadInstance.Table.TableName);
+                                                                        return dtLoadInstance.LoadTable();
+                                                                    },
+                                                              null,
+                                                              cancellationSource.Token,
+                                                              TaskContinuationOptions.OnlyOnRanToCompletion,
+                                                              TaskScheduler.Default));
+                    datatableTasks.Last().Then(result => ConsoleParsingDataTable.TaskEnd(result.TableName));
+                    datatableTasks.Add(taggedDCDTTask.ContinueWith((task, ignore) =>
+                                                                {
+                                                                    var clusterInstance = DSEDiagnosticLibrary.Cluster.GetCurrentOrMaster();
+                                                                    var dtLoadInstance = new DSEDiagnosticToDataTable.PFWriteLatencyDataTable(clusterInstance,
+                                                                                                                                                    task.Result,
+                                                                                                                                                    cancellationSource,
+                                                                                                                                                    sessionGuid);
+
+                                                                    ConsoleParsingDataTable.Increment(dtLoadInstance.Table.TableName);
+                                                                    return dtLoadInstance.LoadTable();
+                                                                },
+                                                              null,
+                                                              cancellationSource.Token,
+                                                              TaskContinuationOptions.OnlyOnRanToCompletion,
+                                                              TaskScheduler.Default));
+                    datatableTasks.Last().Then(result => ConsoleParsingDataTable.TaskEnd(result.TableName));
+                    datatableTasks.Add(taggedDCDTTask.ContinueWith((task, ignore) =>
+                                                                {
+                                                                    var clusterInstance = DSEDiagnosticLibrary.Cluster.GetCurrentOrMaster();
+                                                                    var dtLoadInstance = new DSEDiagnosticToDataTable.PFSSTablesDataTable(clusterInstance,
+                                                                                                                                                    task.Result,
+                                                                                                                                                    cancellationSource,
+                                                                                                                                                    sessionGuid);
+
+                                                                    ConsoleParsingDataTable.Increment(dtLoadInstance.Table.TableName);
+                                                                    return dtLoadInstance.LoadTable();
+                                                                },
+                                                              null,
+                                                              cancellationSource.Token,
+                                                              TaskContinuationOptions.OnlyOnRanToCompletion,
+                                                              TaskScheduler.Default));
+                    datatableTasks.Last().Then(result => ConsoleParsingDataTable.TaskEnd(result.TableName));
+                    datatableTasks.Add(taggedDCDTTask.ContinueWith((task, ignore) =>
+                                                                {
+                                                                    var clusterInstance = DSEDiagnosticLibrary.Cluster.GetCurrentOrMaster();
+                                                                    var dtLoadInstance = new DSEDiagnosticToDataTable.PFTombstonesDataTable(clusterInstance,
+                                                                                                                                                    task.Result,
+                                                                                                                                                    cancellationSource,
+                                                                                                                                                    sessionGuid);
+
+                                                                    ConsoleParsingDataTable.Increment(dtLoadInstance.Table.TableName);
+                                                                    return dtLoadInstance.LoadTable();
+                                                                },
+                                                              null,
+                                                              cancellationSource.Token,
+                                                              TaskContinuationOptions.OnlyOnRanToCompletion,
+                                                              TaskScheduler.Default));
+                    datatableTasks.Last().Then(result => ConsoleParsingDataTable.TaskEnd(result.TableName));
+                    datatableTasks.Add(taggedDCDTTask.ContinueWith((task, ignore) =>
+                                                                {
+                                                                    var clusterInstance = DSEDiagnosticLibrary.Cluster.GetCurrentOrMaster();
+                                                                    var dtLoadInstance = new DSEDiagnosticToDataTable.PFLargePartitionDataTable(clusterInstance,
+                                                                                                                                                    task.Result,
+                                                                                                                                                    cancellationSource,
+                                                                                                                                                    sessionGuid);
+
+                                                                    ConsoleParsingDataTable.Increment(dtLoadInstance.Table.TableName);
+                                                                    return dtLoadInstance.LoadTable();
+                                                                },
+                                                              null,
+                                                              cancellationSource.Token,
+                                                              TaskContinuationOptions.OnlyOnRanToCompletion,
+                                                              TaskScheduler.Default));
+                    datatableTasks.Last().Then(result => ConsoleParsingDataTable.TaskEnd(result.TableName));
                 }
                     
 

@@ -42,5 +42,12 @@ namespace DSEDiagnosticToDataTable
         public const string CommonPartitionKey = "CommonPartitionKey";
         public const string DSEDevices = "DSEDevices";
         public const string TaggedItems = "TaggedItems";
+        public const string TaggedTablesDetail = "TaggedTablesDetail";
+        public const string TaggedDCTables = "TaggedTables";
+        public const string PFReadLatencyTable = "Read Latency";
+        public const string PFWriteLatencyTable = "Write Latency";
+        public const string PFSSTablesTables = "SSTables";
+        public const string PFTombstonesTable = "Tombstones";
+        public const string PFLargePartitionsTable = "Large Partition Wide Rows";
     }
 }
