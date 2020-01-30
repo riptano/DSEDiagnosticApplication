@@ -11,6 +11,23 @@ namespace DSEDiagnosticConsoleApplication
 {
     partial class Program
     {
+        public static string AppVersionString()
+        {
+            return string.Format("{0} ({1}, {2})",
+                                Common.Functions.Instance.ApplicationVersion,
+                                ConsoleArguments.GetOSInfo(),
+                                ConsoleArguments.GetFrameWorkInfo());
+        }
+
+        public static string DataQualityGrade(DSEDiagnosticLibrary.Cluster cluster)
+        {
+            var inds = new string[] { "Poor", "OK", "Good", "Excellent" };
+
+            return cluster.DataQualityOverallFactor.HasValue
+                        ? inds[cluster.DataQualityOverallFactor.Value]
+                        : "Unknown";
+        }
+
         public static Task<IFilePath> LoadExcelWorkbook (Task<IEnumerable<DSEDiagnosticFileParser.DiagnosticFile>> diagParserTask,
                                                             Task<System.Data.DataSet> loadAllDataTableTask,
                                                             System.Threading.CancellationTokenSource cancellationSource)
@@ -138,21 +155,11 @@ namespace DSEDiagnosticConsoleApplication
                 loadAppInfo.ApplicationInfo.ApplicationLibrarySettings = Helpers.SettingValues(typeof(ParserSettings));
                 loadAppInfo.ApplicationInfo.ApplicationName = Common.Functions.Instance.ApplicationName;
                 loadAppInfo.ApplicationInfo.ApplicationStartEndTime = new DateTimeRange(RunDateTime, DateTime.Now);
-                loadAppInfo.ApplicationInfo.ApplicationVersion = string.Format("{0} ({1}, {2})",
-                                                                                Common.Functions.Instance.ApplicationVersion,
-                                                                                ConsoleArguments.GetOSInfo(),
-                                                                                ConsoleArguments.GetFrameWorkInfo());
+                loadAppInfo.ApplicationInfo.ApplicationVersion = AppVersionString();
                 loadAppInfo.ApplicationInfo.DiagnosticDirectory = ParserSettings.DiagnosticPath.PathResolved;
                 loadAppInfo.ApplicationInfo.WorkingDir = Common.Functions.Instance.ApplicationRunTimeDir;
-
-                {
-                    var inds = new string[] { "Poor", "OK", "Good", "Excellent" };
-
-                    loadAppInfo.ApplicationInfo.DataQuality = DSEDiagnosticLibrary.Cluster.GetCurrentOrMaster().DataQualityOverallFactor.HasValue
-                                                                ? inds[DSEDiagnosticLibrary.Cluster.GetCurrentOrMaster().DataQualityOverallFactor.Value]
-                                                                : "Unknown";
-                }
-
+                loadAppInfo.ApplicationInfo.DataQuality = DataQualityGrade(DSEDiagnosticLibrary.Cluster.GetCurrentOrMaster());
+                
                 var resultItems = from result in parsedResults
                                   group result by new { DC = result.Node?.DataCenter?.Name, Node = result.Node?.Id.NodeName(), Class = result.GetType().Name, Category = result.Catagory, MapperId = result.MapperId } into g
                                   select new

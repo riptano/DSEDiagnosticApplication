@@ -19,11 +19,9 @@ namespace DSEDiagnosticConsoleApplication
                                         string connectionString,
                                         System.Threading.CancellationTokenSource cancellationSource)
         {
-
-            if (string.IsNullOrEmpty(diagnosticId))
+            var cluster = DSEDiagnosticLibrary.Cluster.GetCurrentOrMaster();
+            
             {
-                var cluster = DSEDiagnosticLibrary.Cluster.GetCurrentOrMaster();
-
                 if (cluster.IsMaster
                         && cluster.Nodes.HasAtLeastOneElement())
                 {
@@ -58,9 +56,10 @@ namespace DSEDiagnosticConsoleApplication
                     }
                 }
 
-                diagnosticId = string.Format(Properties.Settings.Default.DataBaseIdGeneratedStringFormat,
-                                                cluster == null ? "<clustername>" : (cluster.IsMaster ? "MasterCluster" : cluster.Name),
-                                                RunDateTime);
+                if(string.IsNullOrEmpty(diagnosticId))
+                    diagnosticId = string.Format(Properties.Settings.Default.DataBaseIdGeneratedStringFormat,
+                                                    cluster == null ? "<clustername>" : (cluster.IsMaster ? "MasterCluster" : cluster.Name),
+                                                    RunDateTime);
             }
                             
             var cancellationToken = cancellationSource.Token;
@@ -68,10 +67,40 @@ namespace DSEDiagnosticConsoleApplication
             var loadDataBaseTask = loadAllDataTableTask.ContinueWith(task =>
                                     {
                                         var dataSet = task.Result;
+                                        var nodeToolRanges = cluster.Nodes
+                                                                .Select(n => n.DSE.NodeToolDateRange?.Min)
+                                                                .Where(i => i.HasValue)
+                                                                .ToArray();
+                                        var dataInfo = new DSEDiagnosticToDataSource.Data.RunInfo()
+                                        {
+                                            Aborted = AlreadyCanceled
+                                                        || diagParserTask.IsCanceled
+                                                        || loadAllDataTableTask.IsCanceled,
+                                            AggregationDuration = ParserSettings.LogAggregationPeriod,
+                                            AnalysisPeriodEnd = nodeToolRanges.DefaultIfEmpty()
+                                                                        .Max(),
+                                            AnalysisPeriodStart = nodeToolRanges.DefaultIfEmpty()
+                                                                        .Min(),
+                                            ApplicationArgs = CommandLineArgsString,
+                                            ApplicationVersion = AppVersionString(),
+                                            ClusterId = cluster.ClusterId,
+                                            ClusterName = cluster.Name,
+                                            DataQuality = DataQualityGrade(cluster),
+                                            DiagnosticId = diagnosticId,
+                                            Errors = (int)ConsoleErrors.Counter,
+                                            Exceptions = (int)ConsoleExceptions.Counter,
+                                            InsightClusterId = cluster.InsightClusterId,
+                                            NbrDCs = cluster.DataCenters.Count(),
+                                            NbrKeyspaces = cluster.Keyspaces.Count(),
+                                            NbrNodes = cluster.Nodes.Count(),
+                                            NbrTables = (int) cluster.Keyspaces.DefaultIfEmpty().Sum(k => k.Stats.Tables + k.Stats.MaterialViews),
+                                            RunStartTime = RunDateTime.ConvertToOffSet(),
+                                            Warnings = (int)ConsoleWarnings.Counter
+                                        };
 
                                         DSEDiagnosticToDataSource.Data.BulkCopy(connectionString,
                                                                                 dataSet.Tables.Cast<DataTable>(),
-                                                                                diagnosticId,
+                                                                                dataInfo,
                                                                                 cancellationSource,
                                                                                 dt => ConsoleDatabase.Increment(dt.TableName),
                                                                                 dt => ConsoleDatabase.TaskEnd(dt.TableName));               

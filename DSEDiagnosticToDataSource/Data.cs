@@ -6,15 +6,108 @@ using System.Threading.Tasks;
 using System.Data;
 using System.Data.Sql;
 using System.Data.SqlClient;
+using Common;
 
 namespace DSEDiagnosticToDataSource
 {
 
     public static class Data
-    {
+    {        
+        public struct RunInfo
+        {
+            public string DiagnosticId;
+            public string ClusterName;
+            public Guid? ClusterId;
+            public Guid? InsightClusterId;
+            public string ApplicationVersion;
+            public DateTimeOffset RunStartTime;
+            public DateTimeOffset? AnalysisPeriodStart;
+            public DateTimeOffset? AnalysisPeriodEnd;
+            public TimeSpan AggregationDuration;
+            public string ApplicationArgs;
+            public bool Aborted;
+            public int Errors;
+            public int Warnings;
+            public int Exceptions;
+            public int NbrDCs;
+            public int NbrNodes;
+            public int NbrKeyspaces;
+            public int NbrTables;
+            public string DataQuality;            
+        }
+
+        public static int ExportRunInfo(SqlConnection connection, RunInfo runInfo)
+        {
+            using (var cmd = new SqlCommand("INSERT INTO [RunMetaData](" +
+                                                                        "[DiagnosticId]," +
+                                                                        "[Cluster Name]," +
+                                                                        "[RunTimestamp]," +
+                                                                        "[ClusterId]," +
+                                                                        "[InsightClusterId]," +
+                                                                        "[AnalysisPeriodStart]," +
+                                                                        "[AnalysisPeriodEnd]," +
+                                                                        "[AggregationDuration]," +
+                                                                        "[NbrDCs]," +
+                                                                        "[NbrNodes]," +
+                                                                        "[NbrKeyspaces]," +
+                                                                        "[NbrTables]," +
+                                                                        "[Diagnostic Data Quality]," +
+                                                                        "[Aborted]," +
+                                                                        "[RunExceptions]," +
+                                                                        "[RunErrors]," +
+                                                                        "[RunWarnings]," +
+                                                                        "[Version]," +
+                                                                        "[CommandLine]) " +
+                                                                        "VALUES(" +
+                                                                            "@DiagnosticId," +
+                                                                            "@ClusterName," +
+                                                                            "@RunTimestamp," +
+                                                                            "@ClusterId," +
+                                                                            "@InsightClusterId," +
+                                                                            "@AnalysisPeriodStart," +
+                                                                            "@AnalysisPeriodEnd," +
+                                                                            "@AggregationDuration," +
+                                                                            "@NbrDCs," +
+                                                                            "@NbrNodes," +
+                                                                            "@NbrKeyspaces," +
+                                                                            "@NbrTables," +
+                                                                            "@DiagnosticDataQuality," +
+                                                                            "@Aborted," +
+                                                                            "@RunExceptions," +
+                                                                            "@RunErrors," +
+                                                                            "@RunWarnings," +
+                                                                            "@Version," +
+                                                                            "@CommandLine )",
+                                            connection))
+
+            {
+                cmd.Parameters.AddWithValue("@DiagnosticId", runInfo.DiagnosticId);
+                cmd.Parameters.AddWithValue("@ClusterName", runInfo.ClusterName);
+                cmd.Parameters.AddWithValue("@RunTimestamp", runInfo.RunStartTime);
+                cmd.Parameters.AddWithValue("@ClusterId", runInfo.ClusterId.HasValue ? (object) runInfo.ClusterId.Value : DBNull.Value).IsNullable = true;
+                cmd.Parameters.AddWithValue("@InsightClusterId", runInfo.InsightClusterId.HasValue ? (object) runInfo.InsightClusterId.Value : DBNull.Value).IsNullable = true;
+                cmd.Parameters.AddWithValue("@AnalysisPeriodStart", runInfo.AnalysisPeriodStart).IsNullable = true;
+                cmd.Parameters.AddWithValue("@AnalysisPeriodEnd", runInfo.AnalysisPeriodEnd).IsNullable = true;
+                cmd.Parameters.AddWithValue("@AggregationDuration", runInfo.AggregationDuration.Ticks);
+                cmd.Parameters.AddWithValue("@NbrDCs", runInfo.NbrDCs);
+                cmd.Parameters.AddWithValue("@NbrNodes", runInfo.NbrNodes);
+                cmd.Parameters.AddWithValue("@NbrKeyspaces", runInfo.NbrKeyspaces);
+                cmd.Parameters.AddWithValue("@NbrTables", runInfo.NbrTables);
+                cmd.Parameters.AddWithValue("@DiagnosticDataQuality", runInfo.DataQuality).IsNullable = true;
+                cmd.Parameters.AddWithValue("@Aborted", runInfo.Aborted).IsNullable = true;
+                cmd.Parameters.AddWithValue("@RunExceptions", runInfo.Exceptions);
+                cmd.Parameters.AddWithValue("@RunErrors", runInfo.Errors);
+                cmd.Parameters.AddWithValue("@RunWarnings", runInfo.Warnings);
+                cmd.Parameters.AddWithValue("@Version", runInfo.ApplicationVersion).IsNullable = true;
+                cmd.Parameters.AddWithValue("@CommandLine", runInfo.ApplicationArgs).IsNullable = true;
+                
+                return cmd.ExecuteNonQuery();               
+            }
+        }
+
         public static void BulkCopy(string connectionString,
                                         IEnumerable<DataTable> dataTables,
-                                        string diagnosticId,
+                                        RunInfo runInfo,
                                         System.Threading.CancellationTokenSource cancellationSource,
                                         Action<DataTable> uponStart = null,
                                         Action<DataTable> uponFinish = null)
@@ -26,15 +119,17 @@ namespace DSEDiagnosticToDataSource
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 connection.Open();
-
-                cancellationToken.ThrowIfCancellationRequested();
-
+                
                 var loopOptions = new ParallelOptions()
                 {
                     CancellationToken = cancellationToken,
                     MaxDegreeOfParallelism = Math.Min(dataTables.Count() / 4, 3),
                     TaskScheduler = TaskScheduler.Current
                 };
+
+                cancellationToken.ThrowIfCancellationRequested();
+
+                ExportRunInfo(connection, runInfo);
 
                 //Parallel.ForEach(dataTables, loopOptions, dataTable =>
                 foreach (var dataTable in dataTables)
@@ -43,23 +138,25 @@ namespace DSEDiagnosticToDataSource
 
                     if (uponStart != null) uponStart(dataTable);
 
-                    BulkCopy(connection, dataTable, diagnosticId);
+                    BulkCopy(connection, dataTable, runInfo.DiagnosticId);
 
                     if (uponFinish != null) uponFinish(dataTable);
                 }//);
             }
         }
 
+        /*
         public static void BulkCopy(string connectionString,
                                         DataTable dataTable,
-                                        string diagnosticId)
+                                        RunInfo runInfo)
         {
+
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 connection.Open();               
-                BulkCopy(connection, dataTable, diagnosticId);               
+                BulkCopy(connection, dataTable, runInfo.DiagnosticId);               
             }
-        }
+        }*/
 
         public static void BulkCopy(SqlConnection connection, DataTable dataTable, string diagnosticId)
         {                    
