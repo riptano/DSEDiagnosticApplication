@@ -4,11 +4,11 @@
     <TargetFramework>netcoreapp2.2</TargetFramework>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\datastax.snk</AssemblyOriginatorKeyFile>
-    <Version>2.22.0</Version>
+    <Version>2.22.4</Version>
     <Company>Datastax</Company>
     <Authors>Richard Andersen</Authors>
-    <AssemblyVersion>2.22.0.*</AssemblyVersion>
-    <FileVersion>2.22.0</FileVersion>
+    <AssemblyVersion>2.22.4.*</AssemblyVersion>
+    <FileVersion>2.22.4</FileVersion>
     <Product>DataStax Enterprise Health Check Tool</Product>
     <Deterministic>false</Deterministic>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -48,7 +48,14 @@
     <Compile Include="..\DSEDiagnosticToDataTable\NodeConfigChanges.cs" Link="NodeConfigChanges.cs" />
     <Compile Include="..\DSEDiagnosticToDataTable\NodeDataTable.cs" Link="NodeDataTable.cs" />
     <Compile Include="..\DSEDiagnosticToDataTable\NodeStateDataTable.cs" Link="NodeStateDataTable.cs" />
+    <Compile Include="..\DSEDiagnosticToDataTable\PFLargePartitionDataTable.cs" Link="PFLargePartitionDataTable.cs" />
+    <Compile Include="..\DSEDiagnosticToDataTable\PFReadLatencyDataTable.cs" Link="PFReadLatencyDataTable.cs" />
+    <Compile Include="..\DSEDiagnosticToDataTable\PFSSTablesDataTable.cs" Link="PFSSTablesDataTable.cs" />
+    <Compile Include="..\DSEDiagnosticToDataTable\PFTombstonesDataTable.cs" Link="PFTombstonesDataTable.cs" />
+    <Compile Include="..\DSEDiagnosticToDataTable\PFWriteLatencyDataTable.cs" Link="PFWriteLatencyDataTable.cs" />
     <Compile Include="..\DSEDiagnosticToDataTable\Properties\Settings.Designer.cs" Link="Properties\Settings.Designer.cs" />
+    <Compile Include="..\DSEDiagnosticToDataTable\TaggedDCDataTable.cs" Link="TaggedDCDataTable.cs" />
+    <Compile Include="..\DSEDiagnosticToDataTable\TaggedDetailDataTable.cs" Link="TaggedDetailDataTable.cs" />
     <Compile Include="..\DSEDiagnosticToDataTable\TaggedItemsDataTable.cs" Link="TaggedItemsDataTable.cs" />
     <Compile Include="..\DSEDiagnosticToDataTable\TokenRangesDataTable.cs" Link="TokenRangesDataTable.cs" />
     <Compile Include="..\DSEDiagnosticToDataTable\TPStatsDataTable.cs" Link="TPStatsDataTable.cs" />

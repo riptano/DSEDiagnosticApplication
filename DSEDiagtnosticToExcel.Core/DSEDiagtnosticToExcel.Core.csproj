@@ -4,11 +4,11 @@
     <TargetFramework>netcoreapp2.2</TargetFramework>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\datastax.snk</AssemblyOriginatorKeyFile>
-    <Version>2.22.0</Version>
+    <Version>2.22.4</Version>
     <Company>Datastax</Company>
     <Authors>Richard Andersen</Authors>
-    <AssemblyVersion>2.22.0.*</AssemblyVersion>
-    <FileVersion>2.22.0</FileVersion>
+    <AssemblyVersion>2.22.4.*</AssemblyVersion>
+    <FileVersion>2.22.4</FileVersion>
     <Product>DataStax Enterprise Health Check Tool</Product>
     <Deterministic>false</Deterministic>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -51,10 +51,18 @@
     <Compile Include="..\DSEDiagtnosticToExcel\NodeConfigChangesExcel.cs" Link="NodeConfigChangesExcel.cs" />
     <Compile Include="..\DSEDiagtnosticToExcel\NodeExcel.cs" Link="NodeExcel.cs" />
     <Compile Include="..\DSEDiagtnosticToExcel\NodeStateExcel.cs" Link="NodeStateExcel.cs" />
+    <Compile Include="..\DSEDiagtnosticToExcel\PFExcel.cs" Link="PFExcel.cs" />
+    <Compile Include="..\DSEDiagtnosticToExcel\PFLargePartitionsExcel.cs" Link="PFLargePartitionsExcel.cs" />
+    <Compile Include="..\DSEDiagtnosticToExcel\PFReadLatencyExcel.cs" Link="PFReadLatencyExcel.cs" />
+    <Compile Include="..\DSEDiagtnosticToExcel\PFSSTablesExcel.cs" Link="PFSSTablesExcel.cs" />
+    <Compile Include="..\DSEDiagtnosticToExcel\PFTombstonesExcel.cs" Link="PFTombstonesExcel.cs" />
+    <Compile Include="..\DSEDiagtnosticToExcel\PFWriteLatencyExcel.cs" Link="PFWriteLatencyExcel.cs" />
     <Compile Include="..\DSEDiagtnosticToExcel\Properties\Settings.Designer.cs" Link="Properties\Settings.Designer.cs" />
     <Compile Include="..\DSEDiagtnosticToExcel\RefreshWSExcel.cs" Link="RefreshWSExcel.cs" />
     <Compile Include="..\DSEDiagtnosticToExcel\Result.cs" Link="Result.cs" />
     <Compile Include="..\DSEDiagtnosticToExcel\Settings.cs" Link="Settings.cs" />
+    <Compile Include="..\DSEDiagtnosticToExcel\TaggedDCExcel.cs" Link="TaggedDCExcel.cs" />
+    <Compile Include="..\DSEDiagtnosticToExcel\TaggedDetailExcel.cs" Link="TaggedDetailExcel.cs" />
     <Compile Include="..\DSEDiagtnosticToExcel\TaggedItemsExcel.cs" Link="TaggedItemsExcel.cs" />
     <Compile Include="..\DSEDiagtnosticToExcel\TokenRangeExcel.cs" Link="TokenRangeExcel.cs" />
     <Compile Include="..\DSEDiagtnosticToExcel\TPStatsExcel.cs" Link="TPStatsExcel.cs" />

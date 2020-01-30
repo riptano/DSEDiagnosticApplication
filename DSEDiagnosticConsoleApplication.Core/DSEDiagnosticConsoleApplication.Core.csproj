@@ -4,11 +4,11 @@
     <TargetFramework>netcoreapp2.2</TargetFramework>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\datastax.snk</AssemblyOriginatorKeyFile>
-    <Version>2.22.3</Version>
+    <Version>2.22.4</Version>
     <Company>Datastax</Company>
     <Authors>Richard Andersen</Authors>
-    <AssemblyVersion>2.22.3.*</AssemblyVersion>
-    <FileVersion>2.22.3</FileVersion>
+    <AssemblyVersion>2.22.4.*</AssemblyVersion>
+    <FileVersion>2.22.4</FileVersion>
     <Product>DataStax Enterprise Health Check Tool</Product>
     <Deterministic>false</Deterministic>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -35,6 +35,7 @@
     <Compile Include="..\DSEDiagnosticConsoleApplication\ConsoleDisplay.cs" Link="ConsoleDisplay.cs" />
     <Compile Include="..\DSEDiagnosticConsoleApplication\DSEDiagnosticFileParser.cs" Link="DSEDiagnosticFileParser.cs" />
     <Compile Include="..\DSEDiagnosticConsoleApplication\GCMonitor.cs" Link="GCMonitor.cs" />
+    <Compile Include="..\DSEDiagnosticConsoleApplication\LoadDataBase.cs" Link="LoadDataBase.cs" />
     <Compile Include="..\DSEDiagnosticConsoleApplication\LoadDataTables.cs" Link="LoadDataTables.cs" />
     <Compile Include="..\DSEDiagnosticConsoleApplication\LoadExcelWorkbook.cs" Link="LoadExcelWorkbook.cs" />
     <Compile Include="..\DSEDiagnosticConsoleApplication\Logger.cs" Link="Logger.cs" />
@@ -99,6 +100,7 @@
     <ProjectReference Include="..\DSEDiagnosticLogger.Core\DSEDiagnosticLogger.Core.csproj" />
     <ProjectReference Include="..\DSEDiagnosticParamsSettings.Core\DSEDiagnosticParamsSettings.Core.csproj" />
     <ProjectReference Include="..\DSEDiagnosticTaskSchedulers.Core\DSEDiagnosticTaskSchedulers.Core.csproj" />
+    <ProjectReference Include="..\DSEDiagnosticToDataSource.Core\DSEDiagnosticToDataSource.Core.csproj" />
     <ProjectReference Include="..\DSEDiagnosticToDataTable.Core\DSEDiagnosticToDataTable.Core.csproj" />
     <ProjectReference Include="..\DSEDiagtnosticToExcel.Core\DSEDiagtnosticToExcel.Core.csproj" />
   </ItemGroup>

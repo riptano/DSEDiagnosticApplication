@@ -1,0 +1,71 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\datastax.snk</AssemblyOriginatorKeyFile>
+    <Version>2.22.4</Version>
+    <Company>Datastax</Company>
+    <Authors>Richard Andersen</Authors>
+    <AssemblyVersion>2.22.4.*</AssemblyVersion>
+    <FileVersion>2.22.4</FileVersion>
+    <Product>DataStax Enterprise Health Check Tool</Product>
+    <Deterministic>false</Deterministic>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <RepositoryUrl>https://github.com/riptano/DSEDiagnosticApplication.git</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/riptano/DSEDiagnosticApplication/tree/master/$(ProjectName)</PackageProjectUrl>
+    <Copyright>Copyright © by DataStax</Copyright>
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>
+      $(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb
+    </AllowedOutputExtensionsInPackageBuildOutputFolder>
+    <RuntimeIdentifiers>win10-x64;osx-x64</RuntimeIdentifiers>
+    <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
+    <Configurations>Debug;Release;osx-anycpu;Release-NoRepro</Configurations>
+  </PropertyGroup>
+
+  <Target Name="PostBuild" AfterTargets="Pack" Condition="$(Configuration) == 'Release'">
+    <Exec IgnoreStandardErrorWarningFormat="true" ContinueOnError="True" Command="nuget delete &quot;$(PackageId)&quot; $(Version) -source &quot;$(ProjectDir)..\NuGetRepo)&quot; -NonInteractive" />
+    <Exec Command="nuget add &quot;$(TargetDir)..\$(TargetName).$(Version).nupkg&quot; -source &quot;$(ProjectDir)..\NuGetRepo&quot;" />
+  </Target>
+
+  <ItemGroup>
+    <Compile Include="..\DSEDiagnosticToDataSource\Data.cs" Link="Data.cs" />
+    <Compile Include="..\DSEDiagnosticToDataSource\DataReader.cs" Link="DataReader.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\DSEDiagnosticToDataSource\dbo.AggregatedStats.sql" Link="dbo.AggregatedStats.sql" />
+    <None Include="..\DSEDiagnosticToDataSource\dbo.CommonPartitionKey.sql" Link="dbo.CommonPartitionKey.sql" />
+    <None Include="..\DSEDiagnosticToDataSource\dbo.CQLDDL.sql" Link="dbo.CQLDDL.sql" />
+    <None Include="..\DSEDiagnosticToDataSource\dbo.DataCenters.sql" Link="dbo.DataCenters.sql" />
+    <None Include="..\DSEDiagnosticToDataSource\dbo.DSEConfiguration.sql" Link="dbo.DSEConfiguration.sql" />
+    <None Include="..\DSEDiagnosticToDataSource\dbo.DSEDevices.sql" Link="dbo.DSEDevices.sql" />
+    <None Include="..\DSEDiagnosticToDataSource\dbo.DSENodeConfigChanges.sql" Link="dbo.DSENodeConfigChanges.sql" />
+    <None Include="..\DSEDiagnosticToDataSource\dbo.Keyspaces.sql" Link="dbo.Keyspaces.sql" />
+    <None Include="..\DSEDiagnosticToDataSource\dbo.Large_Partition_Wide_Rows.sql" Link="dbo.Large_Partition_Wide_Rows.sql" />
+    <None Include="..\DSEDiagnosticToDataSource\dbo.LogAggregation.sql" Link="dbo.LogAggregation.sql" />
+    <None Include="..\DSEDiagnosticToDataSource\dbo.LogInformation.sql" Link="dbo.LogInformation.sql" />
+    <None Include="..\DSEDiagnosticToDataSource\dbo.MultiInstanceNodes.sql" Link="dbo.MultiInstanceNodes.sql" />
+    <None Include="..\DSEDiagnosticToDataSource\dbo.Nodes.sql" Link="dbo.Nodes.sql" />
+    <None Include="..\DSEDiagnosticToDataSource\dbo.NodeState.sql" Link="dbo.NodeState.sql" />
+    <None Include="..\DSEDiagnosticToDataSource\dbo.PFDataCenter.sql" Link="dbo.PFDataCenter.sql" />
+    <None Include="..\DSEDiagnosticToDataSource\dbo.Read_Latency.sql" Link="dbo.Read_Latency.sql" />
+    <None Include="..\DSEDiagnosticToDataSource\dbo.RunMetaData.sql" Link="dbo.RunMetaData.sql" />
+    <None Include="..\DSEDiagnosticToDataSource\dbo.Servers.sql" Link="dbo.Servers.sql" />
+    <None Include="..\DSEDiagnosticToDataSource\dbo.SSTables.sql" Link="dbo.SSTables.sql" />
+    <None Include="..\DSEDiagnosticToDataSource\dbo.TaggedItems.sql" Link="dbo.TaggedItems.sql" />
+    <None Include="..\DSEDiagnosticToDataSource\dbo.TaggedTables.sql" Link="dbo.TaggedTables.sql" />
+    <None Include="..\DSEDiagnosticToDataSource\dbo.TaggedTablesDetail.sql" Link="dbo.TaggedTablesDetail.sql" />
+    <None Include="..\DSEDiagnosticToDataSource\dbo.TokenRanges.sql" Link="dbo.TokenRanges.sql" />
+    <None Include="..\DSEDiagnosticToDataSource\dbo.Tombstones.sql" Link="dbo.Tombstones.sql" />
+    <None Include="..\DSEDiagnosticToDataSource\dbo.Write_Latency.sql" Link="dbo.Write_Latency.sql" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Common.Functions" Version="5.22.0" />
+    <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.0" />
+  </ItemGroup>
+
+
+</Project>

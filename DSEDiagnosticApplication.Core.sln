@@ -33,6 +33,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSEDiagtnosticToExcel.Core"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSEDiagnosticConsoleApplication.Core", "DSEDiagnosticConsoleApplication.Core\DSEDiagnosticConsoleApplication.Core.csproj", "{F22C0FA9-FDAA-4303-BBDF-D2A69139E238}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSEDiagnosticToDataSource.Core", "DSEDiagnosticToDataSource.Core\DSEDiagnosticToDataSource.Core.csproj", "{3C151A8D-9FF3-4AC7-80F1-4B162DE9CBAB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -127,6 +129,12 @@ Global
 		{F22C0FA9-FDAA-4303-BBDF-D2A69139E238}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F22C0FA9-FDAA-4303-BBDF-D2A69139E238}.Release-NoRepro|Any CPU.ActiveCfg = Release-NoRepro|Any CPU
 		{F22C0FA9-FDAA-4303-BBDF-D2A69139E238}.Release-NoRepro|Any CPU.Build.0 = Release-NoRepro|Any CPU
+		{3C151A8D-9FF3-4AC7-80F1-4B162DE9CBAB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3C151A8D-9FF3-4AC7-80F1-4B162DE9CBAB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3C151A8D-9FF3-4AC7-80F1-4B162DE9CBAB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3C151A8D-9FF3-4AC7-80F1-4B162DE9CBAB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3C151A8D-9FF3-4AC7-80F1-4B162DE9CBAB}.Release-NoRepro|Any CPU.ActiveCfg = Release|Any CPU
+		{3C151A8D-9FF3-4AC7-80F1-4B162DE9CBAB}.Release-NoRepro|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
