@@ -74,7 +74,7 @@
   <ItemGroup>
     <PackageReference Include="CommandLineArgumentsParser" Version="3.0.20" />
     <PackageReference Include="Common.Console" Version="5.22.1" />
-    <PackageReference Include="log4net" Version="2.0.8" />
+    <PackageReference Include="log4net" Version="2.0.10" />
   </ItemGroup>
 
   <ItemGroup>
